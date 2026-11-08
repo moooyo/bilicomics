@@ -1,0 +1,11 @@
+{
+  "startup_app_name": "BiliComics",
+  "startup_loading": "正在启动中",
+  "startup_phase_fonts": "正在加载字体",
+  "startup_phase_state": "正在读取本地数据",
+  "startup_phase_attach": "正在准备界面",
+  "startup_error_title": "启动失败",
+  "startup_error_body": "无法完成本地初始化，请退出后重试。",
+  "startup_exit": "退出",
+  "startup_suspended": "设备已休眠，唤醒后继续。"
+}

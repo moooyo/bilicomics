@@ -1,0 +1,48 @@
+--- a/library/gcm.c
++++ b/library/gcm.c
+@@ -109,6 +109,7 @@
+     ret = mbedtls_cipher_update(&ctx->cipher_ctx, h, 16, h, &olen);
+ #endif
+     if (ret != 0) {
++        mbedtls_platform_zeroize(u64h, sizeof(u64h));
+         return ret;
+     }
+ 
+@@ -117,6 +118,7 @@
+     /* MBEDTLS_GCM_HTABLE_SIZE/2 = 1000 corresponds to 1 in GF(2^128) */
+     ctx->H[MBEDTLS_GCM_HTABLE_SIZE/2][0] = u64h[0];
+     ctx->H[MBEDTLS_GCM_HTABLE_SIZE/2][1] = u64h[1];
++    mbedtls_platform_zeroize(u64h, sizeof(u64h));
+ 
+     switch (ctx->acceleration) {
+ #if defined(MBEDTLS_AESNI_HAVE_CODE)
+@@ -284,6 +286,7 @@
+     }
+ 
+     mbedtls_xor_no_simd(output, u8z, (uint8_t *) H[x[0]], 16);
++    mbedtls_platform_zeroize(u64z, sizeof(u64z));
+ }
+ #else
+ /*
+@@ -337,6 +340,7 @@
+ 
+     MBEDTLS_PUT_UINT64_BE(u64z[0], output, 0);
+     MBEDTLS_PUT_UINT64_BE(u64z[1], output, 8);
++    mbedtls_platform_zeroize(u64z, sizeof(u64z));
+ }
+ #endif
+ 
+@@ -753,11 +757,13 @@
+     if ((ret = mbedtls_gcm_crypt_and_tag(ctx, MBEDTLS_GCM_DECRYPT, length,
+                                          iv, iv_len, add, add_len,
+                                          input, output, tag_len, check_tag)) != 0) {
++        mbedtls_platform_zeroize(check_tag, sizeof(check_tag));
+         return ret;
+     }
+ 
+     /* Check tag in "constant-time" */
+     diff = mbedtls_ct_memcmp(tag, check_tag, tag_len);
++    mbedtls_platform_zeroize(check_tag, sizeof(check_tag));
+ 
+     if (diff != 0) {
+         mbedtls_platform_zeroize(output, length);

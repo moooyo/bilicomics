@@ -1,0 +1,448 @@
+{
+  "cases": [
+    {
+      "name": "PwWelcome",
+      "profile": "pw5",
+      "screen": "welcome",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "welcome",
+        "profile": "pw5",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "PwLogin",
+      "profile": "pw5",
+      "screen": "login",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "login",
+        "profile": "pw5",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "PwShelf",
+      "profile": "pw5",
+      "screen": "shelf",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "shelf",
+        "profile": "pw5",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "PwStore",
+      "profile": "pw5",
+      "screen": "store",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "store",
+        "profile": "pw5",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "PwSearch",
+      "profile": "pw5",
+      "screen": "search",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "search",
+        "profile": "pw5",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "PwDetail",
+      "profile": "pw5",
+      "screen": "detail",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "detail",
+        "profile": "pw5",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "PwReader",
+      "profile": "pw5",
+      "screen": "reader",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "reader",
+        "profile": "pw5",
+        "demo": true,
+        "startup.booting": false,
+        "reader.loading": false
+      },
+      "readiness": {
+        "event": "reader-ready",
+        "expected_fields": {
+          "reader_loading": false
+        },
+        "positive_dimensions": "frame_size"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "PwDownloads",
+      "profile": "pw5",
+      "screen": "downloads",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "downloads",
+        "profile": "pw5",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "PwPurchase",
+      "profile": "pw5",
+      "screen": "purchase",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "purchase",
+        "profile": "pw5",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "PwAccount",
+      "profile": "pw5",
+      "screen": "account",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "account",
+        "profile": "pw5",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "ScWelcome",
+      "profile": "scribe",
+      "screen": "welcome",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "welcome",
+        "profile": "scribe",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "ScLogin",
+      "profile": "scribe",
+      "screen": "login",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "login",
+        "profile": "scribe",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "ScShelf",
+      "profile": "scribe",
+      "screen": "shelf",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "shelf",
+        "profile": "scribe",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "ScStore",
+      "profile": "scribe",
+      "screen": "store",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "store",
+        "profile": "scribe",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "ScSearch",
+      "profile": "scribe",
+      "screen": "search",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "search",
+        "profile": "scribe",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "ScDetail",
+      "profile": "scribe",
+      "screen": "detail",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "detail",
+        "profile": "scribe",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "ScReader",
+      "profile": "scribe",
+      "screen": "reader",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "reader",
+        "profile": "scribe",
+        "demo": true,
+        "startup.booting": false,
+        "reader.loading": false
+      },
+      "readiness": {
+        "event": "reader-ready",
+        "expected_fields": {
+          "reader_loading": false
+        },
+        "positive_dimensions": "frame_size"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "ScDownloads",
+      "profile": "scribe",
+      "screen": "downloads",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "downloads",
+        "profile": "scribe",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "ScPurchase",
+      "profile": "scribe",
+      "screen": "purchase",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "purchase",
+        "profile": "scribe",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "ScAccount",
+      "profile": "scribe",
+      "screen": "account",
+      "landscape": false,
+      "actions": [],
+      "exit_after_ms": 3000,
+      "expected_metadata": {
+        "route": "account",
+        "profile": "scribe",
+        "demo": true,
+        "startup.booting": false
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Actual v2 application reference-default scene, not an authentication acceptance claim."
+    },
+    {
+      "name": "ScSpread",
+      "profile": "scribe",
+      "screen": "reader",
+      "landscape": true,
+      "actions": [
+        {
+          "at_ms": 500,
+          "section": "reader",
+          "action": "setting",
+          "value": "direction:rtl"
+        }
+      ],
+      "exit_after_ms": 10500,
+      "expected_metadata": {
+        "route": "reader",
+        "reader.direction": "rtl",
+        "reader.loading": false,
+        "landscape": true
+      },
+      "readiness": {
+        "event": "reader-ready",
+        "expected_fields": {
+          "reader_loading": false
+        },
+        "positive_dimensions": "frame_size",
+        "reader_state": {
+          "direction": "rtl"
+        }
+      },
+      "purpose": "The supplied ScSpread reference default is RTL; the application global default is left unchanged."
+    },
+    {
+      "name": "PwDownloads--allpaused",
+      "profile": "pw5",
+      "screen": "downloads",
+      "actions": [
+        {
+          "at_ms": 200,
+          "section": "downloads",
+          "action": "toggle-all"
+        }
+      ],
+      "exit_after_ms": 2800,
+      "expected_metadata": {
+        "ui.downloads.all_paused": true,
+        "ui.downloads.has_active": true
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Final projection keeps the preserved progress bar visible on paused work; strong pointer separately compares progress before/after."
+    },
+    {
+      "name": "ScDownloads--allpaused",
+      "profile": "scribe",
+      "screen": "downloads",
+      "actions": [
+        {
+          "at_ms": 200,
+          "section": "downloads",
+          "action": "toggle-all"
+        }
+      ],
+      "exit_after_ms": 2800,
+      "expected_metadata": {
+        "ui.downloads.all_paused": true,
+        "ui.downloads.has_active": true
+      },
+      "readiness": {
+        "event": "ready"
+      },
+      "purpose": "Final projection keeps the preserved progress bar visible on paused work; strong pointer separately compares progress before/after."
+    }
+  ]
+}

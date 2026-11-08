@@ -1,0 +1,477 @@
+{
+  "version": 1,
+  "demo_only": true,
+  "source_sha256": "210e667f40dc6a1c4999b546e1b46111c99a028131cd9951c8de21cdd5a4db57",
+  "cover_note": "Design cover artwork with interface badges and outer border removed.",
+  "covers": [
+    {
+      "comic_id": 28601,
+      "title": "山海邮差",
+      "filename": "covers/cover-28601.png",
+      "logical_size": [
+        210,
+        280
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28602,
+      "title": "深海回声",
+      "filename": "covers/cover-28602.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28603,
+      "title": "雪线来信",
+      "filename": "covers/cover-28603.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28604,
+      "title": "星期五的猫",
+      "filename": "covers/cover-28604.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28605,
+      "title": "云端灯塔",
+      "filename": "covers/cover-28605.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28606,
+      "title": "月光天文台",
+      "filename": "covers/cover-28606.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28607,
+      "title": "最后的纸鹤",
+      "filename": "covers/cover-28607.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28608,
+      "title": "静星花园",
+      "filename": "covers/cover-28608.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28609,
+      "title": "银山",
+      "filename": "covers/cover-28609.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28610,
+      "title": "潮汐之间",
+      "filename": "covers/cover-28610.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28611,
+      "title": "夜行列车",
+      "filename": "covers/cover-28611.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28612,
+      "title": "北方来客",
+      "filename": "covers/cover-28612.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28613,
+      "title": "灯塔看守人",
+      "filename": "covers/cover-28613.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28614,
+      "title": "长安夜雨",
+      "filename": "covers/cover-28614.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28615,
+      "title": "猫咖今日营业",
+      "filename": "covers/cover-28615.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28703,
+      "title": "铁轨上的夏天",
+      "filename": "covers/cover-28703.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28704,
+      "title": "第七个房间",
+      "filename": "covers/cover-28704.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28705,
+      "title": "剑与炉火",
+      "filename": "covers/cover-28705.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28709,
+      "title": "你好，前辈",
+      "filename": "covers/cover-28709.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28711,
+      "title": "今天也没加班",
+      "filename": "covers/cover-28711.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28712,
+      "title": "北境远征",
+      "filename": "covers/cover-28712.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28713,
+      "title": "小镇侦探社",
+      "filename": "covers/cover-28713.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28715,
+      "title": "风起青萍",
+      "filename": "covers/cover-28715.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28716,
+      "title": "火种",
+      "filename": "covers/cover-28716.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28717,
+      "title": "毕业那天",
+      "filename": "covers/cover-28717.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28718,
+      "title": "机械心",
+      "filename": "covers/cover-28718.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28719,
+      "title": "橘子汽水",
+      "filename": "covers/cover-28719.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28720,
+      "title": "山中来信",
+      "filename": "covers/cover-28720.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    },
+    {
+      "comic_id": 28803,
+      "title": "海上灯塔日记",
+      "filename": "covers/cover-28803.png",
+      "logical_size": [
+        150,
+        200
+      ],
+      "scale_factor": 2
+    }
+  ],
+  "pages": [
+    {
+      "number": 18,
+      "filename": "pages/page-18.png",
+      "logical_size": [
+        850,
+        1180
+      ],
+      "scale_factor": 2,
+      "panels": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 0.6603860294117647,
+          "height": 0.39185646186440676
+        },
+        {
+          "x": 0.6792095588235294,
+          "y": 0,
+          "width": 0.3207904411764706,
+          "height": 0.39185646186440676
+        },
+        {
+          "x": 0,
+          "y": 0.40541578389830507,
+          "width": 1,
+          "height": 0.1891551906779661
+        },
+        {
+          "x": 0,
+          "y": 0.6081302966101695,
+          "width": 0.49058823529411766,
+          "height": 0.3918697033898305
+        },
+        {
+          "x": 0.5094117647058823,
+          "y": 0.6081302966101695,
+          "width": 0.49058823529411766,
+          "height": 0.3918697033898305
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "filename": "pages/page-19.png",
+      "logical_size": [
+        850,
+        1180
+      ],
+      "scale_factor": 2,
+      "panels": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 0.9999816176470588,
+          "height": 0.39185646186440676
+        },
+        {
+          "x": 0,
+          "y": 0.40541578389830507,
+          "width": 0.32077205882352944,
+          "height": 0.5945709745762712
+        },
+        {
+          "x": 0.3395955882352941,
+          "y": 0.40541578389830507,
+          "width": 0.3207904411764706,
+          "height": 0.3918697033898305
+        },
+        {
+          "x": 0.6792095588235294,
+          "y": 0.40541578389830507,
+          "width": 0.32077205882352944,
+          "height": 0.5945709745762712
+        },
+        {
+          "x": 0.3395955882352941,
+          "y": 0.8108448093220338,
+          "width": 0.3207904411764706,
+          "height": 0.18914194915254237
+        }
+      ]
+    },
+    {
+      "kind": "strip",
+      "filename": "pages/strip.png",
+      "logical_size": [
+        618,
+        7690
+      ],
+      "scale_factor": 1,
+      "panels": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 0.07620286085825748
+        },
+        {
+          "x": 0,
+          "y": 0.07906371911573472,
+          "width": 1,
+          "height": 0.05019505851755526
+        },
+        {
+          "x": 0,
+          "y": 0.13211963589076722,
+          "width": 1,
+          "height": 0.06189856957087126
+        },
+        {
+          "x": 0,
+          "y": 0.19687906371911573,
+          "width": 1,
+          "height": 0.13342002600780234
+        },
+        {
+          "x": 0,
+          "y": 0.3331599479843953,
+          "width": 1,
+          "height": 0.056697009102730817
+        },
+        {
+          "x": 0,
+          "y": 0.39271781534460337,
+          "width": 1,
+          "height": 0.06840052015604682
+        },
+        {
+          "x": 0,
+          "y": 0.46397919375812746,
+          "width": 1,
+          "height": 0.05279583875162549
+        },
+        {
+          "x": 0,
+          "y": 0.5196358907672302,
+          "width": 1,
+          "height": 0.08660598179453836
+        },
+        {
+          "x": 0,
+          "y": 0.6091027308192458,
+          "width": 1,
+          "height": 0.05019505851755526
+        },
+        {
+          "x": 0,
+          "y": 0.6621586475942783,
+          "width": 1,
+          "height": 0.06189856957087126
+        },
+        {
+          "x": 0,
+          "y": 0.7269180754226268,
+          "width": 1,
+          "height": 0.07360208062418726
+        },
+        {
+          "x": 0,
+          "y": 0.8033810143042913,
+          "width": 1,
+          "height": 0.05539661898569571
+        },
+        {
+          "x": 0,
+          "y": 0.8616384915474642,
+          "width": 1,
+          "height": 0.0788036410923277
+        },
+        {
+          "x": 0,
+          "y": 0.9433029908972692,
+          "width": 1,
+          "height": 0.056697009102730817
+        }
+      ]
+    }
+  ]
+}

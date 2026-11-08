@@ -1,0 +1,18 @@
+{
+  "version": "0.1.0",
+  "source_sha256": "62425b5a36df75457fd1769667b5fe88ef06a9d7c6c566a9608a12549aa88414",
+  "source_revision": "User-supplied v2 download; internal design title remains v0.1",
+  "unit": "logical pixels (dp)",
+  "native_scale_factor": 2.0,
+  "scribe_breakpoint": 700,
+  "landscape_spread_breakpoint": 1100,
+  "colors": { "ink": "#000000", "secondary": "#444444", "muted": "#888888", "line": "#BBBBBB", "fill": "#DDDDDD", "pale": "#EEEEEE", "paper": "#FFFFFF" },
+  "paperwhite": { "margin": 24, "status_height": 28, "header_height": 52, "nav_height": 64, "button_height": 52, "action_height": 72, "title_size": 24, "body_size": 17, "label_size": 16, "caption_size": 15, "minimum_size": 14 },
+  "scribe": { "margin": 48, "status_height": 32, "header_height": 72, "nav_height": 80, "button_height": 64, "action_height": 96, "title_size": 30, "body_size": 20, "label_size": 18, "caption_size": 17, "minimum_size": 16 },
+  "minimum_touch_target": 48,
+  "minimum_touch_gap": 8,
+  "spacing": [4, 8, 12, 16, 20, 24, 32, 48],
+  "reader_zones": [0.3, 0.4, 0.3],
+  "list_partial_updates_before_full": 6,
+  "animations": false
+}

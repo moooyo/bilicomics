@@ -1,0 +1,369 @@
+import { Theme } from "theme.slint";
+import { Strings } from "strings.slint";
+import { ActionButton, IconButton, Icon, PageHeader } from "widgets.slint";
+
+export struct AccountInfoItem { label: string, value: string }
+struct AccountOption { id: string, label: string }
+
+export global AccountModel {
+    callback action(string, string);
+    in-out property <string> section: "account";
+    in-out property <bool> signed-in: false;
+    in-out property <string> username;
+    in-out property <string> initial;
+    in-out property <string> session-status;
+    in-out property <string> balance;
+    in-out property <string> coupons;
+    in-out property <string> balance-time;
+    in-out property <string> last-purchase;
+    in-out property <string> storage-used;
+    in-out property <string> storage-free;
+    in-out property <string> manual-used;
+    in-out property <string> cache-used;
+    in-out property <string> cache-note;
+    in-out property <float> cache-fill: 0;
+    in-out property <float> storage-manual-fill: 0;
+    in-out property <float> storage-cache-fill: 0;
+    in-out property <string> data-directory;
+    in-out property <string> version;
+    in-out property <string> device;
+    in-out property <string> device-short;
+    in-out property <string> firmware;
+    in-out property <string> message;
+    in-out property <bool> busy: false;
+    in-out property <string> mode: "page";
+    in-out property <string> direction: "ltr";
+    in-out property <string> every: "smart";
+    in-out property <string> landscape: "spread";
+    in-out property <string> smart: "on";
+    in-out property <int> ahead: 2;
+    in-out property <int> concurrency: 2;
+    in-out property <int> preload: 3;
+    in-out property <string> wifi: "auto";
+    in-out property <int> cache-limit: 512;
+    in-out property <string> launch: "resume";
+    in-out property <string> sleep-cover: "system";
+    in-out property <string> flashui: "on";
+    in-out property <string> orientation: "portrait";
+    in-out property <bool> can-wifi: false;
+    in-out property <bool> can-orient: false;
+    in-out property <bool> can-sleep-cover: false;
+    in-out property <bool> can-smart: false;
+    in-out property <bool> can-update: false;
+    in-out property <bool> recharge-visible: false;
+    in-out property <string> recharge-phase;
+    in-out property <string> recharge-title;
+    in-out property <[string]> recharge-options;
+    in-out property <int> recharge-index: 0;
+    in-out property <bool> recharge-busy: false;
+    in-out property <string> recharge-total;
+    in-out property <image> recharge-qr;
+    in-out property <string> recharge-message;
+    in-out property <[string]> recharge-rows;
+    in-out property <bool> recharge-can-check: false;
+}
+
+component AccountRow inherits Rectangle {
+    in property <string> title;
+    in property <string> value;
+    in property <bool> strong: false;
+    in property <bool> thick: false;
+    in property <bool> chevron: true;
+    in property <bool> enabled: true;
+    in property <bool> edge-to-edge: false;
+    callback clicked();
+    height: Theme.scribe ? 72px : 56px;
+    background: root.enabled && touch.pressed ? Theme.ink : Theme.paper;
+    accessible-role: button;
+    accessible-label: root.title + " " + root.value;
+    accessible-enabled: root.enabled;
+    property <length> left-inset: root.edge-to-edge ? 24px : 0px;
+    property <length> right-inset: root.edge-to-edge ? 20px : 0px;
+    property <length> disclosure-width: root.chevron ? (Theme.scribe ? 22px : 20px) + 6px : 0px;
+    Text { y: 0px; x: root.left-inset; width: value-text.x - root.left-inset - 12px; height: parent.height; text: root.title; font-family: Theme.ui-font; font-size: Theme.scribe ? 20px : 17px; font-weight: root.strong ? 700 : 400; vertical-alignment: center; overflow: elide; color: !root.enabled ? Theme.muted : touch.pressed ? Theme.paper : Theme.ink; }
+    value-text := Text { y: 0px; x: root.width - root.right-inset - root.disclosure-width - self.width; width: min(self.preferred-width, root.width - root.left-inset - root.right-inset - root.disclosure-width - (Theme.scribe ? 190px : 130px)); height: parent.height; text: root.value; font-family: Theme.ui-font; font-size: Theme.scribe ? 17px : 15px; horizontal-alignment: right; vertical-alignment: center; overflow: elide; color: !root.enabled ? Theme.muted : touch.pressed ? Theme.paper : Theme.secondary; }
+    if root.chevron: Icon { x: parent.width - root.right-inset - self.width; y: (parent.height - self.height) / 2; width: Theme.scribe ? 22px : 20px; height: self.width; kind: "next"; colorize: touch.pressed ? Theme.paper : Theme.secondary; }
+    Rectangle { x: 0px; y: parent.height - (root.thick ? 2px : 1px); width: parent.width; height: root.thick ? 2px : 1px; background: root.thick ? Theme.ink : Theme.line; }
+    touch := TouchArea { x: 0px; y: 0px; width: parent.width; height: parent.height; enabled: root.enabled; pointer-event(e) => { if e.kind == PointerEventKind.down { Theme.refresh("press"); } else if e.kind == PointerEventKind.up { Theme.refresh("release"); } } clicked => { root.clicked(); } }
+}
+
+component ChoiceGroup inherits Rectangle {
+    in property <string> title;
+    in property <string> hint;
+    in property <[AccountOption]> options;
+    in property <string> selected;
+    in property <bool> enabled: true;
+    callback chosen(string);
+    height: Theme.scribe ? 103px : 86px;
+    Text { x: 0px; y: 0px; height: Theme.scribe ? 29px : 26px; width: parent.width * 0.52; text: root.title; font-family: Theme.ui-font; font-size: Theme.scribe ? 20px : 17px; font-weight: 500; color: root.enabled ? Theme.ink : Theme.muted; vertical-alignment: center; }
+    Text { x: parent.width * 0.52; y: 0px; height: Theme.scribe ? 29px : 26px; width: parent.width * 0.48; text: root.hint; font-family: Theme.ui-font; font-size: Theme.scribe ? 16px : 14px; color: Theme.secondary; horizontal-alignment: right; vertical-alignment: center; overflow: elide; }
+    Rectangle { x: 0px;
+        y: Theme.scribe ? 39px : 34px; width: parent.width; height: Theme.scribe ? 64px : 52px;
+        border-width: 2px; border-color: root.enabled ? Theme.ink : Theme.line;
+        for option[index] in root.options: Rectangle { y: 2px;
+            x: 2px + index * (parent.width - 4px) / max(1, root.options.length); width: (parent.width - 4px) / max(1, root.options.length); height: parent.height - 4px;
+            background: root.enabled && (root.selected == option.id || touch.pressed) ? Theme.ink : Theme.paper;
+            if index > 0: Rectangle { x: 0px; y: 0px; width: 2px; height: parent.height; background: root.enabled ? Theme.ink : Theme.line; }
+            Text { x: 0px; y: 0px; width: parent.width; height: parent.height; text: option.label; font-family: Theme.ui-font; font-size: Theme.scribe ? 19px : 16px; font-weight: root.selected == option.id ? 700 : 400; horizontal-alignment: center; vertical-alignment: center; color: !root.enabled ? Theme.muted : root.selected == option.id || touch.pressed ? Theme.paper : Theme.ink; }
+            touch := TouchArea { x: 0px; y: 0px; width: parent.width; height: parent.height; enabled: root.enabled; clicked => { root.chosen(option.id); } pointer-event(e) => { if e.kind == PointerEventKind.down { Theme.refresh("press"); } else if e.kind == PointerEventKind.up { Theme.refresh("release"); } } }
+        }
+    }
+}
+
+component ModeCard inherits Rectangle {
+    in property <string> kind;
+    in property <string> title;
+    in property <string> description;
+    in property <bool> selected;
+    callback clicked();
+    height: Theme.scribe ? 200px : 152px;
+    border-width: 2px; border-color: Theme.ink;
+    background: Theme.paper;
+    if root.selected: Rectangle { x: 2px; y: 2px; width: parent.width - 4px; height: parent.height - 4px; border-width: 2px; border-color: Theme.ink; background: transparent; }
+    if root.kind == "page": Rectangle { x: (parent.width - 64px) / 2; y: 14px; width: 64px; height: Theme.scribe ? 90px : 66px; border-width: 2px; border-color: Theme.ink; }
+    if root.kind == "panel": Rectangle { x: (parent.width - 108px) / 2; y: Theme.scribe ? 48px : 38px; width: 40px; height: Theme.scribe ? 56px : 42px; border-width: 2px; border-color: Theme.ink; background: Theme.fill; }
+    if root.kind == "panel": Rectangle { x: (parent.width - 108px) / 2 + 44px; y: 14px; width: 64px; height: Theme.scribe ? 90px : 66px; background: Theme.ink; }
+    if root.kind == "strip": Rectangle { x: (parent.width - 54px) / 2; y: 14px; width: 54px; height: Theme.scribe ? 92px : 66px; border-width: 2px; border-color: Theme.ink; for index in 3: Rectangle { x: 0px; y: (index + 1) * (parent.height / 4); width: parent.width; height: 2px; background: Theme.ink; } }
+    Text { x: 16px; y: Theme.scribe ? 116px : 88px; width: parent.width - 32px; height: 28px; text: root.title; font-family: Theme.ui-font; font-size: Theme.scribe ? 20px : 17px; font-weight: 700; color: Theme.ink; }
+    Text { x: 16px; y: Theme.scribe ? 150px : 116px; width: parent.width - 32px; height: Theme.scribe ? 44px : 32px; text: root.description; font-family: Theme.ui-font; font-size: Theme.scribe ? 16px : 14px; wrap: word-wrap; color: Theme.secondary; }
+    TouchArea { x: 0px; y: 0px; width: parent.width; height: parent.height; clicked => { root.clicked(); } }
+}
+
+component CacheHatch inherits Rectangle {
+    in property <color> line-color: Theme.ink;
+    background: Theme.paper;
+    clip: true;
+    property <int> count: ceil((root.width + root.height * 2) / 5px);
+    for index in root.count: Path {
+        x: 0px; y: 0px; width: root.width; height: root.height;
+        viewbox-width: max(1, root.width / 1px); viewbox-height: max(1, root.height / 1px);
+        stroke: root.line-color; stroke-width: 2px; fill: transparent;
+        MoveTo { x: index * 5 - root.height / 1px; y: 0; }
+        LineTo { x: index * 5; y: root.height / 1px; }
+    }
+}
+
+export component AccountScreen inherits Rectangle {
+    background: Theme.paper;
+    clip: true;
+    property <bool> home: AccountModel.section == "account";
+    property <float> manual-ratio: AccountModel.storage-manual-fill < 0.0 ? 0.0 : AccountModel.storage-manual-fill > 1.0 ? 1.0 : AccountModel.storage-manual-fill;
+    property <float> cache-ratio: AccountModel.storage-cache-fill < 0.0 ? 0.0 : AccountModel.storage-cache-fill > 1.0 ? 1.0 : AccountModel.storage-cache-fill;
+    property <int> recharge-page: 0;
+    property <length> account-header-height: Theme.header-height + (Theme.scribe ? 1px : 0px);
+    property <length> top: root.account-header-height + (Theme.scribe ? 120px : root.home ? 0px : 20px);
+    property <string> section-title: AccountModel.section == "reading" ? Strings.acct-reading : AccountModel.section == "download" ? Strings.acct-download-network : AccountModel.section == "storage" ? Strings.acct-storage : AccountModel.section == "system" ? Strings.acct-screen-system : AccountModel.section == "about" ? Strings.acct-about : Strings.acct-title;
+    if Theme.scribe || root.home: Rectangle {
+        x: 0px; y: 0px; height: root.account-header-height;
+        background: Theme.paper;
+        Text {
+            x: Theme.margin; y: 0px;
+            width: parent.width - Theme.margin * 2 - Theme.touch-size;
+            height: parent.height;
+            text: Strings.acct-title;
+            font-family: Theme.ui-font; font-size: Theme.title-size; font-weight: 700;
+            color: Theme.ink; vertical-alignment: center; overflow: elide;
+        }
+        Rectangle { x: 0px; y: parent.height - 1px; width: parent.width; height: 1px; background: Theme.ink; }
+    }
+    if !Theme.scribe && !root.home: PageHeader { title: root.section-title; back-text: Strings.acct-title; back => { AccountModel.action("back", ""); } }
+    IconButton {
+        x: root.width - (Theme.scribe ? 32px : 8px) - Theme.touch-size;
+        y: (root.account-header-height - Theme.touch-size) / 2;
+        width: Theme.touch-size; height: Theme.touch-size;
+        icon: "close"; label: Strings.acct-close-app;
+        enabled: !AccountModel.recharge-visible;
+        clicked => { AccountModel.action("exit", ""); }
+    }
+    if Theme.scribe: Rectangle {
+        x: Theme.margin; y: root.account-header-height + 20px; width: parent.width - Theme.margin * 2; height: 68px; border-width: 2px; border-color: Theme.ink;
+        for tab[index] in [{id: "account", label: Strings.acct-account}, {id: "reading", label: Strings.acct-reading}, {id: "download", label: Strings.acct-download-network}, {id: "storage", label: Strings.acct-storage}, {id: "system", label: Strings.acct-screen-system}, {id: "about", label: Strings.acct-about}]: Rectangle { y: 2px;
+            x: 2px + index * (parent.width - 4px) / 6; width: (parent.width - 4px) / 6; height: parent.height - 4px;
+            background: AccountModel.section == tab.id || touch.pressed ? Theme.ink : Theme.paper;
+            if index > 0: Rectangle { x: 0px; y: 0px; width: 2px; height: parent.height; background: Theme.ink; }
+            Text { x: 0px; y: 0px; width: parent.width; height: parent.height; text: tab.label; font-family: Theme.ui-font; font-size: 18px; font-weight: AccountModel.section == tab.id ? 700 : 500; horizontal-alignment: center; vertical-alignment: center; color: AccountModel.section == tab.id || touch.pressed ? Theme.paper : Theme.ink; }
+            touch := TouchArea { x: 0px; y: 0px; width: parent.width; height: parent.height; clicked => { AccountModel.action("section", tab.id); } }
+        }
+    }
+    if root.home: Rectangle { x: 0px;
+        y: root.top; width: parent.width; height: parent.height - root.top;
+        property <length> account-height: Theme.scribe ? 480px : AccountModel.signed-in ? 146px : 120px;
+        if AccountModel.signed-in: Rectangle {
+            x: Theme.margin; y: Theme.scribe ? 0px : 16px; width: parent.width - Theme.margin * 2; height: Theme.scribe ? 80px : 56px;
+            Rectangle { x: 0px; y: 0px; width: Theme.scribe ? 80px : 56px; height: parent.height; border-radius: self.width / 2; border-width: 2px; border-color: Theme.ink; Text { x: 0px; y: 0px; width: parent.width; height: parent.height; text: AccountModel.initial; font-family: Theme.ui-font; font-size: Theme.scribe ? 30px : 22px; font-weight: 700; color: Theme.ink; horizontal-alignment: center; vertical-alignment: center; } }
+            Text { x: Theme.scribe ? 100px : 70px; y: Theme.scribe ? 4px : 0px; width: parent.width - (Theme.scribe ? 100px : 160px); height: Theme.scribe ? 38px : 30px; text: AccountModel.username; font-family: Theme.ui-font; font-size: Theme.scribe ? 26px : 20px; font-weight: 700; color: Theme.ink; }
+            Text { x: Theme.scribe ? 100px : 70px; y: Theme.scribe ? 44px : 32px; width: parent.width - (Theme.scribe ? 100px : 150px); height: Theme.scribe ? 30px : 22px; text: AccountModel.session-status; font-family: Theme.ui-font; font-size: Theme.scribe ? 17px : 14px; color: Theme.secondary; overflow: elide; }
+            if !Theme.scribe: ActionButton { x: parent.width - 94px; y: 6px; width: 94px; height: 44px; quiet: true; text: Strings.acct-logout; text-size: 15px; clicked => { AccountModel.action("logout", ""); } }
+        }
+        if AccountModel.signed-in: Rectangle {
+            x: Theme.margin; y: Theme.scribe ? 104px : 86px; width: parent.width - Theme.margin * 2; height: Theme.scribe ? 140px : 44px; border-width: Theme.scribe ? 2px : 0px; border-color: Theme.ink;
+            if Theme.scribe: Text { x: 24px; y: 44px; width: 136px; height: 26px; text: Strings.acct-coin; font-family: Theme.ui-font; font-size: 17px; color: Theme.secondary; }
+            if Theme.scribe: Text { x: 24px; y: 64px; width: 136px; height: 54px; text: AccountModel.balance; font-family: Theme.ui-font; font-size: 40px; font-weight: 700; color: Theme.ink; overflow: elide; }
+            if Theme.scribe: Text { x: 172px; y: 44px; width: 130px; height: 26px; text: Strings.acct-coupon; font-family: Theme.ui-font; font-size: 17px; color: Theme.secondary; }
+            if Theme.scribe: Text { x: 172px; y: 64px; width: 150px; height: 54px; text: AccountModel.coupons + Strings.acct-coupon-count; font-family: Theme.ui-font; font-size: 40px; font-weight: 700; color: Theme.ink; overflow: elide; }
+            if !Theme.scribe: Rectangle {
+                x: 0px; y: -2px; width: parent.width - 164px; height: 30px;
+                HorizontalLayout {
+                    x: 0px; y: 0px; width: parent.width; height: parent.height; alignment: start; spacing: 5px;
+                    Text { text: AccountModel.balance; font-family: Theme.ui-font; font-size: 22px; font-weight: 700; color: Theme.ink; vertical-alignment: center; horizontal-stretch: 0; }
+                    Text { text: Strings.acct-coin + " ·"; font-family: Theme.ui-font; font-size: 17px; color: Theme.ink; vertical-alignment: center; horizontal-stretch: 0; }
+                    Text { text: AccountModel.coupons; font-family: Theme.ui-font; font-size: 22px; font-weight: 700; color: Theme.ink; vertical-alignment: center; horizontal-stretch: 0; }
+                    Text { text: Strings.acct-coupon-count-long; font-family: Theme.ui-font; font-size: 17px; color: Theme.ink; vertical-alignment: center; horizontal-stretch: 0; }
+                }
+            }
+            Text { x: Theme.scribe ? parent.width - 300px : 0px; y: Theme.scribe ? 20px : 28px; width: Theme.scribe ? 274px : parent.width - 164px; height: Theme.scribe ? 24px : 20px; text: AccountModel.balance-time; font-family: Theme.ui-font; font-size: Theme.scribe ? 16px : 14px; horizontal-alignment: Theme.scribe ? right : left; color: Theme.secondary; }
+            ActionButton { x: parent.width - (Theme.scribe ? 232px : 164px); y: Theme.scribe ? 58px : 0px; width: Theme.scribe ? 112px : 76px; height: Theme.scribe ? 56px : 44px; text: Theme.scribe ? Strings.acct-refresh-balance : Strings.acct-refresh; text-size: Theme.scribe ? 18px : 15px; enabled: !AccountModel.busy; clicked => { AccountModel.action("refresh-wallet", ""); } }
+            ActionButton { x: parent.width - (Theme.scribe ? 110px : 76px); y: Theme.scribe ? 58px : 0px; width: Theme.scribe ? 84px : 76px; height: Theme.scribe ? 56px : 44px; primary: Theme.scribe; text: Strings.acct-recharge; text-size: Theme.scribe ? 18px : 15px; clicked => { AccountModel.action("recharge", ""); } }
+        }
+        if !AccountModel.signed-in: Rectangle {
+            x: Theme.scribe ? Theme.margin : 0px; y: 0px; width: Theme.scribe ? parent.width - Theme.margin * 2 : parent.width; height: Theme.scribe ? 160px : 120px; border-width: Theme.scribe ? 2px : 0px; border-color: Theme.ink;
+            Text { x: Theme.scribe ? 28px : Theme.margin; y: 20px; width: parent.width - (Theme.scribe ? 230px : 184px); height: 38px; text: Strings.acct-signed-out; font-family: Theme.ui-font; font-size: Theme.scribe ? 26px : 20px; font-weight: 700; color: Theme.ink; }
+            Text { x: Theme.scribe ? 28px : Theme.margin; y: 64px; width: parent.width - (Theme.scribe ? 230px : 184px); height: 64px; text: Strings.acct-login-description; font-family: Theme.ui-font; font-size: Theme.scribe ? 18px : 14px; wrap: word-wrap; color: Theme.secondary; }
+            ActionButton { x: parent.width - (Theme.scribe ? 192px : 152px); y: (parent.height - Theme.button-height) / 2; width: Theme.scribe ? 164px : 128px; height: Theme.button-height; primary: true; text: Strings.acct-login; clicked => { AccountModel.action("login", ""); } }
+        }
+        if !Theme.scribe: Rectangle { x: 0px; y: parent.account-height - 2px; width: parent.width; height: 2px; background: Theme.ink; }
+        if !Theme.scribe: VerticalLayout {
+            x: 0px; y: parent.account-height; width: parent.width; spacing: 0px; alignment: start;
+            AccountRow { edge-to-edge: true; title: Strings.acct-reading-defaults; value: (AccountModel.mode == "panel" ? Strings.acct-panel : AccountModel.mode == "strip" ? Strings.acct-strip : Strings.acct-single) + " · " + (AccountModel.direction == "rtl" ? Strings.acct-rtl-short : Strings.acct-ltr-short) + " · " + (AccountModel.every == "smart" ? Strings.acct-smart-refresh : AccountModel.every == "0" ? Strings.acct-no-periodic-refresh : AccountModel.every == "1" ? Strings.acct-every-page : AccountModel.every == "6" ? Strings.acct-every-six : AccountModel.every); clicked => { AccountModel.action("section", "reading"); } }
+            AccountRow { edge-to-edge: true; title: Strings.acct-launch; value: AccountModel.launch == "resume" ? Strings.acct-resume : Strings.acct-open-shelf; chevron: false; thick: true; clicked => { AccountModel.action("launch", AccountModel.launch == "resume" ? "shelf" : "resume"); } }
+            AccountRow { edge-to-edge: true; title: Strings.acct-download-network; value: AccountModel.can-smart ? (AccountModel.smart == "on" ? Strings.acct-smart-download : Strings.acct-manual-mode) + " · " + (AccountModel.wifi == "always" ? Strings.acct-network-summary-always : Strings.acct-network-summary-auto) : Strings.acct-manual-download-only; clicked => { AccountModel.action("section", "download"); } }
+            AccountRow { edge-to-edge: true; title: Strings.acct-storage; value: Strings.acct-used-prefix + AccountModel.storage-used + " · " + Strings.acct-cache-limit-prefix + AccountModel.cache-limit + " MB"; thick: true; clicked => { AccountModel.action("section", "storage"); } }
+            AccountRow { edge-to-edge: true; title: Strings.acct-sleep; value: !AccountModel.can-sleep-cover ? Strings.acct-device-unsupported : AccountModel.sleep-cover == "cover" ? Strings.acct-sleep-cover-summary : Strings.acct-sleep-system-summary; enabled: AccountModel.can-sleep-cover; chevron: false; clicked => { AccountModel.action("sleep-cover", AccountModel.sleep-cover == "cover" ? "system" : "cover"); } }
+            AccountRow { edge-to-edge: true; title: Strings.acct-about-diagnostics; value: "v" + AccountModel.version + " · " + AccountModel.device-short; thick: true; clicked => { AccountModel.action("section", "about"); } }
+        }
+        if Theme.scribe: VerticalLayout {
+            x: Theme.margin; y: AccountModel.signed-in ? 268px : 184px; width: parent.width - Theme.margin * 2; spacing: 0px; alignment: start;
+            Rectangle { height: 2px; background: Theme.ink; }
+            if AccountModel.signed-in: AccountRow { title: Strings.acct-purchase-history; value: AccountModel.last-purchase; clicked => { AccountModel.action("purchase-history", ""); } }
+            if AccountModel.signed-in: AccountRow { title: Strings.acct-recharge-history; clicked => { AccountModel.action("recharge-history", ""); } }
+            if AccountModel.signed-in: AccountRow { title: Strings.acct-logout; value: Strings.acct-clear-credentials; chevron: false; clicked => { AccountModel.action("logout", ""); } }
+            if !AccountModel.signed-in: AccountRow { title: Strings.acct-import-session; value: Strings.acct-import-hint; clicked => { AccountModel.action("import-session", ""); } }
+        }
+    }
+    if !root.home: VerticalLayout {
+        x: Theme.margin; y: root.top; width: parent.width - Theme.margin * 2;
+        spacing: Theme.scribe ? AccountModel.section == "storage" ? 24px : 22px : 14px; alignment: start;
+        if AccountModel.section == "reading": Rectangle {
+            height: Theme.scribe ? 241px : 192px;
+            Text { x: 0px; y: 0px; width: parent.width; height: Theme.scribe ? 29px : 30px; text: Strings.acct-default-mode; font-family: Theme.ui-font; font-size: Theme.scribe ? 20px : 17px; font-weight: 500; color: Theme.ink; }
+            HorizontalLayout {
+                x: 0px; y: Theme.scribe ? 39px : 40px; width: parent.width; height: Theme.scribe ? 200px : 152px;
+                spacing: Theme.scribe ? 14px : 10px;
+                ModeCard { kind: "page"; title: Strings.acct-single; description: Strings.acct-single-description; selected: AccountModel.mode == "page"; clicked => { AccountModel.action("mode", "page"); } }
+                ModeCard { kind: "panel"; title: Strings.acct-panel; description: Strings.acct-panel-description; selected: AccountModel.mode == "panel"; clicked => { AccountModel.action("mode", "panel"); } }
+                ModeCard { kind: "strip"; title: Strings.acct-strip; description: Strings.acct-strip-description; selected: AccountModel.mode == "strip"; clicked => { AccountModel.action("mode", "strip"); } }
+            }
+        }
+        if AccountModel.section == "reading": ChoiceGroup { title: Strings.acct-direction; hint: Strings.acct-per-comic; selected: AccountModel.direction; options: [{id: "ltr", label: Strings.acct-ltr}, {id: "rtl", label: Strings.acct-rtl}]; chosen(value) => { AccountModel.action("direction", value); } }
+        if AccountModel.section == "reading": ChoiceGroup { title: Strings.acct-full-refresh; hint: Strings.acct-refresh-hint; selected: AccountModel.every; options: [{id: "smart", label: Strings.acct-smart}, {id: "1", label: Strings.acct-every-page}, {id: "6", label: Strings.acct-every-six}, {id: "0", label: Strings.acct-never}]; chosen(value) => { AccountModel.action("every", value); } }
+        if AccountModel.section == "reading": ChoiceGroup { title: Strings.acct-landscape; selected: AccountModel.landscape; options: [{id: "spread", label: Strings.acct-spread}, {id: "single", label: Strings.acct-single}]; chosen(value) => { AccountModel.action("landscape", value); } }
+        if AccountModel.section == "download": ChoiceGroup { title: Strings.acct-smart-download; hint: AccountModel.can-smart ? Strings.acct-charging-wifi : Strings.acct-manual-download-only; selected: AccountModel.smart; enabled: AccountModel.can-smart; options: [{id: "on", label: Strings.acct-on}, {id: "off", label: Strings.acct-off}]; chosen(value) => { AccountModel.action("smart", value); } }
+        if AccountModel.section == "download": ChoiceGroup { title: Strings.acct-download-ahead; hint: AccountModel.can-smart ? Strings.acct-readable-only : Strings.acct-manual-download-only; selected: AccountModel.ahead + ""; enabled: AccountModel.can-smart; options: [{id: "1", label: Strings.acct-one-episode}, {id: "2", label: Strings.acct-two-episodes}, {id: "3", label: Strings.acct-three-episodes}, {id: "5", label: Strings.acct-five-episodes}]; chosen(value) => { AccountModel.action("ahead", value); } }
+        if AccountModel.section == "download": ChoiceGroup { title: Strings.acct-concurrency; hint: Strings.acct-concurrency-hint; selected: AccountModel.concurrency + ""; options: [{id: "1", label: "1"}, {id: "2", label: "2"}, {id: "3", label: "3"}, {id: "4", label: "4"}]; chosen(value) => { AccountModel.action("concurrency", value); } }
+        if AccountModel.section == "download": ChoiceGroup { title: Strings.acct-preload; selected: AccountModel.preload + ""; options: [{id: "0", label: Strings.acct-off}, {id: "3", label: Strings.acct-next-three}, {id: "5", label: Strings.acct-next-five}]; chosen(value) => { AccountModel.action("preload", value); } }
+        if AccountModel.section == "download": ChoiceGroup { title: "Wi-Fi"; hint: AccountModel.can-wifi ? Strings.acct-wifi-hint : Strings.acct-device-unsupported; selected: AccountModel.wifi; enabled: AccountModel.can-wifi; options: [{id: "auto", label: Strings.acct-wifi-auto}, {id: "always", label: Strings.acct-wifi-always}]; chosen(value) => { AccountModel.action("wifi", value); } }
+        if AccountModel.section == "storage": Rectangle {
+            height: Theme.scribe ? 98px : 100px;
+            Text { x: 0px; y: 0px; width: parent.width * 0.58; height: Theme.scribe ? 29px : 32px; text: Strings.acct-storage-used + AccountModel.storage-used; font-family: Theme.ui-font; font-size: Theme.scribe ? 20px : 17px; font-weight: 700; color: Theme.ink; }
+            Text { x: parent.width * 0.58; y: 0px; width: parent.width * 0.42; height: Theme.scribe ? 29px : 32px; text: Strings.acct-storage-free + AccountModel.storage-free; font-family: Theme.ui-font; font-size: Theme.scribe ? 20px : 15px; horizontal-alignment: right; color: Theme.secondary; }
+            storage-track := Rectangle {
+                x: 0px; y: Theme.scribe ? 41px : 44px; width: parent.width; height: Theme.scribe ? 20px : 18px; border-width: 1px; border-color: Theme.ink; clip: true;
+                manual := Rectangle { x: 1px; y: 1px; width: max(0px, storage-track.width - 2px) * root.manual-ratio; height: max(0px, storage-track.height - 2px); background: Theme.ink; }
+                CacheHatch { x: manual.x + manual.width; y: 1px; width: max(0px, storage-track.width - 2px) * root.cache-ratio; height: max(0px, storage-track.height - 2px); }
+            }
+            HorizontalLayout {
+                x: 0px; y: Theme.scribe ? 73px : 76px; width: parent.width; height: Theme.scribe ? 25px : 28px; spacing: 24px; alignment: start;
+                HorizontalLayout { spacing: 8px; horizontal-stretch: 0; Rectangle { width: 12px; height: parent.height; Rectangle { x: 0px; y: (parent.height - 12px) / 2; width: 12px; height: 12px; background: Theme.secondary; } } Text { text: Strings.acct-manual-download + AccountModel.manual-used + Strings.acct-manual-preserved; font-family: Theme.ui-font; font-size: Theme.scribe ? 17px : 14px; color: Theme.secondary; vertical-alignment: center; horizontal-stretch: 0; } }
+                HorizontalLayout { spacing: 8px; horizontal-stretch: 0; Rectangle { width: 12px; height: parent.height; CacheHatch { x: 0px; y: (parent.height - 12px) / 2; width: 12px; height: 12px; line-color: Theme.secondary; } } Text { text: Strings.acct-auto-cache + AccountModel.cache-used; font-family: Theme.ui-font; font-size: Theme.scribe ? 17px : 14px; color: Theme.secondary; vertical-alignment: center; horizontal-stretch: 0; } }
+            }
+        }
+        if AccountModel.section == "storage": ChoiceGroup { title: Strings.acct-cache-limit; hint: Strings.acct-cache-limit-hint; selected: AccountModel.cache-limit + ""; options: [{id: "256", label: "256 MB"}, {id: "512", label: "512 MB"}, {id: "1024", label: "1 GB"}, {id: "2048", label: "2 GB"}]; chosen(value) => { AccountModel.action("cache-limit", value); } }
+        if AccountModel.section == "storage": HorizontalLayout { spacing: 18px; ActionButton { horizontal-stretch: 0; width: self.preferred-width + 8px; text-size: Theme.scribe ? 19px : 16px; text: Strings.acct-clear-cache; enabled: !AccountModel.busy; clicked => { AccountModel.action("clear-cache", ""); } } Text { horizontal-stretch: 1; text: AccountModel.cache-note; font-family: Theme.ui-font; font-size: Theme.scribe ? 17px : 14px; color: Theme.secondary; vertical-alignment: center; wrap: word-wrap; } }
+        if AccountModel.section == "system": ChoiceGroup { title: Strings.acct-launch; selected: AccountModel.launch; options: [{id: "resume", label: Strings.acct-resume}, {id: "shelf", label: Strings.acct-open-shelf}]; chosen(value) => { AccountModel.action("launch", value); } }
+        if AccountModel.section == "system": ChoiceGroup { title: Strings.acct-sleep; hint: Strings.acct-restore-on-exit; selected: AccountModel.sleep-cover; enabled: AccountModel.can-sleep-cover; options: [{id: "cover", label: Strings.acct-sleep-cover}, {id: "system", label: Strings.acct-sleep-system}]; chosen(value) => { AccountModel.action("sleep-cover", value); } }
+        if AccountModel.section == "system": ChoiceGroup { title: Strings.acct-navigation-flash; hint: Strings.acct-flash-hint; selected: AccountModel.flashui; options: [{id: "on", label: Strings.acct-on}, {id: "off", label: Strings.acct-off}]; chosen(value) => { AccountModel.action("flashui", value); } }
+        if AccountModel.section == "system": ChoiceGroup { title: Strings.acct-orientation; selected: AccountModel.orientation; enabled: AccountModel.can-orient; options: [{id: "auto", label: Strings.acct-orientation-auto}, {id: "portrait", label: Strings.acct-orientation-portrait}]; chosen(value) => { AccountModel.action("orientation", value); } }
+        if AccountModel.section == "about": Rectangle { height: 2px; background: Theme.ink; }
+        if AccountModel.section == "about": VerticalLayout {
+            spacing: 0px;
+            AccountRow { title: Strings.acct-version; value: AccountModel.version; chevron: false; }
+            AccountRow { title: Strings.acct-device; value: AccountModel.device; chevron: false; }
+            AccountRow { title: Strings.acct-firmware; value: AccountModel.firmware; chevron: false; }
+            AccountRow { title: Strings.acct-data-directory; value: AccountModel.data-directory; chevron: false; }
+            AccountRow { title: Strings.acct-session; value: Strings.acct-local-only; chevron: false; }
+        }
+        if AccountModel.section == "about": HorizontalLayout { spacing: 14px; ActionButton { text: Strings.acct-export-diagnostics; clicked => { AccountModel.action("export-diagnostics", ""); } } ActionButton { text: Strings.acct-check-update; enabled: AccountModel.can-update; clicked => { AccountModel.action("check-update", ""); } } ActionButton { text: Strings.acct-onboarding; clicked => { AccountModel.action("onboarding", ""); } } }
+    }
+    if Theme.scribe && (AccountModel.section == "reading" || AccountModel.section == "system"): Text {
+        x: Theme.margin; y: parent.height - 56px; width: parent.width - Theme.margin * 2; height: 24px;
+        text: AccountModel.section == "reading" ? Strings.acct-reading-footnote : Strings.acct-system-footnote;
+        font-family: Theme.ui-font; font-size: 16px; color: Theme.secondary; wrap: word-wrap;
+    }
+    if AccountModel.message != "": Text { x: Theme.margin; y: parent.height - 52px; width: parent.width - Theme.margin * 2; height: 44px; text: AccountModel.message; font-family: Theme.ui-font; font-size: Theme.caption-size; wrap: word-wrap; color: Theme.secondary; }
+    if AccountModel.recharge-visible: Rectangle { x: 0px; y: 0px;
+        width: parent.width; height: parent.height;
+        property <length> sheet-height: min(parent.height, Theme.scribe ? 850px : 680px);
+        Rectangle { x: 0px; y: 0px; width: parent.width; height: parent.height - parent.sheet-height; TouchArea { x: 0px; y: 0px; width: parent.width; height: parent.height; enabled: !AccountModel.recharge-busy; clicked => { root.recharge-page = 0; AccountModel.action("recharge-close", ""); } } }
+        Rectangle { x: 0px;
+            y: parent.height - parent.sheet-height; width: parent.width; height: parent.sheet-height; background: Theme.paper;
+            Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
+            Text { x: Theme.margin; y: 20px; width: parent.width - Theme.margin - 130px; height: Theme.scribe ? 52px : 40px; text: AccountModel.recharge-title; font-family: Theme.ui-font; font-size: Theme.title-size; font-weight: 700; color: Theme.ink; vertical-alignment: center; }
+            ActionButton { x: parent.width - (Theme.scribe ? 136px : 112px); y: 16px; width: Theme.scribe ? 104px : 88px; height: Theme.button-height; quiet: true; text: Strings.acct-close; enabled: !AccountModel.recharge-busy; clicked => { root.recharge-page = 0; AccountModel.action("recharge-close", ""); } }
+            if AccountModel.recharge-phase == "select": Rectangle {
+                x: Theme.margin; y: Theme.scribe ? 104px : 88px; width: parent.width - Theme.margin * 2; height: parent.height - self.y - Theme.action-height;
+                Text { x: 0px; y: 0px; width: parent.width; height: 54px; text: Strings.acct-recharge-select; font-family: Theme.ui-font; font-size: Theme.body-size; wrap: word-wrap; color: Theme.secondary; }
+                for option[index] in AccountModel.recharge-options: ActionButton {
+                    visible: index >= root.recharge-page * 6 && index < (root.recharge-page + 1) * 6;
+                    x: (index - floor(index / 2) * 2) * ((parent.width - 12px) / 2 + 12px);
+                    y: 74px + floor((index - root.recharge-page * 6) / 2) * (Theme.button-height + 14px);
+                    width: (parent.width - 12px) / 2; height: Theme.button-height;
+                    text: option; selected: index == AccountModel.recharge-index; text-size: Theme.scribe ? 19px : 16px;
+                    clicked => { AccountModel.action("recharge-option", index + ""); }
+                }
+                if AccountModel.recharge-options.length > 6: HorizontalLayout {
+                    y: Theme.scribe ? 332px : 296px; height: 48px; spacing: 12px;
+                    ActionButton { text: Strings.acct-previous; quiet: true; enabled: root.recharge-page > 0; clicked => { root.recharge-page -= 1; } }
+                    Text { text: (root.recharge-page + 1) + " / " + ceil(AccountModel.recharge-options.length / 6); font-family: Theme.ui-font; font-size: Theme.label-size; horizontal-alignment: center; vertical-alignment: center; }
+                    ActionButton { text: Strings.acct-next; quiet: true; enabled: (root.recharge-page + 1) * 6 < AccountModel.recharge-options.length; clicked => { root.recharge-page += 1; } }
+                }
+                Text { x: 0px; y: Theme.scribe ? 414px : 362px; width: parent.width; height: 42px; text: Strings.acct-recharge-amount + AccountModel.recharge-total; font-family: Theme.ui-font; font-size: Theme.scribe ? 26px : 21px; font-weight: 700; color: Theme.ink; }
+                Text { x: 0px; y: Theme.scribe ? 474px : 414px; width: parent.width; height: Theme.scribe ? 94px : 64px; text: AccountModel.recharge-message; font-family: Theme.ui-font; font-size: Theme.caption-size; wrap: word-wrap; color: Theme.secondary; }
+            }
+            if AccountModel.recharge-phase == "qr": Rectangle {
+                x: (parent.width - self.width) / 2; y: Theme.scribe ? 110px : 92px; width: Theme.scribe ? 420px : 300px; height: self.width; background: Theme.paper;
+                Image { x: 0px; y: 0px; source: AccountModel.recharge-qr; width: parent.width; height: parent.height; image-fit: contain; }
+            }
+            if AccountModel.recharge-phase == "qr": Text { x: Theme.margin; y: Theme.scribe ? 552px : 412px; width: parent.width - Theme.margin * 2; height: 40px; text: Strings.acct-recharge-amount + AccountModel.recharge-total; font-family: Theme.ui-font; font-size: Theme.scribe ? 26px : 21px; font-weight: 700; horizontal-alignment: center; color: Theme.ink; }
+            if AccountModel.recharge-phase == "qr": Text { x: Theme.margin; y: Theme.scribe ? 608px : 464px; width: parent.width - Theme.margin * 2; height: 86px; text: AccountModel.recharge-message; font-family: Theme.ui-font; font-size: Theme.caption-size; horizontal-alignment: center; wrap: word-wrap; color: Theme.secondary; }
+            if AccountModel.recharge-phase == "history": Rectangle {
+                x: Theme.margin; y: Theme.scribe ? 112px : 94px; width: parent.width - Theme.margin * 2; height: parent.height - self.y - Theme.action-height;
+                Text { x: 0px; y: 0px; width: parent.width; height: 52px; text: AccountModel.recharge-message; font-family: Theme.ui-font; font-size: Theme.caption-size; wrap: word-wrap; color: Theme.secondary; }
+                for row[index] in AccountModel.recharge-rows: Rectangle { x: 0px;
+                    visible: index >= root.recharge-page * 6 && index < (root.recharge-page + 1) * 6;
+                    y: 72px + (index - root.recharge-page * 6) * (Theme.scribe ? 72px : 56px); width: parent.width; height: Theme.scribe ? 72px : 56px;
+                    Text { x: 0px; y: 0px; width: parent.width; height: parent.height; text: row; font-family: Theme.ui-font; font-size: Theme.body-size; vertical-alignment: center; color: Theme.ink; overflow: elide; }
+                    Rectangle { x: 0px; y: parent.height - 1px; width: parent.width; height: 1px; background: Theme.line; }
+                }
+                if AccountModel.recharge-rows.length > 6: HorizontalLayout {
+                    y: parent.height - 52px; height: 48px; spacing: 12px;
+                    ActionButton { text: Strings.acct-previous; quiet: true; enabled: root.recharge-page > 0; clicked => { root.recharge-page -= 1; } }
+                    Text { text: (root.recharge-page + 1) + " / " + ceil(AccountModel.recharge-rows.length / 6); font-family: Theme.ui-font; font-size: Theme.label-size; horizontal-alignment: center; vertical-alignment: center; }
+                    ActionButton { text: Strings.acct-next; quiet: true; enabled: (root.recharge-page + 1) * 6 < AccountModel.recharge-rows.length; clicked => { root.recharge-page += 1; } }
+                }
+            }
+            if AccountModel.recharge-phase == "loading" || AccountModel.recharge-phase == "creating" || AccountModel.recharge-phase == "pending" || AccountModel.recharge-phase == "error": Text {
+                x: Theme.margin; y: Theme.scribe ? 200px : 160px; width: parent.width - Theme.margin * 2; height: Theme.scribe ? 180px : 160px;
+                text: AccountModel.recharge-phase == "loading" ? Strings.acct-recharge-loading : AccountModel.recharge-phase == "creating" ? Strings.acct-recharge-creating : AccountModel.recharge-message;
+                font-family: Theme.ui-font; font-size: Theme.body-size; horizontal-alignment: center; vertical-alignment: center; wrap: word-wrap; color: Theme.secondary;
+            }
+            Rectangle { x: 0px;
+                y: parent.height - Theme.action-height; width: parent.width; height: Theme.action-height;
+                Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
+                ActionButton { x: Theme.margin; y: (parent.height - Theme.button-height) / 2; width: Theme.scribe ? 220px : 152px; height: Theme.button-height; text: Strings.acct-close; enabled: !AccountModel.recharge-busy; clicked => { root.recharge-page = 0; AccountModel.action("recharge-close", ""); } }
+                if AccountModel.recharge-phase == "select": ActionButton { x: parent.width - Theme.margin - (Theme.scribe ? 320px : 264px); y: (parent.height - Theme.button-height) / 2; width: Theme.scribe ? 320px : 264px; height: Theme.button-height; primary: true; enabled: !AccountModel.recharge-busy && AccountModel.recharge-options.length > 0; text: Strings.acct-recharge-create; clicked => { AccountModel.action("recharge-create", ""); } }
+                if AccountModel.recharge-phase == "qr" || AccountModel.recharge-phase == "pending": ActionButton { x: parent.width - Theme.margin - (Theme.scribe ? 320px : 264px); y: (parent.height - Theme.button-height) / 2; width: Theme.scribe ? 320px : 264px; height: Theme.button-height; primary: true; enabled: AccountModel.recharge-can-check; text: AccountModel.recharge-busy ? Strings.acct-recharge-checking : Strings.acct-recharge-check; clicked => { AccountModel.action("recharge-check", ""); } }
+                if AccountModel.recharge-phase == "error": ActionButton { x: parent.width - Theme.margin - (Theme.scribe ? 320px : 264px); y: (parent.height - Theme.button-height) / 2; width: Theme.scribe ? 320px : 264px; height: Theme.button-height; primary: true; enabled: !AccountModel.recharge-busy; text: Strings.acct-recharge-refresh; clicked => { AccountModel.action("recharge-config", ""); } }
+            }
+        }
+    }
+}

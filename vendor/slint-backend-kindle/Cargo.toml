@@ -1,0 +1,26 @@
+[package]
+name = "slint-backend-kindle"
+version = "0.7.1"
+edition = "2024"
+rust-version = "1.92"
+description = "Slint platform backend for Kindle E-ink devices"
+authors = ["Sverre Johann Bjørke <sverrejb@gmail.com>"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/sverrejb/slint-kindle-backend"
+homepage = "https://github.com/sverrejb/slint-kindle-backend"
+documentation = "https://docs.rs/slint-backend-kindle"
+keywords = ["slint", "kindle", "embedded", "eink", "framebuffer"]
+categories = ["embedded", "gui"]
+exclude = ["*.JPG", "*.jpg", "*.png", "*.webp", "examples"]
+
+[dependencies]
+slint = { version = "=1.17.1", default-features = false, features = ["compat-1-2", "std", "renderer-software", "software-renderer-path"] }
+libc = "0.2"
+log = "0.4"
+# Match Slint 1.17.1's actual fontique and usvg/resvg fontdb versions. Enabling
+# dlopen on that same fontique instance avoids a link-time libfontconfig
+# requirement. Direct declarations do not disable transitive default features;
+# fontdb's optional fontconfig parser is implemented in Rust.
+fontique = { version = "0.10", default-features = false, features = ["std", "fontconfig-dlopen"] }
+fontdb = { version = "0.23", default-features = false, features = ["std", "fs", "memmap"] }

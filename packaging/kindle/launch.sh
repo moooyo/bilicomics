@@ -1,0 +1,1322 @@
+#!/bin/sh
+# Name: BiliComics for Kindle
+# The compatibility allowlist is intentionally empty until device acceptance.
+
+set -eu
+umask 077
+
+BILICOMICS_HOME=${BILICOMICS_HOME:-/mnt/us/bilicomics}
+APP_DIR=$BILICOMICS_HOME/app
+DATA_DIR=$BILICOMICS_HOME/data
+PROFILE_FILE=$DATA_DIR/device-profile
+ALLOWLIST_FILE=$DATA_DIR/device-allowlist
+LOCK_DIR=/tmp/bilicomics-launcher.lock
+
+fail() {
+    printf '%s\n' "bilicomics: $*" >&2
+    exit 1
+}
+
+case "$BILICOMICS_HOME" in
+    /*) ;;
+    *) fail 'BILICOMICS_HOME must be an absolute path.' ;;
+esac
+
+[ -x "$APP_DIR/bilicomics" ] || fail 'The application executable is missing.'
+[ -r "$PROFILE_FILE" ] || fail 'Configure data/device-profile before launching.'
+[ -r "$ALLOWLIST_FILE" ] || fail 'Configure data/device-allowlist before launching.'
+
+PROFILE=$(sed -n '1{s/\r$//;p;}' "$PROFILE_FILE")
+case "$PROFILE" in
+    pw5|pw6|scribe|scribe2025) ;;
+    *) fail 'Unknown configured device profile.' ;;
+esac
+
+[ -r /etc/prettyversion.txt ] || fail 'Kindle firmware information is unavailable.'
+FIRMWARE=$(sed -n 's/^Kindle[[:space:]]*\([0-9][0-9.]*\).*$/\1/p' /etc/prettyversion.txt | head -n 1)
+[ -n "$FIRMWARE" ] || fail 'The firmware version could not be determined.'
+
+# Match two literal fields; do not evaluate configuration as shell code.
+if ! awk -v profile="$PROFILE" -v firmware="$FIRMWARE" '
+    { sub(/\r$/, "") }
+    /^[[:space:]]*#/ { next }
+    NF == 2 && $1 == profile && $2 == firmware { found = 1 }
+    END { exit !found }
+' "$ALLOWLIST_FILE"; then
+    fail "The configured profile/firmware combination has not been accepted: $PROFILE $FIRMWARE."
+fi
+
+BILICOMICS_APPROVED_PROFILE=$PROFILE
+BILICOMICS_APPROVED_FIRMWARE=$FIRMWARE
+export BILICOMICS_APPROVED_PROFILE BILICOMICS_APPROVED_FIRMWARE
+
+[ -c /dev/fb0 ] || fail 'The framebuffer is unavailable.'
+[ -r /dev/fb0 ] && [ -w /dev/fb0 ] || fail 'Framebuffer read/write access is required.'
+
+mkdir -p "$DATA_DIR/logs" "$DATA_DIR/fonts"
+
+# Return control to a document launcher before taking over the display.
+if [ "${1:-}" != '--detached' ]; then
+    SCRIPT_PATH=$(CDPATH= cd "$(dirname "$0")" && pwd)/$(basename "$0")
+    export BILICOMICS_HOME
+    if command -v setsid >/dev/null 2>&1; then
+        setsid sh "$SCRIPT_PATH" --detached >>"$DATA_DIR/logs/launcher.log" 2>&1 </dev/null &
+    else
+        nohup sh "$SCRIPT_PATH" --detached >>"$DATA_DIR/logs/launcher.log" 2>&1 </dev/null &
+    fi
+    exit 0
+fi
+
+# Do not remove another launcher's lock or attempt to repair its service state.
+mkdir "$LOCK_DIR" 2>/dev/null || fail 'Another launcher owns the display lock.'
+printf '%s\n' "$$" >"$LOCK_DIR/pid"
+
+APP_RUNNER_PID=''
+APP_GENERATION=1
+APP_PHASE=none
+APP_STATUS=0
+LAUNCH_TOKEN=''
+EVENT_SOURCE_PID=''
+EVENT_SOURCE_BIRTH=''
+EVENT_FD_OPEN=0
+CONTROL_FD_OPEN=0
+LIFECYCLE_WAIT_PID=''
+LIFECYCLE_SEQUENCE=0
+LIFECYCLE_ACTION=''
+WAKE_PROBE_PID=''
+WAKE_PROBE_BIRTH=''
+WAKE_PROBE_SEQUENCE=0
+WAKE_PROBE_KIND=''
+SLEEP_GENERATION=0
+SLEEP_REQUESTED=0
+WAKE_PENDING=0
+WAKE_CONFIRMED=0
+WAKE_DISMISS_GENERATION=0
+WAKE_FALLBACK_ALLOWED=0
+WAKE_FAST_PROBES_REMAINING=0
+WAKE_PROBES_REMAINING=0
+PAUSED_WM_PIDS=''
+STATUSBAR_STOPPED=0
+DISPLAY_OWNED=0
+NATIVE_READ_PID=''
+NATIVE_READ_BIRTH=''
+NATIVE_READ_SEQUENCE=0
+NATIVE_MODE_SEQUENCE=0
+NATIVE_MODE_PENDING=0
+NATIVE_EPDC_MODE=''
+NATIVE_PORTRAIT_ORIENTATION=''
+NATIVE_PORTRAIT_ROTATION=''
+NATIVE_CAPTURE_STATUS=unknown
+NATIVE_RESUME_PRESENTATION=''
+NATIVE_CAPABILITY_VALID=0
+NATIVE_CAPABILITY_APP=''
+NATIVE_CAPABILITY_APP_BIRTH=''
+NATIVE_CAPABILITY_RUNNER_BIRTH=''
+NATIVE_CAPABILITY_DIRECTORY=''
+NATIVE_CAPABILITY_FILE=''
+NATIVE_NOTICE_PID=''
+NATIVE_NOTICE_BIRTH=''
+
+launch_trace() {
+    [ "${BILICOMICS_LAUNCH_TRACE:-0}" = 1 ] || return 0
+    case "$1" in *[!a-z_]*|'') return 0 ;; esac
+    trace_path=$DATA_DIR/logs/launcher-timing.tsv
+    [ ! -L "$trace_path" ] || return 0
+    if [ -e "$trace_path" ] && [ ! -f "$trace_path" ]; then return 0; fi
+    IFS=' ' read -r trace_uptime trace_unused </proc/uptime || return 0
+    case "$trace_uptime" in *[!0-9.]*|'') return 0 ;; esac
+    [ "${#trace_uptime}" -le 32 ] || return 0
+    IFS= read -r trace_process </proc/self/stat || return 0
+    trace_pid=${trace_process%% *}
+    case "$trace_pid" in *[!0-9]*|'') return 0 ;; esac
+    printf '%s\t%s\tpid=%s\tphase=%s\tsleep=%s\tcapture=%s\tprobe=%s\tlifecycle=%s\tmode=%s\n' \
+        "$trace_uptime" "$1" "$trace_pid" "$APP_PHASE" "$SLEEP_GENERATION" "$NATIVE_MODE_SEQUENCE" "$WAKE_PROBE_SEQUENCE" "$LIFECYCLE_SEQUENCE" "${NATIVE_EPDC_MODE:-unknown}" 2>/dev/null >>"$trace_path" || :
+}
+
+process_birth() {
+    process_stat=$(cat "/proc/$1/stat" 2>/dev/null || :)
+    process_tail=${process_stat##*) }
+    [ "$process_tail" != "$process_stat" ] || return 1
+    set -- $process_tail
+    [ "$#" -ge 20 ] || return 1
+    shift 19
+    case "$1" in *[!0-9]*|'') return 1 ;; esac
+    printf '%s\n' "$1"
+}
+
+process_parent() {
+    sed -n 's/^PPid:[[:space:]]*//p' "/proc/$1/status" 2>/dev/null
+}
+
+native_read_is_owned() {
+    [ -n "$NATIVE_READ_PID" ] && [ -n "$NATIVE_READ_BIRTH" ] || return 1
+    [ "$(process_parent "$NATIVE_READ_PID" 2>/dev/null || :)" = "$$" ] &&
+        [ "$(process_birth "$NATIVE_READ_PID" 2>/dev/null || :)" = "$NATIVE_READ_BIRTH" ]
+}
+
+native_read_group_is_owned() {
+    native_read_is_owned || return 1
+    native_read_stat=$(cat "/proc/$NATIVE_READ_PID/stat" 2>/dev/null || :)
+    native_read_tail=${native_read_stat##*) }
+    set -- $native_read_tail
+    [ "$#" -ge 4 ] && [ "$3:$4" = "$NATIVE_READ_PID:$NATIVE_READ_PID" ]
+}
+
+stop_native_read() {
+    if native_read_group_is_owned; then
+        # The verified leader remains alive after the getter exits. Kill its
+        # entire private group so a timed-out descendant cannot reply later.
+        kill -KILL "-$NATIVE_READ_PID" 2>/dev/null || :
+    elif native_read_is_owned; then
+        # Before setsid completes the gated wrapper has not started an IPC.
+        kill -KILL "$NATIVE_READ_PID" 2>/dev/null || :
+    fi
+    native_read_reap=10
+    while native_read_is_owned && [ "$native_read_reap" -gt 0 ]; do
+        case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$NATIVE_READ_PID/status" 2>/dev/null || :)" in
+            Z*|X*|'') break ;;
+        esac
+        usleep 100000
+        native_read_reap=$((native_read_reap - 1))
+    done
+    if [ -n "$NATIVE_READ_PID" ]; then
+        case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$NATIVE_READ_PID/status" 2>/dev/null || :)" in
+            Z*|X*|'') wait "$NATIVE_READ_PID" 2>/dev/null || : ;;
+        esac
+    fi
+    NATIVE_READ_PID=''
+    NATIVE_READ_BIRTH=''
+    rm -f "$LOCK_DIR/native-read-done" "$LOCK_DIR/native-read-done.pending" "$LOCK_DIR/native-read-command" "$LOCK_DIR/native-read-command.pending" "$LOCK_DIR/native-read-go" "$LOCK_DIR/native-read-go.pending"
+}
+
+native_read_command() {
+    rm -f "$LOCK_DIR/native-read-output" "$LOCK_DIR/native-read-done" "$LOCK_DIR/native-read-done.pending" "$LOCK_DIR/native-read-command" "$LOCK_DIR/native-read-command.pending" "$LOCK_DIR/native-read-go" "$LOCK_DIR/native-read-go.pending" || return 1
+    NATIVE_READ_SEQUENCE=$((NATIVE_READ_SEQUENCE + 1))
+    setsid sh -c '
+        completed=$1
+        permission=$2
+        sequence=$3
+        token=$4
+        command_record=$5
+        shift 5
+        wrapper_pid=$$
+        # Keep a finite lifetime even if the supervisor itself is killed.
+        (
+            IFS= read -r watchdog_stat </proc/self/stat || exit 1
+            watchdog_pid=${watchdog_stat%% *}
+            watchdog_tail=${watchdog_stat##*) }
+            set -- $watchdog_tail
+            [ "$#" -ge 20 ] && [ "$3:$4" = "$wrapper_pid:$wrapper_pid" ] || exit 1
+            shift 19
+            watchdog_birth=$1
+            sleep 2
+            IFS= read -r watchdog_stat </proc/self/stat || exit 1
+            [ "${watchdog_stat%% *}" = "$watchdog_pid" ] || exit 1
+            watchdog_tail=${watchdog_stat##*) }
+            set -- $watchdog_tail
+            [ "$#" -ge 20 ] && [ "$3:$4" = "$wrapper_pid:$wrapper_pid" ] || exit 1
+            shift 19
+            [ "$1" = "$watchdog_birth" ] || exit 1
+            kill -KILL "-$wrapper_pid" 2>/dev/null || exit 1
+        ) &
+        while [ "$(cat "$permission" 2>/dev/null || :)" != "$wrapper_pid:$sequence:$token" ]; do
+            usleep 10000
+        done
+        # Capture one overflow byte beyond the record budget. The exact parser
+        # rejects that entire response, including a plausible valid prefix.
+        # Bound stdout without limiting unrelated files the getter may use.
+        collector_status=0
+        (
+            if "$@"; then child_status=0; else child_status=$?; fi
+            printf "%s:%s:%s\n" "$sequence" "$token" "$child_status" >"$command_record.pending"
+            mv -f "$command_record.pending" "$command_record"
+        ) | dd bs=1 count=129 2>/dev/null || collector_status=1
+        command_status=1
+        if [ "$collector_status" -eq 0 ] && [ "$(cat "$command_record" 2>/dev/null || :)" = "$sequence:$token:0" ]; then
+            command_status=0
+        fi
+        printf "%s:%s:%s\n" "$sequence" "$token" "$command_status" >"$completed.pending"
+        mv -f "$completed.pending" "$completed"
+        while :; do sleep 1; done
+    ' sh "$LOCK_DIR/native-read-done" "$LOCK_DIR/native-read-go" "$NATIVE_READ_SEQUENCE" "$LAUNCH_TOKEN" "$LOCK_DIR/native-read-command" "$@" >"$LOCK_DIR/native-read-output" 2>/dev/null 3>&- 4>&- &
+    NATIVE_READ_PID=$!
+    NATIVE_READ_BIRTH=$(process_birth "$NATIVE_READ_PID" 2>/dev/null || :)
+    native_read_checks=20
+    native_read_status=1
+    native_read_released=0
+    while [ "$native_read_checks" -gt 0 ]; do
+        if [ -z "$NATIVE_READ_BIRTH" ] && [ "$(process_parent "$NATIVE_READ_PID" 2>/dev/null || :)" = "$$" ]; then
+            NATIVE_READ_BIRTH=$(process_birth "$NATIVE_READ_PID" 2>/dev/null || :)
+        fi
+        case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$NATIVE_READ_PID/status" 2>/dev/null || :)" in
+            Z*|X*|'') break ;;
+        esac
+        if native_read_group_is_owned; then
+            if [ "$native_read_released" -eq 0 ]; then
+                if ! { printf '%s:%s:%s\n' "$NATIVE_READ_PID" "$NATIVE_READ_SEQUENCE" "$LAUNCH_TOKEN" >"$LOCK_DIR/native-read-go.pending" &&
+                    mv -f "$LOCK_DIR/native-read-go.pending" "$LOCK_DIR/native-read-go"; }; then
+                    break
+                fi
+                native_read_released=1
+            fi
+            if [ -r "$LOCK_DIR/native-read-done" ]; then
+                [ "$(cat "$LOCK_DIR/native-read-done" 2>/dev/null || :)" != "$NATIVE_READ_SEQUENCE:$LAUNCH_TOKEN:0" ] || native_read_status=0
+                break
+            fi
+        fi
+        native_read_checks=$((native_read_checks - 1))
+        usleep 100000
+    done
+    stop_native_read
+    return "$native_read_status"
+}
+
+native_read_hex() {
+    od -An -v -tx1 "$LOCK_DIR/native-read-output" | tr -d ' \n'
+}
+
+read_capability_process() {
+    case "$1" in *[!0-9]*|'') return 1 ;; esac
+    IFS= read -r capability_process_stat <"/proc/$1/stat" || return 1
+    [ "${capability_process_stat%% *}" = "$1" ] || return 1
+    capability_process_tail=${capability_process_stat##*) }
+    [ "$capability_process_tail" != "$capability_process_stat" ] || return 1
+    set -- $capability_process_tail
+    [ "$#" -ge 20 ] || return 1
+    CAPABILITY_PROCESS_STATE=$1
+    CAPABILITY_PROCESS_PARENT=$2
+    shift 19
+    CAPABILITY_PROCESS_BIRTH=$1
+    case "$CAPABILITY_PROCESS_STATE:$CAPABILITY_PROCESS_BIRTH" in Z:*|X:*|*:*[!0-9]*|*:) return 1 ;; esac
+}
+
+capability_context_matches() {
+    # These private binding markers are written only by this owning launcher.
+    # The App is the final no-follow/strict-record authority before GETVAR or I/O.
+    [ -f "$LOCK_DIR/nonce" ] && [ ! -L "$LOCK_DIR/nonce" ] || return 1
+    [ -f "$LOCK_DIR/generation" ] && [ ! -L "$LOCK_DIR/generation" ] || return 1
+    [ -f "$LOCK_DIR/application-pid" ] && [ ! -L "$LOCK_DIR/application-pid" ] || return 1
+    IFS= read -r capability_nonce <"$LOCK_DIR/nonce" || return 1
+    IFS= read -r capability_generation <"$LOCK_DIR/generation" || return 1
+    IFS= read -r capability_application <"$LOCK_DIR/application-pid" || return 1
+    [ "$capability_nonce" = "$LAUNCH_TOKEN" ] && [ "$capability_generation" = "$APP_GENERATION:$LAUNCH_TOKEN" ] || return 1
+    [ "$capability_application" = "$NATIVE_CAPABILITY_APP" ] || return 1
+    [ "$capability_application" != "$APP_RUNNER_PID" ] && [ "$capability_application" != "$$" ] || return 1
+    read_capability_process "$capability_application" || return 1
+    [ "$CAPABILITY_PROCESS_PARENT" = "$APP_RUNNER_PID" ] && [ "$CAPABILITY_PROCESS_BIRTH" = "$NATIVE_CAPABILITY_APP_BIRTH" ] || return 1
+    read_capability_process "$APP_RUNNER_PID" || return 1
+    [ "$CAPABILITY_PROCESS_PARENT" = "$$" ] && [ "$CAPABILITY_PROCESS_BIRTH" = "$NATIVE_CAPABILITY_RUNNER_BIRTH" ]
+}
+
+framebuffer_capability_is_current() {
+    [ "$NATIVE_CAPABILITY_VALID" -eq 1 ] || return 1
+    capability_context_matches || return 1
+    [ ! -L "$LOCK_DIR" ] && [ ! -L "$LOCK_DIR/native-output-capability" ] && [ -f "$LOCK_DIR/native-output-capability" ] || return 1
+    capability_directory=$(LC_ALL=C stat -c '%d:%i:%u:%f' "$LOCK_DIR" 2>/dev/null) || return 1
+    capability_file=$(LC_ALL=C stat -c '%d:%i:%u:%f:%h:%s:%Y:%Z' "$LOCK_DIR/native-output-capability" 2>/dev/null) || return 1
+    [ -n "$capability_directory" ] && [ "$capability_directory" = "$NATIVE_CAPABILITY_DIRECTORY" ] &&
+        [ -n "$capability_file" ] && [ "$capability_file" = "$NATIVE_CAPABILITY_FILE" ] || return 1
+    capability_context_matches
+}
+
+cache_framebuffer_capability() {
+    # This is a conservative feature candidate, never a cached output mode.
+    # Read it off the wake critical path after the App has suspended. A private,
+    # bounded helper contains a capability path-replacement/FIFO read race. The App
+    # independently repeats no-follow capability validation before fresh GETVAR.
+    NATIVE_CAPABILITY_VALID=0
+    command -v stat >/dev/null 2>&1 || return 0
+    [ ! -L "$LOCK_DIR" ] && [ ! -L "$LOCK_DIR/native-output-capability" ] && [ -f "$LOCK_DIR/native-output-capability" ] || return 0
+    IFS= read -r NATIVE_CAPABILITY_APP <"$LOCK_DIR/application-pid" || return 0
+    read_capability_process "$NATIVE_CAPABILITY_APP" || return 0
+    [ "$CAPABILITY_PROCESS_PARENT" = "$APP_RUNNER_PID" ] || return 0
+    NATIVE_CAPABILITY_APP_BIRTH=$CAPABILITY_PROCESS_BIRTH
+    read_capability_process "$APP_RUNNER_PID" || return 0
+    [ "$CAPABILITY_PROCESS_PARENT" = "$$" ] || return 0
+    NATIVE_CAPABILITY_RUNNER_BIRTH=$CAPABILITY_PROCESS_BIRTH
+    capability_context_matches || return 0
+    NATIVE_CAPABILITY_DIRECTORY=$(LC_ALL=C stat -c '%d:%i:%u:%f' "$LOCK_DIR" 2>/dev/null) || return 0
+    NATIVE_CAPABILITY_FILE=$(LC_ALL=C stat -c '%d:%i:%u:%f:%h:%s:%Y:%Z' "$LOCK_DIR/native-output-capability" 2>/dev/null) || return 0
+    capability_directory_tail=${NATIVE_CAPABILITY_DIRECTORY#*:*:}
+    capability_owner=${capability_directory_tail%%:*}
+    capability_effective_owner=$(id -u 2>/dev/null) || return 0
+    [ -n "$capability_effective_owner" ] && [ "$capability_owner" = "$capability_effective_owner" ] || return 0
+    # SGID may be inherited from /tmp without granting group access.
+    case "${capability_directory_tail#*:}" in 41c0|45c0) ;; *) return 0 ;; esac
+    capability_file_tail=${NATIVE_CAPABILITY_FILE#*:*:}
+    [ "${capability_file_tail%%:*}" = "$capability_owner" ] || return 0
+    capability_file_tail=${capability_file_tail#*:}
+    case "${capability_file_tail%%:*}" in 8180|8100) ;; *) return 0 ;; esac
+    capability_file_tail=${capability_file_tail#*:}
+    [ "${capability_file_tail%%:*}" = 1 ] || return 0
+    capability_file_tail=${capability_file_tail#*:}
+    capability_size=${capability_file_tail%%:*}
+    case "$capability_size" in *[!0-9]*|'') return 0 ;; esac
+    [ "$capability_size" -gt 0 ] && [ "$capability_size" -le 128 ] || return 0
+    capability_expected=$APP_GENERATION:$LAUNCH_TOKEN:$NATIVE_CAPABILITY_APP:framebuffer8
+    [ "$capability_size" -eq "$((${#capability_expected} + 1))" ] || return 0
+    if native_read_command sh -c '
+        [ -f "$1" ] && [ ! -L "$1" ] || exit 1
+        IFS= read -r line <"$1" || exit 1
+        [ "$line" = "$2" ] || exit 1
+        # The exact byte count requires one LF and rejects extra or binary data.
+        [ "$3" -eq "$((${#line} + 1))" ] || exit 1
+        printf "framebuffer8\n"
+    ' sh "$LOCK_DIR/native-output-capability" "$capability_expected" "$capability_size"; then
+        case "$(native_read_hex)" in
+            6672616d65627566666572380a)
+                NATIVE_CAPABILITY_VALID=1
+                if framebuffer_capability_is_current; then launch_trace native_capability_framebuffer; else NATIVE_CAPABILITY_VALID=0; fi
+                ;;
+        esac
+    fi
+    return 0
+}
+
+capture_native_epdc_mode() {
+    NATIVE_EPDC_MODE=''
+    NATIVE_PORTRAIT_ORIENTATION=''
+    NATIVE_PORTRAIT_ROTATION=''
+    NATIVE_CAPTURE_STATUS=unknown
+    # Display mode and portrait calibration share one proven group and one
+    # two-second deadline. Every getter is bounded before command substitution.
+    # Repeated metadata and orientation reads must agree while native power is
+    # active; no globally assumed framebuffer rotation becomes a direction.
+    # The command sidecar is reused while its outer writer waits for completion.
+    if ! native_read_command sh -c '
+        status_file=$1
+        application=$2
+        profile=$3
+        bounded_value() {
+            rm -f "$status_file" "$status_file.pending" || return 1
+            snapshot_hex=$(
+                (
+                    if "$@"; then step_status=0; else step_status=$?; fi
+                    printf "%s\n" "$step_status" >"$status_file.pending" || exit 1
+                    mv -f "$status_file.pending" "$status_file" || exit 1
+                ) | dd bs=1 count=129 2>/dev/null | od -An -v -tx1 | tr -d " \n"
+            ) || return 1
+            IFS= read -r step_status <"$status_file" || return 1
+            [ "$step_status" = 0 ] && [ "${#snapshot_hex}" -gt 0 ] && [ "${#snapshot_hex}" -le 256 ]
+        }
+        portrait_metadata() {
+            case "$snapshot_hex" in
+                4155544f3a3[0-3]0a) portrait_kind=AUTO; portrait_rotation_hex=${snapshot_hex#4155544f3a} ;;
+                46495845443a3[0-3]0a) portrait_kind=FIXED; portrait_rotation_hex=${snapshot_hex#46495845443a} ;;
+                *) return 1 ;;
+            esac
+            case "$portrait_rotation_hex" in
+                300a) portrait_rotation=0 ;;
+                310a) portrait_rotation=1 ;;
+                320a) portrait_rotation=2 ;;
+                330a) portrait_rotation=3 ;;
+                *) return 1 ;;
+            esac
+        }
+        portrait_direction() {
+            # The reviewed Scribe adapter normalizes U/L and D/R. Other
+            # profiles retain the exact U/D contract until separately reviewed.
+            case "$snapshot_hex" in
+                55|550a) portrait_orientation=U ;;
+                44|440a) portrait_orientation=D ;;
+                4c|4c0a) [ "$profile" = scribe ] || return 1; portrait_orientation=U ;;
+                52|520a) [ "$profile" = scribe ] || return 1; portrait_orientation=D ;;
+                *) return 1 ;;
+            esac
+        }
+        power_is_active() {
+            case "$snapshot_hex" in 616374697665|6163746976650a) return 0 ;; esac
+            # A bounded, printable non-active value means native dismissal is
+            # still pending. Malformed or empty reads remain an actual failure.
+            power_hex=$snapshot_hex
+            power_text=0
+            while [ -n "$power_hex" ]; do
+                power_pair=${power_hex%"${power_hex#??}"}
+                power_hex=${power_hex#??}
+                case "$power_pair" in
+                    0a) [ -z "$power_hex" ] || return 1 ;;
+                    [2-6][0-9a-f]|7[0-e]) power_text=1 ;;
+                    *) return 1 ;;
+                esac
+            done
+            [ "$power_text" -eq 1 ] || return 1
+            return 2
+        }
+        bounded_value lipc-get-prop -s com.lab126.powerd state || exit 1
+        if power_is_active; then :; else
+            [ "$?" -eq 2 ] || exit 1
+            printf "not-active\n" || exit 1
+            exit 0
+        fi
+        bounded_value lipc-get-prop -s com.lab126.winmgr epdcMode || exit 1
+        case "$snapshot_hex" in
+            5938|59380a) snapshot_mode=Y8 ;;
+            5938494e56|5938494e560a) snapshot_mode=Y8INV ;;
+            *) exit 1 ;;
+        esac
+        bounded_value "$application" --probe-native-portrait-framebuffer --kindle --device "$profile" || exit 1
+        portrait_metadata || exit 1
+        first_metadata=$snapshot_hex
+        if [ "$portrait_kind" = AUTO ]; then
+            bounded_value lipc-get-prop com.lab126.winmgr accelerometer || exit 1
+            portrait_direction || exit 1
+            first_orientation=$portrait_orientation
+        else
+            portrait_orientation=FIXED
+        fi
+        bounded_value "$application" --probe-native-portrait-framebuffer --kindle --device "$profile" || exit 1
+        [ "$snapshot_hex" = "$first_metadata" ] || exit 1
+        if [ "$portrait_kind" = AUTO ]; then
+            bounded_value lipc-get-prop com.lab126.winmgr accelerometer || exit 1
+            portrait_direction || exit 1
+            [ "$portrait_orientation" = "$first_orientation" ] || exit 1
+        fi
+        bounded_value lipc-get-prop -s com.lab126.powerd state || exit 1
+        if power_is_active; then
+            printf "ready:%s:%s:%s\n" "$snapshot_mode" "$portrait_orientation" "$portrait_rotation" || exit 1
+        else
+            [ "$?" -eq 2 ] || exit 1
+            printf "not-active\n" || exit 1
+        fi
+    ' sh "$LOCK_DIR/native-read-command" "$APP_DIR/bilicomics" "$PROFILE"; then return 1; fi
+    native_capture_hex=$(native_read_hex) || return 1
+    case "$native_capture_hex" in
+        72656164793a59383a*) NATIVE_EPDC_MODE=Y8; native_portrait_hex=${native_capture_hex#72656164793a59383a} ;;
+        72656164793a5938494e563a*) NATIVE_EPDC_MODE=Y8INV; native_portrait_hex=${native_capture_hex#72656164793a5938494e563a} ;;
+        6e6f742d6163746976650a) NATIVE_CAPTURE_STATUS=not-active; return 0 ;;
+        *) return 1 ;;
+    esac
+    case "$native_portrait_hex" in
+        553a3[0-3]0a) NATIVE_PORTRAIT_ORIENTATION=U; native_rotation_hex=${native_portrait_hex#553a} ;;
+        443a3[0-3]0a) NATIVE_PORTRAIT_ORIENTATION=D; native_rotation_hex=${native_portrait_hex#443a} ;;
+        46495845443a3[0-3]0a) NATIVE_PORTRAIT_ORIENTATION=FIXED; native_rotation_hex=${native_portrait_hex#46495845443a} ;;
+        *) NATIVE_EPDC_MODE=''; return 1 ;;
+    esac
+    case "$native_rotation_hex" in
+        300a) NATIVE_PORTRAIT_ROTATION=0 ;;
+        310a) NATIVE_PORTRAIT_ROTATION=1 ;;
+        320a) NATIVE_PORTRAIT_ROTATION=2 ;;
+        330a) NATIVE_PORTRAIT_ROTATION=3 ;;
+        *) NATIVE_EPDC_MODE=''; NATIVE_PORTRAIT_ORIENTATION=''; return 1 ;;
+    esac
+    NATIVE_CAPTURE_STATUS=known
+}
+
+publish_native_epdc_mode() {
+    published_native_mode=$NATIVE_EPDC_MODE
+    if [ "$1" = resume-native-epdc-mode ] && [ "$NATIVE_RESUME_PRESENTATION" = framebuffer ]; then
+        published_native_mode=FRAMEBUFFER
+    fi
+    case "$published_native_mode" in Y8|Y8INV) ;; FRAMEBUFFER) [ "$1" = resume-native-epdc-mode ] || return 1 ;; *) return 1 ;; esac
+    if [ "$1" = resume-native-epdc-mode ]; then
+        printf '%s:%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$LIFECYCLE_SEQUENCE" "$published_native_mode" >"$LOCK_DIR/$1.pending"
+    else
+        printf '%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$NATIVE_EPDC_MODE" >"$LOCK_DIR/$1.pending"
+    fi
+    mv -f "$LOCK_DIR/$1.pending" "$LOCK_DIR/$1"
+}
+
+publish_native_portrait_orientation() {
+    case "$1" in
+        native-portrait-orientation)
+            case "$NATIVE_PORTRAIT_ORIENTATION" in U|D|FIXED) ;; *) return 1 ;; esac
+            case "$NATIVE_PORTRAIT_ROTATION" in 0|1|2|3) ;; *) return 1 ;; esac
+            native_portrait_payload=$NATIVE_PORTRAIT_ORIENTATION:$NATIVE_PORTRAIT_ROTATION
+            ;;
+        resume-native-portrait-orientation)
+            # This is permission for a fresh read-only kernel observation bound
+            # to this exact transition, never a cached startup direction.
+            native_portrait_payload=CALIBRATED:$LIFECYCLE_SEQUENCE
+            ;;
+        *) return 1 ;;
+    esac
+    # The application publishes only these typed leaves through its pinned
+    # private directory descriptor. Exclusive no-follow creation and a
+    # no-replace rename must succeed; shell redirection never opens a marker.
+    # The same native-reader lease bounds the writer and proves its ancestry.
+    if ! native_read_command sh -c '
+        BILICOMICS_LIFECYCLE_DIR=$1
+        BILICOMICS_LAUNCH_GENERATION=$2
+        BILICOMICS_LAUNCH_TOKEN=$3
+        export BILICOMICS_LIFECYCLE_DIR BILICOMICS_LAUNCH_GENERATION BILICOMICS_LAUNCH_TOKEN
+        exec "$4" --publish-native-portrait-orientation "$5" --kindle --device "$6"
+    ' sh "$LOCK_DIR" "$APP_GENERATION" "$LAUNCH_TOKEN" "$APP_DIR/bilicomics" "$native_portrait_payload" "$PROFILE"; then
+        return 1
+    fi
+    [ "$(native_read_hex)" = 5055424c49534845440a ]
+}
+
+stop_native_notice() {
+    [ -n "$NATIVE_NOTICE_PID" ] || return 0
+    if [ -z "$NATIVE_NOTICE_BIRTH" ] && [ "$(process_parent "$NATIVE_NOTICE_PID" 2>/dev/null || :)" = "$$" ]; then
+        NATIVE_NOTICE_BIRTH=$(process_birth "$NATIVE_NOTICE_PID" 2>/dev/null || :)
+    fi
+    if [ "$(process_parent "$NATIVE_NOTICE_PID" 2>/dev/null || :)" = "$$" ] &&
+        [ -n "$NATIVE_NOTICE_BIRTH" ] &&
+        [ "$(process_birth "$NATIVE_NOTICE_PID" 2>/dev/null || :)" = "$NATIVE_NOTICE_BIRTH" ]; then
+        kill -KILL "$NATIVE_NOTICE_PID" 2>/dev/null || :
+    fi
+    # This child has no descendants. Never wait for an unproven live PID;
+    # its write-only control end also closes when native supervision ends.
+    native_notice_reap=10
+    while [ "$native_notice_reap" -gt 0 ]; do
+        case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$NATIVE_NOTICE_PID/status" 2>/dev/null || :)" in
+            Z*|X*|'') wait "$NATIVE_NOTICE_PID" 2>/dev/null || :; break ;;
+        esac
+        usleep 100000
+        native_notice_reap=$((native_notice_reap - 1))
+    done
+    NATIVE_NOTICE_PID=''
+    NATIVE_NOTICE_BIRTH=''
+}
+
+queue_native_notice() {
+    stop_native_notice
+    (
+        trap - 0 HUP INT TERM
+        # Send barriers through the same relay as native power records. The
+        # parent immediately returns to the shared event reader under load.
+        exec 3>&-
+        exec 4>"$LOCK_DIR/power-control"
+        printf '%s\n' "$1" >&4
+    ) &
+    NATIVE_NOTICE_PID=$!
+    NATIVE_NOTICE_BIRTH=$(process_birth "$NATIVE_NOTICE_PID" 2>/dev/null || :)
+}
+
+signal_recorded_child() {
+    child_record=$1
+    child_signal=$2
+    recorded_pid=$(sed -n '1p' "$child_record" 2>/dev/null || :)
+    case "$recorded_pid" in
+        *[!0-9]*|'') return 1 ;;
+    esac
+    recorded_parent=$(sed -n 's/^PPid:[[:space:]]*//p' "/proc/$recorded_pid/status" 2>/dev/null || :)
+    [ "$recorded_parent" = "$3" ] || return 1
+    kill "-$child_signal" "$recorded_pid" 2>/dev/null
+}
+
+release_display() {
+    [ "$DISPLAY_OWNED" -eq 1 ] || return 0
+    for wm_pid in $PAUSED_WM_PIDS; do
+        kill -CONT "$wm_pid" 2>/dev/null || :
+    done
+    PAUSED_WM_PIDS=''
+    if [ "$STATUSBAR_STOPPED" -eq 1 ]; then
+        start statusbar >/dev/null 2>&1 || :
+    fi
+    STATUSBAR_STOPPED=0
+    if command -v xrefresh >/dev/null 2>&1; then
+        xrefresh >/dev/null 2>&1 || :
+    fi
+    DISPLAY_OWNED=0
+    launch_trace native_released
+}
+
+take_display() {
+    [ "$DISPLAY_OWNED" -eq 0 ] || return 0
+    DISPLAY_OWNED=1
+    launch_trace native_take_begin
+    if [ "${1:-classic}" = framebuffer ]; then pause_window_manager; fi
+    # Each takeover records its own baseline. A sleep restores that baseline
+    # only after the application has released native rendering and input.
+    if command -v status >/dev/null 2>&1 && command -v stop >/dev/null 2>&1 && command -v start >/dev/null 2>&1; then
+        case "$(status statusbar 2>/dev/null || :)" in
+            *start/running*)
+                if stop statusbar >/dev/null 2>&1; then
+                    STATUSBAR_STOPPED=1
+                fi
+                ;;
+        esac
+    fi
+    if [ "${1:-classic}" != framebuffer ]; then pause_window_manager; fi
+    launch_trace native_take_done
+}
+
+pause_window_manager() {
+    if command -v pidof >/dev/null 2>&1; then
+        for wm_pid in $(pidof awesome 2>/dev/null || :); do
+            case "$wm_pid" in
+                *[!0-9]*|'') continue ;;
+            esac
+            # A previously stopped process must remain stopped after exit.
+            case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$wm_pid/status" 2>/dev/null || :)" in
+                T*|t*|'') continue ;;
+            esac
+            if kill -STOP "$wm_pid" 2>/dev/null; then
+                PAUSED_WM_PIDS="$PAUSED_WM_PIDS $wm_pid"
+                launch_trace awesome_paused
+            fi
+        done
+    fi
+}
+
+run_application() {
+    trap - 0 HUP INT TERM
+    exec 4>&-
+    runner_child=''
+    runner_stopping=0
+    runner_interrupted=0
+    stop_runner() {
+        runner_stopping=1
+        runner_interrupted=1
+        if [ -n "$runner_child" ]; then
+            kill -TERM "$runner_child" 2>/dev/null || :
+        fi
+    }
+    trap stop_runner HUP INT TERM
+    BILICOMICS_LIFECYCLE_DIR=$LOCK_DIR BILICOMICS_LAUNCH_GENERATION=$APP_GENERATION BILICOMICS_LAUNCH_TOKEN=$LAUNCH_TOKEN "$APP_DIR/bilicomics" --kindle --device "$PROFILE" --data-dir "$DATA_DIR" >>"$DATA_DIR/logs/application.log" 2>&1 3>&- 4>&- &
+    runner_child=$!
+    printf '%s\n' "$runner_child" >"$LOCK_DIR/application-pid.pending"
+    mv -f "$LOCK_DIR/application-pid.pending" "$LOCK_DIR/application-pid"
+    if [ "$runner_stopping" -eq 1 ]; then
+        kill -TERM "$runner_child" 2>/dev/null || :
+    fi
+    while :; do
+        runner_interrupted=0
+        if wait "$runner_child"; then
+            runner_status=0
+        else
+            runner_status=$?
+        fi
+        [ "$runner_interrupted" -eq 1 ] || break
+    done
+    printf '%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$runner_status" >"$LOCK_DIR/application-exit.pending"
+    mv -f "$LOCK_DIR/application-exit.pending" "$LOCK_DIR/application-exit"
+    printf '_bilicomics_app_exit %s %s %s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$runner_status" >&3
+    exit "$runner_status"
+}
+
+stop_application() {
+    APP_STATUS=0
+    if [ -n "$APP_RUNNER_PID" ]; then
+        kill -TERM "$APP_RUNNER_PID" 2>/dev/null || :
+        remaining=5
+        while kill -0 "$APP_RUNNER_PID" 2>/dev/null && [ "$remaining" -gt 0 ]; do
+            sleep 1
+            remaining=$((remaining - 1))
+        done
+        if kill -0 "$APP_RUNNER_PID" 2>/dev/null; then
+            signal_recorded_child "$LOCK_DIR/application-pid" KILL "$APP_RUNNER_PID" || :
+            sleep 1
+            kill -KILL "$APP_RUNNER_PID" 2>/dev/null || :
+        fi
+        if wait "$APP_RUNNER_PID"; then
+            APP_STATUS=0
+        else
+            APP_STATUS=$?
+        fi
+        APP_RUNNER_PID=''
+    fi
+    rm -f "$LOCK_DIR/application-pid" "$LOCK_DIR/application-pid.pending"
+}
+
+finish_recorded_application_exit() {
+    recorded_exit=$(sed -n '1p' "$LOCK_DIR/application-exit" 2>/dev/null || :)
+    case "$recorded_exit" in
+        "$APP_GENERATION:$LAUNCH_TOKEN:"*)
+            recorded_status=${recorded_exit#"$APP_GENERATION:$LAUNCH_TOKEN:"}
+            case "$recorded_status" in
+                *[!0-9]*|'') fail 'The recorded application exit status is invalid.' ;;
+            esac
+            wait "$APP_RUNNER_PID" 2>/dev/null || :
+            APP_RUNNER_PID=''
+            exit "$recorded_status"
+            ;;
+    esac
+    return 1
+}
+
+observe_power() {
+    # Keep the source, bounded relay, and their wrappers in one proven group.
+    # The leader remains alive after EOF or a relay error until supervisor cleanup.
+    exec setsid sh -c '
+        directory=$1
+        generation=$2
+        token=$3
+        application=$4
+        wrapper_pid=$$
+        trap - 0 HUP INT TERM
+        gate_checks=200
+        while [ "$(cat "$directory/observer-go" 2>/dev/null || :)" != "$generation:$token:$wrapper_pid" ]; do
+            [ "$gate_checks" -gt 0 ] || exit 97
+            gate_checks=$((gate_checks - 1))
+            usleep 10000
+        done
+        # Retain no FIFO read end after ownership has been proved.
+        exec 3>"$directory/power-events"
+        (
+            trap - 0 HUP INT TERM
+            lipc-wait-event -m -s 0 com.lab126.powerd goingToScreenSaver,outOfScreenSaver,exitingScreenSaver,wakeupFromSuspend,usbConfigured &
+            source_pid=$!
+            printf "%s\n" "$source_pid" >"$directory/observer-pid.pending"
+            mv -f "$directory/observer-pid.pending" "$directory/observer-pid"
+            if wait "$source_pid"; then source_status=0; else source_status=$?; fi
+            # Publish the actual source result before the producer closes its
+            # private FIFO writer. A clean relay EOF can then reconcile it.
+            printf "%s:%s:%s\n" "$generation" "$token" "$source_status" >"$directory/observer-status.pending"
+            mv -f "$directory/observer-status.pending" "$directory/observer-status"
+        ) >"$directory/power-source" 2>/dev/null 3>&- &
+        source_runner=$!
+        printf "%s\n" "$source_runner" >"$directory/observer-runner-pid.pending"
+        mv -f "$directory/observer-runner-pid.pending" "$directory/observer-runner-pid"
+        # Each stream is opened independently. Setting relay O_NONBLOCK must
+        # never change the master or wrapper open-file-description flags.
+        BILICOMICS_POWER_RELAY_GENERATION=$generation BILICOMICS_POWER_RELAY_TOKEN=$token "$application" --relay-power-events <"$directory/power-source" >"$directory/power-events" 2>/dev/null 3<"$directory/power-control" 4>&- &
+        relay_pid=$!
+        printf "%s\n" "$relay_pid" >"$directory/observer-relay-pid.pending"
+        mv -f "$directory/observer-relay-pid.pending" "$directory/observer-relay-pid"
+        if wait "$relay_pid"; then relay_status=0; else relay_status=$?; fi
+        observer_status=$relay_status
+        if [ "$relay_status" -eq 0 ]; then
+            source_record=$(cat "$directory/observer-status" 2>/dev/null || :)
+            case "$source_record" in
+                "$generation:$token:"*)
+                    source_status=${source_record#"$generation:$token:"}
+                    case "$source_status" in *[!0-9]*|"") observer_status=97 ;; *) observer_status=$source_status ;; esac
+                    ;;
+                *) observer_status=97 ;;
+            esac
+            wait "$source_runner" 2>/dev/null || :
+        fi
+        printf "_bilicomics_observer_exit %s\n" "$observer_status" >&3
+        while :; do sleep 1; done
+    ' sh "$LOCK_DIR" "$APP_GENERATION" "$LAUNCH_TOKEN" "$APP_DIR/bilicomics" 4>&-
+}
+
+observer_is_owned() {
+    [ -n "$EVENT_SOURCE_PID" ] && [ -n "$EVENT_SOURCE_BIRTH" ] || return 1
+    [ "$(process_parent "$EVENT_SOURCE_PID" 2>/dev/null || :)" = "$$" ] &&
+        [ "$(process_birth "$EVENT_SOURCE_PID" 2>/dev/null || :)" = "$EVENT_SOURCE_BIRTH" ]
+}
+
+observer_group_is_owned() {
+    observer_is_owned || return 1
+    observer_stat=$(cat "/proc/$EVENT_SOURCE_PID/stat" 2>/dev/null || :)
+    observer_tail=${observer_stat##*) }
+    set -- $observer_tail
+    [ "$#" -ge 4 ] && [ "$3:$4" = "$EVENT_SOURCE_PID:$EVENT_SOURCE_PID" ]
+}
+
+start_observer() {
+    observe_power &
+    EVENT_SOURCE_PID=$!
+    EVENT_SOURCE_BIRTH=$(process_birth "$EVENT_SOURCE_PID" 2>/dev/null || :)
+    observer_checks=20
+    while [ "$observer_checks" -gt 0 ]; do
+        if [ -z "$EVENT_SOURCE_BIRTH" ] && [ "$(process_parent "$EVENT_SOURCE_PID" 2>/dev/null || :)" = "$$" ]; then
+            EVENT_SOURCE_BIRTH=$(process_birth "$EVENT_SOURCE_PID" 2>/dev/null || :)
+        fi
+        if observer_group_is_owned; then
+            printf '%s:%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$EVENT_SOURCE_PID" "$EVENT_SOURCE_BIRTH" >"$LOCK_DIR/observer-owned.pending"
+            mv -f "$LOCK_DIR/observer-owned.pending" "$LOCK_DIR/observer-owned"
+            printf '%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$EVENT_SOURCE_PID" >"$LOCK_DIR/observer-go.pending"
+            mv -f "$LOCK_DIR/observer-go.pending" "$LOCK_DIR/observer-go"
+            return 0
+        fi
+        observer_checks=$((observer_checks - 1))
+        usleep 100000
+    done
+    fail 'Power event observer ownership could not be established.'
+}
+
+stop_observer() {
+    if [ -n "$EVENT_SOURCE_PID" ]; then
+        if observer_group_is_owned; then
+            # KILL also terminates a source that ignores TERM and a relay blocked
+            # on a full event FIFO, while the verified leader pins this group.
+            kill -KILL "-$EVENT_SOURCE_PID" 2>/dev/null || :
+        elif observer_is_owned; then
+            kill -KILL "$EVENT_SOURCE_PID" 2>/dev/null || :
+        fi
+        observer_reap=10
+        while [ "$observer_reap" -gt 0 ]; do
+            case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$EVENT_SOURCE_PID/status" 2>/dev/null || :)" in
+                Z*|X*|'') wait "$EVENT_SOURCE_PID" 2>/dev/null || :; break ;;
+            esac
+            usleep 100000
+            observer_reap=$((observer_reap - 1))
+        done
+        EVENT_SOURCE_PID=''
+        EVENT_SOURCE_BIRTH=''
+    fi
+    rm -f "$LOCK_DIR/observer-pid" "$LOCK_DIR/observer-pid.pending" "$LOCK_DIR/observer-runner-pid" "$LOCK_DIR/observer-runner-pid.pending" "$LOCK_DIR/observer-relay-pid" "$LOCK_DIR/observer-relay-pid.pending" "$LOCK_DIR/observer-status" "$LOCK_DIR/observer-status.pending" "$LOCK_DIR/observer-go" "$LOCK_DIR/observer-go.pending" "$LOCK_DIR/observer-owned" "$LOCK_DIR/observer-owned.pending" "$LOCK_DIR/power-source"
+}
+
+wait_for_lifecycle() {
+    trap - 0 HUP INT TERM
+    exec 4>&-
+    waiter_child=''
+    waiter_stopping=0
+    stop_waiter_child() {
+        waiter_stopping=1
+        if [ -n "$waiter_child" ]; then
+            kill -TERM "$waiter_child" 2>/dev/null || :
+            wait "$waiter_child" 2>/dev/null || :
+        fi
+    }
+    trap stop_waiter_child HUP INT TERM
+    waiter_sequence=$1
+    waiter_action=$2
+    waiter_expected=$APP_GENERATION:$LAUNCH_TOKEN:$waiter_sequence:$waiter_action
+    waiter_signaled=0
+    waiter_remaining=8
+    while [ "$waiter_stopping" -eq 0 ]; do
+        if [ "$waiter_signaled" -eq 0 ] && [ "$(sed -n '1p' "$LOCK_DIR/lifecycle-ready" 2>/dev/null || :)" = "$APP_GENERATION:$LAUNCH_TOKEN" ]; then
+            case "$waiter_action" in
+                suspend) waiter_signal=USR1 ;;
+                resume) waiter_signal=USR2 ;;
+            esac
+            if signal_recorded_child "$LOCK_DIR/application-pid" "$waiter_signal" "$APP_RUNNER_PID"; then
+                waiter_signaled=1
+                launch_trace "signal_$waiter_action"
+            fi
+        fi
+        waiter_ack=$(sed -n '1p' "$LOCK_DIR/lifecycle-ack" 2>/dev/null || :)
+        case "$waiter_ack" in
+            "$waiter_expected"|"$waiter_expected:ok"|"$waiter_expected:checkpoint-error")
+                waiter_status=ok
+                [ "$waiter_ack" != "$waiter_expected:checkpoint-error" ] || waiter_status=checkpoint-error
+                printf '_bilicomics_lifecycle_ack %s %s %s %s %s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$waiter_sequence" "$waiter_action" "$waiter_status" >&3
+                return 0
+                ;;
+        esac
+        [ "$waiter_remaining" -gt 0 ] || break
+        sleep 1 &
+        waiter_child=$!
+        if [ "$waiter_stopping" -eq 1 ]; then
+            kill -TERM "$waiter_child" 2>/dev/null || :
+        fi
+        wait "$waiter_child" 2>/dev/null || :
+        waiter_child=''
+        waiter_remaining=$((waiter_remaining - 1))
+    done
+    if [ "$waiter_stopping" -eq 0 ]; then
+        printf '_bilicomics_lifecycle_timeout %s %s %s %s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$waiter_sequence" "$waiter_action" >&3
+    fi
+}
+
+stop_lifecycle_waiter() {
+    if [ -n "$LIFECYCLE_WAIT_PID" ]; then
+        kill -TERM "$LIFECYCLE_WAIT_PID" 2>/dev/null || :
+        wait "$LIFECYCLE_WAIT_PID" 2>/dev/null || :
+        LIFECYCLE_WAIT_PID=''
+    fi
+}
+
+request_lifecycle() {
+    stop_lifecycle_waiter
+    LIFECYCLE_SEQUENCE=$((LIFECYCLE_SEQUENCE + 1))
+    LIFECYCLE_ACTION=$1
+    launch_trace "lifecycle_request_$LIFECYCLE_ACTION"
+    if [ "$LIFECYCLE_ACTION" = resume ]; then
+        publish_native_epdc_mode resume-native-epdc-mode || fail 'The resume display snapshot is unavailable.'
+        publish_native_portrait_orientation resume-native-portrait-orientation || fail 'The resume portrait calibration request is unavailable.'
+    else
+        rm -f "$LOCK_DIR/resume-native-epdc-mode" "$LOCK_DIR/resume-native-epdc-mode.pending" "$LOCK_DIR/resume-native-portrait-orientation" "$LOCK_DIR/resume-native-portrait-orientation.pending"
+    fi
+    printf '%s:%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$LIFECYCLE_SEQUENCE" "$LIFECYCLE_ACTION" >"$LOCK_DIR/lifecycle-request.pending"
+    mv -f "$LOCK_DIR/lifecycle-request.pending" "$LOCK_DIR/lifecycle-request"
+    wait_for_lifecycle "$LIFECYCLE_SEQUENCE" "$LIFECYCLE_ACTION" &
+    LIFECYCLE_WAIT_PID=$!
+}
+
+probe_wake_later() {
+    trap - 0 HUP INT TERM
+    exec 4>&-
+    IFS= read -r probe_self_stat </proc/self/stat || return 1
+    probe_wrapper_pid=${probe_self_stat%% *}
+    probe_child=''
+    probe_child_birth=''
+    probe_stopping=0
+    stop_probe_child() {
+        probe_stopping=1
+        if [ -n "$probe_child" ]; then
+            if [ -z "$probe_child_birth" ] && [ "$(process_parent "$probe_child" 2>/dev/null || :)" = "$probe_wrapper_pid" ]; then
+                probe_child_birth=$(process_birth "$probe_child" 2>/dev/null || :)
+            fi
+            if [ -n "$probe_child_birth" ] && [ "$(process_parent "$probe_child" 2>/dev/null || :)" = "$probe_wrapper_pid" ] &&
+                [ "$(process_birth "$probe_child" 2>/dev/null || :)" = "$probe_child_birth" ]; then
+                kill -TERM "$probe_child" 2>/dev/null || :
+                probe_child_reap=5
+                while [ "$probe_child_reap" -gt 0 ]; do
+                    case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$probe_child/status" 2>/dev/null || :)" in
+                        Z*|X*|'') wait "$probe_child" 2>/dev/null || :; break ;;
+                    esac
+                    usleep 10000
+                    probe_child_reap=$((probe_child_reap - 1))
+                done
+                if [ "$(process_parent "$probe_child" 2>/dev/null || :)" = "$probe_wrapper_pid" ] &&
+                    [ "$(process_birth "$probe_child" 2>/dev/null || :)" = "$probe_child_birth" ]; then
+                    kill -KILL "$probe_child" 2>/dev/null || :
+                    probe_child_reap=5
+                    while [ "$probe_child_reap" -gt 0 ]; do
+                        case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$probe_child/status" 2>/dev/null || :)" in
+                            Z*|X*|'') wait "$probe_child" 2>/dev/null || :; break ;;
+                        esac
+                        usleep 10000
+                        probe_child_reap=$((probe_child_reap - 1))
+                    done
+                fi
+            fi
+        fi
+    }
+    trap stop_probe_child HUP INT TERM
+    case "$2" in
+        fast) usleep 100000 & ;;
+        normal) sleep 2 & ;;
+        backoff) sleep 10 & ;;
+        *) return 1 ;;
+    esac
+    probe_child=$!
+    probe_child_birth=$(process_birth "$probe_child" 2>/dev/null || :)
+    if [ "$probe_stopping" -eq 1 ]; then
+        stop_probe_child
+    fi
+    if wait "$probe_child" 2>/dev/null; then probe_elapsed=1; else probe_elapsed=0; fi
+    if [ "$probe_stopping" -eq 0 ] && [ "$probe_elapsed" -eq 1 ]; then
+        printf '_bilicomics_wake_check %s %s %s\n' "$LAUNCH_TOKEN" "$1" "$3" >&3
+    elif [ "$probe_stopping" -eq 0 ]; then
+        launch_trace wake_timer_failed
+    fi
+}
+
+current_wake_probe_is_owned() {
+    [ -n "$WAKE_PROBE_PID" ] && [ -n "$WAKE_PROBE_BIRTH" ] || return 1
+    [ "$(process_parent "$WAKE_PROBE_PID" 2>/dev/null || :)" = "$$" ] &&
+        [ "$(process_birth "$WAKE_PROBE_PID" 2>/dev/null || :)" = "$WAKE_PROBE_BIRTH" ]
+}
+
+stop_wake_probe() {
+    if [ -n "$WAKE_PROBE_PID" ]; then
+        if [ -z "$WAKE_PROBE_BIRTH" ] && [ "$(process_parent "$WAKE_PROBE_PID" 2>/dev/null || :)" = "$$" ]; then
+            WAKE_PROBE_BIRTH=$(process_birth "$WAKE_PROBE_PID" 2>/dev/null || :)
+        fi
+        if current_wake_probe_is_owned; then kill -TERM "$WAKE_PROBE_PID" 2>/dev/null || :; fi
+        probe_reap=10
+        while [ "$probe_reap" -gt 0 ]; do
+            case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$WAKE_PROBE_PID/status" 2>/dev/null || :)" in
+                Z*|X*|'') wait "$WAKE_PROBE_PID" 2>/dev/null || :; break ;;
+            esac
+            usleep 100000
+            probe_reap=$((probe_reap - 1))
+        done
+        if current_wake_probe_is_owned; then
+            kill -KILL "$WAKE_PROBE_PID" 2>/dev/null || :
+            probe_reap=10
+            while [ "$probe_reap" -gt 0 ]; do
+                case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$WAKE_PROBE_PID/status" 2>/dev/null || :)" in
+                    Z*|X*|'') wait "$WAKE_PROBE_PID" 2>/dev/null || :; break ;;
+                esac
+                usleep 10000
+                probe_reap=$((probe_reap - 1))
+            done
+        fi
+        WAKE_PROBE_PID=''
+        WAKE_PROBE_BIRTH=''
+        WAKE_PROBE_KIND=''
+    fi
+}
+
+schedule_wake_probe() {
+    [ "$APP_PHASE" = sleeping ] && [ "$DISPLAY_OWNED" -eq 0 ] && [ "$WAKE_PENDING" -eq 1 ] || return 0
+    [ "$NATIVE_MODE_PENDING" -eq 0 ] || return 0
+    stop_wake_probe
+    WAKE_PROBE_SEQUENCE=$((WAKE_PROBE_SEQUENCE + 1))
+    WAKE_PROBE_KIND=$1
+    launch_trace "wake_probe_$1"
+    probe_wake_later "$SLEEP_GENERATION" "$1" "$WAKE_PROBE_SEQUENCE" &
+    WAKE_PROBE_PID=$!
+    WAKE_PROBE_BIRTH=$(process_birth "$WAKE_PROBE_PID" 2>/dev/null || :)
+}
+
+retry_native_dismissal() {
+    probe_delay=normal
+    if [ "$WAKE_FAST_PROBES_REMAINING" -gt 0 ]; then
+        WAKE_FAST_PROBES_REMAINING=$((WAKE_FAST_PROBES_REMAINING - 1))
+        probe_delay=fast
+    elif [ "$WAKE_PROBES_REMAINING" -gt 0 ]; then
+        WAKE_PROBES_REMAINING=$((WAKE_PROBES_REMAINING - 1))
+        if [ "$WAKE_PROBES_REMAINING" -eq 0 ]; then
+            printf '%s\n' 'bilicomics: Waiting for native unlock or screen-saver dismissal.' >&2
+        fi
+    else
+        probe_delay=backoff
+    fi
+    schedule_wake_probe "$probe_delay"
+}
+
+resume_application() {
+    [ "$APP_PHASE" = sleeping ] && [ "$DISPLAY_OWNED" -eq 0 ] && [ "$WAKE_PENDING" -eq 1 ] || return 0
+    [ "$NATIVE_MODE_PENDING" -eq 0 ] || return 0
+    # OutOfSS can precede actual stock dismissal. Only explicit ExitingSS uses
+    # the fast path; the existing active-only fallback retains its minimum delay.
+    if [ "$WAKE_DISMISS_GENERATION" -ne "$SLEEP_GENERATION" ] && [ "$WAKE_FALLBACK_ALLOWED" -eq 0 ]; then
+        if [ -z "$WAKE_PROBE_PID" ]; then schedule_wake_probe normal; fi
+        return 0
+    fi
+    NATIVE_MODE_SEQUENCE=$((NATIVE_MODE_SEQUENCE + 1))
+    NATIVE_MODE_PENDING=1
+    NATIVE_RESUME_PRESENTATION=''
+    if [ "$WAKE_DISMISS_GENERATION" -eq "$SLEEP_GENERATION" ] && framebuffer_capability_is_current; then
+        NATIVE_RESUME_PRESENTATION=framebuffer
+        NATIVE_EPDC_MODE=''
+        WAKE_CONFIRMED=1
+        launch_trace wake_framebuffer_barrier
+        queue_native_notice "_bilicomics_native_mode_ready $APP_GENERATION $LAUNCH_TOKEN $SLEEP_GENERATION $NATIVE_MODE_SEQUENCE"
+        return 0
+    fi
+    stop_wake_probe
+    NATIVE_RESUME_PRESENTATION=observed
+    launch_trace wake_sample_begin
+    capture_native_epdc_mode || NATIVE_EPDC_MODE=''
+    if [ "$NATIVE_CAPTURE_STATUS" = not-active ]; then
+        launch_trace wake_sample_inactive
+        NATIVE_MODE_PENDING=0
+        retry_native_dismissal
+        return 0
+    fi
+    if [ "$NATIVE_CAPTURE_STATUS" = known ]; then
+        WAKE_CONFIRMED=1
+        launch_trace wake_sample_ready
+    else
+        launch_trace wake_sample_unknown
+    fi
+    # The relay drains its native source before publishing this barrier.
+    # Sleep and USB records queued during the getter precede the result.
+    queue_native_notice "_bilicomics_native_mode_ready $APP_GENERATION $LAUNCH_TOKEN $SLEEP_GENERATION $NATIVE_MODE_SEQUENCE"
+}
+
+cleanup() {
+    trap '' HUP INT TERM
+    trap - 0
+    saved_status=$1
+    stop_native_notice
+    stop_native_read
+    stop_wake_probe
+    stop_lifecycle_waiter
+    stop_observer
+    stop_application
+    release_display
+    if [ "$EVENT_FD_OPEN" -eq 1 ]; then
+        exec 3>&-
+    fi
+    if [ "$CONTROL_FD_OPEN" -eq 1 ]; then
+        exec 4>&-
+    fi
+    rm -f "$LOCK_DIR/pid" "$LOCK_DIR/power-events" "$LOCK_DIR/power-control" "$LOCK_DIR/nonce" "$LOCK_DIR/generation" "$LOCK_DIR/application-exit" "$LOCK_DIR/application-exit.pending" "$LOCK_DIR/lifecycle-ready" "$LOCK_DIR/lifecycle-ready.pending" "$LOCK_DIR/lifecycle-request" "$LOCK_DIR/lifecycle-request.pending" "$LOCK_DIR/lifecycle-ack" "$LOCK_DIR/lifecycle-ack.pending" "$LOCK_DIR/native-epdc-mode" "$LOCK_DIR/native-epdc-mode.pending" "$LOCK_DIR/resume-native-epdc-mode" "$LOCK_DIR/resume-native-epdc-mode.pending" "$LOCK_DIR/native-portrait-orientation" "$LOCK_DIR/native-portrait-orientation.pending" "$LOCK_DIR/resume-native-portrait-orientation" "$LOCK_DIR/resume-native-portrait-orientation.pending" "$LOCK_DIR/native-output-capability" "$LOCK_DIR/native-output-capability.pending" "$LOCK_DIR/native-read-output"
+    rmdir "$LOCK_DIR" 2>/dev/null || :
+    exit "$saved_status"
+}
+
+trap 'cleanup "$?"' 0
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+command -v lipc-wait-event >/dev/null 2>&1 || fail 'Power event observation is required.'
+command -v lipc-get-prop >/dev/null 2>&1 || fail 'Native display mode observation is required.'
+command -v setsid >/dev/null 2>&1 || fail 'Private native display observation requires setsid.'
+command -v usleep >/dev/null 2>&1 || fail 'Bounded native display observation requires usleep.'
+command -v dd >/dev/null 2>&1 || fail 'Bounded native display output requires dd.'
+LAUNCH_TOKEN=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
+[ "${#LAUNCH_TOKEN}" -eq 32 ] || fail 'The launcher context token could not be generated.'
+printf '%s\n' "$LAUNCH_TOKEN" >"$LOCK_DIR/nonce"
+printf '%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" >"$LOCK_DIR/generation"
+mkfifo "$LOCK_DIR/power-events"
+mkfifo "$LOCK_DIR/power-source"
+mkfifo "$LOCK_DIR/power-control"
+# Keep one descriptor open so application exits and power events remain queued
+# while independent acknowledgement or native unlock observers are pending.
+exec 3<>"$LOCK_DIR/power-events"
+EVENT_FD_OPEN=1
+exec 4<>"$LOCK_DIR/power-control"
+CONTROL_FD_OPEN=1
+start_observer
+
+sleep 2
+export BILICOMICS_HOME
+launch_trace startup_sample_begin
+if ! capture_native_epdc_mode || [ "$NATIVE_CAPTURE_STATUS" != known ]; then
+    fail 'The native display mode could not be read before startup.'
+fi
+launch_trace startup_sample_ready
+publish_native_epdc_mode native-epdc-mode || fail 'The startup display snapshot is unavailable.'
+publish_native_portrait_orientation native-portrait-orientation || fail 'The startup portrait calibration is unavailable.'
+queue_native_notice "_bilicomics_start_ready $APP_GENERATION $LAUNCH_TOKEN"
+
+while IFS= read -r power_event <&3; do
+    case "$power_event" in
+        goingToScreenSaver*)
+            SLEEP_GENERATION=$((SLEEP_GENERATION + 1))
+            SLEEP_REQUESTED=1
+            WAKE_PENDING=0
+            WAKE_CONFIRMED=0
+            WAKE_DISMISS_GENERATION=0
+            WAKE_FALLBACK_ALLOWED=0
+            WAKE_FAST_PROBES_REMAINING=0
+            NATIVE_MODE_PENDING=0
+            NATIVE_RESUME_PRESENTATION=''
+            NATIVE_EPDC_MODE=''
+            NATIVE_PORTRAIT_ORIENTATION=''
+            NATIVE_PORTRAIT_ROTATION=''
+            launch_trace sleep_event
+            stop_wake_probe
+            case "$APP_PHASE" in
+                running)
+                    APP_PHASE=suspending
+                    request_lifecycle suspend
+                    ;;
+            esac
+            ;;
+        outOfScreenSaver*)
+            launch_trace wake_out
+            case "$APP_PHASE" in
+                suspending|sleeping|resuming)
+                    # A second sleep may arrive while resume is awaiting its
+                    # acknowledgement. Retain the following user wake until
+                    # that queued suspend has also been acknowledged.
+                    if { [ "$APP_PHASE" != resuming ] || [ "$SLEEP_REQUESTED" -eq 1 ]; } && [ "$WAKE_PENDING" -eq 0 ]; then
+                        WAKE_PENDING=1
+                        WAKE_FALLBACK_ALLOWED=0
+                        WAKE_FAST_PROBES_REMAINING=3
+                        WAKE_PROBES_REMAINING=3
+                        if [ "$WAKE_DISMISS_GENERATION" -eq "$SLEEP_GENERATION" ]; then
+                            resume_application
+                        else
+                            schedule_wake_probe normal
+                        fi
+                    fi
+                    ;;
+            esac
+            ;;
+        exitingScreenSaver*)
+            launch_trace wake_exit
+            case "$APP_PHASE" in
+                suspending|sleeping|resuming)
+                    # Preserve explicit dismissal evidence even when firmware
+                    # reports it before the user-wake intent for this cycle.
+                    if [ "$SLEEP_GENERATION" -gt 0 ] && [ "$WAKE_DISMISS_GENERATION" -ne "$SLEEP_GENERATION" ]; then
+                        WAKE_DISMISS_GENERATION=$SLEEP_GENERATION
+                        WAKE_CONFIRMED=1
+                        resume_application
+                    fi
+                    ;;
+            esac
+            ;;
+        wakeupFromSuspend*)
+            # RTC and background wakes never acquire display or input.
+            ;;
+        usbConfigured*)
+            WAKE_PENDING=0
+            WAKE_CONFIRMED=0
+            WAKE_DISMISS_GENERATION=0
+            WAKE_FALLBACK_ALLOWED=0
+            launch_trace usb_takeover
+            exit 143
+            ;;
+        '_bilicomics_start_ready '*)
+            set -- $power_event
+            if [ "$#" -eq 3 ] && [ "$2" = "$APP_GENERATION" ] && [ "$3" = "$LAUNCH_TOKEN" ] && [ "$APP_PHASE" = none ]; then
+                stop_native_notice
+                [ "$SLEEP_REQUESTED" -eq 0 ] || fail 'Power state changed before native display takeover.'
+                take_display
+                APP_PHASE=running
+                run_application &
+                APP_RUNNER_PID=$!
+            fi
+            ;;
+        '_bilicomics_native_mode_ready '*)
+            set -- $power_event
+            if [ "$#" -eq 5 ] && [ "$2" = "$APP_GENERATION" ] && [ "$3" = "$LAUNCH_TOKEN" ] && [ "$4" = "$SLEEP_GENERATION" ] && [ "$5" = "$NATIVE_MODE_SEQUENCE" ] && [ "$NATIVE_MODE_PENDING" -eq 1 ] && [ "$APP_PHASE" = sleeping ] && [ "$DISPLAY_OWNED" -eq 0 ] && [ "$WAKE_PENDING" -eq 1 ]; then
+                stop_native_notice
+                if [ "$NATIVE_RESUME_PRESENTATION" = framebuffer ]; then
+                    if ! framebuffer_capability_is_current || [ "$WAKE_DISMISS_GENERATION" -ne "$SLEEP_GENERATION" ]; then
+                        NATIVE_MODE_PENDING=0
+                        NATIVE_CAPABILITY_VALID=0
+                        NATIVE_RESUME_PRESENTATION=''
+                        launch_trace wake_capability_fallback
+                        resume_application
+                        continue
+                    fi
+                else
+                    case "$NATIVE_EPDC_MODE" in Y8|Y8INV) ;; *) fail 'The native display mode could not be read before resume.' ;; esac
+                fi
+                [ "$WAKE_CONFIRMED" -eq 1 ] || fail 'Native dismissal was not confirmed before resume.'
+                launch_trace wake_barrier_accepted
+                NATIVE_MODE_PENDING=0
+                WAKE_PENDING=0
+                WAKE_CONFIRMED=0
+                SLEEP_REQUESTED=0
+                if [ "$NATIVE_RESUME_PRESENTATION" = framebuffer ]; then take_display framebuffer; else take_display; fi
+                APP_PHASE=resuming
+                request_lifecycle resume
+                stop_wake_probe
+            else
+                launch_trace wake_barrier_dropped
+            fi
+            ;;
+        '_bilicomics_app_exit '*)
+            set -- $power_event
+            if [ "$#" -eq 4 ] && [ "$2" = "$APP_GENERATION" ] && [ "$3" = "$LAUNCH_TOKEN" ]; then
+                case "$4" in
+                    *[!0-9]*|'') fail 'The application exit status is invalid.' ;;
+                esac
+                wait "$APP_RUNNER_PID" 2>/dev/null || :
+                APP_RUNNER_PID=''
+                exit "$4"
+            fi
+            ;;
+        '_bilicomics_lifecycle_ack '*)
+            set -- $power_event
+            if [ "$#" -eq 6 ] && [ "$2" = "$APP_GENERATION" ] && [ "$3" = "$LAUNCH_TOKEN" ] && [ "$4" = "$LIFECYCLE_SEQUENCE" ] && [ "$5" = "$LIFECYCLE_ACTION" ]; then
+                stop_lifecycle_waiter
+                launch_trace "lifecycle_ack_$LIFECYCLE_ACTION"
+                case "$6" in
+                    checkpoint-error)
+                        printf '%s\n' 'bilicomics: The local checkpoint could not be saved; the reading session remains in memory.' >&2
+                        ;;
+                    ok) ;;
+                    *) fail 'The lifecycle acknowledgement status is invalid.' ;;
+                esac
+                if [ "$LIFECYCLE_ACTION" = suspend ] && [ "$APP_PHASE" = suspending ]; then
+                    APP_PHASE=sleeping
+                    cache_framebuffer_capability
+                    release_display
+                    resume_application
+                elif [ "$LIFECYCLE_ACTION" = resume ] && [ "$APP_PHASE" = resuming ]; then
+                    APP_PHASE=running
+                    if [ "$SLEEP_REQUESTED" -eq 1 ]; then
+                        APP_PHASE=suspending
+                        request_lifecycle suspend
+                    fi
+                fi
+            fi
+            ;;
+        '_bilicomics_lifecycle_timeout '*)
+            set -- $power_event
+            if [ "$#" -eq 5 ] && [ "$2" = "$APP_GENERATION" ] && [ "$3" = "$LAUNCH_TOKEN" ] && [ "$4" = "$LIFECYCLE_SEQUENCE" ] && [ "$5" = "$LIFECYCLE_ACTION" ]; then
+                # The runner persists its result before notifying the FIFO.
+                # Prefer that completed exit if it raced the deadline event.
+                finish_recorded_application_exit || :
+                fail "The application did not acknowledge $LIFECYCLE_ACTION before the lifecycle deadline."
+            fi
+            ;;
+        '_bilicomics_wake_check '*)
+            set -- $power_event
+            if [ "$#" -eq 4 ] && [ "$2" = "$LAUNCH_TOKEN" ] && [ "$3" = "$SLEEP_GENERATION" ] && [ "$4" = "$WAKE_PROBE_SEQUENCE" ] && [ -n "$WAKE_PROBE_PID" ] && [ "$APP_PHASE" = sleeping ] && [ "$DISPLAY_OWNED" -eq 0 ] && [ "$NATIVE_MODE_PENDING" -eq 0 ] && [ "$WAKE_PENDING" -eq 1 ]; then
+                completed_probe_kind=$WAKE_PROBE_KIND
+                stop_wake_probe
+                if [ "$completed_probe_kind" = normal ]; then WAKE_FALLBACK_ALLOWED=1; fi
+                resume_application
+            else
+                launch_trace wake_probe_stale
+            fi
+            ;;
+        '_bilicomics_observer_exit '*)
+            fail 'Power event observation ended unexpectedly.'
+            ;;
+    esac
+done
+
+fail 'The power event channel closed unexpectedly.'

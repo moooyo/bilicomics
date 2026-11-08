@@ -1,0 +1,25 @@
+export global Theme {
+    callback refresh(string);
+    in-out property <bool> scribe: false;
+    in-out property <string> ui-font: "Noto Sans CJK SC";
+    in-out property <string> serif-font: "Noto Serif CJK SC";
+    out property <color> ink: #000000;
+    out property <color> secondary: #444444;
+    out property <color> muted: #888888;
+    out property <color> line: #bbbbbb;
+    out property <color> fill: #dddddd;
+    out property <color> pale: #eeeeee;
+    out property <color> paper: #ffffff;
+    out property <length> margin: scribe ? 48px : 24px;
+    out property <length> title-size: scribe ? 30px : 24px;
+    out property <length> body-size: scribe ? 20px : 17px;
+    out property <length> label-size: scribe ? 18px : 16px;
+    out property <length> caption-size: scribe ? 17px : 15px;
+    out property <length> minimum-size: scribe ? 16px : 14px;
+    out property <length> button-height: scribe ? 64px : 52px;
+    out property <length> nav-height: scribe ? 80px : 64px;
+    out property <length> status-height: scribe ? 32px : 28px;
+    out property <length> header-height: scribe ? 72px : 52px;
+    out property <length> touch-size: 48px;
+    out property <length> action-height: scribe ? 96px : 72px;
+}

@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "source_date": "2026-11-03",
+  "plugin": {
+    "repository": "https://github.com/moooyo/bilicomics.koplugin",
+    "commit": "a05ffb987c2089ca389cb3462aafd3ee1c0fa36c",
+    "path": "bilicomics/protocol/native"
+  },
+  "wasm3": {
+    "repository": "https://github.com/wasm3/wasm3",
+    "commit": "5fe766c933c7595d728d6172bb1a197607d85b4e",
+    "license": "MIT",
+    "license_path": "wasm3/LICENSE"
+  },
+  "cjson": {
+    "repository": "https://github.com/DaveGamble/cJSON",
+    "commit": "c859b25da02955fef659d658b8f324b5cde87be3",
+    "license": "MIT",
+    "license_path": "cjson/LICENSE"
+  },
+  "mbedtls": {
+    "repository": "https://github.com/Mbed-TLS/mbedtls",
+    "commit": "068ff080b369adfac81509f9b57b2afabaf82dc5",
+    "release": "3.6.7",
+    "selected_license": "Apache-2.0",
+    "license_path": "legacy_v5/vendor/mbedtls/LICENSE",
+    "source_manifest": "legacy_v5/dependency.json",
+    "source_hashes": "legacy_v5/vendored-sha256.json"
+  },
+  "local_adaptations": [
+    "Build the existing C host and portable primitives as Cargo target-specific static libraries.",
+    "Generalize the internal AES ECB helper to accept 192-bit and 256-bit keys.",
+    "Export bili_aes192_ecb_decrypt for the Rust response CBC adapter."
+  ],
+  "official_wasm_redistributed": false,
+  "prebuilt_libraries_redistributed": false,
+  "device_verified": false
+}

@@ -1,0 +1,285 @@
+import { Theme } from "theme.slint";
+import { Strings } from "strings.slint";
+import { IconButton } from "widgets.slint";
+
+component KeyCap inherits Rectangle {
+    in property <string> text;
+    in property <string> label: root.text;
+    in property <bool> primary;
+    in property <bool> backspace;
+    in property <bool> functional;
+    callback clicked();
+    min-width: 0px;
+    preferred-width: 0px;
+    horizontal-stretch: 1;
+    background: root.primary || touch.pressed ? Theme.ink : Theme.paper;
+    border-color: Theme.ink;
+    border-width: 1.5px;
+    accessible-role: button;
+    accessible-label: root.label;
+    if !root.backspace: Text {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        text: root.text;
+        color: root.primary || touch.pressed ? Theme.paper : Theme.ink;
+        font-family: Theme.ui-font;
+        font-size: root.functional ? (Theme.scribe ? 19px : 16px) : (Theme.scribe ? 26px : 21px);
+        font-weight: root.functional ? 500 : 400;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    if root.backspace: Path {
+        x: (parent.width - 26px) / 2;
+        y: (parent.height - 26px) / 2;
+        width: 26px;
+        height: 26px;
+        viewbox-width: 24;
+        viewbox-height: 24;
+        stroke: touch.pressed ? Theme.paper : Theme.ink;
+        stroke-width: 2px;
+        fill: transparent;
+        commands: "M9 5 H20 V19 H9 L3 12 Z M12 9 L18 15 M18 9 L12 15";
+    }
+    touch := TouchArea {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down { Theme.refresh("keyboard"); }
+            if event.kind == PointerEventKind.up { Theme.refresh("keyboard-release"); }
+        }
+        clicked => { root.clicked(); }
+    }
+}
+
+export component TouchKeyboard inherits Rectangle {
+    in property <string> composition;
+    in property <[string]> candidates;
+    in property <int> candidate-page: 0;
+    in property <int> candidate-pages: 1;
+    in property <bool> latin: false;
+    in property <bool> numeric: false;
+    in property <string> action-label: Strings.cat-search;
+    callback key(string);
+    callback choose(int);
+    callback page(int);
+    property <length> candidate-height: Theme.scribe ? 65px : 53px;
+    property <length> keyboard-height: Theme.scribe ? 330px : 258px;
+    property <length> horizontal-padding: Theme.scribe ? 16px : 8px;
+    property <length> top-padding: Theme.scribe ? 14px : 10px;
+    property <length> key-gap: Theme.scribe ? 8px : 6px;
+    property <length> key-height: Theme.scribe ? 68px : 52px;
+    property <length> candidate-gap: Theme.scribe ? 6px : 4px;
+    property <length> candidate-pager-width: root.candidate-pages > 1 ? 2 * Theme.touch-size + 8px : 0px;
+    property <length> candidate-content-width: max(0px, root.width - 2 * root.horizontal-padding - root.candidate-pager-width - (root.candidate-pages > 1 ? root.candidate-gap : 0px));
+    height: root.candidate-height + root.keyboard-height;
+    background: Theme.paper;
+
+    Rectangle {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.candidate-height;
+        clip: true;
+        Rectangle { x: 0px; y: 0px; width: parent.width; height: 1px; background: Theme.ink; }
+        HorizontalLayout {
+            x: Theme.scribe ? 16px : 8px;
+            y: 0px;
+            width: root.candidate-content-width;
+            height: parent.height;
+            spacing: root.candidate-gap;
+            alignment: start;
+            composition-box := Rectangle {
+                horizontal-stretch: 0;
+                width: min(root.candidate-pages > 1 ? root.candidate-content-width / 4 : 100000px,
+                    max(Theme.scribe ? 92px : 72px, composition-label.preferred-width + (Theme.scribe ? 20px : 16px)));
+                composition-label := Text {
+                    x: Theme.scribe ? 10px : 8px;
+                    y: 0px;
+                    width: parent.width - (Theme.scribe ? 20px : 16px);
+                    height: parent.height;
+                    text: root.composition != "" ? root.composition : root.numeric ? "123" : root.latin ? "EN" : Strings.key-pinyin;
+                    color: Theme.secondary;
+                    font-family: Theme.ui-font;
+                    font-size: Theme.scribe ? 18px : 15px;
+                    vertical-alignment: center;
+                    overflow: elide;
+                }
+            }
+            for candidate[index] in root.candidates: Rectangle {
+                horizontal-stretch: 0;
+                property <length> natural-width: max(Theme.scribe ? 64px : 52px, candidate-label.preferred-width + (Theme.scribe ? 28px : 20px));
+                width: root.candidate-pages > 1 ? min(self.natural-width,
+                    max(Theme.scribe ? 64px : 52px, (root.candidate-content-width - composition-box.width - root.candidate-gap * root.candidates.length) / max(1, root.candidates.length))) : self.natural-width;
+                Rectangle {
+                    x: 0px;
+                    y: (parent.height - self.height) / 2;
+                    width: parent.width;
+                    height: Theme.scribe ? 56px : 48px;
+                    background: candidate-touch.pressed ? Theme.ink : Theme.paper;
+                    accessible-role: button;
+                    accessible-label: candidate;
+                    Rectangle { x: 0px; y: 0px; width: 1px; height: parent.height; background: Theme.line; }
+                    candidate-label := Text {
+                        x: 0px;
+                        y: 0px;
+                        width: parent.width;
+                        height: parent.height;
+                        text: candidate;
+                        color: candidate-touch.pressed ? Theme.paper : Theme.ink;
+                        font-family: Theme.ui-font;
+                        font-size: Theme.scribe ? 26px : 22px;
+                        font-weight: index == 0 ? 700 : 400;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+                    candidate-touch := TouchArea {
+                        x: 0px;
+                        y: 0px;
+                        width: parent.width;
+                        height: parent.height;
+                        pointer-event(event) => {
+                            if event.kind == PointerEventKind.down { Theme.refresh("keyboard"); }
+                            if event.kind == PointerEventKind.up { Theme.refresh("keyboard-release"); }
+                        }
+                        clicked => { root.choose(index); }
+                    }
+                }
+            }
+            if root.candidates.length == 0: Text {
+                text: root.numeric ? Strings.key-numeric-hint : root.latin ? Strings.key-latin-hint : Strings.key-pinyin-hint;
+                color: Theme.muted;
+                font-family: Theme.ui-font;
+                font-size: Theme.scribe ? 17px : 15px;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+                overflow: elide;
+            }
+        }
+        if root.candidate-pages > 1: HorizontalLayout {
+            x: parent.width - root.horizontal-padding - root.candidate-pager-width;
+            y: (parent.height - Theme.touch-size) / 2;
+            width: root.candidate-pager-width;
+            height: Theme.touch-size;
+            spacing: 8px;
+            IconButton {
+                icon: "back";
+                label: Strings.key-previous-candidates;
+                icon-size: Theme.scribe ? 24px : 20px;
+                feedback-down: "keyboard";
+                feedback-up: "keyboard-release";
+                enabled: root.candidate-page > 0;
+                border-width: 1px;
+                border-color: root.candidate-page > 0 ? Theme.ink : Theme.line;
+                clicked => { Theme.refresh("keyboard"); root.page(-1); }
+            }
+            IconButton {
+                icon: "next";
+                label: Strings.key-next-candidates;
+                icon-size: Theme.scribe ? 24px : 20px;
+                feedback-down: "keyboard";
+                feedback-up: "keyboard-release";
+                enabled: root.candidate-page + 1 < root.candidate-pages;
+                border-width: 1px;
+                border-color: root.candidate-page + 1 < root.candidate-pages ? Theme.ink : Theme.line;
+                clicked => { Theme.refresh("keyboard"); root.page(1); }
+            }
+        }
+    }
+
+    Rectangle {
+        x: 0px;
+        y: root.candidate-height;
+        width: root.width;
+        height: root.keyboard-height;
+        background: Theme.paper;
+        Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
+        HorizontalLayout {
+            x: root.horizontal-padding;
+            y: 2px + root.top-padding;
+            width: parent.width - 2 * root.horizontal-padding;
+            height: root.key-height;
+            spacing: root.key-gap;
+            for letter in root.numeric ? ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"] : ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"]: KeyCap {
+                text: letter;
+                clicked => { root.key(letter); }
+            }
+        }
+        HorizontalLayout {
+            x: root.horizontal-padding;
+            y: 2px + root.top-padding + root.key-height + root.key-gap;
+            width: parent.width - 2 * root.horizontal-padding;
+            height: root.key-height;
+            spacing: root.key-gap;
+            Rectangle { min-width: 0px; preferred-width: 0px; horizontal-stretch: 0.5; }
+            for letter in root.numeric ? ["@", "#", "$", "%", "&", "-", "+", "(", ")"] : ["a", "s", "d", "f", "g", "h", "j", "k", "l"]: KeyCap {
+                text: letter;
+                clicked => { root.key(letter); }
+            }
+            Rectangle { min-width: 0px; preferred-width: 0px; horizontal-stretch: 0.5; }
+        }
+        HorizontalLayout {
+            x: root.horizontal-padding;
+            y: 2px + root.top-padding + 2 * (root.key-height + root.key-gap);
+            width: parent.width - 2 * root.horizontal-padding;
+            height: root.key-height;
+            spacing: root.key-gap;
+            KeyCap {
+                text: root.numeric ? "ABC" : "123";
+                functional: true;
+                horizontal-stretch: 1.5;
+                clicked => { root.key("num"); }
+            }
+            for letter in root.numeric ? ["/", "*", ":", ";", "!", "?", "_"] : ["z", "x", "c", "v", "b", "n", "m"]: KeyCap {
+                text: letter;
+                clicked => { root.key(letter); }
+            }
+            KeyCap {
+                label: Strings.key-delete;
+                backspace: true;
+                horizontal-stretch: 1.5;
+                clicked => { root.key("back"); }
+            }
+        }
+        HorizontalLayout {
+            x: root.horizontal-padding;
+            y: 2px + root.top-padding + 3 * (root.key-height + root.key-gap);
+            width: parent.width - 2 * root.horizontal-padding;
+            height: root.key-height;
+            spacing: root.key-gap;
+            KeyCap {
+                text: root.latin ? Strings.key-en-zh : Strings.key-zh-en;
+                functional: true;
+                horizontal-stretch: 1.8;
+                clicked => { root.key("lang"); }
+            }
+            KeyCap {
+                text: root.latin || root.numeric ? "," : Strings.key-comma;
+                functional: true;
+                clicked => { root.key(root.latin || root.numeric ? "," : Strings.key-comma); }
+            }
+            KeyCap {
+                text: root.latin || root.numeric ? Strings.key-space : Strings.key-space-choose;
+                functional: true;
+                horizontal-stretch: 4.4;
+                clicked => { root.key("space"); }
+            }
+            KeyCap {
+                text: root.latin || root.numeric ? "." : Strings.key-period;
+                functional: true;
+                clicked => { root.key(root.latin || root.numeric ? "." : Strings.key-period); }
+            }
+            KeyCap {
+                text: root.action-label;
+                primary: true;
+                functional: true;
+                horizontal-stretch: 2.2;
+                clicked => { root.key("enter"); }
+            }
+        }
+    }
+}

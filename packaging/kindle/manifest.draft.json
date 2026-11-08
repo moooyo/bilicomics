@@ -1,0 +1,10 @@
+{
+  "manifest_version": 2,
+  "id": "bilicomics",
+  "name": "BiliComics for Kindle",
+  "author": "bilicomics contributors",
+  "description": "Independent Rust and Slint BiliComics client; unreleased packaging draft",
+  "version": [0, 1, 5],
+  "dependencies": [],
+  "supported_platforms": ["kindlehf"]
+}

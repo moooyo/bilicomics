@@ -1,0 +1,64 @@
+Noto Sans CJK SC, Regular and Bold
+
+Original name-table copyright (name ID 0):
+© 2014-2021 Adobe (http://www.adobe.com/).
+
+Original name-table trademark (name ID 7):
+Noto is a trademark of Google Inc.
+
+Original CFF Notice:
+Copyright 2014-2021 Adobe (http://www.adobe.com/). Noto is a trademark of Google Inc.
+
+Original name-table license statement (name ID 13):
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This Font Software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the SIL Open Font License for the specific language, permissions and limitations governing your use of this Font Software.
+
+Original name-table license URL (name ID 14):
+http://scripts.sil.org/OFL
+
+Original upstream license:
+NotoSansCJK-LICENSE.txt
+https://github.com/notofonts/noto-cjk/blob/523d033d6cb47f4a80c58a35753646f5c3608a78/LICENSE
+
+
+Noto Sans CJK SC, Medium
+
+Original name-table copyright (name ID 0):
+© 2014-2021 Adobe (http://www.adobe.com/).
+
+Original name-table trademark (name ID 7):
+Noto is a trademark of Google Inc.
+
+Original CFF Notice:
+Copyright2014-2021 Adobe (http://www.adobe.com/). Noto is a trademark of Google Inc.
+
+Original name-table license statement (name ID 13):
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This Font Software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the SIL Open Font License for the specific language, permissions and limitations governing your use of this Font Software.
+
+Original name-table license URL (name ID 14):
+http://scripts.sil.org/OFL
+
+Original upstream license:
+NotoSansCJK-LICENSE.txt
+https://github.com/notofonts/noto-cjk/blob/523d033d6cb47f4a80c58a35753646f5c3608a78/LICENSE
+
+
+Noto Serif CJK SC, Light, Regular, Medium, and Bold
+
+Original name-table copyright (name ID 0):
+© 2017-2024 Adobe (http://www.adobe.com/).
+
+Original name-table trademark (name ID 7):
+Noto is a trademark of Google Inc.
+
+Original CFF Notice:
+Copyright 2017-2024 Adobe (http://www.adobe.com/). Noto is a trademark of Google Inc.
+
+Original name-table license statement (name ID 13):
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This Font Software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the SIL Open Font License for the specific language, permissions and limitations governing your use of this Font Software.
+
+Original name-table license URL (name ID 14):
+http://scripts.sil.org/OFL
+
+Original upstream license:
+NotoSerifCJK-LICENSE.txt
+https://github.com/notofonts/noto-cjk/blob/9b0f1436e455d902de067a2501422e5dc71ad16b/Serif/LICENSE

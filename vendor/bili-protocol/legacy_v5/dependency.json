@@ -1,0 +1,14 @@
+{
+  "project": "Mbed TLS",
+  "repository": "https://github.com/Mbed-TLS/mbedtls",
+  "release": "mbedtls-3.6.7",
+  "commit": "068ff080b369adfac81509f9b57b2afabaf82dc5",
+  "archive_url": "https://codeload.github.com/Mbed-TLS/mbedtls/tar.gz/068ff080b369adfac81509f9b57b2afabaf82dc5",
+  "archive_sha256": "ca6bd316bbec49ef20088f39b8755fcaec0b7e45781506de55b17cd191ae6937",
+  "upstream_license": "Apache-2.0 OR GPL-2.0-or-later",
+  "selected_license": "Apache-2.0",
+  "patches": [
+    "patches/0001-clear-p256-recoded-scalar.patch",
+    "patches/0002-clear-gcm-key-derived-temporaries.patch"
+  ]
+}

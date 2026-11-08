@@ -1,0 +1,142 @@
+[
+  {
+    "context": {
+      "url": "/twirp/comic.v1.Comic/ComicDetail",
+      "buvid": "12345678-1234-1234-1234-123456789012infoc",
+      "platform": "web",
+      "body": "{\"comic_id\":36215}"
+    },
+    "key": "1357-2413-24135791web215",
+    "bytesData": "jmTpxmtDJ4wyCCWg5JJZ7mrLf8exed+PMqeLvMVQO38=",
+    "official": {
+      "error": "",
+      "data": "{\"fixture\":\"crypto\"}"
+    }
+  },
+  {
+    "context": {
+      "url": "/twirp/comic.v1.Comic/ComicDetail",
+      "buvid": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "platform": "web",
+      "body": "{\"comic_id\":36215}"
+    },
+    "key": "ACEGIKMOQSUWY02468web215",
+    "bytesData": "NTAB/6or9GEj/cAC6yoEk5RRZa8t07CXQa9wZy0e+rw=",
+    "official": {
+      "error": "",
+      "data": "{\"fixture\":\"crypto\"}"
+    }
+  },
+  {
+    "context": {
+      "url": "/twirp/comic.v1.Comic/ComicDetail",
+      "buvid": "ABCDEFGHIJKLMNO",
+      "platform": "web",
+      "body": "{\"comic_id\":9}"
+    },
+    "key": "ACEGIKMOweb9============",
+    "bytesData": "oSxo9i47IyTEpywOkYOUHGwG2aZIAFmcsU/jlaIG0EM=",
+    "official": {
+      "data": "{\"fixture\":\"crypto\"}",
+      "error": ""
+    }
+  },
+  {
+    "context": {
+      "url": "/twirp/comic.v1.Comic/ComicDetail",
+      "buvid": "ABCDEFGHIJKLMNO",
+      "platform": "web",
+      "body": "{\"comic_id\":\"00003\"}"
+    },
+    "key": "ACEGIKMOweb003==========",
+    "bytesData": "ONfdLqfg4qci9yygyp8NZncOniwJkhfm9EBHwcTdq6Y=",
+    "official": {
+      "error": "",
+      "data": "{\"fixture\":\"crypto\"}"
+    }
+  },
+  {
+    "context": {
+      "url": "https://manga.bilibili.com/twirp/comic.v1.Comic/ComicDetail?device=pc",
+      "buvid": "ABCDEFGHIJKLMNO",
+      "platform": "web",
+      "body": "{\"comic_id\":36215}"
+    },
+    "key": "ACEGIKMOweb215==========",
+    "bytesData": "ilDYbw4D7JVFszGrp+EjyqqJhTqXW+JxtJrvb+JH1cc=",
+    "official": {
+      "error": "",
+      "data": "{\"fixture\":\"crypto\"}"
+    }
+  },
+  {
+    "context": {
+      "url": "/twirp/comic.v1.Comic/ComicDetail",
+      "buvid": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+      "platform": "web",
+      "body": "{\"comic_id\":36215}"
+    },
+    "key": "ACEGIKMOQSUWY02468web215",
+    "bytesData": "NTAB/6or9GEj/cAC6yoEk5RRZa8t07CXQa9wZy0e+rw=",
+    "official": {
+      "error": "",
+      "data": "{\"fixture\":\"crypto\"}"
+    }
+  },
+  {
+    "context": {
+      "url": "/twirp/comic.v1.Comic/GetImageIndex",
+      "buvid": "ABCDEFGHIJKLMNO",
+      "platform": "web",
+      "body": "{\"ep_id\":123456}"
+    },
+    "key": "ACEGIKMOweb456==========",
+    "bytesData": "Uu5VdHV4TW5hNxFamlF8dpr4C2qxeOf1G7q8zctSptM=",
+    "official": {
+      "error": "",
+      "data": "{\"fixture\":\"crypto\"}"
+    }
+  },
+  {
+    "context": {
+      "url": "/twirp/comic.v1.Comic/ClassPage",
+      "buvid": "ABCDEFGHIJKLMNO",
+      "platform": "web",
+      "body": "{\"style_id\":654321}"
+    },
+    "key": "ACEGIKMOweb321==========",
+    "bytesData": "UiWhJm5MKAI1cEwJaK5acTI5VJa3UXO4Zsln5Oo4XlI=",
+    "official": {
+      "error": "",
+      "data": "{\"fixture\":\"crypto\"}"
+    }
+  },
+  {
+    "context": {
+      "url": "/twirp/comic.v1.Comic/ImageToken",
+      "buvid": "ABCDEFGHIJKLMNO",
+      "platform": "web",
+      "body": "{\"urls\":\"[\\\"synthetic-a\\\",\\\"synthetic-b\\\"]\"}"
+    },
+    "key": "ACEGIKMOwebb\"]==========",
+    "bytesData": "P5NSC/NcVT+Q8Y0ZI8SkU/XIu6ckFSDAq9Si/vVlqYM=",
+    "official": {
+      "error": "",
+      "data": "{\"fixture\":\"crypto\"}"
+    }
+  },
+  {
+    "context": {
+      "url": "/twirp/comic.v1.Comic/ComicDetail",
+      "buvid": "ABCDEFGHIJKLMNO",
+      "platform": "web",
+      "body": "{}"
+    },
+    "key": "ACEGIKMOweb=============",
+    "bytesData": "J7JcJsAkyJQOKxX2NwR+aYib9VrRvRAqrDL62SxaYGU=",
+    "official": {
+      "data": "{\"fixture\":\"crypto\"}",
+      "error": ""
+    }
+  }
+]

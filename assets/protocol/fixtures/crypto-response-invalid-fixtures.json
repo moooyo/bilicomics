@@ -1,0 +1,30 @@
+{
+  "context": {
+    "url": "/twirp/comic.v1.Comic/ComicDetail",
+    "buvid": "12345678-1234-1234-1234-123456789012infoc",
+    "platform": "web",
+    "body": "{\"comic_id\":36215}"
+  },
+  "fixtures": [
+    {
+      "code": "invalid_padding",
+      "data": "4Z7sQnCnjn9DWXK8kv0flg=="
+    },
+    {
+      "code": "invalid_padding",
+      "data": "lVG6/OtSggGWKkIzbi134w=="
+    },
+    {
+      "code": "invalid_utf8",
+      "data": "AGgcymks5hKxkEtv2XVOJw=="
+    },
+    {
+      "code": "invalid_json",
+      "data": "tYX7hm706NtyldeXg4UvDA=="
+    },
+    {
+      "code": "invalid_json",
+      "data": "LaPjWkG9P+zTTa8h0fnLRA=="
+    }
+  ]
+}

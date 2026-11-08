@@ -1,0 +1,103 @@
+import { Strings } from "strings.slint";
+import { Theme } from "theme.slint";
+
+export component StartupScreen inherits Rectangle {
+    in property <string> phase: "fonts";
+    in property <int> frame: 0;
+    in property <bool> failed: false;
+    in property <bool> paused: false;
+    callback exit();
+
+    background: #ffffff;
+    property <length> content-width: min(440px, root.width - 48px);
+    property <length> center-x: (root.width - root.content-width) / 2;
+    property <length> content-top: max(24px, root.height / 2 - 150px);
+    property <string> phase-label: root.paused ? Strings.startup-suspended :
+        root.failed ? Strings.startup-error-body :
+        root.phase == "state" ? Strings.startup-phase-state :
+        root.phase == "attach" ? Strings.startup-phase-attach : Strings.startup-phase-fonts;
+
+    Text {
+        x: root.center-x;
+        y: root.content-top;
+        width: root.content-width;
+        height: 56px;
+        text: Strings.startup-app-name;
+        font-family: "BiliComics Startup";
+        font-size: Theme.scribe ? 40px : 34px;
+        color: #000000;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    Text {
+        x: root.center-x;
+        y: root.content-top + 80px;
+        width: root.content-width;
+        height: 40px;
+        text: root.failed ? Strings.startup-error-title : Strings.startup-loading;
+        font-family: "BiliComics Startup";
+        font-size: Theme.scribe ? 24px : 20px;
+        color: #000000;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    Text {
+        x: root.center-x;
+        y: root.content-top + 132px;
+        width: root.content-width;
+        height: root.failed ? 72px : 48px;
+        text: root.phase-label;
+        font-family: "BiliComics Startup";
+        font-size: Theme.scribe ? 20px : 17px;
+        color: #000000;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        wrap: word-wrap;
+    }
+    if !root.failed: Rectangle {
+        x: (root.width - 120px) / 2;
+        y: root.content-top + 212px;
+        width: 120px;
+        height: 12px;
+        for index in 4: Rectangle {
+            x: index * 32px;
+            y: 0px;
+            width: 24px;
+            height: 12px;
+            border-width: 2px;
+            border-color: #000000;
+            background: !root.paused && mod(root.frame, 4) == index ? #000000 : #ffffff;
+        }
+    }
+    if root.failed: Rectangle {
+        x: root.center-x;
+        y: root.content-top + 232px;
+        width: root.content-width;
+        height: 56px;
+        border-width: 2px;
+        border-color: #000000;
+        background: exit-touch.pressed ? #000000 : #ffffff;
+        accessible-role: button;
+        accessible-label: Strings.startup-exit;
+        Text {
+            x: 0px;
+            y: 0px;
+            width: parent.width;
+            height: parent.height;
+            text: Strings.startup-exit;
+            font-family: "BiliComics Startup";
+            font-size: 20px;
+            color: exit-touch.pressed ? #ffffff : #000000;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+        exit-touch := TouchArea {
+            x: 0px;
+            y: 0px;
+            width: parent.width;
+            height: parent.height;
+            enabled: !root.paused;
+            clicked => { root.exit(); }
+        }
+    }
+}

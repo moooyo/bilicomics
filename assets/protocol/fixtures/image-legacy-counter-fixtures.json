@@ -1,0 +1,30 @@
+[
+  {
+    "id": "legacy-v3-counter-wrap",
+    "synthetic": true,
+    "version": 3,
+    "privateKey": "eyJrZXlfb3BzIjpbImRlcml2ZUtleSIsImRlcml2ZUJpdHMiXSwiZXh0Ijp0cnVlLCJrdHkiOiJFQyIsIngiOiJSbEw4b2libHZ6NENJSElNQUZzbjQ3VnZrTTNqLU1BR0g5OE8zdlU2UGRRIiwieSI6InMyTjR6QUNMZ3dBWTNRek82bzJsbnBPZTB6RkJTcUtTSnZJVjJZYUNZaFEiLCJjcnYiOiJQLTI1NiIsImQiOiJUVC1NV3h4UWI1WUJlYXJ0RVMtRlFxYWZMbHo2aFctSkMyb2VTTjN5eVI0In0=",
+    "url": "https://example.invalid/synthetic-legacy-v3-small.png?cpx=2UfCSLr2nRc1Y35sijvqT8s6%2BmcSX3LzqJzpsi5z7U1P%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2BV6LgLsVkOuxEoiv%2BGOiC5MEYvowrsXg%3D%3D&ts=6aa4c09f",
+    "bodyBase64": "AwAAAFz86EzTEBDLdsogO4DFjTswa15991eCv5WzmVFzBEEdJtu8gzd6foJA+ld5Q8QrVQSnjoEefQuSaxBHMH1rAwRifQr/kso9G6EhNhEvXO5qz8mufOzRMJLoQFZy+QQ7iDVuPm5CU4adsiqH5wwGHjpknq1l1Y3eUJBlPkEOJPElmRIoHt1vuY5tIYWPg7ve1F/VAG0aOlI4ij1oHx6p",
+    "expectedBase64": "iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAYAAACddGYaAAAAI0lEQVR4nGPwdN3xTWqR9y2eg1mXGI5513xJ183OTIkpUQIAnDkLZg/icaEAAAAASUVORK5CYII=",
+    "sharedHex": "a2fb087b1f8a9e09b4e9255505cc0be2aca5c1e84ed06d253abf25a0a8301be9",
+    "expectedSha256": "ecdfe00b5671ccbedb703323d08d1c5ba3ef9808dc8eaa60107333f7551f3c07",
+    "plaintextLength": 92,
+    "payloadLength": 92,
+    "prefixPlaintextLength": 92
+  },
+  {
+    "id": "legacy-v7-counter-wrap",
+    "synthetic": true,
+    "version": 7,
+    "privateKey": "eyJrZXlfb3BzIjpbImRlcml2ZUtleSIsImRlcml2ZUJpdHMiXSwiZXh0Ijp0cnVlLCJrdHkiOiJFQyIsIngiOiJtOXV4LU1GNGlYR0ZCNmRUQ3pkMEVDbEZmSHBOakRNdHpqLTNueDJpV1djIiwieSI6IjIwbVJ0NXgwa0RqTHhHUHZOMkhlYk1Zd2taQmQwN1Rka1lPWXJKcWJrWnMiLCJjcnYiOiJQLTI1NiIsImQiOiJsZUMzT0JjWVlQb2lteGc2UW5oY1VIdmp3SFduSm1IMndKb0JSNFNuWlQ4In0=",
+    "url": "https://example.invalid/synthetic-legacy-v7-small.png?cpx=ZybdfY00WKuHBBFOMh5hsAkQnajVA2HDAQYApogXDppk%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2BljdvIQLe7OOi5O2rs4Ieexz9ZF1ekjg%3D%3D&ts=6aa4c0a0",
+    "bodyBase64": "BwAAAFyhMeIwDSMxXi2rXqfNTEOQfyPk9bDpDCD732z8r9N+K/UPW9hoRvLIwG8E265U+lLSrtyzm1LjVnLBx5/4yHuASwvHfQIGDSILY5w9BxrB5O/e5ZXjLNupJq48NQQZfb2K3j3Uem3EZL66DrYEvwmbc6Jihipjm2iaF60SvOD60poBGVDdMpbajASzedlTd/hUcpPjAPdyRfooPzVW",
+    "expectedBase64": "iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAYAAACddGYaAAAAI0lEQVR4nGPwdN3xTWqR9y2eg1mXGI5513xJ183OTIkpUQIAnDkLZg/icaEAAAAASUVORK5CYII=",
+    "sharedHex": "7ea6a5d49720b7ab341842a4f715fb36b9503ca276ffb7cceedc6854e6648288",
+    "expectedSha256": "ecdfe00b5671ccbedb703323d08d1c5ba3ef9808dc8eaa60107333f7551f3c07",
+    "plaintextLength": 92,
+    "payloadLength": 92,
+    "prefixPlaintextLength": 92
+  }
+]

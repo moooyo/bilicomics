@@ -1,0 +1,120 @@
+import { Theme } from "theme.slint";
+import { Strings } from "strings.slint";
+import { StatusBar, BottomNav } from "widgets.slint";
+import { CatalogModel, ShelfScreen, StoreScreen, SearchScreen, DetailScreen } from "catalog.slint";
+import { ReaderModel, ReaderScreen } from "reader.slint";
+import { AccountModel, AccountScreen } from "account.slint";
+import { DownloadModel, DownloadsScreen } from "downloads.slint";
+import { PurchaseModel, PurchaseScreen } from "purchase.slint";
+import { AuthModel, WelcomeScreen, LoginScreen, NetSheet } from "auth.slint";
+import { StartupScreen } from "startup.slint";
+
+export { Theme } from "theme.slint";
+export { CatalogModel, ComicItem, EpisodeItem, CategoryItem, SearchHistoryItem } from "catalog.slint";
+export { ReaderModel, ReaderThumbnail, ReaderChapter } from "reader.slint";
+export { AccountModel, AccountInfoItem } from "account.slint";
+export { DownloadModel, DownloadItem, DownloadChapterItem } from "downloads.slint";
+export { PurchaseModel, PurchaseRangeItem, PurchaseReceiptItem } from "purchase.slint";
+export { AuthModel } from "auth.slint";
+
+export global ShellModel {
+    callback action(string, string);
+    in-out property <string> route: "welcome";
+    in-out property <string> clock;
+    in-out property <string> network;
+    in-out property <string> battery;
+    in-out property <bool> online: false;
+    in-out property <bool> landscape: false;
+    in-out property <bool> demo: false;
+    in-out property <bool> booting: true;
+    in-out property <string> startup-phase: "fonts";
+    in-out property <int> startup-frame: 0;
+    in-out property <bool> startup-error: false;
+    in-out property <bool> suspended: false;
+    in-out property <int> pending: 0;
+    in-out property <string> toast;
+}
+
+export component AppWindow inherits Window {
+    title: ShellModel.demo ? "BiliComics - Design Preview" : "BiliComics";
+    preferred-width: 618px;
+    preferred-height: 824px;
+    min-width: 400px;
+    min-height: 560px;
+    background: Theme.paper;
+    default-font-family: Theme.ui-font;
+    default-font-size: Theme.body-size;
+    property <bool> reader-visible: !ShellModel.booting && ShellModel.route == "reader";
+    property <bool> navigation-visible:
+        !ShellModel.booting && (ShellModel.route == "shelf" || ShellModel.route == "store" || ShellModel.route == "downloads" || ShellModel.route == "account" || (ShellModel.route == "search" && !CatalogModel.keyboard-visible))
+        && !(ShellModel.route == "downloads" && (DownloadModel.selecting || DownloadModel.sheet-open))
+        && !(ShellModel.route == "account" && AccountModel.recharge-visible);
+    property <length> top-inset: root.reader-visible ? 0px : Theme.status-height;
+    property <length> bottom-inset: root.navigation-visible ? Theme.nav-height : 0px;
+
+    if !ShellModel.booting && !root.reader-visible: StatusBar {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        clock: ShellModel.clock;
+        network: ShellModel.network;
+        battery: ShellModel.battery;
+        online: ShellModel.online;
+    }
+    if !ShellModel.booting: Rectangle {
+        x: 0px;
+        y: root.top-inset;
+        width: root.width;
+        height: root.height - root.top-inset - root.bottom-inset;
+        background: Theme.paper;
+        clip: true;
+        if ShellModel.route == "shelf": ShelfScreen { width: parent.width; height: parent.height; }
+        if ShellModel.route == "store": StoreScreen { width: parent.width; height: parent.height; }
+        if ShellModel.route == "search": SearchScreen { width: parent.width; height: parent.height; }
+        if ShellModel.route == "detail": DetailScreen { width: parent.width; height: parent.height; }
+        if ShellModel.route == "downloads": DownloadsScreen { width: parent.width; height: parent.height; }
+        if ShellModel.route == "account": AccountScreen { width: parent.width; height: parent.height; }
+        if ShellModel.route == "purchase": PurchaseScreen { width: parent.width; height: parent.height; }
+        if ShellModel.route == "welcome": WelcomeScreen { width: parent.width; height: parent.height; }
+        if ShellModel.route == "login": LoginScreen { width: parent.width; height: parent.height; }
+    }
+    if root.reader-visible: ReaderScreen { x: 0px; y: 0px; width: root.width; height: root.height; }
+    if root.navigation-visible: BottomNav {
+        x: 0px;
+        y: root.height - Theme.nav-height;
+        width: root.width;
+        active: ShellModel.route == "search" ? "store" : ShellModel.route;
+        pending: ShellModel.pending;
+        change(value) => { ShellModel.action("navigate", value); }
+    }
+    if !ShellModel.booting && AuthModel.net-visible: NetSheet { x: 0px; y: 0px; width: root.width; height: root.height; }
+    if !ShellModel.booting && ShellModel.toast != "": Rectangle {
+        x: Theme.margin;
+        y: root.top-inset + 8px;
+        width: root.width - Theme.margin * 2;
+        height: Theme.scribe ? 64px : 52px;
+        border-width: 2px;
+        border-color: Theme.ink;
+        background: Theme.paper;
+        Text {
+            x: 12px; width: parent.width - 24px;
+            text: ShellModel.toast;
+            font-size: Theme.label-size;
+            color: Theme.ink;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            wrap: word-wrap;
+        }
+    }
+    if ShellModel.booting: StartupScreen {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
+        phase: ShellModel.startup-phase;
+        frame: ShellModel.startup-frame;
+        failed: ShellModel.startup-error;
+        paused: ShellModel.suspended;
+        exit => { ShellModel.action("exit", ""); }
+    }
+}

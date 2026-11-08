@@ -1,0 +1,15 @@
+bili_v5.c
+vendor/mbedtls/library/aes.c
+vendor/mbedtls/library/block_cipher.c
+vendor/mbedtls/library/gcm.c
+vendor/mbedtls/library/md.c
+vendor/mbedtls/library/pkcs5.c
+vendor/mbedtls/library/sha512.c
+vendor/mbedtls/library/platform_util.c
+vendor/mbedtls/library/constant_time.c
+vendor/mbedtls/library/ecp.c
+vendor/mbedtls/library/ecp_curves.c
+vendor/mbedtls/library/bignum.c
+vendor/mbedtls/library/bignum_core.c
+vendor/mbedtls/library/bignum_mod.c
+vendor/mbedtls/library/bignum_mod_raw.c

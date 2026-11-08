@@ -1,0 +1,3 @@
+# Add an exact profile and firmware pair only after acceptance on that device.
+# This intentionally empty allowlist does not establish Kindle compatibility.
+# Syntax: profile firmware

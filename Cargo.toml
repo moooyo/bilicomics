@@ -1,0 +1,58 @@
+[package]
+name = "bilicomics"
+version = "0.1.16"
+edition = "2024"
+rust-version = "1.92"
+description = "Independent Bilibili Comics client for Kindle with a Rust core and Slint interface"
+publish = false
+
+[features]
+default = ["desktop"]
+desktop = ["slint/backend-winit", "slint/renderer-software"]
+kindle = ["dep:slint-backend-kindle"]
+
+[dependencies]
+anyhow = "1"
+base64 = "0.22"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4", features = ["derive"] }
+crc32fast = "1"
+flate2 = "1"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp"] }
+libc = "0.2"
+qrcode = { version = "0.14", default-features = false }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "gzip", "deflate"] }
+rusqlite = { version = "0.37", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+slint = { version = "=1.17.1", default-features = false, features = ["std", "compat-1-2", "renderer-software", "unstable-fontique-010"] }
+thiserror = "2"
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "time", "macros", "fs"] }
+url = "2"
+zune-core = "=0.5.3"
+zune-jpeg = "=0.5.15"
+gif = "=0.14.2"
+
+[patch.crates-io]
+zune-jpeg = { path = "vendor/zune-jpeg" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+slint-backend-kindle = { path = "vendor/slint-backend-kindle", optional = true }
+
+[build-dependencies]
+cc = "1"
+serde_json = "1"
+slint-build = "=1.17.1"
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+
+[profile.dev]
+debug = 0
+incremental = true

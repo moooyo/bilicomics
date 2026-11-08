@@ -1,0 +1,10 @@
+--- a/library/ecp.c
++++ b/library/ecp.c
+@@ -2208,6 +2208,7 @@
+ #endif
+ 
+ cleanup:
++    mbedtls_platform_zeroize(k, sizeof(k));
+     return ret;
+ }
+ 

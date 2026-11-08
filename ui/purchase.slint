@@ -1,0 +1,601 @@
+import { Theme } from "theme.slint";
+import { Strings } from "strings.slint";
+import { ActionButton, NavigationButton, BookCover } from "widgets.slint";
+
+export struct PurchaseRangeItem {
+    id: string,
+    label: string,
+    price: string,
+    original: string,
+    enabled: bool,
+}
+
+export struct PurchaseReceiptItem {
+    label: string,
+    value: string,
+}
+
+export global PurchaseModel {
+    callback action(string, string);
+    in-out property <string> phase: "review";
+    in-out property <string> comic-title;
+    in-out property <string> episode-title;
+    in-out property <image> cover;
+    in-out property <[PurchaseRangeItem]> ranges;
+    in-out property <string> selected-range;
+    in-out property <string> payment: "coin";
+    in-out property <string> wallet-label: Strings.buy-wallet-unknown;
+    in-out property <string> coupon-label: Strings.buy-coupon-unknown;
+    in-out property <bool> coupons-allowed;
+    in-out property <string> total: Strings.buy-unknown;
+    in-out property <string> unit: Strings.buy-coin;
+    in-out property <string> after-text;
+    in-out property <string> pay-label: Strings.buy-confirm;
+    in-out property <string> scope-label;
+    in-out property <string> hint;
+    in-out property <string> error-text;
+    in-out property <bool> sufficient: true;
+    in-out property <bool> quote-ready;
+    in-out property <bool> quote-loading;
+    in-out property <bool> reconciling;
+    in-out property <[PurchaseReceiptItem]> result-rows;
+    in-out property <string> result-title: Strings.buy-success-title;
+    in-out property <string> result-body: Strings.buy-success-body;
+    in-out property <bool> result-can-read: true;
+    in-out property <string> pending-body: Strings.buy-pending-body;
+}
+
+component PurchaseRadio inherits Rectangle {
+    in property <string> label;
+    in property <string> meta;
+    in property <string> original;
+    in property <bool> selected;
+    in property <bool> enabled: true;
+    in property <bool> unavailable: false;
+    in property <bool> range-row;
+    callback chosen();
+    height: Theme.scribe ? 76px : 60px;
+    background: touch.pressed && root.enabled ? Theme.ink : Theme.paper;
+    property <color> foreground: root.unavailable ? Theme.muted : touch.pressed && root.enabled ? Theme.paper : Theme.ink;
+    property <length> circle-size: Theme.scribe ? 26px : 22px;
+    accessible-role: button;
+    accessible-label: root.label + " " + root.meta;
+    accessible-enabled: root.enabled;
+    Rectangle {
+        x: 4px;
+        y: (parent.height - root.circle-size) / 2;
+        width: root.circle-size;
+        height: root.circle-size;
+        border-radius: root.circle-size / 2;
+        border-width: 2px;
+        border-color: root.foreground;
+        background: transparent;
+        if root.selected: Rectangle {
+            width: Theme.scribe ? 12px : 10px;
+            height: self.width;
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            border-radius: self.width / 2;
+            background: root.foreground;
+        }
+    }
+    Text {
+        x: Theme.scribe ? 46px : 38px;
+        y: 0px;
+        width: root.width - self.x - (root.range-row ? (Theme.scribe ? 300px : 150px) : (Theme.scribe ? 260px : 180px));
+        height: parent.height;
+        text: root.label;
+        color: root.foreground;
+        font-family: Theme.ui-font;
+        font-size: Theme.scribe ? 21px : 17px;
+        font-weight: root.selected ? 700 : 400;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    if root.range-row: Text {
+        x: root.width - (Theme.scribe ? 124px : 148px);
+        y: !Theme.scribe && root.original != "" ? 8px : 0px;
+        width: Theme.scribe ? 120px : 144px;
+        height: !Theme.scribe && root.original != "" ? 26px : root.height;
+        text: root.meta;
+        color: root.foreground;
+        font-family: Theme.ui-font;
+        font-size: Theme.scribe ? 21px : 17px;
+        font-weight: 700;
+        horizontal-alignment: right;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    if root.range-row && root.original != "": Text {
+        x: Theme.scribe ? root.width - 292px : root.width - 148px;
+        y: Theme.scribe ? 0px : 34px;
+        width: Theme.scribe ? 156px : 144px;
+        height: Theme.scribe ? root.height : 18px;
+        text: root.original;
+        color: touch.pressed && root.enabled ? Theme.paper : Theme.secondary;
+        font-family: Theme.ui-font;
+        font-size: Theme.scribe ? 16px : 13px;
+        horizontal-alignment: right;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    if !root.range-row: Text {
+        x: root.width - (Theme.scribe ? 264px : 184px);
+        y: 0px;
+        width: Theme.scribe ? 260px : 180px;
+        height: root.height;
+        text: root.meta;
+        color: root.unavailable ? Theme.muted : touch.pressed && root.enabled ? Theme.paper : Theme.secondary;
+        font-family: Theme.ui-font;
+        font-size: Theme.scribe ? 18px : 15px;
+        horizontal-alignment: right;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    Rectangle { x: 0px; y: parent.height - 1px; height: 1px; width: parent.width; background: Theme.line; }
+    touch := TouchArea {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        enabled: root.enabled;
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down { Theme.refresh("press"); }
+            else if event.kind == PointerEventKind.up { Theme.refresh("release"); }
+        }
+        clicked => { root.chosen(); }
+    }
+}
+
+component PurchaseResultRow inherits Rectangle {
+    in property <string> label;
+    in property <string> value;
+    height: Theme.scribe ? 72px : 56px;
+    Text {
+        x: 0px;
+        y: 0px;
+        width: parent.width * 0.38;
+        height: parent.height;
+        text: root.label;
+        font-family: Theme.ui-font;
+        font-size: Theme.scribe ? 20px : 16px;
+        color: Theme.secondary;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    Text {
+        x: parent.width * 0.38;
+        y: 0px;
+        width: parent.width * 0.62;
+        height: parent.height;
+        text: root.value;
+        font-family: Theme.ui-font;
+        font-size: Theme.scribe ? 20px : 16px;
+        font-weight: 500;
+        color: Theme.ink;
+        horizontal-alignment: right;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    Rectangle { x: 0px; y: parent.height - 1px; height: 1px; width: parent.width; background: Theme.line; }
+}
+
+export component PurchaseScreen inherits Rectangle {
+    background: Theme.paper;
+    property <bool> locked: PurchaseModel.phase == "submitting";
+    property <bool> done: PurchaseModel.phase == "done";
+    property <bool> pending: PurchaseModel.phase == "pending";
+    property <bool> reviewing: !root.done && !root.pending;
+    property <length> footer-height: Theme.scribe ? 96px : 76px;
+    property <length> row-height: Theme.scribe ? 76px : 60px;
+    property <length> summary-height: Theme.scribe ? 213px : 128px;
+    property <length> result-receipt-margin: Theme.scribe || root.done ? 16px : 8px;
+
+    header := Rectangle {
+        x: 0px;
+        y: 0px;
+        height: Theme.scribe ? 72px : 52px;
+        width: parent.width;
+        if root.reviewing && !root.locked: NavigationButton {
+            // The hit box absorbs the source SVG's negative leading margin.
+            x: Theme.scribe ? 28px : 4px;
+            y: (parent.height - self.height) / 2;
+            height: Theme.scribe ? 56px : 48px;
+            text-size: Theme.scribe ? 20px : 17px;
+            icon-size: Theme.scribe ? 28px : 22px;
+            icon: "back";
+            text: Strings.buy-back;
+            clicked => { PurchaseModel.action("back", ""); }
+        }
+        Text {
+            x: root.reviewing && !root.locked ? (Theme.scribe ? 140px : 96px) : (Theme.scribe ? 48px : 24px);
+            y: 0px;
+            width: parent.width - self.x - (root.locked ? 132px : 24px);
+            height: parent.height;
+            text: root.done ? PurchaseModel.result-title : root.pending ? Strings.buy-result-title : Strings.buy-review-title;
+            font-family: Theme.ui-font;
+            font-size: Theme.scribe ? 26px : 20px;
+            font-weight: 700;
+            color: Theme.ink;
+            vertical-alignment: center;
+        }
+        if root.locked: Rectangle {
+            x: parent.width - (Theme.scribe ? 48px : 24px) - self.width;
+            y: (parent.height - self.height) / 2;
+            width: lock-label.preferred-width + (Theme.scribe ? 22px : 18px);
+            height: Theme.scribe ? 30px : 25px;
+            border-width: 1px;
+            border-color: Theme.ink;
+            lock-label := Text { x: 0px; y: 0px; width: parent.width; height: parent.height; text: Strings.buy-locked; color: Theme.ink; font-family: Theme.ui-font; font-size: Theme.scribe ? 16px : 14px; horizontal-alignment: center; vertical-alignment: center; }
+        }
+        Rectangle { x: 0px; y: parent.height - 1px; width: parent.width; height: 1px; background: Theme.ink; }
+    }
+
+    if root.reviewing: Rectangle {
+        x: 0px;
+        y: header.height;
+        width: root.width;
+        height: root.height - header.height - root.footer-height;
+        summary := Rectangle {
+            x: 0px;
+            y: 0px;
+            width: parent.width;
+            height: root.summary-height;
+            BookCover {
+                x: Theme.margin;
+                y: Theme.scribe ? 32px : 16px;
+                width: Theme.scribe ? 120px : 72px;
+                height: Theme.scribe ? 160px : 96px;
+                cover: PurchaseModel.cover;
+                title: PurchaseModel.comic-title;
+            }
+            Text {
+                x: Theme.margin + (Theme.scribe ? 144px : 88px);
+                y: Theme.scribe ? 58px : 18px;
+                width: parent.width - self.x - Theme.margin;
+                height: Theme.scribe ? 40px : 30px;
+                text: PurchaseModel.comic-title;
+                font-family: Theme.serif-font;
+                font-size: Theme.scribe ? 30px : 20px;
+                font-weight: 700;
+                color: Theme.ink;
+                overflow: elide;
+            }
+            Text {
+                x: Theme.margin + (Theme.scribe ? 144px : 88px);
+                y: Theme.scribe ? 104px : 52px;
+                width: parent.width - self.x - Theme.margin;
+                height: Theme.scribe ? 32px : 26px;
+                text: PurchaseModel.episode-title;
+                font-family: Theme.ui-font;
+                font-size: Theme.scribe ? 21px : 17px;
+                color: Theme.ink;
+                overflow: elide;
+            }
+            Text {
+                x: Theme.margin + (Theme.scribe ? 144px : 88px);
+                y: Theme.scribe ? 142px : 82px;
+                width: parent.width - self.x - Theme.margin;
+                height: Theme.scribe ? 28px : 22px;
+                text: Strings.buy-permanent-access;
+                font-family: Theme.ui-font;
+                font-size: Theme.scribe ? 17px : 14px;
+                color: Theme.secondary;
+                overflow: elide;
+            }
+            Rectangle {
+                x: Theme.scribe ? Theme.margin : 0px;
+                y: parent.height - 1px;
+                width: parent.width - (Theme.scribe ? 2 * Theme.margin : 0px);
+                height: 1px;
+                background: Theme.line;
+            }
+        }
+        Rectangle {
+            x: Theme.margin;
+            y: summary.height;
+            width: parent.width - 2 * Theme.margin;
+            height: parent.height - summary.height;
+            VerticalLayout {
+                x: 0px;
+                y: 0px;
+                width: parent.width;
+                height: parent.height;
+                spacing: 0px;
+                Rectangle {
+                    height: Theme.scribe ? 64px : 36px;
+                    Text {
+                        x: 0px;
+                        y: Theme.scribe ? 24px : 10px;
+                        width: parent.width;
+                        height: Theme.scribe ? 26px : 22px;
+                        text: Strings.buy-scope;
+                        color: Theme.secondary;
+                        font-family: Theme.ui-font;
+                        font-size: Theme.scribe ? 17px : 15px;
+                    }
+                }
+                Rectangle {
+                    height: 2px + root.row-height * PurchaseModel.ranges.length;
+                    Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
+                    for item[index] in PurchaseModel.ranges: PurchaseRadio {
+                        x: 0px;
+                        y: 2px + index * root.row-height;
+                        width: parent.width;
+                        height: root.row-height;
+                        label: item.label;
+                        meta: item.price;
+                        original: item.original;
+                        selected: item.id == PurchaseModel.selected-range;
+                        enabled: item.enabled && !root.locked;
+                        unavailable: !item.enabled;
+                        range-row: true;
+                        chosen => { PurchaseModel.action("range", item.id); }
+                    }
+                }
+                if PurchaseModel.ranges.length == 0: Text {
+                    height: Theme.scribe ? 76px : 60px;
+                    text: PurchaseModel.quote-loading ? Strings.buy-loading-quote : Strings.buy-no-ranges;
+                    font-family: Theme.ui-font;
+                    font-size: Theme.scribe ? 18px : 16px;
+                    color: Theme.secondary;
+                    vertical-alignment: center;
+                }
+                Rectangle {
+                    height: Theme.scribe ? 64px : 36px;
+                    Text {
+                        x: 0px;
+                        y: Theme.scribe ? 24px : 10px;
+                        width: parent.width;
+                        height: Theme.scribe ? 26px : 22px;
+                        text: Strings.buy-payment;
+                        color: Theme.secondary;
+                        font-family: Theme.ui-font;
+                        font-size: Theme.scribe ? 17px : 15px;
+                    }
+                }
+                Rectangle {
+                    height: 2px + 2 * root.row-height;
+                    Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
+                    PurchaseRadio {
+                        x: 0px;
+                        y: 2px;
+                        width: parent.width;
+                        label: Strings.buy-coin;
+                        meta: PurchaseModel.wallet-label;
+                        selected: PurchaseModel.payment == "coin";
+                        enabled: !root.locked;
+                        chosen => { PurchaseModel.action("payment", "coin"); }
+                    }
+                    PurchaseRadio {
+                        x: 0px;
+                        y: 2px + root.row-height;
+                        width: parent.width;
+                        label: Strings.buy-coupon;
+                        meta: PurchaseModel.coupon-label;
+                        selected: PurchaseModel.payment == "coupon";
+                        enabled: !root.locked && PurchaseModel.coupons-allowed;
+                        unavailable: !PurchaseModel.coupons-allowed;
+                        chosen => { PurchaseModel.action("payment", "coupon"); }
+                    }
+                }
+                Rectangle { height: Theme.scribe ? 28px : 16px; }
+                Rectangle {
+                    height: Theme.scribe ? 94px : 74px;
+                    border-width: 2px;
+                    border-color: Theme.ink;
+                    Text {
+                        x: Theme.scribe ? 24px : 16px;
+                        y: Theme.scribe ? 18px : 12px;
+                        width: parent.width * 0.6 - self.x;
+                        height: Theme.scribe ? 26px : 22px;
+                        text: Strings.buy-total;
+                        font-family: Theme.ui-font;
+                        font-size: Theme.scribe ? 18px : 15px;
+                        color: Theme.secondary;
+                    }
+                    Text {
+                        x: Theme.scribe ? 24px : 16px;
+                        y: Theme.scribe ? 48px : 36px;
+                        width: parent.width * 0.65 - self.x;
+                        height: Theme.scribe ? 28px : 22px;
+                        text: PurchaseModel.after-text;
+                        font-family: Theme.ui-font;
+                        font-size: Theme.scribe ? 18px : 14px;
+                        color: PurchaseModel.sufficient ? Theme.secondary : Theme.ink;
+                        font-weight: PurchaseModel.sufficient ? 400 : 700;
+                        overflow: elide;
+                    }
+                    HorizontalLayout {
+                        x: parent.width * 0.62;
+                        y: 0px;
+                        width: parent.width * 0.38 - (Theme.scribe ? 24px : 16px);
+                        height: parent.height;
+                        padding: 0px;
+                        spacing: Theme.scribe ? 6px : 4px;
+                        alignment: end;
+                        Text {
+                            text: PurchaseModel.total;
+                            font-family: Theme.ui-font;
+                            font-size: Theme.scribe ? 48px : 34px;
+                            font-weight: 700;
+                            color: Theme.ink;
+                            vertical-alignment: center;
+                        }
+                        Text {
+                            text: PurchaseModel.unit;
+                            font-family: Theme.ui-font;
+                            font-size: Theme.scribe ? 21px : 17px;
+                            color: Theme.ink;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                Rectangle { height: Theme.scribe ? 14px : 10px; }
+                Text {
+                    height: Theme.scribe ? 60px : 44px;
+                    text: PurchaseModel.error-text != "" ? PurchaseModel.error-text : root.locked ? Strings.buy-locked-hint : PurchaseModel.quote-loading ? Strings.buy-loading-quote : PurchaseModel.hint != "" ? PurchaseModel.hint : Strings.buy-quote-hint;
+                    font-family: Theme.ui-font;
+                    font-size: Theme.scribe ? 17px : 14px;
+                    color: PurchaseModel.error-text != "" ? Theme.ink : Theme.secondary;
+                    wrap: word-wrap;
+                }
+                Rectangle { vertical-stretch: 1; }
+            }
+        }
+    }
+
+    if root.done || root.pending: Rectangle {
+        x: 0px;
+        y: header.height;
+        width: root.width;
+        height: root.height - header.height - root.footer-height;
+        Rectangle {
+            x: Theme.scribe ? 48px : root.done ? 24px : 32px;
+            y: Theme.scribe ? 96px : root.done ? 56px : 48px;
+            width: parent.width - 2 * self.x;
+            height: parent.height - self.y;
+            VerticalLayout {
+                x: 0px;
+                y: 0px;
+                width: parent.width;
+                height: parent.height;
+                spacing: Theme.scribe ? 18px : 14px;
+                if root.pending: Rectangle {
+                    height: Theme.scribe ? 30px : 27px;
+                    Rectangle {
+                        x: 0px;
+                        y: 0px;
+                        width: Theme.scribe ? 94px : 80px;
+                        height: parent.height;
+                        border-width: 1px;
+                        border-color: Theme.ink;
+                        Text { x: 0px; y: 0px; width: parent.width; height: parent.height; text: Strings.buy-pending-badge; color: Theme.ink; font-family: Theme.ui-font; font-size: Theme.scribe ? 16px : 14px; horizontal-alignment: center; vertical-alignment: center; }
+                    }
+                }
+                Text {
+                    height: Theme.scribe ? 51px : 39px;
+                    text: root.done ? PurchaseModel.result-can-read ? Strings.buy-unlocked + " " + PurchaseModel.scope-label : PurchaseModel.result-title : Strings.buy-pending-title;
+                    font-family: Theme.ui-font;
+                    font-size: Theme.scribe ? 34px : 26px;
+                    font-weight: 700;
+                    color: Theme.ink;
+                    horizontal-alignment: root.done ? center : left;
+                    overflow: elide;
+                }
+                Rectangle {
+                    height: max(root.done ? (Theme.scribe ? 29px : 24px) : (Theme.scribe ? 60px : 50px), result-message.preferred-height);
+                    result-message := Text {
+                        x: root.done ? (parent.width - self.width) / 2 : 0px;
+                        y: 0px;
+                        width: Theme.scribe ? min(parent.width, 680px) : parent.width;
+                        height: parent.height;
+                        text: PurchaseModel.error-text != "" ? PurchaseModel.error-text : root.done ? PurchaseModel.result-body : PurchaseModel.pending-body;
+                        font-family: Theme.ui-font;
+                        font-size: Theme.scribe ? 19px : 16px;
+                        color: Theme.secondary;
+                        horizontal-alignment: root.done ? center : left;
+                        wrap: word-wrap;
+                    }
+                }
+                Rectangle {
+                    height: root.result-receipt-margin + 2px + (Theme.scribe ? 72px : 56px) * PurchaseModel.result-rows.length;
+                    Rectangle { x: 0px; y: root.result-receipt-margin; width: parent.width; height: 2px; background: Theme.ink; }
+                    for item[index] in PurchaseModel.result-rows: PurchaseResultRow {
+                        x: 0px;
+                        y: root.result-receipt-margin + 2px + index * (Theme.scribe ? 72px : 56px);
+                        width: parent.width;
+                        label: item.label;
+                        value: item.value;
+                    }
+                }
+                Rectangle { vertical-stretch: 1; }
+            }
+        }
+    }
+
+    Rectangle {
+        x: 0px;
+        y: root.height - root.footer-height;
+        width: root.width;
+        height: root.footer-height;
+        Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
+        HorizontalLayout {
+            x: 0px;
+            y: (root.footer-height - Theme.button-height) / 2;
+            width: parent.width;
+            height: Theme.button-height;
+            padding-left: Theme.margin;
+            padding-right: Theme.margin;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            spacing: Theme.scribe ? 14px : root.done ? 10px : 12px;
+            alignment: stretch;
+            if root.reviewing: ActionButton {
+                width: Theme.scribe ? 220px : PurchaseModel.sufficient ? 140px : 160px;
+                height: Theme.button-height;
+                text-size: Theme.scribe ? 20px : 16px;
+                text-weight: 500;
+                text: root.locked || PurchaseModel.sufficient ? Strings.buy-cancel : Strings.buy-refresh-wallet;
+                enabled: !root.locked;
+                clicked => { PurchaseModel.action(PurchaseModel.sufficient ? "back" : "refresh-wallet", ""); }
+            }
+            if root.reviewing: ActionButton {
+                horizontal-stretch: 1;
+                height: Theme.button-height;
+                text-size: Theme.scribe ? 21px : 17px;
+                text-weight: 500;
+                text: root.locked ? Strings.buy-submitting : !PurchaseModel.sufficient ? Strings.buy-recharge : PurchaseModel.error-text != "" && !PurchaseModel.quote-ready ? Strings.buy-refresh-quote : PurchaseModel.pay-label;
+                primary: !root.locked;
+                enabled: !root.locked && !PurchaseModel.quote-loading && (!PurchaseModel.sufficient || PurchaseModel.quote-ready || PurchaseModel.error-text != "");
+                clicked => { PurchaseModel.action(!PurchaseModel.sufficient ? "recharge" : !PurchaseModel.quote-ready ? "refresh-quote" : "submit", ""); }
+            }
+            if root.done: ActionButton {
+                width: Theme.scribe ? 200px : (parent.width - 2 * Theme.margin - 20px) / 3.4;
+                height: Theme.button-height;
+                text-size: Theme.scribe ? 20px : 16px;
+                text-weight: 500;
+                text: Strings.buy-detail;
+                clicked => { PurchaseModel.action("detail", ""); }
+            }
+            if root.done: ActionButton {
+                width: Theme.scribe ? 200px : (parent.width - 2 * Theme.margin - 20px) / 3.4;
+                height: Theme.button-height;
+                text-size: Theme.scribe ? 20px : 16px;
+                text-weight: 500;
+                text: Strings.buy-download;
+                enabled: PurchaseModel.result-can-read;
+                clicked => { PurchaseModel.action("download", ""); }
+            }
+            if root.done: ActionButton {
+                horizontal-stretch: 1;
+                height: Theme.button-height;
+                text-size: Theme.scribe ? 21px : 17px;
+                text-weight: 500;
+                text: Strings.buy-read;
+                enabled: PurchaseModel.result-can-read;
+                primary: true;
+                clicked => { PurchaseModel.action("read", ""); }
+            }
+            if root.pending: ActionButton {
+                width: Theme.scribe ? 220px : 140px;
+                height: Theme.button-height;
+                text-size: Theme.scribe ? 20px : 16px;
+                text-weight: 500;
+                text: Strings.buy-close;
+                enabled: !PurchaseModel.reconciling;
+                clicked => { PurchaseModel.action("close", ""); }
+            }
+            if root.pending: ActionButton {
+                horizontal-stretch: 1;
+                height: Theme.button-height;
+                text-size: Theme.scribe ? 21px : 17px;
+                text-weight: 500;
+                text: PurchaseModel.reconciling ? Strings.buy-reconciling : Strings.buy-reconcile;
+                enabled: !PurchaseModel.reconciling;
+                primary: true;
+                clicked => { PurchaseModel.action("reconcile", ""); }
+            }
+        }
+    }
+}

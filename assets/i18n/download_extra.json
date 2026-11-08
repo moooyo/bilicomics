@@ -1,0 +1,23 @@
+{
+  "dl_fixture_free_pw": "9.8 GB",
+  "dl_fixture_free_sc": "21.4 GB",
+  "dl_fixture_summary_pw": "8 部 · 1.57 GB · 2 项进行中 · 1 项失败",
+  "dl_fixture_summary_sc": "8 部 · 共 1.57 GB · 2 项进行中 · 1 项失败 · 设备剩余 21.4 GB",
+  "dl_progress_value": "下载中 {percent}%",
+  "dl_local_count": "已保存 {count}/{total} 张 · {size}",
+  "dl_selected_count": "已选 {count} 部",
+  "dl_summary_value": "{count} 部 · {size} · {active} 项进行中 · {failed} 项失败",
+  "dl_runtime_free_space": "设备剩余 {size}",
+  "dl_paused": "已暂停",
+  "dl_queued": "排队中",
+  "dl_offline_ready": "可离线",
+  "dl_remove_selected": "移除所选下载",
+  "dl_smart_on": "智能下载：开 ›",
+  "dl_smart_off": "智能下载：关 ›",
+  "dl_retry": "重试",
+  "dl_pause": "暂停",
+  "dl_resume": "继续",
+  "dl_remove_current": "移除本机下载",
+  "dl_reading_in_use": "正在阅读的章节已保留，请关闭阅读器后再移除",
+  "dl_background_busy": "正在整理本机下载，请稍后再移除"
+}

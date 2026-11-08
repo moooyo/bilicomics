@@ -1,0 +1,5 @@
+{
+  "auth_fixture_expiry": "16:34 前有效",
+  "auth_service_expiry": "有效期以扫码结果为准",
+  "auth_confirmation_required": "登录状态需要重新确认，请重新扫码"
+}

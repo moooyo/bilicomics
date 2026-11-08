@@ -1,0 +1,5 @@
+Repository: https://github.com/KindleTweaks/slint-kindle-backend-patch
+Revision: 03aa48d3531e9eae7b360bdc24e90a72e9f307a4
+Package: slint-backend-kindle 0.7.1
+Vendored source: Cargo.toml, README.md, LICENSE-APACHE, LICENSE-MIT, src/
+Local changes: PATCHES.md
