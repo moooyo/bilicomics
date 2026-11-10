@@ -21,6 +21,7 @@ mod clipboard;
 mod command;
 mod framebuffer;
 mod lifecycle;
+mod performance;
 mod platform;
 mod portrait_events;
 mod portrait_pose;
@@ -32,6 +33,10 @@ mod wakeup;
 
 pub use command::run_bounded_command;
 pub use lifecycle::DisplayLifecycleHandle;
+pub use performance::{
+    PerformanceFrameSample, PerformanceSampleKind, PerformanceStageTimings,
+    PerformanceTiming, PerformanceTraceHandle,
+};
 pub use refresh::{
     PhysicalRect, RefreshArea, RefreshError, RefreshHandle, RefreshRequest, RefreshWaveform,
 };
@@ -131,10 +136,16 @@ pub struct KindleBackend<State = NoSchedule> {
     rotation: Arc<AtomicU32>,
     refresh_handle: RefreshHandle,
     lifecycle_handle: DisplayLifecycleHandle,
+    performance_trace: PerformanceTraceHandle,
     _state: PhantomData<State>,
 }
 
 impl<State> KindleBackend<State> {
+    /// Observe actual native work after it completes, without requesting draws.
+    pub fn performance_trace_handle(&self) -> PerformanceTraceHandle {
+        self.performance_trace.clone()
+    }
+
     /// Queue display requests for execution after the current frame is drawn.
     pub fn refresh_handle(&self) -> RefreshHandle {
         self.refresh_handle.clone()
@@ -200,6 +211,7 @@ impl<State> KindleBackend<State> {
             rotation: self.rotation,
             refresh_handle: self.refresh_handle,
             lifecycle_handle: self.lifecycle_handle,
+            performance_trace: self.performance_trace,
             _state: PhantomData,
         }
     }
@@ -291,6 +303,7 @@ pub fn install(font_data: &[u8]) -> Result<KindleBackend, slint::PlatformError> 
     let window = platform.window.clone();
     let refresh_handle = platform.refresh_handle();
     let lifecycle_handle = platform.lifecycle_handle();
+    let performance_trace = platform.performance_trace_handle();
     slint::platform::set_platform(Box::new(platform))
         .map_err(|e| slint::PlatformError::Other(format!("{e}")))?;
     Ok(KindleBackend {
@@ -301,6 +314,7 @@ pub fn install(font_data: &[u8]) -> Result<KindleBackend, slint::PlatformError> 
         rotation,
         refresh_handle,
         lifecycle_handle,
+        performance_trace,
         _state: PhantomData,
     })
 }

@@ -7,6 +7,7 @@ umask 077
 relay_mode=0
 portrait_probe_mode=0
 portrait_publish_mode=0
+native_capture_mode=0
 portrait_profile=''
 canonical_sequence() {
     case "$1" in *[!0-9]*|''|0*) return 1 ;; esac
@@ -33,6 +34,13 @@ for argument in "$@"; do
             && [ "$2" = --kindle ] && [ "$3" = --device ] || exit 2
         case "$4" in pw5|pw6|scribe|scribe2025) ;; *) exit 2 ;; esac
         portrait_probe_mode=1
+        portrait_profile=$4
+    fi
+    if [ "$argument" = --capture-native-display ]; then
+        [ "$#" -eq 4 ] && [ "$1" = --capture-native-display ] \
+            && [ "$2" = --kindle ] && [ "$3" = --device ] || exit 2
+        case "$4" in pw5|pw6|scribe|scribe2025) ;; *) exit 2 ;; esac
+        native_capture_mode=1
         portrait_profile=$4
     fi
     if [ "$argument" = --publish-native-portrait-orientation ]; then
@@ -117,10 +125,18 @@ read_exact_record() {
     [ -f "$1" ] && [ ! -L "$1" ] || return 1
     exact_record_budget=${2:-256}
     case "$exact_record_budget" in 256|512) ;; *) return 1 ;; esac
-    exact_record_hex=$(dd if="$1" bs=1 count=$((exact_record_budget + 1)) 2>/dev/null | od -An -v -tx1 | tr -d ' \n') || return 1
+    exact_record_octets=$(od -An -v -tx1 -N "$((exact_record_budget + 1))" "$1" 2>/dev/null) || return 1
+    exact_record_hex=''
+    for exact_record_octet in $exact_record_octets; do
+        exact_record_hex=$exact_record_hex$exact_record_octet
+    done
     [ -n "$exact_record_hex" ] && [ "${#exact_record_hex}" -le $((exact_record_budget * 2)) ] || return 1
     exact_record_value=$(read_one "$1") || return 1
-    exact_record_expected=$(printf '%s\n' "$exact_record_value" | od -An -v -tx1 | tr -d ' \n') || return 1
+    exact_record_octets=$(printf '%s\n' "$exact_record_value" | od -An -v -tx1) || return 1
+    exact_record_expected=''
+    for exact_record_octet in $exact_record_octets; do
+        exact_record_expected=$exact_record_expected$exact_record_octet
+    done
     [ "$exact_record_hex" = "$exact_record_expected" ] || return 1
     printf '%s\n' "$exact_record_value"
 }
@@ -220,7 +236,7 @@ check_verified_elf_receipt() {
         && [ "$(read_record "$logs/watchdog.identity")" = "$elf_receipt_issuer|$elf_receipt_birth|$elf_issuer_exe" ] \
         && assert_process "$elf_receipt_issuer" "$elf_issuer_snapshot"
 }
-lock_inode() { ls -id "$lock" 2>/dev/null | awk '{ print $1 }'; }
+lock_inode() { stat -c '%i' "$lock" 2>/dev/null; }
 load_observer() {
     [ -d "$lock" ] && [ ! -L "$lock" ] || return 1
     observer_lock_inode=$(lock_inode)
@@ -275,6 +291,27 @@ publish_line() {
     [ ! -e "$logs/$publish_name" ] && [ ! -L "$logs/$publish_name" ] || return 1
     mv "$logs/$publish_name.pending" "$logs/$publish_name"
 }
+physical_wrapper_trace() {
+    [ "${BILICOMICS_LAUNCH_TRACE:-0}" = 1 ] || return 0
+    case "${1:-}" in
+        probe_entry|capture_entry|publish_entry|elf_receipt_loaded|observer_loaded|issuer_bound|ancestry_scanned|ancestry_rechecked|final_checks_entry) ;;
+        *) return 0 ;;
+    esac
+    [ -d "$run_root" ] && [ ! -L "$run_root" ] && [ ! -L "$run_root/data" ] \
+        && [ -d "$logs" ] && [ ! -L "$logs" ] || return 0
+    physical_trace_path=$logs/physical-wrapper-timing.tsv
+    [ ! -L "$physical_trace_path" ] || return 0
+    if [ -e "$physical_trace_path" ] && [ ! -f "$physical_trace_path" ]; then return 0; fi
+    # Keep the optional diagnostic write and its file-size limit in a child.
+    # No tracing failure may change the helper's checks, limits, or exit status.
+    (
+        ulimit -f 16 || exit 0
+        IFS=' ' read -r physical_trace_uptime physical_trace_unused </proc/uptime || exit 0
+        case "$physical_trace_uptime" in *[!0-9.]*|'') exit 0 ;; esac
+        [ "${#physical_trace_uptime}" -le 32 ] || exit 0
+        printf '%s\t%s\tpid=%s\n' "$physical_trace_uptime" "$1" "$$" >>"$physical_trace_path"
+    ) 2>/dev/null || :
+}
 
 token=$(read_record "$logs/run-token")
 case "$token" in *[!0-9a-f]*|'') exit 2 ;; esac
@@ -287,14 +324,24 @@ case "$digest" in *[!0-9a-f]*|'') exit 2 ;; esac
 real_binary=$run_root/app/$binary
 [ -f "$real_binary" ] && [ ! -L "$real_binary" ] && [ -x "$real_binary" ] || exit 2
 
-if [ "$portrait_probe_mode" -eq 1 ] || [ "$portrait_publish_mode" -eq 1 ]; then
+if [ "$portrait_probe_mode" -eq 1 ] || [ "$native_capture_mode" -eq 1 ] || [ "$portrait_publish_mode" -eq 1 ]; then
+    if [ "$native_capture_mode" -eq 1 ]; then
+        physical_wrapper_trace capture_entry
+    elif [ "$portrait_probe_mode" -eq 1 ]; then
+        physical_wrapper_trace probe_entry
+    else
+        physical_wrapper_trace publish_entry
+    fi
     [ "${BILICOMICS_APPROVED_PROFILE:-}" = "$portrait_profile" ] || exit 2
     [ "$(read_record "$run_root/data/device-profile")" = "$portrait_profile" ] || exit 2
     elf_owner=$(id -u) || exit 2
     load_verified_elf_receipt || exit 2
+    physical_wrapper_trace elf_receipt_loaded
     load_observer || exit 2
+    physical_wrapper_trace observer_loaded
     bind_verified_elf_issuer || exit 2
-    if [ "$portrait_publish_mode" -eq 1 ]; then
+    physical_wrapper_trace issuer_bound
+    if [ "$native_capture_mode" -eq 1 ] || [ "$portrait_publish_mode" -eq 1 ]; then
         [ "${BILICOMICS_LIFECYCLE_DIR:-}" = "$lock" ] \
             && [ "${BILICOMICS_LAUNCH_GENERATION:-}" = "$launch_generation" ] \
             && [ "${BILICOMICS_LAUNCH_TOKEN:-}" = "$launch_nonce" ] || exit 2
@@ -339,12 +386,15 @@ $probe_snapshot"
         probe_remaining=$((probe_remaining - 1))
     done
     [ "$probe_reached_leader" -eq 1 ] || exit 2
+    physical_wrapper_trace ancestry_scanned
     while IFS='|' read -r probe_id probe_birth probe_parent probe_pgid probe_sid probe_exe; do
         [ -n "$probe_id" ] || continue
         assert_process "$probe_id" "$probe_id|$probe_birth|$probe_parent|$probe_pgid|$probe_sid|$probe_exe" || exit 2
     done <<EOF
 $probe_chain
 EOF
+    physical_wrapper_trace ancestry_rechecked
+    physical_wrapper_trace final_checks_entry
     [ "$(read_exact_record "$lock/native-read-go")" = "$probe_permission" ] \
         && check_observer && assert_process "$probe_leader" "$probe_leader_snapshot" \
         && check_verified_elf_receipt || exit 2
@@ -372,13 +422,49 @@ EOF
 fi
 
 # UI execution is outside the production native-reader deadline and retains
-# its complete content check; only read-only portrait helpers use the receipt.
+# its complete content check; only native-display helpers use the receipt.
 [ "$(sha256sum "$real_binary" | awk '{ print $1 }')" = "$digest" ] || exit 2
 screen=$(read_one "$logs/screen")
 case "$screen" in shelf|reader) ;; *) exit 2 ;; esac
 duration=$(read_one "$logs/exit-after-ms")
 case "$duration" in *[!0-9]*|'') exit 2 ;; esac
 [ "$duration" -ge 1000 ] && [ "$duration" -le 600000 ] || exit 2
+content_mode=demo
+if [ -e "$logs/content-mode" ] || [ -L "$logs/content-mode" ]; then
+    content_mode=$(read_exact_record "$logs/content-mode") || exit 2
+fi
+case "$content_mode" in
+    demo) ;;
+    distinct_fixture)
+        # The production launcher supplies exactly one isolated data directory.
+        [ "$#" -eq 5 ] && [ "$1" = --kindle ] && [ "$2" = --device ] \
+            && [ "$4" = --data-dir ] && [ "$5" = "$run_root/data" ] && [ "$screen" = reader ] || exit 2
+        case "$3" in pw5|pw6|scribe|scribe2025) ;; *) exit 2 ;; esac
+        [ ! -e "$run_root/data/account" ] && [ ! -L "$run_root/data/account" ] || exit 2
+        guard_name=$(read_exact_record "$logs/socket-guard-name") || exit 2
+        guard_digest=$(read_exact_record "$logs/socket-guard-sha256") || exit 2
+        fixture_digest=$(read_exact_record "$logs/fixture-sha256") || exit 2
+        case "$guard_digest:$fixture_digest" in *[!0-9a-f:]*|:*) exit 2 ;; esac
+        [ "${#guard_digest}" -eq 64 ] && [ "${#fixture_digest}" -eq 64 ] \
+            && [ "$guard_name" = "offline-socket-guard-$guard_digest" ] || exit 2
+        [ "$(read_exact_record "$logs/socket-guard-approved")" = "$token|$guard_digest|$fixture_digest" ] || exit 2
+        socket_guard=$run_root/app/$guard_name
+        [ -f "$socket_guard" ] && [ ! -L "$socket_guard" ] && [ -x "$socket_guard" ] \
+            && [ "$(readlink -f "$socket_guard")" = "$socket_guard" ] \
+            && [ "$(sha256sum "$socket_guard" | awk '{ print $1 }')" = "$guard_digest" ] || exit 2
+        ;;
+    *) exit 2 ;;
+esac
+performance_trace=0
+if [ -e "$logs/performance-trace-enabled" ] || [ -L "$logs/performance-trace-enabled" ]; then
+    performance_trace=$(read_record "$logs/performance-trace-enabled") || exit 2
+fi
+case "$performance_trace" in
+    ''|0) ;;
+    1) set -- "$@" --performance-trace "$logs/performance.jsonl" ;;
+    *) exit 2 ;;
+esac
+[ "$content_mode" != distinct_fixture ] || [ "$performance_trace" = 1 ] || exit 2
 
 # exec retains the PID expected by the production launcher's signal bridge.
 stat_tail=$(sed 's/^.*) //' "/proc/$$/stat")
@@ -397,5 +483,10 @@ tr '\000' '\n' <"/proc/$parent_pid/environ" | grep -F -x "BILICOMICS_PHYSICAL_TO
 publish_line runner.identity "$parent_pid|$parent_ticks|$parent_exe|$launcher_pid|$token" || exit 2
 publish_line native.pid "$$" || exit 2
 publish_line native.identity "$$|$start_ticks|$real_binary|$parent_pid|$token" || exit 2
+if [ "$content_mode" = distinct_fixture ]; then
+    # The guard installs and proves its filter before the same PID execs the ARM.
+    exec "$socket_guard" --proof-file "$logs/ui-socket-guard.json" -- "$real_binary" "$@" --offline --screen "$screen" \
+        --lifecycle-trace "$logs/lifecycle.jsonl" --exit-after-ms "$duration"
+fi
 exec "$real_binary" "$@" --demo --offline --screen "$screen" \
     --lifecycle-trace "$logs/lifecycle.jsonl" --exit-after-ms "$duration"

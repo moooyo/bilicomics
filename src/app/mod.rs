@@ -7,6 +7,7 @@ mod jobs;
 mod lifecycle;
 mod lifecycle_maintenance;
 mod reading;
+mod reader_checkpoint;
 mod startup;
 mod views;
 #[cfg(test)]
@@ -20,7 +21,7 @@ use std::{
     future::Future,
     path::{Path, PathBuf},
     rc::Rc,
-    sync::Arc,
+    sync::{Arc, atomic::{AtomicBool, Ordering}},
     time::{Duration, Instant},
 };
 
@@ -181,6 +182,11 @@ pub struct App {
 }
 
 impl App {
+    /// Wake the owning event loop when a worker publishes a ready result.
+    pub fn set_runtime_wakeup(&self, wakeup: Arc<dyn Fn() + Send + Sync>) {
+        self.jobs.set_wakeup(wakeup);
+    }
+
     pub fn dispatch(&mut self, section: &str, action: &str, value: &str) -> Result<()> {
         if section == "lifecycle" {
             return match action {
@@ -223,6 +229,8 @@ impl App {
             self.advance_startup()?;
             return Ok(());
         }
+        self.tick_reader_checkpoints();
+        self.maintain_catalog_cache();
         let mut jobs_applied = false;
         for _ in 0..64 {
             let Some(event) = self.jobs.take() else { break; };
@@ -235,9 +243,11 @@ impl App {
                 if self.online != was_online { self.view_dirty.mark(View::Reader); }
             }
         }
+        self.jobs.wake_if_ready();
         let epoch = self.epoch;
         let jobs = &self.jobs;
         self.pending.retain(|key, sequence| jobs.is_current(epoch, *sequence, key));
+        self.retry_next_frame_after_delivery();
         self.tick_auth()?;
         self.tick_account()?;
         self.tick_downloads()?;
@@ -307,7 +317,9 @@ impl App {
             self.client.cancel_login(); self.qr_key = None; self.qr_polling = false;
             self.invalidate("qr-generate"); self.invalidate("qr-poll");
         }
-        if self.route == "reader" && route != "reader" { let _ = self.close_reader(); }
+        if self.route == "reader" && route != "reader" && self.reading.is_some() {
+            let _ = self.close_reader();
+        }
         if self.route != route { self.previous_route = self.route.clone(); }
         self.route = route.to_owned();
         if let Some(ui) = self.ui.upgrade() { ui.global::<ShellModel>().set_route(route.into()); }
@@ -456,6 +468,93 @@ impl App {
         self.background_after(key, Duration::ZERO, work, apply);
     }
 
+    fn background_traced<T, F, A>(&mut self, key: &str,
+        trace: Option<crate::performance::Operation>, work: F, apply: A)
+    where T: Send + 'static, F: FnOnce() -> Result<T> + Send + 'static,
+        A: FnOnce(&mut Self, Result<T>) + Send + 'static,
+    {
+        if self.is_suspended() { return; }
+        let admission = match self.begin_job(key, false) {
+            Ok(job) => job,
+            Err(error) => { apply(self, Err(error)); return; }
+        };
+        self.background_reserved_after_traced(key, admission, Duration::ZERO, trace, work, apply);
+    }
+
+    /// Attempt optional work only when computation and its dedicated result
+    /// slot are immediately available. Ordinary result capacity stays separate.
+    fn background_speculative<T, F, A>(&mut self, key: &str,
+        trace: Option<crate::performance::Operation>, cancelled: Arc<AtomicBool>, work: F, apply: A) -> bool
+    where T: Send + 'static, F: FnOnce() -> Result<T> + Send + 'static,
+        A: FnOnce(&mut Self, Result<T>) + Send + 'static,
+    {
+        let busy = || {
+            if let Some(trace) = trace { trace.mark("speculative_busy"); }
+            false
+        };
+        if self.is_suspended() || cancelled.load(Ordering::Acquire) {
+            return busy();
+        }
+        let Some(sequence) = self.sequence.checked_add(1) else { return busy(); };
+        let memory_cost = source::work::HEAVY_WORK_BYTES;
+        let Some(lease) = source::work::try_speculative(memory_cost, cancelled) else { return busy(); };
+        // The compute-state lock is already released. Mailbox admission takes
+        // only its own short lock; failure drops the whole speculative lease.
+        // The separate lane holds one prepared frame, which the reader bounds
+        // to 32 MiB before returning it. Publishing moves that same allocation.
+        let (ticket, delivery) = match self.jobs.try_begin_with_delivery(self.epoch, sequence, key) {
+            Ok(Some(admission)) => admission,
+            Ok(None) | Err(_) => { drop(lease); return busy(); }
+        };
+        let epoch = self.epoch;
+        self.sequence = sequence;
+        self.pending.insert(key.to_owned(), sequence);
+        let key = key.to_owned();
+        if let Some(trace) = trace {
+            trace.record("speculative_admitted", &serde_json::json!({"reserved_bytes": memory_cost}));
+        }
+        self.handle.spawn(async move {
+            let computation = source::work::run_speculative_traced(lease, trace, move |cancel| {
+                // Both reservations stay in the actual worker. Cancellation
+                // still produces a delivery envelope for a current UI ticket.
+                let result = if cancel.is_cancelled() {
+                    Err(anyhow::anyhow!("Speculative application work cancelled"))
+                } else {
+                    std::panic::catch_unwind(std::panic::AssertUnwindSafe(work))
+                        .unwrap_or_else(|_| Err(anyhow::anyhow!("Speculative application worker panicked")))
+                };
+                let result = if cancel.is_cancelled() {
+                    Err(anyhow::anyhow!("Speculative application work cancelled"))
+                } else { result };
+                (delivery, result)
+            });
+            let outcome = tokio::select! {
+                biased;
+                _ = ticket.cancelled() => {
+                    if let Some(trace) = trace { trace.mark("speculative_ticket_cancelled"); }
+                    return;
+                },
+                result = computation => result,
+            };
+            let (delivery, result) = match outcome {
+                Ok(result) => result,
+                Err(error) => {
+                    let Some(delivery) = ticket.acquire_delivery().await else { return; };
+                    (delivery, Err(anyhow::anyhow!("Speculative application worker unavailable: {error}")))
+                }
+            };
+            if let Some(trace) = trace {
+                trace.record("speculative_result", &serde_json::json!({"ok": u8::from(result.is_ok())}));
+            }
+            ticket.publish(JobEvent { epoch, sequence, key, apply: Box::new(move |app| {
+                if let Some(trace) = trace { trace.mark("speculative_ui_apply_begin"); }
+                apply(app, result);
+                if let Some(trace) = trace { trace.mark("speculative_ui_apply_end"); }
+            }) }, delivery);
+        });
+        true
+    }
+
     fn background_after<T, F, A>(&mut self, key: &str, delay: Duration, work: F, apply: A)
     where T: Send + 'static, F: FnOnce() -> Result<T> + Send + 'static,
         A: FnOnce(&mut Self, Result<T>) + Send + 'static,
@@ -476,14 +575,35 @@ impl App {
         self.background_reserved_after(key, admission, Duration::ZERO, work, apply);
     }
 
+    fn background_reserved_traced<T, F, A>(&mut self, key: &str,
+        admission: (u64, u64, jobs::JobTicket), trace: Option<crate::performance::Operation>,
+        work: F, apply: A)
+    where T: Send + 'static, F: FnOnce() -> Result<T> + Send + 'static,
+        A: FnOnce(&mut Self, Result<T>) + Send + 'static,
+    {
+        self.background_reserved_after_traced(key, admission, Duration::ZERO, trace, work, apply);
+    }
+
     fn background_reserved_after<T, F, A>(&mut self, key: &str,
         admission: (u64, u64, jobs::JobTicket), delay: Duration, work: F, apply: A)
+    where T: Send + 'static, F: FnOnce() -> Result<T> + Send + 'static,
+        A: FnOnce(&mut Self, Result<T>) + Send + 'static,
+    {
+        self.background_reserved_after_traced(key, admission, delay, None, work, apply);
+    }
+
+    fn background_reserved_after_traced<T, F, A>(&mut self, key: &str,
+        admission: (u64, u64, jobs::JobTicket), delay: Duration,
+        trace: Option<crate::performance::Operation>, work: F, apply: A)
     where T: Send + 'static, F: FnOnce() -> Result<T> + Send + 'static,
         A: FnOnce(&mut Self, Result<T>) + Send + 'static,
     {
         let (epoch, sequence, ticket) = admission;
         let memory_cost = background_memory_cost(key);
         let key = key.to_owned();
+        if let Some(trace) = trace {
+            trace.record("job_queued", &serde_json::json!({"epoch": epoch, "sequence": sequence}));
+        }
         self.handle.spawn(async move {
             if !delay.is_zero() {
                 tokio::select! {
@@ -492,8 +612,13 @@ impl App {
                     _ = tokio::time::sleep(delay) => {}
                 }
             }
-            let Some(delivery) = ticket.acquire_delivery().await else { return; };
-            let computation = source::work::run_blocking(memory_cost, move |cancel| {
+            if let Some(trace) = trace { trace.mark("delivery_wait_begin"); }
+            let Some(delivery) = ticket.acquire_delivery().await else {
+                if let Some(trace) = trace { trace.mark("cancelled_before_delivery"); }
+                return;
+            };
+            if let Some(trace) = trace { trace.mark("delivery_acquired"); }
+            let computation = source::work::run_blocking_traced(memory_cost, trace, move |cancel| {
                 // The result slot lives inside the real worker. Dropping its
                 // awaiting future cannot admit more unconsumed pixel results.
                 let result = if cancel.is_cancelled() {
@@ -506,7 +631,10 @@ impl App {
             });
             let outcome = tokio::select! {
                 biased;
-                _ = ticket.cancelled() => return,
+                _ = ticket.cancelled() => {
+                    if let Some(trace) = trace { trace.mark("job_cancelled"); }
+                    return;
+                },
                 result = computation => result,
             };
             let (delivery, result) = match outcome {
@@ -516,8 +644,18 @@ impl App {
                     (delivery, Err(anyhow::anyhow!("Application worker unavailable: {error}")))
                 }
             };
+            // This marker precedes publication, so it remains ordered before a
+            // callback that can run immediately on another thread's notification.
+            if let Some(trace) = trace { trace.mark("mailbox_publish_begin"); }
             ticket.publish(JobEvent { epoch, sequence, key,
-                apply: Box::new(move |app| apply(app, result)) }, delivery);
+                apply: Box::new(move |app| {
+                    if let Some(trace) = trace { trace.mark("ui_apply_begin"); }
+                    let measured = trace.map(|_| crate::performance::Span::start());
+                    apply(app, result);
+                    if let (Some(trace), Some(measured)) = (trace, measured) {
+                        trace.record("ui_apply_end", &measured.finish());
+                    }
+                }) }, delivery);
         });
     }
 
@@ -650,18 +788,27 @@ impl App {
     pub fn flush_observed_receipts(&mut self) -> Result<()> { self.flush_account_receipts() }
     pub fn shutdown(&mut self) -> Result<()> {
         self.cancel_sleep_maintenance();
-        self.save_reading_position()?;
-        self.save_preferences()?;
-        self.flush_account_receipts()?;
-        if let Some(manager) = &mut self.downloads { manager.pause_all()?; }
-        self.store.checkpoint()?;
+        // A failed local checkpoint must not skip the remaining independent
+        // cleanup or leave admission open while the runtime is being retired.
+        let reader = self.save_reading_position().context("Save the reader checkpoint during shutdown");
+        let preferences = self.save_preferences().context("Save preferences during shutdown");
+        let receipts = self.flush_account_receipts().context("Flush observed receipts during shutdown");
+        let downloads = self.downloads.as_mut().map_or(Ok(()), |manager| manager.pause_all())
+            .context("Pause downloads during shutdown");
+        let metadata = self.store.checkpoint().context("Checkpoint metadata during shutdown");
         self.jobs.close();
-        Ok(())
+        let errors = [reader, preferences, receipts, downloads, metadata].into_iter()
+            .filter_map(Result::err).map(|error| format!("{error:#}")).collect::<Vec<_>>();
+        if errors.is_empty() { Ok(()) } else { Err(anyhow::anyhow!(errors.join("; "))) }
     }
 }
 
 impl Drop for App {
-    fn drop(&mut self) { self.cancel_sleep_maintenance(); self.jobs.close(); }
+    fn drop(&mut self) {
+        self.cancel_sleep_maintenance();
+        self.retire_reader_checkpoints();
+        self.jobs.close();
+    }
 }
 
 struct AbortJobOnDrop(tokio::task::AbortHandle);
@@ -674,7 +821,7 @@ fn background_memory_cost(key: &str) -> u64 {
     // Conservative in-flight reservations, separate from the decoded-source
     // and UI image caches. Local metadata work does not reserve a full frame.
     if key.starts_with("reader-render") || key.starts_with("reader-thumbnails")
-        || matches!(key, "startup-download-manager" | "download-recover" | "download-remove" | "catalog:local-snapshot") {
+        || matches!(key, "startup-download-manager" | "download-recover" | "download-remove" | "catalog:inventory-step") {
         source::work::HEAVY_WORK_BYTES
     } else if key.starts_with("cover-local:") || key.starts_with("cover-prepare:") {
         source::work::COVER_WORK_BYTES
@@ -762,3 +909,11 @@ fn available_bytes(path: &Path) -> Option<u64> {
 #[cfg(test)]
 #[path = "resource_job_tests.rs"]
 mod resource_job_tests;
+
+#[cfg(test)]
+#[path = "speculative_job_tests.rs"]
+mod speculative_job_tests;
+
+#[cfg(test)]
+#[path = "shutdown_resource_tests.rs"]
+mod shutdown_resource_tests;

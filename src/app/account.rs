@@ -395,7 +395,14 @@ impl App {
                     }
                 }
             }
-            "preload" => { if let Ok(count) = value.parse::<u32>() { if [0, 3, 5].contains(&count) { self.preferences.preload = count; } } }
+            "preload" => {
+                if let Ok(count) = value.parse::<u32>() {
+                    if [0, 3, 5].contains(&count) {
+                        self.preferences.preload = count;
+                        self.reader_preload_changed();
+                    }
+                }
+            }
             "wifi" if self.demo.is_some() && ["auto", "always"].contains(&value) => self.preferences.wifi = value.into(),
             "orientation" if self.demo.is_some() && ["auto", "portrait"].contains(&value) => self.preferences.orientation = value.into(),
             "sleep-cover" if self.demo.is_some() && ["cover", "system"].contains(&value) => self.preferences.sleep_cover = value == "cover",

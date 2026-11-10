@@ -9,23 +9,32 @@ use std::{
     fs::File,
     io::Read,
     path::Path,
-    sync::Arc,
+    sync::{Arc, atomic::{AtomicBool, Ordering}},
 };
 
-use image::{GenericImageView, GrayImage, Rgba, RgbaImage};
+use image::{GenericImageView, GrayImage};
 #[cfg(test)]
 use std::io::Cursor;
 #[cfg(test)]
-use image::ImageFormat;
+use image::{ImageFormat, Rgba, RgbaImage};
 use serde::{Deserialize, Serialize};
 
-use crate::{domain::{ImageIndex, ReadingAnchor, ReadingMode}, image_integrity::ValidatedImage};
+use crate::{domain::{ImageIndex, ReadingAnchor, ReadingMode}, image_integrity::{HashedImage, IntegrityError, ValidatedImage}};
+use crate::performance::Span;
+pub use crate::performance::{StageMap, StageTotals};
 
 mod resources;
 pub(crate) use resources::ReaderResources;
 
 #[cfg(test)]
 mod reuse_tests;
+#[cfg(test)]
+mod profile_tests;
+#[cfg(test)]
+mod preparation_profile_tests;
+#[cfg(test)]
+mod cancellation_tests;
+mod triangle;
 
 pub const MAX_ENCODED_BYTES: u64 = crate::image_integrity::MAX_ENCODED_BYTES;
 pub const MAX_SOURCE_PIXELS: u64 = crate::image_integrity::MAX_SOURCE_PIXELS;
@@ -242,6 +251,135 @@ pub struct RenderedPage {
     pub dark_fraction: f32,
 }
 
+/// Optional stage totals for worker-side image preparation, in microseconds.
+///
+/// The counters may cover several source loads and frames (for example a spread
+/// and its overview). They contain no paths, content identities, or account data.
+/// `source_read_us` is populated by the path API only; a resolver that supplies
+/// an already hashed immutable input must measure its own read and hash stage.
+/// Integrity checks and decoding share a stage because the integrity layer owns
+/// their ordering. A reused source still performs that layer's required checks.
+/// Durations describe completed stages; an early error or cancellation may leave
+/// its active span unrecorded. Canvas time includes releasing rotated pixels.
+///
+/// `stages` adds explicit wall and same-thread CPU totals. Missing stages were
+/// not attempted; unavailable CPU clocks remain None. Its leaf stages do not
+/// overlap each other. `aggregate_*` entries are parent intervals and must not
+/// be added to their children. Path-source hashing is inside
+/// `aggregate_integrity`, while a receipt resolver hashes before that interval;
+/// `aggregate_receipt_prepare` includes integrity, grayscale and proof checks.
+/// Validation spans may occur several times for one
+/// image. JPEG decode includes its inseparable strict entropy validation.
+/// Failed or cancelled spans are retained with a partial count; existing
+/// scalar durations and source counters retain their previous success rules.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize)]
+pub struct ReaderPreparationProfile {
+    pub source_read_us: u64,
+    pub integrity_decode_us: u64,
+    pub grayscale_us: u64,
+    pub rotation_us: u64,
+    pub layout_us: u64,
+    pub resize_us: u64,
+    pub canvas_us: u64,
+    pub decoded_sources: u32,
+    pub reused_sources: u32,
+    pub unchanged_sources: u32,
+    pub layout_rebuilds: u32,
+    pub rendered_frames: u32,
+    pub resized_pixels: u64,
+    pub output_bytes: u64,
+    pub stages: StageMap,
+}
+
+impl ReaderPreparationProfile {
+    /// Include this description beside a serialized operation summary.
+    pub const STAGE_SCOPE: &'static str = concat!(
+        "Leaf stages are non-overlapping measured spans; gaps are not attributed. ",
+        "aggregate_* entries are parent intervals and must not be added to their children. ",
+        "Path source_hash is inside aggregate_integrity; receipt source_hash precedes it. ",
+        "aggregate_receipt_prepare includes integrity, grayscale and proof checks. ",
+        "integrity_validation may contain several separate spans per source. ",
+        "JPEG decode includes inseparable strict entropy validation. ",
+        "Missing stages were not attempted; partial counts retain unsuccessful work. ",
+        "cpu_us is same-thread CPU time when available, otherwise null. ",
+        "Legacy scalar microseconds preserve their original completion boundaries."
+    );
+}
+
+fn profile_start(profile: &Option<&mut ReaderPreparationProfile>) -> Option<Span> {
+    profile.as_ref().map(|_| Span::start())
+}
+
+fn profile_elapsed(profile: &mut Option<&mut ReaderPreparationProfile>, started: Option<Span>,
+    stage: &'static str, completed: bool,
+    legacy: Option<fn(&mut ReaderPreparationProfile) -> &mut u64>)
+{
+    if let (Some(profile), Some(started)) = (profile.as_deref_mut(), started) {
+        let sample = started.finish();
+        if let Some(field) = legacy {
+            let value = field(profile);
+            *value = value.saturating_add(sample.wall_us);
+        }
+        profile.stages.entry(stage).or_default().record(sample, completed);
+    }
+}
+
+fn profile_source(profile: &mut Option<&mut ReaderPreparationProfile>,
+    decoded: &crate::image_integrity::ReusableImage<Option<Arc<GrayImage>>>)
+{
+    if let Some(profile) = profile.as_deref_mut() {
+        let count = match decoded {
+            crate::image_integrity::ReusableImage::Decoded(_) => &mut profile.decoded_sources,
+            crate::image_integrity::ReusableImage::Reused(Some(_)) => &mut profile.reused_sources,
+            crate::image_integrity::ReusableImage::Reused(None) => &mut profile.unchanged_sources,
+        };
+        *count = count.saturating_add(1);
+    }
+}
+
+/// A render owns no cancellation task or resource lease. The actual worker
+/// retains those until this cooperative pixel work has returned.
+struct RenderCancellation<'a> {
+    flag: Option<&'a AtomicBool>,
+    #[cfg(test)]
+    probe: Option<&'a dyn Fn(RenderWork, usize)>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum RenderWork {
+    Boundary,
+    ResizePlan,
+    ResizeWeights,
+    ResizeVertical,
+    ResizeHorizontal,
+    ResizeCopy,
+    CanvasFill,
+    CanvasPixels,
+}
+
+impl<'a> RenderCancellation<'a> {
+    fn never() -> Self {
+        Self { flag: None, #[cfg(test)] probe: None }
+    }
+
+    fn for_flag(flag: &'a AtomicBool) -> Self {
+        Self { flag: Some(flag), #[cfg(test)] probe: None }
+    }
+
+    #[cfg(test)]
+    fn with_probe(flag: &'a AtomicBool, probe: &'a dyn Fn(RenderWork, usize)) -> Self {
+        Self { flag: Some(flag), probe: Some(probe) }
+    }
+
+    fn is_enabled(&self) -> bool { self.flag.is_some() }
+
+    fn is_cancelled(&self, _work: RenderWork, _completed: usize) -> bool {
+        #[cfg(test)]
+        if let Some(probe) = self.probe { probe(_work, _completed); }
+        self.flag.is_some_and(|flag| flag.load(Ordering::Acquire))
+    }
+}
+
 #[derive(Clone)]
 pub(crate) struct ValidatedGraySource {
     proof: ValidatedImage,
@@ -284,7 +422,13 @@ pub struct ReaderCore {
     last_viewport: Option<Viewport>,
     layouts: BTreeMap<usize, PageLayout>,
     explicit_panels: BTreeMap<usize, Vec<NormalizedRect>>,
+    #[cfg(test)]
+    raster_path: TestRasterPath,
 }
+
+#[cfg(test)]
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum TestRasterPath { Current, Reference, SingleChannel }
 
 impl ReaderCore {
     pub fn new(index: ImageIndex, settings: ReaderSettings) -> Result<Self> {
@@ -314,6 +458,8 @@ impl ReaderCore {
             last_viewport: None,
             layouts: BTreeMap::new(),
             explicit_panels: BTreeMap::new(),
+            #[cfg(test)]
+            raster_path: TestRasterPath::Current,
         })
     }
 
@@ -326,6 +472,27 @@ impl ReaderCore {
     pub fn is_spread(&self) -> bool { self.spread_active() }
     pub fn crop_count(&self) -> usize {
         self.layouts.get(&self.page_index).map_or(1, |layout| layout.regions.len())
+    }
+
+    /// Planned retained metadata for a speculative clone, excluding its shared
+    /// index. Vec/String capacities are counted; tree nodes and allocator
+    /// overhead use a conservative per-entry allowance. This is not an RSS cap.
+    pub(crate) fn retained_preparation_metadata_bytes(&self) -> u64 {
+        const TREE_ENTRY_ALLOWANCE: u64 = 4096;
+        let layouts = self.layouts.values().fold(0u64, |bytes, layout| {
+            bytes.saturating_add(TREE_ENTRY_ALLOWANCE)
+                .saturating_add(std::mem::size_of::<PageLayout>() as u64)
+                .saturating_add((layout.regions.capacity() as u64)
+                    .saturating_mul(std::mem::size_of::<Region>() as u64))
+                .saturating_add(layout.source_identity.as_ref().map_or(0, |identity| identity.capacity() as u64))
+        });
+        let panels = self.explicit_panels.values().fold(0u64, |bytes, panels| {
+            bytes.saturating_add(TREE_ENTRY_ALLOWANCE)
+                .saturating_add(std::mem::size_of::<Vec<NormalizedRect>>() as u64)
+                .saturating_add((panels.capacity() as u64)
+                    .saturating_mul(std::mem::size_of::<NormalizedRect>() as u64))
+        });
+        (std::mem::size_of::<Self>() as u64).saturating_add(layouts).saturating_add(panels)
     }
 
     pub fn update_settings(&mut self, settings: ReaderSettings) -> Result<()> {
@@ -541,109 +708,220 @@ impl ReaderCore {
         self.render_validated_source(&source, viewport)
     }
 
+    /// Run the normal path API with optional stage timing enabled for this call.
+    /// File-system cache state is not changed by profiling; the first source
+    /// decode and later retained-source reuse must be reported separately.
+    pub fn render_profiled(&mut self, path: &Path, viewport: Viewport)
+        -> Result<(RenderedPage, ReaderPreparationProfile)>
+    {
+        viewport.validate()?;
+        let mut profile = ReaderPreparationProfile::default();
+        let source = load_validated_source_with_profile(path, ReaderResources::shared(), Some(&mut profile))?;
+        let frame = self.render_validated_source_profiled(&source, viewport, &mut profile)?;
+        Ok((frame, profile))
+    }
+
     /// Exercise layouts directly with an immutable synthetic source in tests.
     #[cfg(test)]
     pub(crate) fn render_source(&mut self, source: &GrayImage, viewport: Viewport) -> Result<RenderedPage> {
-        self.render_source_identity(source, viewport, None)
+        self.render_source_identity(source, viewport, None, None)
     }
 
     pub(crate) fn render_validated_source(&mut self, source: &ValidatedGraySource, viewport: Viewport) -> Result<RenderedPage> {
-        self.render_source_identity(&source.pixels, viewport, Some(source.proof.sha256()))
+        self.render_source_identity(&source.pixels, viewport, Some(source.proof.sha256()), None)
     }
 
-    fn render_source_identity(&mut self, source: &GrayImage, viewport: Viewport, identity: Option<&str>) -> Result<RenderedPage> {
-        viewport.validate()?;
-        if source.width() == 0 || source.height() == 0
-            || u64::from(source.width()) * u64::from(source.height()) > MAX_SOURCE_PIXELS {
-            return Err(ReaderError::SourceImageTooLarge);
-        }
+    pub(crate) fn render_validated_source_profiled(&mut self, source: &ValidatedGraySource, viewport: Viewport,
+        profile: &mut ReaderPreparationProfile) -> Result<RenderedPage>
+    {
+        self.render_source_identity(&source.pixels, viewport, Some(source.proof.sha256()), Some(profile))
+    }
+
+    /// Cancel obsolete pixel work without publishing a partial frame. This is
+    /// cooperative: allocator, image-decoder and OS I/O calls have no hard
+    /// cancellation deadline. A cancelled worker core must not be presented.
+    pub(crate) fn render_validated_source_cancellable(&mut self, source: &ValidatedGraySource, viewport: Viewport,
+        cancelled: &AtomicBool, profile: Option<&mut ReaderPreparationProfile>) -> Result<Option<RenderedPage>>
+    {
+        self.render_source_identity_cancellable(&source.pixels, viewport, Some(source.proof.sha256()),
+            &RenderCancellation::for_flag(cancelled), profile)
+    }
+
+    fn render_source_identity(&mut self, source: &GrayImage, viewport: Viewport, identity: Option<&str>,
+        profile: Option<&mut ReaderPreparationProfile>) -> Result<RenderedPage>
+    {
+        Ok(self.render_source_identity_cancellable(source, viewport, identity, &RenderCancellation::never(), profile)?
+            .expect("An uncancelled reader render cannot return cancellation"))
+    }
+
+    fn render_source_identity_cancellable(&mut self, source: &GrayImage, viewport: Viewport, identity: Option<&str>,
+        cancellation: &RenderCancellation<'_>, mut profile: Option<&mut ReaderPreparationProfile>) -> Result<Option<RenderedPage>>
+    {
+        if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
+        let started = profile_start(&profile);
+        let validated = (|| {
+            viewport.validate()?;
+            if source.width() == 0 || source.height() == 0
+                || u64::from(source.width()) * u64::from(source.height()) > MAX_SOURCE_PIXELS {
+                return Err(ReaderError::SourceImageTooLarge);
+            }
+            Ok(())
+        })();
+        profile_elapsed(&mut profile, started, "frame_validation", validated.is_ok(), None);
+        validated?;
+        let started = profile_start(&profile);
         let grayscale = match self.settings.rotation {
             90 => Cow::Owned(image::imageops::rotate90(source)),
             180 => Cow::Owned(image::imageops::rotate180(source)),
             270 => Cow::Owned(image::imageops::rotate270(source)),
             _ => Cow::Borrowed(source),
         };
-        let width = grayscale.width();
-        let height = grayscale.height();
-        let viewport_changed = self.last_viewport.is_some_and(|previous| previous != viewport);
-        self.last_viewport = Some(viewport);
-        let source_changed = self.layouts.get(&self.page_index)
-            .is_some_and(|layout| layout.source_identity.as_deref() != identity);
-        let replace_layout = self.layouts.get(&self.page_index).is_none_or(|layout| {
-            layout.viewport != viewport || layout.width != width || layout.height != height || source_changed
-        });
-        if replace_layout {
-            if viewport_changed || source_changed {
-                self.restore_focus = true;
-                self.preserve_region_for_pan = false;
+        profile_elapsed(&mut profile, started, "rotation", true, Some(|profile| &mut profile.rotation_us));
+        if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
+        let started = profile_start(&profile);
+        let layout_result = (|| -> Result<_> {
+            let width = grayscale.width();
+            let height = grayscale.height();
+            let viewport_changed = self.last_viewport.is_some_and(|previous| previous != viewport);
+            self.last_viewport = Some(viewport);
+            let source_changed = self.layouts.get(&self.page_index)
+                .is_some_and(|layout| layout.source_identity.as_deref() != identity);
+            let replace_layout = self.layouts.get(&self.page_index).is_none_or(|layout| {
+                layout.viewport != viewport || layout.width != width || layout.height != height || source_changed
+            });
+            if replace_layout {
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.layout_rebuilds = profile.layout_rebuilds.saturating_add(1);
+                }
+                if viewport_changed || source_changed {
+                    self.restore_focus = true;
+                    self.preserve_region_for_pan = false;
+                }
+                let (regions, heuristic) = match self.settings.mode {
+                    DisplayMode::Panel => {
+                        if let Some(panels) = self.explicit_panels.get(&self.page_index) {
+                            (panels.iter().map(|panel| Region {
+                                rect: panel.pixel_rect(width, height, self.settings.rotation), overlap: false,
+                            }).collect(), false)
+                        } else { (panel_regions(&grayscale, viewport, self.settings.direction)?, true) }
+                    }
+                    DisplayMode::Strip => (strip_regions(&grayscale, viewport)?, false),
+                    DisplayMode::Page if self.settings.fit == FitMode::Width => {
+                        (strip_regions(&grayscale, viewport)?, false)
+                    }
+                    DisplayMode::Page => (vec![Region { rect: SourceRect::whole(width, height), overlap: false }], false),
+                };
+                self.layouts.insert(self.page_index, PageLayout { viewport, width, height, regions, heuristic,
+                    source_identity: identity.map(str::to_owned) });
+                self.trim_layouts();
             }
-            let (regions, heuristic) = match self.settings.mode {
-                DisplayMode::Panel => {
-                    if let Some(panels) = self.explicit_panels.get(&self.page_index) {
-                        (panels.iter().map(|panel| Region {
-                            rect: panel.pixel_rect(width, height, self.settings.rotation), overlap: false,
-                        }).collect(), false)
-                    } else { (panel_regions(&grayscale, viewport, self.settings.direction)?, true) }
-                }
-                DisplayMode::Strip => (strip_regions(&grayscale, viewport)?, false),
-                DisplayMode::Page if self.settings.fit == FitMode::Width => {
-                    (strip_regions(&grayscale, viewport)?, false)
-                }
-                DisplayMode::Page => (vec![Region { rect: SourceRect::whole(width, height), overlap: false }], false),
-            };
-            self.layouts.insert(self.page_index, PageLayout { viewport, width, height, regions, heuristic,
-                source_identity: identity.map(str::to_owned) });
-            self.trim_layouts();
-        }
-        let layout = self.layouts.get(&self.page_index).ok_or(ReaderError::InvalidDescriptor)?;
-        if self.restore_last_region {
-            self.crop_index = layout.regions.len() - 1;
-            self.restore_last_region = false;
-            self.restore_focus = false;
-        } else if self.restore_focus {
-            let (focus_x, focus_y) = rotate_point(self.source_x, self.source_y, self.settings.rotation);
-            let px = ((focus_x * f64::from(width)).round() as u32).min(width - 1);
-            let py = ((focus_y * f64::from(height)).round() as u32).min(height - 1);
-            let preferred = self.preserve_region_for_pan.then_some(self.crop_index);
-            self.crop_index = region_for_focus(&layout.regions, px, py, preferred);
-            self.restore_focus = false;
-        }
-        self.preserve_region_for_pan = false;
-        self.crop_index = self.crop_index.min(layout.regions.len() - 1);
-        let region = layout.regions[self.crop_index];
-        let crop = zoom_crop(region.rect, width, height, self.settings.zoom_ratio,
-            rotate_point(self.source_x, self.source_y, self.settings.rotation));
-        let crop_count = layout.regions.len();
-        let heuristic = layout.heuristic;
-        let crop_image = image::imageops::crop_imm(grayscale.as_ref(), crop.x, crop.y, crop.width, crop.height);
-        let ratio = (f64::from(viewport.width) / f64::from(crop.width))
-            .min(f64::from(viewport.height) / f64::from(crop.height));
-        let target_width = (f64::from(crop.width) * ratio).round().clamp(1.0, f64::from(viewport.width)) as u32;
-        let target_height = (f64::from(crop.height) * ratio).round().clamp(1.0, f64::from(viewport.height)) as u32;
-        let resized = image::imageops::resize(&*crop_image, target_width, target_height, image::imageops::FilterType::Triangle);
+            let layout = self.layouts.get(&self.page_index).ok_or(ReaderError::InvalidDescriptor)?;
+            if self.restore_last_region {
+                self.crop_index = layout.regions.len() - 1;
+                self.restore_last_region = false;
+                self.restore_focus = false;
+            } else if self.restore_focus {
+                let (focus_x, focus_y) = rotate_point(self.source_x, self.source_y, self.settings.rotation);
+                let px = ((focus_x * f64::from(width)).round() as u32).min(width - 1);
+                let py = ((focus_y * f64::from(height)).round() as u32).min(height - 1);
+                let preferred = self.preserve_region_for_pan.then_some(self.crop_index);
+                self.crop_index = region_for_focus(&layout.regions, px, py, preferred);
+                self.restore_focus = false;
+            }
+            self.preserve_region_for_pan = false;
+            self.crop_index = self.crop_index.min(layout.regions.len() - 1);
+            let region = layout.regions[self.crop_index];
+            let crop = zoom_crop(region.rect, width, height, self.settings.zoom_ratio,
+                rotate_point(self.source_x, self.source_y, self.settings.rotation));
+            let crop_count = layout.regions.len();
+            let heuristic = layout.heuristic;
+            let ratio = (f64::from(viewport.width) / f64::from(crop.width))
+                .min(f64::from(viewport.height) / f64::from(crop.height));
+            let target_width = (f64::from(crop.width) * ratio).round().clamp(1.0, f64::from(viewport.width)) as u32;
+            let target_height = (f64::from(crop.height) * ratio).round().clamp(1.0, f64::from(viewport.height)) as u32;
+            Ok((width, height, crop, crop_count, heuristic, target_width, target_height, region.overlap))
+        })();
+        let completed = layout_result.is_ok();
+        profile_elapsed(&mut profile, started, "layout", completed,
+            completed.then_some(|profile: &mut ReaderPreparationProfile| &mut profile.layout_us));
+        let (width, height, crop, crop_count, heuristic, target_width, target_height, overlap_from_previous) = layout_result?;
+        if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
+        let started = profile_start(&profile);
+        let resized = self.resize_crop_cancellable(grayscale.as_ref(), crop, target_width, target_height, cancellation);
+        let completed = resized.is_some();
+        profile_elapsed(&mut profile, started, "resize", completed,
+            completed.then_some(|profile: &mut ReaderPreparationProfile| &mut profile.resize_us));
+        let Some(resized) = resized else { return Ok(None); };
+        let started = profile_start(&profile);
         drop(grayscale);
-        let mut canvas = RgbaImage::from_pixel(viewport.width, viewport.height, Rgba([255, 255, 255, 255]));
         let left = (viewport.width - target_width) / 2;
         let top = if self.settings.fit == FitMode::Width || self.settings.mode == DisplayMode::Strip {
             0
         } else { (viewport.height - target_height) / 2 };
-        let mut dark_pixels = 0u64;
-        for (x, y, pixel) in resized.enumerate_pixels() {
-            let tone = quantize(pixel[0], x, y, self.settings.dither);
-            if tone <= 68 { dark_pixels += 1; }
-            canvas.put_pixel(left + x, top + y, Rgba([tone, tone, tone, 255]));
+        let painted = self.paint_canvas_cancellable(&resized, viewport, left, top, cancellation);
+        let completed = painted.is_some();
+        profile_elapsed(&mut profile, started, "canvas", completed,
+            completed.then_some(|profile: &mut ReaderPreparationProfile| &mut profile.canvas_us));
+        let Some((canvas, dark_pixels)) = painted else { return Ok(None); };
+        if let Some(profile) = profile.as_deref_mut() {
+            profile.rendered_frames = profile.rendered_frames.saturating_add(1);
+            profile.resized_pixels = profile.resized_pixels.saturating_add(u64::from(target_width) * u64::from(target_height));
+            profile.output_bytes = profile.output_bytes.saturating_add(u64::from(viewport.width) * u64::from(viewport.height) * 4);
         }
         let (source_x, source_y) = unrotate_point(
             f64::from(crop.x) / f64::from(width), f64::from(crop.y) / f64::from(height), self.settings.rotation);
         self.source_x = source_x;
         self.source_y = source_y;
-        Ok(RenderedPage {
-            rgba: canvas.into_raw(), width: viewport.width, height: viewport.height,
+        Ok(Some(RenderedPage {
+            rgba: canvas, width: viewport.width, height: viewport.height,
             source_width: width, source_height: height, crop, page_index: self.page_index,
-            crop_index: self.crop_index, crop_count, overlap_from_previous: region.overlap,
+            crop_index: self.crop_index, crop_count, overlap_from_previous,
             heuristic_panels: heuristic,
             dark_fraction: dark_pixels as f32 / (u64::from(viewport.width) * u64::from(viewport.height)) as f32,
-        })
+        }))
+    }
+
+    fn resize_crop_cancellable(&self, source: &GrayImage, crop: SourceRect, width: u32, height: u32,
+        cancellation: &RenderCancellation<'_>) -> Option<GrayImage>
+    {
+        if !cancellation.is_enabled() { return Some(self.resize_crop(source, crop, width, height)); }
+        #[cfg(test)]
+        if self.raster_path == TestRasterPath::Reference {
+            if cancellation.is_cancelled(RenderWork::Boundary, 0) { return None; }
+            let resized = self.resize_crop(source, crop, width, height);
+            return (!cancellation.is_cancelled(RenderWork::Boundary, 0)).then_some(resized);
+        }
+        triangle::resize_cancellable(source, crop, width, height, cancellation)
+    }
+
+    fn resize_crop(&self, source: &GrayImage, crop: SourceRect, width: u32, height: u32) -> GrayImage {
+        #[cfg(test)]
+        if self.raster_path == TestRasterPath::Reference {
+            let view = image::imageops::crop_imm(source, crop.x, crop.y, crop.width, crop.height);
+            return image::imageops::resize(&*view, width, height, image::imageops::FilterType::Triangle);
+        }
+        triangle::resize(source, crop, width, height)
+    }
+
+    fn paint_canvas(&self, source: &GrayImage, viewport: Viewport, left: u32, top: u32) -> (Vec<u8>, u64) {
+        #[cfg(test)]
+        if self.raster_path == TestRasterPath::Reference {
+            return profile_tests::canvas_reference(source, viewport, left, top, self.settings.dither);
+        }
+        paint_quantized_canvas(source, viewport, left, top, self.settings.dither)
+    }
+
+    fn paint_canvas_cancellable(&self, source: &GrayImage, viewport: Viewport, left: u32, top: u32,
+        cancellation: &RenderCancellation<'_>) -> Option<(Vec<u8>, u64)>
+    {
+        if !cancellation.is_enabled() { return Some(self.paint_canvas(source, viewport, left, top)); }
+        #[cfg(test)]
+        if self.raster_path == TestRasterPath::Reference {
+            if cancellation.is_cancelled(RenderWork::Boundary, 0) { return None; }
+            let canvas = self.paint_canvas(source, viewport, left, top);
+            return (!cancellation.is_cancelled(RenderWork::Boundary, 0)).then_some(canvas);
+        }
+        paint_quantized_canvas_cancellable(source, viewport, left, top, self.settings.dither, cancellation)
     }
 
     fn spread_base(&self) -> usize {
@@ -700,13 +978,87 @@ pub(crate) fn load_validated_source(path: &Path) -> Result<ValidatedGraySource> 
 }
 
 fn load_validated_source_with_resources(path: &Path, resources: &ReaderResources) -> Result<ValidatedGraySource> {
-    let encoded = read_source_bytes(path)?;
-    decode_source_bytes(&encoded, resources, None)?.ok_or(ReaderError::InvalidDescriptor)
+    load_validated_source_with_profile(path, resources, None)
+}
+
+fn load_validated_source_with_profile(path: &Path, resources: &ReaderResources,
+    mut profile: Option<&mut ReaderPreparationProfile>) -> Result<ValidatedGraySource>
+{
+    let encoded = read_source_bytes_profiled(path, &mut profile)?;
+    decode_source_bytes_profiled(&encoded, resources, None, profile)?.ok_or(ReaderError::InvalidDescriptor)
 }
 
 pub(crate) fn load_changed_source(path: &Path, previous: Option<&ValidatedImage>) -> Result<Option<ValidatedGraySource>> {
-    let encoded = read_source_bytes(path)?;
-    decode_source_bytes(&encoded, ReaderResources::shared(), previous)
+    load_changed_source_with_profile(path, previous, None)
+}
+
+/// Profile the existing path source API without changing its cancellation rules.
+/// The application checks its render cancellation around this demonstration
+/// source operation; receipt sources retain their cancellable input API.
+pub(crate) fn load_changed_source_profiled(path: &Path, previous: Option<&ValidatedImage>,
+    profile: &mut ReaderPreparationProfile) -> Result<Option<ValidatedGraySource>>
+{
+    load_changed_source_with_profile(path, previous, Some(profile))
+}
+
+fn load_changed_source_with_profile(path: &Path, previous: Option<&ValidatedImage>,
+    mut profile: Option<&mut ReaderPreparationProfile>) -> Result<Option<ValidatedGraySource>>
+{
+    let encoded = read_source_bytes_profiled(path, &mut profile)?;
+    decode_source_bytes_profiled(&encoded, ReaderResources::shared(), previous, profile)
+}
+
+/// Prepare pixels from the resolver's single immutable read and digest.
+/// The outer None is cancellation; an inner None is an unchanged sealed source.
+pub(crate) fn load_hashed_source(input: &HashedImage, previous: Option<&ValidatedImage>, cancelled: &AtomicBool)
+    -> std::result::Result<Option<(ValidatedImage, Option<ValidatedGraySource>)>, IntegrityError>
+{
+    load_hashed_source_with_profile(input, previous, cancelled, None)
+}
+
+pub(crate) fn load_hashed_source_profiled(input: &HashedImage, previous: Option<&ValidatedImage>, cancelled: &AtomicBool,
+    profile: &mut ReaderPreparationProfile)
+    -> std::result::Result<Option<(ValidatedImage, Option<ValidatedGraySource>)>, IntegrityError>
+{
+    load_hashed_source_with_profile(input, previous, cancelled, Some(profile))
+}
+
+fn load_hashed_source_with_profile(input: &HashedImage, previous: Option<&ValidatedImage>, cancelled: &AtomicBool,
+    mut profile: Option<&mut ReaderPreparationProfile>)
+    -> std::result::Result<Option<(ValidatedImage, Option<ValidatedGraySource>)>, IntegrityError>
+{
+    let resources = ReaderResources::shared();
+    let is_cancelled = || cancelled.load(Ordering::Acquire);
+    // A pre-cancelled call did no image work and retains the original empty
+    // profile outcome. The unprofiled path keeps its existing check ordering.
+    if profile.is_some() && is_cancelled() { return Ok(None); }
+    let started = profile_start(&profile);
+    let result = crate::image_integrity::decode_hashed_image_with_reuse_cancellable_profiled(input, None,
+        |digest| reusable_source(resources, previous, digest), &is_cancelled,
+        profile.as_deref_mut().map(|profile| &mut profile.stages));
+    let completed = matches!(&result, Ok(Some(_)));
+    profile_elapsed(&mut profile, started, "aggregate_integrity", completed,
+        completed.then_some(|profile: &mut ReaderPreparationProfile| &mut profile.integrity_decode_us));
+    let Some((proof, decoded)) = result.map_err(|error| {
+        if let Some(evidence) = error.encoding_evidence() { resources.remove_digest(evidence.sha256()); }
+        error
+    })? else { return Ok(None); };
+    profile_source(&mut profile, &decoded);
+    let started = profile_start(&profile);
+    let source = prepare_gray_source(&proof, decoded, resources, &is_cancelled);
+    let completed = profile.is_none() || !is_cancelled();
+    profile_elapsed(&mut profile, started, "grayscale", completed, Some(|profile| &mut profile.grayscale_us));
+    if is_cancelled() { return Ok(None); }
+    Ok(Some((proof, source)))
+}
+
+fn read_source_bytes_profiled(path: &Path, profile: &mut Option<&mut ReaderPreparationProfile>) -> Result<Vec<u8>> {
+    let started = profile_start(profile);
+    let result = read_source_bytes(path);
+    let completed = result.is_ok();
+    profile_elapsed(profile, started, "source_read", completed,
+        completed.then_some(|profile: &mut ReaderPreparationProfile| &mut profile.source_read_us));
+    result
 }
 
 fn read_source_bytes(path: &Path) -> Result<Vec<u8>> {
@@ -731,13 +1083,21 @@ fn decode_bounded_bytes_with_resources(encoded: &[u8], resources: &ReaderResourc
 fn decode_source_bytes(encoded: &[u8], resources: &ReaderResources, previous: Option<&ValidatedImage>)
     -> Result<Option<ValidatedGraySource>>
 {
+    decode_source_bytes_profiled(encoded, resources, previous, None)
+}
+
+fn decode_source_bytes_profiled(encoded: &[u8], resources: &ReaderResources, previous: Option<&ValidatedImage>,
+    mut profile: Option<&mut ReaderPreparationProfile>) -> Result<Option<ValidatedGraySource>>
+{
     if encoded.len() as u64 > MAX_ENCODED_BYTES { return Err(ReaderError::EncodedImageTooLarge); }
-    let (proof, decoded) = crate::image_integrity::decode_image_with_reuse(encoded, None,
-        |digest| {
-            if let Some(proof) = previous.filter(|proof| proof.sha256() == digest) {
-                Some((proof.clone(), None))
-            } else { resources.lookup_digest(digest).map(|(proof, pixels)| (proof, Some(pixels))) }
-        }).map_err(|error| {
+    let started = profile_start(&profile);
+    let result = crate::image_integrity::decode_image_with_reuse_profiled(encoded, None,
+        |digest| reusable_source(resources, previous, digest),
+        profile.as_deref_mut().map(|profile| &mut profile.stages));
+    let completed = result.is_ok();
+    profile_elapsed(&mut profile, started, "aggregate_integrity", completed,
+        completed.then_some(|profile: &mut ReaderPreparationProfile| &mut profile.integrity_decode_us));
+    let (proof, decoded) = result.map_err(|error| {
         if let Some(evidence) = error.encoding_evidence() { resources.remove_digest(evidence.sha256()); }
         match error.kind {
             crate::image_integrity::IntegrityFailureKind::ResourceLimit => ReaderError::SourceImageTooLarge,
@@ -745,22 +1105,51 @@ fn decode_source_bytes(encoded: &[u8], resources: &ReaderResources, previous: Op
             crate::image_integrity::IntegrityFailureKind::Corrupt => ReaderError::CorruptImage,
         }
     })?;
+    profile_source(&mut profile, &decoded);
+    let started = profile_start(&profile);
+    let source = prepare_gray_source(&proof, decoded, resources, &|| false);
+    profile_elapsed(&mut profile, started, "grayscale", true, Some(|profile| &mut profile.grayscale_us));
+    Ok(source)
+}
+
+fn reusable_source(resources: &ReaderResources, previous: Option<&ValidatedImage>, digest: &str)
+    -> Option<(ValidatedImage, Option<Arc<GrayImage>>)>
+{
+    if let Some(proof) = previous.filter(|proof| proof.sha256() == digest) {
+        Some((proof.clone(), None))
+    } else { resources.lookup_digest(digest).map(|(proof, pixels)| (proof, Some(pixels))) }
+}
+
+fn prepare_gray_source(proof: &ValidatedImage,
+    decoded: crate::image_integrity::ReusableImage<Option<Arc<GrayImage>>>,
+    resources: &ReaderResources, is_cancelled: &dyn Fn() -> bool) -> Option<ValidatedGraySource>
+{
+    if is_cancelled() { return None; }
     let decoded = match decoded {
         crate::image_integrity::ReusableImage::Decoded(decoded) => decoded,
-        crate::image_integrity::ReusableImage::Reused(Some(pixels)) => return Ok(Some(ValidatedGraySource { proof, pixels })),
-        crate::image_integrity::ReusableImage::Reused(None) => return Ok(None),
+        crate::image_integrity::ReusableImage::Reused(Some(pixels)) => return Some(ValidatedGraySource { proof: proof.clone(), pixels }),
+        crate::image_integrity::ReusableImage::Reused(None) => return None,
     };
-    let (width, height) = decoded.dimensions();
-    let mut grayscale = GrayImage::new(width, height);
-    for (x, y, pixel) in decoded.pixels() {
-        let alpha = u32::from(pixel[3]);
-        let luma = (54 * u32::from(pixel[0]) + 183 * u32::from(pixel[1]) + 19 * u32::from(pixel[2]) + 128) / 256;
-        let composite = ((luma * alpha + 255 * (255 - alpha) + 127) / 255) as u8;
-        grayscale.put_pixel(x, y, image::Luma([composite]));
-    }
+    let grayscale = match decoded {
+        // A grayscale source already has exactly the required opaque pixels.
+        image::DynamicImage::ImageLuma8(grayscale) => grayscale,
+        decoded => {
+            let (width, height) = decoded.dimensions();
+            let mut grayscale = GrayImage::new(width, height);
+            for (x, y, pixel) in decoded.pixels() {
+                if x == 0 && y % 32 == 0 && is_cancelled() { return None; }
+                let alpha = u32::from(pixel[3]);
+                let luma = (54 * u32::from(pixel[0]) + 183 * u32::from(pixel[1]) + 19 * u32::from(pixel[2]) + 128) / 256;
+                let composite = ((luma * alpha + 255 * (255 - alpha) + 127) / 255) as u8;
+                grayscale.put_pixel(x, y, image::Luma([composite]));
+            }
+            grayscale
+        },
+    };
+    if is_cancelled() { return None; }
     let grayscale = Arc::new(grayscale);
-    resources.insert_source(&proof, grayscale.clone());
-    Ok(Some(ValidatedGraySource { proof, pixels: grayscale }))
+    resources.insert_source(proof, grayscale.clone());
+    Some(ValidatedGraySource { proof: proof.clone(), pixels: grayscale })
 }
 
 fn strip_regions(image: &GrayImage, viewport: Viewport) -> Result<Vec<Region>> {
@@ -907,6 +1296,88 @@ fn unrotate_point(x: f64, y: f64, rotation: u16) -> (f64, f64) {
     rotate_point(x, y, (360 - rotation) % 360)
 }
 
+const fn make_tone_tables() -> [[u8; 256]; 17] {
+    let bayer: [[i16; 4]; 4] = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
+    let mut tables = [[0u8; 256]; 17];
+    let mut phase = 0;
+    while phase < 17 {
+        let bias = if phase == 16 { 0 } else { bayer[phase / 4][phase % 4] - 8 };
+        let mut value = 0;
+        while value < 256 {
+            let adjusted = value as i16 + bias;
+            let adjusted = if adjusted < 0 { 0 } else if adjusted > 255 { 255 } else { adjusted } as u16;
+            let level = (adjusted + 8) / 17;
+            tables[phase][value] = ((if level > 15 { 15 } else { level }) * 17) as u8;
+            value += 1;
+        }
+        phase += 1;
+    }
+    tables
+}
+
+const TONE_TABLES: [[u8; 256]; 17] = make_tone_tables();
+const RENDER_PIXEL_BLOCK: usize = 256;
+const RENDER_COPY_BLOCK_BYTES: usize = 64 * 1024;
+
+/// Paint complete, opaque RGBA rows without changing the crop-local Bayer phase.
+fn paint_quantized_canvas(source: &GrayImage, viewport: Viewport, left: u32, top: u32,
+    dither: bool) -> (Vec<u8>, u64)
+{
+    let mut canvas = vec![255; viewport.width as usize * viewport.height as usize * 4];
+    let stride = viewport.width as usize * 4;
+    let width = source.width() as usize;
+    let mut dark = 0;
+    for (y, row) in source.as_raw().chunks_exact(width).enumerate() {
+        let start = (top as usize + y) * stride + left as usize * 4;
+        let output = &mut canvas[start..start + width * 4];
+        for (x, (&value, output)) in row.iter().zip(output.chunks_exact_mut(4)).enumerate() {
+            let phase = if dither { (y % 4) * 4 + x % 4 } else { 16 };
+            let tone = TONE_TABLES[phase][usize::from(value)];
+            dark += u64::from(tone <= 68);
+            output.copy_from_slice(&[tone, tone, tone, 255]);
+        }
+    }
+    (canvas, dark)
+}
+
+/// Keep the normal canvas path intact; only application workers opt into these
+/// bounded cancellation checks. No partly painted canvas escapes this function.
+fn paint_quantized_canvas_cancellable(source: &GrayImage, viewport: Viewport, left: u32, top: u32,
+    dither: bool, cancellation: &RenderCancellation<'_>) -> Option<(Vec<u8>, u64)>
+{
+    if !cancellation.is_enabled() { return Some(paint_quantized_canvas(source, viewport, left, top, dither)); }
+    if cancellation.is_cancelled(RenderWork::Boundary, 0) { return None; }
+    let length = viewport.width as usize * viewport.height as usize * 4;
+    let mut canvas = Vec::with_capacity(length);
+    while canvas.len() < length {
+        if cancellation.is_cancelled(RenderWork::CanvasFill, canvas.len()) { return None; }
+        canvas.resize((canvas.len() + RENDER_COPY_BLOCK_BYTES).min(length), 255);
+    }
+    let stride = viewport.width as usize * 4;
+    let width = source.width() as usize;
+    let mut dark = 0;
+    for (y, row) in source.as_raw().chunks_exact(width).enumerate() {
+        let start = (top as usize + y) * stride + left as usize * 4;
+        let output = &mut canvas[start..start + width * 4];
+        for first in (0..width).step_by(RENDER_PIXEL_BLOCK) {
+            if cancellation.is_cancelled(RenderWork::CanvasPixels, y * width + first) { return None; }
+            let end = (first + RENDER_PIXEL_BLOCK).min(width);
+            for (offset, (&value, output)) in row[first..end].iter()
+                .zip(output[first * 4..end * 4].chunks_exact_mut(4)).enumerate() {
+                let x = first + offset;
+                let phase = if dither { (y % 4) * 4 + x % 4 } else { 16 };
+                let tone = TONE_TABLES[phase][usize::from(value)];
+                dark += u64::from(tone <= 68);
+                output.copy_from_slice(&[tone, tone, tone, 255]);
+            }
+        }
+    }
+    if cancellation.is_cancelled(RenderWork::Boundary, 0) { return None; }
+    Some((canvas, dark))
+}
+
+/// Keep the original arithmetic as an independent exhaustive test reference.
+#[cfg(test)]
 fn quantize(value: u8, x: u32, y: u32, dither: bool) -> u8 {
     const BAYER: [[i16; 4]; 4] = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
     let bias = if dither { BAYER[(y % 4) as usize][(x % 4) as usize] - 8 } else { 0 };

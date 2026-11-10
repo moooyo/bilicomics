@@ -690,6 +690,8 @@ remove_owned_lock() {
         [ -e "$lock_item" ] || [ -L "$lock_item" ] || continue
         case "${lock_item##*/}" in
             pid|power-events|power-source|power-control|nonce|generation|application-pid|application-pid.pending|observer-pid|observer-pid.pending|observer-go|observer-go.pending|observer-owned|observer-owned.pending|observer-runner-pid|observer-runner-pid.pending|observer-relay-pid|observer-relay-pid.pending|observer-status|observer-status.pending|application-exit|application-exit.pending|lifecycle-ready|lifecycle-ready.pending|lifecycle-request|lifecycle-request.pending|lifecycle-ack|lifecycle-ack.pending|native-output-capability|native-output-capability.pending|native-epdc-mode|native-epdc-mode.pending|resume-native-epdc-mode|resume-native-epdc-mode.pending|native-portrait-orientation|native-portrait-orientation.pending|resume-native-portrait-orientation|resume-native-portrait-orientation.pending|native-read-output|native-read-done|native-read-done.pending|native-read-command|native-read-command.pending|native-read-go|native-read-go.pending) ;;
+            log-launcher-pipe|log-launcher-ready|log-launcher-ready.pending|log-launcher-owned|log-launcher-owned.pending|log-launcher-quota|log-launcher-archive.pending|log-launcher-empty.pending|log-application-pipe|log-application-ready|log-application-ready.pending|log-application-owned|log-application-owned.pending|log-application-quota|log-application-archive.pending|log-application-empty.pending) ;;
+            log-stopping|log-launcher-exit|log-launcher-exit.pending|log-application-exit|log-application-exit.pending) ;;
             *) printf '%s\n' 'An unexpected lock entry requires operator review.' >>"$logs/recovery.log"; recovery_complete=0; return 0 ;;
         esac
         if [ -L "$lock_item" ]; then
@@ -698,7 +700,7 @@ remove_owned_lock() {
             return 0
         fi
         case "${lock_item##*/}" in
-            power-events|power-source|power-control) lock_item_type_matches=0; [ ! -p "$lock_item" ] || lock_item_type_matches=1 ;;
+            power-events|power-source|power-control|log-launcher-pipe|log-application-pipe) lock_item_type_matches=0; [ ! -p "$lock_item" ] || lock_item_type_matches=1 ;;
             *) lock_item_type_matches=0; [ ! -f "$lock_item" ] || lock_item_type_matches=1 ;;
         esac
         if [ "$lock_item_type_matches" -ne 1 ]; then
@@ -710,6 +712,12 @@ remove_owned_lock() {
     for lock_name in pid power-events power-source power-control nonce generation application-pid application-pid.pending observer-pid observer-pid.pending observer-go observer-go.pending observer-owned observer-owned.pending observer-runner-pid observer-runner-pid.pending observer-relay-pid observer-relay-pid.pending observer-status observer-status.pending application-exit application-exit.pending lifecycle-ready lifecycle-ready.pending lifecycle-request lifecycle-request.pending lifecycle-ack lifecycle-ack.pending native-output-capability native-output-capability.pending native-epdc-mode native-epdc-mode.pending resume-native-epdc-mode resume-native-epdc-mode.pending native-portrait-orientation native-portrait-orientation.pending resume-native-portrait-orientation resume-native-portrait-orientation.pending native-read-output native-read-done native-read-done.pending native-read-command native-read-command.pending native-read-go native-read-go.pending; do
         rm -f "$lock/$lock_name"
     done
+    for log_name in launcher application; do
+        for log_leaf in pipe ready ready.pending owned owned.pending quota archive.pending empty.pending exit exit.pending; do
+            rm -f "$lock/log-$log_name-$log_leaf"
+        done
+    done
+    rm -f "$lock/log-stopping"
     rmdir "$lock" 2>/dev/null || recovery_complete=0
 }
 cleanup() {

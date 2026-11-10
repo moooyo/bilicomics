@@ -25,6 +25,9 @@ const CAPABILITY_PENDING: &str = "native-output-capability.pending";
 #[cfg(target_os = "linux")]
 mod portrait_writer;
 
+#[cfg(all(feature = "kindle", target_os = "linux"))]
+pub(crate) use portrait_writer::NativeReadPermit;
+
 /// Publish one typed portrait sidecar from the owner's bounded native-read group.
 /// This internal helper performs no display, input, or firmware operation.
 pub fn publish_native_portrait_orientation(value: &str) -> Result<()> {

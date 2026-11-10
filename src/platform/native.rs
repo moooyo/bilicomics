@@ -8,6 +8,87 @@ use std::os::fd::AsRawFd;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
+/// Serialize only numeric display diagnostics after the backend releases its
+/// framebuffer/lifecycle borrows. No content or input-coordinate data enters
+/// this bridge, and a submitted ioctl is not a panel-completion observation.
+pub(super) fn configure_performance_trace(trace: &slint_backend_kindle::PerformanceTraceHandle) {
+    use slint_backend_kindle::PerformanceSampleKind;
+    trace.set_callback(std::sync::Arc::new(|sample| {
+        if !crate::performance::enabled() { return; }
+        let payload = native_performance_payload(&sample);
+        match sample.kind {
+            PerformanceSampleKind::InitialSetup => {
+                crate::performance::startup("native_initial_setup", &payload);
+            },
+            PerformanceSampleKind::Frame => {
+                crate::performance::record_for_id(
+                    sample.reader_operation_id.unwrap_or(0), "native", "frame", &payload);
+            },
+        }
+    }));
+}
+
+fn native_performance_payload(sample: &slint_backend_kindle::PerformanceFrameSample) -> serde_json::Value {
+    use slint_backend_kindle::RefreshWaveform;
+    let stages = &sample.stages;
+    let waveform = sample.refresh_waveform.map(|waveform| match waveform {
+        RefreshWaveform::Auto => "auto",
+        RefreshWaveform::Gc16 => "gc16",
+        RefreshWaveform::Du => "du",
+        RefreshWaveform::A2 => "a2",
+    });
+    serde_json::json!({
+        "render_sequence": sample.render_sequence,
+        "reader_operation_id": sample.reader_operation_id,
+        "timing": native_timing_payload(sample.timing),
+        "stages": {
+            "active_io": stages.active_io.map(native_timing_payload),
+            "buffer_setup": stages.buffer_setup.map(native_timing_payload),
+            "window_setup": stages.window_setup.map(native_timing_payload),
+            "portrait_observer_setup": stages.portrait_observer_setup.map(native_timing_payload),
+            "initial_fill": stages.initial_fill.map(native_timing_payload),
+            "slint_render": stages.slint_render.map(native_timing_payload),
+            "framebuffer_write": stages.framebuffer_write.map(native_timing_payload),
+            "refresh_submit": stages.refresh_submit.map(native_timing_payload),
+            "lifecycle_complete": stages.lifecycle_complete.map(native_timing_payload),
+        },
+        "framebuffer_size": sample.framebuffer_size,
+        "framebuffer_stride": sample.framebuffer_stride,
+        "framebuffer_bits_per_pixel": sample.framebuffer_bits_per_pixel,
+        "rotation_degrees": sample.rotation_degrees,
+        "output_inverted": sample.output_inverted,
+        "black_and_white": sample.black_and_white,
+        "rendered": sample.rendered,
+        "initial_frame": sample.initial_frame,
+        "forced_full": sample.forced_full,
+        "dirty_region": sample.dirty_region.map(native_rect_payload),
+        "refresh_region": sample.refresh_region.map(native_rect_payload),
+        "refresh_waveform": waveform,
+        "refresh_flashing": sample.refresh_flashing,
+        "refresh_ioctl_returned": sample.refresh_ioctl_attempts > 0,
+        "refresh_ioctl_attempts": sample.refresh_ioctl_attempts,
+        "refresh_accepted": sample.refresh_accepted,
+        "refresh_errno": sample.refresh_errno,
+        "panel_completion_observed": sample.panel_completion_observed,
+    })
+}
+
+fn native_timing_payload(timing: slint_backend_kindle::PerformanceTiming) -> serde_json::Value {
+    serde_json::json!({
+        "started_monotonic_ns": timing.started_monotonic_ns,
+        "finished_monotonic_ns": timing.finished_monotonic_ns,
+        "started_thread_cpu_ns": timing.started_thread_cpu_ns,
+        "finished_thread_cpu_ns": timing.finished_thread_cpu_ns,
+        "wall_ns": timing.wall_ns,
+        "thread_cpu_ns": timing.thread_cpu_ns,
+        "same_thread": timing.same_thread,
+    })
+}
+
+fn native_rect_payload(rect: slint_backend_kindle::PhysicalRect) -> serde_json::Value {
+    serde_json::json!({ "x": rect.x, "y": rect.y, "width": rect.width, "height": rect.height })
+}
+
 /// Linux's stable fb_var_screeninfo layout consists of forty 32-bit words.
 /// Visible resolution and panning offsets are checked without writing display state.
 #[repr(C)]
@@ -158,7 +239,7 @@ fn validate_framebuffer_info(
     Ok(actual)
 }
 
-fn find_command(name: &str) -> Option<PathBuf> {
+pub(super) fn find_command(name: &str) -> Option<PathBuf> {
     ["/usr/bin", "/bin", "/usr/sbin", "/sbin"]
         .into_iter()
         .map(|directory| Path::new(directory).join(name))

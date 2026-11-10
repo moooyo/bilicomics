@@ -179,3 +179,168 @@ async fn independent_producers_use_the_same_process_gate() {
     for task in tasks { task.await.unwrap().unwrap(); }
     assert_eq!(active.load(Ordering::SeqCst), 0);
 }
+
+#[tokio::test]
+async fn speculative_admission_cannot_pass_a_regular_waiter_before_it_resumes() {
+    let budget = ComputeBudget::new(2, 4 * MIB);
+    let registration = budget.regular_waiter().unwrap();
+    assert_eq!(budget.cpu.available_permits(), 2);
+    assert_eq!(budget.memory.available_permits(), 4);
+    assert!(budget.try_speculative(MIB, Arc::new(AtomicBool::new(false))).is_none());
+    drop(registration);
+    let held = budget.memory.clone().acquire_many_owned(4).await.unwrap();
+    let called = Arc::new(AtomicBool::new(false));
+    let callback_called = called.clone();
+    let mut regular = Box::pin(run_with_budget(&budget, 2 * MIB,
+        move |_| callback_called.store(true, Ordering::Release)));
+    std::future::poll_fn(|context| {
+        assert!(std::future::Future::poll(regular.as_mut(), context).is_pending());
+        std::task::Poll::Ready(())
+    }).await;
+    assert_eq!(lock_admission(&budget.admission).regular_waiters, 1);
+    drop(held);
+    // The semaphore has granted memory, but the foreground future has not
+    // resumed. Spare resources must not let a prediction pass its registration.
+    assert_eq!(budget.cpu.available_permits(), 1);
+    assert_eq!(budget.memory.available_permits(), 2);
+    assert!(budget.try_speculative(MIB, Arc::new(AtomicBool::new(false))).is_none());
+    assert_eq!(budget.cpu.available_permits(), 1);
+    assert_eq!(budget.memory.available_permits(), 2);
+    drop(regular);
+    assert!(!called.load(Ordering::Acquire));
+    assert_eq!(lock_admission(&budget.admission).regular_waiters, 0);
+    assert_eq!(budget.cpu.available_permits(), 2);
+    assert_eq!(budget.memory.available_permits(), 4);
+    assert!(budget.try_speculative(MIB, Arc::new(AtomicBool::new(false))).is_some());
+}
+
+#[tokio::test]
+async fn speculative_admission_requires_every_cpu_slot_to_be_idle() {
+    let budget = Arc::new(ComputeBudget::new(2, 4 * MIB));
+    let gate = Gate::new(); let _release = ReleaseOnDrop(gate.clone());
+    let worker_budget = budget.clone(); let worker_gate = gate.clone();
+    let regular = tokio::spawn(async move {
+        run_with_budget(&worker_budget, MIB, move |_| worker_gate.wait()).await
+    });
+    gate.wait_for(1).await;
+    assert_eq!(lock_admission(&budget.admission).regular_waiters, 0);
+    assert_eq!(budget.cpu.available_permits(), 1);
+    assert_eq!(budget.memory.available_permits(), 3);
+    assert!(budget.try_speculative(MIB, Arc::new(AtomicBool::new(false))).is_none());
+    gate.release();
+    regular.await.unwrap().unwrap();
+    assert!(budget.try_speculative(MIB, Arc::new(AtomicBool::new(false))).is_some());
+}
+
+#[tokio::test]
+async fn foreground_work_uses_the_other_slot_and_cancels_the_original_speculative_flag() {
+    let budget = ComputeBudget::new(2, 4 * MIB);
+    let cancelled = Arc::new(AtomicBool::new(false));
+    let lease = budget.try_speculative(2 * MIB, cancelled.clone()).unwrap();
+    let gate = Gate::new(); let _release = ReleaseOnDrop(gate.clone());
+    let worker_gate = gate.clone();
+    let speculative = tokio::spawn(run_speculative_traced(lease, None, move |cancel| {
+        worker_gate.wait();
+        cancel.is_cancelled()
+    }));
+    gate.wait_for(1).await;
+    let result = tokio::time::timeout(Duration::from_secs(8),
+        run_with_budget(&budget, 2 * MIB, |_| 41)).await.unwrap().unwrap();
+    assert_eq!(result, 41);
+    assert!(cancelled.load(Ordering::Acquire));
+    assert_eq!(budget.cpu.available_permits(), 1);
+    assert_eq!(budget.memory.available_permits(), 2);
+    assert!(lock_admission(&budget.admission).speculative.is_some());
+    gate.release();
+    assert!(speculative.await.unwrap().unwrap());
+    assert!(lock_admission(&budget.admission).speculative.is_none());
+}
+
+#[tokio::test]
+async fn dropping_a_speculative_future_or_marker_keeps_the_actual_worker_exclusive() {
+    let budget = ComputeBudget::new(2, 4 * MIB);
+    let mut marker = Some(Arc::new(AtomicBool::new(false)));
+    let cancelled = marker.as_ref().unwrap().clone();
+    let lease = budget.try_speculative(2 * MIB, cancelled.clone()).unwrap();
+    let gate = Gate::new(); let _release = ReleaseOnDrop(gate.clone());
+    let worker_gate = gate.clone();
+    let (exited, did_exit) = tokio::sync::oneshot::channel();
+    let worker = tokio::spawn(run_speculative_traced(lease, None, move |cancel| {
+        worker_gate.wait();
+        let _ = exited.send(cancel.is_cancelled());
+    }));
+    gate.wait_for(1).await;
+    drop(marker.take());
+    worker.abort();
+    assert!(worker.await.unwrap_err().is_cancelled());
+    assert!(cancelled.load(Ordering::Acquire));
+    assert_eq!(budget.cpu.available_permits(), 1);
+    assert_eq!(budget.memory.available_permits(), 2);
+    for _ in 0..4 {
+        assert!(budget.try_speculative(MIB, Arc::new(AtomicBool::new(false))).is_none());
+    }
+    assert_eq!(budget.cpu.available_permits(), 1);
+    assert_eq!(budget.memory.available_permits(), 2);
+    gate.release();
+    assert!(did_exit.await.unwrap());
+    wait_until(|| lock_admission(&budget.admission).speculative.is_none()).await;
+    assert_eq!(budget.cpu.available_permits(), 2);
+    assert_eq!(budget.memory.available_permits(), 4);
+    assert!(budget.try_speculative(MIB, Arc::new(AtomicBool::new(false))).is_some());
+}
+
+#[tokio::test]
+async fn speculative_memory_failure_never_retains_a_cpu_slot_or_partial_reservation() {
+    let budget = ComputeBudget::new(2, 4 * MIB);
+    let held_memory = budget.memory.clone().acquire_many_owned(3).await.unwrap();
+    for _ in 0..4 {
+        assert!(budget.try_speculative(2 * MIB, Arc::new(AtomicBool::new(false))).is_none());
+        assert_eq!(budget.cpu.available_permits(), 2);
+        assert_eq!(budget.memory.available_permits(), 1);
+        assert!(lock_admission(&budget.admission).speculative.is_none());
+        assert_eq!(lock_admission(&budget.admission).regular_waiters, 0);
+    }
+    drop(held_memory);
+    let held_cpu = budget.cpu.clone().acquire_many_owned(2).await.unwrap();
+    assert!(budget.try_speculative(2 * MIB, Arc::new(AtomicBool::new(false))).is_none());
+    assert_eq!(budget.memory.available_permits(), 4);
+    assert!(lock_admission(&budget.admission).speculative.is_none());
+    drop(held_cpu);
+    assert!(budget.try_speculative(2 * MIB, Arc::new(AtomicBool::new(false))).is_some());
+}
+
+#[tokio::test]
+async fn speculative_panic_and_error_release_the_actual_worker_reservations() {
+    let budget = ComputeBudget::new(2, 4 * MIB);
+    let lease = budget.try_speculative(2 * MIB, Arc::new(AtomicBool::new(false))).unwrap();
+    let result = run_speculative_traced(lease, None, |_| -> Result<(), &'static str> {
+        Err("Controlled speculative failure")
+    }).await.unwrap();
+    assert!(result.is_err());
+    assert!(lock_admission(&budget.admission).speculative.is_none());
+    assert_eq!(budget.cpu.available_permits(), 2);
+    assert_eq!(budget.memory.available_permits(), 4);
+    let lease = budget.try_speculative(2 * MIB, Arc::new(AtomicBool::new(false))).unwrap();
+    let result = run_speculative_traced(lease, None, |_| -> () {
+        panic!("Controlled speculative panic");
+    }).await;
+    assert_eq!(result, Err(WorkError::WorkerFailed));
+    assert!(lock_admission(&budget.admission).speculative.is_none());
+    assert_eq!(budget.cpu.available_permits(), 2);
+    assert_eq!(budget.memory.available_permits(), 4);
+    assert_eq!(run_with_budget(&budget, MIB, |_| 13).await.unwrap(), 13);
+}
+
+#[test]
+fn speculative_admission_rejects_a_busy_metadata_lock_and_cancelled_work_immediately() {
+    let budget = ComputeBudget::new(2, 4 * MIB);
+    let state = lock_admission(&budget.admission);
+    assert!(budget.try_speculative(MIB, Arc::new(AtomicBool::new(false))).is_none());
+    assert_eq!(budget.cpu.available_permits(), 2);
+    assert_eq!(budget.memory.available_permits(), 4);
+    drop(state);
+    assert!(budget.try_speculative(MIB, Arc::new(AtomicBool::new(true))).is_none());
+    assert!(budget.try_speculative(5 * MIB, Arc::new(AtomicBool::new(false))).is_none());
+    assert!(lock_admission(&budget.admission).speculative.is_none());
+    assert_eq!(lock_admission(&budget.admission).regular_waiters, 0);
+}

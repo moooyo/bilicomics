@@ -36,6 +36,7 @@ export global ShellModel {
 }
 
 export component AppWindow inherits Window {
+    callback runtime-wakeup();
     title: ShellModel.demo ? "BiliComics - Design Preview" : "BiliComics";
     preferred-width: 618px;
     preferred-height: 824px;

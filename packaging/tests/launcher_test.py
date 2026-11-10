@@ -1,9 +1,13 @@
 """Exercise same-process Kindle lifecycle supervision with isolated Linux fixtures."""
 
+import hashlib
 import json
 import os
 from pathlib import Path
+import re
+import shutil
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
@@ -18,14 +22,15 @@ import json
 import os
 from pathlib import Path
 import signal
+import subprocess
 import sys
 import time
 
 env = os.environ
-if sys.argv[1:2] == ["--probe-native-portrait-framebuffer"]:
-    expected = ["--probe-native-portrait-framebuffer", "--kindle", "--device", env["BILICOMICS_APPROVED_PROFILE"]]
-    if sys.argv[1:] != expected or env["BILICOMICS_APPROVED_FIRMWARE"] != "5.20.1":
-        sys.exit(93)
+
+def portrait_metadata_fixture():
+    # This controlled observation is shared by the compatibility primitive and
+    # the complete capture fixture. Production parsing is covered in Rust.
     probes = Path(env["TEST_PORTRAIT_PROBES"])
     previous = probes.read_text().splitlines() if probes.exists() else []
     identity = Path("/proc/self/stat").read_text().rsplit(") ", 1)[1].split()
@@ -43,7 +48,123 @@ if sys.argv[1:2] == ["--probe-native-portrait-framebuffer"]:
         value = values[min(len(previous), len(values) - 1)].encode()
     else:
         value = Path(env["TEST_PORTRAIT_METADATA"]).read_bytes()
-    os.write(1, value)
+    return value
+
+if sys.argv[1:2] == ["--probe-native-portrait-framebuffer"]:
+    expected = ["--probe-native-portrait-framebuffer", "--kindle", "--device", env["BILICOMICS_APPROVED_PROFILE"]]
+    if sys.argv[1:] != expected or env["BILICOMICS_APPROVED_FIRMWARE"] != "5.20.1":
+        sys.exit(93)
+    os.write(1, portrait_metadata_fixture())
+    sys.exit(0)
+if sys.argv[1:2] == ["--capture-native-display"]:
+    expected = ["--capture-native-display", "--kindle", "--device", env["BILICOMICS_APPROVED_PROFILE"]]
+    if sys.argv[1:] != expected or env["BILICOMICS_APPROVED_FIRMWARE"] != "5.20.1":
+        sys.exit(93)
+    try:
+        # Fail before any synthetic native query unless the launcher supplied
+        # this invocation's private lifecycle binding and reader permission.
+        directory = Path(env["BILICOMICS_LIFECYCLE_DIR"])
+        generation = env["BILICOMICS_LAUNCH_GENERATION"]
+        token = env["BILICOMICS_LAUNCH_TOKEN"]
+        if (not directory.is_absolute() or directory.is_symlink() or not generation.isdigit()
+                or generation.startswith("0") or len(token) != 32
+                or any(byte not in "0123456789abcdef" for byte in token)):
+            raise ValueError("Invalid fixture capture environment")
+        header = f"{generation}:{token}"
+        if ((directory / "generation").read_text() != header + "\n"
+                or (directory / "nonce").read_text() != token + "\n"):
+            raise ValueError("Invalid fixture capture generation")
+        permission = (directory / "native-read-go").read_text()
+        leader, sequence, nonce = permission.rstrip("\n").split(":")
+        if (permission != f"{leader}:{sequence}:{nonce}\n" or nonce != token
+                or not sequence.isdigit() or sequence.startswith("0")
+                or leader != str(os.getpgrp()) or leader != str(os.getsid(0))):
+            raise ValueError("Invalid fixture capture reader group")
+        master = (directory / "pid").read_text().strip()
+        member = os.getpid()
+        for _ in range(12):
+            identity = Path(f"/proc/{member}/stat").read_text().rsplit(") ", 1)[1].split()
+            if identity[0] in ("Z", "X") or identity[2:4] != [leader, leader]:
+                raise ValueError("Invalid fixture capture ancestry")
+            if str(member) == leader:
+                if identity[1] != master:
+                    raise ValueError("Invalid fixture capture owner")
+                break
+            member = int(identity[1])
+        else:
+            raise ValueError("Missing fixture capture ancestor")
+        if (directory / "application-pid").exists():
+            request = (directory / "lifecycle-request").read_text()
+            if (not request.startswith(header + ":") or not request.endswith(":suspend\n")
+                    or (directory / "lifecycle-ready").read_text() != header + "\n"
+                    or (directory / "lifecycle-ack").read_text() not in
+                    (request, request[:-1] + ":ok\n", request[:-1] + ":checkpoint-error\n")):
+                raise ValueError("Invalid fixture capture suspension")
+        elif (directory / "lifecycle-request").exists():
+            raise ValueError("Unexpected fixture capture lifecycle request")
+        with Path(env["TEST_NATIVE_CAPTURES"]).open("a") as output:
+            output.write(json.dumps({"pid": os.getpid(), "group": int(leader), "session": os.getsid(0),
+                                     "arguments": sys.argv[1:], "generation": generation}) + "\n")
+        time.sleep(float(env["TEST_NATIVE_CAPTURE_DELAY"]))
+        override = Path(env["TEST_NATIVE_CAPTURE_RECORD"])
+        if override.exists():
+            os.write(1, override.read_bytes())
+            sys.exit(int(env["TEST_NATIVE_CAPTURE_EXIT"]))
+        if int(env["TEST_NATIVE_CAPTURE_EXIT"]):
+            sys.exit(int(env["TEST_NATIVE_CAPTURE_EXIT"]))
+
+        def bounded_lipc(*arguments):
+            # The production launcher owns the deadline and the entire process
+            # group, including an overflowing or blocked fixture descendant.
+            with subprocess.Popen(["lipc-get-prop", *arguments], stdout=subprocess.PIPE,
+                                  stderr=subprocess.DEVNULL) as command:
+                value = command.stdout.read(129)
+                if not value or len(value) > 128 or command.wait() != 0:
+                    raise ValueError("Invalid fixture native getter")
+                return value
+
+        def power_is_active(value):
+            if value in (b"active", b"active\n"):
+                return True
+            value = value.removesuffix(b"\n")
+            if not value or any(byte < 32 or byte > 126 for byte in value):
+                raise ValueError("Malformed fixture power state")
+            return False
+
+        def metadata(value):
+            for kind in (b"AUTO", b"FIXED"):
+                for rotation in range(4):
+                    if value == kind + b":" + str(rotation).encode() + b"\n":
+                        return kind, rotation
+            raise ValueError("Malformed fixture framebuffer observation")
+
+        def direction(value):
+            value = value.removesuffix(b"\n")
+            if value in (b"U", b"D"):
+                return value.decode()
+            if env["BILICOMICS_APPROVED_PROFILE"] == "scribe" and value in (b"L", b"R"):
+                return {b"L": "U", b"R": "D"}[value]
+            raise ValueError("Malformed fixture portrait direction")
+
+        if not power_is_active(bounded_lipc("-s", "com.lab126.powerd", "state")):
+            print("not-active")
+            sys.exit(0)
+        mode = bounded_lipc("-s", "com.lab126.winmgr", "epdcMode").removesuffix(b"\n")
+        if mode not in (b"Y8", b"Y8INV"):
+            raise ValueError("Malformed fixture native display mode")
+        first_metadata = portrait_metadata_fixture()
+        kind, rotation = metadata(first_metadata)
+        orientation = direction(bounded_lipc("com.lab126.winmgr", "accelerometer")) if kind == b"AUTO" else "FIXED"
+        if portrait_metadata_fixture() != first_metadata:
+            raise ValueError("Changed fixture framebuffer observation")
+        if kind == b"AUTO" and direction(bounded_lipc("com.lab126.winmgr", "accelerometer")) != orientation:
+            raise ValueError("Changed fixture portrait direction")
+        if power_is_active(bounded_lipc("-s", "com.lab126.powerd", "state")):
+            print(f"ready:{mode.decode()}:{orientation}:{rotation}")
+        else:
+            print("not-active")
+    except (OSError, ValueError, KeyError):
+        sys.exit(93)
     sys.exit(0)
 if sys.argv[1:2] == ["--publish-native-portrait-orientation"]:
     if (len(sys.argv[1:]) != 5 or sys.argv[3:5] != ["--kindle", "--device"]
@@ -272,6 +393,11 @@ signal.signal(signal.SIGHUP, stop)
 signal.signal(signal.SIGINT, stop)
 snapshot()
 log("started")
+if env.get("TEST_APP_STDOUT"):
+    print(env["TEST_APP_STDOUT"], flush=True)
+stdout_remaining = int(env.get("TEST_APP_STDOUT_BYTES", "0"))
+while stdout_remaining > 0:
+    stdout_remaining -= os.write(1, b"B" * min(stdout_remaining, 4096))
 time.sleep(float(env["TEST_READY_DELAY"]))
 signal.signal(signal.SIGUSR1, receive)
 signal.signal(signal.SIGUSR2, receive)
@@ -394,6 +520,10 @@ class LauncherLifecycleTests(unittest.TestCase):
             TEST_PORTRAIT_PUBLISHERS=str(self.root / "portrait-publishers"),
             TEST_PORTRAIT_PROBE_DELAY="0",
             TEST_PORTRAIT_PROBE_EXIT="0",
+            TEST_NATIVE_CAPTURES=str(self.root / "native-captures"),
+            TEST_NATIVE_CAPTURE_RECORD=str(self.root / "native-capture-record"),
+            TEST_NATIVE_CAPTURE_DELAY="0",
+            TEST_NATIVE_CAPTURE_EXIT="0",
             TEST_NATIVE_ORIENTATION=str(self.root / "native-orientation"),
             TEST_OUTPUT_CAPABILITY="legacy",
             TEST_NATIVE_QUERIES=str(self.root / "native-queries"),
@@ -537,6 +667,11 @@ class LauncherLifecycleTests(unittest.TestCase):
             return child.communicate(timeout=3)
 
     def run_launcher(self, drive=None):
+        log_path = self.home / "data" / "logs" / "launcher.log"
+        try:
+            previous_log = log_path.lstat()
+        except FileNotFoundError:
+            previous_log = None
         child = subprocess.Popen(
             ["sh", str(self.launcher), "--detached"],
             env=self.env,
@@ -549,11 +684,21 @@ class LauncherLifecycleTests(unittest.TestCase):
             if drive is not None:
                 drive(child)
             output, error = child.communicate(timeout=18)
-        except subprocess.TimeoutExpired:
-            self.stop_launcher_after_failure(child)
+        except subprocess.TimeoutExpired as failure:
+            before = self.launcher_failure_snapshot(child)
+            output, error = "", ""
+            try:
+                output, error = self.stop_launcher_after_failure(child)
+            finally:
+                self.attach_launcher_failure(failure, child, before, output, error)
             self.fail("The fixture launcher did not finish in time.")
-        except BaseException:
-            self.stop_launcher_after_failure(child)
+        except BaseException as failure:
+            before = self.launcher_failure_snapshot(child)
+            output, error = "", ""
+            try:
+                output, error = self.stop_launcher_after_failure(child)
+            finally:
+                self.attach_launcher_failure(failure, child, before, output, error)
             raise
         try:
             os.killpg(child.pid, 0)
@@ -569,7 +714,101 @@ class LauncherLifecycleTests(unittest.TestCase):
                                   "The fixture launcher left an observer or relay process running.")
                 except FileNotFoundError:
                     pass
+        # Production redirects only after it owns the launch lock. Preserve
+        # stderr assertions without importing diagnostics from an older run.
+        try:
+            descriptor = os.open(log_path, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW)
+        except OSError:
+            descriptor = None
+        if descriptor is not None:
+            try:
+                current_log = os.fstat(descriptor)
+                if stat.S_ISREG(current_log.st_mode):
+                    with os.fdopen(descriptor, "rb") as stream:
+                        descriptor = None
+                        same_file = previous_log is not None and stat.S_ISREG(previous_log.st_mode) and (
+                            current_log.st_dev, current_log.st_ino
+                        ) == (previous_log.st_dev, previous_log.st_ino)
+                        start = min(previous_log.st_size, current_log.st_size) if same_file else 0
+                        stream.seek(max(start, current_log.st_size - 64 * 1024))
+                        diagnostics = stream.read(64 * 1024).decode("utf-8", errors="replace")
+                        if diagnostics:
+                            error += "\n" + diagnostics
+            finally:
+                if descriptor is not None:
+                    os.close(descriptor)
         return child.returncode, output, error
+
+    def launcher_failure_snapshot(self, child):
+        """Keep bounded synthetic failure evidence before cleanup removes it."""
+        records = {}
+        paths = [self.home / "data" / "logs" / name for name in
+                 ("launcher.log", "application.log", "launcher-timing.tsv")]
+        paths += [self.root / name for name in
+                  ("application-trace", "application-state", "native-queries", "native-captures", "portrait-probes", "trace")]
+        paths += [self.root / "lock" / name for name in
+                  ("pid", "generation", "nonce", "native-read-go", "native-read-command", "native-read-done",
+                   "observer-owned", "observer-status", "application-pid", "lifecycle-ready", "application-exit",
+                   "log-launcher-ready", "log-launcher-owned", "log-launcher-exit",
+                   "log-application-ready", "log-application-owned", "log-application-exit")]
+        for path in paths:
+            descriptor = None
+            try:
+                descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW)
+                metadata = os.fstat(descriptor)
+                if not stat.S_ISREG(metadata.st_mode):
+                    continue
+                with os.fdopen(descriptor, "rb") as stream:
+                    descriptor = None
+                    start = max(0, metadata.st_size - 16 * 1024)
+                    stream.seek(start)
+                    payload = stream.read(16 * 1024)
+                    records[str(path.relative_to(self.root))] = {
+                        "bytes": metadata.st_size, "read_start": start,
+                        "tail_sha256": hashlib.sha256(payload).hexdigest(),
+                        "tail": self.redact_fixture_tokens(payload.decode("utf-8", errors="replace")),
+                    }
+            except OSError:
+                continue
+            finally:
+                if descriptor is not None:
+                    os.close(descriptor)
+        try:
+            process = self.process_identity(child.pid)
+        except (OSError, ValueError, IndexError):
+            process = None
+        return {"monotonic_ns": time.monotonic_ns(), "launcher_exit_code": child.poll(),
+                "launcher_identity": process, "files": records}
+
+    @staticmethod
+    def redact_fixture_tokens(value):
+        return re.sub(r"(?<![0-9a-fA-F])[0-9a-fA-F]{32}(?![0-9a-fA-F])", "<redacted-launch-token>", value)
+
+    def attach_launcher_failure(self, failure, child, before, output, error):
+        evidence = {"test": self.id(), "fixture_root": str(self.root), "before_cleanup": before,
+                    "after_cleanup": self.launcher_failure_snapshot(child),
+                    "stdout_tail": self.redact_fixture_tokens(output[-16 * 1024:]),
+                    "stderr_tail": self.redact_fixture_tokens(error[-16 * 1024:]),
+                    "scope": "Synthetic launcher fixture only; failure thresholds and assertions are unchanged"}
+        destination = self.env.get("BILICOMICS_FIXTURE_DIAGNOSTICS")
+        if destination:
+            try:
+                directory = Path(destination)
+                if not directory.is_absolute():
+                    raise ValueError("Fixture diagnostics require an absolute evidence directory")
+                directory.mkdir(parents=True, exist_ok=True)
+                path = directory / f"{self._testMethodName}-{child.pid}-{before['monotonic_ns']}.json"
+                with path.open("x") as stream:
+                    json.dump(evidence, stream, indent=2)
+                    stream.write("\n")
+                evidence["saved_evidence"] = str(path)
+            except (OSError, ValueError) as error:
+                evidence["evidence_write_error"] = str(error)
+        note = "Launcher fixture failure evidence: " + json.dumps(evidence)
+        if hasattr(failure, "add_note"):
+            failure.add_note(note)
+        else:
+            print(note, file=sys.stderr, flush=True)
 
     def lines(self, name):
         path = self.root / name
@@ -587,6 +826,9 @@ class LauncherLifecycleTests(unittest.TestCase):
 
     def starts(self):
         return self.lines("starts")
+
+    def captures(self):
+        return [json.loads(line) for line in self.lines("native-captures")]
 
     def app_events(self):
         return [line.rsplit(":", 1)[0] for line in self.lines("application-trace")]
@@ -671,6 +913,271 @@ class LauncherLifecycleTests(unittest.TestCase):
         self.assertEqual(status, 7)
         self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
 
+    def test_oversized_production_logs_rotate_once_and_keep_one_backup(self):
+        logs = self.home / "data" / "logs"
+        logs.mkdir(mode=0o700)
+        originals = {
+            "launcher.log": b"launcher-history\n" + b"L" * (1024 * 1024 - 17),
+            "application.log": b"application-history\n" + b"A" * (1024 * 1024),
+        }
+        for name, content in originals.items():
+            path = logs / name
+            path.write_bytes(content)
+            path.chmod(0o600)
+            backup = logs / (name + ".1")
+            backup.write_bytes(b"older-backup\n")
+            backup.chmod(0o600)
+        self.assertEqual(len(originals["launcher.log"]), 1024 * 1024)
+        self.env["TEST_APP_STDOUT"] = "current-application-diagnostic"
+
+        for attempt in range(2):
+            with self.subTest(attempt=attempt):
+                status, _, error = self.run_launcher()
+                self.assertEqual(status, 0, error)
+                self.assertFalse((self.root / "lock").exists())
+                for name, content in originals.items():
+                    self.assertEqual((logs / (name + ".1")).read_bytes(), content[-1024 * 1024:])
+                    self.assertLessEqual((logs / (name + ".1")).stat().st_size, 1024 * 1024)
+                    self.assertLess((logs / name).stat().st_size, 1024 * 1024)
+                    self.assertFalse((logs / (name + ".2")).exists())
+        self.assertEqual((logs / "application.log").read_text().splitlines(),
+                         ["current-application-diagnostic"] * 2)
+        self.assertEqual(len(self.starts()), 2)
+
+    def test_logging_bursts_remain_bounded_without_blocking_readiness_or_changing_exit_status(self):
+        self.env.update(TEST_APP_STDOUT_BYTES=str(3 * 1024 * 1024), TEST_HOLD="1", TEST_APP_EXIT="7")
+        writer = self.root / "launcher-log-writer.py"
+        writer.write_text(
+            "import os\n"
+            "remaining = 3 * 1024 * 1024\n"
+            "while remaining > 0:\n"
+            "    remaining -= os.write(2, b'L' * min(remaining, 4096))\n"
+        )
+        self.env["TEST_LAUNCHER_LOG_WRITER"] = str(writer)
+        launcher_source = self.launcher.read_text()
+        marker = "\nlaunch_trace startup_sample_begin\n"
+        self.assertEqual(launcher_source.count(marker), 1)
+        self.launcher.write_text(launcher_source.replace(
+            marker, '\npython3 "$TEST_LAUNCHER_LOG_WRITER"\nlaunch_trace startup_sample_begin\n', 1))
+        logs = self.home / "data" / "logs"
+        observed = {}
+
+        def drive(_):
+            self.ready()
+            observed["pid"] = self.state()["pid"]
+            self.assertEqual(self.starts(), [str(observed["pid"])])
+            for name in ("launcher.log", "application.log"):
+                path = logs / name
+                self.assertEqual(path.stat().st_size, 1024 * 1024)
+                self.assertFalse((logs / (name + ".1")).exists())
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 7, error[-2048:])
+        self.assertEqual(self.starts(), [str(observed["pid"])])
+        self.assertIn("ordinary-exit", self.app_events())
+        self.assertFalse((self.root / "lock").exists())
+        for name, expected in (("launcher.log", b"L"), ("application.log", b"B")):
+            self.assertEqual((logs / name).read_bytes(), expected * (1024 * 1024))
+            self.assertFalse((logs / (name + ".2")).exists())
+
+    def test_failed_log_consumer_restarts_without_a_followup_power_event(self):
+        real_cat = shutil.which("cat", path=os.environ.get("PATH", ""))
+        self.assertIsNotNone(real_cat)
+        marker = self.root / "log-consumer-fault"
+        lock = self.root / "lock"
+        self.env.update(TEST_APP_STDOUT_BYTES=str(3 * 1024 * 1024), TEST_HOLD="1", TEST_APP_EXIT="7",
+                        TEST_REAL_CAT=real_cat, TEST_LOG_FAULT_MARKER=str(marker),
+                        TEST_LOG_FAULT_FIFO=str(lock / "log-application-pipe"))
+        self.script(self.bin / "cat",
+                    'if [ "$#" -eq 0 ] && [ ! -e "$TEST_LOG_FAULT_MARKER" ] && '
+                    '[ "$(readlink /proc/self/fd/0)" = "$TEST_LOG_FAULT_FIFO" ]; then\n'
+                    '  printf "consumer-exit:7\\n" >"$TEST_LOG_FAULT_MARKER"\n'
+                    '  exit 7\n'
+                    'fi\n'
+                    'exec "$TEST_REAL_CAT" "$@"')
+        observed = {}
+
+        def replacement_observed():
+            try:
+                previous = (lock / "log-application-exit").read_text().strip().split(":")
+                current = (lock / "log-application-owned").read_text().strip().split(":")
+            except FileNotFoundError:
+                return False
+            if len(previous) != 5 or len(current) != 4 or previous[2] == current[2]:
+                return False
+            observed.update(previous=previous, current=current)
+            return True
+
+        def drive(child):
+            # The fixture source is silent. The blocked burst must be released
+            # by the sink's own exit notice before any ordinary exit is requested.
+            self.ready()
+            self.wait_until(replacement_observed)
+            self.assertEqual(marker.read_text(), "consumer-exit:7\n")
+            previous, current = observed["previous"], observed["current"]
+            header = (lock / "generation").read_text().strip().split(":")
+            self.assertEqual(previous[:2], header)
+            self.assertEqual(current[:2], header)
+            self.assertEqual(previous[4], "1")
+            replacement = self.process_identity(current[2])
+            self.assertEqual(replacement["parent"], child.pid)
+            self.assertEqual(replacement["birth"], current[3])
+            self.assertEqual(replacement["group"], replacement["pid"])
+            self.assertEqual(replacement["session"], replacement["pid"])
+            try:
+                retired = self.process_identity(previous[2])
+            except FileNotFoundError:
+                retired = None
+            if retired is not None and retired["birth"] == previous[3]:
+                self.assertIn(retired["state"], ("Z", "X"))
+            self.assertEqual((self.home / "data" / "logs" / "application.log").stat().st_size,
+                             1024 * 1024)
+            observed["application_pid"] = self.state()["pid"]
+            self.assertEqual(self.starts(), [str(observed["application_pid"])])
+            self.assertNotIn("suspend", self.app_events())
+            self.assertNotIn("resume", self.app_events())
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 7, error[-2048:])
+        self.assertEqual(self.starts(), [str(observed["application_pid"])])
+        self.assertIn("ordinary-exit", self.app_events())
+        self.assertFalse(lock.exists())
+        self.assertEqual((self.home / "data" / "logs" / "application.log").read_bytes(),
+                         b"B" * (1024 * 1024))
+
+    def test_small_production_logs_are_preserved_and_application_output_appends(self):
+        logs = self.home / "data" / "logs"
+        logs.mkdir(mode=0o700)
+        for name in ("launcher.log", "application.log"):
+            path = logs / name
+            path.write_text("previous-diagnostic\n")
+            path.chmod(0o600)
+            backup = logs / (name + ".1")
+            backup.write_text("retained-backup\n")
+            backup.chmod(0o600)
+        self.env["TEST_APP_STDOUT"] = "new-application-diagnostic"
+        status, _, error = self.run_launcher()
+        self.assertEqual(status, 0, error)
+        self.assertTrue((logs / "launcher.log").read_text().startswith("previous-diagnostic\n"))
+        self.assertEqual((logs / "application.log").read_text(),
+                         "previous-diagnostic\nnew-application-diagnostic\n")
+        for name in ("launcher.log", "application.log"):
+            self.assertEqual((logs / (name + ".1")).read_text(), "retained-backup\n")
+
+    def test_current_launcher_failure_appends_to_its_log_without_truncating_history(self):
+        logs = self.home / "data" / "logs"
+        logs.mkdir(mode=0o700)
+        launcher_log = logs / "launcher.log"
+        launcher_log.write_text("previous-launcher-diagnostic\n")
+        launcher_log.chmod(0o600)
+        self.native_getter(mode_body='printf "UNKNOWN\\n"')
+        status, _, error = self.run_launcher()
+        self.assertEqual(status, 1, error)
+        self.assertEqual(self.trace(), [])
+        self.assertEqual(self.starts(), [])
+        self.assertFalse((self.root / "lock").exists())
+        diagnostic = launcher_log.read_text()
+        self.assertTrue(diagnostic.startswith("previous-launcher-diagnostic\n"))
+        self.assertIn("could not be read before startup", diagnostic)
+        self.assertIn("could not be read before startup", error)
+        self.assertNotIn("previous-launcher-diagnostic", error)
+
+    def test_drive_failure_retains_the_original_launcher_error_and_cleanup_evidence(self):
+        diagnostics = self.root / "failure-evidence"
+        self.env["BILICOMICS_FIXTURE_DIAGNOSTICS"] = str(diagnostics)
+        fixture_token = "0123456789abcdef" * 2
+        (self.root / "application-state").write_text(json.dumps({"fixture_token": fixture_token}))
+        self.native_getter(mode_body='printf "UNKNOWN\\n"')
+
+        def drive(child):
+            self.wait_until(lambda: child.poll() is not None)
+            self.fail("Controlled startup assertion for diagnostic retention")
+
+        with self.assertRaisesRegex(AssertionError, "Controlled startup assertion") as caught:
+            self.run_launcher(drive)
+        records = list(diagnostics.glob("*.json"))
+        self.assertEqual(len(records), 1)
+        evidence = json.loads(records[0].read_text())
+        self.assertEqual(evidence["before_cleanup"]["launcher_exit_code"], 1)
+        self.assertEqual(evidence["after_cleanup"]["launcher_exit_code"], 1)
+        self.assertIsNone(evidence["after_cleanup"]["launcher_identity"])
+        self.assertIn("could not be read before startup", json.dumps(evidence))
+        self.assertNotIn(fixture_token, json.dumps(evidence))
+        self.assertIn("<redacted-launch-token>", json.dumps(evidence))
+        self.assertFalse((self.root / "lock").exists())
+        if hasattr(caught.exception, "__notes__"):
+            self.assertTrue(any("could not be read before startup" in note for note in caught.exception.__notes__))
+
+    def test_foreign_launcher_lock_prevents_rotation_or_writes_to_active_logs(self):
+        logs = self.home / "data" / "logs"
+        logs.mkdir(mode=0o700)
+        expected = {}
+        for name in ("launcher.log", "application.log"):
+            for suffix, content in (("", b"F" * (1024 * 1024 + 1)), (".1", b"foreign-backup\n")):
+                path = logs / (name + suffix)
+                path.write_bytes(content)
+                path.chmod(0o600)
+                expected[path] = content
+        lock = self.root / "lock"
+        lock.mkdir(mode=0o700)
+        (lock / "pid").write_text("foreign-owner\n")
+
+        status, _, error = self.run_launcher()
+        self.assertEqual(status, 1, error)
+        self.assertIn("Another launcher owns the display lock", error)
+        self.assertEqual((lock / "pid").read_text(), "foreign-owner\n")
+        self.assertEqual(self.trace(), [])
+        self.assertEqual(self.starts(), [])
+        for path, content in expected.items():
+            self.assertEqual(path.read_bytes(), content)
+
+    def test_hostile_log_leaves_never_follow_targets_or_take_display_control(self):
+        logs = self.home / "data" / "logs"
+        logs.mkdir(mode=0o700)
+        target = self.root / "unrelated-log-target"
+        target.write_bytes(b"unrelated-file-must-remain-unchanged\n")
+        target.chmod(0o600)
+        for name in ("launcher.log", "application.log"):
+            for suffix in ("", ".1"):
+                for kind in ("symlink", "directory", "fifo", "hardlink"):
+                    with self.subTest(name=name, suffix=suffix, kind=kind):
+                        for previous in logs.iterdir():
+                            if previous.is_dir() and not previous.is_symlink():
+                                previous.rmdir()
+                            else:
+                                previous.unlink()
+                        if suffix:
+                            current = logs / name
+                            current.write_bytes(b"R" * (1024 * 1024))
+                            current.chmod(0o600)
+                        hostile = logs / (name + suffix)
+                        if kind == "symlink":
+                            hostile.symlink_to(target)
+                        elif kind == "directory":
+                            hostile.mkdir(mode=0o700)
+                        elif kind == "hardlink":
+                            os.link(target, hostile)
+                        else:
+                            os.mkfifo(hostile, 0o600)
+
+                        status, _, error = self.run_launcher()
+                        self.assertEqual(status, 1, error)
+                        self.assertEqual(self.trace(), [])
+                        self.assertEqual(self.starts(), [])
+                        self.assertFalse((self.root / "lock").exists())
+                        self.assertEqual(target.read_bytes(), b"unrelated-file-must-remain-unchanged\n")
+                        if kind == "symlink":
+                            self.assertTrue(hostile.is_symlink())
+                        elif kind == "directory":
+                            self.assertTrue(hostile.is_dir())
+                        elif kind == "hardlink":
+                            self.assertTrue(hostile.samefile(target))
+                            self.assertEqual(target.stat().st_nlink, 2)
+                        else:
+                            self.assertTrue(stat.S_ISFIFO(hostile.lstat().st_mode))
+
     def test_windows_configuration_line_endings_are_accepted(self):
         (self.home / "data" / "device-profile").write_bytes(b"pw6\r\n")
         (self.home / "data" / "device-allowlist").write_bytes(b"pw6 5.20.1\r\n")
@@ -694,6 +1201,83 @@ class LauncherLifecycleTests(unittest.TestCase):
         self.assertEqual(self.lines("native-queries"), [
             "-s com.lab126.powerd state", "-s com.lab126.winmgr epdcMode", "-s com.lab126.powerd state",
         ])
+
+    def test_startup_uses_one_capture_helper_with_exact_arguments_and_private_group(self):
+        status, _, error = self.run_launcher()
+        self.assertEqual(status, 0, error)
+        captures = self.captures()
+        self.assertEqual(len(captures), 1, "Startup executed more than one capture helper")
+        self.assertEqual(captures[0]["arguments"],
+                         ["--capture-native-display", "--kindle", "--device", "pw6"])
+        self.assertEqual(captures[0]["generation"], "1")
+        self.assertEqual(captures[0]["group"], captures[0]["session"])
+        probes = [entry.split(":", 3) for entry in self.lines("portrait-probes")]
+        self.assertEqual(len(probes), 2, "The capture fixture skipped a framebuffer observation")
+        self.assertEqual({int(probe[0]) for probe in probes}, {captures[0]["pid"]})
+        self.assertEqual({probe[1] for probe in probes}, {str(captures[0]["group"])})
+        self.assertEqual({probe[2] for probe in probes}, {str(captures[0]["session"])})
+        self.assertEqual(len(self.starts()), 1, "The capture helper entered the UI path")
+        self.assertNotEqual(int(self.starts()[0]), captures[0]["pid"])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_capture_fixture_rejects_missing_context_and_extra_arguments_before_native_reads(self):
+        environment = dict(self.env, BILICOMICS_APPROVED_PROFILE="pw6", BILICOMICS_APPROVED_FIRMWARE="5.20.1")
+        for name in ("BILICOMICS_LIFECYCLE_DIR", "BILICOMICS_LAUNCH_GENERATION", "BILICOMICS_LAUNCH_TOKEN"):
+            environment.pop(name, None)
+        for arguments in (["--capture-native-display", "--kindle", "--device", "pw6"],
+                          ["--capture-native-display", "--kindle", "--device", "pw6", "--demo"],
+                          ["--capture-native-display", "--device", "pw6", "--kindle"],
+                          ["--capture-native-display", "--kindle", "--device", "scribe"]):
+            with self.subTest(arguments=arguments):
+                result = subprocess.run([str(self.home / "app" / "bilicomics"), *arguments],
+                                        env=environment, capture_output=True, timeout=5)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, b"")
+                self.assertEqual(self.captures(), [])
+                self.assertEqual(self.lines("native-queries"), [])
+                self.assertEqual(self.lines("portrait-probes"), [])
+                self.assertEqual(self.starts(), [])
+
+    def test_malformed_compact_capture_records_never_take_display_control(self):
+        # These cases exercise the launcher's exact wire-record acceptance.
+        # Raw native input parsing is separately covered by the Rust sampler.
+        records = (b"", b"ready:Y8:U:0", b"ready:Y8:U:0\r\n", b"ready:Y8:U:0\n\n",
+                   b" ready:Y8:U:0\n", b"ready:Y8:U:0\x00\n", b"ready:Y8INV:U:4\n",
+                   b"ready:Y8:U:00\n", b"ready:Y8:L:0\n", b"ready:Y8:fixed:0\n",
+                   b"ready:Y8UNKNOWN:FIXED:0\n", b"ready:Y8:FIXED:0:extra\n",
+                   b"not-active", b"not-active\n\n", b"not-active\x00\n",
+                   b"ready:Y8:FIXED:0\n" + b"x" * 129)
+        for value in records:
+            with self.subTest(value=repr(value)):
+                (self.root / "native-capture-record").write_bytes(value)
+                status, _, error = self.run_launcher()
+                self.assertEqual(status, 1, error)
+                self.assertIn("could not be read before startup", error)
+                self.assertEqual(self.trace(), [])
+                self.assertEqual(self.starts(), [])
+                self.assertEqual(self.lines("native-queries"), [])
+                self.assertEqual(self.lines("portrait-probes"), [])
+                self.assertFalse((self.root / "lock").exists())
+
+    def test_success_shaped_capture_output_cannot_hide_a_nonzero_exit(self):
+        (self.root / "native-capture-record").write_bytes(b"ready:Y8:FIXED:0\n")
+        self.env["TEST_NATIVE_CAPTURE_EXIT"] = "29"
+        status, _, error = self.run_launcher()
+        self.assertEqual(status, 1, error)
+        self.assertIn("could not be read before startup", error)
+        self.assertEqual(len(self.captures()), 1)
+        self.assertEqual(self.trace(), [])
+        self.assertEqual(self.starts(), [])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_inactive_capture_record_defers_startup_without_native_takeover(self):
+        (self.root / "native-capture-record").write_bytes(b"not-active\n")
+        status, _, error = self.run_launcher()
+        self.assertEqual(status, 1, error)
+        self.assertEqual(len(self.captures()), 1)
+        self.assertEqual(self.trace(), [])
+        self.assertEqual(self.starts(), [])
+        self.assertFalse((self.root / "lock").exists())
 
     def test_startup_portrait_calibration_is_sampled_before_the_window_manager_pause(self):
         self.env.update(TEST_HOLD="1", TEST_CAPTURE_GROUPS=str(self.root / "capture-groups"))
@@ -892,12 +1476,22 @@ class LauncherLifecycleTests(unittest.TestCase):
                 self.assertTrue(self.process_state(record.split(":", 1)[0]).startswith(("Z", "X")))
         self.assertFalse((self.root / "lock").exists())
 
-    def test_older_application_without_portrait_helper_fails_before_native_takeover(self):
+    def test_framebuffer_observation_failure_propagates_through_the_capture_helper(self):
         self.env["TEST_PORTRAIT_PROBE_EXIT"] = "93"
         status, _, error = self.run_launcher()
         self.assertEqual(status, 1, error)
         self.assertEqual(self.trace(), [])
         self.assertEqual(self.starts(), [])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_older_application_without_capture_helper_fails_before_native_takeover(self):
+        self.env["TEST_NATIVE_CAPTURE_EXIT"] = "93"
+        status, _, error = self.run_launcher()
+        self.assertEqual(status, 1, error)
+        self.assertEqual(self.trace(), [])
+        self.assertEqual(self.starts(), [])
+        self.assertEqual(self.lines("native-queries"), [])
+        self.assertEqual(self.lines("portrait-probes"), [])
         self.assertFalse((self.root / "lock").exists())
 
     def test_sleep_or_usb_queued_during_portrait_sampling_precedes_the_startup_barrier(self):
@@ -2038,10 +2632,26 @@ class LauncherLifecycleTests(unittest.TestCase):
                          "wake_sample_begin", "wake_sample_ready", "wake_barrier_accepted", "native_take_done",
                          "signal_resume", "lifecycle_ack_suspend"}.issubset(events))
         for row in timeline:
-            self.assertEqual(set(row), {"uptime", "event", "pid", "phase", "sleep", "capture", "probe", "lifecycle", "mode"})
+            self.assertEqual(set(row), {"uptime", "event", "pid", "phase", "sleep", "capture", "probe", "lifecycle", "mode", "read_sequence"})
             self.assertGreaterEqual(row["uptime"], 0)
             self.assertIn(row["mode"], ("Y8", "Y8INV", "unknown"))
             self.assertTrue(row["event"].replace("_", "").isalpha())
+            self.assertTrue(row["read_sequence"].isdigit())
+        read_events = {}
+        for index, row in enumerate(timeline):
+            if row["event"] in ("native_read_go", "native_read_ready", "native_read_reaped"):
+                self.assertGreater(int(row["read_sequence"]), 0)
+                read_events.setdefault(row["read_sequence"], []).append((index, row))
+        self.assertGreaterEqual(len(read_events), 2)
+        for sequence, observations in read_events.items():
+            with self.subTest(read_sequence=sequence):
+                self.assertEqual([row["event"] for _, row in observations],
+                                 ["native_read_go", "native_read_ready", "native_read_reaped"])
+                self.assertEqual([row["uptime"] for _, row in observations],
+                                 sorted(row["uptime"] for _, row in observations))
+        first_sample_ready = next(index for index, row in enumerate(timeline) if row["event"] == "startup_sample_ready")
+        self.assertLess(read_events["1"][-1][0], first_sample_ready,
+                        "Native read cleanup must remain distinct from the enclosing sample interval")
 
     def test_optional_trace_write_failure_does_not_break_native_restoration(self):
         self.env["BILICOMICS_LAUNCH_TRACE"] = "1"

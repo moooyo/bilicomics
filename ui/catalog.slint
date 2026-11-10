@@ -521,7 +521,7 @@ export component ShelfScreen inherits Rectangle {
             x: Theme.margin; y: parent.height - 60px; width: parent.width - 2 * Theme.margin; height: 52px;
             background: local-downloads-hit.pressed ? Theme.ink : Theme.paper;
             Rectangle { x: 0px; y: 0px; width: parent.width; height: 1px; background: Theme.line; }
-            CatalogText { x: 0px; y: 0px; width: parent.width - 100px; height: parent.height; text: Strings.cat-local-download-prefix + CatalogModel.local-download-count + Strings.cat-local-download-unit; font-size: 15px; color: local-downloads-hit.pressed ? Theme.paper : Theme.ink; }
+            CatalogText { x: 0px; y: 0px; width: parent.width - 100px; height: parent.height; text: CatalogModel.local-download-count < 0 ? Strings.cat-local-download-checking : Strings.cat-local-download-prefix + CatalogModel.local-download-count + Strings.cat-local-download-unit; font-size: 15px; color: local-downloads-hit.pressed ? Theme.paper : Theme.ink; }
             CatalogText { x: parent.width - 76px; y: 0px; width: 44px; height: parent.height; text: Strings.cat-view; font-size: 15px; color: local-downloads-hit.pressed ? Theme.paper : Theme.ink; horizontal-alignment: right; }
             Icon { x: parent.width - 24px; y: (parent.height - 18px) / 2; width: 18px; height: 18px; kind: "next"; inverted: local-downloads-hit.pressed; }
             local-downloads-hit := CatalogHitArea { x: 0px; y: 0px; width: parent.width; height: parent.height; tapped => { CatalogModel.action("navigate", "downloads"); } }

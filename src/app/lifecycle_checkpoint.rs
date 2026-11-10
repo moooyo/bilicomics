@@ -12,7 +12,7 @@ use super::super::{account, lifecycle_maintenance::{RemoteApp, WakePlan, WakeTok
 struct CheckpointInput {
     database: PathBuf,
     account: String,
-    reader: Option<(String, ReadingAnchor, bool)>,
+    reader: Option<(String, String, ReadingAnchor, bool)>,
     preferences: Value,
     deferred: Option<Value>,
     writes: LocalWrites,
@@ -81,11 +81,11 @@ pub(super) async fn run_sleep_maintenance(remote: RemoteApp, plan: WakePlan) {
         if !attempted.contains(write) { continue; }
         let result = match write {
             LocalWrite::Reader => match &input.reader {
-                Some((comic, anchor, false)) => persist_state(&input, &plan.token,
+                Some((comic, _, anchor, false)) => persist_state(&input, &plan.token,
                     Some((comic.clone(), anchor.clone())), Vec::new()).await,
-                Some((_, anchor, true)) => match serde_json::to_value(anchor) {
+                Some((_, episode_id, anchor, true)) => match serde_json::to_value(anchor) {
                     Ok(value) => persist_state(&input, &plan.token, None,
-                        vec![(format!("reader_strip_anchor_{}", anchor.episode_id), value)]).await,
+                        vec![(format!("reader_strip_anchor_{episode_id}"), value)]).await,
                     Err(error) => Err(error.into()),
                 },
                 None => Ok(()),

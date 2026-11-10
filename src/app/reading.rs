@@ -3,6 +3,7 @@ use std::{
     path::PathBuf,
     rc::Rc,
     sync::{Arc, atomic::{AtomicBool, Ordering}},
+    time::{Duration, Instant},
 };
 
 use anyhow::{Context, Result};
@@ -13,8 +14,9 @@ use super::{App, Preferences, display_order, hex_digest, now, tr};
 use crate::{
     demo::DemoData,
     domain::{ComicDetail, Episode, EpisodeAccess, ImageIndex, PageDescriptor, ReadingAnchor},
-    downloads::{DownloadRequest, LocalPageResolver},
+    downloads::{DownloadEvent, DownloadEventKind, DownloadRequest, LocalPageResolver},
     i18n,
+    performance::{Operation, Span},
     platform::{RefreshKind, RefreshPlan, RefreshReason, RefreshRect},
     reader::{DisplayMode, FitMode, NormalizedRect, PageDirection, ReaderCore, ReaderMove, ReaderSettings, RenderedPage, Viewport},
     source::ErrorKind,
@@ -23,6 +25,7 @@ use crate::{
 };
 
 const MAX_QUEUED_INTENTS: usize = 32;
+const NEXT_FRAME_BYTES: u64 = 32 * 1024 * 1024;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
@@ -56,13 +59,25 @@ pub(super) struct ReadingState {
     original_index: Option<ImageIndex>,
     pending_index: Option<ImageIndex>,
     core: Option<ReaderCore>,
+    presented_core: Option<ReaderCore>,
+    presented_strip: bool,
     saved: SavedReaderPreferences,
     generation: u64,
     version: u64,
     rendering: bool,
+    rendering_version: Option<u64>,
     render_again: bool,
+    render_after_sleep: bool,
+    render_started: Option<Instant>,
+    missing_pages: Vec<usize>,
     cancelled: Arc<AtomicBool>,
-    queued: VecDeque<(String, String)>,
+    render_cancelled: Arc<AtomicBool>,
+    next_frame: NextFrameSlot,
+    next_frame_retry_pending: bool,
+    queued: VecDeque<(String, String, Option<Operation>)>,
+    performance_request: Option<Operation>,
+    performance_presented: Option<Operation>,
+    performance_model_id: Option<u64>,
     page: slint::Image,
     second_page: slint::Image,
     overview: slint::Image,
@@ -100,6 +115,8 @@ pub(super) struct ReadingState {
 impl Drop for ReadingState {
     fn drop(&mut self) {
         self.cancelled.store(true, Ordering::Release);
+        self.render_cancelled.store(true, Ordering::Release);
+        self.next_frame.cancel();
         self.thumbnail_cancelled.store(true, Ordering::Release);
     }
 }
@@ -107,8 +124,14 @@ impl Drop for ReadingState {
 impl ReadingState {
     fn pending(comic_id: String, episode_id: String, generation: u64, saved: SavedReaderPreferences, guidance: bool, demo: bool) -> Self {
         Self { comic_id, episode_id, detail: None, original_index: None, pending_index: None,
-            core: None, saved, generation, version: 1, rendering: false, render_again: false,
-            cancelled: Arc::new(AtomicBool::new(false)), queued: VecDeque::new(),
+            core: None, presented_core: None, presented_strip: false,
+            saved, generation, version: 1, rendering: false, rendering_version: None,
+            render_again: false, render_after_sleep: false,
+            render_started: None, missing_pages: Vec::new(),
+            cancelled: Arc::new(AtomicBool::new(false)), render_cancelled: Arc::new(AtomicBool::new(false)),
+            next_frame: NextFrameSlot::Empty, next_frame_retry_pending: false,
+            queued: VecDeque::new(), performance_request: None,
+            performance_presented: None, performance_model_id: None,
             page: slint::Image::default(), second_page: slint::Image::default(), overview: slint::Image::default(),
             metadata: FrameMetadata::default(), loading: true, error: None, menu: false, sheet: String::new(),
             guidance, paged_anchor: None, demo_strip: false, history_sent: false, last_dark_fraction: None,
@@ -130,9 +153,62 @@ impl ReadingState {
         let position = detail.episodes.iter().position(|episode| episode.id == self.episode_id)?;
         detail.episodes.get(position + 1)
     }
+
+    fn visible_core(&self) -> Option<&ReaderCore> {
+        self.presented_core.as_ref().or(self.core.as_ref())
+    }
+
+    fn displayed_anchor(&self, timestamp: i64) -> Option<(ReadingAnchor, bool)> {
+        if let Some(core) = &self.presented_core {
+            Some((core.anchor(timestamp), self.presented_strip))
+        } else {
+            self.paged_anchor.clone().map(|mut anchor| {
+                anchor.updated_at = timestamp;
+                (anchor, false)
+            })
+        }
+    }
+
+    fn retain_frame_during_preparation(&self) -> bool {
+        self.presented_core.as_ref().is_some_and(|core| !core.is_transition())
+            && self.page.size().width > 0 && self.missing_pages.is_empty()
+            && self.error.is_none()
+    }
+
+    fn preparation_feedback_due(&self) -> bool {
+        self.loading && self.retain_frame_during_preparation()
+            && self.render_started.is_some_and(|started| started.elapsed() >= Duration::from_millis(600))
+    }
+
+    /// Cancel only the target actually owned by this render job. Notifications
+    /// for the same version still coalesce without revoking useful work.
+    fn cancel_obsolete_render(&self) -> bool {
+        self.rendering && self.rendering_version.is_some_and(|version| version != self.version)
+            && !self.render_cancelled.swap(true, Ordering::AcqRel)
+    }
+
+    fn depends_on_download(&self, event: &DownloadEvent) -> bool {
+        let Some(core) = self.core.as_ref() else { return false; };
+        let visible = reader_visible_pages(core);
+        match &event.kind {
+            DownloadEventKind::PageReady { episode_id, revision, page_id, page_index, .. } => {
+                episode_id == &self.episode_id && revision == &core.index().revision
+                    && visible.contains(page_index)
+                    && core.index().images.get(*page_index).is_some_and(|page| &page.id == page_id)
+            },
+            DownloadEventKind::IndexReady { index } => index.episode_id == self.episode_id
+                && index.revision == core.index().revision,
+            DownloadEventKind::PrefetchReady | DownloadEventKind::Completed | DownloadEventKind::Failed { .. } => {
+                self.acquisition.as_ref().is_some_and(|request| request.task_id == event.task_id
+                    && request.task_generation == event.generation && request.reader_generation == self.generation
+                    && request.revision == core.index().revision && request.visible == visible)
+            },
+            _ => false,
+        }
+    }
 }
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 struct FrameMetadata {
     overlap: bool,
     ratio: f32,
@@ -191,8 +267,147 @@ struct PreparedFrame {
     dark_fraction: f32,
 }
 
-enum PreparedOutcome { Ready(PreparedFrame), Missing(Vec<usize>), Failed }
+enum PreparedOutcome { Ready(PreparedFrame), Missing(Vec<usize>), Cancelled, Failed }
 struct PreparedReader { core: ReaderCore, outcome: PreparedOutcome }
+
+/// A pre-render input, distinct from the focus written back by rendering.
+/// In particular, rotated pages can acquire different source coordinates.
+#[derive(Clone, PartialEq)]
+struct FrameInput {
+    anchor: ReadingAnchor,
+    crop_index: usize,
+    crop_count: usize,
+    settings: ReaderSettings,
+}
+
+impl FrameInput {
+    fn new(core: &ReaderCore) -> Self {
+        Self { anchor: core.anchor(0), crop_index: core.crop_index(),
+            crop_count: core.crop_count(), settings: core.settings().clone() }
+    }
+
+    fn matches(&self, core: &ReaderCore) -> bool {
+        self.anchor == core.anchor(0) && self.crop_index == core.crop_index()
+            && self.crop_count == core.crop_count() && self.settings == *core.settings()
+    }
+
+    fn allocated_bytes(&self) -> u64 {
+        (self.anchor.episode_id.capacity() + self.anchor.revision.capacity()
+            + self.anchor.page_id.capacity()) as u64
+    }
+}
+
+#[derive(Clone, PartialEq)]
+struct NextFrameKey {
+    epoch: u64,
+    generation: u64,
+    origin_version: u64,
+    origin: FrameInput,
+    target: FrameInput,
+    viewport: Viewport,
+    landscape: bool,
+}
+
+impl NextFrameKey {
+    fn origin_is_current(&self, state: &ReadingState, epoch: u64,
+        viewport: Viewport, landscape: bool,
+    ) -> bool {
+        self.epoch == epoch && self.generation == state.generation
+            && self.origin_version == state.version && self.viewport == viewport
+            && self.landscape == landscape && !state.demo_strip
+            && !state.loading && !state.rendering && state.queued.is_empty()
+            && state.error.is_none() && !state.cancelled.load(Ordering::Acquire)
+            && state.presented_core.as_ref().is_some_and(|core| self.origin.matches(core))
+            && state.core.as_ref().is_some_and(|core| self.origin.matches(core))
+    }
+
+    fn target_is_current(&self, state: &ReadingState, epoch: u64,
+        viewport: Viewport, landscape: bool,
+    ) -> bool {
+        self.epoch == epoch && self.generation == state.generation
+            && state.version == self.origin_version.wrapping_add(1)
+            && self.viewport == viewport && self.landscape == landscape
+            && !state.demo_strip && !state.cancelled.load(Ordering::Acquire)
+            && state.presented_core.as_ref().is_some_and(|core| self.origin.matches(core))
+            && state.core.as_ref().is_some_and(|core| self.target.matches(core))
+    }
+
+    fn allocated_bytes(&self) -> u64 {
+        self.origin.allocated_bytes().saturating_add(self.target.allocated_bytes())
+    }
+
+    fn source_notified(&self, event: &DownloadEvent) -> bool {
+        match &event.kind {
+            DownloadEventKind::PageReady { episode_id, revision, page_id, page_index, .. } =>
+                episode_id == &self.target.anchor.episode_id && revision == &self.target.anchor.revision
+                    && page_id == &self.target.anchor.page_id && *page_index == self.target.anchor.page_index,
+            DownloadEventKind::IndexReady { index } => index.episode_id == self.target.anchor.episode_id,
+            _ => false,
+        }
+    }
+}
+
+struct NextFrame {
+    key: NextFrameKey,
+    core: ReaderCore,
+    frame: PreparedFrame,
+    proof: crate::image_integrity::ValidatedImage,
+}
+
+impl NextFrame {
+    fn retained_bytes(&self) -> u64 {
+        let pixels = self.frame.page.rgba.capacity()
+            .saturating_add(self.frame.second.as_ref().map_or(0, |frame| frame.rgba.capacity()))
+            .saturating_add(self.frame.overview.as_ref().map_or(0, |frame| frame.rgba.capacity()));
+        (std::mem::size_of::<Self>() as u64).saturating_add(pixels as u64)
+            .saturating_add(self.key.allocated_bytes())
+            .saturating_add(self.core.retained_preparation_metadata_bytes())
+            .saturating_add(self.proof.sha256.capacity() as u64)
+    }
+}
+
+enum NextFrameSlot {
+    Empty,
+    Preparing { key: NextFrameKey, cancelled: Arc<AtomicBool> },
+    Ready(Box<NextFrame>),
+}
+
+impl NextFrameSlot {
+    fn cancel(&mut self) {
+        match self {
+            Self::Preparing { cancelled, .. } => {
+                // This marker remains until the actual worker reports exit.
+                cancelled.store(true, Ordering::Release);
+            }
+            Self::Ready(_) => *self = Self::Empty,
+            Self::Empty => {}
+        }
+    }
+
+    fn take_matching(&mut self, matches: impl FnOnce(&NextFrameKey) -> bool) -> Option<NextFrame> {
+        if matches!(self, Self::Preparing { .. }) {
+            self.cancel();
+            return None;
+        }
+        match std::mem::replace(self, Self::Empty) {
+            Self::Ready(frame) if matches(&frame.key) => Some(*frame),
+            _ => None,
+        }
+    }
+
+    fn retained_bytes(&self) -> u64 {
+        match self { Self::Ready(frame) => frame.retained_bytes(), _ => 0 }
+    }
+
+    fn label(&self) -> &'static str {
+        match self {
+            Self::Empty => "empty",
+            Self::Preparing { cancelled, .. } if cancelled.load(Ordering::Acquire) => "cancelling",
+            Self::Preparing { .. } => "preparing",
+            Self::Ready(_) => "ready",
+        }
+    }
+}
 
 #[derive(Clone)]
 enum ReaderFiles {
@@ -209,6 +424,33 @@ impl ReaderFiles {
                 Ok(path.filter(|path| path.is_file()))
             }
             Self::Account(resolver) => resolver.local_page(&index.episode_id, &index.revision, &page.id),
+        }
+    }
+
+    fn source(&self, index: &ImageIndex, position: usize,
+        previous: Option<&crate::image_integrity::ValidatedImage>, cancelled: &AtomicBool,
+    ) -> Result<Option<Option<crate::reader::ValidatedGraySource>>> {
+        self.source_profiled(index, position, previous, cancelled, None)
+    }
+
+    fn source_profiled(&self, index: &ImageIndex, position: usize,
+        previous: Option<&crate::image_integrity::ValidatedImage>, cancelled: &AtomicBool,
+        profile: Option<&mut crate::reader::ReaderPreparationProfile>,
+    ) -> Result<Option<Option<crate::reader::ValidatedGraySource>>> {
+        let Some(page) = index.images.get(position) else { return Ok(None); };
+        match (self, profile) {
+            (Self::Demo { .. }, Some(profile)) => self.local_page(index, position)?
+                .map(|path| crate::reader::load_changed_source_profiled(&path, previous, profile).map_err(anyhow::Error::new))
+                .transpose(),
+            (Self::Demo { .. }, None) => self.local_page(index, position)?
+                .map(|path| crate::reader::load_changed_source(&path, previous).map_err(anyhow::Error::new))
+                .transpose(),
+            (Self::Account(resolver), Some(profile)) => resolver.with_verified_page_profiled(
+                &index.episode_id, &index.revision, &page.id, cancelled, profile,
+                |profile| &mut profile.stages,
+                |input, profile| crate::reader::load_hashed_source_profiled(input, previous, cancelled, profile)),
+            (Self::Account(resolver), None) => resolver.with_verified_page(&index.episode_id, &index.revision,
+                &page.id, cancelled, |input| crate::reader::load_hashed_source(input, previous, cancelled)),
         }
     }
 }
@@ -231,6 +473,10 @@ struct ThumbnailPlan {
 }
 
 impl App {
+    pub(super) fn active_reader_identity(&self) -> Option<(&str, &str)> {
+        self.reading.as_ref().map(|state| (state.comic_id.as_str(), state.episode_id.as_str()))
+    }
+
     pub(super) fn initialize_demo_anchor(&mut self) -> Result<()> {
         let Some(demo) = self.demo.as_ref() else { return Ok(()); };
         let resume_comic = demo.fixture["continue_reading"]["comic_id"].as_u64().map(|id| id.to_string());
@@ -362,7 +608,11 @@ impl App {
 
     fn begin_reader(&mut self, comic_id: &str, episode_id: &str) -> Result<u64> {
         self.save_reading_position()?;
-        self.release_reader()?;
+        if let Err(error) = self.release_reader() {
+            eprintln!("bilicomics: previous reader retirement warning: {error:#}");
+            self.toast("common_storage_error");
+        }
+        self.reading = None;
         self.sequence = self.sequence.checked_add(1).context("Reader generation sequence is exhausted")?;
         let generation = self.sequence;
         let saved = self.store.preference(&self.account, &format!("reader_preferences_{comic_id}"))?
@@ -374,18 +624,22 @@ impl App {
     }
 
     fn release_reader(&mut self) -> Result<()> {
-        if let Some(state) = self.reading.as_ref() {
+        self.platform.set_reader_performance_operation(None);
+        let mut released = Ok(());
+        if let Some(state) = self.reading.as_mut() {
             state.cancelled.store(true, Ordering::Release);
+            state.render_cancelled.store(true, Ordering::Release);
             state.thumbnail_cancelled.store(true, Ordering::Release);
-            if let Some(manager) = self.downloads.as_mut() { manager.cancel_reader(state.generation)?; }
+            state.next_frame.cancel();
+            if let Some(manager) = self.downloads.as_mut() { released = manager.cancel_reader(state.generation); }
         }
-        for key in ["reader-render", "reader-thumbnails", "reader-index", "reader-detail", "reader-light-read", "reader-light-write"] { self.invalidate(key); }
-        Ok(())
+        for key in ["reader-render", "reader-prepare-next", "reader-thumbnails", "reader-index", "reader-detail", "reader-light-read", "reader-light-write"] { self.invalidate(key); }
+        released
     }
 
     pub(super) fn close_reader(&mut self) -> Result<()> {
-        self.save_reading_position()?;
-        self.release_reader()?;
+        let saved = self.save_reading_position();
+        let released = self.release_reader();
         self.reading = None;
         if let Some(ui) = self.ui.upgrade() {
             let view = ui.global::<ReaderModel>();
@@ -396,6 +650,15 @@ impl App {
             view.set_chapters(ModelRc::default());
             view.set_thumbnails_loading(false);
             view.set_spread_active(false);
+            view.set_retain_page(false);
+            view.set_preparing_feedback(false);
+            view.set_loading(false);
+        }
+        if let Err(error) = saved.and(released) {
+            // The checkpoint writer retains only the dirty anchor for retry.
+            // A failed disk write must not keep an invisible live reader alive.
+            eprintln!("bilicomics: reader close checkpoint warning: {error:#}");
+            self.toast("common_storage_error");
         }
         Ok(())
     }
@@ -422,6 +685,7 @@ impl App {
 
     fn install_reader_index(&mut self, generation: u64, index: ImageIndex, anchor: Option<ReadingAnchor>) -> Result<()> {
         if !self.reader_is_current(generation) { return Ok(()); }
+        if let Some(state) = self.reading.as_mut() { state.next_frame.cancel(); }
         if let Some(previous) = anchor.as_ref().filter(|anchor| anchor.revision != index.revision) {
             if let Some(state) = self.reading.as_mut() {
                 state.pending_index = Some(index);
@@ -462,12 +726,30 @@ impl App {
     }
 
     fn fail_reader(&mut self, key: &str) {
-        if let Some(state) = self.reading.as_mut() { state.loading = false; state.error = Some(i18n::text(key)); }
+        self.platform.set_reader_performance_operation(None);
+        if let Some(state) = self.reading.as_mut() {
+            state.next_frame.cancel(); state.loading = false; state.error = Some(i18n::text(key));
+        }
         self.dirty = true;
     }
 
     pub(super) fn reader_action(&mut self, action: &str, value: &str) -> Result<()> {
+        let trace = matches!(action, "turn" | "page" | "source-page" | "seek" | "beginning" | "last-view")
+            .then(|| Operation::new("reader")).flatten();
+        if let Some(trace) = trace {
+            // Only the allowlisted action category is recorded, never its value.
+            trace.record("navigation_request", &serde_json::json!({"action": action}));
+        }
+        self.reader_action_traced(action, value, trace)
+    }
+
+    fn reader_action_traced(&mut self, action: &str, value: &str, trace: Option<Operation>) -> Result<()> {
         if self.is_suspended() { return Ok(()); }
+        if matches!(action, "turn" | "page" | "source-page" | "seek" | "beginning" | "last-view"
+            | "retry" | "episode" | "next" | "purchase" | "open-comic" | "open-episode")
+            && (action != "turn" || value != "next") {
+            if let Some(state) = self.reading.as_mut() { state.next_frame.cancel(); }
+        }
         if self.reading.as_ref().is_some_and(|state| state.sheet == "grid")
             && (matches!(action, "menu" | "refresh" | "back" | "shelf" | "turn" | "page" | "source-page"
                 | "seek" | "beginning" | "last-view" | "retry" | "episode" | "next" | "purchase"
@@ -584,7 +866,10 @@ impl App {
             && state.core.as_ref().is_some_and(|core| core.settings().mode != DisplayMode::Page || core.settings().fit != FitMode::Page));
         if queue {
             if let Some(state) = self.reading.as_mut() {
-                if state.queued.len() < MAX_QUEUED_INTENTS { state.queued.push_back((action.to_owned(), value.to_owned())); }
+                if state.queued.len() < MAX_QUEUED_INTENTS {
+                    state.queued.push_back((action.to_owned(), value.to_owned(), trace));
+                    if let Some(trace) = trace { trace.mark("navigation_queued"); }
+                } else if let Some(trace) = trace { trace.mark("navigation_queue_full"); }
             }
             return Ok(());
         }
@@ -625,8 +910,9 @@ impl App {
         }
         if next { return self.open_reader_next(false); }
         if changed {
-            if self.save_reading_position().is_err() { self.toast("common_storage_error"); }
-            self.request_reader_render()?;
+            self.request_reader_render_traced(trace)?;
+        } else if let Some(trace) = trace {
+            trace.mark("navigation_unchanged");
         }
         Ok(())
     }
@@ -656,6 +942,7 @@ impl App {
             "show-footer" if ["on", "off"].contains(&value) => { state.saved.footer = value == "on"; self.preferences.footer = value == "on"; }
             _ => return Ok(()),
         }
+        state.next_frame.cancel();
         let saved = state.saved.clone();
         let comic = state.comic_id.clone();
         if key == "show-footer" {
@@ -684,13 +971,14 @@ impl App {
     }
 
     fn switch_demo_strip(&mut self, enable: bool) -> Result<()> {
+        if self.reading.as_ref().is_none_or(|state| state.demo_strip == enable) { return Ok(()); }
+        self.save_reading_position()?;
         let Some(state) = self.reading.as_mut() else { return Ok(()); };
         if state.demo_strip == enable { return Ok(()); }
+        state.next_frame.cancel();
         let Some(index) = state.original_index.clone() else { return Ok(()); };
-        if let Some(core) = state.core.as_ref() {
-            let anchor = core.anchor(now());
-            if state.demo_strip { self.store.set_preference(&self.account, &format!("reader_strip_anchor_{}", state.episode_id), &anchor)?; }
-            else { state.paged_anchor = Some(anchor); }
+        if let Some((anchor, false)) = state.displayed_anchor(now()) {
+            state.paged_anchor = Some(anchor);
         }
         let settings = reader_settings(&state.saved, self.options.landscape, self.platform.logical_viewport_size());
         let mut core = if enable {
@@ -713,7 +1001,6 @@ impl App {
         core.set_landscape(self.options.landscape);
         state.core = Some(core);
         state.demo_strip = enable;
-        state.metadata = FrameMetadata::default();
         state.version = state.version.wrapping_add(1);
         Ok(())
     }
@@ -731,21 +1018,196 @@ impl App {
         } else { state.page_resolver.clone().or_else(|| self.downloads.as_ref().map(|manager| manager.page_resolver())).map(ReaderFiles::Account) }
     }
 
+    fn retire_next_frame(&mut self) {
+        if let Some(state) = self.reading.as_mut() {
+            state.next_frame.cancel();
+            state.next_frame = NextFrameSlot::Empty;
+            state.next_frame_retry_pending = false;
+        }
+        self.invalidate("reader-prepare-next");
+    }
+
+    /// Consume one deferred opportunity after mailbox callbacks release their
+    /// delivery permits. Busy or changed state does not schedule another retry.
+    pub(super) fn retry_next_frame_after_delivery(&mut self) {
+        let retry = self.reading.as_mut()
+            .is_some_and(|state| std::mem::take(&mut state.next_frame_retry_pending));
+        if retry { self.request_next_frame(); }
+    }
+
+    /// Honor the existing preload preference without moving the live reader.
+    /// Re-enabling offers one immediate attempt; busy work remains a normal miss.
+    pub(super) fn reader_preload_changed(&mut self) {
+        if self.preferences.preload == 0 { self.retire_next_frame(); }
+        else { self.request_next_frame(); }
+    }
+
+    fn request_next_frame(&mut self) {
+        if self.preferences.preload == 0 { self.retire_next_frame(); return; }
+        if self.is_suspended() || self.route != "reader" { return; }
+        let Some(state) = self.reading.as_ref() else { return; };
+        let Some(presented) = state.presented_core.as_ref() else { return; };
+        let viewport = reader_viewport(self.platform.logical_viewport_size(), self.options.landscape,
+            presented.settings(), self.platform.scale_factor());
+        let valid_slot = match &state.next_frame {
+            NextFrameSlot::Empty => true,
+            NextFrameSlot::Preparing { key, .. } =>
+                key.origin_is_current(state, self.epoch, viewport, self.options.landscape),
+            NextFrameSlot::Ready(frame) =>
+                frame.key.origin_is_current(state, self.epoch, viewport, self.options.landscape),
+        };
+        if !valid_slot {
+            if let Some(state) = self.reading.as_mut() { state.next_frame.cancel(); }
+        }
+        let Some(state) = self.reading.as_ref() else { return; };
+        if !matches!(state.next_frame, NextFrameSlot::Empty)
+            || state.loading || state.rendering || !state.queued.is_empty() || state.error.is_some()
+            || state.demo_strip || state.cancelled.load(Ordering::Acquire)
+            || state.page.size().width == 0
+            || !state.episode().is_some_and(|episode| episode.readable_at(now())) { return; }
+        let Some(presented) = state.presented_core.as_ref() else { return; };
+        if presented.is_transition() || presented.is_spread()
+            || presented.settings().mode != DisplayMode::Page
+            || presented.settings().fit != FitMode::Page { return; }
+        let origin = FrameInput::new(presented);
+        if !state.core.as_ref().is_some_and(|core| origin.matches(core)) { return; }
+        let mut core = presented.clone();
+        if core.step(true) != ReaderMove::Moved || core.is_transition() || core.is_spread()
+            || core.page_index() == presented.page_index() { return; }
+        let key = NextFrameKey { epoch: self.epoch, generation: state.generation,
+            origin_version: state.version, origin, target: FrameInput::new(&core),
+            viewport, landscape: self.options.landscape };
+        // The exact allocation is checked again after rendering. This lower
+        // bound rejects oversized canvases before pixel work or source I/O.
+        let planned_bytes = u64::from(viewport.width).saturating_mul(u64::from(viewport.height))
+            .saturating_mul(4).saturating_add(std::mem::size_of::<NextFrame>() as u64)
+            .saturating_add(key.allocated_bytes())
+            .saturating_add(core.retained_preparation_metadata_bytes());
+        if planned_bytes > NEXT_FRAME_BYTES { return; }
+        let Some(files) = self.reader_files(state) else { return; };
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let worker_cancelled = cancelled.clone();
+        let worker_key = key.clone();
+        let apply_key = key.clone();
+        let apply_cancelled = cancelled.clone();
+        let trace = Operation::new("reader-prepare");
+        if let Some(state) = self.reading.as_mut() {
+            state.next_frame = NextFrameSlot::Preparing { key, cancelled: cancelled.clone() };
+        }
+        let admitted = self.background_speculative("reader-prepare-next", trace, cancelled,
+            move || {
+                let mut profile = trace.map(|_| crate::reader::ReaderPreparationProfile::default());
+                let measured = trace.map(|_| Span::start());
+                let result = prepare_next_frame(core, worker_key, &files, &worker_cancelled, profile.as_mut());
+                if let Some(trace) = trace {
+                    trace.record("next_frame_preparation", &serde_json::json!({
+                        "ready": result.as_ref().is_ok_and(Option::is_some),
+                        "cancelled": worker_cancelled.load(Ordering::Acquire),
+                        "elapsed": measured.map(Span::finish), "profile": profile,
+                        "stage_scope": crate::reader::ReaderPreparationProfile::STAGE_SCOPE,
+                    }));
+                }
+                result
+            }, move |app, result| app.apply_next_frame(apply_key, apply_cancelled, trace, result));
+        if !admitted {
+            if let Some(state) = self.reading.as_mut() { state.next_frame = NextFrameSlot::Empty; }
+            if let Some(trace) = trace { trace.mark("next_frame_admission_skipped"); }
+        }
+    }
+
+    fn apply_next_frame(&mut self, key: NextFrameKey, cancelled: Arc<AtomicBool>,
+        trace: Option<Operation>, result: Result<Option<NextFrame>>,
+    ) {
+        let Some(state) = self.reading.as_ref() else { return; };
+        if !matches!(&state.next_frame, NextFrameSlot::Preparing { key: active, cancelled: token }
+            if active == &key && Arc::ptr_eq(token, &cancelled)) { return; }
+        let current = state.presented_core.as_ref().is_some_and(|presented| {
+            let viewport = reader_viewport(self.platform.logical_viewport_size(), self.options.landscape,
+                presented.settings(), self.platform.scale_factor());
+            key.origin_is_current(state, self.epoch, viewport, self.options.landscape)
+        }) && !self.is_suspended() && self.route == "reader" && self.preferences.preload > 0
+            && !cancelled.load(Ordering::Acquire)
+            && state.episode().is_some_and(|episode| episode.readable_at(now()));
+        let retry = cancelled.load(Ordering::Acquire) && self.epoch == key.epoch
+            && state.generation == key.generation && state.version != key.origin_version;
+        let Some(state) = self.reading.as_mut() else { return; };
+        state.next_frame = NextFrameSlot::Empty;
+        match result {
+            Ok(Some(frame)) if current => {
+                let retained_bytes = frame.retained_bytes();
+                if frame.key == key && retained_bytes <= NEXT_FRAME_BYTES {
+                    state.next_frame = NextFrameSlot::Ready(Box::new(frame));
+                    if let Some(trace) = trace {
+                        trace.record("next_frame_retained", &serde_json::json!({"retained_bytes": retained_bytes}));
+                    }
+                }
+            }
+            other => drop(other),
+        }
+        // An obsolete worker can finish after the replacement foreground frame.
+        // Its callback still owns the sole speculative delivery permit here.
+        // Offer the new origin once, after this callback returns to the UI tick.
+        state.next_frame_retry_pending |= retry;
+    }
+
     fn request_reader_render(&mut self) -> Result<()> {
+        self.request_reader_render_traced(None)
+    }
+
+    fn request_reader_render_traced(&mut self, requested_trace: Option<Operation>) -> Result<()> {
+        if self.preferences.preload == 0 { self.retire_next_frame(); }
         if self.is_suspended() || self.route != "reader" { return Ok(()); }
+        if let Some(state) = self.reading.as_mut() {
+            if matches!(state.next_frame, NextFrameSlot::Preparing { .. }) { state.next_frame.cancel(); }
+        }
         let Some(state) = self.reading.as_ref() else { return Ok(()); };
+        if state.cancel_obsolete_render() {
+            if let Some(trace) = requested_trace {
+                trace.record("obsolete_render_cancel_requested", &serde_json::json!({
+                    "rendering_version": state.rendering_version, "target_version": state.version,
+                }));
+            }
+        }
         if let Some(episode) = state.episode().filter(|episode| !episode.readable_at(now())) {
             self.fail_reader(reader_blocked_message(episode, now()));
             return Ok(());
         }
         if state.rendering {
-            if let Some(state) = self.reading.as_mut() { state.render_again = true; }
+            if let Some(state) = self.reading.as_mut() {
+                state.render_again = true;
+                if let Some(trace) = requested_trace {
+                    if let Some(previous) = state.performance_request.replace(trace) {
+                        previous.mark("request_superseded");
+                    }
+                    trace.mark("render_deferred");
+                }
+            }
             return Ok(());
+        }
+        let pending_trace = state.performance_request;
+        let trace = requested_trace.or(pending_trace).or_else(|| Operation::new("reader"));
+        if let (Some(previous), Some(requested)) = (pending_trace, requested_trace) {
+            if previous.id() != requested.id() { previous.mark("request_superseded"); }
+        }
+        let first_request = requested_trace.is_some() || pending_trace.is_none();
+        if first_request {
+            if let Some(trace) = trace {
+                trace.record("render_request", &serde_json::json!({
+                    "epoch": self.epoch, "generation": state.generation, "version": state.version,
+                    "source_kind": if self.demo.is_some() { "demo" } else { "receipt" },
+                }));
+            }
         }
         let Some(core) = state.core.clone() else { return Ok(()); };
         if core.is_transition() {
-            if let Some(state) = self.reading.as_mut() { state.loading = false; state.error = None; }
-            self.save_reading_position()?;
+            self.platform.set_reader_performance_operation(None);
+            if let Some(trace) = trace { trace.mark("reader_transition"); }
+            if let Some(state) = self.reading.as_mut() {
+                state.next_frame.cancel();
+                state.loading = false; state.error = None; state.missing_pages.clear();
+                state.presented_core = Some(core); state.presented_strip = state.demo_strip;
+            }
+            self.queue_reading_position()?;
             self.reader_turn_refresh(0.0, true);
             return Ok(());
         }
@@ -753,50 +1215,128 @@ impl App {
             // A manager temporarily belongs to a recovery/removal worker. Its return
             // synchronizes the current reader lease and resumes this local lookup.
             if self.demo.is_none() && self.downloads.is_none() {
-                if let Some(state) = self.reading.as_mut() { state.loading = true; state.error = None; }
+                if let Some(state) = self.reading.as_mut() {
+                    state.loading = true; state.error = None; state.performance_request = trace;
+                }
+                if first_request {
+                    if let Some(trace) = trace { trace.mark("awaiting_resolver"); }
+                }
             } else { self.fail_reader("common_no_download"); }
             return Ok(());
         };
         let generation = state.generation;
         let version = state.version;
-        let cancelled = state.cancelled.clone();
+        let cancelled = Arc::new(AtomicBool::new(false));
         let viewport = reader_viewport(self.platform.logical_viewport_size(), self.options.landscape, core.settings(), self.platform.scale_factor());
         let overview_size = if self.is_scribe() { (88, 125) } else { (58, 84) };
-        if let Some(state) = self.reading.as_mut() { state.rendering = true; state.render_again = false; state.loading = true; state.error = None; }
-        self.background("reader-render", move || {
+        let matches_next = self.preferences.preload > 0 && matches!(&state.next_frame, NextFrameSlot::Ready(frame)
+            if frame.key.target_is_current(state, self.epoch, viewport, self.options.landscape));
+        let next_frame = self.reading.as_mut().and_then(|state| state.next_frame.take_matching(|_| matches_next));
+        if let Some(trace) = trace {
+            trace.record("prepared_frame_lookup", &serde_json::json!({"candidate": next_frame.is_some()}));
+        }
+        if let Some(state) = self.reading.as_mut() {
+            state.render_cancelled = cancelled.clone();
+            state.rendering = true; state.rendering_version = Some(version);
+            state.render_again = false; state.loading = true;
+            state.render_started = Some(Instant::now()); state.error = None; state.missing_pages.clear();
+            state.performance_request = None;
+        }
+        self.background_traced("reader-render", trace, move || {
             let mut core = core;
-            let prepared = if cancelled.load(Ordering::Acquire) { Ok(PreparedOutcome::Failed) }
-                else { prepare_reader_frame(&mut core, &files, viewport, overview_size, &cancelled) };
+            let mut profile = trace.map(|_| crate::reader::ReaderPreparationProfile::default());
+            let measured = trace.map(|_| Span::start());
+            let prepared = if cancelled.load(Ordering::Acquire) { Ok(PreparedOutcome::Cancelled) }
+                else if let Some(next_frame) = next_frame {
+                    reuse_next_frame(&mut core, next_frame, &files, viewport, overview_size,
+                        &cancelled, profile.as_mut(), trace)
+                }
+                else if let Some(profile) = profile.as_mut() {
+                    prepare_reader_frame_profiled(&mut core, &files, viewport, overview_size, &cancelled, Some(profile))
+                } else { prepare_reader_frame(&mut core, &files, viewport, overview_size, &cancelled) };
+            let elapsed = measured.map(Span::finish);
+            if let Some(trace) = trace {
+                let outcome = match &prepared {
+                    Ok(PreparedOutcome::Ready(_)) => "ready",
+                    Ok(PreparedOutcome::Missing(_)) => "missing",
+                    Ok(PreparedOutcome::Cancelled) => "cancelled",
+                    Ok(PreparedOutcome::Failed) => "failed",
+                    Err(_) => "failed",
+                };
+                trace.record("reader_preparation", &serde_json::json!({
+                    "outcome": outcome, "elapsed": elapsed, "profile": profile,
+                    "stage_scope": crate::reader::ReaderPreparationProfile::STAGE_SCOPE,
+                }));
+            }
             let outcome = prepared.unwrap_or(PreparedOutcome::Failed);
             Ok(PreparedReader { core, outcome })
-        }, move |app, result| {
-            if !app.reader_is_current(generation) { return; }
+        }, move |app, result| app.apply_prepared_reader(generation, version, trace, result));
+        Ok(())
+    }
+
+    fn apply_prepared_reader(&mut self, generation: u64, version: u64, trace: Option<Operation>, result: Result<PreparedReader>) {
+            let app = self;
+            if !app.reader_is_current(generation) {
+                if let Some(trace) = trace { trace.mark("reader_generation_retired"); }
+                return;
+            }
+            if !app.reading.as_ref().is_some_and(|state| state.rendering_version == Some(version)) {
+                if let Some(trace) = trace { trace.mark("reader_render_retired"); }
+                return;
+            }
             let current = app.reading.as_ref().is_some_and(|state| state.version == version);
-            if let Some(state) = app.reading.as_mut() { state.rendering = false; }
+            let retry_missing = app.reading.as_ref().is_some_and(|state| state.render_again);
+            if let Some(state) = app.reading.as_mut() {
+                state.rendering = false;
+                state.rendering_version = None;
+            }
             if !current {
+                if let Some(trace) = trace { trace.mark("reader_result_superseded"); }
                 let _ = app.request_reader_render();
+                return;
+            }
+            if let Some(episode) = app.reading.as_ref().and_then(ReadingState::episode)
+                .filter(|episode| !episode.readable_at(now())) {
+                app.fail_reader(reader_blocked_message(episode, now()));
                 return;
             }
             match result {
                 Ok(prepared) => {
-                    if let Some(state) = app.reading.as_mut() { state.core = Some(prepared.core); }
+                    if !matches!(&prepared.outcome, PreparedOutcome::Cancelled) {
+                        if let Some(state) = app.reading.as_mut() { state.core = Some(prepared.core); }
+                    }
                     match prepared.outcome {
                         PreparedOutcome::Ready(frame) => {
                             let dark = frame.dark_fraction;
+                            let copied_bytes = trace.map(|_| frame.page.rgba.len()
+                                + frame.second.as_ref().map_or(0, |frame| frame.rgba.len())
+                                + frame.overview.as_ref().map_or(0, |frame| frame.rgba.len()));
+                            let measured = trace.map(|_| Span::start());
                             if let Some(state) = app.reading.as_mut() {
                                 state.page = raster_image(frame.page);
                                 state.second_page = frame.second.map(raster_image).unwrap_or_default();
                                 state.overview = frame.overview.map(raster_image).unwrap_or_default();
                                 state.metadata = frame.metadata;
+                                state.presented_core = state.core.clone();
+                                state.presented_strip = state.demo_strip;
+                                state.missing_pages.clear();
+                                state.render_again = false;
                                 state.loading = false;
                                 state.error = None;
+                                state.performance_presented = trace;
                             }
-                            if app.save_reading_position().is_err() { app.toast("common_storage_error"); }
+                            if let (Some(trace), Some(measured)) = (trace, measured) {
+                                trace.record("ui_image_import", &serde_json::json!({
+                                    "elapsed": measured.finish(), "copied_bytes": copied_bytes,
+                                }));
+                            }
+                            if app.queue_reading_position().is_err() { app.toast("common_storage_error"); }
                             app.reader_turn_refresh(dark, false);
                             app.report_reader_history();
                             if app.enqueue_reader_prefetch(false).is_err() { app.toast("common_source_error"); }
                         }
                         PreparedOutcome::Missing(missing) => {
+                            if let Some(state) = app.reading.as_mut() { state.missing_pages = missing.clone(); }
                             if app.demo.is_some() { app.fail_reader("common_no_download"); }
                             else if app.options.offline || app.downloads.is_none() {
                                 if app.options.offline {
@@ -806,7 +1346,16 @@ impl App {
                             }
                             else if app.reader_acquisition_failed(&missing, false).unwrap_or(false) { app.fail_reader("common_source_error"); }
                             else if app.enqueue_reader_prefetch(false).is_err() { app.fail_reader("common_source_error"); }
+                            if retry_missing { let _ = app.request_reader_render(); }
                         }
+                        PreparedOutcome::Cancelled => {
+                            // A cooperative cancellation is not a source failure.
+                            // Any still-current target restarts only after this
+                            // old worker and its actual compute work have ended.
+                            if let Some(trace) = trace { trace.mark("reader_cancelled_result"); }
+                            let _ = app.request_reader_render();
+                            return;
+                        },
                         PreparedOutcome::Failed => app.fail_reader("common_source_error"),
                     }
                 }
@@ -814,11 +1363,11 @@ impl App {
             }
             for _ in 0..MAX_QUEUED_INTENTS {
                 let queued = app.reading.as_mut().filter(|state| !state.loading && !state.rendering && state.error.is_none()).and_then(|state| state.queued.pop_front());
-                let Some((action, value)) = queued else { break; };
-                if app.reader_action(&action, &value).is_err() { app.toast("common_error"); break; }
+                let Some((action, value, trace)) = queued else { break; };
+                if let Some(trace) = trace { trace.mark("navigation_dequeued"); }
+                if app.reader_action_traced(&action, &value, trace).is_err() { app.toast("common_error"); break; }
             }
-        });
-        Ok(())
+            app.request_next_frame();
     }
 
     fn enqueue_reader_prefetch(&mut self, retry: bool) -> Result<()> {
@@ -882,11 +1431,24 @@ impl App {
         if waiting {
             // The worker verifies visible bytes before a matching acquisition
             // failure is considered. Historical failures never hide a ready page.
-            if let Some(state) = self.reading.as_mut() { state.version = state.version.wrapping_add(1); }
+            // A matching completion can race an earlier missing-file lookup.
+            // Retry that missing result, but never discard an already valid frame.
             self.request_reader_render()?;
         }
         if self.reading.as_ref().is_some_and(|state| state.sheet == "grid") { self.request_reader_thumbnails()?; }
         Ok(())
+    }
+
+    pub(super) fn reader_download_dependency_changed(&mut self, event: &DownloadEvent) -> bool {
+        if event.account_epoch != self.epoch { return false; }
+        let Some(state) = self.reading.as_mut() else { return false; };
+        let predicted_source = match &state.next_frame {
+            NextFrameSlot::Preparing { key, .. } => key.source_notified(event),
+            NextFrameSlot::Ready(frame) => frame.key.source_notified(event),
+            NextFrameSlot::Empty => false,
+        };
+        if predicted_source { state.next_frame.cancel(); }
+        state.depends_on_download(event)
     }
 
     fn cancel_reader_thumbnails(&mut self) {
@@ -967,47 +1529,41 @@ impl App {
         }
         self.background("reader-thumbnails", move || {
             let mut result = Vec::new();
-            let mut prepared = BTreeMap::<PathBuf, (Arc<Raster>, crate::image_integrity::ValidatedImage)>::new();
+            let mut prepared = BTreeMap::<String, Arc<Raster>>::new();
             if cancelled.load(Ordering::Acquire) { return Ok(result); }
             let mut core = ReaderCore::new(index.clone(), ReaderSettings { dither, landscape_spread: false, ..Default::default() })?;
             for position in requested {
                 if cancelled.load(Ordering::Acquire) { break; }
-                let mut proof = None;
-                let mut unchanged = false;
-                let (local, failed) = match files.local_page(&index, position) {
-                    Ok(path) => (path, false), Err(_) => (None, true),
+                if demo_uncached && position >= 30 {
+                    result.push(PreparedThumbnail { page: position, raster: None, proof: None, unchanged: false, failed: false });
+                    continue;
+                }
+                let source = match files.source(&index, position, proofs.get(&position), &cancelled) {
+                    Ok(Some(Some(source))) => source,
+                    Ok(Some(None)) => {
+                        result.push(PreparedThumbnail { page: position, raster: None,
+                            proof: proofs.get(&position).cloned(), unchanged: true, failed: false });
+                        continue;
+                    },
+                    outcome => {
+                        result.push(PreparedThumbnail { page: position, raster: None, proof: None,
+                            unchanged: false, failed: outcome.is_err() });
+                        continue;
+                    },
                 };
-                let raster = if demo_uncached && position >= 30 { None }
-                    else if let Some(path) = local {
-                        if let Some((raster, identity)) = prepared.get(&path) {
-                            proof = Some(identity.clone());
-                            if proofs.get(&position) == Some(identity) { unchanged = true; None }
-                            else { Some(raster.clone()) }
-                        }
-                        else {
-                            core.set_page(position)?;
-                            let source = match crate::reader::load_changed_source(&path, proofs.get(&position)) {
-                                Ok(Some(source)) => source,
-                                Ok(None) => {
-                                    result.push(PreparedThumbnail { page: position, raster: None,
-                                        proof: proofs.get(&position).cloned(), unchanged: true, failed: false });
-                                    continue;
-                                }
-                                Err(_) => {
-                                    result.push(PreparedThumbnail { page: position, raster: None, proof: None, unchanged: false, failed: true });
-                                    continue;
-                                }
-                            };
-                            if cancelled.load(Ordering::Acquire) { break; }
-                            proof = Some(source.proof().clone());
-                            let frame = core.render_validated_source(&source, Viewport::new(size.0, size.1))?;
-                            if cancelled.load(Ordering::Acquire) { break; }
-                            let raster = Arc::new(Raster { rgba: frame.rgba, width: frame.width, height: frame.height });
-                            prepared.insert(path, (raster.clone(), source.proof().clone()));
-                            Some(raster)
-                        }
-                    } else { None };
-                result.push(PreparedThumbnail { page: position, raster, proof, unchanged, failed });
+                if cancelled.load(Ordering::Acquire) { break; }
+                let proof = source.proof().clone();
+                let raster = if let Some(raster) = prepared.get(proof.sha256()) { raster.clone() }
+                    else {
+                        core.set_page(position)?;
+                        let Some(frame) = core.render_validated_source_cancellable(&source,
+                            Viewport::new(size.0, size.1), &cancelled, None)? else { break; };
+                        if cancelled.load(Ordering::Acquire) { break; }
+                        let raster = Arc::new(Raster { rgba: frame.rgba, width: frame.width, height: frame.height });
+                        prepared.insert(proof.sha256().to_owned(), raster.clone());
+                        raster
+                    };
+                result.push(PreparedThumbnail { page: position, raster: Some(raster), proof: Some(proof), unchanged: false, failed: false });
             }
             if cancelled.load(Ordering::Acquire) { result.clear(); }
             Ok(result)
@@ -1059,23 +1615,49 @@ impl App {
         Ok(())
     }
 
-    pub(super) fn save_reading_position(&mut self) -> Result<()> {
-        let Some(state) = self.reading.as_mut() else { return Ok(()); };
-        let Some(core) = state.core.as_ref() else { return Ok(()); };
-        let anchor = core.anchor(now());
-        if state.demo_strip {
-            self.store.set_preference(&self.account, &format!("reader_strip_anchor_{}", state.episode_id), &anchor)?;
-        } else {
-            self.store.save_anchor(&self.account, &state.comic_id, &anchor)?;
-            state.paged_anchor = Some(anchor);
-        }
-        Ok(())
+    fn current_reader_checkpoint(&self) -> Option<super::reader_checkpoint::ReaderCheckpoint> {
+        let state = self.reading.as_ref()?;
+        let (anchor, demo_strip) = state.displayed_anchor(now())?;
+        Some(super::reader_checkpoint::ReaderCheckpoint { account: self.account.clone(), epoch: self.epoch,
+            comic_id: state.comic_id.clone(), episode_id: state.episode_id.clone(), anchor, demo_strip })
     }
 
-    pub(super) fn reader_sleep_checkpoint(&self) -> Option<(String, ReadingAnchor, bool)> {
-        let state = self.reading.as_ref()?;
-        let core = state.core.as_ref()?;
-        Some((state.comic_id.clone(), core.anchor(now()), state.demo_strip))
+    fn queue_reading_position(&mut self) -> Result<()> {
+        if let Some(checkpoint) = self.current_reader_checkpoint() {
+            if !checkpoint.demo_strip {
+                if let Some(state) = self.reading.as_mut() { state.paged_anchor = Some(checkpoint.anchor.clone()); }
+            }
+            self.lifecycle.reader_checkpoints.submit_latest(checkpoint)?;
+        }
+        self.lifecycle.reader_checkpoints.drive(&self.handle, self.store.path(), Instant::now())
+    }
+
+    pub(super) fn save_reading_position(&mut self) -> Result<()> {
+        let current = self.current_reader_checkpoint();
+        self.lifecycle.reader_checkpoints.flush(&self.store, current)
+    }
+
+    pub(super) fn flush_reader_checkpoints(&mut self) -> Result<()> { self.save_reading_position() }
+
+    pub(super) fn retire_reader_checkpoints(&mut self) { self.lifecycle.reader_checkpoints.retire(); }
+
+    pub(super) fn tick_reader_checkpoints(&mut self) {
+        if self.is_suspended() || self.quitting { return; }
+        if let Err(error) = self.lifecycle.reader_checkpoints.drive(&self.handle, self.store.path(), Instant::now()) {
+            eprintln!("bilicomics: reader progress checkpoint warning: {error:#}");
+            self.toast("common_storage_error");
+        }
+        if let (Some(state), Some(ui)) = (self.reading.as_ref(), self.ui.upgrade()) {
+            let view = ui.global::<ReaderModel>();
+            let feedback = state.preparation_feedback_due();
+            if view.get_preparing_feedback() != feedback { view.set_preparing_feedback(feedback); }
+        }
+    }
+
+    pub(super) fn reader_sleep_checkpoint(&self) -> Option<(String, String, ReadingAnchor, bool)> {
+        let checkpoint = self.current_reader_checkpoint()
+            .or_else(|| self.lifecycle.reader_checkpoints.pending_checkpoint().cloned())?;
+        Some((checkpoint.comic_id, checkpoint.episode_id, checkpoint.anchor, checkpoint.demo_strip))
     }
 
     fn report_reader_history(&mut self) {
@@ -1196,7 +1778,9 @@ impl App {
         if self.is_suspended() { return Ok(()); }
         let Some(state) = self.reading.as_ref() else { return Ok(()); };
         let view = ui.global::<ReaderModel>();
-        let core = state.core.as_ref();
+        let core = if state.loading && !state.retain_frame_during_preparation() {
+            state.core.as_ref()
+        } else { state.visible_core() };
         let mode = core.map_or(state.saved.mode.as_str(), |core| match core.settings().mode { DisplayMode::Page => "page", DisplayMode::Panel => "panel", DisplayMode::Strip => "strip" });
         let page = core.map_or(1, |core| core.page_index() + 1);
         let count = core.map_or_else(|| state.pending_index.as_ref().map_or(1, |index| index.images.len()), ReaderCore::page_count);
@@ -1248,6 +1832,8 @@ impl App {
         view.set_guidance(state.guidance && !state.loading && state.error.is_none());
         view.set_transition(transition);
         view.set_loading(state.loading && !transition && !expired);
+        view.set_retain_page(!expired && state.retain_frame_during_preparation());
+        view.set_preparing_feedback(!expired && state.preparation_feedback_due());
         view.set_failed(expired || state.error.is_some() && !state.loading);
         view.set_error_message(if expired { state.episode().map(|episode| tr(reader_blocked_message(episode, now()))).unwrap_or_else(|| tr("common_unknown")) } else { state.error.clone().unwrap_or_default().into() });
         view.set_retry_label(if state.pending_index.is_some() { tr("read_open_updated_version") } else { "".into() });
@@ -1305,6 +1891,11 @@ impl App {
         sync_reader_rows(&state.chapter_model, &chapters, PartialEq::eq);
         let chapters: ModelRc<ReaderChapter> = state.chapter_model.clone().into();
         if view.get_chapters() != chapters { view.set_chapters(chapters); }
+        if let Some(trace) = state.performance_presented.filter(|trace| state.performance_model_id != Some(trace.id())) {
+            self.platform.set_reader_performance_operation(Some(trace.id()));
+            trace.mark("reader_model_published");
+            if let Some(state) = self.reading.as_mut() { state.performance_model_id = Some(trace.id()); }
+        }
         Ok(())
     }
 
@@ -1329,9 +1920,69 @@ impl App {
         }
     }
 
+    /// Retire work for an undisplayed target without discarding the live frame.
+    /// This gate performs no storage access and leaves initial loading intact.
+    pub(super) fn retain_reader_frame_for_sleep(&mut self) {
+        self.platform.set_reader_performance_operation(None);
+        // Sleep does not drain the UI mailbox. Retire any completed speculative
+        // pixels there while the actual worker retains its own compute lease.
+        self.retire_next_frame();
+        let Some(state) = self.reading.as_mut() else { return; };
+        state.performance_model_id = None;
+        let pending = state.rendering || state.loading || state.render_again || state.render_after_sleep
+            || !state.queued.is_empty()
+            || state.presented_core.as_ref().is_some_and(|presented| state.core.as_ref().is_some_and(|core|
+                core.anchor(0) != presented.anchor(0) || core.settings() != presented.settings()))
+            || state.demo_strip != state.presented_strip;
+        for (_, _, trace) in state.queued.drain(..) {
+            if let Some(trace) = trace { trace.mark("navigation_cancelled_for_sleep"); }
+        }
+        if !pending { return; }
+        let Some(mut retained) = state.presented_core.clone() else { return; };
+        let settings = state.core.as_ref().map(|core| core.settings().clone())
+            .unwrap_or_else(|| retained.settings().clone());
+        let reflow = settings != *retained.settings() || state.demo_strip != state.presented_strip;
+        // Settings came from a valid live core. Keeping the old frame is safer
+        // than replacing its source position if an internal settings invariant
+        // cannot be preserved.
+        if retained.update_settings(settings).is_err() { return; }
+        retained.set_landscape(self.options.landscape);
+        if let Some(trace) = state.performance_request.take() {
+            trace.mark("request_cancelled_for_sleep");
+        }
+        state.render_cancelled.store(true, Ordering::Release);
+        state.version = state.version.wrapping_add(1);
+        state.core = Some(retained);
+        state.demo_strip = state.presented_strip;
+        state.rendering = false;
+        state.rendering_version = None;
+        state.render_again = false;
+        state.render_after_sleep |= reflow;
+        state.render_started = None;
+        state.loading = false;
+        state.error = None;
+        state.missing_pages.clear();
+        self.invalidate("reader-render");
+    }
+
     pub(super) fn resume_reader_from_memory(&mut self) -> Result<()> {
         if self.is_suspended() { return Ok(()); }
+        let reflow = self.reading.as_ref().filter(|state| state.render_after_sleep)
+            .and_then(|state| state.core.as_ref().map(|core| core.settings().clone()));
+        if let Some(settings) = reflow {
+            if let Some(state) = self.reading.as_mut() { state.render_after_sleep = false; }
+            if self.demo.is_some() {
+                let strip = self.reading.as_ref().is_some_and(|state| state.saved.mode == "strip");
+                self.switch_demo_strip(strip)?;
+            }
+            if let Some(core) = self.reading.as_mut().and_then(|state| state.core.as_mut()) {
+                core.update_settings(settings)?;
+                core.set_landscape(self.options.landscape);
+            }
+            self.request_reader_render()?;
+        }
         if let Some(ui) = self.ui.upgrade() { self.refresh_reader_view(&ui)?; }
+        self.request_next_frame();
         Ok(())
     }
 
@@ -1346,6 +1997,13 @@ impl App {
             "source_cache_bytes": usage.retained_bytes, "source_cache_budget": usage.byte_budget,
             "source_cache_entries": usage.entries
         });
+        snapshot["prepared_frame_state"] = serde_json::json!(self.reading.as_ref()
+            .map_or("empty", |state| state.next_frame.label()));
+        snapshot["prepared_frame_bytes"] = serde_json::json!(self.reading.as_ref()
+            .map_or(0, |state| state.next_frame.retained_bytes()));
+        snapshot["prepared_frame_budget"] = serde_json::json!(NEXT_FRAME_BYTES);
+        snapshot["reader_checkpoint"] = serde_json::to_value(self.lifecycle.reader_checkpoints.diagnostics())
+            .unwrap_or(serde_json::Value::Null);
         if let Some(ui) = self.ui.upgrade() {
             let view = ui.global::<ReaderModel>();
             let page = view.get_page().size();
@@ -1363,7 +2021,7 @@ impl App {
     /// A credential-free proof of the retained source position and reader identity.
     pub fn reader_lifecycle_snapshot(&self) -> Option<serde_json::Value> {
         let state = self.reading.as_ref()?;
-        let core = state.core.as_ref()?;
+        let core = state.visible_core()?;
         let anchor = core.anchor(0);
         let frame = state.page.size();
         let second = state.second_page.size();
@@ -1504,23 +2162,46 @@ fn reader_viewport(mut logical: (u32, u32), landscape: bool, settings: &ReaderSe
 }
 
 fn prepare_reader_frame(core: &mut ReaderCore, files: &ReaderFiles, viewport: Viewport, overview_size: (u32, u32), cancelled: &AtomicBool) -> Result<PreparedOutcome> {
+    prepare_reader_frame_profiled(core, files, viewport, overview_size, cancelled, None)
+}
+
+fn prepare_reader_frame_profiled(core: &mut ReaderCore, files: &ReaderFiles, viewport: Viewport,
+    overview_size: (u32, u32), cancelled: &AtomicBool,
+    mut profile: Option<&mut crate::reader::ReaderPreparationProfile>,
+) -> Result<PreparedOutcome> {
+    let index = core.index();
+    let primary_index = core.page_index();
+    let spread = core.is_spread();
+    let pair = if spread { core.spread_indices() } else { [Some(primary_index), None] };
+    let mut sources = Vec::new();
+    let mut missing = Vec::new();
+    for position in pair.into_iter().flatten() {
+        if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+        let source = files.source_profiled(&index, position, None, cancelled, profile.as_deref_mut());
+        if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+        if let Some(Some(source)) = source? { sources.push((position, source)); }
+        else { missing.push(position); }
+    }
+    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+    if !missing.is_empty() { return Ok(PreparedOutcome::Missing(missing)); }
+    render_reader_sources(core, sources, viewport, overview_size, cancelled, profile)
+}
+
+fn render_reader_sources(core: &mut ReaderCore,
+    sources: Vec<(usize, crate::reader::ValidatedGraySource)>, viewport: Viewport,
+    overview_size: (u32, u32), cancelled: &AtomicBool,
+    mut profile: Option<&mut crate::reader::ReaderPreparationProfile>,
+) -> Result<PreparedOutcome> {
     let index = core.index().clone();
     let primary_index = core.page_index();
     let spread = core.is_spread();
     let pair = if spread { core.spread_indices() } else { [Some(primary_index), None] };
-    let mut paths = Vec::new();
-    let mut missing = Vec::new();
-    for position in pair.into_iter().flatten() {
-        if let Some(path) = files.local_page(&index, position)? { paths.push((position, path)); }
-        else { missing.push(position); }
-    }
-    if !missing.is_empty() { return Ok(PreparedOutcome::Missing(missing)); }
-    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Failed); }
-    let primary_path = paths.iter().find(|(position, _)| *position == primary_index).or_else(|| paths.first()).context("The visible page has no local path")?.1.clone();
-    let source = crate::reader::load_validated_source(&primary_path)?;
-    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Failed); }
-    let rendered = core.render_validated_source(&source, viewport)?;
-    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Failed); }
+    let source = &sources.iter().find(|(position, _)| *position == primary_index).or_else(|| sources.first())
+        .context("The visible page has no verified source")?.1;
+    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+    let Some(rendered) = core.render_validated_source_cancellable(&source, viewport, cancelled,
+        profile.as_deref_mut())? else { return Ok(PreparedOutcome::Cancelled); };
+    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
     let mut metadata = FrameMetadata { overlap: rendered.overlap_from_previous, ratio: rendered.crop.width as f32 / rendered.crop.height.max(1) as f32,
         focus_x: rendered.crop.x as f32 / rendered.source_width.max(1) as f32,
         focus_y: rendered.crop.y as f32 / rendered.source_height.max(1) as f32,
@@ -1535,15 +2216,16 @@ fn prepare_reader_frame(core: &mut ReaderCore, files: &ReaderFiles, viewport: Vi
             let raster = if let Some(position) = position {
                 if position == primary_index { primary.take() }
                 else {
-                    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Failed); }
-                    let path = &paths.iter().find(|(index, _)| *index == position).context("A spread leaf is unavailable")?.1;
+                    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+                    let leaf_source = &sources.iter().find(|(index, _)| *index == position)
+                        .context("A spread leaf is unavailable")?.1;
                     let mut leaf = ReaderCore::new(index.clone(), core.settings().clone())?;
                     leaf.set_landscape(false);
                     leaf.set_page(position)?;
-                    let leaf_source = if path == &primary_path { source.clone() }
-                        else { crate::reader::load_validated_source(path)? };
-                    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Failed); }
-                    Some(rendered_raster(leaf.render_validated_source(&leaf_source, viewport)?))
+                    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+                    let Some(rendered) = leaf.render_validated_source_cancellable(leaf_source, viewport, cancelled,
+                        profile.as_deref_mut())? else { return Ok(PreparedOutcome::Cancelled); };
+                    Some(rendered_raster(rendered))
                 }
             } else { None };
             let number = position.map_or_else(|| if primary_index == 0 { 0 } else { index.images.len() as i32 + 1 }, |position| position as i32 + 1);
@@ -1552,15 +2234,69 @@ fn prepare_reader_frame(core: &mut ReaderCore, files: &ReaderFiles, viewport: Vi
         }
     } else { page = primary.take(); metadata.left_page = primary_index as i32 + 1; }
     let overview = if core.settings().mode == DisplayMode::Panel {
-        if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Failed); }
+        if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
         let mut overview = ReaderCore::new(index, ReaderSettings { dither: core.settings().dither, ..Default::default() })?;
         overview.set_page(primary_index)?;
-        Some(rendered_raster(overview.render_validated_source(&source, Viewport::new(overview_size.0, overview_size.1))?))
+        let size = Viewport::new(overview_size.0, overview_size.1);
+        let Some(rendered) = overview.render_validated_source_cancellable(&source, size, cancelled,
+            profile.as_deref_mut())? else { return Ok(PreparedOutcome::Cancelled); };
+        Some(rendered_raster(rendered))
     } else { None };
-    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Failed); }
+    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
     // An empty physical spread leaf still occupies its own source-independent slot.
     let page = page.unwrap_or_else(|| Raster { rgba: vec![255; 4], width: 1, height: 1 });
     Ok(PreparedOutcome::Ready(PreparedFrame { page, second, overview, metadata, dark_fraction }))
+}
+
+fn prepare_next_frame(mut core: ReaderCore, key: NextFrameKey, files: &ReaderFiles,
+    cancelled: &AtomicBool, mut profile: Option<&mut crate::reader::ReaderPreparationProfile>,
+) -> Result<Option<NextFrame>> {
+    if cancelled.load(Ordering::Acquire) { return Ok(None); }
+    let position = core.page_index();
+    // This local-only lookup is also the existence check. A receipt lookup can
+    // perform integrity work and therefore never belongs on the UI thread.
+    let source = files.source_profiled(core.index(), position, None, cancelled, profile.as_deref_mut())?;
+    if cancelled.load(Ordering::Acquire) { return Ok(None); }
+    let Some(Some(source)) = source else { return Ok(None); };
+    let proof = source.proof().clone();
+    let outcome = render_reader_sources(&mut core, vec![(position, source)], key.viewport,
+        (1, 1), cancelled, profile)?;
+    if cancelled.load(Ordering::Acquire) { return Ok(None); }
+    let PreparedOutcome::Ready(frame) = outcome else { return Ok(None); };
+    let candidate = NextFrame { key, core, frame, proof };
+    if candidate.retained_bytes() > NEXT_FRAME_BYTES { return Ok(None); }
+    Ok(Some(candidate))
+}
+
+fn reuse_next_frame(core: &mut ReaderCore, next: NextFrame, files: &ReaderFiles,
+    viewport: Viewport, overview_size: (u32, u32), cancelled: &AtomicBool,
+    mut profile: Option<&mut crate::reader::ReaderPreparationProfile>, trace: Option<Operation>,
+) -> Result<PreparedOutcome> {
+    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+    let source = files.source_profiled(core.index(), core.page_index(), Some(&next.proof),
+        cancelled, profile.as_deref_mut());
+    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+    match source? {
+        Some(None) => {
+            // Only a fresh read/hash and the resolver's current receipt/object
+            // checks can authorize using the previously rendered pixels.
+            if let Some(trace) = trace { trace.mark("prepared_frame_hit"); }
+            *core = next.core;
+            Ok(PreparedOutcome::Ready(next.frame))
+        }
+        Some(Some(source)) => {
+            if let Some(trace) = trace { trace.mark("prepared_frame_source_changed"); }
+            // Drop old pixels before the fallback allocates a replacement.
+            drop(next);
+            let position = core.page_index();
+            render_reader_sources(core, vec![(position, source)], viewport,
+                overview_size, cancelled, profile)
+        }
+        None => {
+            if let Some(trace) = trace { trace.mark("prepared_frame_source_missing"); }
+            Ok(PreparedOutcome::Missing(vec![core.page_index()]))
+        }
+    }
 }
 
 fn rendered_raster(rendered: RenderedPage) -> Raster {
@@ -1578,6 +2314,18 @@ fn raster_image_ref(raster: &Raster) -> slint::Image {
 #[cfg(test)]
 #[path = "immersive_reader_tests.rs"]
 mod immersive_reader_tests;
+
+#[cfg(test)]
+#[path = "reader_performance_tests.rs"]
+mod reader_performance_tests;
+
+#[cfg(test)]
+#[path = "prepared_reader_tests.rs"]
+mod prepared_reader_tests;
+
+#[cfg(test)]
+#[path = "prepared_reader_source_tests.rs"]
+mod prepared_reader_source_tests;
 
 #[cfg(test)]
 mod tests {

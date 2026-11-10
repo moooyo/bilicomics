@@ -6,6 +6,7 @@ This file records principal reused sources and assets. It does not select this p
 | --- | --- | --- |
 | Kindle Slint backend | `vendor/slint-backend-kindle/` | Original MIT and Apache-2.0 texts, revision, and patch history retained |
 | zune-jpeg strict decode adaptation | `vendor/zune-jpeg/` | Pinned crate 0.5.15; original Apache-2.0, MIT, and Zlib texts, upstream metadata, pristine changed files, and strict-mode patch retained |
+| Single-channel Triangle resize | `src/reader/triangle.rs`, `vendor/image-triangle-reference-0.25.10/` | Derived from pinned image 0.25.10 under MIT OR Apache-2.0; complete licenses, exact source snapshots, crate checksum, Git revision, and numerical contract retained |
 | WeRead infrastructure | Platform, cache, input, and launcher | Exact working-tree input hashes and adaptations in `docs/REFERENCE_PROVENANCE.md` |
 | Bilibili protocol wrappers | `vendor/bili-protocol/` | Pinned plugin revision and adaptations in its README; no project-wide license grant inferred |
 | wasm3 | `vendor/bili-protocol/wasm3/` | MIT; original LICENSE retained |

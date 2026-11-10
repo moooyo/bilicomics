@@ -33,6 +33,7 @@ use crate::{
 };
 
 mod bili_source;
+mod local_source;
 
 const MAX_IMAGE_BYTES: u64 = MAX_ENCODED_BYTES;
 const MAX_PAGES: usize = 10_000;
@@ -497,6 +498,7 @@ pub struct LocalPageResolver {
     database: PathBuf,
     pages: PathBuf,
     account: String,
+    connection: Arc<Mutex<Option<Store>>>,
 }
 
 impl LocalPageResolver {
@@ -561,7 +563,7 @@ impl DownloadManager {
     pub fn page_resolver(&self) -> LocalPageResolver {
         LocalPageResolver {
             database: self.context.database.clone(), pages: self.context.pages.clone(),
-            account: self.context.account.clone(),
+            account: self.context.account.clone(), connection: Arc::new(Mutex::new(None)),
         }
     }
 

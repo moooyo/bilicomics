@@ -56,6 +56,7 @@
   "cat_store_serial": "连载 {count} 话",
   "cat_cover_not_cached": "封面未缓存",
   "cat_local_download_prefix": "本机已下载 ",
+  "cat_local_download_checking": "正在核对本地下载",
   "cat_local_download_unit": " 部漫画",
   "cat_view": "查看",
   "cat_no_results_query": "没有找到“{query}”",

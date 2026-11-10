@@ -8,14 +8,14 @@ use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use slint::ComponentHandle;
 
-use super::{App, display_order, hex_digest, model, now, tr};
+use super::{App, View, display_order, hex_digest, model, now, tr};
 use crate::{
     demo::DemoData,
-    domain::{Comic, ComicDetail, Episode, EpisodeAccess},
+    domain::{Comic, ComicDetail, Episode, EpisodeAccess, PageDescriptor},
     i18n,
     input::{InputIntent, InputLanguage, PinyinInput},
     source::{CategoryMetadata, CategoryOption},
-    store::Store,
+    store::{PageReceipt, Store},
     ui::{AppWindow, CatalogModel, CategoryItem, ComicItem, EpisodeItem, SearchHistoryItem},
 };
 
@@ -23,6 +23,16 @@ const SHELF_BATCH: u32 = 100;
 const SEARCH_BATCH: u32 = 100;
 const MAX_SHELF_BATCHES: u32 = 20;
 const AUTH_RETURN_LIFETIME: Duration = Duration::from_secs(600);
+const LOCAL_SCAN_INTERVAL: Duration = Duration::from_secs(30);
+const LOCAL_SCAN_YIELD: Duration = Duration::from_millis(25);
+
+#[path = "catalog_inventory.rs"]
+mod inventory;
+use inventory::InventoryScan;
+
+#[cfg(test)]
+#[path = "catalog_recheck_tests.rs"]
+mod catalog_recheck_tests;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum CatalogViewRoute {
@@ -129,8 +139,14 @@ pub(super) struct CatalogState {
     local_loading: bool,
     local_generation: u64,
     local_checked: Instant,
+    local_full_checked: Option<Instant>,
+    local_scan_full: bool,
     local_attempted: Instant,
     local_failed: bool,
+    local_scan: Option<InventoryScan>,
+    cache_maintenance_pending: bool,
+    cache_retry_at: Option<Instant>,
+    cache_retry_attempts: u8,
     auth_return_pending: Option<CatalogAuthReturn>,
     auth_detail_pending: Option<CatalogAuthReturn>,
 }
@@ -152,7 +168,9 @@ impl Default for CatalogState {
             status: String::new(),
             local_snapshot: LocalSnapshot::default(), local_dirty: false, local_loading: false,
             local_generation: 0, local_checked: Instant::now(), local_attempted: Instant::now(),
-            local_failed: false,
+            local_full_checked: None, local_scan_full: false,
+            local_failed: false, local_scan: None,
+            cache_maintenance_pending: false, cache_retry_at: None, cache_retry_attempts: 0,
             auth_return_pending: None, auth_detail_pending: None,
         }
     }
@@ -173,6 +191,7 @@ struct LocalSnapshot {
     episodes: BTreeMap<String, LocalEpisode>,
     episode_comics: BTreeMap<String, String>,
     downloaded_comics: BTreeSet<String>,
+    checked_all: bool,
 }
 
 impl LocalSnapshot {
@@ -181,46 +200,29 @@ impl LocalSnapshot {
         Some((local.present.try_into().ok()?, local.total.try_into().ok()?, local.retained))
     }
 
-    fn prepare(store: &Store, account: &str, comics: &[Comic], demo: Option<&DemoData>) -> Result<Self> {
+    fn from_demo(comics: &[Comic], demo: &DemoData) -> Self {
         let mut snapshot = Self::default();
-        if let Some(demo) = demo {
-            for detail in &demo.details {
-                for episode in &detail.episodes {
-                    let total = episode.extra["page_count"].as_u64().unwrap_or(0) as usize;
-                    let retained = episode.extra["downloaded"].as_bool().unwrap_or(false);
-                    snapshot.episodes.insert(episode.id.clone(), LocalEpisode {
-                        known: true, present: if retained { total } else { episode.extra["downloaded_pages"].as_u64().unwrap_or(0) as usize },
-                        total, retained, bytes: 0,
-                        revision: demo.indices.iter().find(|index| index.episode_id == episode.id).map(|index| index.revision.clone()).unwrap_or_default(),
-                    });
-                    snapshot.episode_comics.insert(episode.id.clone(), detail.comic.id.clone());
-                }
-            }
-            // Fixture presentation state is isolated from real page receipts.
-            snapshot.downloaded_comics = comics.iter().filter(|comic| comic.extra["downloaded"].as_bool().unwrap_or(false))
-                .map(|comic| comic.id.clone()).collect();
-            return Ok(snapshot);
-        }
-        for comic in comics {
-            if let Some(detail) = store.load_detail(account, &comic.id)? {
-                for episode in detail.episodes { snapshot.episode_comics.insert(episode.id, comic.id.clone()); }
+        for detail in &demo.details {
+            for episode in &detail.episodes {
+                let total = episode.extra["page_count"].as_u64().unwrap_or(0) as usize;
+                let retained = episode.extra["downloaded"].as_bool().unwrap_or(false);
+                snapshot.episodes.insert(episode.id.clone(), LocalEpisode {
+                    known: true, present: if retained { total } else { episode.extra["downloaded_pages"].as_u64().unwrap_or(0) as usize },
+                    total, retained, bytes: 0,
+                    revision: demo.indices.iter().find(|index| index.episode_id == episode.id).map(|index| index.revision.clone()).unwrap_or_default(),
+                });
+                snapshot.episode_comics.insert(episode.id.clone(), detail.comic.id.clone());
             }
         }
-        let mut episodes: BTreeSet<_> = snapshot.episode_comics.keys().cloned().collect();
-        episodes.extend(store.downloads(account)?.into_iter().map(|record| record.episode_id));
-        let pages = store.path().parent().context("Resolve the catalog metadata directory")?
-            .join("accounts").join(hex_digest(account.as_bytes())).join("pages");
-        for episode in episodes {
-            let local = scan_local_episode(store, account, &episode, &pages)?;
-            if local.retained {
-                if let Some(comic) = snapshot.episode_comics.get(&episode) { snapshot.downloaded_comics.insert(comic.clone()); }
-            }
-            snapshot.episodes.insert(episode, local);
-        }
-        Ok(snapshot)
+        // Fixture presentation state is isolated from real page receipts.
+        snapshot.downloaded_comics = comics.iter().filter(|comic| comic.extra["downloaded"].as_bool().unwrap_or(false))
+            .map(|comic| comic.id.clone()).collect();
+        snapshot.checked_all = true;
+        snapshot
     }
 
     fn invalidate_episode(&mut self, comic_id: &str, episode_id: &str) {
+        self.checked_all = false;
         self.episodes.remove(episode_id);
         self.episode_comics.insert(episode_id.to_owned(), comic_id.to_owned());
         self.downloaded_comics.remove(comic_id);
@@ -228,9 +230,38 @@ impl LocalSnapshot {
             && self.episodes.get(episode).is_some_and(|local| local.retained))
         { self.downloaded_comics.insert(comic_id.to_owned()); }
     }
+
+    fn install_episode(&mut self, comic_id: Option<String>, episode_id: String, local: LocalEpisode) {
+        let retained = local.retained;
+        self.episodes.insert(episode_id.clone(), local);
+        let Some(comic_id) = comic_id else { return; };
+        self.episode_comics.insert(episode_id, comic_id.clone());
+        if retained {
+            self.downloaded_comics.insert(comic_id);
+        } else if self.downloaded_comics.contains(&comic_id)
+            && !self.episode_comics.iter().any(|(episode, owner)| *owner == comic_id
+                && self.episodes.get(episode).is_some_and(|local| local.retained))
+        {
+            self.downloaded_comics.remove(&comic_id);
+        }
+    }
+
+    fn retain_episodes(&mut self, live: &BTreeSet<String>) {
+        self.episodes.retain(|episode, _| live.contains(episode));
+        self.episode_comics.retain(|episode, _| live.contains(episode));
+        self.downloaded_comics = self.episode_comics.iter().filter_map(|(episode, comic)|
+            self.episodes.get(episode).is_some_and(|local| local.retained).then(|| comic.clone())).collect();
+    }
 }
 
 impl CatalogState {
+    pub(super) fn defer_cache_maintenance(&mut self) {
+        self.cache_maintenance_pending = true;
+        self.cache_retry_attempts = self.cache_retry_attempts.saturating_add(1).min(6);
+        self.cache_retry_at = Some(Instant::now() + Duration::from_millis(
+            250_u64 << self.cache_retry_attempts.saturating_sub(1)));
+    }
+
     pub(super) fn prepare(store: &Store, account: &str, demo: Option<&DemoData>) -> Result<Self> {
         let saved = store.preference(account, "catalog_view")?.unwrap_or_default();
         let stored_history: Option<Vec<HistoryEntry>> = store.preference(account, "search_history")?;
@@ -266,18 +297,97 @@ impl CatalogState {
         }
         if state.saved.category.is_empty() { state.saved.category = "all".into(); }
         if state.saved.category_label.is_empty() { state.saved.category_label = i18n::text("cat_all_recommendations"); }
-        state.local_snapshot = LocalSnapshot::prepare(store, account, &state.comics, demo)?;
+        if let Some(demo) = demo {
+            state.local_snapshot = LocalSnapshot::from_demo(&state.comics, demo);
+        } else {
+            // Metadata can attach immediately. Only completed background scans
+            // may turn unknown local availability into an offline-ready claim.
+            state.local_dirty = true;
+        }
         state.local_checked = Instant::now();
         state.local_attempted = state.local_checked;
         Ok(state)
+    }
+
+    pub(super) fn startup_cover_comics(&self, route: &str, scribe: bool, resume: Option<&str>, demo: bool) -> Vec<Comic> {
+        match route {
+            "detail" | "purchase" => self.detail.as_ref().map(|detail| vec![detail.comic.clone()]).unwrap_or_default(),
+            "store" => page_slice(&self.store_comics, self.saved.store_page, if scribe { 15 } else { 6 }),
+            "search" => self.comics.iter().take(6).cloned().collect(),
+            "shelf" => {
+                let mut shelf: Vec<_> = self.comics.iter().filter(|comic| self.shelf_ids.contains(&comic.id))
+                    .filter(|comic| !demo || scribe || comic.extra["shelf_order"].as_u64().is_some_and(|order| order < 12))
+                    .filter(|comic| (!scribe && self.saved.filter != "all") || Some(comic.id.as_str()) != resume)
+                    .filter(|comic| match self.saved.filter.as_str() {
+                        "updated" => comic.extra["updated"].as_bool().unwrap_or(false),
+                        "downloaded" => self.local_snapshot.downloaded_comics.contains(&comic.id),
+                        "finished" => comic.finished,
+                        _ => true,
+                    }).cloned().collect();
+                if demo { shelf.sort_by_key(|comic| comic.extra["shelf_order"].as_u64().unwrap_or(u64::MAX)); }
+                let per_page = match (scribe, self.saved.view.as_str()) {
+                    (true, "list") => 6, (true, _) => 10, (false, "list") => 7, _ => 6,
+                };
+                let mut visible = page_slice(&shelf, self.saved.shelf_page.min(page_count(shelf.len(), per_page)), per_page);
+                if let Some(comic) = resume.and_then(|id| self.comics.iter().find(|comic| comic.id == id)) {
+                    visible.push(comic.clone());
+                }
+                visible
+            }
+            _ => Vec::new(),
+        }
     }
 }
 
 impl App {
     pub(super) fn initialize_catalog(&mut self) -> Result<()> {
         self.catalog = CatalogState::prepare(&self.store, &self.account, self.demo.as_deref())?;
+        self.trim_catalog_cache();
         if self.demo.is_some() { self.load_store(); }
         Ok(())
+    }
+
+    fn trim_catalog_cache(&mut self) {
+        if self.demo.is_some() { return; }
+        self.catalog.cache_maintenance_pending = true;
+        self.maintain_catalog_cache();
+    }
+
+    pub(super) fn maintain_catalog_cache(&mut self) {
+        if self.demo.is_some() || self.is_suspended() || !self.catalog.cache_maintenance_pending
+            || self.catalog.cache_retry_at.is_some_and(|at| Instant::now() < at)
+        { return; }
+        let mut protected: BTreeSet<String> = self.catalog.results.iter().chain(&self.catalog.store_comics)
+            .map(|comic| comic.id.clone()).collect();
+        if let Some(detail) = &self.catalog.detail { protected.insert(detail.comic.id.clone()); }
+        if let Some((comic, _)) = self.active_reader_identity() { protected.insert(comic.to_owned()); }
+        for intent in [&self.catalog.auth_return_pending, &self.catalog.auth_detail_pending].into_iter().flatten() {
+            protected.insert(intent.comic_id.clone());
+        }
+        protected.extend(self.catalog.favorite_pending.iter().cloned());
+        match self.store.try_prune_catalog_cache(&self.account, &protected.into_iter().collect::<Vec<_>>()) {
+            Ok(Some(evicted)) => {
+                self.catalog.cache_maintenance_pending = false;
+                self.catalog.cache_retry_at = None;
+                self.catalog.cache_retry_attempts = 0;
+                if evicted.is_empty() { return; }
+                let evicted: BTreeSet<_> = evicted.into_iter().collect();
+                self.catalog.comics.retain(|comic| !evicted.contains(&comic.id));
+                let live: BTreeSet<_> = self.catalog.local_snapshot.episode_comics.iter()
+                    .filter_map(|(episode, comic)| (!evicted.contains(comic)).then(|| episode.clone())).collect();
+                self.catalog.local_snapshot.retain_episodes(&live);
+                self.request_catalog_local_refresh();
+            }
+            Ok(None) => self.catalog.defer_cache_maintenance(),
+            Err(error) => {
+                // Cache maintenance is optional. Its failed transaction leaves
+                // the existing library intact and can be retried next update.
+                if self.catalog.cache_retry_attempts == 0 {
+                    eprintln!("bilicomics: catalog cache maintenance deferred: {error:#}");
+                }
+                self.catalog.defer_cache_maintenance();
+            }
+        }
     }
 
     pub(super) fn capture_catalog_auth_return(&self) -> Option<CatalogAuthReturn> {
@@ -388,11 +498,15 @@ impl App {
             shelf.iter().filter(|comic| self.comic_has_download(comic)).count(),
             shelf.iter().filter(|comic| comic.finished).count(),
         ];
-        presentation.set_filter_counts(model(filter_counts.into_iter().map(|count| i18n::format("cat_comic_count", &[("count", count.to_string())]).into()).collect()));
+        let inventory_pending = !self.catalog.local_snapshot.checked_all;
+        presentation.set_filter_counts(model(filter_counts.into_iter().enumerate().map(|(index, count)| {
+            if index == 2 && inventory_pending { tr("common_unknown") }
+            else { i18n::format("cat_comic_count", &[("count", count.to_string())]).into() }
+        }).collect()));
         let local_downloads = if self.demo.is_some() && !self.is_scribe() {
             self.catalog.comics.iter().filter(|comic| self.comic_has_download(comic)).count()
         } else { self.catalog.local_snapshot.downloaded_comics.len() };
-        presentation.set_local_download_count(local_downloads.try_into().unwrap_or(i32::MAX));
+        presentation.set_local_download_count(if inventory_pending { -1 } else { local_downloads.try_into().unwrap_or(i32::MAX) });
         presentation.set_shelf_offline(self.options.offline && !self.online);
         let filter = self.catalog.saved.filter.clone();
         shelf.retain(|comic| match filter.as_str() {
@@ -404,15 +518,16 @@ impl App {
         if filter == "all" { shelf.retain(|comic| Some(&comic.id) != resume_id.as_ref()); }
         let shelf_per = self.shelf_per_page();
         let shelf_pages = page_count(shelf.len(), shelf_per);
-        self.catalog.saved.shelf_page = self.catalog.saved.shelf_page.clamp(1, shelf_pages);
-        let visible_shelf = page_slice(&shelf, self.catalog.saved.shelf_page, shelf_per);
+        let presented_page = self.catalog.saved.shelf_page.clamp(1, shelf_pages);
+        if filter != "downloaded" || !inventory_pending { self.catalog.saved.shelf_page = presented_page; }
+        let visible_shelf = page_slice(&shelf, presented_page, shelf_per);
         let mut shelf_views = Vec::with_capacity(visible_shelf.len());
         for comic in visible_shelf { shelf_views.push(self.shelf_comic_view(&comic)); }
         presentation.set_shelf_items(model(shelf_views));
         presentation.set_shelf_view(self.catalog.saved.view.clone().into());
         presentation.set_shelf_filter(filter.clone().into());
         presentation.set_shelf_menu_open(self.catalog.shelf_menu);
-        presentation.set_shelf_page(self.catalog.saved.shelf_page as i32);
+        presentation.set_shelf_page(presented_page as i32);
         presentation.set_shelf_pages((shelf_pages + usize::from(self.catalog.shelf_has_more)) as i32);
         let authenticated = self.demo.is_some() || self.client.session()
             .and_then(|session| session.account_key().map(str::to_owned)).is_some();
@@ -425,9 +540,10 @@ impl App {
         }
         let count_key = if self.catalog.shelf_has_more { "cat_loaded_count" }
             else if filter != "all" { "cat_filtered_count" } else { "cat_remaining_count" };
-        presentation.set_shelf_count_label(i18n::format(count_key, &[
+        presentation.set_shelf_count_label(if filter == "downloaded" && inventory_pending { tr("cat_local_download_checking") }
+            else { i18n::format(count_key, &[
             ("count", shelf.len().to_string()), ("total", full_shelf_count.to_string()),
-        ]).into());
+        ]).into() });
         presentation.set_sync_label(if self.demo.is_some() && self.catalog.last_sync > 0 {
                 let count = self.catalog.comics.iter().filter(|comic| self.catalog.shelf_ids.contains(&comic.id))
                     .filter(|comic| self.is_scribe() || comic.extra["shelf_order"].as_u64().is_some_and(|order| order < 12)).count();
@@ -780,6 +896,7 @@ impl App {
                     match app.store.load_comics(&app.account) { Ok(comics) => app.catalog.comics = comics, Err(_) => app.toast("common_storage_error") }
                     app.catalog.last_sync = now();
                     if app.store.set_preference(&app.account, "catalog_last_sync", &app.catalog.last_sync).is_err() { app.toast("common_storage_error"); }
+                    app.trim_catalog_cache();
                 }
                 Err(error) => { app.catalog.status = i18n::text("cat_sync_failed_cached"); app.source_failure(&error); }
             }
@@ -828,6 +945,7 @@ impl App {
                     if app.store.save_catalog(&app.account, &store_scope(&category), &comics).is_err() { app.toast("common_storage_error"); return; }
                     merge_comics(&mut app.catalog.comics, &comics);
                     app.catalog.store_comics = comics; app.catalog.store_has_more = has_more; app.catalog.store_server_page = 1;
+                    app.trim_catalog_cache();
                 }
                 Err(error) => { app.catalog.status = i18n::text("cat_store_failed_cached"); app.source_failure(&error); }
             }
@@ -870,6 +988,7 @@ impl App {
                         app.apply_catalog_auth_return();
                     }
                     app.request_catalog_local_refresh();
+                    app.trim_catalog_cache();
                 }
                 Err(error) => { app.catalog.status = i18n::text("cat_detail_failed_cached"); app.source_failure(&error); }
             }
@@ -915,6 +1034,7 @@ impl App {
                     merge_comics(&mut app.catalog.comics, &comics);
                     app.catalog.results = comics;
                     if app.finish_search_history().is_err() { app.toast("common_storage_error"); }
+                    app.trim_catalog_cache();
                 }
                 Err(error) => { app.catalog.status = i18n::text("cat_search_failed_cached"); app.source_failure(&error); }
             }
@@ -944,6 +1064,7 @@ impl App {
                     merge_comics(&mut app.catalog.comics, &comics);
                     if app.catalog.saved.shelf_page == origin { app.catalog.saved.shelf_page = origin + 1; }
                     if app.persist_catalog_view().is_err() { app.toast("common_storage_error"); }
+                    app.trim_catalog_cache();
                 }
                 Err(error) => app.source_failure(&error),
             }
@@ -968,6 +1089,7 @@ impl App {
                     if app.store.save_catalog(&app.account, &store_scope(&category), &app.catalog.store_comics).is_err() { app.toast("common_storage_error"); return; }
                     if app.catalog.saved.store_page == origin { app.catalog.saved.store_page = origin + 1; }
                     if app.persist_catalog_view().is_err() { app.toast("common_storage_error"); }
+                    app.trim_catalog_cache();
                 }
                 Err(error) => app.source_failure(&error),
             }
@@ -992,6 +1114,7 @@ impl App {
                     if app.store.save_catalog(&app.account, &search_scope(&query), &app.catalog.results).is_err() { app.toast("common_storage_error"); return; }
                     if app.catalog.search_page == origin { app.catalog.search_page = origin + 1; }
                     if app.finish_search_history().is_err() { app.toast("common_storage_error"); }
+                    app.trim_catalog_cache();
                 }
                 Err(error) => app.source_failure(&error),
             }
@@ -1030,6 +1153,7 @@ impl App {
         self.store.save_catalog(&self.account, "shelf", &shelf)?;
         self.store.set_preference(&self.account, "catalog_shelf_initialized", &true)?;
         self.toast(if favorite { "cat_follow_success" } else { "cat_unfollow_success" });
+        self.trim_catalog_cache();
         Ok(())
     }
 
@@ -1063,7 +1187,8 @@ impl App {
         if !self.is_scribe() && self.options.offline && !self.online {
             let count = self.catalog.local_snapshot.episode_comics.iter().filter(|(episode, owner)| *owner == &comic.id
                 && self.catalog.local_snapshot.episodes.get(*episode).is_some_and(|local| local.retained)).count();
-            view.meta = if count > 0 { i18n::format("cat_offline_chapters", &[("count", count.to_string())]) }
+            view.meta = if !self.catalog.local_snapshot.checked_all { i18n::text("cat_local_download_checking") }
+                else if count > 0 { i18n::format("cat_offline_chapters", &[("count", count.to_string())]) }
                 else if view.downloaded { i18n::text("cat_offline_available") } else { i18n::text("cat_network_required") }.into();
             if self.demo.is_some() && comic.extra["offline_cover_cached_pw"].as_bool() == Some(false) { view.cover = slint::Image::default(); }
         }
@@ -1153,7 +1278,10 @@ impl App {
 
     fn catalog_tile_network_required(&self, comic_id: &str) -> bool {
         if !self.options.offline || self.online { return false; }
-        self.route == "store" || self.route == "shelf" && self.catalog.comics.iter()
+        // An unfinished inventory cannot prove that cached content is missing.
+        // Let the existing local detail/reader path validate the selected item.
+        self.route == "store" || self.route == "shelf" && self.catalog.local_snapshot.checked_all
+            && self.catalog.comics.iter()
             .find(|comic| comic.id == comic_id).is_none_or(|comic| !self.comic_has_download(comic))
     }
 
@@ -1230,6 +1358,7 @@ impl App {
         if self.demo.is_some() { return; }
         self.catalog.local_snapshot.invalidate_episode(comic_id, episode_id);
         self.catalog.local_generation = self.catalog.local_generation.wrapping_add(1);
+        self.catalog.local_scan = None;
         self.catalog.local_dirty = true;
         self.dirty = true;
     }
@@ -1237,50 +1366,102 @@ impl App {
     pub(super) fn invalidate_catalog_local_state(&mut self) {
         if self.demo.is_some() { return; }
         self.catalog.local_snapshot = LocalSnapshot::default();
+        self.catalog.local_full_checked = None;
         self.catalog.local_generation = self.catalog.local_generation.wrapping_add(1);
+        self.catalog.local_scan = None;
         self.catalog.local_dirty = true;
         self.dirty = true;
     }
 
     fn request_catalog_local_refresh(&mut self) {
         if self.demo.is_some() { return; }
+        self.catalog.local_snapshot.checked_all = false;
         self.catalog.local_generation = self.catalog.local_generation.wrapping_add(1);
+        self.catalog.local_scan = None;
         self.catalog.local_dirty = true;
         self.dirty = true;
     }
 
     pub(super) fn refresh_catalog_local_snapshot(&mut self) {
-        if self.demo.is_some() || self.catalog.local_loading
-            || !self.catalog.local_dirty && self.catalog.local_checked.elapsed() < Duration::from_secs(30)
+        if self.catalog.local_loading && !self.pending.contains_key("catalog:inventory-step") {
+            // Logout can retire every job while keeping the guest's catalog.
+            // A retired continuation has no callback that could clear loading.
+            self.catalog.local_loading = false;
+            self.catalog.local_scan = None;
+            self.catalog.local_generation = self.catalog.local_generation.wrapping_add(1);
+            self.catalog.local_dirty = true;
+        }
+        let full_recheck_due = self.catalog.local_full_checked
+            .is_none_or(|checked| checked.elapsed() >= LOCAL_SCAN_INTERVAL);
+        if self.demo.is_some() || self.is_suspended() || self.catalog.local_loading
+            || !self.catalog.local_dirty && self.catalog.local_scan.is_none()
+                && self.catalog.local_checked.elapsed() < LOCAL_SCAN_INTERVAL
+                && (self.catalog.local_failed || !full_recheck_due)
         { return; }
+        let scan = self.catalog.local_scan.take().unwrap_or_else(|| {
+            // Scoped invalidations keep unrelated verified chapters. A periodic
+            // recheck keeps its own deadline, even when incremental work or a
+            // generation change interrupts it before all chapters complete.
+            self.catalog.local_scan_full = full_recheck_due;
+            let skip = if self.catalog.local_dirty && !full_recheck_due {
+                self.catalog.local_snapshot.episodes.iter().filter_map(|(id, local)|
+                    local.known.then(|| id.clone())).collect()
+            } else { BTreeSet::new() };
+            let priority = self.active_reader_identity().map(|(comic, episode)| (comic.to_owned(), episode.to_owned()));
+            InventoryScan::new(self.catalog.comics.iter().map(|comic| comic.id.clone()).collect(), skip, priority)
+        });
         self.catalog.local_loading = true;
-        let delay = Duration::from_millis(500).saturating_sub(self.catalog.local_attempted.elapsed());
+        let delay = LOCAL_SCAN_YIELD.saturating_sub(self.catalog.local_attempted.elapsed());
         self.catalog.local_attempted = Instant::now();
         let generation = self.catalog.local_generation;
+        let full_scan = self.catalog.local_scan_full;
         let database = self.store.path().to_owned();
         let account = self.account.clone();
-        self.background_after("catalog:local-snapshot", delay, move || {
-            let store = Store::open(database)?;
-            let comics = store.load_comics(&account)?;
-            LocalSnapshot::prepare(&store, &account, &comics, None)
+        self.background_after("catalog:inventory-step", delay, move || {
+            scan.run(database, &account)
         }, move |app, result| {
             app.catalog.local_loading = false;
             if app.catalog.local_generation != generation {
                 app.catalog.local_dirty = true;
+                app.refresh_catalog_local_snapshot();
                 return;
             }
-            app.catalog.local_checked = Instant::now();
             match result {
-                Ok(snapshot) => {
-                    app.catalog.local_snapshot = snapshot;
-                    app.catalog.local_dirty = false;
+                Ok(batch) => {
+                    let visible_change = !batch.completed.is_empty() || batch.complete_targets.is_some();
+                    for completed in batch.completed {
+                        app.catalog.local_snapshot.install_episode(completed.comic_id, completed.episode_id, completed.local);
+                    }
+                    if let Some(live) = batch.complete_targets {
+                        app.catalog.local_snapshot.retain_episodes(&live);
+                        app.catalog.local_snapshot.checked_all = true;
+                    }
+                    app.catalog.local_scan = batch.continuation;
+                    app.catalog.local_dirty = app.catalog.local_scan.is_some();
                     app.catalog.local_failed = false;
+                    if visible_change {
+                        app.view_dirty.mark(View::Catalog);
+                        app.view_dirty.mark(View::Reader);
+                    }
+                    if app.catalog.local_scan.is_none() {
+                        let checked = Instant::now();
+                        app.catalog.local_checked = checked;
+                        if full_scan { app.catalog.local_full_checked = Some(checked); }
+                        app.catalog.local_scan_full = false;
+                    }
+                    else { app.refresh_catalog_local_snapshot(); }
                 }
                 Err(_) => {
                     app.catalog.local_snapshot = LocalSnapshot::default();
+                    app.catalog.local_scan = None;
+                    app.catalog.local_scan_full = false;
+                    app.catalog.local_full_checked = None;
                     app.catalog.local_dirty = false;
+                    app.catalog.local_checked = Instant::now();
                     if !app.catalog.local_failed { app.toast("common_storage_error"); }
                     app.catalog.local_failed = true;
+                    app.view_dirty.mark(View::Catalog);
+                    app.view_dirty.mark(View::Reader);
                 }
             }
         });
@@ -1313,32 +1494,19 @@ impl App {
     }
 }
 
-fn scan_local_episode(store: &Store, account: &str, episode_id: &str, pages: &Path) -> Result<LocalEpisode> {
-    let Some(index) = store.load_index(account, episode_id, None)? else {
-        return Ok(LocalEpisode { known: true, ..Default::default() });
-    };
-    let receipts: BTreeMap<_, _> = store.page_receipts(account, episode_id, &index.revision)?
-        .into_iter().map(|receipt| (receipt.page_id.clone(), receipt)).collect();
-    let mut local = LocalEpisode { known: true, revision: index.revision.clone(), total: index.images.len(), retained: !index.images.is_empty(), ..Default::default() };
-    for page in &index.images {
-        let candidate = receipts.get(&page.id)
-            .filter(|receipt| receipt.page_index == page.index && receipt.width == page.width && receipt.height == page.height)
-            .filter(|receipt| !receipt.file_name.is_empty() && !receipt.file_name.contains(['/', '\\']) && !receipt.file_name.contains(".."));
-        let valid = match candidate {
-            Some(receipt) => match crate::downloads::revalidate_receipt(store, account, pages, receipt) {
-                Ok(receipt) => receipt,
-                Err(error) if crate::downloads::is_validation_unavailable(&error) => None,
-                Err(error) => return Err(error),
-            },
-            None => None,
-        };
-        if let Some(receipt) = valid {
-            local.present += 1;
-            local.bytes = local.bytes.saturating_add(receipt.bytes);
-            local.retained &= receipt.retained;
-        } else { local.retained = false; }
+fn inspect_local_page(store: &Store, account: &str, pages: &Path, page: &PageDescriptor,
+    receipts: &BTreeMap<String, PageReceipt>) -> Result<Option<PageReceipt>> {
+    let candidate = receipts.get(&page.id)
+        .filter(|receipt| receipt.page_index == page.index && receipt.width == page.width && receipt.height == page.height)
+        .filter(|receipt| !receipt.file_name.is_empty() && !receipt.file_name.contains(['/', '\\']) && !receipt.file_name.contains(".."));
+    match candidate {
+        Some(receipt) => match crate::downloads::revalidate_receipt(store, account, pages, receipt) {
+            Ok(receipt) => Ok(receipt),
+            Err(error) if crate::downloads::is_validation_unavailable(&error) => Ok(None),
+            Err(error) => Err(error),
+        },
+        None => Ok(None),
     }
-    Ok(local)
 }
 
 fn normalize_comic_id(value: &str) -> Option<String> {
@@ -1392,6 +1560,26 @@ mod snapshot_tests {
         store::{DownloadRecord, DownloadStatus, PageReceipt},
     };
 
+    fn scanned_state(store: &Store, account: &str) -> Result<CatalogState> {
+        let mut state = CatalogState::prepare(store, account, None)?;
+        let mut pending = Some(InventoryScan::new(state.comics.iter().map(|comic| comic.id.clone()).collect(),
+            BTreeSet::new(), None));
+        while let Some(scan) = pending.take() {
+            let batch = scan.run(store.path().to_owned(), account)?;
+            assert!(batch.inspected_pages <= 4, "Each worker batch must bound complete source-file reads");
+            for completed in batch.completed {
+                state.local_snapshot.install_episode(completed.comic_id, completed.episode_id, completed.local);
+            }
+            if let Some(live) = batch.complete_targets {
+                state.local_snapshot.retain_episodes(&live);
+                state.local_snapshot.checked_all = true;
+            }
+            pending = batch.continuation;
+        }
+        state.local_dirty = false;
+        Ok(state)
+    }
+
     fn stored_pages(count: usize, published: usize) -> Result<(tempfile::TempDir, Store, Vec<std::path::PathBuf>)> {
         stored_pages_with_validation(count, published, true)
     }
@@ -1443,7 +1631,7 @@ mod snapshot_tests {
     #[test]
     fn prepared_local_snapshot_does_not_promote_partial_receipts_to_offline_completion() -> Result<()> {
         let (_directory, store, _files) = stored_pages(2, 1)?;
-        let state = CatalogState::prepare(&store, "account", None)?;
+        let state = scanned_state(&store, "account")?;
         let episode = state.local_snapshot.episodes.get("episode").context("Prepared episode status")?;
         assert!(episode.known);
         assert_eq!((episode.present, episode.total), (1, 2));
@@ -1455,28 +1643,28 @@ mod snapshot_tests {
     #[test]
     fn page_change_invalidates_completion_before_a_background_rescan() -> Result<()> {
         let (_directory, store, files) = stored_pages(1, 1)?;
-        let mut state = CatalogState::prepare(&store, "account", None)?;
+        let mut state = scanned_state(&store, "account")?;
         assert!(state.local_snapshot.downloaded_comics.contains("comic"));
         std::fs::remove_file(&files[0])?;
         state.local_snapshot.invalidate_episode("comic", "episode");
         assert!(!state.local_snapshot.downloaded_comics.contains("comic"));
         assert!(!state.local_snapshot.episodes.get("episode").is_some_and(|episode| episode.retained));
-        let refreshed = CatalogState::prepare(&store, "account", None)?;
+        let refreshed = scanned_state(&store, "account")?;
         assert_eq!(refreshed.local_snapshot.episodes["episode"].present, 0);
         assert!(!refreshed.local_snapshot.episodes["episode"].retained);
-        assert!(CatalogState::prepare(&store, "another-account", None)?.local_snapshot.downloaded_comics.is_empty());
+        assert!(scanned_state(&store, "another-account")?.local_snapshot.downloaded_comics.is_empty());
         Ok(())
     }
 
     #[test]
     fn equal_length_file_corruption_cannot_keep_a_comic_available_offline() -> Result<()> {
         let (_directory, store, files) = stored_pages(1, 1)?;
-        let before = CatalogState::prepare(&store, "account", None)?;
+        let before = scanned_state(&store, "account")?;
         assert!(before.local_snapshot.downloaded_comics.contains("comic"));
         let mut bytes = std::fs::read(&files[0])?;
         bytes[8] ^= 0x5a;
         std::fs::write(&files[0], &bytes)?;
-        let after = CatalogState::prepare(&store, "account", None)?;
+        let after = scanned_state(&store, "account")?;
         assert_eq!(after.local_snapshot.episodes["episode"].present, 0);
         assert!(!after.local_snapshot.episodes["episode"].retained);
         assert!(!after.local_snapshot.downloaded_comics.contains("comic"));
@@ -1488,7 +1676,7 @@ mod snapshot_tests {
         let (_directory, store, _files) = stored_pages_with_validation(2, 2, false)?;
         assert!(store.page_receipts("account", "episode", "revision")?.iter()
             .all(|receipt| receipt.decode_validation_version == 0));
-        let state = CatalogState::prepare(&store, "account", None)?;
+        let state = scanned_state(&store, "account")?;
         assert!(state.local_snapshot.downloaded_comics.contains("comic"));
         assert_eq!(state.local_snapshot.episodes["episode"].present, 2);
         assert!(store.page_receipts("account", "episode", "revision")?.iter()
@@ -1554,7 +1742,7 @@ mod snapshot_tests {
         let history_before = history()?;
         assert_eq!(history_before.2, 0);
 
-        let state = CatalogState::prepare(&store, "account", None)?;
+        let state = scanned_state(&store, "account")?;
         let unavailable = &state.local_snapshot.episodes["a-unsupported-episode"];
         assert!(unavailable.known);
         assert_eq!((unavailable.present, unavailable.total), (0, 1));
@@ -1577,9 +1765,102 @@ mod snapshot_tests {
     #[test]
     fn reading_inventory_is_bound_to_the_actual_scanned_revision() -> Result<()> {
         let (_directory, store, _files) = stored_pages(1, 1)?;
-        let state = CatalogState::prepare(&store, "account", None)?;
+        let state = scanned_state(&store, "account")?;
         assert_eq!(state.local_snapshot.inventory_for_revision("episode", "revision"), Some((1, 1, true)));
         assert_eq!(state.local_snapshot.inventory_for_revision("episode", "another-revision"), None);
+        Ok(())
+    }
+
+    #[test]
+    fn startup_attaches_unknown_inventory_without_reading_or_upgrading_cached_pages() -> Result<()> {
+        let (_directory, store, files) = stored_pages_with_validation(2, 2, false)?;
+        let mut bytes = std::fs::read(&files[1])?;
+        bytes[8] ^= 0x5a;
+        std::fs::write(&files[1], &bytes)?;
+        let state = CatalogState::prepare(&store, "account", None)?;
+        assert!(state.local_dirty);
+        assert!(state.local_snapshot.episodes.is_empty());
+        assert!(state.local_snapshot.downloaded_comics.is_empty());
+        assert!(store.page_receipts("account", "episode", "revision")?.iter()
+            .all(|receipt| receipt.decode_validation_version == 0));
+        let scanned = scanned_state(&store, "account")?;
+        assert_eq!(scanned.local_snapshot.episodes["episode"].present, 1);
+        assert!(!scanned.local_snapshot.episodes["episode"].retained);
+        Ok(())
+    }
+
+    #[test]
+    fn incremental_inventory_publishes_only_a_completely_checked_chapter() -> Result<()> {
+        let (_directory, store, files) = stored_pages(7, 7)?;
+        std::fs::remove_file(&files[6])?;
+        let mut pending = Some(InventoryScan::new(vec!["comic".into()], BTreeSet::new(), None));
+        let mut inspected = 0;
+        let mut publications = Vec::new();
+        while let Some(scan) = pending.take() {
+            let batch = scan.run(store.path().to_owned(), "account")?;
+            assert!(batch.inspected_pages <= 4);
+            inspected += batch.inspected_pages;
+            if inspected < 7 { assert!(batch.completed.is_empty()); }
+            publications.extend(batch.completed);
+            pending = batch.continuation;
+        }
+        assert_eq!(inspected, 7);
+        assert_eq!(publications.len(), 1);
+        assert_eq!((publications[0].local.present, publications[0].local.total), (6, 7));
+        assert!(!publications[0].local.retained);
+        Ok(())
+    }
+
+    #[test]
+    fn invalidated_completed_inventory_cannot_publish_stale_offline_availability() -> Result<()> {
+        let runtime = tokio::runtime::Builder::new_multi_thread().worker_threads(2).enable_all().build()?;
+        let (directory, store, files) = stored_pages(1, 1)?;
+        let client = crate::source::BiliClient::offline(directory.path())?;
+        let mut app = super::super::test_support::app(directory.path(), crate::platform::DeviceProfile::Paperwhite5,
+            client, runtime.handle().clone())?;
+        app.account = "account".into();
+        app.catalog = CatalogState::prepare(&store, "account", None)?;
+        app.refresh_catalog_local_snapshot();
+        let old = super::super::test_support::next_job(&app, Duration::from_secs(5))?;
+        std::fs::remove_file(&files[0])?;
+        app.invalidate_catalog_local_episode("comic", "episode");
+        (old.apply)(&mut app);
+        assert!(!app.catalog.local_snapshot.downloaded_comics.contains("comic"));
+        for _ in 0..10 {
+            if !app.catalog.local_loading { break; }
+            let next = super::super::test_support::next_job(&app, Duration::from_secs(5))?;
+            (next.apply)(&mut app);
+        }
+        assert!(!app.catalog.local_loading);
+        assert_eq!(app.catalog.local_snapshot.episodes["episode"].present, 0);
+        assert!(!app.catalog.local_snapshot.downloaded_comics.contains("comic"));
+        Ok(())
+    }
+
+    #[test]
+    fn retired_inventory_job_does_not_leave_the_retained_catalog_permanently_loading() -> Result<()> {
+        let runtime = tokio::runtime::Builder::new_multi_thread().worker_threads(2).enable_all().build()?;
+        let (directory, store, _files) = stored_pages(1, 1)?;
+        let client = crate::source::BiliClient::offline(directory.path())?;
+        let mut app = super::super::test_support::app(directory.path(), crate::platform::DeviceProfile::Paperwhite5,
+            client, runtime.handle().clone())?;
+        app.account = "account".into();
+        app.catalog = CatalogState::prepare(&store, "account", None)?;
+        app.refresh_catalog_local_snapshot();
+        let retired = super::super::test_support::next_job(&app, Duration::from_secs(5))?;
+        app.jobs.clear();
+        app.pending.clear();
+        drop(retired);
+        assert!(app.catalog.local_loading);
+        app.refresh_catalog_local_snapshot();
+        for _ in 0..10 {
+            if !app.catalog.local_loading { break; }
+            let next = super::super::test_support::next_job(&app, Duration::from_secs(5))?;
+            (next.apply)(&mut app);
+        }
+        assert!(!app.catalog.local_loading);
+        assert_eq!(app.catalog.local_snapshot.episodes["episode"].present, 1);
+        assert!(app.catalog.local_snapshot.downloaded_comics.contains("comic"));
         Ok(())
     }
 

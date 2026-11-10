@@ -51,6 +51,8 @@ export global ReaderModel {
     in-out property <bool> guidance;
     in-out property <bool> transition;
     in-out property <bool> loading;
+    in-out property <bool> retain-page;
+    in-out property <bool> preparing-feedback;
     in-out property <bool> failed;
     in-out property <bool> offline;
     in-out property <bool> connected;
@@ -359,7 +361,7 @@ export component ReaderScreen inherits Rectangle {
     clip: true;
     property <bool> wide-landscape: ReaderModel.landscape && root.width >= 1100px;
     property <bool> spread: ReaderModel.spread-active;
-    property <bool> show-content: !ReaderModel.transition && !ReaderModel.loading && !ReaderModel.failed;
+    property <bool> show-content: !ReaderModel.transition && !ReaderModel.failed && (!ReaderModel.loading || ReaderModel.retain-page);
     property <length> reader-bar: Theme.scribe ? 64px : 56px;
     property <length> reader-status: Theme.scribe ? 32px : 28px;
     property <length> reader-button: Theme.scribe ? 56px : 48px;
@@ -409,7 +411,7 @@ export component ReaderScreen inherits Rectangle {
         ReaderSpreadPage { x: parent.frame-width; y: 0px; width: parent.frame-width; height: root.height; picture: ReaderModel.second-page; number: ReaderModel.right-page-index; }
     }
 
-    if ReaderModel.loading || ReaderModel.failed: Rectangle {
+    if (ReaderModel.loading && !ReaderModel.retain-page) || ReaderModel.failed: Rectangle {
         x: 0px;
         y: 0px;
         width: root.width;
@@ -433,6 +435,17 @@ export component ReaderScreen inherits Rectangle {
             }
             Rectangle { vertical-stretch: 1; }
         }
+    }
+
+    if ReaderModel.preparing-feedback && root.show-content && !ReaderModel.menu: Rectangle {
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        width: Theme.scribe ? 300px : 252px;
+        height: Theme.scribe ? 64px : 56px;
+        background: Theme.paper;
+        border-width: 1px;
+        border-color: Theme.ink;
+        ReaderText { text: Strings.read-loading; horizontal-alignment: center; font-size: Theme.scribe ? 22px : 18px; }
     }
 
     if !ReaderModel.menu && !ReaderModel.guidance && !ReaderModel.failed: Rectangle {

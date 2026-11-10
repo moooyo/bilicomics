@@ -18,7 +18,19 @@ use crate::{
 
 const SCHEMA_VERSION: i64 = 4;
 const MAX_RECEIPT_BYTES: u64 = 128 * 1024 * 1024;
+const CATALOG_CACHE_RECENCY_KEY: &str = "catalog_cache_recency";
+pub(crate) const CATALOG_SCOPE_CACHE_LIMIT: usize = 20;
+pub(crate) const CATALOG_COMIC_CACHE_LIMIT: usize = 512;
+pub(crate) const CATALOG_DETAIL_CACHE_LIMIT: usize = 32;
 pub const PENDING_REVISION: &str = "__pending__";
+
+#[derive(Default, Serialize, Deserialize)]
+#[serde(default)]
+struct CatalogCacheRecency {
+    scopes: Vec<String>,
+    comics: Vec<String>,
+    details: Vec<String>,
+}
 
 /// A SQLite connection is owned by one application thread or one worker.
 pub struct Store {
@@ -225,6 +237,7 @@ impl Store {
         validate_key(account)?;
         let transaction = self.connection.transaction()?;
         for comic in comics { upsert_comic(&transaction, account, comic)?; }
+        remember_catalog_access(&transaction, account, None, comics, None)?;
         transaction.commit()?;
         Ok(())
     }
@@ -266,6 +279,7 @@ impl Store {
                 "INSERT OR REPLACE INTO catalog_members(account_key,scope,comic_id,position) VALUES(?1,?2,?3,?4)",
                 params![account,scope,comic.id,position as i64])?;
         }
+        remember_catalog_access(&transaction, account, Some(scope), comics, None)?;
         transaction.commit()?;
         Ok(())
     }
@@ -290,8 +304,95 @@ impl Store {
             "INSERT INTO comic_details(account_key,comic_id,payload) VALUES(?1,?2,?3)
              ON CONFLICT(account_key,comic_id) DO UPDATE SET payload=excluded.payload",
             params![account,detail.comic.id,to_json(detail)?])?;
+        remember_catalog_access(&transaction, account, None, std::slice::from_ref(&detail.comic), Some(&detail.comic.id))?;
         transaction.commit()?;
         Ok(())
+    }
+
+    /// Remove only inactive catalog cache metadata, preserving all durable owners.
+    /// The caller supplies the complete current query/detail/reader working set.
+    /// Source indexes, page proofs, content files, and transaction preferences are untouched.
+    pub(crate) fn prune_catalog_cache(&self, account: &str, protected_comic_ids: &[String]) -> Result<Vec<String>> {
+        validate_key(account)?;
+        for comic in protected_comic_ids { validate_key(comic)?; }
+        let transaction = Transaction::new_unchecked(&self.connection, TransactionBehavior::Immediate)?;
+        let mut recent = catalog_cache_recency(&transaction, account)?;
+        let mut protected = catalog_durable_comic_ids(&transaction, account)?;
+        protected.extend(protected_comic_ids.iter().cloned());
+
+        let retained_scopes = to_json(&recent.scopes)?;
+        // Scope membership is a replaceable result cache, not a durable owner.
+        // In particular, a favorite appearing in many searches must not pin all
+        // historical search scopes. Its comic metadata is protected separately.
+        transaction.execute(
+            "DELETE FROM catalog_members WHERE account_key=?1
+               AND (scope GLOB 'search:*' OR scope GLOB 'store:*')
+               AND scope NOT IN (SELECT value FROM json_each(?2))",
+            params![account,retained_scopes])?;
+
+        let mut retained_comics = protected.clone();
+        retained_comics.extend(recent.comics.iter().cloned());
+        retained_comics.extend(recent.details.iter().cloned());
+        let retained_comics_json = to_json(&retained_comics)?;
+        let evicted = {
+            let mut statement = transaction.prepare(
+                "SELECT comic_id FROM comics WHERE account_key=?1
+                   AND comic_id NOT IN (SELECT value FROM json_each(?2)) ORDER BY comic_id")?;
+            let rows = statement.query_map(params![account,retained_comics_json], |row| row.get::<_, String>(0))?;
+            rows.collect::<rusqlite::Result<Vec<_>>>()?
+        };
+
+        let mut retained_details = protected;
+        retained_details.extend(recent.details.iter().cloned());
+        transaction.execute(
+            "DELETE FROM comic_details WHERE account_key=?1
+               AND comic_id NOT IN (SELECT value FROM json_each(?2))",
+            params![account,to_json(&retained_details)?])?;
+        transaction.execute(
+            "DELETE FROM catalog_members WHERE account_key=?1
+               AND (scope GLOB 'search:*' OR scope GLOB 'store:*')
+               AND comic_id NOT IN (SELECT value FROM json_each(?2))",
+            params![account,retained_comics_json])?;
+        transaction.execute(
+            "DELETE FROM comics WHERE account_key=?1
+               AND comic_id NOT IN (SELECT value FROM json_each(?2))",
+            params![account,retained_comics_json])?;
+
+        // A scope with no cached rows needs no recency entry. Bounded detail and
+        // comic LRUs likewise forget metadata removed by unrelated maintenance.
+        let existing_comics = catalog_string_set(&transaction,
+            "SELECT comic_id FROM comics WHERE account_key=?1", account)?;
+        let existing_details = catalog_string_set(&transaction,
+            "SELECT comic_id FROM comic_details WHERE account_key=?1", account)?;
+        let existing_scopes = catalog_string_set(&transaction,
+            "SELECT DISTINCT scope FROM catalog_members WHERE account_key=?1", account)?;
+        recent.comics.retain(|id| existing_comics.contains(id));
+        recent.details.retain(|id| existing_details.contains(id));
+        recent.scopes.retain(|scope| existing_scopes.contains(scope));
+        save_catalog_cache_recency(&transaction, account, &recent)?;
+        transaction.commit()?;
+        Ok(evicted)
+    }
+
+    /// Cache maintenance never waits for another writer. Ordinary application
+    /// transactions retain their original busy timeout and durability policy.
+    pub(crate) fn try_prune_catalog_cache(&self, account: &str, protected_comic_ids: &[String]) -> Result<Option<Vec<String>>> {
+        struct RestoreTimeout<'a> { connection: &'a Connection, milliseconds: u64 }
+        impl Drop for RestoreTimeout<'_> {
+            fn drop(&mut self) {
+                let _ = self.connection.busy_timeout(Duration::from_millis(self.milliseconds));
+            }
+        }
+        let milliseconds: u64 = self.connection.pragma_query_value(None, "busy_timeout", |row| row.get(0))?;
+        self.connection.busy_timeout(Duration::ZERO)?;
+        let _restore = RestoreTimeout { connection: &self.connection, milliseconds };
+        match self.prune_catalog_cache(account, protected_comic_ids) {
+            Ok(evicted) => Ok(Some(evicted)),
+            Err(error) if error.chain().any(|cause| matches!(cause.downcast_ref::<rusqlite::Error>(),
+                Some(rusqlite::Error::SqliteFailure(code, _)) if matches!(code.code,
+                    rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked))) => Ok(None),
+            Err(error) => Err(error),
+        }
     }
 
     pub fn load_detail(&self, account: &str, comic_id: &str) -> Result<Option<ComicDetail>> {
@@ -532,6 +633,12 @@ impl Store {
         let rows = statement.query_map(params![account, after_task.unwrap_or(""), limit.min(64) as i64],
             |row| row.get::<_, String>(0))?;
         rows.map(|row| from_json(&row?)).collect()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_busy_handler_for_test(&self, handler: Option<fn(i32) -> bool>) -> Result<()> {
+        self.connection.busy_handler(handler)?;
+        Ok(())
     }
 
     /// A background sleep snapshot cannot commit after its UI scope is revoked.
@@ -1033,6 +1140,112 @@ impl Store {
     }
 }
 
+fn is_transient_catalog_scope(scope: &str) -> bool {
+    scope.starts_with("search:") || scope.starts_with("store:")
+}
+
+fn touch_catalog_names<'a>(recent: &mut Vec<String>, incoming: impl IntoIterator<Item = &'a str>, limit: usize) {
+    let mut seen = HashSet::new();
+    let mut ordered = Vec::with_capacity(limit);
+    for value in incoming.into_iter().map(str::to_owned).chain(recent.iter().cloned()) {
+        if ordered.len() == limit { break; }
+        if seen.insert(value.clone()) { ordered.push(value); }
+    }
+    *recent = ordered;
+}
+
+fn catalog_cache_recency(connection: &Connection, account: &str) -> Result<CatalogCacheRecency> {
+    let saved: Option<String> = connection.query_row(
+        "SELECT payload FROM preferences WHERE account_key=?1 AND key=?2",
+        params![account,CATALOG_CACHE_RECENCY_KEY], |row| row.get(0)).optional()?;
+    let mut recent = match saved {
+        Some(saved) => from_json(&saved)?,
+        None => {
+            // Older databases have no access history. Keep a deterministic,
+            // bounded recent subset rather than retaining every old query.
+            let mut scopes = connection.prepare(
+                "SELECT m.scope FROM catalog_members m LEFT JOIN comics c
+                   ON c.account_key=m.account_key AND c.comic_id=m.comic_id
+                 WHERE m.account_key=?1 AND (m.scope GLOB 'search:*' OR m.scope GLOB 'store:*')
+                 GROUP BY m.scope ORDER BY MAX(c.updated_at) DESC,m.scope LIMIT ?2")?;
+            let mut comics = connection.prepare(
+                "SELECT comic_id FROM comics WHERE account_key=?1
+                 ORDER BY updated_at DESC,comic_id LIMIT ?2")?;
+            let mut details = connection.prepare(
+                "SELECT d.comic_id FROM comic_details d JOIN comics c
+                   ON c.account_key=d.account_key AND c.comic_id=d.comic_id
+                 WHERE d.account_key=?1 ORDER BY c.updated_at DESC,d.comic_id LIMIT ?2")?;
+            let scopes = scopes.query_map(params![account,CATALOG_SCOPE_CACHE_LIMIT as i64], |row| row.get(0))?
+                .collect::<rusqlite::Result<Vec<String>>>()?;
+            let comics = comics.query_map(params![account,CATALOG_COMIC_CACHE_LIMIT as i64], |row| row.get(0))?
+                .collect::<rusqlite::Result<Vec<String>>>()?;
+            let details = details.query_map(params![account,CATALOG_DETAIL_CACHE_LIMIT as i64], |row| row.get(0))?
+                .collect::<rusqlite::Result<Vec<String>>>()?;
+            CatalogCacheRecency { scopes, comics, details }
+        },
+    };
+    recent.scopes.retain(|scope| is_transient_catalog_scope(scope));
+    touch_catalog_names(&mut recent.scopes, std::iter::empty(), CATALOG_SCOPE_CACHE_LIMIT);
+    touch_catalog_names(&mut recent.comics, std::iter::empty(), CATALOG_COMIC_CACHE_LIMIT);
+    touch_catalog_names(&mut recent.details, std::iter::empty(), CATALOG_DETAIL_CACHE_LIMIT);
+    Ok(recent)
+}
+
+fn save_catalog_cache_recency(connection: &Connection, account: &str, recent: &CatalogCacheRecency) -> Result<()> {
+    connection.execute(
+        "INSERT INTO preferences(account_key,key,payload) VALUES(?1,?2,?3)
+         ON CONFLICT(account_key,key) DO UPDATE SET payload=excluded.payload
+           WHERE preferences.payload<>excluded.payload",
+        params![account,CATALOG_CACHE_RECENCY_KEY,to_json(recent)?])?;
+    Ok(())
+}
+
+fn remember_catalog_access(
+    connection: &Connection, account: &str, scope: Option<&str>, comics: &[Comic], detail: Option<&str>,
+) -> Result<()> {
+    let mut recent = catalog_cache_recency(connection, account)?;
+    if let Some(scope) = scope.filter(|scope| is_transient_catalog_scope(scope)) {
+        touch_catalog_names(&mut recent.scopes, [scope], CATALOG_SCOPE_CACHE_LIMIT);
+    }
+    touch_catalog_names(&mut recent.comics, comics.iter().map(|comic| comic.id.as_str()), CATALOG_COMIC_CACHE_LIMIT);
+    if let Some(detail) = detail {
+        touch_catalog_names(&mut recent.details, [detail], CATALOG_DETAIL_CACHE_LIMIT);
+    }
+    save_catalog_cache_recency(connection, account, &recent)
+}
+
+fn catalog_string_set(connection: &Connection, sql: &str, account: &str) -> Result<HashSet<String>> {
+    let mut statement = connection.prepare(sql)?;
+    let rows = statement.query_map([account], |row| row.get::<_, String>(0))?;
+    Ok(rows.collect::<rusqlite::Result<HashSet<_>>>()?)
+}
+
+fn catalog_durable_comic_ids(connection: &Connection, account: &str) -> Result<HashSet<String>> {
+    catalog_string_set(connection,
+        "SELECT comic_id FROM comics WHERE account_key=?1
+           AND (json_extract(payload,'$.favorite')=1 OR last_read_at>0)
+         UNION SELECT comic_id FROM catalog_members WHERE account_key=?1
+           AND scope NOT GLOB 'search:*' AND scope NOT GLOB 'store:*'
+         UNION SELECT comic_id FROM reading_anchors WHERE account_key=?1
+         UNION SELECT json_extract(payload,'$.comic_id') FROM downloads WHERE account_key=?1
+           AND json_type(payload,'$.comic_id')='text'
+         UNION SELECT d.comic_id FROM comic_details d,json_each(d.payload,'$.episodes') e
+           WHERE d.account_key=?1 AND (
+             EXISTS(SELECT 1 FROM image_indices i WHERE i.account_key=?1 AND i.episode_id=json_extract(e.value,'$.id'))
+             OR EXISTS(SELECT 1 FROM page_receipts p WHERE p.account_key=?1 AND p.episode_id=json_extract(e.value,'$.id'))
+             OR EXISTS(SELECT 1 FROM page_identity_history h WHERE h.account_key=?1 AND h.episode_id=json_extract(e.value,'$.id'))
+             OR EXISTS(SELECT 1 FROM page_commit_journal j WHERE j.account_key=?1 AND json_extract(j.payload,'$.episode_id')=json_extract(e.value,'$.id')))
+         UNION SELECT json_extract(j.value,'$.quote.comic_id') FROM preferences p,json_each(p.payload) j
+           WHERE p.account_key=?1 AND p.key='purchase_journal'
+             AND json_type(j.value,'$.quote.comic_id')='text'
+         UNION SELECT json_extract(j.value,'$.comic_id') FROM preferences p,json_each(p.payload) j
+           WHERE p.account_key=?1 AND p.key='queued_download_intents'
+             AND json_type(j.value,'$.comic_id')='text'
+         UNION SELECT substr(key,20) FROM preferences WHERE account_key=?1
+           AND substr(key,1,19)='reader_preferences_' AND length(key)>19",
+        account)
+}
+
 fn migrate_resource_schema(transaction: &Transaction<'_>) -> Result<()> {
     transaction.execute_batch(
         "CREATE INDEX IF NOT EXISTS page_objects_by_name ON page_receipts(account_key,json_extract(payload,'$.file_name'));
@@ -1419,3 +1632,7 @@ mod resource_tests;
 #[cfg(test)]
 #[path = "store/sleep_checkpoint_tests.rs"]
 mod sleep_checkpoint_tests;
+
+#[cfg(test)]
+#[path = "store/catalog_cache_tests.rs"]
+mod catalog_cache_tests;

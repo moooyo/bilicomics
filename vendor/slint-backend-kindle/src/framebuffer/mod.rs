@@ -5,6 +5,8 @@ pub(crate) use probe::probe_output_inversion;
 #[cfg(test)]
 mod output_tests;
 #[cfg(test)]
+mod refresh_submission_tests;
+#[cfg(test)]
 mod test_support;
 
 use crate::refresh::{RefreshWaveform, ResolvedRefresh};
@@ -24,7 +26,7 @@ use ffi::{
 /// Which MXCFB update ioctl this kernel accepts, varies with the Kindle model
 ///
 //We probe on first refresh and remember the winner instead of retrying the failing ioctl every frame.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum UpdateVariant {
     /// `MXCFB_SEND_UPDATE` — 72-byte struct, older devices.
     Legacy,
@@ -43,6 +45,47 @@ enum UpdateVariant {
 impl UpdateVariant {
     /// Probed oldest ABI first.
     const PROBE_ORDER: [UpdateVariant; 4] = [Self::Legacy, Self::Rex, Self::Zelda, Self::Mtk];
+}
+
+/// Diagnostic result of submitting an update, not proof of panel completion.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) struct RefreshSubmission {
+    pub ioctl_attempts: u32,
+    pub accepted: bool,
+    pub last_errno: Option<i32>,
+}
+
+fn refresh_submission_with(
+    cached: Option<UpdateVariant>,
+    width: u32,
+    height: u32,
+    mut submit: impl FnMut(UpdateVariant) -> Result<(), Option<i32>>,
+) -> (Option<UpdateVariant>, RefreshSubmission) {
+    if width == 0 || height == 0 || matches!(cached, Some(UpdateVariant::Unsupported)) {
+        return (cached, RefreshSubmission::default());
+    }
+    if let Some(variant) = cached {
+        let result = submit(variant);
+        return (cached, RefreshSubmission {
+            ioctl_attempts: 1,
+            accepted: result.is_ok(),
+            last_errno: result.err().flatten(),
+        });
+    }
+
+    let mut submission = RefreshSubmission::default();
+    for variant in UpdateVariant::PROBE_ORDER {
+        submission.ioctl_attempts += 1;
+        match submit(variant) {
+            Ok(()) => {
+                submission.accepted = true;
+                submission.last_errno = None;
+                return (Some(variant), submission);
+            }
+            Err(errno) => submission.last_errno = errno,
+        }
+    }
+    (Some(UpdateVariant::Unsupported), submission)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -192,6 +235,11 @@ impl Framebuffer {
         self.output_inverted = enabled;
     }
 
+    /// Read the current logical-gray-to-memory compensation without native I/O.
+    pub(crate) fn output_inverted(&self) -> bool {
+        self.output_inverted
+    }
+
     fn output_mask(&self) -> u8 {
         if self.output_inverted { 0xff } else { 0x00 }
     }
@@ -249,25 +297,25 @@ impl Framebuffer {
     /// On the first call we probe which update ioctl the kernel accepts and
     /// cache it, so later frames issue exactly one ioctl instead of retrying a
     /// known-failing one every refresh.
-    fn send_update(&self, region: UpdateRect, waveform: u32, mode: u32) {
-        match self.update_variant.get() {
-            Some(variant) => {
-                self.send_update_variant(variant, region, waveform, mode);
+    fn send_update(&self, region: UpdateRect, waveform: u32, mode: u32) -> RefreshSubmission {
+        let cached = self.update_variant.get();
+        let (selected, submission) = refresh_submission_with(cached, region.width, region.height, |variant| {
+            if self.send_update_variant(variant, region, waveform, mode) {
+                Ok(())
+            } else {
+                Err(std::io::Error::last_os_error().raw_os_error())
             }
-            None => {
-                let accepted = UpdateVariant::PROBE_ORDER
-                    .into_iter()
-                    .find(|&variant| self.send_update_variant(variant, region, waveform, mode));
-                if accepted.is_none() {
-                    log::error!(
-                        "EPDC refresh failed: no known MXCFB_SEND_UPDATE variant \
-                         was accepted; the screen will not update"
-                    );
-                }
-                self.update_variant
-                    .set(Some(accepted.unwrap_or(UpdateVariant::Unsupported)));
+        });
+        if cached.is_none() && submission.ioctl_attempts != 0 {
+            if !submission.accepted {
+                log::error!(
+                    "EPDC refresh failed: no known MXCFB_SEND_UPDATE variant \
+                     was accepted; the screen will not update"
+                );
             }
+            self.update_variant.set(selected);
         }
+        submission
     }
 
     /// Issue one specific update ioctl variant. Returns whether it succeeded.
@@ -371,13 +419,12 @@ impl Framebuffer {
     }
 
     /// Apply a request resolved against the current framebuffer bounds.
-    pub(crate) fn refresh_planned(&self, refresh: ResolvedRefresh) {
+    pub(crate) fn refresh_planned(&self, refresh: ResolvedRefresh) -> RefreshSubmission {
         if refresh.waveform == RefreshWaveform::Auto && !refresh.flashing {
-            self.refresh_region(
+            return self.refresh_region(
                 slint::PhysicalPosition::new(refresh.region.x, refresh.region.y),
                 slint::PhysicalSize::new(refresh.region.width, refresh.region.height),
             );
-            return;
         }
         let waveform = waveform_for_driver(refresh.waveform, self.update_variant.get());
         self.send_update(
@@ -393,11 +440,11 @@ impl Framebuffer {
             } else {
                 UPDATE_MODE_PARTIAL
             },
-        );
+        )
     }
 
     /// Full-screen GC16 refresh
-    pub(crate) fn refresh_full(&self) {
+    pub(crate) fn refresh_full(&self) -> RefreshSubmission {
         self.send_update(
             UpdateRect {
                 top: 0,
@@ -407,7 +454,7 @@ impl Framebuffer {
             },
             WAVEFORM_MODE_GC16,
             UPDATE_MODE_FULL,
-        );
+        )
     }
 
     /// Block until the EPDC has applied the last update (marker 1).
@@ -433,9 +480,9 @@ impl Framebuffer {
         &self,
         origin: slint::PhysicalPosition,
         size: slint::PhysicalSize,
-    ) {
+    ) -> RefreshSubmission {
         if size.width == 0 || size.height == 0 {
-            return;
+            return RefreshSubmission::default();
         }
         self.send_update(
             UpdateRect {
@@ -446,7 +493,7 @@ impl Framebuffer {
             },
             WAVEFORM_MODE_AUTO,
             UPDATE_MODE_PARTIAL,
-        );
+        )
     }
 }
 

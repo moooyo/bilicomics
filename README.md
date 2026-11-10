@@ -56,6 +56,12 @@ Normal execution uses the per-user `bilicomics` data directory; `--data-dir` ove
 | [Download completeness](docs/DOWNLOAD_COMPLETENESS.md) | Full selected-index acquisition, decoded image proofs, safe recovery, permission refresh, and verified scope |
 | [Resource and performance review](docs/RESOURCE_AND_PERFORMANCE_REVIEW.md) | Cancellation lifetimes, idle cover work, reader/cache retention, optimization priorities, and bounded remote observations |
 | [Resource and performance implementation](docs/RESOURCE_AND_PERFORMANCE_IMPLEMENTATION.md) | Version 0.1.6 implementation mapping, resource budgets, durability boundaries, controlled verification results, and acceptance limits |
+| [Startup and reader performance](docs/PERFORMANCE_IMPLEMENTATION_20261109.md) | Version 0.1.19 startup scheduling, pixel-equivalent reader resizing, page retention, durable progress, resource bounds, and scoped software/physical results |
+| [Startup and page-turn cost breakdown](docs/PERFORMANCE_COST_REVIEW_20261110.md) | R45 timing boundaries, root-cause and feasibility review, remaining reader/composition work, and a scoped traversal experiment |
+| [Performance diagnostics](docs/PERFORMANCE_DIAGNOSTICS.md) | Opt-in 0.1.20 stage tracing, operation correlation, clock boundaries and verification expectations |
+| [Measured ARM resize cause](docs/PERFORMANCE_ROOT_CAUSE_20261110.md) | R48 CPU attribution, R49 component comparisons, bounded 0.1.21 implementation, and R51 App acceptance |
+| [KOReader technique adoption](docs/KOREADER_OPTIMIZATION_AUDIT_20261110.md) | Implemented, partial and unimplemented cache, grayscale, streaming and refresh mechanisms with upstream references |
+| [Streaming resize and prepared next page](docs/PERFORMANCE_STREAMING_PREFETCH_20261110.md) | Version 0.1.22 bounded row storage, verified next-page hits, source checks, resource lifetimes, and selected software/Scribe observations |
 | [Native presentation compatibility](docs/NATIVE_PRESENTATION_COMPATIBILITY.md) | Version 0.1.7 read-only display-mode observation, pixel compensation, ordered power events, and scoped verification |
 | [Wake continuity and settings](docs/WAKE_CONTINUITY_AND_SETTINGS.md) | Verified no-Home wake on the scoped Scribe, the SGID compatibility correction, and removal of the user inversion setting in 0.1.9 |
 | [Wake orientation](docs/WAKE_ORIENTATION.md) | Version 0.1.15 independent holding/scanout mapping, R26/R27/R29 evidence, scoped Scribe wake/controls/native return, and completed device handoff |

@@ -1,7 +1,7 @@
 //! Background-owned startup data and bounded UI-thread attachment stages.
 
 use super::*;
-use crate::reader::{ReaderCore, ReaderSettings};
+use crate::{performance::{self, Operation, Span}, reader::{ReaderCore, ReaderSettings}};
 use std::io::{Cursor, Read};
 
 const MAX_STARTUP_COVER_BYTES: u64 = 8 * 1024 * 1024;
@@ -43,45 +43,117 @@ pub(super) struct PreparedCover {
     height: u32,
 }
 
+fn startup_span(stage: &'static str) -> Option<Span> {
+    if !performance::enabled() { return None; }
+    performance::startup(stage, &serde_json::json!({ "phase": "begin" }));
+    Some(Span::start())
+}
+
+fn finish_startup_span(stage: &'static str, span: Option<Span>, outcome: &'static str) {
+    if let Some(span) = span {
+        let sample = span.finish();
+        performance::startup(stage, &serde_json::json!({
+            "phase": "end", "outcome": outcome,
+            "wall_us": sample.wall_us, "cpu_us": sample.cpu_us,
+        }));
+    }
+}
+
+fn startup_step<T>(stage: &'static str, work: impl FnOnce() -> Result<T>) -> Result<T> {
+    let span = startup_span(stage);
+    let result = work();
+    finish_startup_span(stage, span, if result.is_ok() { "success" } else { "failed" });
+    result
+}
+
 impl App {
     /// Call on a worker after the platform backend has been installed.
     pub fn prepare(options: AppOptions) -> Result<PreparedApp> {
-        let data_dir = if options.demo { options.data_dir.join("demo") } else { options.data_dir.clone() };
-        std::fs::create_dir_all(&data_dir).context("Create the application data directory")?;
-        let session_file = SessionFile::new(&data_dir.join("account"));
-        let session = if options.demo { None } else { session_file.load()? };
-        let client = if options.demo { BiliClient::offline(&data_dir)? }
-            else { BiliClient::new(session.clone(), &data_dir)?.with_session_file(session_file) };
-        let mut store = Store::open(data_dir.join("state.sqlite3"))?;
-        let account = if options.demo { "design-demo".to_owned() } else {
-            session.as_ref().and_then(AuthSession::account_key).map(str::to_owned)
-                .or(store.preference::<String>("device", "last_account")?)
-                .unwrap_or_else(|| "guest".to_owned())
-        };
-        let mut preferences: Preferences = store.preference(&account, "preferences")?.unwrap_or_default();
-        if options.demo { preferences.onboarded = true; preferences.reader_guidance_seen = true; }
-        let demo = if options.demo { Some(Arc::new(demo::load(&data_dir)?)) } else { None };
-        if let Some(demo) = &demo {
-            store.save_comics(&account, &demo.comics)?;
-            for detail in &demo.details { store.save_detail(&account, detail)?; }
-            for index in &demo.indices { store.save_index(&account, index)?; }
-            seed_demo_resume(&store, &account, demo)?;
+        if performance::enabled() {
+            performance::startup("state-prepare-context", &serde_json::json!({
+                "demo": options.demo, "offline": options.offline,
+            }));
         }
-        let mut catalog = CatalogState::prepare(&store, &account, demo.as_deref())?;
-        let account_ui = PreparedAccount::load(&store, &account, demo.as_deref())?;
-        // The first candidate lookup builds the bundled dictionary. Warm it on
-        // the worker rather than during the first catalog model render.
-        let _ = crate::input::PinyinInput::default().candidates();
+        let data_dir = if options.demo { options.data_dir.join("demo") } else { options.data_dir.clone() };
+        startup_step("state-directory", || {
+            std::fs::create_dir_all(&data_dir).context("Create the application data directory")
+        })?;
+        let (session, client) = startup_step("state-client", || {
+            let session_file = SessionFile::new(&data_dir.join("account"));
+            let session = if options.demo { None } else { session_file.load()? };
+            let client = if options.demo { BiliClient::offline(&data_dir)? }
+                else { BiliClient::new(session.clone(), &data_dir)?.with_session_file(session_file) };
+            Ok((session, client))
+        })?;
+        let mut store = startup_step("state-store", || Store::open(data_dir.join("state.sqlite3")))?;
+        let (account, mut preferences) = startup_step("state-preferences", || {
+            let account = if options.demo { "design-demo".to_owned() } else {
+                session.as_ref().and_then(AuthSession::account_key).map(str::to_owned)
+                    .or(store.preference::<String>("device", "last_account")?)
+                    .unwrap_or_else(|| "guest".to_owned())
+            };
+            let preferences: Preferences = store.preference(&account, "preferences")?.unwrap_or_default();
+            Ok((account, preferences))
+        })?;
+        if options.demo { preferences.onboarded = true; preferences.reader_guidance_seen = true; }
+        let demo = if options.demo {
+            Some(Arc::new(startup_step("state-demo-load", || demo::load(&data_dir))?))
+        } else { None };
+        if let Some(demo) = &demo {
+            startup_step("state-demo-seed", || {
+                store.save_comics(&account, &demo.comics)?;
+                for detail in &demo.details { store.save_detail(&account, detail)?; }
+                for index in &demo.indices { store.save_index(&account, index)?; }
+                seed_demo_resume(&store, &account, demo)
+            })?;
+        }
+        let cache_maintenance_pending = if demo.is_none() {
+            let span = startup_span("state-cache-maintenance");
+            let pending = match store.try_prune_catalog_cache(&account, &[]) {
+                Ok(Some(_)) => false,
+                Ok(None) => true,
+                Err(error) => {
+                    eprintln!("bilicomics: startup catalog cache maintenance deferred: {error:#}");
+                    true
+                }
+            };
+            finish_startup_span("state-cache-maintenance", span, if pending { "partial" } else { "success" });
+            pending
+        } else { false };
+        let mut catalog = startup_step("state-catalog", || CatalogState::prepare(&store, &account, demo.as_deref()))?;
+        if cache_maintenance_pending { catalog.defer_cache_maintenance(); }
+        let account_ui = startup_step("state-account", || PreparedAccount::load(&store, &account, demo.as_deref()))?;
         // Warm the small deferred-intent preference before UI state is built.
-        let _: Option<serde_json::Value> = store.preference(&account, "queued_download_intents")?;
-        let resume_comic = store.latest_anchor(&account)?.map(|(comic, _)| comic);
+        startup_step("state-intents", || {
+            let _: Option<serde_json::Value> = store.preference(&account, "queued_download_intents")?;
+            Ok(())
+        })?;
+        let resume_comic = startup_step("state-resume-anchor", || {
+            Ok(store.latest_anchor(&account)?.map(|(comic, _)| comic))
+        })?;
         let selected = match options.initial_screen.as_str() {
             "reader" | "spread" | "detail" | "purchase" => catalog.comics.first().map(|comic| comic.id.clone()),
             "" if preferences.launch == "resume" => resume_comic.clone(),
             _ => None,
         };
-        if let Some(selected) = selected { catalog.detail = store.load_detail(&account, &selected)?; }
-        let (covers, cover_failed) = prepare_covers(&data_dir, &catalog.comics, demo.as_deref());
+        if let Some(selected) = selected {
+            catalog.detail = startup_step("state-resume-detail", || store.load_detail(&account, &selected))?;
+        }
+        let route = match options.initial_screen.as_str() {
+            "" if !preferences.onboarded => "welcome",
+            "" if preferences.launch == "resume" && resume_comic.is_some() => "reader",
+            "" | "library" => "shelf", "spread" => "reader", "settings" => "account", other => other,
+        };
+        if route == "search" {
+            startup_step("state-input-dictionary", || {
+                let _ = crate::input::PinyinInput::default().candidates();
+                Ok(())
+            })?;
+        }
+        let visible_covers = catalog.startup_cover_comics(route, options.profile.is_scribe(), resume_comic.as_deref(), demo.is_some());
+        let cover_span = startup_span("state-covers");
+        let (covers, cover_failed) = prepare_covers(&data_dir, &visible_covers, demo.as_deref());
+        finish_startup_span("state-covers", cover_span, if cover_failed.is_empty() { "success" } else { "partial" });
         Ok(PreparedApp { options, data_dir, store, client, account,
             preferences, demo, catalog, account_ui, covers, cover_failed, resume_comic })
     }
@@ -167,64 +239,118 @@ impl App {
     pub fn advance_startup(&mut self) -> Result<bool> {
         if self.is_suspended() { return Ok(false); }
         let Some(stage) = self.startup_stage else { return Ok(true); };
-        match stage {
-            AttachStage::Covers => {
-                let mut copied = 0;
-                while copied < COVER_ATTACH_BUDGET {
-                    let Some(cover) = self.startup_covers.pop_front() else { break; };
-                    copied += cover.rgba.len();
-                    self.remember_cover(cover.comic_id, cover.path, cover.rgba, cover.width, cover.height);
+        let stage_name = match stage {
+            AttachStage::Covers => "attach-covers",
+            AttachStage::Catalog => "attach-catalog",
+            AttachStage::Account => "attach-account",
+            AttachStage::Downloads => "attach-downloads",
+            AttachStage::Route => "attach-route",
+            AttachStage::Views => "attach-views",
+        };
+        let span = startup_span(stage_name);
+        let result = (|| {
+            match stage {
+                AttachStage::Covers => {
+                    let mut copied = 0;
+                    while copied < COVER_ATTACH_BUDGET {
+                        let Some(cover) = self.startup_covers.pop_front() else { break; };
+                        copied += cover.rgba.len();
+                        self.remember_cover(cover.comic_id, cover.path, cover.rgba, cover.width, cover.height);
+                    }
+                    if self.startup_covers.is_empty() { self.startup_stage = Some(AttachStage::Catalog); }
                 }
-                if self.startup_covers.is_empty() { self.startup_stage = Some(AttachStage::Catalog); }
-            }
-            AttachStage::Catalog => {
-                if self.demo.is_some() {
-                    self.initialize_demo_anchor()?;
-                    self.load_store();
+                AttachStage::Catalog => {
+                    if self.demo.is_some() {
+                        self.initialize_demo_anchor()?;
+                        self.load_store();
+                    }
+                    self.startup_stage = Some(AttachStage::Account);
                 }
-                self.startup_stage = Some(AttachStage::Account);
+                AttachStage::Account => {
+                    let prepared = self.startup_account.take().context("Account startup data was already consumed")?;
+                    self.initialize_account_prepared(prepared)?;
+                    self.startup_stage = Some(AttachStage::Downloads);
+                }
+                AttachStage::Downloads => {
+                    self.initialize_downloads()?;
+                    self.prepare_download_manager();
+                    self.startup_stage = Some(AttachStage::Route);
+                }
+                AttachStage::Route => {
+                    self.initialize_start_route()?;
+                    self.startup_stage = Some(AttachStage::Views);
+                }
+                AttachStage::Views => {
+                    self.schedule_cover_maintenance(true);
+                    self.refresh_views()?;
+                    self.startup_stage = None;
+                    if self.route != "search" {
+                        self.background_after("catalog:input-dictionary", Duration::from_millis(250), || {
+                            let _ = crate::input::PinyinInput::default().candidates();
+                            Ok(())
+                        }, |_, _| {});
+                    }
+                    return Ok(true);
+                }
             }
-            AttachStage::Account => {
-                let prepared = self.startup_account.take().context("Account startup data was already consumed")?;
-                self.initialize_account_prepared(prepared)?;
-                self.startup_stage = Some(AttachStage::Downloads);
-            }
-            AttachStage::Downloads => {
-                self.initialize_downloads()?;
-                self.prepare_download_manager();
-                self.startup_stage = Some(AttachStage::Route);
-            }
-            AttachStage::Route => {
-                self.initialize_start_route()?;
-                self.startup_stage = Some(AttachStage::Views);
-            }
-            AttachStage::Views => {
-                self.schedule_cover_maintenance(true);
-                self.refresh_views()?;
-                self.startup_stage = None;
-                return Ok(true);
-            }
-        }
-        Ok(false)
+            Ok(false)
+        })();
+        let outcome = match &result {
+            Err(_) => "failed",
+            Ok(_) if matches!(stage, AttachStage::Covers)
+                && matches!(self.startup_stage, Some(AttachStage::Covers)) => "partial",
+            Ok(_) => "success",
+        };
+        finish_startup_span(stage_name, span, outcome);
+        result
     }
 
     pub(super) fn prepare_download_manager(&mut self) {
         if self.demo.is_some() { return; }
+        let trace = Operation::new("startup-manager");
         let data_dir = self.data_dir.clone();
         let account = self.account.clone();
         let epoch = self.epoch;
         let handle = self.handle.clone();
+        if let Some(trace) = trace {
+            trace.record("manager-request", &serde_json::json!({ "epoch": epoch }));
+        }
         let source = match self.download_source() {
             Ok(source) => source,
-            Err(error) => { self.source_failure(&error); return; }
-        };
-        self.background("startup-download-manager", move || {
-            DownloadManager::new(&data_dir, account, epoch, Arc::new(source), handle)
-        }, |app, result| match result {
-            Ok(manager) => { app.downloads = Some(manager); app.recover_downloads(); }
             Err(error) => {
-                eprintln!("bilicomics: download manager preparation failed: {error:#}");
-                app.toast("common_storage_error");
+                if let Some(trace) = trace { trace.mark("manager-source-unavailable"); }
+                self.source_failure(&error);
+                return;
+            }
+        };
+        if let Some(trace) = trace { trace.mark("manager-source-ready"); }
+        self.background_traced("startup-download-manager", trace, move || {
+            let span = trace.map(|trace| { trace.mark("manager-construct-begin"); Span::start() });
+            let result = DownloadManager::new(&data_dir, account, epoch, Arc::new(source), handle);
+            if let (Some(trace), Some(span)) = (trace, span) {
+                let sample = span.finish();
+                trace.record("manager-construct-end", &serde_json::json!({
+                    "epoch": epoch, "outcome": if result.is_ok() { "success" } else { "failed" },
+                    "wall_us": sample.wall_us, "cpu_us": sample.cpu_us,
+                }));
+            }
+            result
+        }, move |app, result| {
+            if let Some(trace) = trace {
+                trace.record("manager-result-apply", &serde_json::json!({
+                    "epoch": app.epoch, "outcome": if result.is_ok() { "success" } else { "failed" },
+                }));
+            }
+            match result {
+                Ok(manager) => {
+                    app.downloads = Some(manager);
+                    if let Some(trace) = trace { trace.mark("manager-installed"); }
+                    app.recover_downloads_traced(trace);
+                }
+                Err(error) => {
+                    eprintln!("bilicomics: download manager preparation failed: {error:#}");
+                    app.toast("common_storage_error");
+                }
             }
         });
     }

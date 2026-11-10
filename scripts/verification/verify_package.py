@@ -44,6 +44,10 @@ ALLOWED_FILES = {
     "notices/jpeg/UPSTREAM.md",
     "notices/jpeg/PATCHES.md",
     "notices/jpeg/0001-strict-entropy-completeness.patch",
+    "notices/image-triangle/LICENSE-MIT",
+    "notices/image-triangle/LICENSE-APACHE",
+    "notices/image-triangle/README.md",
+    "notices/image-triangle/SHA256SUMS",
 }
 EXECUTABLE_FILES = {"bilicomics/app/bilicomics", "bilicomics/launch.sh"}
 FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
@@ -160,6 +164,13 @@ def check_package(args, report):
             require(archive.read("notices/jpeg/" + packaged) == (app_root / "vendor/zune-jpeg" / source).read_bytes(),
                     f"A retained JPEG decoder notice differs from the selected source: {packaged}")
         record(report, "jpeg_decoder_notice_provenance", retained_files=sorted(jpeg_notices))
+
+        triangle_notices = ("LICENSE-MIT", "LICENSE-APACHE", "README.md", "SHA256SUMS")
+        for name in triangle_notices:
+            require(archive.read("notices/image-triangle/" + name)
+                    == (app_root / "vendor/image-triangle-reference-0.25.10" / name).read_bytes(),
+                    f"A retained Triangle resize notice differs from the selected source: {name}")
+        record(report, "triangle_resize_notice_provenance", retained_files=list(triangle_notices))
 
     with binary.open("rb") as stream:
         header = stream.read(64)

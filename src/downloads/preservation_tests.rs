@@ -245,6 +245,11 @@ async fn assert_preserved_through_recovery(
         let error = resolver.local_page(&receipt.episode_id, &receipt.revision, &receipt.page_id)
             .expect_err("an unavailable image must not become an offline reading path");
         assert_unavailable(error, expected);
+        let cancelled = std::sync::atomic::AtomicBool::new(false);
+        let error = resolver.with_verified_page(&receipt.episode_id, &receipt.revision, &receipt.page_id,
+            &cancelled, |input| crate::reader::load_hashed_source(input, None, &cancelled))
+            .map(|_| ()).expect_err("single-read preparation must preserve unsupported originals");
+        assert_unavailable(error, expected);
         let store = Store::open(manager.database_path()).unwrap();
         let error = revalidate_receipt(&store, ACCOUNT, manager.pages_root(), &receipt)
             .expect_err("an unavailable image must not produce a verified receipt");

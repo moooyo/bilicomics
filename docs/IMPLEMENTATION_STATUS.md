@@ -2,6 +2,142 @@
 
 The user-supplied BiliComics Kindle design has been implemented as an independent Rust and Slint application. The original source provenance is recorded in [Design source](DESIGN_SOURCE.md); the initial handoff remains historical context.
 
+Automatic brightness is outside the requirements and acceptance scope following
+the user's cross-project instruction on 2026-11-09. Manual brightness and warmth
+controls remain in scope when supported by the device.
+
+## Streaming resize and next-page preparation: 0.1.22 selected software and physical observations
+
+The [streaming and prepared-page record](PERFORMANCE_STREAMING_PREFETCH_20261110.md)
+documents equivalent one-row Triangle storage and one 32 MiB bounded prepared
+next-page slot. Prediction runs only as an idle opportunity, yields to ordinary
+compute admission, and never advances the visible image or reading position.
+Cache consumption still verifies current source bytes and receipt/object proof.
+The existing preload setting, cancellation, sleep, and close paths retire it.
+
+The frozen candidate passes 667 library tests, five binary tests, two explicit
+optimized host correctness cases, selected reader/guest/startup/lifecycle and
+trace-parity checks, the real offline prepared-App workload, and forty resource
+cycles. The prepared-App workload observes eight actual hits and ten complete
+before/after-retention pixel/anchor pairs. The production ARM development package
+passes all ten static/archive checks for 32 allowed entries. Its ZIP SHA-256 is
+`aa62f2dba0a62167df3fac0577169ca3f8179ab6f3f2419386e90d5fb0fbb163`;
+the executable SHA-256 is
+`729305ff489a5004731fbda9a8700e6a7a47fe70695c536e198b205083437747`.
+The [safe R52 record](../artifacts/verification/streaming-prefetch-20261110/r52-software-safe/README.md)
+keeps original failures and exact component reuse separate. R53's repeated
+templates limited rapid visual acceptance. R55 then uses twelve distinct guest
+pages with the same production ARM: the operator confirms normal 01-to-02
+navigation, rapid navigation to 04, and retained page 04 after short sleep/wake
+without a native shelf flash. Three live-identity/marker captures pass. The
+original post-wake checkpoint failure is retained, with a successful limited
+saved-trace replay after its chronology repair; no missing post-wake capture is
+fabricated. Native recovery and owned-process/transport checks pass. Release was
+delayed about four minutes after saved recovery, violating the immediate-release
+rule; a separately tested host finalizer now chains verified recovery and release
+before failed operations return. These are selected observations, not an
+all-automated-pass claim. Historical `0.1.21` hardware results below keep their
+original scope.
+
+## Resize and cancellation: 0.1.21 scoped physical verification completed
+
+The [ARM cause record](PERFORMANCE_ROOT_CAUSE_20261110.md) identifies resize CPU
+as the dominant remaining preparation cost. The `0.1.21` candidate uses a
+256 KiB bounded horizontal coefficient plan, row traversal and exact final-byte
+rounding. It retains a column fallback and the original filter, source validation,
+pixel values and reading geometry. Superseded rendering now cooperatively stops
+inside long CPU work while the real worker retains its permits until it returns.
+Same-version notifications and initial-loading sleep continuation remain intact.
+
+Frozen source manifest
+`b13d40459cb0117e81a5ef2836633ee28ef1a2105370a943dfb1c839341cdf4c`
+passes 606 library and five binary tests, the selected reader/guest/startup/
+lifecycle cases, 40 resource cycles, trace parity and existing-output isolation,
+and complete actual-App RGB/frame/durable-anchor comparison with `0.1.20`.
+The unchanged backend and physical harness retain their explicit component
+reuse proofs. The original unflagged performance diagnostic is not reported as
+executed.
+
+The production ARM package passed all ten checks for 32 entries. Its executable
+SHA-256 is `bda8dd027e7dd3d6a38d956ddffadde6561639e73cad61929538793f8ff5fbb8`;
+the ZIP SHA-256 is
+`49b1133413ee44a5878dec275c831368b113e886cad1d4affa88954308c542e3`.
+The interrupted first host release-test build remains interrupted. Its two
+unfinished correctness gates subsequently passed on the same frozen source,
+under a separately documented optimized non-LTO host profile and hard memory
+limits: the full f32 core scan and eight configurations / 24 complete frame and
+anchor comparisons exercise the actual uncancelled application-worker path.
+The already-built production thin-LTO ARM was not changed by that recovery.
+
+R51 verified the exact `0.1.21` application on the supervised Scribe2022 / 5.19.5
+pair. The operator confirmed normal artwork, noticeably faster ordinary turning
+and normal consecutive interaction, then normal native dark display and touch.
+The initial framebuffer memory exactly matches R48. App entry to first accepted
+image submission was 3.443 seconds versus R48's 4.715 seconds; direct gray-reuse
+turns with menus closed took 0.675-0.720 seconds versus 1.637-1.859 seconds.
+These are descriptive trace-on software submission intervals, not panel times
+or stable percentiles.
+
+The trace has eleven navigation requests and a final page of 25, rather than a
+clean three-touch sequence. One outdated preparation was cancelled in canvas
+after its resize had completed; it did not publish a partial image. Physical
+resize-phase cancellation or saved CPU from that cancellation is not claimed.
+All 17 owned process identities and transports were cleaned, native control
+restored, and the fresh lease exactly released and independently absent.
+See the [R51 evidence](../artifacts/verification/resize-optimization-20261110/physical-r51-safe/README.md).
+R49's approximately 79% component reduction remains separate from the App data.
+
+## Startup and reader performance: 0.1.19 scoped verification completed
+
+The [performance implementation](PERFORMANCE_IMPLEMENTATION_20261109.md) retains
+the displayed page while preparing a turn, shares receipt validation with source
+decoding, coalesces durable progress writes, and releases reader resources even
+when storage fails. Startup uses event-driven font/state preparation and bounded
+background inventory; transient metadata and production logs have retention
+limits. Sleep cancels undisplayed navigation without discarding initial loading
+or manual display preferences.
+
+Frozen R43 adds a pixel-equivalent single-channel Triangle resize and row-based
+canvas conversion. It passes 558 library and five binary tests, a separately
+selected release diagnostic, the selected guest/reader/startup/lifecycle cases,
+40 complete resource cycles, and ten static checks on its 32-entry ARM package.
+Exact component proofs permit scoped reuse of 147 backend, 104 launcher, and 36
+supervisor fixture results; they are not fresh whole-application runs. Actual
+App observations retained the old artwork on all ten turns and matched the
+reference RGB pixels. Forward and return medians were 460.8 ms and 202.0 ms on
+the verification host, excluding the Kindle launcher and physical panel.
+
+Earlier 0.1.18 physical runs separately passed startup, a real finger turn,
+same-process sleep continuation, and natural X exit under the original
+two-second native-read budget. R44's 0.1.19 first-image observation and missed
+manual window remain historical evidence. R45 then deployed the same frozen
+0.1.19 package after a fresh handoff. The operator confirmed complete correctly
+oriented artwork, an actual finger turn from page 18 to 19, and noticeably
+shorter waiting. Corresponding live reader states match R40 in full.
+
+R45 UI-ready to first-reader-ready was 1.953 seconds versus R40's 4.255 seconds;
+page-turn loading to next-reader-ready was 1.824 seconds versus 4.021 seconds.
+These are single-run application-clock observations, not panel/finger latency
+or stable speedup estimates. Native EPDC mode matched, but framebuffer rotation
+differed, so hardware pixel equivalence is not claimed. Both bounded startup
+helpers passed the original deadline. Planned supervised stop 143 is distinct
+from the earlier X-exit acceptance. The operator confirmed normal native dark
+picture and touch; technical recovery, all 17 recorded process identities,
+transports, exact lease release and independent absence passed. The device was
+explicitly returned to WeRead before host-only evidence analysis continued.
+
+The production two-second native-read deadline and fixed pre-sampling wait remain
+unchanged. Existing private-event evidence does not establish production
+subscription or native launcher handoff readiness, so shortening that wait is
+not yet justified. Source/ELF/ZIP identities, scoped measurements, original
+failures, resource limits, and physical return records remain in the report.
+
+The [follow-up cost review](PERFORMANCE_COST_REVIEW_20261110.md) partitions R45
+startup, identifies remaining raster and presentation work, and records a small
+host traversal experiment. Its larger-target improvement and smaller-target
+regression are both retained. These are research findings; no additional product
+optimization or physical acceptance is assigned to them.
+
 ## Live portrait orientation: 0.1.16 scoped verification completed
 
 The [live portrait update](LIVE_ORIENTATION.md) implements automatic Up/Down

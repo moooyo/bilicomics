@@ -14,7 +14,7 @@ use std::{
 use anyhow::{Context, Result, bail};
 use bilicomics::{
     app::{App, AppOptions, PreparedApp},
-    fonts::Fonts,
+    fonts::{Fonts, PreparedFont},
     native_presentation::{NativeOutputMode, NativePortraitDirection, NativeResumePresentation},
     platform::{self, DeviceProfile, Platform, RefreshReason},
     power_events::{PowerAck, PowerEvent, SignalBridge},
@@ -26,6 +26,9 @@ use bilicomics::{
 use clap::Parser;
 use serde::Deserialize;
 use slint::{ComponentHandle, Model};
+
+mod runtime_wakeup;
+use runtime_wakeup::{RuntimeWake, StartupContinuation, TraceMoment, trace_moment};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -73,9 +76,15 @@ struct Arguments {
     /// Record power transitions without credentials or network payloads.
     #[arg(long)]
     lifecycle_trace: Option<PathBuf>,
+    /// Record bounded diagnostic stage timing in a new private JSONL file.
+    #[arg(long, hide = true, conflicts_with_all = ["relay_power_events", "capture_native_display", "probe_native_portrait_framebuffer", "publish_native_portrait_orientation"])]
+    performance_trace: Option<PathBuf>,
     /// Relay bounded native power records without initializing application services.
     #[arg(long, hide = true)]
     relay_power_events: bool,
+    /// Capture one owned native-state transaction without starting application services.
+    #[arg(long, hide = true, conflicts_with_all = ["relay_power_events", "probe_native_portrait_framebuffer", "publish_native_portrait_orientation"])]
+    capture_native_display: bool,
     /// Observe read-only portrait metadata inside the owning launcher's bounded group.
     #[arg(long, hide = true, conflicts_with = "relay_power_events")]
     probe_native_portrait_framebuffer: bool,
@@ -217,13 +226,17 @@ impl DisplayPower {
 }
 
 enum StartupEvent {
-    Fonts(Fonts),
-    State(PreparedApp),
+    Font(PreparedFont, TraceMoment),
+    State(PreparedApp, TraceMoment),
+    Stage(&'static str, TraceMoment),
     Failed(String),
 }
 
 fn main() -> std::process::ExitCode {
-    match run(Arguments::parse()) {
+    runtime_wakeup::initialize_trace_clock();
+    let result = run(Arguments::parse());
+    bilicomics::performance::finish();
+    match result {
         Ok(()) => std::process::ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("bilicomics: {error:#}");
@@ -235,6 +248,15 @@ fn main() -> std::process::ExitCode {
 fn run(arguments: Arguments) -> Result<()> {
     if arguments.relay_power_events {
         return bilicomics::power_events::relay_native_power_events();
+    }
+    if arguments.capture_native_display {
+        if !arguments.kindle || arguments.demo {
+            bail!("Native display capture requires an approved native launcher");
+        }
+        let record = platform::capture_native_display_record(arguments.device)
+            .context("Capture the owning launcher's native display state")?;
+        println!("{record}");
+        return Ok(());
     }
     if let Some(value) = arguments.publish_native_portrait_orientation.as_deref() {
         if !arguments.kindle || arguments.demo {
@@ -254,6 +276,13 @@ fn run(arguments: Arguments) -> Result<()> {
         println!("{record}");
         return Ok(());
     }
+    if let Some(path) = arguments.performance_trace.as_deref() {
+        if arguments.lifecycle_trace.as_deref() == Some(path) {
+            eprintln!("bilicomics: performance diagnostics disabled because output files overlap");
+        } else if let Err(error) = bilicomics::performance::configure(path) {
+            eprintln!("bilicomics: performance diagnostics unavailable: {:?}", error.kind());
+        }
+    }
     if arguments.kindle && arguments.landscape {
         bail!(
             "Native landscape needs an approved rotation adapter; use the desktop landscape preview"
@@ -268,6 +297,8 @@ fn run(arguments: Arguments) -> Result<()> {
     {
         bail!("The controlled startup delay must not exceed ten seconds");
     }
+    record_startup_stage(arguments.lifecycle_trace.as_deref(), "process_enter",
+        runtime_wakeup::process_entry_moment(), None);
     let data_dir = arguments
         .data_dir
         .clone()
@@ -303,6 +334,12 @@ fn run(arguments: Arguments) -> Result<()> {
     } else {
         None
     };
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    if bilicomics::performance::enabled() {
+        if let Some(backend) = native_backend.as_ref() {
+            platform.set_kindle_performance_trace(backend.performance_trace_handle())?;
+        }
+    }
     #[cfg(all(feature = "kindle", target_os = "linux"))]
     let startup_native_mode = if let Some(backend) = native_backend.as_ref() {
         let lifecycle = backend.lifecycle_handle();
@@ -365,6 +402,7 @@ fn run(arguments: Arguments) -> Result<()> {
     ui.global::<ShellModel>().set_demo(arguments.demo);
     ui.global::<ShellModel>().set_booting(true);
     Fonts::register_bootstrap(&ui)?;
+    let wake = RuntimeWake::new(ui.as_weak());
     if !arguments.kindle {
         ui.window()
             .set_size(slint::LogicalSize::new(width as f32, height as f32));
@@ -387,6 +425,7 @@ fn run(arguments: Arguments) -> Result<()> {
     });
     let power_control = control.clone();
     let power_ui = ui.as_weak();
+    let power_wake = wake.clone();
     let trace_path = arguments.lifecycle_trace.clone();
     signals.start(move |event| {
         // Release the application borrow before native pointer cancellation can
@@ -434,6 +473,7 @@ fn run(arguments: Arguments) -> Result<()> {
                 let restored = application.as_ref().map(|app| app.borrow_mut().resume()).transpose();
                 capture_resume_stage(&mut resume_stages, trace_path.is_some(), "application_work_done");
                 ui.global::<ShellModel>().set_suspended(false);
+                power_wake.request();
                 if let Err(error) = &restored { eprintln!("bilicomics: resume preparation failed: {error:#}"); }
                 if restored.is_ok() { PowerAck::saved() } else { PowerAck::checkpoint_error() }
             }
@@ -515,9 +555,25 @@ fn run(arguments: Arguments) -> Result<()> {
     let automatic_error_exit = arguments.capture.is_some()
         || arguments.actions.is_some()
         || arguments.exit_after_ms.is_some();
+    let first_rendered = Arc::new(AtomicBool::new(false));
+    let render_gate = first_rendered.clone();
+    let render_wake = wake.clone();
+    let render_trace = arguments.lifecycle_trace.clone();
+    let rendering_notifier = ui.window().set_rendering_notifier(move |state, _| {
+        if matches!(state, slint::RenderingState::AfterRendering)
+            && !render_gate.swap(true, Ordering::AcqRel)
+        {
+            record_startup_stage(render_trace.as_deref(), "first_scene_rendered", trace_moment(), None);
+            render_wake.request();
+        }
+    }).is_ok();
+    // Software renderers may not expose a notifier. In that case the first
+    // maintenance turn retains the existing startup yield before consuming work.
     let timer = slint::Timer::default();
+    let tick_wake = wake.clone();
+    let startup_continue = StartupContinuation::new(wake.clone());
     let mut worker_started = false;
-    let mut fonts = None::<Fonts>;
+    let mut fonts = Fonts::default();
     let mut prepared = None::<PreparedApp>;
     let mut fonts_registered = false;
     let mut ready_at = None::<Instant>;
@@ -529,10 +585,14 @@ fn run(arguments: Arguments) -> Result<()> {
     let mut last_reader_trace = String::new();
     let mut last_reader_generation = None::<u64>;
     let mut last_ui_trace = String::new();
-    timer.start(
-        slint::TimerMode::Repeated,
-        Duration::from_millis(80),
-        move || {
+    let mut last_checkpoint_trace = None::<serde_json::Value>;
+    let mut performance_first_driver = true;
+    let mut performance_gate = None::<&'static str>;
+    let driver = Rc::new(RefCell::new(move || {
+            if performance_first_driver {
+                performance_first_driver = false;
+                bilicomics::performance::startup("driver_first_entry", &());
+            }
             let Some(ui) = tick_ui.upgrade() else {
                 return;
             };
@@ -583,49 +643,42 @@ fn run(arguments: Arguments) -> Result<()> {
                     }
                 }
                 if !worker_started {
+                    if rendering_notifier && !first_rendered.load(Ordering::Acquire) {
+                        record_performance_gate(&mut performance_gate, "first_scene");
+                        return;
+                    }
+                    record_performance_gate(&mut performance_gate, "prepare");
                     worker_started = true;
-                    let sender = startup_sender.clone();
-                    let report = startup_sender.clone();
-                    let options = options.clone();
-                    let cancel = tick_cancelled.clone();
-                    let worker = handle.spawn_blocking(move || -> Result<()> {
-                        let fonts = Fonts::load()?;
-                        sender
-                            .send(StartupEvent::Fonts(fonts))
-                            .map_err(|_| anyhow::anyhow!("Startup window closed"))?;
-                        if startup_delay > 0 {
-                            std::thread::sleep(Duration::from_millis(startup_delay));
-                        }
-                        if cancel.load(Ordering::Acquire) {
-                            return Ok(());
-                        }
-                        let prepared = App::prepare(options)?;
-                        sender
-                            .send(StartupEvent::State(prepared))
-                            .map_err(|_| anyhow::anyhow!("Startup window closed"))?;
-                        Ok(())
-                    });
-                    handle.spawn(async move {
-                        let failure = match worker.await {
-                            Ok(Ok(())) => None,
-                            Ok(Err(error)) => Some(format!("{error:#}")),
-                            Err(error) => Some(format!("Startup worker stopped: {error}")),
-                        };
-                        if let Some(error) = failure {
-                            let _ = report.send(StartupEvent::Failed(error));
-                        }
-                    });
-                    // Yield one actual frame before consuming even a very fast result.
+                    record_startup_stage(startup_trace.as_deref(), "workers_started", trace_moment(), None);
+                    start_startup_workers(&handle, options.clone(), startup_delay,
+                        tick_cancelled.clone(), startup_sender.clone(), tick_wake.clone(),
+                        startup_trace.is_some());
+                    // Yield this bootstrap turn before consuming even a very fast result.
                     return;
                 }
                 while let Ok(event) = startup_receiver.try_recv() {
                     match event {
-                        StartupEvent::Fonts(value) => {
-                            fonts = Some(value);
-                            shell.set_startup_phase("state".into());
+                        StartupEvent::Font(value, moment) => {
+                            if let Err(error) = fonts.accept(value) {
+                                tick_failures.borrow_mut().push(format!("Prepare fonts failed: {error:#}"));
+                                shell.set_startup_error(true);
+                                failed_at = Some(Instant::now());
+                                return;
+                            }
+                            record_startup_stage(startup_trace.as_deref(), "font_decoded", moment, None);
                         }
-                        StartupEvent::State(value) => prepared = Some(value),
+                        StartupEvent::State(value, moment) => {
+                            prepared = Some(value);
+                            record_startup_stage(startup_trace.as_deref(), "state_prepared", moment, None);
+                        }
+                        StartupEvent::Stage(stage, moment) => {
+                            record_startup_stage(startup_trace.as_deref(), stage, moment, None);
+                        }
                         StartupEvent::Failed(error) => {
+                            tick_cancelled.store(true, Ordering::Release);
+                            prepared = None;
+                            fonts = Fonts::default();
+                            for pending in startup_receiver.try_iter() { drop(pending); }
                             tick_failures
                                 .borrow_mut()
                                 .push(format!("Application preparation failed: {error}"));
@@ -636,18 +689,37 @@ fn run(arguments: Arguments) -> Result<()> {
                     }
                 }
                 if !fonts_registered {
-                    if let Some(fonts) = &mut fonts {
-                        match fonts.register_next() {
+                    record_performance_gate(&mut performance_gate, "fonts");
+                    if fonts.can_register_next() {
+                        let measured = bilicomics::performance::enabled().then(bilicomics::performance::Span::start);
+                        let registration = fonts.register_next();
+                        if let Some(measured) = measured {
+                            bilicomics::performance::startup("font_registration", &serde_json::json!({
+                                "elapsed": measured.finish(), "success": registration.is_ok(),
+                                "registered_faces": fonts.registered_count(),
+                            }));
+                        }
+                        match registration {
                             Ok(done) => {
                                 fonts_registered = done;
+                                record_startup_stage(startup_trace.as_deref(), "font_registered",
+                                    trace_moment(), Some(fonts.registered_count()));
                                 if done {
-                                    if let Err(error) = fonts.finish(&ui) {
+                                    let measured = bilicomics::performance::enabled().then(bilicomics::performance::Span::start);
+                                    let finished = fonts.finish(&ui);
+                                    if let Some(measured) = measured {
+                                        bilicomics::performance::startup("font_finish", &serde_json::json!({
+                                            "elapsed": measured.finish(), "success": finished.is_ok(),
+                                        }));
+                                    }
+                                    if let Err(error) = finished {
                                         tick_failures
                                             .borrow_mut()
                                             .push(format!("Register fonts failed: {error:#}"));
                                         shell.set_startup_error(true);
                                         failed_at = Some(Instant::now());
                                     }
+                                    shell.set_startup_phase("state".into());
                                 }
                             }
                             Err(error) => {
@@ -658,10 +730,16 @@ fn run(arguments: Arguments) -> Result<()> {
                                 failed_at = Some(Instant::now());
                             }
                         }
+                        if failed_at.is_none() {
+                            startup_continue.schedule();
+                        }
                         return;
                     }
+                    // The next decompressed face will notify this driver.
+                    return;
                 }
                 if tick_control.application.borrow().is_none() {
+                    record_performance_gate(&mut performance_gate, "state");
                     if fonts_registered {
                         if let Some(prepared) = prepared.take() {
                             shell.set_startup_phase("attach".into());
@@ -672,7 +750,11 @@ fn run(arguments: Arguments) -> Result<()> {
                                 handle.clone(),
                             ) {
                                 Ok(application) => {
+                                    let job_wake = tick_wake.clone();
+                                    application.borrow().set_runtime_wakeup(Arc::new(move || job_wake.request()));
                                     *tick_control.application.borrow_mut() = Some(application);
+                                    record_startup_stage(startup_trace.as_deref(), "application_attached", trace_moment(), None);
+                                    startup_continue.schedule();
                                 }
                                 Err(error) => {
                                     tick_failures
@@ -691,10 +773,13 @@ fn run(arguments: Arguments) -> Result<()> {
                     .borrow()
                     .clone()
                     .expect("Attached startup application");
+                record_performance_gate(&mut performance_gate, "attach");
                 let startup_result = { application.borrow_mut().advance_startup() };
                 match startup_result {
                     Ok(true) => {
                         shell.set_booting(false);
+                        record_performance_gate(&mut performance_gate, "ready");
+                        bilicomics::performance::startup("ui_ready", &());
                         ready_at = Some(Instant::now());
                         let _ = tick_platform.request_refresh(RefreshReason::EnterScreen);
                         if let Some(path) = startup_trace.as_deref() {
@@ -711,8 +796,13 @@ fn run(arguments: Arguments) -> Result<()> {
                                 );
                             }
                         }
+                        // Results may have queued while startup owned the UI.
+                        startup_continue.schedule();
                     }
-                    Ok(false) => {}
+                    Ok(false) => {
+                        record_startup_stage(startup_trace.as_deref(), "attach_stage_advanced", trace_moment(), None);
+                        startup_continue.schedule();
+                    }
                     Err(error) => {
                         tick_failures
                             .borrow_mut()
@@ -757,6 +847,17 @@ fn run(arguments: Arguments) -> Result<()> {
             }
             if let Some(path) = startup_trace.as_deref() {
                 let resources = application.resource_snapshot();
+                if let Some(checkpoint) = anonymous_checkpoint_state(&resources) {
+                    if last_checkpoint_trace.as_ref() != Some(&checkpoint) {
+                        if let Err(error) = append_trace_record(path, serde_json::json!({
+                            "process_id": std::process::id(), "event": "reader-checkpoint",
+                            "checkpoint": &checkpoint,
+                        })) {
+                            eprintln!("bilicomics: reader checkpoint trace could not be saved: {error:#}");
+                        }
+                        last_checkpoint_trace = Some(checkpoint);
+                    }
+                }
                 let generation = resources
                     .get("reader_generation")
                     .and_then(serde_json::Value::as_u64);
@@ -813,8 +914,21 @@ fn run(arguments: Arguments) -> Result<()> {
                 tick_control.quitting.set(true);
                 let _ = slint::quit_event_loop();
             }
-        },
-    );
+        }));
+    let notified_driver = driver.clone();
+    let retry_wake = wake.clone();
+    ui.on_runtime_wakeup(move || {
+        if let Ok(mut drive) = notified_driver.try_borrow_mut() {
+            (*drive)();
+        } else {
+            retry_wake.request();
+        }
+    });
+    timer.start(slint::TimerMode::Repeated, Duration::from_millis(80), move || {
+        if let Ok(mut drive) = driver.try_borrow_mut() {
+            (*drive)();
+        }
+    });
 
     ui.show()?;
     if !arguments.kindle {
@@ -822,8 +936,11 @@ fn run(arguments: Arguments) -> Result<()> {
             .set_size(slint::LogicalSize::new(width as f32, height as f32));
     }
     let _ = platform.request_refresh(RefreshReason::EnterScreen);
+    record_startup_stage(arguments.lifecycle_trace.as_deref(), "window_shown", trace_moment(), None);
     let loop_result = slint::run_event_loop();
+    wake.stop();
     timer.stop();
+    ui.on_runtime_wakeup(|| {});
     control.quitting.set(true);
     signals.retire();
     cancelled.store(true, Ordering::Release);
@@ -864,6 +981,159 @@ fn run(arguments: Arguments) -> Result<()> {
     if !failures.borrow().is_empty() {
         bail!("{}", failures.borrow().join("\n"));
     }
+    Ok(())
+}
+
+fn start_startup_workers(
+    handle: &tokio::runtime::Handle,
+    options: AppOptions,
+    delay_ms: u64,
+    cancelled: Arc<AtomicBool>,
+    sender: mpsc::Sender<StartupEvent>,
+    wake: RuntimeWake,
+    trace_enabled: bool,
+) {
+    let font_sender = sender.clone();
+    let font_wake = wake.clone();
+    let font_cancelled = cancelled.clone();
+    bilicomics::performance::startup("font_worker_queued", &());
+    let font_worker = handle.spawn_blocking(move || -> Result<()> {
+        bilicomics::performance::startup("font_worker_begin", &());
+        let measured = bilicomics::performance::enabled().then(bilicomics::performance::Span::start);
+        let result = (|| -> Result<()> {
+        if trace_enabled {
+            publish_startup(&font_sender, &font_wake,
+                StartupEvent::Stage("font_prepare_begin", trace_moment()))?;
+        }
+        Fonts::prepare_faces(&font_cancelled, |face| {
+            publish_startup(&font_sender, &font_wake, StartupEvent::Font(face, trace_moment()))
+        })?;
+        if trace_enabled && !font_cancelled.load(Ordering::Acquire) {
+            publish_startup(&font_sender, &font_wake,
+                StartupEvent::Stage("fonts_prepared", trace_moment()))?;
+        }
+        Ok(())
+        })();
+        if let Some(measured) = measured {
+            bilicomics::performance::startup("font_worker_end", &serde_json::json!({
+                "elapsed": measured.finish(), "success": result.is_ok(),
+                "cancelled": font_cancelled.load(Ordering::Acquire),
+            }));
+        }
+        result
+    });
+    observe_startup_worker(handle, font_worker, sender.clone(), wake.clone());
+
+    let state_sender = sender.clone();
+    let state_wake = wake.clone();
+    bilicomics::performance::startup("state_worker_queued", &());
+    let state_worker = handle.spawn_blocking(move || -> Result<()> {
+        bilicomics::performance::startup("state_worker_begin", &());
+        let measured = bilicomics::performance::enabled().then(bilicomics::performance::Span::start);
+        let result = (|| -> Result<()> {
+        if delay_ms > 0 {
+            std::thread::sleep(Duration::from_millis(delay_ms));
+        }
+        if cancelled.load(Ordering::Acquire) { return Ok(()); }
+        if trace_enabled {
+            publish_startup(&state_sender, &state_wake,
+                StartupEvent::Stage("state_prepare_begin", trace_moment()))?;
+        }
+        let prepared = App::prepare(options)?;
+        if cancelled.load(Ordering::Acquire) { return Ok(()); }
+        publish_startup(&state_sender, &state_wake, StartupEvent::State(prepared, trace_moment()))
+        })();
+        if let Some(measured) = measured {
+            bilicomics::performance::startup("state_worker_end", &serde_json::json!({
+                "elapsed": measured.finish(), "success": result.is_ok(),
+                "cancelled": cancelled.load(Ordering::Acquire),
+            }));
+        }
+        result
+    });
+    observe_startup_worker(handle, state_worker, sender, wake);
+}
+
+fn publish_startup(sender: &mpsc::Sender<StartupEvent>, wake: &RuntimeWake, event: StartupEvent) -> Result<()> {
+    sender.send(event).map_err(|_| anyhow::anyhow!("Startup window closed"))?;
+    wake.request();
+    Ok(())
+}
+
+fn observe_startup_worker(
+    handle: &tokio::runtime::Handle,
+    worker: tokio::task::JoinHandle<Result<()>>,
+    sender: mpsc::Sender<StartupEvent>,
+    wake: RuntimeWake,
+) {
+    handle.spawn(async move {
+        let failure = match worker.await {
+            Ok(Ok(())) => None,
+            Ok(Err(error)) => Some(format!("{error:#}")),
+            Err(error) => Some(format!("Startup worker stopped: {error}")),
+        };
+        if let Some(error) = failure {
+            let _ = publish_startup(&sender, &wake, StartupEvent::Failed(error));
+        }
+    });
+}
+
+fn record_performance_gate(current: &mut Option<&'static str>, gate: &'static str) {
+    if bilicomics::performance::enabled() && *current != Some(gate) {
+        *current = Some(gate);
+        bilicomics::performance::startup("startup_gate", &serde_json::json!({"gate": gate}));
+    }
+}
+
+fn record_startup_stage(path: Option<&Path>, stage: &'static str, moment: TraceMoment, font_count: Option<usize>) {
+    if bilicomics::performance::enabled() {
+        bilicomics::performance::startup(stage, &serde_json::json!({
+            "observed": moment, "registered_fonts": font_count,
+        }));
+    }
+    let Some(path) = path else { return; };
+    let record = serde_json::json!({
+        "process_id": std::process::id(), "event": "startup-stage", "stage": stage,
+        "monotonic_ns": moment.monotonic_ns, "elapsed_ms": moment.elapsed_ms,
+        "registered_fonts": font_count,
+        "timing_scope": "Application preparation or UI rendering; not physical panel completion"
+    });
+    if let Err(error) = append_trace_record(path, record) {
+        eprintln!("bilicomics: startup timing could not be saved: {error:#}");
+    }
+}
+
+fn anonymous_checkpoint_state(resources: &serde_json::Value) -> Option<serde_json::Value> {
+    let checkpoint = resources.get("reader_checkpoint")?.as_object()?;
+    let mut output = serde_json::Map::new();
+    for name in ["pending", "in_flight"] {
+        if let Some(value) = checkpoint.get(name).and_then(serde_json::Value::as_bool) {
+            output.insert(name.into(), value.into());
+        }
+    }
+    for name in ["failed_attempts"] {
+        if let Some(value) = checkpoint.get(name).and_then(serde_json::Value::as_u64) {
+            output.insert(name.into(), value.into());
+        }
+    }
+    (!output.is_empty()).then_some(serde_json::Value::Object(output))
+}
+
+fn append_trace_record(path: &Path, mut record: serde_json::Value) -> Result<()> {
+    use std::io::Write;
+    static WRITER: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    let moment = trace_moment();
+    if let Some(object) = record.as_object_mut() {
+        object.entry("monotonic_ns").or_insert_with(|| serde_json::json!(moment.monotonic_ns));
+        object.entry("elapsed_ms").or_insert_with(|| serde_json::json!(moment.elapsed_ms));
+    }
+    let mut encoded = serde_json::to_vec(&record)?;
+    encoded.push(b'\n');
+    let _writer = WRITER.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+    if let Some(parent) = path.parent().filter(|parent| !parent.as_os_str().is_empty()) {
+        fs::create_dir_all(parent)?;
+    }
+    fs::OpenOptions::new().append(true).create(true).open(path)?.write_all(&encoded)?;
     Ok(())
 }
 
@@ -945,17 +1215,6 @@ fn append_power_trace(
     native_mode: Option<NativeOutputMode>,
     resume_stages: &[serde_json::Value],
 ) -> Result<()> {
-    use std::io::Write;
-    if let Some(parent) = path
-        .parent()
-        .filter(|parent| !parent.as_os_str().is_empty())
-    {
-        fs::create_dir_all(parent)?;
-    }
-    let mut file = fs::OpenOptions::new()
-        .append(true)
-        .create(true)
-        .open(path)?;
     let reader = ui.global::<ReaderModel>();
     let record = serde_json::json!({ "process_id": std::process::id(), "event": match event {
         PowerEvent::Suspend => "suspend", PowerEvent::Resume => "resume", PowerEvent::Quit => "quit" },
@@ -965,9 +1224,7 @@ fn append_power_trace(
         "page": reader.get_page_index(), "comic_title": reader.get_comic_title().as_str(),
         "episode_title": reader.get_episode_title().as_str(), "mode": reader.get_mode().as_str(),
         "booting": ui.global::<ShellModel>().get_booting(), "suspended": ui.global::<ShellModel>().get_suspended(), "reader_state": reader_state });
-    serde_json::to_writer(&mut file, &record)?;
-    file.write_all(b"\n")?;
-    Ok(())
+    append_trace_record(path, record)
 }
 
 fn append_ready_trace(
@@ -978,31 +1235,15 @@ fn append_ready_trace(
     reader_resources: serde_json::Value,
     native_mode: Option<NativeOutputMode>,
 ) -> Result<()> {
-    use std::io::Write;
-    if let Some(parent) = path
-        .parent()
-        .filter(|parent| !parent.as_os_str().is_empty())
-    {
-        fs::create_dir_all(parent)?;
-    }
-    let mut file = fs::OpenOptions::new()
-        .append(true)
-        .create(true)
-        .open(path)?;
     let reader = ui.global::<ReaderModel>();
-    serde_json::to_writer(
-        &mut file,
-        &serde_json::json!({
+    append_trace_record(path, serde_json::json!({
             "process_id": std::process::id(), "event": event,
             "native_epdc_mode": native_mode_name(native_mode),
             "route": ui.global::<ShellModel>().get_route().as_str(),
             "reader_loading": reader.get_loading(),
             "frame_size": [reader.get_page().size().width, reader.get_page().size().height],
             "reader_state": reader_state, "reader_resources": reader_resources
-        }),
-    )?;
-    file.write_all(b"\n")?;
-    Ok(())
+        }))
 }
 
 fn append_reader_closed_trace(
@@ -1012,28 +1253,12 @@ fn append_reader_closed_trace(
     reader_resources: &serde_json::Value,
     native_mode: Option<NativeOutputMode>,
 ) -> Result<()> {
-    use std::io::Write;
-    if let Some(parent) = path
-        .parent()
-        .filter(|parent| !parent.as_os_str().is_empty())
-    {
-        fs::create_dir_all(parent)?;
-    }
-    let mut file = fs::OpenOptions::new()
-        .append(true)
-        .create(true)
-        .open(path)?;
-    serde_json::to_writer(
-        &mut file,
-        &serde_json::json!({
+    append_trace_record(path, serde_json::json!({
             "process_id": std::process::id(), "event": "reader-closed",
             "native_epdc_mode": native_mode_name(native_mode),
             "reader_generation": generation, "route": ui.global::<ShellModel>().get_route().as_str(),
             "reader_resources": reader_resources
-        }),
-    )?;
-    file.write_all(b"\n")?;
-    Ok(())
+        }))
 }
 
 fn save_png(ui: &AppWindow, path: &Path) -> Result<(u32, u32)> {
@@ -1105,27 +1330,11 @@ fn append_ui_trace(
     state: serde_json::Value,
     native_mode: Option<NativeOutputMode>,
 ) -> Result<()> {
-    use std::io::Write;
-    if let Some(parent) = path
-        .parent()
-        .filter(|parent| !parent.as_os_str().is_empty())
-    {
-        fs::create_dir_all(parent)?;
-    }
-    let mut file = fs::OpenOptions::new()
-        .append(true)
-        .create(true)
-        .open(path)?;
-    serde_json::to_writer(
-        &mut file,
-        &serde_json::json!({
+    append_trace_record(path, serde_json::json!({
             "process_id": std::process::id(), "event": "ui-state", "view_model_fixture_only": false,
             "native_epdc_mode": native_mode_name(native_mode),
             "demo": true, "state": state
-        }),
-    )?;
-    file.write_all(b"\n")?;
-    Ok(())
+        }))
 }
 
 fn capture_window(
@@ -1185,4 +1394,29 @@ fn default_data_dir() -> Result<PathBuf> {
         return Ok(PathBuf::from(path).join(".local/share/bilicomics"));
     }
     bail!("No per-user data directory is available; supply --data-dir")
+}
+
+#[cfg(test)]
+mod trace_tests {
+    use super::*;
+
+    #[test]
+    fn checkpoint_trace_excludes_identity_and_error_payloads() {
+        let resources = serde_json::json!({"reader_checkpoint": {
+            "pending": true, "in_flight": false, "failed_attempts": 2,
+            "account": "private-account", "comic": "private-comic",
+            "anchor": {"page_id": "private-page"}, "error": "private-path",
+        }});
+        assert_eq!(anonymous_checkpoint_state(&resources), Some(serde_json::json!({
+            "pending": true, "in_flight": false, "failed_attempts": 2,
+        })));
+    }
+
+    #[test]
+    fn absent_or_malformed_checkpoint_fields_do_not_produce_a_trace_payload() {
+        assert_eq!(anonymous_checkpoint_state(&serde_json::json!({})), None);
+        assert_eq!(anonymous_checkpoint_state(&serde_json::json!({"reader_checkpoint": {
+            "pending": "private-value", "in_flight": {}, "failed_attempts": "private-error",
+        }})), None);
+    }
 }

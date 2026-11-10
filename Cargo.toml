@@ -1,6 +1,6 @@
 [package]
 name = "bilicomics"
-version = "0.1.16"
+version = "0.1.22"
 edition = "2024"
 rust-version = "1.92"
 description = "Independent Bilibili Comics client for Kindle with a Rust core and Slint interface"

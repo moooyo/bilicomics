@@ -1,7 +1,8 @@
 //! Bounded complete-image validation shared by acquisition, persistence, and reading.
 //!
 //! Proofs describe the exact encoded bytes, not a remote service's content identity.
-//! Only successful validation is memoized; every call hashes its current input again.
+//! Only successful validation is memoized. New inputs are hashed once; an owned,
+//! immutable input can carry that exact identity through the same preparation job.
 
 use std::{
     collections::VecDeque,
@@ -15,6 +16,9 @@ use image::{DynamicImage, ImageDecoder, ImageFormat, ImageReader};
 use sha2::{Digest, Sha256};
 
 mod jpeg;
+pub(crate) mod profile;
+
+use crate::performance::StageMap;
 
 pub(crate) const MAX_ENCODED_BYTES: u64 = 64 * 1024 * 1024;
 pub(crate) const MAX_SOURCE_PIXELS: u64 = 32_000_000;
@@ -90,6 +94,28 @@ impl ValidatedImage {
 pub(crate) type DecodedImageProof = ValidatedImage;
 pub(crate) type InvalidEncodingProof = InvalidEncodingEvidence;
 
+/// Owned immutable bytes bound to the digest computed from those exact bytes.
+/// This is an input identity, not proof that the image is complete or supported.
+pub(crate) struct HashedImage {
+    encoded: Vec<u8>,
+    digest: String,
+}
+
+impl HashedImage {
+    pub(crate) fn new(encoded: Vec<u8>) -> Result<Self, IntegrityError> {
+        Self::new_profiled(encoded, None)
+    }
+
+    /// Time the existing identity computation without reading or hashing again.
+    pub(crate) fn new_profiled(encoded: Vec<u8>, mut timing: Option<&mut StageMap>) -> Result<Self, IntegrityError> {
+        let (digest, _) = profile::measure(&mut timing, "source_hash", || input_identity(&encoded), Result::is_ok)?;
+        Ok(Self { encoded, digest })
+    }
+
+    pub(crate) fn sha256(&self) -> &str { &self.digest }
+    pub(crate) fn byte_len(&self) -> u64 { self.encoded.len() as u64 }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub(super) struct Fault {
     kind: IntegrityFailureKind,
@@ -138,6 +164,12 @@ fn memo() -> &'static Mutex<ValidationMemo> {
 
 #[cfg(test)]
 thread_local! { static DECODE_ATTEMPTS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
+
+#[cfg(test)]
+thread_local! { static IDENTITY_COMPUTATIONS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
+
+#[cfg(test)]
+pub(crate) fn identity_computation_count() -> usize { IDENTITY_COMPUTATIONS.with(std::cell::Cell::get) }
 
 fn record_decode_attempt() {
     #[cfg(test)]
@@ -212,29 +244,79 @@ pub(crate) fn decode_image_with_reuse<T>(encoded: &[u8], max_pixels: Option<u64>
     find: impl FnOnce(&str) -> Option<(ValidatedImage, T)>)
     -> Result<(ValidatedImage, ReusableImage<T>), IntegrityError>
 {
-    let (digest, byte_len) = input_identity(encoded)?;
-    if let Some((proof, pixels)) = find(&digest) {
+    decode_image_with_reuse_profiled(encoded, max_pixels, find, None)
+}
+
+pub(crate) fn decode_image_with_reuse_profiled<T>(encoded: &[u8], max_pixels: Option<u64>,
+    find: impl FnOnce(&str) -> Option<(ValidatedImage, T)>, mut timing: Option<&mut StageMap>)
+    -> Result<(ValidatedImage, ReusableImage<T>), IntegrityError>
+{
+    let (digest, byte_len) = profile::measure(&mut timing, "source_hash", || input_identity(encoded), Result::is_ok)?;
+    Ok(decode_identified_image_with_reuse(encoded, max_pixels, digest, byte_len, find, &|| false, timing)?
+        .expect("an uncancelled decode must not return cancellation"))
+}
+
+/// Reuse this job's immutable input identity instead of hashing the bytes again.
+/// Cancellation never creates encoding evidence or a failed validation entry.
+pub(crate) fn decode_hashed_image_with_reuse_cancellable<T>(input: &HashedImage, max_pixels: Option<u64>,
+    find: impl FnOnce(&str) -> Option<(ValidatedImage, T)>, is_cancelled: &dyn Fn() -> bool)
+    -> Result<Option<(ValidatedImage, ReusableImage<T>)>, IntegrityError>
+{
+    decode_hashed_image_with_reuse_cancellable_profiled(input, max_pixels, find, is_cancelled, None)
+}
+
+pub(crate) fn decode_hashed_image_with_reuse_cancellable_profiled<T>(input: &HashedImage, max_pixels: Option<u64>,
+    find: impl FnOnce(&str) -> Option<(ValidatedImage, T)>, is_cancelled: &dyn Fn() -> bool,
+    timing: Option<&mut StageMap>)
+    -> Result<Option<(ValidatedImage, ReusableImage<T>)>, IntegrityError>
+{
+    decode_identified_image_with_reuse(&input.encoded, max_pixels, input.digest.clone(),
+        input.byte_len(), find, is_cancelled, timing)
+}
+
+fn decode_identified_image_with_reuse<T>(encoded: &[u8], max_pixels: Option<u64>,
+    digest: String, byte_len: u64, find: impl FnOnce(&str) -> Option<(ValidatedImage, T)>,
+    is_cancelled: &dyn Fn() -> bool, mut timing: Option<&mut StageMap>)
+    -> Result<Option<(ValidatedImage, ReusableImage<T>)>, IntegrityError>
+{
+    if is_cancelled() { return Ok(None); }
+    let reusable = profile::measure(&mut timing, "source_cache_lookup", || find(&digest), |_| true);
+    if is_cancelled() { return Ok(None); }
+    if let Some((proof, pixels)) = reusable {
         if proof.sha256() == digest && proof.byte_len() == byte_len
             && proof.validation_version() == VALIDATION_VERSION {
-            check_policy(proof.width(), proof.height(), max_pixels)
+            profile::measure(&mut timing, "integrity_validation",
+                || check_policy(proof.width(), proof.height(), max_pixels), Result::is_ok)
                 .map_err(|error| error.with_evidence(&digest, byte_len))?;
+            if is_cancelled() { return Ok(None); }
             memo().lock().unwrap_or_else(|error| error.into_inner()).insert(proof.clone());
-            return Ok((proof, ReusableImage::Reused(pixels)));
+            return Ok(Some((proof, ReusableImage::Reused(pixels))));
         }
     }
-    let previous = memo().lock().unwrap_or_else(|error| error.into_inner()).get(&digest);
+    let previous = profile::measure(&mut timing, "validation_memo_lookup",
+        || memo().lock().unwrap_or_else(|error| error.into_inner()).get(&digest), |_| true);
     if let Some(proof) = previous {
-        check_policy(proof.width, proof.height, max_pixels).map_err(|error| error.with_evidence(&digest, byte_len))?;
+        profile::measure(&mut timing, "integrity_validation",
+            || check_policy(proof.width, proof.height, max_pixels), Result::is_ok)
+            .map_err(|error| error.with_evidence(&digest, byte_len))?;
+        if is_cancelled() { return Ok(None); }
         record_decode_attempt();
-        let decoded = decode_pixels(encoded, proof.format).map_err(|error| error.with_evidence(&digest, byte_len))?;
-        if decoded.width() != proof.width || decoded.height() != proof.height {
-            return Err(Fault::corrupt("image_geometry_changed").with_evidence(&digest, byte_len));
-        }
-        return Ok((proof, ReusableImage::Decoded(decoded)));
+        let decoded = profile::measure(&mut timing, "decode", || decode_pixels(encoded, proof.format), Result::is_ok)
+            .map_err(|error| error.with_evidence(&digest, byte_len));
+        if is_cancelled() { return Ok(None); }
+        let decoded = decoded?;
+        profile::measure(&mut timing, "integrity_validation", || {
+            if decoded.width() != proof.width || decoded.height() != proof.height {
+                Err(Fault::corrupt("image_geometry_changed"))
+            } else { Ok(()) }
+        }, Result::is_ok).map_err(|error| error.with_evidence(&digest, byte_len))?;
+        return Ok(Some((proof, ReusableImage::Decoded(decoded))));
     }
-    let (proof, decoded) = decode_fresh(encoded, max_pixels, digest, byte_len)?;
+    let result = decode_fresh_cancellable_profiled(encoded, max_pixels, digest, byte_len, is_cancelled, timing);
+    if is_cancelled() { return Ok(None); }
+    let Some((proof, decoded)) = result? else { return Ok(None); };
     memo().lock().unwrap_or_else(|error| error.into_inner()).insert(proof.clone());
-    Ok((proof, ReusableImage::Decoded(decoded)))
+    Ok(Some((proof, ReusableImage::Decoded(decoded))))
 }
 
 fn input_identity(encoded: &[u8]) -> Result<(String, u64), IntegrityError> {
@@ -242,6 +324,8 @@ fn input_identity(encoded: &[u8]) -> Result<(String, u64), IntegrityError> {
     if byte_len > MAX_ENCODED_BYTES {
         return Err(IntegrityError { kind: IntegrityFailureKind::ResourceLimit, code: "image_size_limit", evidence: None });
     }
+    #[cfg(test)]
+    IDENTITY_COMPUTATIONS.with(|count| count.set(count.get().saturating_add(1)));
     let digest = format!("{:x}", Sha256::digest(encoded));
     if encoded.is_empty() {
         return Err(Fault::corrupt("image_empty").with_evidence(&digest, byte_len));
@@ -259,54 +343,79 @@ fn decode_fresh(encoded: &[u8], max_pixels: Option<u64>, digest: String, byte_le
 fn decode_fresh_cancellable(encoded: &[u8], max_pixels: Option<u64>, digest: String, byte_len: u64,
     is_cancelled: &dyn Fn() -> bool) -> Result<Option<(ValidatedImage, DynamicImage)>, IntegrityError>
 {
+    decode_fresh_cancellable_profiled(encoded, max_pixels, digest, byte_len, is_cancelled, None)
+}
+
+fn decode_fresh_cancellable_profiled(encoded: &[u8], max_pixels: Option<u64>, digest: String, byte_len: u64,
+    is_cancelled: &dyn Fn() -> bool, mut timing: Option<&mut StageMap>)
+    -> Result<Option<(ValidatedImage, DynamicImage)>, IntegrityError>
+{
     let result = (|| {
         if is_cancelled() { return Ok(None); }
         record_decode_attempt();
-        let format = image::guess_format(encoded).map_err(|_| Fault::corrupt("image_format_invalid"))?;
-        let extension = match format {
-            ImageFormat::Png => "png", ImageFormat::Jpeg => "jpg", ImageFormat::WebP => "webp", ImageFormat::Gif => "gif",
-            _ => return Err(Fault::unsupported("image_format_unsupported")),
-        };
+        let (format, extension) = profile::measure(&mut timing, "integrity_validation", || {
+            let format = image::guess_format(encoded).map_err(|_| Fault::corrupt("image_format_invalid"))?;
+            let extension = match format {
+                ImageFormat::Png => "png", ImageFormat::Jpeg => "jpg", ImageFormat::WebP => "webp", ImageFormat::Gif => "gif",
+                _ => return Err(Fault::unsupported("image_format_unsupported")),
+            };
+            Ok((format, extension))
+        }, Result::is_ok)?;
         let decoded = if format == ImageFormat::Jpeg {
             // Classify supported JPEG coding modes before the image wrapper's
             // header decoder can turn a capability error into corruption.
-            let Some(decoded) = jpeg::decode_jpeg_cancellable(encoded, is_cancelled)? else { return Ok(None); };
+            // JPEG's strict entropy checks are inseparable from this decoder;
+            // its decode stage includes that format-specific validation work.
+            let Some(decoded) = profile::measure(&mut timing, "decode",
+                || jpeg::decode_jpeg_cancellable(encoded, is_cancelled),
+                |result| matches!(result, Ok(Some(_))))? else { return Ok(None); };
             decoded
         } else {
             if is_cancelled() { return Ok(None); }
-            let mut reader = ImageReader::with_format(Cursor::new(encoded), format);
-            reader.limits(decode_limits());
-            let decoder = reader.into_decoder().map_err(decoder_fault)?;
-            let (width, height) = decoder.dimensions();
-            check_policy(width, height, max_pixels)?;
-            if decoder.total_bytes() > MAX_DECODE_ALLOCATION {
-                return Err(Fault::resource("image_decode_allocation_limit"));
-            }
-            drop(decoder);
+            let (width, height) = profile::measure(&mut timing, "integrity_validation", || {
+                let mut reader = ImageReader::with_format(Cursor::new(encoded), format);
+                reader.limits(decode_limits());
+                let decoder = reader.into_decoder().map_err(decoder_fault)?;
+                let (width, height) = decoder.dimensions();
+                check_policy(width, height, max_pixels)?;
+                if decoder.total_bytes() > MAX_DECODE_ALLOCATION {
+                    return Err(Fault::resource("image_decode_allocation_limit"));
+                }
+                drop(decoder);
+                Ok((width, height))
+            }, Result::is_ok)?;
             if is_cancelled() { return Ok(None); }
-            match format {
-                ImageFormat::Png => validate_png(encoded, width, height)?,
-                ImageFormat::WebP => validate_webp(encoded)?,
-                ImageFormat::Gif => validate_gif(encoded)?,
+            profile::measure(&mut timing, "integrity_validation", || match format {
+                ImageFormat::Png => validate_png(encoded, width, height),
+                ImageFormat::WebP => validate_webp(encoded),
+                ImageFormat::Gif => validate_gif(encoded),
                 _ => unreachable!(),
-            }
+            }, Result::is_ok)?;
             if is_cancelled() { return Ok(None); }
             let decoded = if format == ImageFormat::Gif {
-                let Some(decoded) = decode_gif_cancellable(encoded, is_cancelled)? else { return Ok(None); };
+                let Some(decoded) = profile::measure(&mut timing, "decode",
+                    || decode_gif_cancellable(encoded, is_cancelled),
+                    |result| matches!(result, Ok(Some(_))))? else { return Ok(None); };
                 decoded
-            } else { decode_pixels(encoded, format)? };
-            if decoded.width() != width || decoded.height() != height {
-                return Err(Fault::corrupt("image_geometry_changed"));
-            }
+            } else {
+                profile::measure(&mut timing, "decode", || decode_pixels(encoded, format), Result::is_ok)?
+            };
+            profile::measure(&mut timing, "integrity_validation", || {
+                if decoded.width() != width || decoded.height() != height {
+                    Err(Fault::corrupt("image_geometry_changed"))
+                } else { Ok(()) }
+            }, Result::is_ok)?;
             decoded
         };
         if is_cancelled() { return Ok(None); }
         let (width, height) = (decoded.width(), decoded.height());
-        check_policy(width, height, max_pixels)?;
-        let proof = ValidatedImage(ImageMetadata {
-            width, height, format, extension, sha256: digest.clone(), byte_len,
-            validation_version: VALIDATION_VERSION,
-        });
+        let proof = profile::measure(&mut timing, "integrity_validation", || {
+            check_policy(width, height, max_pixels)?;
+            Ok(ValidatedImage(ImageMetadata {
+                width, height, format, extension, sha256: digest.clone(), byte_len,
+                validation_version: VALIDATION_VERSION,
+            }))
+        }, Result::is_ok)?;
         Ok(Some((proof, decoded)))
     })();
     result.map_err(|error: Fault| error.with_evidence(&digest, byte_len))

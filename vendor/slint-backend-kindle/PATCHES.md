@@ -449,3 +449,30 @@ five-second test launcher, production two-second launcher, component/source
 manifests, raw/export records, and closed device lease retain separate identities
 in [live portrait evidence](../../docs/LIVE_ORIENTATION.md). General hardware
 support and other projects' results are not established by that scope.
+
+## Optional rendering performance observations
+
+The project-owned `performance` module exposes a cloneable callback handle that
+is disabled until configured. Disabled sampling reads no diagnostic clocks and
+performs no per-frame allocation or callback locking. A Reader operation marker
+identifies the image already published to the UI; changing it does not request
+a redraw. Repeated actual draws retain that marker and have distinct render
+sequence numbers. Callback retirement rejects old generations at the dispatch
+check without waiting for a callback already selected for dispatch. Callbacks
+execute outside framebuffer and lifecycle borrows.
+
+Initial device setup and actual frame work record monotonic wall time and
+same-thread CPU time separately. The stages cover initial I/O, allocation,
+window setup, observer setup, initial fill, Slint rendering, grayscale conversion
+and framebuffer writes, refresh submission, and existing lifecycle completion.
+Clock failures remain absent values. The callback data contains only numeric
+timing, display geometry, software modes, and operation/sequence identifiers.
+The application owns the optional JSONL sink; this backend does not write files.
+
+Existing refresh functions now return an observational submission result with
+the exact ioctl attempt count, acceptance status, and final numeric errno.
+The ABI probe order, cached variant, waveforms, markers, and original error log
+remain unchanged. Empty regions and a cached unsupported ABI issue no ioctl.
+No additional refresh or wait is introduced. An ioctl return or acceptance is
+explicitly distinct from physical panel completion, which is not measured by
+these samples.

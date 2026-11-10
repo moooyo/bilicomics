@@ -14,6 +14,7 @@ use slint::platform::{Clipboard, EventLoopProxy, Platform, PlatformError, Window
 
 use crate::clipboard::{ClipboardKind, ClipboardStore};
 use crate::lifecycle::DisplayLifecycleHandle;
+use crate::performance::{ClockSample, PerformanceSampleKind, PerformanceTraceHandle, Recording};
 use crate::power::{arm_wakealarm, find_wakealarm, suspend_to_mem};
 use crate::refresh::{PendingRefresh, PhysicalRect, RefreshHandle};
 use crate::touch::has_accelerometer;
@@ -36,6 +37,7 @@ pub(crate) struct KindlePlatform {
     rotation: Arc<AtomicU32>,
     refresh_pending: Arc<Mutex<PendingRefresh>>,
     lifecycle: DisplayLifecycleHandle,
+    performance_trace: PerformanceTraceHandle,
     clipboard: RefCell<ClipboardStore>,
 }
 
@@ -68,6 +70,7 @@ impl KindlePlatform {
             rotation,
             refresh_pending,
             lifecycle,
+            performance_trace: PerformanceTraceHandle::default(),
             clipboard: RefCell::new(ClipboardStore::default()),
         })
     }
@@ -83,6 +86,28 @@ impl KindlePlatform {
 
     pub(crate) fn lifecycle_handle(&self) -> DisplayLifecycleHandle {
         self.lifecycle.clone()
+    }
+
+    pub(crate) fn performance_trace_handle(&self) -> PerformanceTraceHandle {
+        self.performance_trace.clone()
+    }
+
+    fn begin_frame_trace(&self, framebuffer: &crate::framebuffer::Framebuffer,
+        rendered: bool, initial_frame: bool, forced_full: bool,
+        rotation_degrees: u32, black_and_white: bool) -> Option<Recording>
+    {
+        let mut trace = self.performance_trace.begin(PerformanceSampleKind::Frame)?;
+        let layout = framebuffer.retained_layout();
+        trace.sample.framebuffer_size = Some((layout.width, layout.height));
+        trace.sample.framebuffer_stride = Some(layout.stride);
+        trace.sample.framebuffer_bits_per_pixel = Some(layout.bits_per_pixel);
+        trace.sample.rotation_degrees = Some(rotation_degrees);
+        trace.sample.output_inverted = Some(framebuffer.output_inverted());
+        trace.sample.black_and_white = Some(black_and_white);
+        trace.sample.rendered = rendered;
+        trace.sample.initial_frame = initial_frame && rendered;
+        trace.sample.forced_full = forced_full;
+        Some(trace)
     }
 
     /// Suspend the device to RAM once it's been idle for `stay_awake` with no
@@ -215,11 +240,25 @@ impl Platform for KindlePlatform {
             if self.quit_flag.load(Ordering::SeqCst) {
                 break;
             }
-            if let Some(size) = self.lifecycle.ensure_active_io()? {
+            let mut setup_trace = if geometry.is_none() {
+                self.performance_trace.begin(PerformanceSampleKind::InitialSetup)
+            } else { None };
+            let io_started = setup_trace.as_ref().map(|_| ClockSample::now());
+            let active_io = self.lifecycle.ensure_active_io()?;
+            if let Some(trace) = setup_trace.as_mut() {
+                trace.sample.stages.active_io = io_started.map(ClockSample::finish);
+            }
+            if let Some(size) = active_io {
                 if geometry.is_none() {
                     geometry = Some(size);
+                    let buffers_started = setup_trace.as_ref().map(|_| ClockSample::now());
                     rgb_buffer = vec![Rgb8Pixel::default(); size.0 as usize * size.1 as usize];
                     gray_buffer = vec![0u8; size.0 as usize];
+                    if let Some(trace) = setup_trace.as_mut() {
+                        trace.sample.framebuffer_size = Some(size);
+                        trace.sample.stages.buffer_setup = buffers_started.map(ClockSample::finish);
+                    }
+                    let window_started = setup_trace.as_ref().map(|_| ClockSample::now());
                     render_offset = resolved_render_offset(
                         self.lifecycle.native_render_offset(),
                         launch_render_offset,
@@ -230,8 +269,20 @@ impl Platform for KindlePlatform {
                         .set_size(rotated_size(size, applied_rotation, render_offset));
                     self.window.request_redraw();
                     wakealarm = find_wakealarm().ok();
+                    if let Some(trace) = setup_trace.as_mut() {
+                        trace.sample.stages.window_setup = window_started.map(ClockSample::finish);
+                    }
                 }
+                let observer_started = setup_trace.as_ref().map(|_| ClockSample::now());
                 self.lifecycle.ensure_portrait_observer()?;
+                if let Some(trace) = setup_trace.as_mut() {
+                    trace.sample.stages.portrait_observer_setup = observer_started.map(ClockSample::finish);
+                }
+            }
+            if active_io.is_some() {
+                if let Some(trace) = setup_trace {
+                    trace.finish();
+                }
             }
             // External screensaver ownership takes precedence over the
             // optional upstream RTC schedule. It does not program sysfs.
@@ -432,12 +483,20 @@ impl Platform for KindlePlatform {
             }
             let mut dirty_region = None;
             let mut did_draw = false;
+            let mut frame_trace = None;
             self.lifecycle.with_framebuffer(|frame_buffer| {
                 self.window.draw_if_needed(|renderer| {
                     did_draw = true;
+                    frame_trace = self.begin_frame_trace(frame_buffer, true, initial_fill,
+                        rotation_changed || force_full, (applied_rotation + render_offset) % 360,
+                        black_and_white);
                     if initial_fill {
+                        let fill_started = frame_trace.as_ref().map(|_| ClockSample::now());
                         frame_buffer.fill(0xff);
                         initial_fill = false;
+                        if let Some(trace) = frame_trace.as_mut() {
+                            trace.sample.stages.initial_fill = fill_started.map(ClockSample::finish);
+                        }
                     }
                     renderer.set_rendering_rotation(
                         match (applied_rotation + render_offset) % 360 {
@@ -452,12 +511,17 @@ impl Platform for KindlePlatform {
                         renderer.set_repaint_buffer_type(RepaintBufferType::ReusedBuffer);
                     }
                     let width = panel_width as usize;
+                    let render_started = frame_trace.as_ref().map(|_| ClockSample::now());
                     let dirty = renderer.render(&mut rgb_buffer, width);
+                    if let Some(trace) = frame_trace.as_mut() {
+                        trace.sample.stages.slint_render = render_started.map(ClockSample::finish);
+                    }
                     let origin = dirty.bounding_box_origin();
                     let size = dirty.bounding_box_size();
                     let (x0, y0) = (origin.x as usize, origin.y as usize);
                     let (w, h) = (size.width as usize, size.height as usize);
 
+                    let write_started = frame_trace.as_ref().map(|_| ClockSample::now());
                     let gray = &mut gray_buffer[..w];
                     for row in 0..h {
                         let start = (y0 + row) * width + x0;
@@ -474,6 +538,9 @@ impl Platform for KindlePlatform {
                         }
                         frame_buffer.write_line(y0 + row, x0..x0 + w, gray);
                     }
+                    if let Some(trace) = frame_trace.as_mut() {
+                        trace.sample.stages.framebuffer_write = write_started.map(ClockSample::finish);
+                    }
 
                     dirty_region = Some(PhysicalRect {
                         x: origin.x,
@@ -481,11 +548,25 @@ impl Platform for KindlePlatform {
                         width: size.width,
                         height: size.height,
                     });
+                    if let Some(trace) = frame_trace.as_mut() {
+                        trace.sample.dirty_region = dirty_region;
+                    }
                 });
                 // All framebuffer writes above are complete before an ioctl is
                 // issued. The existing descriptor and detected ABI are reused.
                 if did_draw && (rotation_changed || force_full) {
-                    frame_buffer.refresh_full();
+                    let submit_started = frame_trace.as_ref().map(|_| ClockSample::now());
+                    let submission = frame_buffer.refresh_full();
+                    if let Some(trace) = frame_trace.as_mut() {
+                        trace.sample.stages.refresh_submit = submit_started.map(ClockSample::finish);
+                        trace.sample.refresh_region = Some(PhysicalRect { x: 0, y: 0,
+                            width: panel_width, height: panel_height });
+                        trace.sample.refresh_waveform = Some(crate::RefreshWaveform::Gc16);
+                        trace.sample.refresh_flashing = Some(true);
+                        trace.sample.refresh_ioctl_attempts = submission.ioctl_attempts;
+                        trace.sample.refresh_accepted = Some(submission.accepted);
+                        trace.sample.refresh_errno = submission.last_errno;
+                    }
                 } else if let Some(refresh) = crate::refresh::resolve(
                     pending,
                     dirty_region,
@@ -493,12 +574,34 @@ impl Platform for KindlePlatform {
                     panel_height,
                     (applied_rotation + render_offset) % 360,
                 ) {
-                    frame_buffer.refresh_planned(refresh);
+                    if frame_trace.is_none() {
+                        frame_trace = self.begin_frame_trace(frame_buffer, false, false,
+                            false, (applied_rotation + render_offset) % 360, black_and_white);
+                    }
+                    let submit_started = frame_trace.as_ref().map(|_| ClockSample::now());
+                    let submission = frame_buffer.refresh_planned(refresh);
+                    if let Some(trace) = frame_trace.as_mut() {
+                        trace.sample.stages.refresh_submit = submit_started.map(ClockSample::finish);
+                        trace.sample.refresh_region = Some(refresh.region);
+                        trace.sample.refresh_waveform = Some(refresh.waveform);
+                        trace.sample.refresh_flashing = Some(refresh.flashing);
+                        trace.sample.refresh_ioctl_attempts = submission.ioctl_attempts;
+                        trace.sample.refresh_accepted = Some(submission.accepted);
+                        trace.sample.refresh_errno = submission.last_errno;
+                    }
                 }
             })?;
             if force_full && did_draw {
+                let lifecycle_started = frame_trace.as_ref().map(|_| ClockSample::now());
                 self.lifecycle.complete_full_redraw()?;
                 last_interaction = Instant::now();
+                if let Some(trace) = frame_trace.as_mut() {
+                    trace.sample.stages.lifecycle_complete = lifecycle_started.map(ClockSample::finish);
+                }
+            }
+            if let Some(trace) = frame_trace {
+                // Diagnostic callbacks run outside framebuffer and lifecycle borrows.
+                trace.finish();
             }
         }
 

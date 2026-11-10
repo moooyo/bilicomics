@@ -116,6 +116,7 @@ where F: FnMut(LocalWrite) -> Result<()> {
 
 #[derive(Default)]
 pub(super) struct LifecycleState {
+    pub(super) reader_checkpoints: super::reader_checkpoint::ReaderCheckpointWriter,
     suspended: bool,
     cycle: u64,
     checkpoint_failed: bool,
@@ -134,7 +135,9 @@ impl App {
     /// Close application input and transfer admission without any SQLite work.
     /// Native callers can release display/input leases immediately after this.
     pub fn begin_suspend_intent_gate(&mut self) {
+        self.lifecycle.reader_checkpoints.fence();
         if !self.lifecycle.suspended {
+            self.retain_reader_frame_for_sleep();
             self.cancel_sleep_maintenance();
             self.lifecycle.suspended = true;
             self.lifecycle.cycle = self.lifecycle.cycle.wrapping_add(1);

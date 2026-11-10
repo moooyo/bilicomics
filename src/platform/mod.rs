@@ -3,6 +3,8 @@ mod refresh;
 
 #[cfg(all(feature = "kindle", target_os = "linux"))]
 mod native;
+#[cfg(any(test, all(feature = "kindle", target_os = "linux")))]
+mod native_capture;
 
 pub use profile::DeviceProfile;
 pub use refresh::{RefreshKind, RefreshPlan, RefreshReason, RefreshRect, RefreshScheduler};
@@ -120,6 +122,8 @@ pub struct Platform {
     control: Arc<dyn DeviceControl>,
     refresh: Mutex<RefreshScheduler>,
     refresh_sink: Mutex<Option<Arc<dyn RefreshSink>>>,
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    performance_trace: Mutex<Option<slint_backend_kindle::PerformanceTraceHandle>>,
     started: Instant,
 }
 
@@ -151,6 +155,8 @@ impl Platform {
             control,
             refresh: Mutex::new(RefreshScheduler::default()),
             refresh_sink: Mutex::new(None),
+            #[cfg(all(feature = "kindle", target_os = "linux"))]
+            performance_trace: Mutex::new(None),
             started: Instant::now(),
         }
     }
@@ -231,6 +237,34 @@ impl Platform {
             .map_err(|_| PlatformError::Operation("refresh sink lock was poisoned".into()))? =
             Some(sink);
         Ok(())
+    }
+
+    /// Connect opt-in diagnostics without changing refresh or lifecycle policy.
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    pub fn set_kindle_performance_trace(&self, trace: slint_backend_kindle::PerformanceTraceHandle)
+        -> Result<(), PlatformError>
+    {
+        if !crate::performance::enabled() { return Ok(()); }
+        let previous = self.performance_trace.lock()
+            .map_err(|_| PlatformError::Operation("performance trace lock was poisoned".into()))?
+            .replace(trace.clone());
+        if let Some(previous) = previous { previous.clear_callback(); }
+        native::configure_performance_trace(&trace);
+        Ok(())
+    }
+
+    /// Mark the actual UI image; this does not queue a native refresh.
+    /// Desktop renderers have no native framebuffer submission to correlate.
+    pub fn set_reader_performance_operation(&self, operation_id: Option<u64>) {
+        if !crate::performance::enabled() { return; }
+        #[cfg(all(feature = "kindle", target_os = "linux"))]
+        if let Ok(trace) = self.performance_trace.lock() {
+            if let Some(trace) = trace.as_ref() {
+                trace.set_reader_operation_id(operation_id);
+            }
+        }
+        #[cfg(not(all(feature = "kindle", target_os = "linux")))]
+        let _ = operation_id;
     }
 
     pub fn submit_refresh(&self, plan: RefreshPlan) -> Result<(), PlatformError> {
@@ -402,6 +436,21 @@ pub fn install_kindle_backend(
     font_bytes: &[u8],
 ) -> Result<slint_backend_kindle::KindleBackend, slint::PlatformError> {
     slint_backend_kindle::install(font_bytes)
+}
+
+/// Capture one consistent native display record without installing the UI backend.
+/// The existing private native-read context must be proven before native I/O.
+/// Returns `ready:<Y8|Y8INV>:<U|D|FIXED>:<0..3>` or `not-active`, without an LF.
+pub fn capture_native_display_record(profile: DeviceProfile) -> Result<String, PlatformError> {
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    {
+        native_capture::capture(profile)
+    }
+    #[cfg(not(all(feature = "kindle", target_os = "linux")))]
+    {
+        let _ = profile;
+        Err(PlatformError::Unsupported("kindle_backend"))
+    }
 }
 
 /// Produce one bounded-launcher record without starting UI, workers, or input.

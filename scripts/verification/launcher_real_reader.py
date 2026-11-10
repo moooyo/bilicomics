@@ -248,6 +248,22 @@ if [ "$#" -eq 4 ] && [ "$1" = --probe-native-portrait-framebuffer ]; then
     printf "FIXED:0\\n"
     exit 0
 fi
+if [ "$#" -eq 4 ] && [ "$1" = --capture-native-display ]; then
+    [ "$2" = --kindle ] && [ "$3" = --device ] && [ "$4" = pw5 ] || exit 93
+    [ "$BILICOMICS_APPROVED_PROFILE" = pw5 ] && [ "$BILICOMICS_APPROVED_FIRMWARE" = 5.20.1 ] || exit 93
+    [ -n "$BILICOMICS_LIFECYCLE_DIR" ] && [ -n "$BILICOMICS_LAUNCH_GENERATION" ] && [ -n "$BILICOMICS_LAUNCH_TOKEN" ] || exit 93
+    # This OS-service fixture supplies fixed metadata. Real native sampling and
+    # its before-I/O ownership checks have separate Rust/Kindle-feature tests.
+    power=$(lipc-get-prop -s com.lab126.powerd state) || exit 93
+    if [ "$power" != active ]; then printf "not-active\\n"; exit 0; fi
+    mode=$(lipc-get-prop -s com.lab126.winmgr epdcMode) || exit 93
+    case "$mode" in Y8|Y8INV) ;; *) exit 93 ;; esac
+    printf "FIXED:0\\nFIXED:0\\n" >>"$HARNESS_PORTRAIT_HELPERS"
+    power=$(lipc-get-prop -s com.lab126.powerd state) || exit 93
+    if [ "$power" != active ]; then printf "not-active\\n"; exit 0; fi
+    printf "ready:%s:FIXED:0\\n" "$mode"
+    exit 0
+fi
 if [ "$#" -eq 5 ] && [ "$1" = --publish-native-portrait-orientation ]; then
     [ "$3" = --kindle ] && [ "$4" = --device ] && [ "$5" = pw5 ] || exit 93
     [ "$BILICOMICS_APPROVED_PROFILE" = pw5 ] && [ "$BILICOMICS_APPROVED_FIRMWARE" = 5.20.1 ] || exit 93

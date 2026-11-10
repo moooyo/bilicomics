@@ -2,7 +2,7 @@
 
 use std::{
     collections::{HashMap, VecDeque},
-    sync::{Arc, Mutex, MutexGuard, Weak, atomic::{AtomicBool, Ordering}},
+    sync::{Arc, Mutex, MutexGuard, TryLockError, Weak, atomic::{AtomicBool, Ordering}},
 };
 
 use tokio::sync::{Notify, OwnedSemaphorePermit, Semaphore, TryAcquireError};
@@ -12,6 +12,7 @@ use super::App;
 const MAX_REGULAR_KEYS: usize = 128;
 const MAX_DURABLE_IN_FLIGHT: usize = 16;
 const DELIVERY_CAPACITY: usize = 8;
+const SPECULATIVE_DELIVERY_CAPACITY: usize = 1;
 
 pub(super) struct JobEvent {
     pub(super) epoch: u64,
@@ -38,6 +39,7 @@ pub(super) struct JobMailbox {
 struct MailboxInner {
     state: Mutex<MailboxState>,
     delivery: Arc<Semaphore>,
+    speculative_delivery: Arc<Semaphore>,
     durable: Arc<Semaphore>,
 }
 
@@ -46,6 +48,8 @@ struct MailboxState {
     closed: bool,
     latest: HashMap<String, Arc<JobToken>>,
     ready: VecDeque<QueuedEvent>,
+    wakeup: Option<Arc<dyn Fn() + Send + Sync>>,
+    wakeup_scheduled: bool,
 }
 
 struct JobToken {
@@ -53,6 +57,7 @@ struct JobToken {
     sequence: u64,
     key: String,
     durable: bool,
+    speculative: bool,
     invalidated: AtomicBool,
     cancelled: Notify,
 }
@@ -81,12 +86,42 @@ impl JobMailbox {
     pub(super) fn new() -> Self {
         Self { inner: Arc::new(MailboxInner {
             state: Mutex::new(MailboxState {
-                ready: VecDeque::with_capacity(DELIVERY_CAPACITY),
+                ready: VecDeque::with_capacity(DELIVERY_CAPACITY + SPECULATIVE_DELIVERY_CAPACITY),
                 ..Default::default()
             }),
             delivery: Arc::new(Semaphore::new(DELIVERY_CAPACITY)),
+            speculative_delivery: Arc::new(Semaphore::new(SPECULATIVE_DELIVERY_CAPACITY)),
             durable: Arc::new(Semaphore::new(MAX_DURABLE_IN_FLIGHT)),
         }) }
+    }
+
+    /// Install a nonblocking event-loop notification, without owning the UI.
+    /// The callback must capture a weak UI handle and tolerate an already
+    /// scheduled notification arriving during shutdown.
+    pub(super) fn set_wakeup(&self, wakeup: Arc<dyn Fn() + Send + Sync>) {
+        let (previous, notify) = {
+            let mut state = self.inner.lock();
+            if state.closed { (None, None) }
+            else {
+                let previous = state.wakeup.replace(wakeup.clone());
+                state.wakeup_scheduled = false;
+                (previous, state.schedule_wakeup())
+            }
+        };
+        drop(previous);
+        if let Some(notify) = notify { notify(); }
+    }
+
+    /// Finish a bounded consumer batch by scheduling any remaining results.
+    /// The consumer has handled the previous notification, so an outstanding
+    /// queue needs a new one even when it never became empty during the batch.
+    pub(super) fn wake_if_ready(&self) {
+        let notify = {
+            let mut state = self.inner.lock();
+            state.wakeup_scheduled = false;
+            state.schedule_wakeup()
+        };
+        if let Some(notify) = notify { notify(); }
     }
 
     /// Admit metadata without starting work or allocating a result payload.
@@ -102,15 +137,16 @@ impl JobMailbox {
             }
         } else { None };
         let token = Arc::new(JobToken {
-            epoch, sequence, key: key.to_owned(), durable,
+            epoch, sequence, key: key.to_owned(), durable, speculative: false,
             invalidated: AtomicBool::new(false), cancelled: Notify::new(),
         });
         let (previous, discarded) = {
             let mut state = self.inner.lock();
             if state.closed { return Err(CapacityError::Closed); }
-            let replaces_regular = state.latest.get(key).is_some_and(|token| !token.durable);
+            let replaces_regular = state.latest.get(key)
+                .is_some_and(|token| !token.durable && !token.speculative);
             if !durable && !replaces_regular
-                && state.latest.values().filter(|token| !token.durable).count() >= MAX_REGULAR_KEYS
+                && state.latest.values().filter(|token| !token.durable && !token.speculative).count() >= MAX_REGULAR_KEYS
             {
                 return Err(CapacityError::RegularKeys);
             }
@@ -125,13 +161,46 @@ impl JobMailbox {
             _durable_lease: durable_lease, published: false })
     }
 
+    /// Reserve the independent speculative key and result slot without waiting.
+    /// Optional work cannot consume ordinary registry or delivery capacity.
+    /// The result slot remains reserved after its key is retired by take().
+    pub(super) fn try_begin_with_delivery(&self, epoch: u64, sequence: u64, key: &str)
+        -> Result<Option<(JobTicket, OwnedSemaphorePermit)>, CapacityError>
+    {
+        let (token, delivery) = {
+            let mut state = match self.inner.state.try_lock() {
+                Ok(state) => state,
+                Err(TryLockError::WouldBlock) => return Ok(None),
+                Err(TryLockError::Poisoned(error)) => error.into_inner(),
+            };
+            if state.closed { return Err(CapacityError::Closed); }
+            if state.latest.contains_key(key) { return Ok(None); }
+            if state.latest.values().any(|token| token.speculative) { return Ok(None); }
+            let delivery = match self.inner.speculative_delivery.clone().try_acquire_owned() {
+                Ok(permit) => permit,
+                Err(TryAcquireError::NoPermits) => return Ok(None),
+                Err(TryAcquireError::Closed) => return Err(CapacityError::Closed),
+            };
+            let token = Arc::new(JobToken {
+                epoch, sequence, key: key.to_owned(), durable: false, speculative: true,
+                invalidated: AtomicBool::new(false), cancelled: Notify::new(),
+            });
+            state.latest.insert(key.to_owned(), token.clone());
+            (token, delivery)
+        };
+        Ok(Some((JobTicket { mailbox: Arc::downgrade(&self.inner), token,
+            _durable_lease: None, published: false }, delivery)))
+    }
+
     /// Retire the latest key before handing its result to the UI.
     /// The delivery slot stays inside the returned callback until apply or drop.
     pub(super) fn take(&self) -> Option<JobEvent> {
         loop {
             let (queued, current, retired) = {
                 let mut state = self.inner.lock();
-                let queued = state.ready.pop_front()?;
+                let queued = state.ready.pop_front();
+                if state.ready.is_empty() { state.wakeup_scheduled = false; }
+                let queued = queued?;
                 let current = !state.closed && state.matches(&queued.token);
                 let retired = if current { state.latest.remove(&queued.token.key) } else { None };
                 (queued, current, retired)
@@ -174,19 +243,29 @@ impl MailboxInner {
         self.state.lock().unwrap_or_else(std::sync::PoisonError::into_inner)
     }
 
+    fn delivery_for(&self, token: &JobToken) -> &Arc<Semaphore> {
+        if token.speculative { &self.speculative_delivery } else { &self.delivery }
+    }
+
     fn clear(&self, close: bool) {
-        let (previous, discarded) = {
+        let (previous, discarded, wakeup) = {
             let mut state = self.lock();
             state.closed |= close;
-            (std::mem::take(&mut state.latest), std::mem::take(&mut state.ready))
+            let wakeup = if close {
+                state.wakeup_scheduled = false;
+                state.wakeup.take()
+            } else { None };
+            (std::mem::take(&mut state.latest), std::mem::take(&mut state.ready), wakeup)
         };
         if close {
             self.delivery.close();
+            self.speculative_delivery.close();
             self.durable.close();
         }
         for token in previous.values() { token.invalidate(); }
         drop(discarded);
         drop(previous);
+        drop(wakeup);
     }
 
     fn retire(&self, token: &Arc<JobToken>) {
@@ -205,6 +284,7 @@ impl MailboxInner {
 impl Drop for MailboxInner {
     fn drop(&mut self) {
         self.delivery.close();
+        self.speculative_delivery.close();
         self.durable.close();
         let state = self.state.get_mut().unwrap_or_else(std::sync::PoisonError::into_inner);
         let previous = std::mem::take(&mut state.latest);
@@ -216,6 +296,13 @@ impl Drop for MailboxInner {
 }
 
 impl MailboxState {
+    fn schedule_wakeup(&mut self) -> Option<Arc<dyn Fn() + Send + Sync>> {
+        if self.closed || self.ready.is_empty() || self.wakeup_scheduled { return None; }
+        let wakeup = self.wakeup.clone()?;
+        self.wakeup_scheduled = true;
+        Some(wakeup)
+    }
+
     fn matches(&self, token: &Arc<JobToken>) -> bool {
         !token.invalidated.load(Ordering::Acquire)
             && self.latest.get(&token.key).is_some_and(|current| Arc::ptr_eq(current, token))
@@ -255,7 +342,7 @@ impl JobTicket {
     /// persists its outcome before waiting for UI delivery. Keep a permit with
     /// actual blocking work if its async waiter is cancelled.
     pub(super) async fn acquire_delivery(&self) -> Option<OwnedSemaphorePermit> {
-        let delivery = self.mailbox.upgrade()?.delivery.clone();
+        let delivery = self.mailbox.upgrade()?.delivery_for(&self.token).clone();
         if self.token.durable {
             // UI invalidation must not cancel an admitted financial operation.
             return delivery.acquire_owned().await.ok();
@@ -277,7 +364,7 @@ impl JobTicket {
         let Some(mailbox) = self.mailbox.upgrade() else { return false; };
         if event.epoch != self.token.epoch || event.sequence != self.token.sequence
             || event.key != self.token.key || permit.num_permits() != 1
-            || !Arc::ptr_eq(permit.semaphore(), &mailbox.delivery)
+            || !Arc::ptr_eq(permit.semaphore(), mailbox.delivery_for(&self.token))
         {
             return false;
         }
@@ -287,17 +374,18 @@ impl JobTicket {
             apply(app);
         }) };
         let mut queued = Some(QueuedEvent { token: self.token.clone(), event });
-        let (published, discarded) = {
+        let (published, discarded, notify) = {
             let mut state = mailbox.lock();
             if !state.closed && state.matches(&self.token) {
                 let discarded = state.remove_ready(&self.token.key);
                 if let Some(ready) = queued.take() { state.ready.push_back(ready); }
-                (true, discarded)
-            } else { (false, None) }
+                (true, discarded, state.schedule_wakeup())
+            } else { (false, None, None) }
         };
         self.published = published;
         drop(discarded);
         drop(queued);
+        if let Some(notify) = notify { notify(); }
         published
     }
 }

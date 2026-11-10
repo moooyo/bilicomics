@@ -1,4 +1,4 @@
-//! Exclusive portrait sidecars from a verified, bounded native-read descendant.
+//! Read permission and exclusive sidecars for a bounded native-read descendant.
 
 use super::*;
 
@@ -10,6 +10,13 @@ const MAX_CHAIN_MEMBERS: usize = 12;
 enum Publication {
     Startup(NativePortraitCalibration),
     Resume(u64),
+}
+
+#[derive(Clone, Copy)]
+enum OwnershipPurpose {
+    #[cfg(any(test, feature = "kindle"))]
+    Capture,
+    Publish(Publication),
 }
 
 impl Publication {
@@ -79,31 +86,63 @@ struct Writer {
     proc_root: PathBuf,
 }
 
+/// A read-only proof of the existing launcher's bounded native-read context.
+/// Keeping this proof alive does not create or publish any marker.
+#[cfg(any(test, feature = "kindle"))]
+pub(crate) struct NativeReadPermit {
+    writer: Writer,
+    ownership: Ownership,
+}
+
+#[cfg(any(test, feature = "kindle"))]
+impl NativeReadPermit {
+    #[cfg(feature = "kindle")]
+    pub(crate) fn acquire() -> Result<Self> {
+        Self::from_writer(Writer::from_environment()?)
+    }
+
+    fn from_writer(writer: Writer) -> Result<Self> {
+        let ownership = writer.ownership_for(OwnershipPurpose::Capture)?;
+        Ok(Self { writer, ownership })
+    }
+
+    pub(crate) fn recheck(&self) -> Result<()> {
+        ensure!(
+            self.writer.ownership_for(OwnershipPurpose::Capture)? == self.ownership,
+            "Native-read ownership changed during capture"
+        );
+        Ok(())
+    }
+}
+
 pub(super) fn publish(value: &str) -> Result<()> {
     let publication = Publication::parse(value)?;
-    let directory = std::env::var_os("BILICOMICS_LIFECYCLE_DIR")
-        .context("Missing portrait publication directory")?;
-    let nonce =
-        std::env::var("BILICOMICS_LAUNCH_TOKEN").context("Missing portrait publication token")?;
-    ensure!(
-        nonce.len() == 32 && nonce.bytes().all(|byte| byte.is_ascii_hexdigit()),
-        "Invalid portrait publication token"
-    );
-    let generation = std::env::var("BILICOMICS_LAUNCH_GENERATION")
-        .context("Missing portrait publication generation")?
-        .parse::<u64>()?;
-    ensure!(generation > 0, "Invalid portrait publication generation");
-    let writer = Writer {
-        records: PrivateDirectory::open(Path::new(&directory))?,
-        generation,
-        nonce,
-        helper: std::process::id(),
-        proc_root: PathBuf::from("/proc"),
-    };
-    writer.publish(publication)
+    Writer::from_environment()?.publish(publication)
 }
 
 impl Writer {
+    fn from_environment() -> Result<Self> {
+        let directory = std::env::var_os("BILICOMICS_LIFECYCLE_DIR")
+            .context("Missing native-read directory")?;
+        let nonce = std::env::var("BILICOMICS_LAUNCH_TOKEN")
+            .context("Missing native-read token")?;
+        ensure!(
+            nonce.len() == 32 && nonce.bytes().all(|byte| byte.is_ascii_hexdigit()),
+            "Invalid native-read token"
+        );
+        let generation = std::env::var("BILICOMICS_LAUNCH_GENERATION")
+            .context("Missing native-read generation")?
+            .parse::<u64>()?;
+        ensure!(generation > 0, "Invalid native-read generation");
+        Ok(Self {
+            records: PrivateDirectory::open(Path::new(&directory))?,
+            generation,
+            nonce,
+            helper: std::process::id(),
+            proc_root: PathBuf::from("/proc"),
+        })
+    }
+
     fn header(&self) -> String {
         format!("{}:{}", self.generation, self.nonce)
     }
@@ -133,6 +172,10 @@ impl Writer {
     }
 
     fn ownership(&self, publication: Publication) -> Result<Ownership> {
+        self.ownership_for(OwnershipPurpose::Publish(publication))
+    }
+
+    fn ownership_for(&self, purpose: OwnershipPurpose) -> Result<Ownership> {
         self.records.ensure_current()?;
         let header = self.header();
         let generation = self.records.read("generation")?;
@@ -217,8 +260,25 @@ impl Writer {
             ("application-pid", application.clone()),
             ("lifecycle-request", request.clone()),
         ];
-        match publication {
-            Publication::Startup(_) => {
+        let suspend_sequence = match purpose {
+            #[cfg(any(test, feature = "kindle"))]
+            OwnershipPurpose::Capture => match (&application, &request) {
+                (None, None) => None,
+                (Some(_), Some(request)) => {
+                    let sequence = request
+                        .strip_prefix(&format!("{header}:"))
+                        .and_then(|value| value.strip_suffix(":suspend\n"))
+                        .context("Native capture does not follow a current suspend request")?;
+                    let parsed = sequence.parse::<u64>()?;
+                    ensure!(
+                        parsed > 0 && sequence == parsed.to_string(),
+                        "Invalid native capture suspend sequence"
+                    );
+                    Some(parsed)
+                }
+                _ => bail!("The native capture lifecycle context is incomplete"),
+            },
+            OwnershipPurpose::Publish(Publication::Startup(_)) => {
                 ensure!(
                     application.is_none() && request.is_none(),
                     "Startup portrait publication follows application initialization"
@@ -229,45 +289,53 @@ impl Writer {
                     "Startup portrait publication lacks its native mode snapshot"
                 );
                 sources.push(("native-epdc-mode", Some(mode)));
+                None
             }
-            Publication::Resume(sequence) => {
-                let application = canonical_pid_record(
-                    application
-                        .as_deref()
-                        .context("Resume portrait publication has no application identity")?,
-                )?;
-                ensure!(
-                    application != self.helper && application != master && application != leader,
-                    "Invalid resumed portrait application identity"
-                );
-                let application_identity = self.process(application)?;
-                let runner = self.process(application_identity.parent)?;
-                ensure!(
-                    runner.parent == master
-                        && runner.pid != master
-                        && runner.pid != leader
-                        && runner.pid != self.helper,
-                    "The resumed application is not owned by this launcher"
-                );
-                processes.push(application_identity);
-                processes.push(runner);
-                let previous = format!("{header}:{}:suspend", sequence - 1);
-                ensure!(
-                    request.as_deref() == Some(format!("{previous}\n").as_str()),
-                    "Portrait resume publication does not follow the current suspend request"
-                );
-                let ready = self.records.read("lifecycle-ready")?;
-                ensure!(
-                    ready == format!("{header}\n"),
-                    "The resumed application lifecycle bridge is not ready"
-                );
-                let acknowledged = self.records.read("lifecycle-ack")?;
-                ensure!(
-                    acknowledged == format!("{previous}:ok\n")
-                        || acknowledged == format!("{previous}:checkpoint-error\n")
-                        || acknowledged == format!("{previous}\n"),
-                    "The current suspend has not released native ownership"
-                );
+            OwnershipPurpose::Publish(Publication::Resume(sequence)) => Some(sequence - 1),
+        };
+        if let Some(sequence) = suspend_sequence {
+            let application = canonical_pid_record(
+                application
+                    .as_deref()
+                    .context("Resume native read has no application identity")?,
+            )?;
+            ensure!(
+                application != self.helper && application != master && application != leader,
+                "Invalid resumed portrait application identity"
+            );
+            let application_identity = self.process(application)?;
+            let runner = self.process(application_identity.parent)?;
+            ensure!(
+                runner.parent == master
+                    && runner.pid != master
+                    && runner.pid != leader
+                    && runner.pid != self.helper,
+                "The resumed application is not owned by this launcher"
+            );
+            processes.push(application_identity);
+            processes.push(runner);
+            let previous = format!("{header}:{sequence}:suspend");
+            ensure!(
+                request.as_deref() == Some(format!("{previous}\n").as_str()),
+                "Native resume read does not follow the current suspend request"
+            );
+            let ready = self.records.read("lifecycle-ready")?;
+            ensure!(
+                ready == format!("{header}\n"),
+                "The resumed application lifecycle bridge is not ready"
+            );
+            let acknowledged = self.records.read("lifecycle-ack")?;
+            ensure!(
+                acknowledged == format!("{previous}:ok\n")
+                    || acknowledged == format!("{previous}:checkpoint-error\n")
+                    || acknowledged == format!("{previous}\n"),
+                "The current suspend has not released native ownership"
+            );
+            sources.extend([
+                ("lifecycle-ready", Some(ready)),
+                ("lifecycle-ack", Some(acknowledged)),
+            ]);
+            if let OwnershipPurpose::Publish(Publication::Resume(sequence)) = purpose {
                 let mode = self.records.read("resume-native-epdc-mode")?;
                 let prefix = format!("{header}:{sequence}:");
                 ensure!(
@@ -284,11 +352,7 @@ impl Writer {
                     );
                     sources.push((CAPABILITY_RECORD, Some(capability)));
                 }
-                sources.extend([
-                    ("lifecycle-ready", Some(ready)),
-                    ("lifecycle-ack", Some(acknowledged)),
-                    ("resume-native-epdc-mode", Some(mode)),
-                ]);
+                sources.push(("resume-native-epdc-mode", Some(mode)));
             }
         }
         // Verify the same live births, ancestry, executables, and source records
@@ -485,6 +549,130 @@ mod tests {
             assert!(fs::symlink_metadata(self.writer.records.path.join(target)).is_err());
             assert!(fs::symlink_metadata(self.writer.records.path.join(pending)).is_err());
         }
+
+        fn read_permit(&self) -> Result<NativeReadPermit> {
+            NativeReadPermit::from_writer(Writer {
+                records: PrivateDirectory::open(&self.writer.records.path)?,
+                generation: self.writer.generation,
+                nonce: self.writer.nonce.clone(),
+                helper: self.writer.helper,
+                proc_root: self.writer.proc_root.clone(),
+            })
+        }
+    }
+
+    #[test]
+    fn read_permission_precedes_mode_publication_and_creates_no_sidecars() {
+        let fixture = Fixture::new();
+        fs::remove_file(fixture.writer.records.path.join("native-epdc-mode")).unwrap();
+        let before = fs::read_dir(&fixture.writer.records.path).unwrap().count();
+        let permit = fixture.read_permit().unwrap();
+        permit.recheck().unwrap();
+        assert_eq!(fs::read_dir(&fixture.writer.records.path).unwrap().count(), before);
+        fixture.assert_no_publication(Publication::parse("U:3").unwrap());
+        fixture.assert_no_publication(Publication::Resume(2));
+        assert!(fixture.writer.publish(Publication::parse("U:3").unwrap()).is_err());
+    }
+
+    #[test]
+    fn resumed_read_permission_requires_suspend_release_but_not_the_future_mode_record() {
+        for status in [":ok", ":checkpoint-error", ""] {
+            let fixture = Fixture::new();
+            fixture.resume(status);
+            fs::remove_file(fixture.writer.records.path.join("resume-native-epdc-mode")).unwrap();
+            let before = fs::read_dir(&fixture.writer.records.path).unwrap().count();
+            fixture.read_permit().unwrap().recheck().unwrap();
+            assert_eq!(fs::read_dir(&fixture.writer.records.path).unwrap().count(), before);
+            fixture.assert_no_publication(Publication::Resume(2));
+            assert!(fixture.writer.publish(Publication::Resume(2)).is_err());
+        }
+        for (name, value) in [
+            ("application-pid", "999".into()),
+            ("lifecycle-request", format!("7:{NONCE}:1:resume")),
+            ("lifecycle-request", format!("7:{NONCE}:01:suspend")),
+            ("lifecycle-request", format!("7:{NONCE}:0:suspend")),
+            ("lifecycle-request", format!("8:{NONCE}:1:suspend")),
+            ("lifecycle-ready", format!("8:{NONCE}")),
+            ("lifecycle-ack", format!("7:{NONCE}:1:suspend:pending")),
+            ("lifecycle-ack", format!("7:{NONCE}:2:suspend:ok")),
+        ] {
+            let fixture = Fixture::new();
+            fixture.resume(":ok");
+            fixture.record(name, &value);
+            assert!(fixture.read_permit().is_err(), "{name}");
+        }
+    }
+
+    #[test]
+    fn read_permission_rechecks_launch_sources_ancestry_birth_and_executable() {
+        for (name, value) in [
+            ("generation", format!("8:{NONCE}")),
+            ("nonce", "ffffffffffffffffffffffffffffffff".into()),
+            ("pid", "702".into()),
+            ("native-read-go", format!("704:10:{NONCE}")),
+            ("application-pid", "703".into()),
+            ("lifecycle-request", format!("7:{NONCE}:1:suspend")),
+        ] {
+            let fixture = Fixture::new();
+            let permit = fixture.read_permit().unwrap();
+            fixture.record(name, &value);
+            assert!(permit.recheck().is_err(), "{name}");
+            fixture.assert_no_publication(Publication::parse("U:3").unwrap());
+        }
+        for (pid, parent, group, birth) in [
+            (704, 700, 704, 70400),
+            (704, 701, 701, 70400),
+            (708, 701, 704, 70800),
+            (708, 707, 701, 70800),
+            (708, 707, 704, 70801),
+            (707, 706, 704, 70701),
+            (701, 700, 701, 70101),
+        ] {
+            let fixture = Fixture::new();
+            let permit = fixture.read_permit().unwrap();
+            fixture.process(pid, parent, group, birth);
+            assert!(permit.recheck().is_err(), "{pid}:{parent}:{group}:{birth}");
+        }
+        let fixture = Fixture::new();
+        let permit = fixture.read_permit().unwrap();
+        let executable = fixture.writer.proc_root.join("708/exe");
+        fs::remove_file(&executable).unwrap();
+        symlink("/fixture/replaced-bilicomics", executable).unwrap();
+        assert!(permit.recheck().is_err());
+    }
+
+    #[test]
+    fn read_permission_rejects_revocation_unsafe_markers_and_replaced_directory() {
+        let fixture = Fixture::new();
+        let permit = fixture.read_permit().unwrap();
+        fs::remove_file(fixture.writer.records.path.join("native-read-go")).unwrap();
+        assert!(permit.recheck().is_err());
+        for kind in ["symlink", "hardlink", "public"] {
+            let fixture = Fixture::new();
+            let permission = fixture.writer.records.path.join("native-read-go");
+            let value = fs::read_to_string(&permission).unwrap();
+            fs::remove_file(&permission).unwrap();
+            let outside = fixture.temporary.path().join("permission");
+            fs::write(&outside, &value).unwrap();
+            fs::set_permissions(&outside, fs::Permissions::from_mode(0o600)).unwrap();
+            match kind {
+                "symlink" => symlink(&outside, &permission).unwrap(),
+                "hardlink" => fs::hard_link(&outside, &permission).unwrap(),
+                _ => {
+                    fs::write(&permission, &value).unwrap();
+                    fs::set_permissions(&permission, fs::Permissions::from_mode(0o644)).unwrap();
+                }
+            }
+            assert!(fixture.read_permit().is_err(), "{kind}");
+            assert_eq!(fs::read_to_string(outside).unwrap(), value);
+        }
+        let fixture = Fixture::new();
+        let permit = fixture.read_permit().unwrap();
+        fs::rename(&fixture.writer.records.path, fixture.temporary.path().join("old-lock")).unwrap();
+        fs::create_dir(&fixture.writer.records.path).unwrap();
+        fs::set_permissions(&fixture.writer.records.path, fs::Permissions::from_mode(0o700)).unwrap();
+        assert!(permit.recheck().is_err());
+        assert_eq!(fs::read_dir(&fixture.writer.records.path).unwrap().count(), 0);
     }
 
     #[test]

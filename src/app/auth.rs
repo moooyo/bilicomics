@@ -366,6 +366,7 @@ impl App {
     }
 
     fn clear_activated_account_context(&mut self) {
+        self.retire_reader_checkpoints();
         self.jobs.clear();
         self.pending.clear();
         self.network_verified_epoch = None;
@@ -528,6 +529,7 @@ impl App {
     pub(super) fn logout(&mut self) -> Result<()> {
         if self.demo.is_some() { self.toast("common_demo_login"); return Ok(()); }
         self.close_reader()?;
+        self.flush_reader_checkpoints()?;
         self.pause_download_metadata()?;
         let next_epoch = self.epoch.wrapping_add(1);
         if let Some(manager) = &mut self.downloads { manager.invalidate_account(self.epoch)?; }
@@ -540,6 +542,7 @@ impl App {
             Err(error) => return Err(error.into()),
         };
         self.epoch = next_epoch;
+        self.retire_reader_checkpoints();
         self.downloads = None;
         self.jobs.clear();
         self.pending.clear(); self.pending_network = None;

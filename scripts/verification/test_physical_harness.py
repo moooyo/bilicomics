@@ -38,6 +38,7 @@ ELF_FIXTURE = r'''
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -218,21 +219,99 @@ static int resolve_portrait_calibration(const char *directory, const char *gener
     else strcpy(portrait_orientation, direction);
     return 0;
 }
-static int portrait_helper(int argc, char **argv) {
-    const char *approved = getenv("BILICOMICS_APPROVED_PROFILE");
+static int portrait_metadata(char *metadata, size_t capacity) {
     const char *path = getenv("TEST_PORTRAIT_METADATA");
-    char metadata[16];
-    if (argc != 5 || strcmp(argv[1], "--probe-native-portrait-framebuffer")
-            || strcmp(argv[2], "--kindle") || strcmp(argv[3], "--device")
-            || !approved || strcmp(argv[4], approved) || !path
-            || canonical_line(path, metadata, sizeof(metadata))) return 79;
+    if (!path || canonical_line(path, metadata, capacity)) return -1;
     size_t length = strlen(metadata);
     if (!((length == 6 && !strncmp(metadata, "AUTO:", 5))
             || (length == 7 && !strncmp(metadata, "FIXED:", 6)))
             || metadata[length - 2] != ':'
-            || metadata[length - 1] < '0' || metadata[length - 1] > '3') return 79;
+            || metadata[length - 1] < '0' || metadata[length - 1] > '3') return -1;
+    return 0;
+}
+static int portrait_helper(int argc, char **argv) {
+    const char *approved = getenv("BILICOMICS_APPROVED_PROFILE");
+    char metadata[16];
+    if (argc != 5 || strcmp(argv[1], "--probe-native-portrait-framebuffer")
+            || strcmp(argv[2], "--kindle") || strcmp(argv[3], "--device")
+            || !approved || strcmp(argv[4], approved)
+            || portrait_metadata(metadata, sizeof(metadata))) return 79;
     record("portrait-probe", argc, argv);
     return printf("%s\n", metadata) < 0 ? 79 : 0;
+}
+static int capture_fixture_value(const char *command, char *value, size_t capacity) {
+    // These fixed commands invoke only the isolated fake LIPC services. The
+    // production native-reader group still bounds their complete lifetime.
+    FILE *stream = popen(command, "r");
+    if (!stream) return -1;
+    size_t size = fread(value, 1, capacity, stream);
+    int failed = ferror(stream) || !size || size >= capacity;
+    int status = pclose(stream);
+    if (failed || status == -1 || !WIFEXITED(status) || WEXITSTATUS(status)) return -1;
+    if (value[size - 1] == '\n') --size;
+    if (!size) return -1;
+    for (size_t index = 0; index < size; ++index) {
+        if ((unsigned char)value[index] < 32 || (unsigned char)value[index] > 126) return -1;
+    }
+    value[size] = 0;
+    return 0;
+}
+static int capture_fixture_power(void) {
+    char value[129];
+    if (capture_fixture_value("lipc-get-prop -s com.lab126.powerd state", value, sizeof(value))) return -1;
+    return !strcmp(value, "active");
+}
+static int capture_fixture_direction(const char *profile, char *direction) {
+    char value[129];
+    if (capture_fixture_value("lipc-get-prop com.lab126.winmgr accelerometer", value, sizeof(value))) return -1;
+    if (!strcmp(value, "U") || (!strcmp(profile, "scribe") && !strcmp(value, "L"))) *direction = 'U';
+    else if (!strcmp(value, "D") || (!strcmp(profile, "scribe") && !strcmp(value, "R"))) *direction = 'D';
+    else return -1;
+    return 0;
+}
+static int capture_fixture_metadata(char *metadata, size_t capacity) {
+    if (portrait_metadata(metadata, capacity)) return -1;
+    const char *path = getenv("TEST_NATIVE_CAPTURE_SAMPLES");
+    FILE *stream = path ? fopen(path, "a") : NULL;
+    if (!stream) return -1;
+    int failed = fprintf(stream, "%ld:%s\n", (long)getpid(), metadata) < 0;
+    if (fclose(stream)) failed = 1;
+    return failed ? -1 : 0;
+}
+static int native_capture(int argc, char **argv) {
+    const char *approved = getenv("BILICOMICS_APPROVED_PROFILE");
+    const char *directory = getenv("BILICOMICS_LIFECYCLE_DIR");
+    const char *generation = getenv("BILICOMICS_LAUNCH_GENERATION");
+    const char *nonce = getenv("BILICOMICS_LAUNCH_TOKEN");
+    char marker[256], binding[256];
+    if (argc != 5 || strcmp(argv[1], "--capture-native-display")
+            || strcmp(argv[2], "--kindle") || strcmp(argv[3], "--device")
+            || !approved || strcmp(argv[4], approved) || !directory || directory[0] != '/'
+            || !generation || !nonce || strlen(nonce) != 32
+            || snprintf(binding, sizeof(binding), "%s:%s", generation, nonce) >= (int)sizeof(binding)
+            || canonical_marker(directory, "generation", marker, sizeof(marker)) || strcmp(marker, binding)
+            || canonical_marker(directory, "nonce", marker, sizeof(marker)) || strcmp(marker, nonce)) return 79;
+    // The real wrapper proves the protected ownership chain before this ELF
+    // entry. This fixture checks the forwarded context before simulated I/O.
+    record("native-capture", argc, argv);
+    int active = capture_fixture_power();
+    if (active < 0) return 79;
+    if (!active) return printf("not-active\n") < 0 ? 79 : 0;
+    char mode[129], first[16], second[16], direction = 0, repeated_direction = 0;
+    if (capture_fixture_value("lipc-get-prop -s com.lab126.winmgr epdcMode", mode, sizeof(mode))
+            || (strcmp(mode, "Y8") && strcmp(mode, "Y8INV"))
+            || capture_fixture_metadata(first, sizeof(first))) return 79;
+    int automatic = !strncmp(first, "AUTO:", 5);
+    if (automatic && capture_fixture_direction(approved, &direction)) return 79;
+    if (capture_fixture_metadata(second, sizeof(second)) || strcmp(first, second)) return 79;
+    if (automatic && (capture_fixture_direction(approved, &repeated_direction)
+            || repeated_direction != direction)) return 79;
+    active = capture_fixture_power();
+    if (active < 0) return 79;
+    if (!active) return printf("not-active\n") < 0 ? 79 : 0;
+    char orientation[6] = "FIXED";
+    if (automatic) { orientation[0] = direction; orientation[1] = 0; }
+    return printf("ready:%s:%s:%c\n", mode, orientation, first[strlen(first) - 1]) < 0 ? 79 : 0;
 }
 static int positive_sequence(const char *text, unsigned long long *value) {
     size_t length = strlen(text);
@@ -532,6 +611,7 @@ int main(int argc, char **argv) {
         return relay();
     }
     if (argc > 1 && !strcmp(argv[1], "--probe-native-portrait-framebuffer")) return portrait_helper(argc, argv);
+    if (argc > 1 && !strcmp(argv[1], "--capture-native-display")) return native_capture(argc, argv);
     if (argc > 1 && !strcmp(argv[1], "--publish-native-portrait-orientation")) return portrait_publisher(argc, argv);
     record("application", argc, argv);
     const char *trace = NULL;
@@ -595,6 +675,202 @@ def same_live_process(record):
         and current["state"] not in ("Z", "X")
 
 
+class PhysicalWrapperRecordTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if sys.platform != "linux" or os.environ.get("BILICOMICS_REMOTE_VERIFICATION") != "1":
+            raise RuntimeError("Run physical harness fixtures only through ssh test-env")
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix="bilicomics-physical-record-test-")
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        source = (HELPERS / "physical-wrapper.sh").read_text()
+        definitions = source[source.index("physical_wrapper_cr="):source.index("read_record()")]
+        start = source.index("read_exact_record() {")
+        definitions += source[start:source.index("\n}\n", start) + 3]
+        self.record_script = self.root / "read-record.sh"
+        self.record_script.write_text('#!/bin/sh\nset -eu\n' + definitions + 'read_exact_record "$@"\n')
+        self.record = self.root / "record"
+        self.inode_script = self.root / "lock-inode.sh"
+        definition = next(line for line in source.splitlines() if line.startswith("lock_inode()"))
+        self.inode_script.write_text('#!/bin/sh\nset -eu\n' + definition + '\nlock=$1\nlock_inode\n')
+
+    def read_record(self, budget=256):
+        return subprocess.run(["sh", str(self.record_script), str(self.record), str(budget)],
+                              stdin=subprocess.DEVNULL, capture_output=True, timeout=5)
+
+    def test_exact_record_preserves_canonical_bytes_at_both_limits(self):
+        for budget in (256, 512):
+            for content in (b"\n", b"123:456:abcdef\n", b"value with spaces\tand\\backslash\n",
+                            b"x" * (budget - 1) + b"\n"):
+                with self.subTest(budget=budget, content_length=len(content)):
+                    self.record.write_bytes(content)
+                    result = self.read_record(budget)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(result.stdout, content)
+
+    def test_exact_record_rejects_noncanonical_bytes_and_overflow(self):
+        malformed = (b"", b"unterminated", b"record\r\n", b"record\r", b"record\n\n",
+                     b"record\nextra\n", b"record\nextra", b"rec\x00ord\n", b"\x00\n",
+                     b"record\n\x00", b"record\x00\n")
+        for budget in (256, 512):
+            for content in (*malformed, b"x" * budget + b"\n", b"x" * (budget + 1),
+                            b"record\n" + b"x" * (budget * 4)):
+                with self.subTest(budget=budget, content=content[:40], content_length=len(content)):
+                    self.record.write_bytes(content)
+                    result = self.read_record(budget)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual(result.stdout, b"", "A rejected record published partial data")
+        self.record.write_bytes(b"valid\n")
+        for budget in (0, 255, 257, 513, -1, "invalid"):
+            with self.subTest(budget=budget):
+                self.assertNotEqual(self.read_record(budget).returncode, 0)
+
+    def test_exact_record_rejects_missing_link_directory_and_fifo(self):
+        self.assertNotEqual(self.read_record().returncode, 0)
+        target = self.root / "target"
+        target.write_bytes(b"valid\n")
+        self.record.symlink_to(target)
+        self.assertNotEqual(self.read_record().returncode, 0)
+        self.record.unlink()
+        self.record.mkdir()
+        self.assertNotEqual(self.read_record().returncode, 0)
+        self.record.rmdir()
+        os.mkfifo(self.record, 0o600)
+        self.assertNotEqual(self.read_record().returncode, 0)
+
+    def test_lock_inode_preserves_link_identity_and_detects_replacement(self):
+        directory = self.root / "lock"
+        directory.mkdir()
+        original_inode = directory.lstat().st_ino
+        link = self.root / "link"
+        link.symlink_to(directory, target_is_directory=True)
+        dangling = self.root / "dangling"
+        dangling.symlink_to(self.root / "absent", target_is_directory=True)
+        for path in (directory, link, dangling):
+            with self.subTest(path=path.name):
+                result = subprocess.run(["sh", str(self.inode_script), str(path)],
+                                        stdin=subprocess.DEVNULL, capture_output=True, timeout=5)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, f"{path.lstat().st_ino}\n".encode())
+        directory.rename(self.root / "original-lock")
+        directory.mkdir()
+        result = subprocess.run(["sh", str(self.inode_script), str(directory)],
+                                stdin=subprocess.DEVNULL, capture_output=True, timeout=5)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, f"{directory.lstat().st_ino}\n".encode())
+        self.assertNotEqual(int(result.stdout), original_inode)
+
+
+class PhysicalWrapperTraceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if sys.platform != "linux" or os.environ.get("BILICOMICS_REMOTE_VERIFICATION") != "1":
+            raise RuntimeError("Run physical harness fixtures only through ssh test-env")
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix="bilicomics-physical-trace-test-")
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.logs = self.root / "data/logs"
+        self.logs.mkdir(parents=True)
+        self.trace = self.logs / "physical-wrapper-timing.tsv"
+        self.pid = self.root / "caller-pid"
+        source = (HELPERS / "physical-wrapper.sh").read_text()
+        start = source.index("physical_wrapper_trace() {")
+        definition = source[start:source.index("\n}\n", start) + 3]
+        self.script = self.root / "trace.sh"
+        self.script.write_text('#!/bin/sh\nset -eu\numask 077\n' + definition +
+            'run_root=$TEST_TRACE_ROOT\nlogs=$run_root/data/logs\n'
+            'printf "%s\\n" "$$" >"$TEST_TRACE_PID"\n'
+            'before=$(ulimit -f)\nindex=0\n'
+            'while [ "$index" -lt "$TEST_TRACE_COUNT" ]; do\n'
+            '    physical_wrapper_trace "$1"\n    index=$((index + 1))\ndone\n'
+            '[ "$(ulimit -f)" = "$before" ] || exit 74\nexit 73\n')
+
+    def run_trace(self, stage="probe_entry", enabled="1", count=1, root=None):
+        environment = dict(os.environ, TEST_TRACE_ROOT=str(root or self.root),
+                           TEST_TRACE_PID=str(self.pid), TEST_TRACE_COUNT=str(count),
+                           BILICOMICS_PHYSICAL_TOKEN="a" * 64)
+        if enabled is None:
+            environment.pop("BILICOMICS_LAUNCH_TRACE", None)
+        else:
+            environment["BILICOMICS_LAUNCH_TRACE"] = enabled
+        result = subprocess.run(["sh", str(self.script), stage], env=environment,
+                                stdin=subprocess.DEVNULL, capture_output=True, timeout=5)
+        self.assertEqual(result.returncode, 73, "Tracing changed the caller status or file-size limit")
+        self.assertEqual(result.stdout, b"", "Tracing wrote to the native protocol output")
+        return result
+
+    def test_trace_is_opt_in_and_rejects_nonfixed_stages(self):
+        for enabled in (None, "0", "true"):
+            with self.subTest(enabled=enabled):
+                self.run_trace(enabled=enabled)
+                self.assertFalse(self.trace.exists())
+        for stage in ("", "unapproved", "probe_entry\nprivate-value"):
+            with self.subTest(stage=stage):
+                self.run_trace(stage=stage)
+                self.assertFalse(self.trace.exists())
+
+    def test_trace_records_only_fixed_stage_pid_and_uptime(self):
+        stages = ("probe_entry", "capture_entry", "publish_entry", "elf_receipt_loaded", "observer_loaded",
+                  "issuer_bound", "ancestry_scanned", "ancestry_rechecked", "final_checks_entry")
+        expected_pids = []
+        for stage in stages:
+            result = self.run_trace(stage)
+            self.assertEqual(result.stderr, b"")
+            expected_pids.append(self.pid.read_text().strip())
+        records = self.trace.read_text().splitlines()
+        self.assertEqual(len(records), len(stages))
+        for line, stage, pid in zip(records, stages, expected_pids):
+            fields = line.split("\t")
+            self.assertEqual(len(fields), 3)
+            self.assertRegex(fields[0], r"^[0-9]+\.[0-9]+$")
+            self.assertLessEqual(len(fields[0]), 32)
+            self.assertEqual(fields[1:], [stage, f"pid={pid}"])
+        self.assertEqual(self.trace.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(self.trace.stat().st_nlink, 1)
+
+    def test_trace_rejects_preexisting_special_paths_without_writes(self):
+        outside = self.root / "outside"
+        outside.write_bytes(b"outside remains unchanged\n")
+        for kind in ("symlink", "dangling", "fifo", "directory"):
+            with self.subTest(kind=kind):
+                if kind == "symlink":
+                    self.trace.symlink_to(outside)
+                elif kind == "dangling":
+                    self.trace.symlink_to(self.root / "absent")
+                elif kind == "fifo":
+                    os.mkfifo(self.trace, 0o600)
+                else:
+                    self.trace.mkdir()
+                self.run_trace()
+                self.assertEqual(outside.read_bytes(), b"outside remains unchanged\n")
+                self.assertFalse((self.root / "absent").exists())
+                if kind == "directory":
+                    self.assertEqual(list(self.trace.iterdir()), [])
+                    self.trace.rmdir()
+                else:
+                    self.trace.unlink()
+        alias = self.root / "run-alias"
+        alias.symlink_to(self.root, target_is_directory=True)
+        self.run_trace(root=alias)
+        self.assertFalse(self.trace.exists())
+
+    def test_trace_size_limit_and_write_failure_preserve_the_caller(self):
+        self.run_trace(count=800)
+        content = self.trace.read_bytes()
+        self.assertGreater(len(content), 0)
+        self.assertLessEqual(len(content), 16 * 1024)
+        self.run_trace()
+        self.assertEqual(self.trace.read_bytes(), content)
+        oversized = b"x" * (32 * 1024)
+        self.trace.write_bytes(oversized)
+        self.run_trace()
+        self.assertEqual(self.trace.read_bytes(), oversized, "Tracing changed a pre-existing oversized file")
+
+
 class PhysicalHarnessTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -632,6 +908,7 @@ class PhysicalHarnessTests(unittest.TestCase):
         self.hash_trace = self.root / "elf-hashes"
         self.token = secrets.token_hex(32)
         self.watched = []
+        self.log_sinks = []
         self.observer = None
         self.watchdog = None
         self.watchdog_log = None
@@ -669,6 +946,7 @@ class PhysicalHarnessTests(unittest.TestCase):
             TEST_PORTRAIT_ROTATION=str(self.root / "portrait-rotation"),
             TEST_PORTRAIT_DIRECTION=str(self.root / "portrait-direction"),
             TEST_NATIVE_QUERY_TRACE=str(self.root / "native-queries"),
+            TEST_NATIVE_CAPTURE_SAMPLES=str(self.root / "native-capture-samples"),
             TEST_FORBID_NATIVE_MODE_QUERY=str(self.root / "forbid-native-mode-query"),
             TEST_ELF_HASH_TRACE=str(self.hash_trace), TEST_KNOWN_TMP=str(self.root),
             TEST_TMP_ALIAS=str(self.root / "temporary-base-alias"))
@@ -801,6 +1079,18 @@ class PhysicalHarnessTests(unittest.TestCase):
         self.assertTrue(self.launcher and self.launcher["birth"] == launcher_fields[1]
                         and self.launcher["parent"] == self.watchdog.pid, "The launcher is not the watchdog's recorded direct child")
         self.watched.append(self.launcher)
+        self.log_sinks = []
+        for name in ("launcher", "application"):
+            generation, nonce, pid, birth = (self.lock / f"log-{name}-owned").read_text().strip().split(":")
+            sink = identity(pid)
+            self.assertTrue(sink and sink["parent"] == self.launcher["pid"] and sink["birth"] == birth
+                            and sink["group"] == sink["session"] == sink["pid"]
+                            and (self.lock / "generation").read_text().strip() == f"{generation}:{nonce}"
+                            and (self.lock / "nonce").read_text().strip() == nonce,
+                            "A bounded log sink has no current launcher-owned process identity")
+            self.assertTrue((self.lock / f"log-{name}-pipe").is_fifo(), "A bounded log input is not a private FIFO")
+            self.log_sinks.append(sink)
+            self.watched.append(sink)
         self.wait_for("observer and relay executable identities", self.wrapper_records_ready)
         self.application = self.read_identity("native.identity")
         self.relay = self.read_identity("power-relay.identity")
@@ -825,6 +1115,14 @@ class PhysicalHarnessTests(unittest.TestCase):
         self.assertFalse((self.lock / "native-output-capability.pending").exists(),
                          "Startup left an unpublished output capability")
         return self
+
+    def assert_wrapper_trace(self, pid, entry):
+        records = [line.split("\t") for line in (self.logs / "physical-wrapper-timing.tsv").read_text().splitlines()]
+        self.assertTrue(all(len(record) == 3 for record in records))
+        self.assertNotIn(f"pid={self.application['pid']}", [record[2] for record in records])
+        stages = [record[1] for record in records if record[2] == f"pid={pid}"]
+        self.assertEqual(stages, [entry, "elf_receipt_loaded", "observer_loaded", "issuer_bound",
+                                  "ancestry_scanned", "ancestry_rechecked", "final_checks_entry"])
 
     def trace_values(self, event):
         lines = (self.logs / "lifecycle.jsonl").read_bytes().splitlines(keepends=True)
@@ -901,6 +1199,8 @@ class PhysicalHarnessTests(unittest.TestCase):
             self.assertTrue(self.lock.exists(), "An unsafe lock entry was removed without ownership proof")
         for record in (self.application, self.source, self.source_runner, self.relay, self.observer, self.launcher):
             self.assertFalse(same_live_process(record), "An exact owned process remains live after cleanup")
+        for record in self.log_sinks:
+            self.assertFalse(same_live_process(record), "A bounded log sink remains live after cleanup")
         self.assertIn("start/running", (self.root / "statusbar-state").read_text())
         for child, record, stopped in self.native_baseline:
             current = identity(child.pid)
@@ -912,6 +1212,7 @@ class PhysicalHarnessTests(unittest.TestCase):
         self.completed = True
 
     def test_relay_entry_preserves_native_identity_and_arguments(self):
+        self.assertFalse((self.logs / "performance-trace-enabled").exists())
         self.start_fixture()
         before_pid = (self.logs / "native.pid").read_bytes()
         before_identity = (self.logs / "native.identity").read_bytes()
@@ -921,26 +1222,87 @@ class PhysicalHarnessTests(unittest.TestCase):
         application_args = (self.arguments / f"application-{self.application['pid']}").read_text().splitlines()
         self.assertTrue(all(flag in application_args for flag in ("--kindle", "--demo", "--offline")),
                         "The actual application lost its isolated native arguments")
+        self.assertNotIn("--performance-trace", application_args,
+                         "A missing opt-in marker enabled performance tracing on the actual UI")
         self.assertTrue((self.logs / "native.pid").read_bytes() == before_pid and
                         (self.logs / "native.identity").read_bytes() == before_identity,
                         "Observer startup overwrote the native application record")
         self.finish_fixture()
 
-    def test_portrait_helper_preserves_ui_identity_and_exact_internal_arguments(self):
+    def test_performance_trace_opt_in_only_changes_the_actual_ui_arguments(self):
+        (self.logs / "performance-trace-enabled").write_text("1\n")
+        self.start_fixture()
+        application_args = (self.arguments / f"application-{self.application['pid']}").read_text().splitlines()
+        self.assertEqual(application_args.count("--performance-trace"), 1)
+        option_index = application_args.index("--performance-trace")
+        self.assertEqual(application_args[option_index:option_index + 2],
+                         ["--performance-trace", str(self.logs / "performance.jsonl")])
+        self.assertTrue(all(flag in application_args for flag in ("--kindle", "--demo", "--offline")),
+                        "Performance tracing changed the isolated UI arguments")
+        entries = (self.root / "executions").read_text().splitlines()
+        expected_helpers = {
+            "relay": [str(self.fixture_binary), "--relay-power-events"],
+            "native-capture": [str(self.fixture_binary), "--capture-native-display",
+                               "--kindle", "--device", "scribe"],
+            "portrait-publish": [str(self.fixture_binary), "--publish-native-portrait-orientation",
+                                 "FIXED:3", "--kindle", "--device", "scribe"],
+        }
+        for role, expected in expected_helpers.items():
+            with self.subTest(role=role):
+                pids = [int(entry.split(":", 1)[1]) for entry in entries if entry.startswith(role + ":")]
+                self.assertEqual(len(pids), 1, "Startup did not execute exactly one typed helper")
+                arguments = (self.arguments / f"{role}-{pids[0]}").read_text().splitlines()
+                self.assertEqual(arguments, expected,
+                                 "UI performance tracing altered a native helper's exact arguments")
+        self.finish_fixture()
+
+    def test_native_capture_preserves_ui_identity_and_exact_internal_arguments(self):
         self.start_fixture()
         entries = (self.root / "executions").read_text().splitlines()
-        helpers = [int(entry.split(":", 1)[1]) for entry in entries if entry.startswith("portrait-probe:")]
+        helpers = [int(entry.split(":", 1)[1]) for entry in entries if entry.startswith("native-capture:")]
         applications = [entry for entry in entries if entry.startswith("application:")]
-        self.assertEqual(len(helpers), 2, "Startup did not compare two read-only framebuffer observations")
+        self.assertEqual(len(helpers), 1, "Startup did not perform exactly one native capture invocation")
+        self.assertFalse(any(entry.startswith("portrait-probe:") for entry in entries),
+                         "Startup still launched the old per-observation helper")
+        self.assertEqual((self.root / "native-capture-samples").read_text().splitlines(),
+                         [f"{helpers[0]}:FIXED:3"] * 2,
+                         "The single capture did not compare two read-only framebuffer observations")
+        self.assertEqual((self.root / "native-queries").read_text().splitlines(),
+                         ["power-state", "epdcMode", "power-state"])
         self.assertEqual(applications, [f"application:{self.application['pid']}"],
-                         "A portrait helper was launched as a demonstration UI")
+                         "A capture helper was launched as a demonstration UI")
         for pid in helpers:
-            arguments = (self.arguments / f"portrait-probe-{pid}").read_text().splitlines()
-            self.assertEqual(arguments, [str(self.fixture_binary), "--probe-native-portrait-framebuffer",
+            arguments = (self.arguments / f"native-capture-{pid}").read_text().splitlines()
+            self.assertEqual(arguments, [str(self.fixture_binary), "--capture-native-display",
                                          "--kindle", "--device", "scribe"])
             self.assertNotEqual(pid, self.application["pid"], "A helper replaced the application process")
+            self.assert_wrapper_trace(pid, "capture_entry")
         self.assertEqual((self.logs / "native.pid").read_text().strip(), str(self.application["pid"]))
         self.finish_fixture()
+
+    def test_legacy_portrait_probe_remains_a_typed_fixture_primitive(self):
+        environment = dict(self.environment, BILICOMICS_APPROVED_PROFILE="scribe")
+        for value in ("AUTO:0\n", "AUTO:3\n", "FIXED:1\n", "FIXED:2\n"):
+            with self.subTest(value=value):
+                (self.root / "portrait-metadata").write_text(value)
+                result = subprocess.run([str(self.fixture_binary), "--probe-native-portrait-framebuffer",
+                                         "--kindle", "--device", "scribe"],
+                    env=environment, stdin=subprocess.DEVNULL, capture_output=True, timeout=5)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, value.encode())
+        before = (self.root / "executions").read_bytes()
+        for value in ("AUTO:4\n", "AUTO:01\n", "FIXED:3", "FIXED:3\nextra\n", "AUTO:3\x00\n"):
+            with self.subTest(value=value):
+                (self.root / "portrait-metadata").write_text(value)
+                result = subprocess.run([str(self.fixture_binary), "--probe-native-portrait-framebuffer",
+                                         "--kindle", "--device", "scribe"],
+                    env=environment, stdin=subprocess.DEVNULL, capture_output=True, timeout=5)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, b"")
+                self.assertEqual((self.root / "executions").read_bytes(), before)
+        self.assertFalse((self.root / "native-capture-samples").exists())
+        self.assertFalse((self.logs / "native.identity").exists())
+        self.completed = True
 
     def test_busybox_checksum_dispatch_uses_known_image_and_preserves_bound(self):
         source = (HELPERS / "physical-watchdog.sh").read_text()
@@ -972,7 +1334,7 @@ class PhysicalHarnessTests(unittest.TestCase):
                 self.assertFalse(recorded.exists(), "An unrecognized image reached bounded execution")
         self.completed = True
 
-    def test_verified_elf_receipt_is_reused_only_for_portrait_helpers(self):
+    def test_verified_elf_receipt_is_reused_only_for_native_helpers(self):
         self.start_fixture()
         receipt = self.receipt_directory / "verified-elf.receipt"
         fields = receipt.read_text().rstrip("\n").split("|")
@@ -981,7 +1343,7 @@ class PhysicalHarnessTests(unittest.TestCase):
         self.assertEqual(receipt.stat().st_mode & 0o777, 0o600)
         self.assertEqual(receipt.stat().st_nlink, 1)
         self.assertEqual(self.hash_trace.read_text().splitlines(), [str(self.fixture_binary)] * 3,
-                         "Portrait helpers repeated the full ELF hash inside the production read budget")
+                         "Native helpers repeated the full ELF hash inside the production read budget")
         before_identity = (self.logs / "native.identity").read_bytes()
         self.suspend_fixture()
         self.resume_fixture()
@@ -1006,7 +1368,8 @@ class PhysicalHarnessTests(unittest.TestCase):
         self.finish_fixture()
         self.assertFalse(self.receipt_directory.exists(), "Cleanup lost the canonical receipt inode")
 
-    def test_verified_elf_receipt_rejects_changed_metadata_and_link_identity(self):
+    def assert_verified_elf_identity_change_is_rejected(self, capability):
+        self.environment["TEST_OUTPUT_CAPABILITY"] = capability
         self.start_fixture()
         self.suspend_fixture()
         before = (self.root / "executions").read_text().splitlines()
@@ -1020,12 +1383,18 @@ class PhysicalHarnessTests(unittest.TestCase):
         self.wait_for("rejection of changed verified ELF identity", lambda: not same_live_process(self.application))
         self.assertEqual(self.trace_values("resume"), [])
         self.assertEqual([entry for entry in (self.root / "executions").read_text().splitlines()
-                          if entry.startswith("portrait-publish:")],
-                         [entry for entry in before if entry.startswith("portrait-publish:")],
-                         "A changed file identity reused the validated publisher receipt")
+                          if entry.startswith(("native-capture:", "portrait-publish:"))],
+                         [entry for entry in before if entry.startswith(("native-capture:", "portrait-publish:"))],
+                         "A changed file identity reused the validated native helper receipt")
         linked.unlink()
         self.fixture_binary.chmod(0o755)
         self.finish_fixture()
+
+    def test_verified_elf_receipt_rejects_changed_metadata_and_link_identity(self):
+        self.assert_verified_elf_identity_change_is_rejected("framebuffer8")
+
+    def test_capture_receipt_rejects_changed_metadata_and_link_identity(self):
+        self.assert_verified_elf_identity_change_is_rejected("legacy")
 
     def test_verified_elf_receipt_rejects_and_preserves_a_foreign_run(self):
         self.start_fixture()
@@ -1041,27 +1410,37 @@ class PhysicalHarnessTests(unittest.TestCase):
         self.finish_fixture(expected_recovery=False)
         self.assertEqual(receipt.read_text(), foreign, "Recovery removed or rewrote a foreign receipt")
 
-    def test_portrait_helper_rejects_unrelated_parent_and_invalid_arguments(self):
+    def test_native_helpers_reject_unrelated_parent_and_invalid_arguments(self):
         self.start_fixture()
         before = (self.root / "executions").read_bytes()
         original_identity = (self.logs / "native.identity").read_bytes()
-        for arguments in (["--probe-native-portrait-framebuffer", "--kindle", "--device", "scribe"],
-                          ["--probe-native-portrait-framebuffer", "--kindle", "--device", "pw5"],
-                          ["--probe-native-portrait-framebuffer", "--kindle", "--device", "scribe", "--demo"],
-                          ["--kindle", "--probe-native-portrait-framebuffer", "--device", "scribe"]):
-            with self.subTest(arguments=arguments):
-                result = subprocess.run(["sh", str(self.run_root / "app/bilicomics"), *arguments],
-                    env=self.environment, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
-                self.assertNotEqual(result.returncode, 0, "An unowned or malformed helper invocation was accepted")
-                self.assertEqual((self.root / "executions").read_bytes(), before,
-                                 "Rejected helper invocation executed an ELF entry point")
-                self.assertEqual((self.logs / "native.identity").read_bytes(), original_identity,
-                                 "Rejected helper invocation overwrote the application identity")
+        header = (self.lock / "generation").read_text().strip().split(":")
+        environment = dict(self.environment, BILICOMICS_APPROVED_PROFILE="scribe",
+                           BILICOMICS_LIFECYCLE_DIR=str(self.lock), BILICOMICS_LAUNCH_GENERATION=header[0],
+                           BILICOMICS_LAUNCH_TOKEN=header[1])
+        for helper in ("--probe-native-portrait-framebuffer", "--capture-native-display"):
+            for arguments in ([helper, "--kindle", "--device", "scribe"],
+                              [helper, "--kindle", "--device", "pw5"],
+                              [helper, "--kindle", "--device", "scribe", "--demo"],
+                              ["--kindle", helper, "--device", "scribe"],
+                              [helper, "--kindle", "--device", "scribe", "--relay-power-events"]):
+                with self.subTest(arguments=arguments):
+                    result = subprocess.run(["sh", str(self.run_root / "app/bilicomics"), *arguments],
+                        env=environment, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+                    self.assertNotEqual(result.returncode, 0, "An unowned or malformed helper invocation was accepted")
+                    self.assertEqual((self.root / "executions").read_bytes(), before,
+                                     "Rejected helper invocation executed an ELF entry point")
+                    self.assertEqual((self.logs / "native.identity").read_bytes(), original_identity,
+                                     "Rejected helper invocation overwrote the application identity")
         self.finish_fixture()
 
-    def test_portrait_helper_rejects_a_mismatched_digest_artifact(self):
+    def test_native_helpers_reject_a_mismatched_digest_artifact(self):
         self.start_fixture()
         before = (self.root / "executions").read_bytes()
+        header = (self.lock / "generation").read_text().strip().split(":")
+        environment = dict(self.environment, BILICOMICS_APPROVED_PROFILE="scribe",
+                           BILICOMICS_LIFECYCLE_DIR=str(self.lock), BILICOMICS_LAUNCH_GENERATION=header[0],
+                           BILICOMICS_LAUNCH_TOKEN=header[1])
         binary_marker = self.logs / "binary-name"
         original = binary_marker.read_bytes()
         mismatched = self.run_root / "app" / ("bilicomics-" + "0" * 64)
@@ -1069,12 +1448,14 @@ class PhysicalHarnessTests(unittest.TestCase):
         mismatched.chmod(0o755)
         binary_marker.write_text(mismatched.name + "\n")
         try:
-            result = subprocess.run(["sh", str(self.run_root / "app/bilicomics"),
-                                     "--probe-native-portrait-framebuffer", "--kindle", "--device", "scribe"],
-                env=self.environment, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
-            self.assertNotEqual(result.returncode, 0, "A helper accepted an artifact whose digest differs from its binding")
-            self.assertEqual((self.root / "executions").read_bytes(), before,
-                             "A digest mismatch still executed the helper")
+            for helper in ("--probe-native-portrait-framebuffer", "--capture-native-display"):
+                with self.subTest(helper=helper):
+                    result = subprocess.run(["sh", str(self.run_root / "app/bilicomics"),
+                                             helper, "--kindle", "--device", "scribe"],
+                        env=environment, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+                    self.assertNotEqual(result.returncode, 0, "A helper accepted an artifact whose digest differs from its binding")
+                    self.assertEqual((self.root / "executions").read_bytes(), before,
+                                     "A digest mismatch still executed the helper")
         finally:
             binary_marker.write_bytes(original)
         self.finish_fixture()
@@ -1094,6 +1475,8 @@ class PhysicalHarnessTests(unittest.TestCase):
         publishers = [int(entry.split(":", 1)[1]) for entry in (self.root / "executions").read_text().splitlines()
                       if entry.startswith("portrait-publish:")]
         self.assertEqual(len(publishers), 2, "Resume did not publish exactly one sequence-bound permission")
+        for pid in publishers:
+            self.assert_wrapper_trace(pid, "publish_entry")
         arguments = (self.arguments / f"portrait-publish-{publishers[-1]}").read_text().splitlines()
         self.assertEqual(arguments, [str(self.fixture_binary), "--publish-native-portrait-orientation",
                                      f"CALIBRATED:{resumed['sequence']}", "--kindle", "--device", "scribe"])
@@ -1290,7 +1673,11 @@ class PhysicalHarnessTests(unittest.TestCase):
         queries = (self.root / "native-queries").read_bytes()
         self.assertEqual(queries.decode().splitlines().count("accelerometer"), 2)
         helpers = [entry for entry in (self.root / "executions").read_text().splitlines()
-                   if entry.startswith("portrait-probe:")]
+                   if entry.startswith(("native-capture:", "portrait-probe:"))]
+        self.assertEqual(len(helpers), 1)
+        self.assertTrue(helpers[0].startswith("native-capture:"))
+        samples = (self.root / "native-capture-samples").read_bytes()
+        self.assertEqual(len(samples.splitlines()), 2)
         for rotation, expected in ((1, "D"), (3, "U")):
             self.suspend_fixture()
             (self.root / "portrait-rotation").write_text(f"{rotation}\n")
@@ -1306,8 +1693,10 @@ class PhysicalHarnessTests(unittest.TestCase):
             self.assertEqual((self.root / "native-queries").read_bytes(), queries,
                              "The framebuffer wake path added a live native query")
             self.assertEqual([entry for entry in (self.root / "executions").read_text().splitlines()
-                              if entry.startswith("portrait-probe:")], helpers,
+                              if entry.startswith(("native-capture:", "portrait-probe:"))], helpers,
                              "The framebuffer wake path spawned a portrait observation helper")
+            self.assertEqual((self.root / "native-capture-samples").read_bytes(), samples,
+                             "The framebuffer wake path resampled through a native capture helper")
         self.finish_fixture()
 
     def test_resume_rejects_a_calibration_request_from_another_sequence(self):
@@ -1351,11 +1740,17 @@ class PhysicalHarnessTests(unittest.TestCase):
         self.assertEqual(self.trace_values("resume"), [], "A fixed device silently acquired accelerometer rotation support")
         self.finish_fixture()
 
-    def test_legacy_capability_retains_native_mode_resume_fallback(self):
+    def test_legacy_resume_captures_once_without_reading_ui_controls(self):
         self.environment["TEST_OUTPUT_CAPABILITY"] = "legacy"
         self.start_fixture()
+        original_identity = (self.logs / "native.identity").read_bytes()
+        original_pid = (self.logs / "native.pid").read_bytes()
         self.suspend_fixture()
         before_queries = (self.root / "native-queries").read_text().splitlines()
+        # A helper must not enter the UI branch, even when its controls no
+        # longer exist. The current application retains its same live session.
+        (self.logs / "screen").unlink()
+        (self.logs / "exit-after-ms").unlink()
         resumed = self.resume_fixture()
         marker = (self.lock / "resume-native-epdc-mode").read_text().strip()
         self.assertTrue(marker.endswith(f":{resumed['sequence']}:Y8INV"),
@@ -1364,8 +1759,22 @@ class PhysicalHarnessTests(unittest.TestCase):
         self.assertEqual(resumed["native_epdc_mode"], "Y8INV")
         self.assertEqual(self.trace_values("fixture-framebuffer-probe"), [])
         after_queries = (self.root / "native-queries").read_text().splitlines()
-        self.assertGreater(after_queries.count("epdcMode"), before_queries.count("epdcMode"),
-                           "The legacy resume path skipped its native mode observation")
+        self.assertEqual(after_queries.count("epdcMode"), before_queries.count("epdcMode") + 1,
+                         "The legacy resume path did not capture its native mode exactly once")
+        entries = (self.root / "executions").read_text().splitlines()
+        helpers = [int(entry.split(":", 1)[1]) for entry in entries if entry.startswith("native-capture:")]
+        self.assertEqual(len(helpers), 2, "Startup and resume did not each use one capture invocation")
+        self.assertFalse(any(entry.startswith("portrait-probe:") for entry in entries))
+        self.assertEqual((self.root / "native-capture-samples").read_text().splitlines(),
+                         [f"{pid}:FIXED:3" for pid in helpers for _ in range(2)])
+        for pid in helpers:
+            self.assertEqual((self.arguments / f"native-capture-{pid}").read_text().splitlines(),
+                             [str(self.fixture_binary), "--capture-native-display", "--kindle", "--device", "scribe"])
+            self.assert_wrapper_trace(pid, "capture_entry")
+        self.assertEqual([entry for entry in entries if entry.startswith("application:")],
+                         [f"application:{self.application['pid']}"])
+        self.assertEqual((self.logs / "native.identity").read_bytes(), original_identity)
+        self.assertEqual((self.logs / "native.pid").read_bytes(), original_pid)
         self.finish_fixture()
 
     def cleanup_fixture(self):

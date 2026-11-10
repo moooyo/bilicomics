@@ -2,7 +2,7 @@ use super::*;
 
 use image::{DynamicImage, ImageFormat, ImageReader, Rgb, RgbImage};
 use sha2::Digest;
-use std::io::{Cursor, Write};
+use std::{io::{Cursor, Write}, sync::Arc};
 
 #[test]
 fn sealed_pixel_reuse_rehashes_current_bytes_and_avoids_another_decode() {
@@ -38,6 +38,136 @@ fn reusable_pixels_do_not_bypass_identity_policy_or_complete_validation() {
     let truncated = &bytes[..bytes.len() - 12];
     let invalid = decode_image_with_reuse(truncated, None, |_| Some((proof, 42usize)));
     assert!(matches!(invalid, Err(IntegrityError { kind: IntegrityFailureKind::Corrupt, .. })));
+}
+
+#[test]
+fn owned_encoded_identity_is_hashed_once_across_decode_and_pixel_reuse() {
+    let bytes = encoded_fixture(ImageFormat::Png);
+    let expected_digest = format!("{:x}", sha2::Sha256::digest(&bytes));
+    let expected_length = bytes.len() as u64;
+    let identity_before = identity_computation_count();
+    let input = HashedImage::new(bytes).expect("Seal the exact owned encoded bytes");
+    assert_eq!(input.sha256(), expected_digest);
+    assert_eq!(input.byte_len(), expected_length);
+    assert_eq!(identity_computation_count(), identity_before + 1);
+
+    let decode_before = decode_attempt_count();
+    let (proof, decoded) = decode_hashed_image_with_reuse_cancellable(
+        &input, None, |_| None::<(ValidatedImage, Arc<DynamicImage>)>, &|| false,
+    ).expect("Decode the sealed input").expect("The operation was not cancelled");
+    let source = match decoded {
+        ReusableImage::Decoded(source) => Arc::new(source),
+        ReusableImage::Reused(_) => panic!("No pixels were supplied for the first decode"),
+    };
+    assert_eq!((source.width(), source.height()), (FIXTURE_WIDTH, FIXTURE_HEIGHT));
+    assert_eq!(proof.sha256(), input.sha256());
+    assert_eq!(proof.byte_len(), input.byte_len());
+    assert_eq!(decode_attempt_count(), decode_before + 1);
+    assert_eq!(identity_computation_count(), identity_before + 1);
+
+    for _ in 0..3 {
+        let (reused_proof, reused) = decode_hashed_image_with_reuse_cancellable(
+            &input, None, |digest| {
+                assert_eq!(digest, input.sha256());
+                Some((proof.clone(), source.clone()))
+            }, &|| false,
+        ).expect("Reuse exact pixels from the same sealed input").expect("The operation was not cancelled");
+        assert_eq!(reused_proof, proof);
+        match reused {
+            ReusableImage::Reused(retained) => assert!(Arc::ptr_eq(&retained, &source)),
+            ReusableImage::Decoded(_) => panic!("An exact pixel hit must avoid codec allocation"),
+        }
+        assert_eq!(decode_attempt_count(), decode_before + 1);
+        assert_eq!(identity_computation_count(), identity_before + 1);
+    }
+
+    let (decoded_proof, decoded_again) = decode_hashed_image_with_reuse_cancellable(
+        &input, None, |_| None::<(ValidatedImage, Arc<DynamicImage>)>, &|| false,
+    ).expect("Decode again when pixels were evicted").expect("The operation was not cancelled");
+    assert_eq!(decoded_proof, proof);
+    match decoded_again {
+        ReusableImage::Decoded(decoded) => assert_eq!(decoded.to_rgba8(), source.to_rgba8()),
+        ReusableImage::Reused(_) => panic!("Evicted pixels must be decoded again"),
+    }
+    assert_eq!(decode_attempt_count(), decode_before + 2);
+    assert_eq!(identity_computation_count(), identity_before + 1);
+}
+
+#[test]
+fn a_different_sealed_proof_cannot_replace_owned_encoded_input() {
+    let bytes = encoded_fixture(ImageFormat::Png);
+    let expected = image::load_from_memory(&bytes).expect("Decode the independent fixture pixels").to_rgba8();
+    let other_proof = validated(&encoded_fixture(ImageFormat::Jpeg), None);
+    let input = HashedImage::new(bytes).expect("Seal the current PNG bytes");
+    assert_ne!(input.sha256(), other_proof.sha256());
+    let hashes = identity_computation_count();
+    let decodes = decode_attempt_count();
+    let (proof, output) = decode_hashed_image_with_reuse_cancellable(
+        &input, None, |_| Some((other_proof, 42usize)), &|| false,
+    ).expect("Ignore unrelated cached pixels").expect("The operation was not cancelled");
+    assert_eq!(proof.sha256(), input.sha256());
+    assert_eq!(proof.byte_len(), input.byte_len());
+    match output {
+        ReusableImage::Decoded(decoded) => assert_eq!(decoded.to_rgba8(), expected),
+        ReusableImage::Reused(_) => panic!("Another input's proof cannot authorize cached pixels"),
+    }
+    assert_eq!(decode_attempt_count(), decodes + 1);
+    assert_eq!(identity_computation_count(), hashes);
+}
+
+#[test]
+fn owned_input_reuse_still_enforces_a_stricter_pixel_policy() {
+    let bytes = encoded_fixture(ImageFormat::Png);
+    let proof = validated(&bytes, None);
+    let input = HashedImage::new(bytes).expect("Seal the complete input");
+    let pixels = u64::from(FIXTURE_WIDTH) * u64::from(FIXTURE_HEIGHT);
+    let hashes = identity_computation_count();
+    let decodes = decode_attempt_count();
+    let error = match decode_hashed_image_with_reuse_cancellable(
+        &input, Some(pixels - 1), |_| Some((proof.clone(), 42usize)), &|| false,
+    ) {
+        Err(error) => error,
+        Ok(_) => panic!("A sealed input cannot bypass the caller's smaller pixel budget"),
+    };
+    assert_eq!(error.kind, IntegrityFailureKind::ResourceLimit);
+    assert_eq!(error.code, "image_pixel_limit");
+    assert!(error.encoding_evidence().is_none());
+    assert_eq!(decode_attempt_count(), decodes);
+    assert_eq!(identity_computation_count(), hashes);
+
+    let (accepted, output) = decode_hashed_image_with_reuse_cancellable(
+        &input, Some(pixels), |_| Some((proof.clone(), 42usize)), &|| false,
+    ).expect("The exact source fits the original pixel budget").expect("The operation was not cancelled");
+    assert_eq!(accepted, proof);
+    assert!(matches!(output, ReusableImage::Reused(42)));
+    assert_eq!(decode_attempt_count(), decodes);
+    assert_eq!(identity_computation_count(), hashes);
+}
+
+#[test]
+fn corrupt_owned_input_cannot_reuse_a_valid_proof_or_cache_a_failure() {
+    let valid = encoded_fixture(ImageFormat::Png);
+    let old_proof = validated(&valid, None);
+    let broken = png_with_idat(FIXTURE_WIDTH, FIXTURE_HEIGHT, &[0x78, 0x9c, 0x07, 0, 0, 0, 0]);
+    assert_header_dimensions(&broken, ImageFormat::Png, FIXTURE_WIDTH, FIXTURE_HEIGHT);
+    let input = HashedImage::new(broken).expect("An encoded identity is not a successful decode proof");
+    assert_ne!(input.sha256(), old_proof.sha256());
+    let hashes = identity_computation_count();
+    let decodes = decode_attempt_count();
+    for attempt in 1..=2 {
+        let error = match decode_hashed_image_with_reuse_cancellable(
+            &input, None, |_| Some((old_proof.clone(), 42usize)), &|| false,
+        ) {
+            Err(error) => error,
+            Ok(_) => panic!("Corrupt current bytes must not inherit another image's proof"),
+        };
+        assert_eq!(error.kind, IntegrityFailureKind::Corrupt);
+        let evidence = error.encoding_evidence().expect("Corruption must identify the examined owned bytes");
+        assert_eq!(evidence.sha256(), input.sha256());
+        assert_eq!(evidence.byte_len(), input.byte_len());
+        assert_eq!(identity_computation_count(), hashes);
+        assert_eq!(decode_attempt_count(), decodes + attempt);
+    }
 }
 
 const FIXTURE_WIDTH: u32 = 7;

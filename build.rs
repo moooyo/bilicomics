@@ -27,7 +27,7 @@ fn main() {
             }
         }
     }
-    fs::write(output.join("translations.json"), serde_json::to_vec(&labels).expect("Serialize translations"))
+    write_if_changed(&output.join("translations.json"), &serde_json::to_vec(&labels).expect("Serialize translations"))
         .expect("Write runtime translations");
     let mut translations = String::from("export global Strings {\n");
     for (key, value) in labels {
@@ -38,7 +38,7 @@ fn main() {
         ));
     }
     translations.push_str("}\n");
-    fs::write(output.join("strings.slint"), translations).expect("Write generated translations");
+    write_if_changed(&output.join("strings.slint"), translations.as_bytes()).expect("Write generated translations");
     let mut demo_assets = String::from("pub static DEMO_ASSETS: &[(&str, &[u8])] = &[\n");
     let demo_root = PathBuf::from("assets/demo");
     println!("cargo:rerun-if-changed=assets/demo");
@@ -54,12 +54,22 @@ fn main() {
         println!("cargo:rerun-if-changed={}", path.display());
     }
     demo_assets.push_str("];\n");
-    fs::write(output.join("demo_assets.rs"), demo_assets).expect("Write embedded demo assets");
+    write_if_changed(&output.join("demo_assets.rs"), demo_assets.as_bytes()).expect("Write embedded demo assets");
     let configuration = slint_build::CompilerConfiguration::new()
         .with_include_paths(vec![output])
         .with_style("fluent".into());
     slint_build::compile_with_config("ui/app.slint", configuration)
         .expect("Compile the application interface");
+}
+
+fn write_if_changed(path: &std::path::Path, content: &[u8]) -> std::io::Result<()> {
+    // Slint tracks imported generated sources. Identical rewrites would make
+    // a subsequent Cargo invocation rebuild this crate unnecessarily.
+    match fs::read(path) {
+        Ok(existing) if existing == content => Ok(()),
+        Err(error) if error.kind() != std::io::ErrorKind::NotFound => Err(error),
+        _ => fs::write(path, content),
+    }
 }
 
 fn collect_files(directory: &std::path::Path, files: &mut Vec<PathBuf>) {

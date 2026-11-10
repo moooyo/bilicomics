@@ -1,6 +1,7 @@
 use super::*;
 use crate::{
     downloads::{DownloadEventKind, DownloadRequest},
+    performance::{Operation, Span},
     platform::WakeGuard,
     store::{DownloadRecord, DownloadStatus},
     ui::{DownloadChapterItem, DownloadItem},
@@ -109,58 +110,148 @@ struct DownloadRow {
     chapters: Vec<DownloadChapterItem>,
 }
 
+fn recovery_span(trace: Option<Operation>, stage: &'static str) -> Option<Span> {
+    trace.map(|trace| { trace.mark(stage); Span::start() })
+}
+
+fn finish_recovery_span(trace: Option<Operation>, stage: &'static str, span: Option<Span>, outcome: &'static str) {
+    if let (Some(trace), Some(span)) = (trace, span) {
+        let sample = span.finish();
+        trace.record(stage, &serde_json::json!({
+            "outcome": outcome, "wall_us": sample.wall_us, "cpu_us": sample.cpu_us,
+        }));
+    }
+}
+
 impl App {
     pub(super) fn recover_downloads(&mut self) {
+        self.recover_downloads_traced(None);
+    }
+
+    pub(super) fn recover_downloads_traced(&mut self, parent: Option<Operation>) {
+        let trace = Operation::new("download-recovery");
+        if let Some(trace) = trace {
+            trace.record("recovery-request", &serde_json::json!({
+                "parent_operation": parent.map(|parent| parent.id()),
+                "epoch": self.epoch, "lifecycle_cycle": self.lifecycle_cycle(),
+            }));
+        }
         self.cache_download_pause_handle();
-        if self.is_suspended() { self.set_download_transport_suspended(true); return; }
-        let Some(manager) = self.downloads.as_mut() else { return; };
+        if self.is_suspended() {
+            if let Some(trace) = trace { trace.mark("recovery-deferred-suspended"); }
+            self.set_download_transport_suspended(true);
+            return;
+        }
+        let Some(manager) = self.downloads.as_mut() else {
+            if let Some(trace) = trace { trace.mark("recovery-no-manager"); }
+            return;
+        };
         // A newly created manager starts with its default capacity. Restore the
         // saved preference before recovery can admit any page acquisitions.
         if manager.set_concurrency(self.preferences.concurrency.clamp(1, 4) as usize).is_err() {
+            if let Some(trace) = trace { trace.mark("recovery-configuration-failed"); }
             self.toast("common_storage_error");
             return;
         }
         let admission = match self.begin_job("download-recover", false) {
             Ok(admission) => admission,
-            Err(_) => { self.toast("dl_background_busy"); return; }
+            Err(_) => {
+                if let Some(trace) = trace { trace.mark("recovery-admission-failed"); }
+                self.toast("dl_background_busy");
+                return;
+            }
         };
+        if let Some(trace) = trace {
+            trace.record("recovery-admitted", &serde_json::json!({
+                "epoch": admission.0, "job_sequence": admission.1,
+            }));
+        }
         let manager = self.downloads.take().expect("Admission preserves the download manager");
+        if let Some(trace) = trace { trace.mark("manager-transferred-to-recovery"); }
         let owner = std::sync::Arc::new(std::sync::Mutex::new(Some(manager)));
         let work_owner = owner.clone();
         let resume = !self.is_suspended() && !self.options.offline && self.client.session().is_some();
-        self.background_reserved("download-recover", admission, move || {
-            let mut ownership = work_owner.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
-            let manager = ownership.as_mut().context("Download manager ownership is unavailable")?;
-            let recovered = if resume { manager.recover() } else { manager.pause_all() };
-            Ok(recovered.is_ok())
+        if let Some(trace) = trace {
+            trace.record("recovery-mode", &serde_json::json!({
+                "mode": if resume { "resume" } else { "pause_all" },
+            }));
+        }
+        self.background_reserved_traced("download-recover", admission, trace, move || {
+            let span = recovery_span(trace, "recovery-work-begin");
+            let result = (|| -> Result<bool> {
+                let mut ownership = work_owner.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                let manager = ownership.as_mut().context("Download manager ownership is unavailable")?;
+                let recovered = if resume { manager.recover() } else { manager.pause_all() };
+                Ok(recovered.is_ok())
+            })();
+            finish_recovery_span(trace, "recovery-work-end", span,
+                if matches!(&result, Ok(true)) { "success" } else { "failed" });
+            result
         }, move |app, result| {
+            let span = recovery_span(trace, "recovery-result-apply-begin");
+            let mut outcome = if matches!(&result, Ok(true)) { "success" } else { "partial" };
+            if let Some(trace) = trace {
+                trace.record("recovery-result", &serde_json::json!({
+                    "epoch": app.epoch, "lifecycle_cycle": app.lifecycle_cycle(),
+                    "outcome": if matches!(&result, Ok(true)) { "success" } else { "failed" },
+                }));
+            }
             let manager = owner.lock().unwrap_or_else(std::sync::PoisonError::into_inner).take();
             app.invalidate_catalog_local_state();
             if !matches!(result, Ok(true)) { app.toast("common_storage_error"); }
             if let Some(manager) = manager {
-                if app.restore_download_manager(manager).is_err() { app.toast("common_storage_error"); }
+                if app.restore_download_manager_traced(manager, trace).is_err() {
+                    outcome = "partial";
+                    app.toast("common_storage_error");
+                }
             } else {
+                outcome = "partial";
+                if let Some(trace) = trace { trace.mark("recovery-manager-unavailable"); }
                 app.prepare_download_manager();
             }
+            finish_recovery_span(trace, "recovery-result-apply-end", span, outcome);
         });
     }
 
     pub(super) fn restore_download_manager(&mut self, manager: DownloadManager) -> Result<()> {
-        // Settings may have changed while a background job owned the manager.
-        manager.set_concurrency(self.preferences.concurrency.clamp(1, 4) as usize)?;
-        self.downloads = Some(manager);
-        self.cache_download_pause_handle();
-        if self.is_suspended() { self.set_download_transport_suspended(true); }
-        self.reconcile_download_controls_after_sleep()?;
-        self.sync_reader_lease()?;
-        if self.is_suspended() {
-            self.pause_downloads_for_sleep(self.lifecycle_cycle())?;
-            return Ok(());
-        }
-        self.resume_downloads_from_sleep()?;
-        self.flush_deferred_downloads()?;
-        self.reader_page_ready()?;
-        Ok(())
+        self.restore_download_manager_traced(manager, None)
+    }
+
+    fn restore_download_manager_traced(&mut self, manager: DownloadManager, trace: Option<Operation>) -> Result<()> {
+        let span = recovery_span(trace, "manager-restore-begin");
+        let result = (|| {
+            // Settings may have changed while a background job owned the manager.
+            manager.set_concurrency(self.preferences.concurrency.clamp(1, 4) as usize)?;
+            self.downloads = Some(manager);
+            if let Some(trace) = trace { trace.mark("manager-restored-installed"); }
+            self.cache_download_pause_handle();
+            if self.is_suspended() { self.set_download_transport_suspended(true); }
+            self.reconcile_download_controls_after_sleep()?;
+            let sync_span = recovery_span(trace, "restore-reader-lease-sync-begin");
+            let synced = self.sync_reader_lease();
+            finish_recovery_span(trace, "restore-reader-lease-sync-end", sync_span,
+                if synced.is_ok() { "success" } else { "failed" });
+            synced?;
+            if self.is_suspended() {
+                if let Some(trace) = trace { trace.mark("manager-restore-suspended"); }
+                self.pause_downloads_for_sleep(self.lifecycle_cycle())?;
+                return Ok(());
+            }
+            self.resume_downloads_from_sleep()?;
+            self.flush_deferred_downloads()?;
+            if let Some(trace) = trace { trace.mark("restore-reader-page-notify-begin"); }
+            let notified = self.reader_page_ready();
+            if let Some(trace) = trace {
+                trace.record("restore-reader-page-notify-end", &serde_json::json!({
+                    "outcome": if notified.is_ok() { "success" } else { "failed" },
+                }));
+            }
+            notified?;
+            Ok(())
+        })();
+        finish_recovery_span(trace, "manager-restore-end", span,
+            if result.is_err() { "failed" } else if self.is_suspended() { "partial" } else { "success" });
+        result
     }
 
     fn flush_deferred_downloads(&mut self) -> Result<()> {
@@ -296,11 +387,7 @@ impl App {
                 }
             }
             enforce_limit |= matches!(event.kind, DownloadEventKind::Completed | DownloadEventKind::PrefetchReady);
-            match event.kind {
-                DownloadEventKind::PageReady { .. } | DownloadEventKind::IndexReady { .. } | DownloadEventKind::PrefetchReady => reader_changed = true,
-                DownloadEventKind::Failed { .. } | DownloadEventKind::Completed => reader_changed = true,
-                _ => {}
-            }
+            reader_changed |= self.reader_download_dependency_changed(&event);
             self.dirty = true;
             let _ = self.platform.request_refresh(RefreshReason::Progress);
         }

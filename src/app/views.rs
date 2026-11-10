@@ -44,13 +44,15 @@ impl ViewDirty {
     }
 
     pub(super) fn job(&mut self, key: &str) {
+        // Inventory workers often finish a bounded batch without a completed
+        // chapter. Their callback marks views only when visible data changed.
+        if key == "catalog:inventory-step" { return; }
         if key.starts_with("reader-") {
             self.mark(View::Reader);
         } else if key.starts_with("cover") {
             for view in [View::Catalog, View::Downloads, View::Purchase] { self.mark(view); }
         } else if key.starts_with("catalog:") {
             self.mark(View::Catalog);
-            if key == "catalog:local-snapshot" { self.mark(View::Reader); }
         } else if key.starts_with("account-") {
             self.mark(View::Account);
             self.mark(View::Purchase);
@@ -93,4 +95,5 @@ mod tests {
         assert_eq!(dirty.take("login"), None);
         assert!(dirty.needs_route("store"));
     }
+
 }

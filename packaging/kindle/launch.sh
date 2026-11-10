@@ -60,9 +60,9 @@ if [ "${1:-}" != '--detached' ]; then
     SCRIPT_PATH=$(CDPATH= cd "$(dirname "$0")" && pwd)/$(basename "$0")
     export BILICOMICS_HOME
     if command -v setsid >/dev/null 2>&1; then
-        setsid sh "$SCRIPT_PATH" --detached >>"$DATA_DIR/logs/launcher.log" 2>&1 </dev/null &
+        setsid sh "$SCRIPT_PATH" --detached >/dev/null 2>&1 </dev/null &
     else
-        nohup sh "$SCRIPT_PATH" --detached >>"$DATA_DIR/logs/launcher.log" 2>&1 </dev/null &
+        nohup sh "$SCRIPT_PATH" --detached >/dev/null 2>&1 </dev/null &
     fi
     exit 0
 fi
@@ -101,6 +101,7 @@ DISPLAY_OWNED=0
 NATIVE_READ_PID=''
 NATIVE_READ_BIRTH=''
 NATIVE_READ_SEQUENCE=0
+NATIVE_READ_REAPED=1
 NATIVE_MODE_SEQUENCE=0
 NATIVE_MODE_PENDING=0
 NATIVE_EPDC_MODE=''
@@ -116,6 +117,13 @@ NATIVE_CAPABILITY_DIRECTORY=''
 NATIVE_CAPABILITY_FILE=''
 NATIVE_NOTICE_PID=''
 NATIVE_NOTICE_BIRTH=''
+LAUNCHER_LOG_PID=''
+LAUNCHER_LOG_BIRTH=''
+APPLICATION_LOG_PID=''
+APPLICATION_LOG_BIRTH=''
+LOG_OUTPUT_OPEN=0
+LOG_CLOSING=0
+LOG_BYTE_LIMIT=1048576
 
 launch_trace() {
     [ "${BILICOMICS_LAUNCH_TRACE:-0}" = 1 ] || return 0
@@ -129,40 +137,271 @@ launch_trace() {
     IFS= read -r trace_process </proc/self/stat || return 0
     trace_pid=${trace_process%% *}
     case "$trace_pid" in *[!0-9]*|'') return 0 ;; esac
-    printf '%s\t%s\tpid=%s\tphase=%s\tsleep=%s\tcapture=%s\tprobe=%s\tlifecycle=%s\tmode=%s\n' \
-        "$trace_uptime" "$1" "$trace_pid" "$APP_PHASE" "$SLEEP_GENERATION" "$NATIVE_MODE_SEQUENCE" "$WAKE_PROBE_SEQUENCE" "$LIFECYCLE_SEQUENCE" "${NATIVE_EPDC_MODE:-unknown}" 2>/dev/null >>"$trace_path" || :
+    printf '%s\t%s\tpid=%s\tphase=%s\tsleep=%s\tcapture=%s\tprobe=%s\tlifecycle=%s\tmode=%s\tread_sequence=%s\n' \
+        "$trace_uptime" "$1" "$trace_pid" "$APP_PHASE" "$SLEEP_GENERATION" "$NATIVE_MODE_SEQUENCE" "$WAKE_PROBE_SEQUENCE" "$LIFECYCLE_SEQUENCE" "${NATIVE_EPDC_MODE:-unknown}" "$NATIVE_READ_SEQUENCE" 2>/dev/null >>"$trace_path" || :
 }
 
-process_birth() {
-    process_stat=$(cat "/proc/$1/stat" 2>/dev/null || :)
+read_process() {
+    case "$1" in *[!0-9]*|'') return 1 ;; esac
+    IFS= read -r process_stat <"/proc/$1/stat" || return 1
+    [ "${process_stat%% *}" = "$1" ] || return 1
     process_tail=${process_stat##*) }
     [ "$process_tail" != "$process_stat" ] || return 1
     set -- $process_tail
     [ "$#" -ge 20 ] || return 1
+    PROCESS_STATE=$1
+    PROCESS_PARENT=$2
+    PROCESS_GROUP=$3
+    PROCESS_SESSION=$4
     shift 19
     case "$1" in *[!0-9]*|'') return 1 ;; esac
-    printf '%s\n' "$1"
+    PROCESS_BIRTH=$1
+}
+
+process_birth() {
+    read_process "$1" || return 1
+    printf '%s\n' "$PROCESS_BIRTH"
 }
 
 process_parent() {
-    sed -n 's/^PPid:[[:space:]]*//p' "/proc/$1/status" 2>/dev/null
+    read_process "$1" || return 1
+    printf '%s\n' "$PROCESS_PARENT"
+}
+
+log_leaf_identity() {
+    [ ! -L "$1" ] && [ -f "$1" ] || return 1
+    LOG_IDENTITY=$(LC_ALL=C stat -c '%d:%i:%h:%s' "$1" 2>/dev/null) || return 1
+    log_fields=$LOG_IDENTITY
+    log_fields=${log_fields#*:}
+    log_fields=${log_fields#*:}
+    [ "${log_fields%%:*}" = 1 ] || return 1
+    LOG_SIZE=${log_fields#*:}
+    case "$LOG_SIZE" in *[!0-9]*|'') return 1 ;; esac
+}
+
+prepare_log() {
+    log_path=$DATA_DIR/logs/$1.log
+    log_backup=$log_path.1
+    [ ! -L "$log_path" ] && [ ! -L "$log_backup" ] || return 1
+    if [ -e "$log_backup" ]; then
+        log_leaf_identity "$log_backup" || return 1
+        if [ "$LOG_SIZE" -gt "$LOG_BYTE_LIMIT" ]; then
+            log_previous=$LOG_IDENTITY
+            tail -c "$LOG_BYTE_LIMIT" "$log_backup" >"$LOCK_DIR/log-$1-archive.pending" || return 1
+            log_leaf_identity "$log_backup" && [ "$LOG_IDENTITY" = "$log_previous" ] || return 1
+            mv -f "$LOCK_DIR/log-$1-archive.pending" "$log_backup" || return 1
+        fi
+    fi
+    if [ ! -e "$log_path" ]; then
+        ( set -C; : >"$log_path" ) || return 1
+    fi
+    log_leaf_identity "$log_path" || return 1
+    if [ "$LOG_SIZE" -ge "$LOG_BYTE_LIMIT" ]; then
+        log_previous=$LOG_IDENTITY
+        tail -c "$LOG_BYTE_LIMIT" "$log_path" >"$LOCK_DIR/log-$1-archive.pending" || return 1
+        log_leaf_identity "$log_path" && [ "$LOG_IDENTITY" = "$log_previous" ] || return 1
+        mv -f "$LOCK_DIR/log-$1-archive.pending" "$log_backup" || return 1
+        : >"$LOCK_DIR/log-$1-empty.pending" || return 1
+        mv -f "$LOCK_DIR/log-$1-empty.pending" "$log_path" || return 1
+    fi
+}
+
+log_sink_is_owned() {
+    [ -n "$1" ] && [ -n "$2" ] || return 1
+    read_process "$1" 2>/dev/null || return 1
+    [ "$PROCESS_PARENT" = "$$" ] && [ "$PROCESS_BIRTH" = "$2" ] &&
+        [ "$PROCESS_GROUP:$PROCESS_SESSION" = "$1:$1" ]
+}
+
+start_log_sink() {
+    log_name=$1
+    log_path=$DATA_DIR/logs/$log_name.log
+    log_remaining=0
+    log_expected=''
+    if log_leaf_identity "$log_path" && [ "$LOG_SIZE" -le "$LOG_BYTE_LIMIT" ]; then
+        log_expected=${LOG_IDENTITY%:*}
+        log_remaining=$((LOG_BYTE_LIMIT - LOG_SIZE))
+    fi
+    rm -f "$LOCK_DIR/log-$log_name-ready" "$LOCK_DIR/log-$log_name-ready.pending"
+    setsid sh -c '
+        fifo=$1
+        path=$2
+        expected=$3
+        remaining=$4
+        ready=$5
+        header=$6
+        quota=$7
+        name=$8
+        directory=$9
+        trap "" HUP INT TERM
+        exec 9>"$directory/power-events" || exit 1
+        log_sink_exit() {
+            sink_status=$?
+            trap - 0
+            stop_record=$(cat "$directory/log-stopping" 2>/dev/null || :)
+            [ "$stop_record" != "$header" ] || return 0
+            IFS= read -r sink_stat </proc/self/stat || return 0
+            sink_pid=${sink_stat%% *}
+            sink_tail=${sink_stat##*) }
+            set -- $sink_tail
+            [ "$#" -ge 20 ] || return 0
+            shift 19
+            sink_birth=$1
+            printf "%s:%s:%s:%s\n" "$header" "$sink_pid" "$sink_birth" "$sink_status" >"$directory/log-$name-exit.pending" &&
+                mv -f "$directory/log-$name-exit.pending" "$directory/log-$name-exit" || return 0
+            printf "_bilicomics_log_sink_exit %s %s %s %s\n" "$header" "$name" "$sink_pid" "$sink_birth" >&9 || :
+        }
+        trap log_sink_exit 0
+        # The wrapper retains the FIFO read descriptor while head or cat exits.
+        # Write failures stop disk logging, but continue draining application I/O.
+        exec 7<"$fifo" || exit 1
+        sink_wrapper_pid=$$
+        if (
+            trap - 0
+            [ -n "$expected" ] && [ ! -L "$path" ] && [ -f "$path" ] || exit 1
+            # A POSIX special-builtin redirection failure may exit this child.
+            # The outer wrapper retains the FIFO and always falls back to drain.
+            exec 8>>"$path" || exit 1
+            opened=$(LC_ALL=C stat -Lc "%d:%i:%h" /proc/self/fd/8 2>/dev/null || :)
+            [ "$opened" = "$expected" ] || exit 1
+            printf "%s:%s:ok\n" "$header" "$sink_wrapper_pid" >"$ready.pending" && mv -f "$ready.pending" "$ready" || exit 1
+            if [ "$remaining" -gt 0 ]; then head -c "$remaining" <&7 >&8 2>/dev/null || exit 1; fi
+            # This fixed-size marker does not consume any of the log byte quota.
+            if [ "$(LC_ALL=C stat -Lc %s /proc/self/fd/8 2>/dev/null || :)" = 1048576 ]; then
+                printf "%s\n" "$header" >"$quota" 2>/dev/null || :
+            fi
+        ) 9>&-; then :; else
+            printf "%s:%s:discard\n" "$header" "$sink_wrapper_pid" >"$ready.pending" && mv -f "$ready.pending" "$ready" || exit 1
+        fi
+        if cat <&7 >/dev/null 2>/dev/null 9>&-; then exit 0; else exit 1; fi
+    ' sh "$LOCK_DIR/log-$log_name-pipe" "$log_path" "$log_expected" "$log_remaining" \
+        "$LOCK_DIR/log-$log_name-ready" "$APP_GENERATION:$LAUNCH_TOKEN" "$LOCK_DIR/log-$log_name-quota" "$log_name" "$LOCK_DIR" \
+        >/dev/null 2>&1 3>&- 4>&- 5>&- 6>&- &
+    log_pid=$!
+    log_birth=''
+    log_checks=100
+    while [ "$log_checks" -gt 0 ]; do
+        if read_process "$log_pid" 2>/dev/null && [ "$PROCESS_PARENT" = "$$" ]; then
+            if [ -z "$log_birth" ]; then log_birth=$PROCESS_BIRTH; fi
+            [ "$PROCESS_BIRTH" = "$log_birth" ] || break
+            case "$PROCESS_STATE" in Z|X) break ;; esac
+            if [ "$PROCESS_GROUP:$PROCESS_SESSION" = "$log_pid:$log_pid" ]; then
+                log_ready=''
+                if [ -r "$LOCK_DIR/log-$log_name-ready" ]; then
+                    log_ready=$(cat "$LOCK_DIR/log-$log_name-ready" 2>/dev/null || :)
+                fi
+                case "$log_ready" in
+                    "$APP_GENERATION:$LAUNCH_TOKEN:$log_pid:ok"|"$APP_GENERATION:$LAUNCH_TOKEN:$log_pid:discard") break ;;
+                esac
+            fi
+        fi
+        log_checks=$((log_checks - 1))
+        usleep 10000
+    done
+    case "$log_name" in
+        launcher) LAUNCHER_LOG_PID=$log_pid; LAUNCHER_LOG_BIRTH=$log_birth ;;
+        application) APPLICATION_LOG_PID=$log_pid; APPLICATION_LOG_BIRTH=$log_birth ;;
+    esac
+    log_sink_is_owned "$log_pid" "$log_birth" || return 1
+    printf '%s:%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$log_pid" "$log_birth" >"$LOCK_DIR/log-$log_name-owned.pending" || return 1
+    mv -f "$LOCK_DIR/log-$log_name-owned.pending" "$LOCK_DIR/log-$log_name-owned" || return 1
+    case "${log_ready:-}" in
+        "$APP_GENERATION:$LAUNCH_TOKEN:$log_pid:ok"|"$APP_GENERATION:$LAUNCH_TOKEN:$log_pid:discard") return 0 ;;
+    esac
+    return 1
+}
+
+ensure_log_sinks() {
+    [ "$LOG_OUTPUT_OPEN" -eq 1 ] || return 0
+    [ "$LOG_CLOSING" -eq 0 ] || return 0
+    if ! log_sink_is_owned "$LAUNCHER_LOG_PID" "$LAUNCHER_LOG_BIRTH" || [ "$PROCESS_STATE" = Z ] || [ "$PROCESS_STATE" = X ]; then
+        [ -z "$LAUNCHER_LOG_PID" ] || wait "$LAUNCHER_LOG_PID" 2>/dev/null || :
+        start_log_sink launcher || return 1
+    fi
+    if ! log_sink_is_owned "$APPLICATION_LOG_PID" "$APPLICATION_LOG_BIRTH" || [ "$PROCESS_STATE" = Z ] || [ "$PROCESS_STATE" = X ]; then
+        [ -z "$APPLICATION_LOG_PID" ] || wait "$APPLICATION_LOG_PID" 2>/dev/null || :
+        start_log_sink application || return 1
+    fi
+}
+
+handle_log_sink_exit() {
+    [ "$LOG_CLOSING" -eq 0 ] || return 0
+    set -- $power_event
+    [ "$#" -eq 5 ] && [ "$2" = "$APP_GENERATION:$LAUNCH_TOKEN" ] || return 0
+    case "$3" in
+        launcher) notice_log_pid=$LAUNCHER_LOG_PID; notice_log_birth=$LAUNCHER_LOG_BIRTH ;;
+        application) notice_log_pid=$APPLICATION_LOG_PID; notice_log_birth=$APPLICATION_LOG_BIRTH ;;
+        *) return 0 ;;
+    esac
+    [ "$4:$5" = "$notice_log_pid:$notice_log_birth" ] || return 0
+    log_exit_record=$(cat "$LOCK_DIR/log-$3-exit" 2>/dev/null || :)
+    case "$log_exit_record" in "$APP_GENERATION:$LAUNCH_TOKEN:$notice_log_pid:$notice_log_birth:"*) ;; *) return 0 ;; esac
+    case "${log_exit_record##*:}" in *[!0-9]*|'') return 0 ;; esac
+    # The exact wrapper has finished its consumer. Bound its final exit and
+    # promptly replace the drain even when no native power event follows.
+    stop_log_sink "$notice_log_pid" "$notice_log_birth"
+    start_log_sink "$3" || fail 'The bounded production log drain could not be restarted.'
+}
+
+stop_log_sink() {
+    log_stop_checks=20
+    while log_sink_is_owned "$1" "$2" && [ "$log_stop_checks" -gt 0 ]; do
+        case "$PROCESS_STATE" in Z|X) break ;; esac
+        log_stop_checks=$((log_stop_checks - 1))
+        usleep 10000
+    done
+    if log_sink_is_owned "$1" "$2"; then
+        kill -KILL "-$1" 2>/dev/null || :
+    elif [ -n "$1" ] && read_process "$1" 2>/dev/null && [ "$PROCESS_PARENT" = "$$" ] && [ "$PROCESS_BIRTH" = "$2" ]; then
+        kill -KILL "$1" 2>/dev/null || :
+    fi
+    [ -z "$1" ] || wait "$1" 2>/dev/null || :
+}
+
+start_logging() {
+    [ ! -L "$DATA_DIR/logs" ] && [ -d "$DATA_DIR/logs" ] || return 1
+    prepare_log launcher && prepare_log application || return 1
+    mkfifo "$LOCK_DIR/log-launcher-pipe" "$LOCK_DIR/log-application-pipe" || return 1
+    # Keep a read end until cleanup. An unexpectedly terminated sink cannot
+    # deliver SIGPIPE to the App; the event/cleanup path restarts its drain.
+    exec 5<>"$LOCK_DIR/log-launcher-pipe"
+    exec 6<>"$LOCK_DIR/log-application-pipe"
+    start_log_sink launcher && start_log_sink application || return 1
+    exec 1>&5 2>&5
+    LOG_OUTPUT_OPEN=1
+}
+
+stop_logging() {
+    exec 1>/dev/null 2>&1
+    exec 5>&- 6>&-
+    LOG_OUTPUT_OPEN=0
+    stop_log_sink "$APPLICATION_LOG_PID" "$APPLICATION_LOG_BIRTH"
+    stop_log_sink "$LAUNCHER_LOG_PID" "$LAUNCHER_LOG_BIRTH"
+    rm -f "$LOCK_DIR/log-launcher-pipe" "$LOCK_DIR/log-application-pipe" \
+        "$LOCK_DIR/log-stopping" \
+        "$LOCK_DIR/log-launcher-ready" "$LOCK_DIR/log-launcher-ready.pending" "$LOCK_DIR/log-launcher-quota" \
+        "$LOCK_DIR/log-application-ready" "$LOCK_DIR/log-application-ready.pending" "$LOCK_DIR/log-application-quota" \
+        "$LOCK_DIR/log-launcher-owned" "$LOCK_DIR/log-launcher-owned.pending" \
+        "$LOCK_DIR/log-application-owned" "$LOCK_DIR/log-application-owned.pending" \
+        "$LOCK_DIR/log-launcher-exit" "$LOCK_DIR/log-launcher-exit.pending" \
+        "$LOCK_DIR/log-application-exit" "$LOCK_DIR/log-application-exit.pending" \
+        "$LOCK_DIR/log-launcher-archive.pending" "$LOCK_DIR/log-application-archive.pending" \
+        "$LOCK_DIR/log-launcher-empty.pending" "$LOCK_DIR/log-application-empty.pending"
 }
 
 native_read_is_owned() {
     [ -n "$NATIVE_READ_PID" ] && [ -n "$NATIVE_READ_BIRTH" ] || return 1
-    [ "$(process_parent "$NATIVE_READ_PID" 2>/dev/null || :)" = "$$" ] &&
-        [ "$(process_birth "$NATIVE_READ_PID" 2>/dev/null || :)" = "$NATIVE_READ_BIRTH" ]
+    read_process "$NATIVE_READ_PID" 2>/dev/null || return 1
+    [ "$PROCESS_PARENT" = "$$" ] && [ "$PROCESS_BIRTH" = "$NATIVE_READ_BIRTH" ]
 }
 
 native_read_group_is_owned() {
     native_read_is_owned || return 1
-    native_read_stat=$(cat "/proc/$NATIVE_READ_PID/stat" 2>/dev/null || :)
-    native_read_tail=${native_read_stat##*) }
-    set -- $native_read_tail
-    [ "$#" -ge 4 ] && [ "$3:$4" = "$NATIVE_READ_PID:$NATIVE_READ_PID" ]
+    [ "$PROCESS_GROUP:$PROCESS_SESSION" = "$NATIVE_READ_PID:$NATIVE_READ_PID" ]
 }
 
 stop_native_read() {
+    NATIVE_READ_REAPED=0
     if native_read_group_is_owned; then
         # The verified leader remains alive after the getter exits. Kill its
         # entire private group so a timed-out descendant cannot reply later.
@@ -173,19 +412,24 @@ stop_native_read() {
     fi
     native_read_reap=10
     while native_read_is_owned && [ "$native_read_reap" -gt 0 ]; do
-        case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$NATIVE_READ_PID/status" 2>/dev/null || :)" in
-            Z*|X*|'') break ;;
+        case "$PROCESS_STATE" in
+            Z|X) break ;;
         esac
         usleep 100000
         native_read_reap=$((native_read_reap - 1))
     done
     if [ -n "$NATIVE_READ_PID" ]; then
-        case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$NATIVE_READ_PID/status" 2>/dev/null || :)" in
-            Z*|X*|'') wait "$NATIVE_READ_PID" 2>/dev/null || : ;;
-        esac
+        if ! read_process "$NATIVE_READ_PID" 2>/dev/null || [ "$PROCESS_STATE" = Z ] || [ "$PROCESS_STATE" = X ]; then
+            wait "$NATIVE_READ_PID" 2>/dev/null || :
+            NATIVE_READ_REAPED=1
+        fi
+    else
+        NATIVE_READ_REAPED=1
     fi
-    NATIVE_READ_PID=''
-    NATIVE_READ_BIRTH=''
+    if [ "$NATIVE_READ_REAPED" -eq 1 ]; then
+        NATIVE_READ_PID=''
+        NATIVE_READ_BIRTH=''
+    fi
     rm -f "$LOCK_DIR/native-read-done" "$LOCK_DIR/native-read-done.pending" "$LOCK_DIR/native-read-command" "$LOCK_DIR/native-read-command.pending" "$LOCK_DIR/native-read-go" "$LOCK_DIR/native-read-go.pending"
 }
 
@@ -238,29 +482,35 @@ native_read_command() {
         printf "%s:%s:%s\n" "$sequence" "$token" "$command_status" >"$completed.pending"
         mv -f "$completed.pending" "$completed"
         while :; do sleep 1; done
-    ' sh "$LOCK_DIR/native-read-done" "$LOCK_DIR/native-read-go" "$NATIVE_READ_SEQUENCE" "$LAUNCH_TOKEN" "$LOCK_DIR/native-read-command" "$@" >"$LOCK_DIR/native-read-output" 2>/dev/null 3>&- 4>&- &
+    ' sh "$LOCK_DIR/native-read-done" "$LOCK_DIR/native-read-go" "$NATIVE_READ_SEQUENCE" "$LAUNCH_TOKEN" "$LOCK_DIR/native-read-command" "$@" >"$LOCK_DIR/native-read-output" 2>/dev/null 3>&- 4>&- 5>&- 6>&- &
     NATIVE_READ_PID=$!
-    NATIVE_READ_BIRTH=$(process_birth "$NATIVE_READ_PID" 2>/dev/null || :)
+    NATIVE_READ_BIRTH=''
     native_read_checks=20
     native_read_status=1
     native_read_released=0
     while [ "$native_read_checks" -gt 0 ]; do
-        if [ -z "$NATIVE_READ_BIRTH" ] && [ "$(process_parent "$NATIVE_READ_PID" 2>/dev/null || :)" = "$$" ]; then
-            NATIVE_READ_BIRTH=$(process_birth "$NATIVE_READ_PID" 2>/dev/null || :)
-        fi
-        case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$NATIVE_READ_PID/status" 2>/dev/null || :)" in
-            Z*|X*|'') break ;;
+        read_process "$NATIVE_READ_PID" 2>/dev/null || break
+        [ "$PROCESS_PARENT" = "$$" ] || break
+        if [ -z "$NATIVE_READ_BIRTH" ]; then NATIVE_READ_BIRTH=$PROCESS_BIRTH; fi
+        [ "$PROCESS_BIRTH" = "$NATIVE_READ_BIRTH" ] || break
+        case "$PROCESS_STATE" in
+            Z|X) break ;;
         esac
-        if native_read_group_is_owned; then
+        if [ "$PROCESS_GROUP:$PROCESS_SESSION" = "$NATIVE_READ_PID:$NATIVE_READ_PID" ]; then
             if [ "$native_read_released" -eq 0 ]; then
                 if ! { printf '%s:%s:%s\n' "$NATIVE_READ_PID" "$NATIVE_READ_SEQUENCE" "$LAUNCH_TOKEN" >"$LOCK_DIR/native-read-go.pending" &&
                     mv -f "$LOCK_DIR/native-read-go.pending" "$LOCK_DIR/native-read-go"; }; then
                     break
                 fi
                 native_read_released=1
+                launch_trace native_read_go
             fi
             if [ -r "$LOCK_DIR/native-read-done" ]; then
-                [ "$(cat "$LOCK_DIR/native-read-done" 2>/dev/null || :)" != "$NATIVE_READ_SEQUENCE:$LAUNCH_TOKEN:0" ] || native_read_status=0
+                native_read_done=$(cat "$LOCK_DIR/native-read-done" 2>/dev/null || :)
+                if [ "$native_read_done" = "$NATIVE_READ_SEQUENCE:$LAUNCH_TOKEN:0" ]; then
+                    native_read_status=0
+                    launch_trace native_read_ready
+                fi
                 break
             fi
         fi
@@ -268,11 +518,18 @@ native_read_command() {
         usleep 100000
     done
     stop_native_read
+    if [ "$NATIVE_READ_REAPED" -eq 1 ]; then
+        launch_trace native_read_reaped
+    else
+        native_read_status=1
+        launch_trace native_read_cleanup_pending
+    fi
     return "$native_read_status"
 }
 
 native_read_hex() {
-    od -An -v -tx1 "$LOCK_DIR/native-read-output" | tr -d ' \n'
+    native_hex_words=$(od -An -v -tx1 "$LOCK_DIR/native-read-output") || return 1
+    for native_hex_word in $native_hex_words; do printf '%s' "$native_hex_word"; done
 }
 
 read_capability_process() {
@@ -379,106 +636,15 @@ capture_native_epdc_mode() {
     NATIVE_PORTRAIT_ROTATION=''
     NATIVE_CAPTURE_STATUS=unknown
     # Display mode and portrait calibration share one proven group and one
-    # two-second deadline. Every getter is bounded before command substitution.
-    # Repeated metadata and orientation reads must agree while native power is
-    # active; no globally assumed framebuffer rotation becomes a direction.
-    # The command sidecar is reused while its outer writer waits for completion.
-    if ! native_read_command sh -c '
-        status_file=$1
-        application=$2
-        profile=$3
-        bounded_value() {
-            rm -f "$status_file" "$status_file.pending" || return 1
-            snapshot_hex=$(
-                (
-                    if "$@"; then step_status=0; else step_status=$?; fi
-                    printf "%s\n" "$step_status" >"$status_file.pending" || exit 1
-                    mv -f "$status_file.pending" "$status_file" || exit 1
-                ) | dd bs=1 count=129 2>/dev/null | od -An -v -tx1 | tr -d " \n"
-            ) || return 1
-            IFS= read -r step_status <"$status_file" || return 1
-            [ "$step_status" = 0 ] && [ "${#snapshot_hex}" -gt 0 ] && [ "${#snapshot_hex}" -le 256 ]
-        }
-        portrait_metadata() {
-            case "$snapshot_hex" in
-                4155544f3a3[0-3]0a) portrait_kind=AUTO; portrait_rotation_hex=${snapshot_hex#4155544f3a} ;;
-                46495845443a3[0-3]0a) portrait_kind=FIXED; portrait_rotation_hex=${snapshot_hex#46495845443a} ;;
-                *) return 1 ;;
-            esac
-            case "$portrait_rotation_hex" in
-                300a) portrait_rotation=0 ;;
-                310a) portrait_rotation=1 ;;
-                320a) portrait_rotation=2 ;;
-                330a) portrait_rotation=3 ;;
-                *) return 1 ;;
-            esac
-        }
-        portrait_direction() {
-            # The reviewed Scribe adapter normalizes U/L and D/R. Other
-            # profiles retain the exact U/D contract until separately reviewed.
-            case "$snapshot_hex" in
-                55|550a) portrait_orientation=U ;;
-                44|440a) portrait_orientation=D ;;
-                4c|4c0a) [ "$profile" = scribe ] || return 1; portrait_orientation=U ;;
-                52|520a) [ "$profile" = scribe ] || return 1; portrait_orientation=D ;;
-                *) return 1 ;;
-            esac
-        }
-        power_is_active() {
-            case "$snapshot_hex" in 616374697665|6163746976650a) return 0 ;; esac
-            # A bounded, printable non-active value means native dismissal is
-            # still pending. Malformed or empty reads remain an actual failure.
-            power_hex=$snapshot_hex
-            power_text=0
-            while [ -n "$power_hex" ]; do
-                power_pair=${power_hex%"${power_hex#??}"}
-                power_hex=${power_hex#??}
-                case "$power_pair" in
-                    0a) [ -z "$power_hex" ] || return 1 ;;
-                    [2-6][0-9a-f]|7[0-e]) power_text=1 ;;
-                    *) return 1 ;;
-                esac
-            done
-            [ "$power_text" -eq 1 ] || return 1
-            return 2
-        }
-        bounded_value lipc-get-prop -s com.lab126.powerd state || exit 1
-        if power_is_active; then :; else
-            [ "$?" -eq 2 ] || exit 1
-            printf "not-active\n" || exit 1
-            exit 0
-        fi
-        bounded_value lipc-get-prop -s com.lab126.winmgr epdcMode || exit 1
-        case "$snapshot_hex" in
-            5938|59380a) snapshot_mode=Y8 ;;
-            5938494e56|5938494e560a) snapshot_mode=Y8INV ;;
-            *) exit 1 ;;
-        esac
-        bounded_value "$application" --probe-native-portrait-framebuffer --kindle --device "$profile" || exit 1
-        portrait_metadata || exit 1
-        first_metadata=$snapshot_hex
-        if [ "$portrait_kind" = AUTO ]; then
-            bounded_value lipc-get-prop com.lab126.winmgr accelerometer || exit 1
-            portrait_direction || exit 1
-            first_orientation=$portrait_orientation
-        else
-            portrait_orientation=FIXED
-        fi
-        bounded_value "$application" --probe-native-portrait-framebuffer --kindle --device "$profile" || exit 1
-        [ "$snapshot_hex" = "$first_metadata" ] || exit 1
-        if [ "$portrait_kind" = AUTO ]; then
-            bounded_value lipc-get-prop com.lab126.winmgr accelerometer || exit 1
-            portrait_direction || exit 1
-            [ "$portrait_orientation" = "$first_orientation" ] || exit 1
-        fi
-        bounded_value lipc-get-prop -s com.lab126.powerd state || exit 1
-        if power_is_active; then
-            printf "ready:%s:%s:%s\n" "$snapshot_mode" "$portrait_orientation" "$portrait_rotation" || exit 1
-        else
-            [ "$?" -eq 2 ] || exit 1
-            printf "not-active\n" || exit 1
-        fi
-    ' sh "$LOCK_DIR/native-read-command" "$APP_DIR/bilicomics" "$PROFILE"; then return 1; fi
+    # two-second deadline. One application helper validates its protected read
+    # context before native I/O and performs the complete sampling transaction.
+    # The exact compact-record parser remains the launcher acceptance boundary.
+    if ! BILICOMICS_LIFECYCLE_DIR="$LOCK_DIR" \
+        BILICOMICS_LAUNCH_GENERATION="$APP_GENERATION" \
+        BILICOMICS_LAUNCH_TOKEN="$LAUNCH_TOKEN" \
+        native_read_command "$APP_DIR/bilicomics" --capture-native-display --kindle --device "$PROFILE"; then
+        return 1
+    fi
     native_capture_hex=$(native_read_hex) || return 1
     case "$native_capture_hex" in
         72656164793a59383a*) NATIVE_EPDC_MODE=Y8; native_portrait_hex=${native_capture_hex#72656164793a59383a} ;;
@@ -665,7 +831,7 @@ run_application() {
         fi
     }
     trap stop_runner HUP INT TERM
-    BILICOMICS_LIFECYCLE_DIR=$LOCK_DIR BILICOMICS_LAUNCH_GENERATION=$APP_GENERATION BILICOMICS_LAUNCH_TOKEN=$LAUNCH_TOKEN "$APP_DIR/bilicomics" --kindle --device "$PROFILE" --data-dir "$DATA_DIR" >>"$DATA_DIR/logs/application.log" 2>&1 3>&- 4>&- &
+    BILICOMICS_LIFECYCLE_DIR=$LOCK_DIR BILICOMICS_LAUNCH_GENERATION=$APP_GENERATION BILICOMICS_LAUNCH_TOKEN=$LAUNCH_TOKEN "$APP_DIR/bilicomics" --kindle --device "$PROFILE" --data-dir "$DATA_DIR" >&6 2>&1 3>&- 4>&- 5>&- 6>&- &
     runner_child=$!
     printf '%s\n' "$runner_child" >"$LOCK_DIR/application-pid.pending"
     mv -f "$LOCK_DIR/application-pid.pending" "$LOCK_DIR/application-pid"
@@ -781,31 +947,28 @@ observe_power() {
         fi
         printf "_bilicomics_observer_exit %s\n" "$observer_status" >&3
         while :; do sleep 1; done
-    ' sh "$LOCK_DIR" "$APP_GENERATION" "$LAUNCH_TOKEN" "$APP_DIR/bilicomics" 4>&-
+    ' sh "$LOCK_DIR" "$APP_GENERATION" "$LAUNCH_TOKEN" "$APP_DIR/bilicomics" 4>&- 5>&- 6>&-
 }
 
 observer_is_owned() {
     [ -n "$EVENT_SOURCE_PID" ] && [ -n "$EVENT_SOURCE_BIRTH" ] || return 1
-    [ "$(process_parent "$EVENT_SOURCE_PID" 2>/dev/null || :)" = "$$" ] &&
-        [ "$(process_birth "$EVENT_SOURCE_PID" 2>/dev/null || :)" = "$EVENT_SOURCE_BIRTH" ]
+    read_process "$EVENT_SOURCE_PID" 2>/dev/null || return 1
+    [ "$PROCESS_PARENT" = "$$" ] && [ "$PROCESS_BIRTH" = "$EVENT_SOURCE_BIRTH" ]
 }
 
 observer_group_is_owned() {
     observer_is_owned || return 1
-    observer_stat=$(cat "/proc/$EVENT_SOURCE_PID/stat" 2>/dev/null || :)
-    observer_tail=${observer_stat##*) }
-    set -- $observer_tail
-    [ "$#" -ge 4 ] && [ "$3:$4" = "$EVENT_SOURCE_PID:$EVENT_SOURCE_PID" ]
+    [ "$PROCESS_GROUP:$PROCESS_SESSION" = "$EVENT_SOURCE_PID:$EVENT_SOURCE_PID" ]
 }
 
 start_observer() {
     observe_power &
     EVENT_SOURCE_PID=$!
-    EVENT_SOURCE_BIRTH=$(process_birth "$EVENT_SOURCE_PID" 2>/dev/null || :)
+    EVENT_SOURCE_BIRTH=''
     observer_checks=20
     while [ "$observer_checks" -gt 0 ]; do
-        if [ -z "$EVENT_SOURCE_BIRTH" ] && [ "$(process_parent "$EVENT_SOURCE_PID" 2>/dev/null || :)" = "$$" ]; then
-            EVENT_SOURCE_BIRTH=$(process_birth "$EVENT_SOURCE_PID" 2>/dev/null || :)
+        if [ -z "$EVENT_SOURCE_BIRTH" ] && read_process "$EVENT_SOURCE_PID" 2>/dev/null && [ "$PROCESS_PARENT" = "$$" ]; then
+            EVENT_SOURCE_BIRTH=$PROCESS_BIRTH
         fi
         if observer_group_is_owned; then
             printf '%s:%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$EVENT_SOURCE_PID" "$EVENT_SOURCE_BIRTH" >"$LOCK_DIR/observer-owned.pending"
@@ -1091,6 +1254,9 @@ cleanup() {
     trap '' HUP INT TERM
     trap - 0
     saved_status=$1
+    ensure_log_sinks || :
+    LOG_CLOSING=1
+    printf '%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" >"$LOCK_DIR/log-stopping" 2>/dev/null || :
     stop_native_notice
     stop_native_read
     stop_wake_probe
@@ -1104,6 +1270,7 @@ cleanup() {
     if [ "$CONTROL_FD_OPEN" -eq 1 ]; then
         exec 4>&-
     fi
+    stop_logging
     rm -f "$LOCK_DIR/pid" "$LOCK_DIR/power-events" "$LOCK_DIR/power-control" "$LOCK_DIR/nonce" "$LOCK_DIR/generation" "$LOCK_DIR/application-exit" "$LOCK_DIR/application-exit.pending" "$LOCK_DIR/lifecycle-ready" "$LOCK_DIR/lifecycle-ready.pending" "$LOCK_DIR/lifecycle-request" "$LOCK_DIR/lifecycle-request.pending" "$LOCK_DIR/lifecycle-ack" "$LOCK_DIR/lifecycle-ack.pending" "$LOCK_DIR/native-epdc-mode" "$LOCK_DIR/native-epdc-mode.pending" "$LOCK_DIR/resume-native-epdc-mode" "$LOCK_DIR/resume-native-epdc-mode.pending" "$LOCK_DIR/native-portrait-orientation" "$LOCK_DIR/native-portrait-orientation.pending" "$LOCK_DIR/resume-native-portrait-orientation" "$LOCK_DIR/resume-native-portrait-orientation.pending" "$LOCK_DIR/native-output-capability" "$LOCK_DIR/native-output-capability.pending" "$LOCK_DIR/native-read-output"
     rmdir "$LOCK_DIR" 2>/dev/null || :
     exit "$saved_status"
@@ -1119,6 +1286,7 @@ command -v lipc-get-prop >/dev/null 2>&1 || fail 'Native display mode observatio
 command -v setsid >/dev/null 2>&1 || fail 'Private native display observation requires setsid.'
 command -v usleep >/dev/null 2>&1 || fail 'Bounded native display observation requires usleep.'
 command -v dd >/dev/null 2>&1 || fail 'Bounded native display output requires dd.'
+command -v head >/dev/null 2>&1 && command -v tail >/dev/null 2>&1 && command -v stat >/dev/null 2>&1 || fail 'Bounded production logging requires head, tail, and stat.'
 LAUNCH_TOKEN=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
 [ "${#LAUNCH_TOKEN}" -eq 32 ] || fail 'The launcher context token could not be generated.'
 printf '%s\n' "$LAUNCH_TOKEN" >"$LOCK_DIR/nonce"
@@ -1132,6 +1300,7 @@ exec 3<>"$LOCK_DIR/power-events"
 EVENT_FD_OPEN=1
 exec 4<>"$LOCK_DIR/power-control"
 CONTROL_FD_OPEN=1
+start_logging || fail 'Production log preparation or bounded output setup failed.'
 start_observer
 
 sleep 2
@@ -1146,7 +1315,11 @@ publish_native_portrait_orientation native-portrait-orientation || fail 'The sta
 queue_native_notice "_bilicomics_start_ready $APP_GENERATION $LAUNCH_TOKEN"
 
 while IFS= read -r power_event <&3; do
+    ensure_log_sinks || fail 'The bounded production log drain could not be restored.'
     case "$power_event" in
+        '_bilicomics_log_sink_exit '*)
+            handle_log_sink_exit
+            ;;
         goingToScreenSaver*)
             SLEEP_GENERATION=$((SLEEP_GENERATION + 1))
             SLEEP_REQUESTED=1

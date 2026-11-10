@@ -17,6 +17,7 @@ STAGING="$ROOT/kindle-package"
 mkdir -p "$STAGING/bilicomics/app" "$STAGING/bilicomics/data"
 mkdir -p "$STAGING/notices/backend" "$STAGING/notices/fonts" "$STAGING/notices/pinyin" "$STAGING/notices/protocol"
 mkdir -p "$STAGING/notices/jpeg"
+mkdir -p "$STAGING/notices/image-triangle"
 cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/bilicomics" "$STAGING/bilicomics/app/bilicomics"
 cp packaging/kindle/launch.sh "$STAGING/bilicomics/launch.sh"
 cp packaging/kindle/device-allowlist.example "$STAGING/bilicomics/data/device-allowlist"
@@ -36,6 +37,8 @@ cp vendor/bili-protocol/legacy_v5/vendor/mbedtls/LICENSE "$STAGING/notices/proto
 cp vendor/zune-jpeg/LICENSE-APACHE vendor/zune-jpeg/LICENSE-MIT vendor/zune-jpeg/LICENSE-ZLIB \
     vendor/zune-jpeg/UPSTREAM.md vendor/zune-jpeg/PATCHES.md "$STAGING/notices/jpeg/"
 cp vendor/zune-jpeg/patches/0001-strict-entropy-completeness.patch "$STAGING/notices/jpeg/"
+cp vendor/image-triangle-reference-0.25.10/LICENSE-MIT vendor/image-triangle-reference-0.25.10/LICENSE-APACHE \
+    vendor/image-triangle-reference-0.25.10/README.md vendor/image-triangle-reference-0.25.10/SHA256SUMS "$STAGING/notices/image-triangle/"
 chmod 755 "$STAGING/bilicomics/app/bilicomics" "$STAGING/bilicomics/launch.sh"
 python3 - "$STAGING" "$ROOT/app/artifacts/verification/bilicomics-kindle-$VERSION-dev.zip" <<'PY'
 import hashlib
@@ -60,6 +63,8 @@ allowed = [
     "notices/protocol/cjson-LICENSE", "notices/protocol/mbedtls-LICENSE",
     "notices/jpeg/LICENSE-APACHE", "notices/jpeg/LICENSE-MIT", "notices/jpeg/LICENSE-ZLIB",
     "notices/jpeg/UPSTREAM.md", "notices/jpeg/PATCHES.md", "notices/jpeg/0001-strict-entropy-completeness.patch",
+    "notices/image-triangle/LICENSE-MIT", "notices/image-triangle/LICENSE-APACHE",
+    "notices/image-triangle/README.md", "notices/image-triangle/SHA256SUMS",
 ]
 with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
     for relative in sorted(allowed):

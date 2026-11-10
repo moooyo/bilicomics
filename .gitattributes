@@ -8,3 +8,6 @@
 *.gz binary
 *.png binary
 *.wasm binary
+
+# Preserve the exact pinned upstream reference bytes and checksum contract.
+/vendor/image-triangle-reference-0.25.10/** -text
