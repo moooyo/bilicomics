@@ -6,6 +6,43 @@ Automatic brightness is outside the requirements and acceptance scope following
 the user's cross-project instruction on 2026-11-09. Manual brightness and warmth
 controls remain in scope when supported by the device.
 
+## Comic-cover sleep: 0.1.23 implementation
+
+The [comic-cover sleep record](SLEEP_COVER.md) adapts the accepted WeRead
+experience to the comic Reader. An account-scoped bounded image is prepared
+while awake. A checked full update completes before synchronous checkpoint
+work, and matching launcher records retain native display ownership during
+custom sleep. Missing images use comic title/author, and non-Reader routes use
+an application sleep screen. Wake hides the overlay and restores the retained
+Reader through the existing fresh native-presentation and input-drain barriers.
+
+The real Kindle setting now honors the existing cover/system preference;
+unsupported, advertising and native-passcode configurations retain stock sleep.
+The frozen final source passes 696 library, eight Main and four integration
+tests with the Kindle feature enabled, 170 standalone backend tests and 124
+launcher fixtures. Twenty sleep-screen cases produce 24 reviewed captures across
+PW5/Scribe portrait and landscape; retained Reader pixels and anchors match.
+Selected Reader/guest/startup and real-process sleep/wake regressions pass.
+
+The 0.1.23 ARM development ZIP passes ten static checks for 32 allowed entries.
+Its SHA-256 is
+`962053cb0d0402aa2748865d1d78d41320f87e2ec8101df6d13a4af9587b3758`;
+the executable SHA-256 is
+`92736c132ba26dbf6a4b35961d41b178005bec21a28df3eff78e55ee1d39206f`.
+Existing ignored signing/public-network/timing tests remain explicit. No new
+real-account acquisition, panel-latency or battery result is claimed by those
+software checks.
+
+A subsequently authorized isolated Scribe 2022 / 5.19.5 batch deployed that exact
+candidate. A controlled stock power-event cycle retained the bitmap cover and
+woke to the same PID/birth and full source anchor. The operator confirmed normal
+cover display and real finger paging; a captured checkpoint verified exactly one
+next-page advance. Native baselines, launcher-lock removal and actual process
+cleanup passed before owner/token-checked lease release at 2026-11-12 03:54:57
++08:00 and immediate peer notification. The [scoped record](SLEEP_COVER.md)
+separates this result from physical-button latency, long sleep and broader device
+support. Existing installations and user data were not replaced.
+
 ## Streaming resize and next-page preparation: 0.1.22 selected software and physical observations
 
 The [streaming and prepared-page record](PERFORMANCE_STREAMING_PREFETCH_20261110.md)

@@ -384,6 +384,7 @@ impl App {
         self.cover_pending.clear();
         self.cover_failed.clear();
         self.cover_state.clear();
+        self.clear_sleep_screen();
         self.toast_until = None;
         self.dirty = true;
         let Some(ui) = self.ui.upgrade() else { return; };
@@ -550,6 +551,7 @@ impl App {
         self.cover_state.clear();
         self.cover_files.clear(); self.cover_images.clear();
         self.cover_pending.clear(); self.cover_failed.clear();
+        self.clear_sleep_screen();
         self.qr_key = None; self.qr_polling = false; self.reading = None;
         self.initialize_account()?;
         if let Some(error) = activation_error { return Err(error.into()); }

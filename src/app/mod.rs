@@ -8,6 +8,7 @@ mod lifecycle;
 mod lifecycle_maintenance;
 mod reading;
 mod reader_checkpoint;
+mod sleep_screen;
 mod startup;
 mod views;
 #[cfg(test)]
@@ -91,7 +92,7 @@ impl Default for Preferences {
             every: "smart".into(), landscape: "spread".into(), cover_alone: true,
             dither: true, footer: true, smart: true, ahead: 2, concurrency: 2,
             preload: 3, wifi: "auto".into(), cache_limit: 512, launch: "resume".into(),
-            sleep_cover: false, flashui: true, orientation: "auto".into(),
+            sleep_cover: true, flashui: true, orientation: "auto".into(),
             onboarded: false, reader_guidance_seen: false,
         }
     }
@@ -172,6 +173,7 @@ pub struct App {
     cover_pending: BTreeSet<String>,
     cover_failed: BTreeSet<String>,
     cover_state: covers::CoverState,
+    sleep_screen: sleep_screen::SleepScreenState,
     toast_until: Option<Instant>,
     dirty: bool,
     view_dirty: ViewDirty,
@@ -273,11 +275,13 @@ impl App {
             for view in [View::Catalog, View::Downloads, View::Purchase] { self.view_dirty.mark(view); }
         }
         self.schedule_cover_maintenance(false);
+        self.prepare_sleep_screen();
         if jobs_applied || self.dirty || self.view_dirty.needs_route(&self.route) { self.refresh_views()?; }
         Ok(())
     }
 
     fn refresh_views(&mut self) -> Result<()> {
+        self.prepare_sleep_screen();
         let Some(ui) = self.ui.upgrade() else { return Ok(()); };
         let shell = ui.global::<ShellModel>();
         shell.set_suspended(self.is_suspended());
@@ -823,7 +827,8 @@ fn background_memory_cost(key: &str) -> u64 {
     if key.starts_with("reader-render") || key.starts_with("reader-thumbnails")
         || matches!(key, "startup-download-manager" | "download-recover" | "download-remove" | "catalog:inventory-step") {
         source::work::HEAVY_WORK_BYTES
-    } else if key.starts_with("cover-local:") || key.starts_with("cover-prepare:") {
+    } else if key.starts_with("cover-local:") || key.starts_with("cover-prepare:")
+        || key.starts_with("cover-sleep-") {
         source::work::COVER_WORK_BYTES
     } else {
         source::work::METADATA_WORK_BYTES

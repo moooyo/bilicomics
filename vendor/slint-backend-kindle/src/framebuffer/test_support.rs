@@ -52,6 +52,9 @@ impl Framebuffer {
             bytes_per_pixel,
             output_inverted: false,
             update_variant: std::cell::Cell::new(None),
+            last_issued_marker: std::cell::Cell::new(0),
+            last_submitted_marker: std::cell::Cell::new(None),
+            last_completed_marker: std::cell::Cell::new(None),
         })
     }
 

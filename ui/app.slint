@@ -8,6 +8,7 @@ import { DownloadModel, DownloadsScreen } from "downloads.slint";
 import { PurchaseModel, PurchaseScreen } from "purchase.slint";
 import { AuthModel, WelcomeScreen, LoginScreen, NetSheet } from "auth.slint";
 import { StartupScreen } from "startup.slint";
+import { SleepScreen, SleepScreenModel } from "sleep-screen.slint";
 
 export { Theme } from "theme.slint";
 export { CatalogModel, ComicItem, EpisodeItem, CategoryItem, SearchHistoryItem } from "catalog.slint";
@@ -16,6 +17,7 @@ export { AccountModel, AccountInfoItem } from "account.slint";
 export { DownloadModel, DownloadItem, DownloadChapterItem } from "downloads.slint";
 export { PurchaseModel, PurchaseRangeItem, PurchaseReceiptItem } from "purchase.slint";
 export { AuthModel } from "auth.slint";
+export { SleepScreenModel } from "sleep-screen.slint";
 
 export global ShellModel {
     callback action(string, string);
@@ -117,5 +119,11 @@ export component AppWindow inherits Window {
         failed: ShellModel.startup-error;
         paused: ShellModel.suspended;
         exit => { ShellModel.action("exit", ""); }
+    }
+    if SleepScreenModel.active: SleepScreen {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
     }
 }

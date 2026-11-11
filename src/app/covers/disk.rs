@@ -91,6 +91,11 @@ fn regular_metadata(metadata: &Metadata) -> Result<()> {
 }
 
 pub(super) fn read_cover(data_dir: &Path, name: &str) -> Result<Option<(Vec<u8>, u32, u32)>> {
+    read_cover_bytes(data_dir, name)?.map(super::super::startup::decode_cover_bytes).transpose()
+}
+
+/// Read a managed object without imposing the thumbnail decoder's geometry.
+pub(super) fn read_cover_bytes(data_dir: &Path, name: &str) -> Result<Option<Vec<u8>>> {
     ensure!(managed_name(name), "Invalid cached cover name");
     let Some(directory) = CacheDirectory::open(data_dir, false)? else { return Ok(None); };
     let Some(file) = directory.open_regular(name, false)? else { return Ok(None); };
@@ -98,7 +103,7 @@ pub(super) fn read_cover(data_dir: &Path, name: &str) -> Result<Option<(Vec<u8>,
     let mut encoded = Vec::new();
     file.take(MAX_COVER_BYTES + 1).read_to_end(&mut encoded).context("Read a cached cover")?;
     ensure!(encoded.len() as u64 <= MAX_COVER_BYTES, "Cached cover exceeds its byte limit");
-    super::super::startup::decode_cover_bytes(encoded).map(Some)
+    Ok(Some(encoded))
 }
 
 pub(super) fn publish_cover(data_dir: &Path, name: &str, rgba: &[u8], width: u32, height: u32) -> Result<PathBuf> {
@@ -106,10 +111,23 @@ pub(super) fn publish_cover(data_dir: &Path, name: &str, rgba: &[u8], width: u32
     ensure!(width > 0 && height > 0 && width <= 480 && height <= 640, "Invalid prepared cover dimensions");
     ensure!((width as usize).checked_mul(height as usize).and_then(|pixels| pixels.checked_mul(4)) == Some(rgba.len()),
         "Invalid prepared cover pixel count");
+    publish_png(data_dir, name, rgba, width, height, image::ExtendedColorType::Rgba8)
+}
+
+/// Share the bounded managed cache while retaining a screen-sized L8 image.
+pub(super) fn publish_sleep_cover(data_dir: &Path, name: &str, luma: &[u8], width: u32, height: u32) -> Result<PathBuf> {
+    ensure!(managed_name(name), "Invalid cached cover name");
+    ensure!(width > 0 && height > 0 && width <= 1536 && height <= 2048, "Invalid prepared sleep cover dimensions");
+    ensure!((width as usize).checked_mul(height as usize) == Some(luma.len()),
+        "Invalid prepared sleep cover pixel count");
+    publish_png(data_dir, name, luma, width, height, image::ExtendedColorType::L8)
+}
+
+fn publish_png(data_dir: &Path, name: &str, pixels: &[u8], width: u32, height: u32, color: image::ExtendedColorType) -> Result<PathBuf> {
     let directory = CacheDirectory::open(data_dir, true)?.context("Create the cached cover directory")?;
     let mut temporary = OwnedTemporary::create(&directory)?;
     image::codecs::png::PngEncoder::new(temporary.file_mut())
-        .write_image(rgba, width, height, image::ExtendedColorType::Rgba8)
+        .write_image(pixels, width, height, color)
         .context("Encode a prepared cover")?;
     ensure!(temporary.file_mut().metadata()?.len() <= MAX_COVER_BYTES, "Prepared cover exceeds its byte limit");
     temporary.publish(name)?;

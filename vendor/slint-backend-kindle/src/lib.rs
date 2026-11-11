@@ -28,6 +28,7 @@ mod portrait_pose;
 mod power;
 mod refresh;
 mod resume_trace;
+mod sleep_presentation;
 mod touch;
 mod wakeup;
 

@@ -258,7 +258,6 @@ impl App {
         }
         if self.demo.is_none() {
             self.preferences.smart = false;
-            self.preferences.sleep_cover = false;
             self.preferences.orientation = "portrait".into();
         }
         self.platform.set_flash_on_navigation(self.preferences.flashui);
@@ -309,7 +308,7 @@ impl App {
         account.set_orientation(self.preferences.orientation.clone().into());
         account.set_can_wifi(self.demo.is_some());
         account.set_can_orient(self.demo.is_some());
-        account.set_can_sleep_cover(self.demo.is_some());
+        account.set_can_sleep_cover(self.demo.is_some() || self.platform.is_kindle);
         account.set_can_smart(self.demo.is_some());
         account.set_can_update(self.demo.is_some());
         account.set_version(env!("CARGO_PKG_VERSION").into());
@@ -405,7 +404,7 @@ impl App {
             }
             "wifi" if self.demo.is_some() && ["auto", "always"].contains(&value) => self.preferences.wifi = value.into(),
             "orientation" if self.demo.is_some() && ["auto", "portrait"].contains(&value) => self.preferences.orientation = value.into(),
-            "sleep-cover" if self.demo.is_some() && ["cover", "system"].contains(&value) => self.preferences.sleep_cover = value == "cover",
+            "sleep-cover" if (self.demo.is_some() || self.platform.is_kindle) && ["cover", "system"].contains(&value) => self.preferences.sleep_cover = value == "cover",
             "wifi" | "orientation" | "sleep-cover" => self.toast("common_not_supported"),
             "cache-limit" => {
                 if let Ok(limit) = value.parse::<u32>() {

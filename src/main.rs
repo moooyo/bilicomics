@@ -28,7 +28,9 @@ use serde::Deserialize;
 use slint::{ComponentHandle, Model};
 
 mod runtime_wakeup;
+mod sleep_cover_runtime;
 use runtime_wakeup::{RuntimeWake, StartupContinuation, TraceMoment, trace_moment};
+use sleep_cover_runtime::{CoverProgress, SleepCoverRuntime};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -127,6 +129,33 @@ struct NativeResumeFramebuffer {
 }
 
 impl DisplayPower {
+    fn supports_sleep_cover(&self) -> bool {
+        match self {
+            Self::Desktop => false,
+            #[cfg(all(feature = "kindle", target_os = "linux"))]
+            Self::Kindle(_) => true,
+        }
+    }
+
+    fn request_sleep_presentation(&self) -> Result<u64> {
+        match self {
+            Self::Desktop => bail!("The desktop display cannot acknowledge a physical sleep cover"),
+            #[cfg(all(feature = "kindle", target_os = "linux"))]
+            Self::Kindle(handle) => handle.request_sleep_presentation().map_err(Into::into),
+        }
+    }
+
+    fn sleep_presentation_completed(&self, token: u64) -> Result<bool> {
+        match self {
+            Self::Desktop => {
+                let _ = token;
+                bail!("The desktop display cannot acknowledge a physical sleep cover")
+            }
+            #[cfg(all(feature = "kindle", target_os = "linux"))]
+            Self::Kindle(handle) => handle.sleep_presentation_completed(token).map_err(Into::into),
+        }
+    }
+
     fn probe_native_resume_framebuffer(
         &self,
         framebuffer_scanout: bool,
@@ -427,6 +456,8 @@ fn run(arguments: Arguments) -> Result<()> {
     let power_ui = ui.as_weak();
     let power_wake = wake.clone();
     let trace_path = arguments.lifecycle_trace.clone();
+    let sleep_cover_context = signals.sleep_cover_context();
+    let mut sleep_cover = SleepCoverRuntime::default();
     signals.start(move |event| {
         // Release the application borrow before native pointer cancellation can
         // emit widget callbacks. Their application intent gate is already set.
@@ -438,13 +469,48 @@ fn run(arguments: Arguments) -> Result<()> {
                 power_control.suspended.set(true);
                 ui.global::<ShellModel>().set_suspended(true);
                 if let Some(app) = &application { app.borrow_mut().begin_suspend_intent_gate(); }
+                let requested_cover = if display_power.supports_sleep_cover()
+                    && application.as_ref().is_some_and(|app| app.borrow().sleep_cover_enabled())
+                {
+                    sleep_cover_context.as_ref().map(|context| context.requested()).transpose()
+                } else {
+                    Ok(None)
+                };
+                let progress = match requested_cover {
+                    Ok(request) => sleep_cover.poll(request.flatten(), Instant::now(), || {
+                        application.as_ref().context("The sleep application is unavailable")?
+                            .borrow_mut().show_sleep_screen()?;
+                        display_power.request_sleep_presentation()
+                    }, |token| display_power.sleep_presentation_completed(token)),
+                    Err(error) => Err(error),
+                };
+                let cover_presented = match progress {
+                    Ok(CoverProgress::Pending) => return Ok(PowerAck::deferred()),
+                    Ok(CoverProgress::Presented(elapsed)) => {
+                        eprintln!("bilicomics: sleep cover presented {} ms after application sleep handling began", elapsed.as_millis());
+                        true
+                    }
+                    Ok(CoverProgress::Stock) => {
+                        if let Some(app) = &application { app.borrow_mut().hide_sleep_screen(); }
+                        false
+                    }
+                    Err(error) => {
+                        eprintln!("bilicomics: sleep cover unavailable; retaining native screensaver handoff: {error:#}");
+                        sleep_cover.cancel();
+                        if let Some(app) = &application { app.borrow_mut().hide_sleep_screen(); }
+                        false
+                    }
+                };
                 display_power.suspend().context("Release native input and display for screensaver")?;
                 let checkpoint = application.as_ref().map(|app| app.borrow_mut().suspend()).transpose();
                 if let Err(error) = &checkpoint { eprintln!("bilicomics: sleep checkpoint failed: {error:#}"); }
-                if checkpoint.is_ok() { PowerAck::saved() } else { PowerAck::checkpoint_error() }
+                let ack = if checkpoint.is_ok() { PowerAck::saved() } else { PowerAck::checkpoint_error() };
+                ack.with_sleep_cover(cover_presented)
             }
             PowerEvent::Resume => {
                 capture_resume_stage(&mut resume_stages, trace_path.is_some(), "callback_received");
+                sleep_cover.cancel();
+                if let Some(app) = &application { app.borrow_mut().hide_sleep_screen(); }
                 if let Some(context) = native_presentation.as_ref() {
                     power_control.native_epdc_mode.set(None);
                     let observed = context.observe_resume_portrait(|| display_power.probe_native_resume_framebuffer(framebuffer_portrait))
@@ -478,6 +544,8 @@ fn run(arguments: Arguments) -> Result<()> {
                 if restored.is_ok() { PowerAck::saved() } else { PowerAck::checkpoint_error() }
             }
             PowerEvent::Quit => {
+                sleep_cover.cancel();
+                if let Some(app) = &application { app.borrow_mut().hide_sleep_screen(); }
                 power_control.quitting.set(true);
                 if let Some(app) = &application { app.borrow_mut().request_quit(); }
                 let _ = slint::quit_event_loop();
@@ -589,6 +657,9 @@ fn run(arguments: Arguments) -> Result<()> {
     let mut performance_first_driver = true;
     let mut performance_gate = None::<&'static str>;
     let driver = Rc::new(RefCell::new(move || {
+            // A pending cover must reach its checked full-frame completion
+            // before the suspended gate skips ordinary application work.
+            SignalBridge::poll_pending();
             if performance_first_driver {
                 performance_first_driver = false;
                 bilicomics::performance::startup("driver_first_entry", &());

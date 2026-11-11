@@ -96,8 +96,13 @@ WAKE_FALLBACK_ALLOWED=0
 WAKE_FAST_PROBES_REMAINING=0
 WAKE_PROBES_REMAINING=0
 PAUSED_WM_PIDS=''
+PAUSED_WM_IDENTITIES=''
 STATUSBAR_STOPPED=0
+STATUSBAR_QUIESCED=0
 DISPLAY_OWNED=0
+COVER_SLEEP_SUPPORTED=0
+SLEEP_COVER_ACTIVE=0
+SLEEP_COVER_SEQUENCE=0
 NATIVE_READ_PID=''
 NATIVE_READ_BIRTH=''
 NATIVE_READ_SEQUENCE=0
@@ -762,16 +767,101 @@ signal_recorded_child() {
     kill "-$child_signal" "$recorded_pid" 2>/dev/null
 }
 
+configure_cover_sleep() {
+    # Observe the existing framework while it is running. This does not alter
+    # advertisements, native locks, powerd policy, or the system sleep image.
+    COVER_SLEEP_SUPPORTED=0
+    native_read_command lipc-get-prop -s com.lab126.blanket load || return 0
+    cover_configuration_size=$(LC_ALL=C stat -c %s "$LOCK_DIR/native-read-output") || return 0
+    [ "$cover_configuration_size" -gt 0 ] && [ "$cover_configuration_size" -le 128 ] || return 0
+    # Validate raw bytes before shell substitution, which cannot retain NUL.
+    cover_configuration_bytes=$(od -An -v -tu1 "$LOCK_DIR/native-read-output") || return 0
+    for cover_byte in $cover_configuration_bytes; do
+        case "$cover_byte" in 9|10|13) continue ;; esac
+        [ "$cover_byte" -ge 32 ] && [ "$cover_byte" -le 126 ] || return 0
+    done
+    cover_configuration=$(cat "$LOCK_DIR/native-read-output") || return 0
+    case "$cover_configuration" in ''|*ad_screensaver*) return 0 ;; esac
+    case "$cover_configuration" in *[![:space:]]*) ;; *) return 0 ;; esac
+    case "$cover_configuration" in *[![:print:][:space:]]*) return 0 ;; esac
+    COVER_SLEEP_SUPPORTED=1
+    return 0
+}
+
+cover_sleep_can_own_display() {
+    [ "$COVER_SLEEP_SUPPORTED" -eq 1 ] && [ "$DISPLAY_OWNED" -eq 1 ] &&
+        [ "$STATUSBAR_QUIESCED" -eq 1 ] && [ -n "$PAUSED_WM_PIDS" ] || return 1
+    # Recheck native locking on every transition; an earlier permission never
+    # authorizes painting over a password that was configured later.
+    [ ! -e /var/local/system/userpasswdenabled ] &&
+        [ ! -L /var/local/system/userpasswdenabled ] || return 1
+    for cover_wm_pid in $PAUSED_WM_PIDS; do
+        cover_wm_birth=''
+        for cover_wm_identity in $PAUSED_WM_IDENTITIES; do
+            if [ "${cover_wm_identity%%:*}" = "$cover_wm_pid" ]; then
+                cover_wm_birth=${cover_wm_identity#*:}
+                break
+            fi
+        done
+        [ -n "$cover_wm_birth" ] && read_process "$cover_wm_pid" 2>/dev/null || return 1
+        [ "$PROCESS_BIRTH" = "$cover_wm_birth" ] || return 1
+        case "$PROCESS_STATE" in T|t) ;; *) return 1 ;; esac
+    done
+}
+
+sleep_cover_records_match() {
+    # Keep mutable-leaf reads inside the existing owned, bounded helper. Exact
+    # byte counts reject trailing records; a FIFO replacement cannot hang Main.
+    cover_expected=$APP_GENERATION:$LAUNCH_TOKEN:$SLEEP_COVER_SEQUENCE:suspend
+    if native_read_command sh -c '
+        for leaf in sleep-cover-request sleep-cover-ready; do
+            path=$1/$leaf
+            [ -f "$path" ] && [ ! -L "$path" ] || exit 1
+            size=$(LC_ALL=C stat -c %s "$path") || exit 1
+            [ "$size" = "$((${#2} + 1))" ] || exit 1
+            IFS= read -r record <"$path" || exit 1
+            [ "$record" = "$2" ] || exit 1
+        done
+        printf "cover-ready\n"
+    ' sh "$LOCK_DIR" "$cover_expected"; then
+        [ "$(native_read_hex)" = 636f7665722d72656164790a ]
+    else
+        return 1
+    fi
+}
+
+cover_wake_power_is_active() {
+    # The WM stays stopped in this branch. Only powerd is queried; the App will
+    # obtain fresh kernel polarity and rotation before its first resumed frame.
+    native_read_command lipc-get-prop -s com.lab126.powerd state || return 1
+    case "$(native_read_hex)" in 616374697665|6163746976650a) ;; *) return 1 ;; esac
+    native_read_command lipc-get-prop -s com.lab126.powerd state || return 1
+    case "$(native_read_hex)" in 616374697665|6163746976650a) ;; *) return 1 ;; esac
+}
+
+fallback_cover_sleep() {
+    SLEEP_COVER_ACTIVE=0
+    NATIVE_MODE_PENDING=0
+    NATIVE_RESUME_PRESENTATION=''
+    WAKE_CONFIRMED=0
+    WAKE_DISMISS_GENERATION=0
+    WAKE_FALLBACK_ALLOWED=0
+    release_display
+    launch_trace cover_sleep_fallback
+}
+
 release_display() {
     [ "$DISPLAY_OWNED" -eq 1 ] || return 0
     for wm_pid in $PAUSED_WM_PIDS; do
         kill -CONT "$wm_pid" 2>/dev/null || :
     done
     PAUSED_WM_PIDS=''
+    PAUSED_WM_IDENTITIES=''
     if [ "$STATUSBAR_STOPPED" -eq 1 ]; then
         start statusbar >/dev/null 2>&1 || :
     fi
     STATUSBAR_STOPPED=0
+    STATUSBAR_QUIESCED=0
     if command -v xrefresh >/dev/null 2>&1; then
         xrefresh >/dev/null 2>&1 || :
     fi
@@ -791,8 +881,12 @@ take_display() {
             *start/running*)
                 if stop statusbar >/dev/null 2>&1; then
                     STATUSBAR_STOPPED=1
+                    case "$(status statusbar 2>/dev/null || :)" in
+                        *stop/waiting*) STATUSBAR_QUIESCED=1 ;;
+                    esac
                 fi
                 ;;
+            *stop/waiting*) STATUSBAR_QUIESCED=1 ;;
         esac
     fi
     if [ "${1:-classic}" != framebuffer ]; then pause_window_manager; fi
@@ -809,8 +903,12 @@ pause_window_manager() {
             case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$wm_pid/status" 2>/dev/null || :)" in
                 T*|t*|'') continue ;;
             esac
+            wm_birth=$(process_birth "$wm_pid" 2>/dev/null || :)
             if kill -STOP "$wm_pid" 2>/dev/null; then
                 PAUSED_WM_PIDS="$PAUSED_WM_PIDS $wm_pid"
+                if [ -n "$wm_birth" ] && [ "$(process_birth "$wm_pid" 2>/dev/null || :)" = "$wm_birth" ]; then
+                    PAUSED_WM_IDENTITIES="$PAUSED_WM_IDENTITIES $wm_pid:$wm_birth"
+                fi
                 launch_trace awesome_paused
             fi
         done
@@ -1077,6 +1175,13 @@ request_lifecycle() {
         publish_native_portrait_orientation resume-native-portrait-orientation || fail 'The resume portrait calibration request is unavailable.'
     else
         rm -f "$LOCK_DIR/resume-native-epdc-mode" "$LOCK_DIR/resume-native-epdc-mode.pending" "$LOCK_DIR/resume-native-portrait-orientation" "$LOCK_DIR/resume-native-portrait-orientation.pending"
+        SLEEP_COVER_ACTIVE=0
+        SLEEP_COVER_SEQUENCE=$LIFECYCLE_SEQUENCE
+        rm -f "$LOCK_DIR/sleep-cover-request" "$LOCK_DIR/sleep-cover-request.pending" "$LOCK_DIR/sleep-cover-ready" "$LOCK_DIR/sleep-cover-ready.pending"
+        if cover_sleep_can_own_display; then
+            printf '%s:%s:%s:suspend\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$LIFECYCLE_SEQUENCE" >"$LOCK_DIR/sleep-cover-request.pending"
+            mv -f "$LOCK_DIR/sleep-cover-request.pending" "$LOCK_DIR/sleep-cover-request"
+        fi
     fi
     printf '%s:%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$LIFECYCLE_SEQUENCE" "$LIFECYCLE_ACTION" >"$LOCK_DIR/lifecycle-request.pending"
     mv -f "$LOCK_DIR/lifecycle-request.pending" "$LOCK_DIR/lifecycle-request"
@@ -1182,7 +1287,9 @@ stop_wake_probe() {
 }
 
 schedule_wake_probe() {
-    [ "$APP_PHASE" = sleeping ] && [ "$DISPLAY_OWNED" -eq 0 ] && [ "$WAKE_PENDING" -eq 1 ] || return 0
+    # A retained cover still needs bounded powerd retries until the user's wake
+    # reaches active. The later barrier separately validates display ownership.
+    [ "$APP_PHASE" = sleeping ] && { [ "$DISPLAY_OWNED" -eq 0 ] || [ "$SLEEP_COVER_ACTIVE" -eq 1 ]; } && [ "$WAKE_PENDING" -eq 1 ] || return 0
     [ "$NATIVE_MODE_PENDING" -eq 0 ] || return 0
     stop_wake_probe
     WAKE_PROBE_SEQUENCE=$((WAKE_PROBE_SEQUENCE + 1))
@@ -1210,8 +1317,28 @@ retry_native_dismissal() {
 }
 
 resume_application() {
-    [ "$APP_PHASE" = sleeping ] && [ "$DISPLAY_OWNED" -eq 0 ] && [ "$WAKE_PENDING" -eq 1 ] || return 0
+    [ "$APP_PHASE" = sleeping ] && [ "$WAKE_PENDING" -eq 1 ] || return 0
     [ "$NATIVE_MODE_PENDING" -eq 0 ] || return 0
+    if [ "$SLEEP_COVER_ACTIVE" -eq 1 ] && [ "$DISPLAY_OWNED" -eq 1 ]; then
+        if ! cover_sleep_can_own_display || ! framebuffer_capability_is_current || ! sleep_cover_records_match; then
+            fallback_cover_sleep
+        elif cover_wake_power_is_active; then
+            stop_wake_probe
+            NATIVE_MODE_SEQUENCE=$((NATIVE_MODE_SEQUENCE + 1))
+            NATIVE_MODE_PENDING=1
+            NATIVE_RESUME_PRESENTATION=framebuffer
+            NATIVE_EPDC_MODE=''
+            WAKE_CONFIRMED=1
+            launch_trace cover_wake_barrier
+            queue_native_notice "_bilicomics_native_mode_ready $APP_GENERATION $LAUNCH_TOKEN $SLEEP_GENERATION $NATIVE_MODE_SEQUENCE"
+            return 0
+        else
+            launch_trace cover_wake_inactive
+            retry_native_dismissal
+            return 0
+        fi
+    fi
+    [ "$DISPLAY_OWNED" -eq 0 ] || return 0
     # OutOfSS can precede actual stock dismissal. Only explicit ExitingSS uses
     # the fast path; the existing active-only fallback retains its minimum delay.
     if [ "$WAKE_DISMISS_GENERATION" -ne "$SLEEP_GENERATION" ] && [ "$WAKE_FALLBACK_ALLOWED" -eq 0 ]; then
@@ -1271,7 +1398,7 @@ cleanup() {
         exec 4>&-
     fi
     stop_logging
-    rm -f "$LOCK_DIR/pid" "$LOCK_DIR/power-events" "$LOCK_DIR/power-control" "$LOCK_DIR/nonce" "$LOCK_DIR/generation" "$LOCK_DIR/application-exit" "$LOCK_DIR/application-exit.pending" "$LOCK_DIR/lifecycle-ready" "$LOCK_DIR/lifecycle-ready.pending" "$LOCK_DIR/lifecycle-request" "$LOCK_DIR/lifecycle-request.pending" "$LOCK_DIR/lifecycle-ack" "$LOCK_DIR/lifecycle-ack.pending" "$LOCK_DIR/native-epdc-mode" "$LOCK_DIR/native-epdc-mode.pending" "$LOCK_DIR/resume-native-epdc-mode" "$LOCK_DIR/resume-native-epdc-mode.pending" "$LOCK_DIR/native-portrait-orientation" "$LOCK_DIR/native-portrait-orientation.pending" "$LOCK_DIR/resume-native-portrait-orientation" "$LOCK_DIR/resume-native-portrait-orientation.pending" "$LOCK_DIR/native-output-capability" "$LOCK_DIR/native-output-capability.pending" "$LOCK_DIR/native-read-output"
+    rm -f "$LOCK_DIR/pid" "$LOCK_DIR/power-events" "$LOCK_DIR/power-control" "$LOCK_DIR/nonce" "$LOCK_DIR/generation" "$LOCK_DIR/application-exit" "$LOCK_DIR/application-exit.pending" "$LOCK_DIR/lifecycle-ready" "$LOCK_DIR/lifecycle-ready.pending" "$LOCK_DIR/lifecycle-request" "$LOCK_DIR/lifecycle-request.pending" "$LOCK_DIR/lifecycle-ack" "$LOCK_DIR/lifecycle-ack.pending" "$LOCK_DIR/sleep-cover-request" "$LOCK_DIR/sleep-cover-request.pending" "$LOCK_DIR/sleep-cover-ready" "$LOCK_DIR/sleep-cover-ready.pending" "$LOCK_DIR/native-epdc-mode" "$LOCK_DIR/native-epdc-mode.pending" "$LOCK_DIR/resume-native-epdc-mode" "$LOCK_DIR/resume-native-epdc-mode.pending" "$LOCK_DIR/native-portrait-orientation" "$LOCK_DIR/native-portrait-orientation.pending" "$LOCK_DIR/resume-native-portrait-orientation" "$LOCK_DIR/resume-native-portrait-orientation.pending" "$LOCK_DIR/native-output-capability" "$LOCK_DIR/native-output-capability.pending" "$LOCK_DIR/native-read-output"
     rmdir "$LOCK_DIR" 2>/dev/null || :
     exit "$saved_status"
 }
@@ -1312,6 +1439,7 @@ fi
 launch_trace startup_sample_ready
 publish_native_epdc_mode native-epdc-mode || fail 'The startup display snapshot is unavailable.'
 publish_native_portrait_orientation native-portrait-orientation || fail 'The startup portrait calibration is unavailable.'
+configure_cover_sleep
 queue_native_notice "_bilicomics_start_ready $APP_GENERATION $LAUNCH_TOKEN"
 
 while IFS= read -r power_event <&3; do
@@ -1354,7 +1482,7 @@ while IFS= read -r power_event <&3; do
                         WAKE_FALLBACK_ALLOWED=0
                         WAKE_FAST_PROBES_REMAINING=3
                         WAKE_PROBES_REMAINING=3
-                        if [ "$WAKE_DISMISS_GENERATION" -eq "$SLEEP_GENERATION" ]; then
+                        if [ "$SLEEP_COVER_ACTIVE" -eq 1 ] || [ "$WAKE_DISMISS_GENERATION" -eq "$SLEEP_GENERATION" ]; then
                             resume_application
                         else
                             schedule_wake_probe normal
@@ -1401,14 +1529,17 @@ while IFS= read -r power_event <&3; do
             ;;
         '_bilicomics_native_mode_ready '*)
             set -- $power_event
-            if [ "$#" -eq 5 ] && [ "$2" = "$APP_GENERATION" ] && [ "$3" = "$LAUNCH_TOKEN" ] && [ "$4" = "$SLEEP_GENERATION" ] && [ "$5" = "$NATIVE_MODE_SEQUENCE" ] && [ "$NATIVE_MODE_PENDING" -eq 1 ] && [ "$APP_PHASE" = sleeping ] && [ "$DISPLAY_OWNED" -eq 0 ] && [ "$WAKE_PENDING" -eq 1 ]; then
+            if [ "$#" -eq 5 ] && [ "$2" = "$APP_GENERATION" ] && [ "$3" = "$LAUNCH_TOKEN" ] && [ "$4" = "$SLEEP_GENERATION" ] && [ "$5" = "$NATIVE_MODE_SEQUENCE" ] && [ "$NATIVE_MODE_PENDING" -eq 1 ] && [ "$APP_PHASE" = sleeping ] && { [ "$DISPLAY_OWNED" -eq 0 ] || [ "$SLEEP_COVER_ACTIVE" -eq 1 ]; } && [ "$WAKE_PENDING" -eq 1 ]; then
                 stop_native_notice
                 if [ "$NATIVE_RESUME_PRESENTATION" = framebuffer ]; then
-                    if ! framebuffer_capability_is_current || [ "$WAKE_DISMISS_GENERATION" -ne "$SLEEP_GENERATION" ]; then
+                    if ! framebuffer_capability_is_current ||
+                        { [ "$SLEEP_COVER_ACTIVE" -eq 1 ] && ! cover_sleep_can_own_display; } ||
+                        { [ "$SLEEP_COVER_ACTIVE" -eq 0 ] && [ "$WAKE_DISMISS_GENERATION" -ne "$SLEEP_GENERATION" ]; }; then
                         NATIVE_MODE_PENDING=0
                         NATIVE_CAPABILITY_VALID=0
                         NATIVE_RESUME_PRESENTATION=''
                         launch_trace wake_capability_fallback
+                        if [ "$SLEEP_COVER_ACTIVE" -eq 1 ]; then fallback_cover_sleep; fi
                         resume_application
                         continue
                     fi
@@ -1455,10 +1586,19 @@ while IFS= read -r power_event <&3; do
                 if [ "$LIFECYCLE_ACTION" = suspend ] && [ "$APP_PHASE" = suspending ]; then
                     APP_PHASE=sleeping
                     cache_framebuffer_capability
-                    release_display
+                    if [ "$6" = ok ] && cover_sleep_can_own_display &&
+                        framebuffer_capability_is_current && sleep_cover_records_match; then
+                        SLEEP_COVER_ACTIVE=1
+                        launch_trace cover_sleep_retained
+                    else
+                        SLEEP_COVER_ACTIVE=0
+                        release_display
+                    fi
                     resume_application
                 elif [ "$LIFECYCLE_ACTION" = resume ] && [ "$APP_PHASE" = resuming ]; then
                     APP_PHASE=running
+                    SLEEP_COVER_ACTIVE=0
+                    rm -f "$LOCK_DIR/sleep-cover-request" "$LOCK_DIR/sleep-cover-request.pending" "$LOCK_DIR/sleep-cover-ready" "$LOCK_DIR/sleep-cover-ready.pending"
                     if [ "$SLEEP_REQUESTED" -eq 1 ]; then
                         APP_PHASE=suspending
                         request_lifecycle suspend
@@ -1477,7 +1617,7 @@ while IFS= read -r power_event <&3; do
             ;;
         '_bilicomics_wake_check '*)
             set -- $power_event
-            if [ "$#" -eq 4 ] && [ "$2" = "$LAUNCH_TOKEN" ] && [ "$3" = "$SLEEP_GENERATION" ] && [ "$4" = "$WAKE_PROBE_SEQUENCE" ] && [ -n "$WAKE_PROBE_PID" ] && [ "$APP_PHASE" = sleeping ] && [ "$DISPLAY_OWNED" -eq 0 ] && [ "$NATIVE_MODE_PENDING" -eq 0 ] && [ "$WAKE_PENDING" -eq 1 ]; then
+            if [ "$#" -eq 4 ] && [ "$2" = "$LAUNCH_TOKEN" ] && [ "$3" = "$SLEEP_GENERATION" ] && [ "$4" = "$WAKE_PROBE_SEQUENCE" ] && [ -n "$WAKE_PROBE_PID" ] && [ "$APP_PHASE" = sleeping ] && { [ "$DISPLAY_OWNED" -eq 0 ] || [ "$SLEEP_COVER_ACTIVE" -eq 1 ]; } && [ "$NATIVE_MODE_PENDING" -eq 0 ] && [ "$WAKE_PENDING" -eq 1 ]; then
                 completed_probe_kind=$WAKE_PROBE_KIND
                 stop_wake_probe
                 if [ "$completed_probe_kind" = normal ]; then WAKE_FALLBACK_ALLOWED=1; fi

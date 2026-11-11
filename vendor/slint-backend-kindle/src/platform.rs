@@ -288,6 +288,8 @@ impl Platform for KindlePlatform {
             // optional upstream RTC schedule. It does not program sysfs.
             if !self.lifecycle.is_suspended()
                 && !self.lifecycle.needs_full_redraw()
+                && self.lifecycle.pending_sleep_presentation()
+                    .map_err(|error| PlatformError::Other(error.to_string()))?.is_none()
                 && self.suspend_if_idle(wakealarm.as_deref(), &mut last_interaction)
             {
                 continue;
@@ -418,7 +420,9 @@ impl Platform for KindlePlatform {
             // touch readiness retries its final drain; never dispatch that
             // same queued contact or repaint while the report is missing.
             // A control/gyro transition above can reset waiting for a new frame.
-            if self.lifecycle.live_input_drain_waiting() {
+            let sleep_token = self.lifecycle.pending_sleep_presentation()
+                .map_err(|error| PlatformError::Other(error.to_string()))?;
+            if self.lifecycle.live_input_drain_waiting() && sleep_token.is_none() {
                 if input_generation == self.lifecycle.input_generation()
                     && file_descriptors[0].revents & libc::POLLIN != 0
                 {
@@ -430,7 +434,7 @@ impl Platform for KindlePlatform {
                 continue;
             }
 
-            let force_full = self.lifecycle.needs_full_redraw();
+            let force_full = self.lifecycle.needs_full_redraw() || sleep_token.is_some();
             if !force_full && file_descriptors[0].revents & libc::POLLIN != 0 {
                 last_interaction = Instant::now();
             }
@@ -450,7 +454,9 @@ impl Platform for KindlePlatform {
 
             // A timer or input callback may have changed output polarity. Such
             // a frame must use the same complete rewrite as a control callback.
-            let force_full = force_full || self.lifecycle.needs_full_redraw();
+            let sleep_token = self.lifecycle.pending_sleep_presentation()
+                .map_err(|error| PlatformError::Other(error.to_string()))?;
+            let force_full = force_full || self.lifecycle.needs_full_redraw() || sleep_token.is_some();
             let black_and_white = self.black_and_white.load(Ordering::Relaxed);
             let app_rotation = self.rotation.load(Ordering::Relaxed);
             let native_render_offset = self
@@ -484,7 +490,13 @@ impl Platform for KindlePlatform {
             let mut dirty_region = None;
             let mut did_draw = false;
             let mut frame_trace = None;
-            self.lifecycle.with_framebuffer(|frame_buffer| {
+            self.lifecycle.with_framebuffer(|frame_buffer| -> Result<(), PlatformError> {
+                // The preceding accepted update may still scan mapped pixels.
+                // Do not rewrite any sleep-frame pixels until it has completed.
+                if sleep_token.is_some() {
+                    frame_buffer.wait_for_pending_update_complete_checked()
+                        .map_err(|error| PlatformError::Other(format!("failed to settle preceding display update: {error}")))?;
+                }
                 self.window.draw_if_needed(|renderer| {
                     did_draw = true;
                     frame_trace = self.begin_frame_trace(frame_buffer, true, initial_fill,
@@ -556,7 +568,12 @@ impl Platform for KindlePlatform {
                 // issued. The existing descriptor and detected ABI are reused.
                 if did_draw && (rotation_changed || force_full) {
                     let submit_started = frame_trace.as_ref().map(|_| ClockSample::now());
-                    let submission = frame_buffer.refresh_full();
+                    let submission = if sleep_token.is_some() {
+                        frame_buffer.refresh_full_checked()
+                            .map_err(|error| PlatformError::Other(format!("sleep presentation update was rejected: {error}")))?
+                    } else {
+                        frame_buffer.refresh_full()
+                    };
                     if let Some(trace) = frame_trace.as_mut() {
                         trace.sample.stages.refresh_submit = submit_started.map(ClockSample::finish);
                         trace.sample.refresh_region = Some(PhysicalRect { x: 0, y: 0,
@@ -566,6 +583,10 @@ impl Platform for KindlePlatform {
                         trace.sample.refresh_ioctl_attempts = submission.ioctl_attempts;
                         trace.sample.refresh_accepted = Some(submission.accepted);
                         trace.sample.refresh_errno = submission.last_errno;
+                    }
+                    if sleep_token.is_some() {
+                        frame_buffer.wait_for_update_complete_checked()
+                            .map_err(|error| PlatformError::Other(format!("sleep presentation update did not complete: {error}")))?;
                     }
                 } else if let Some(refresh) = crate::refresh::resolve(
                     pending,
@@ -590,8 +611,15 @@ impl Platform for KindlePlatform {
                         trace.sample.refresh_errno = submission.last_errno;
                     }
                 }
-            })?;
-            if force_full && did_draw {
+                Ok(())
+            })??;
+            if let Some(token) = sleep_token.filter(|_| did_draw) {
+                // This is a separate barrier from wake/reorientation input
+                // draining: its completion must let application timers run so
+                // the deferred persistence and its deadline can advance.
+                self.lifecycle.complete_sleep_presentation(token)
+                    .map_err(|error| PlatformError::Other(error.to_string()))?;
+            } else if force_full && did_draw {
                 let lifecycle_started = frame_trace.as_ref().map(|_| ClockSample::now());
                 self.lifecycle.complete_full_redraw()?;
                 last_interaction = Instant::now();

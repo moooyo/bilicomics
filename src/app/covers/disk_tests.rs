@@ -58,10 +58,80 @@ fn publishes_and_decodes_a_real_png_without_exposing_temporary_objects() -> Resu
 }
 
 #[test]
+fn sleep_cover_preserves_full_grayscale_geometry_in_the_managed_cache() -> Result<()> {
+    let directory = tempfile::tempdir()?;
+    let object = name(1);
+    let (width, height) = (1536, 2048);
+    let luma: Vec<u8> = (0..width * height).map(|index| (index % 16 * 17) as u8).collect();
+    let published = publish_sleep_cover(directory.path(), &object, &luma, width, height)?;
+    let encoded = read_cover_bytes(directory.path(), &object)?.expect("The sleep cover must be readable");
+    assert_eq!(encoded, fs::read(&published)?);
+    let decoded = image::load_from_memory_with_format(&encoded, image::ImageFormat::Png)?;
+    assert_eq!(decoded.color(), image::ColorType::L8);
+    assert_eq!((decoded.width(), decoded.height()), (width, height));
+    assert_eq!(decoded.into_luma8().into_raw(), luma);
+    assert_eq!(fs::read_dir(directory.path().join("covers"))?.count(), 1);
+
+    // The existing thumbnail consumer keeps its original size contract.
+    let (thumbnail, thumbnail_width, thumbnail_height) = read_cover(directory.path(), &object)?
+        .expect("A sleep cover can still be consumed as a bounded thumbnail");
+    assert!(thumbnail_width <= 480 && thumbnail_height <= 640);
+    assert_eq!(thumbnail.len(), (thumbnail_width * thumbnail_height * 4) as usize);
+    Ok(())
+}
+
+#[test]
+fn sleep_cover_rejects_invalid_geometry_and_pixel_lengths_before_creating_files() -> Result<()> {
+    let directory = tempfile::tempdir()?;
+    for (width, height) in [(0, 1), (1, 0), (1537, 1), (1, 2049), (u32::MAX, u32::MAX)] {
+        assert!(publish_sleep_cover(directory.path(), &name(1), &[0], width, height).is_err());
+    }
+    for pixels in [&[][..], &[0; 3][..], &[0; 5][..]] {
+        assert!(publish_sleep_cover(directory.path(), &name(1), pixels, 2, 2).is_err());
+    }
+    assert!(!directory.path().join("covers").exists());
+    assert!(publish_cover(directory.path(), &name(1), &vec![0; 481 * 4], 481, 1).is_err(),
+        "The ordinary cover publisher must retain its thumbnail geometry bound");
+    assert!(publish_cover(directory.path(), &name(1), &vec![0; 641 * 4], 1, 641).is_err());
+    assert!(!directory.path().join("covers").exists());
+    Ok(())
+}
+
+#[test]
+fn sleep_and_thumbnail_covers_share_the_same_byte_and_object_quotas() -> Result<()> {
+    for byte_pressure in [false, true] {
+        let directory = tempfile::tempdir()?;
+        let sleep = publish_sleep_cover(directory.path(), &name(1), &[17; 4], 2, 2)?;
+        let thumbnail = publish_cover(directory.path(), &name(2), &[83; 16], 2, 2)?;
+        fs::OpenOptions::new().write(true).open(&sleep)?.set_modified(stamp(10))?;
+        fs::OpenOptions::new().write(true).open(&thumbnail)?.set_modified(stamp(20))?;
+        let byte_limit = if byte_pressure { fs::metadata(&thumbnail)?.len() } else { u64::MAX };
+        let file_limit = if byte_pressure { usize::MAX } else { 1 };
+        let result = maintain_with_limits(directory.path(), MaintenanceRequest::default(), byte_limit, file_limit, unknown)?;
+        assert_eq!(result.evicted, vec![name(1)]);
+        assert!(!result.needs_more);
+        assert!(read_cover_bytes(directory.path(), &name(1))?.is_none());
+        assert!(read_cover(directory.path(), &name(2))?.is_some());
+        assert_eq!(managed_files(directory.path())?, vec![thumbnail]);
+    }
+    Ok(())
+}
+
+#[test]
+fn raw_cover_reads_enforce_the_existing_encoded_byte_limit() -> Result<()> {
+    let directory = tempfile::tempdir()?;
+    let path = blob(directory.path(), &name(1), 0, stamp(10))?;
+    fs::OpenOptions::new().write(true).open(path)?.set_len(MAX_COVER_BYTES + 1)?;
+    assert!(read_cover_bytes(directory.path(), &name(1)).is_err());
+    Ok(())
+}
+
+#[test]
 fn missing_managed_cover_is_a_cache_miss() -> Result<()> {
     let directory = tempfile::tempdir()?;
     fs::create_dir(directory.path().join("covers"))?;
     assert!(read_cover(directory.path(), &name(1))?.is_none());
+    assert!(read_cover_bytes(directory.path(), &name(1))?.is_none());
     Ok(())
 }
 
@@ -77,8 +147,11 @@ fn rejects_traversal_and_noncanonical_names_before_read_or_publish() -> Result<(
     ];
     for object in invalid {
         assert!(read_cover(directory.path(), &object).is_err(), "Invalid read name was accepted: {object}");
+        assert!(read_cover_bytes(directory.path(), &object).is_err(), "Invalid raw read name was accepted: {object}");
         assert!(publish_cover(directory.path(), &object, &[0; 16], 2, 2).is_err(),
             "Invalid publish name was accepted: {object}");
+        assert!(publish_sleep_cover(directory.path(), &object, &[0; 4], 2, 2).is_err(),
+            "Invalid sleep publish name was accepted: {object}");
     }
     assert!(!directory.path().join(name(1)).exists());
     Ok(())
@@ -194,7 +267,9 @@ fn cover_directory_symlink_is_rejected_without_changing_its_target() -> Result<(
     let original = fs::read(&target)?;
     symlink(outside.path(), directory.path().join("covers"))?;
     assert!(read_cover(directory.path(), &name(1)).is_err());
+    assert!(read_cover_bytes(directory.path(), &name(1)).is_err());
     assert!(publish_cover(directory.path(), &name(1), &[255; 16], 2, 2).is_err());
+    assert!(publish_sleep_cover(directory.path(), &name(1), &[255; 4], 2, 2).is_err());
     assert!(maintain_with_limits(directory.path(), MaintenanceRequest::default(), 0, 0, dead).is_err());
     assert_eq!(fs::read(&target)?, original);
     Ok(())
@@ -213,7 +288,9 @@ fn managed_leaf_symlink_is_not_read_replaced_or_followed_by_gc() -> Result<()> {
     let link = directory.path().join("covers").join(name(2));
     symlink(&target, &link)?;
     assert!(read_cover(directory.path(), &name(2)).is_err());
+    assert!(read_cover_bytes(directory.path(), &name(2)).is_err());
     assert!(publish_cover(directory.path(), &name(2), &[255; 16], 2, 2).is_err());
+    assert!(publish_sleep_cover(directory.path(), &name(2), &[255; 4], 2, 2).is_err());
     let result = maintain_with_limits(directory.path(), MaintenanceRequest::default(), 0, 0, dead)?;
     assert_eq!(result.evicted, vec![name(1)]);
     assert!(!removable.exists());
@@ -346,7 +423,9 @@ fn managed_hardlink_cannot_read_publish_touch_or_evict_an_external_page() -> Res
     fs::hard_link(&page, &link)?;
 
     assert!(read_cover(data.path(), &name(1)).is_err());
+    assert!(read_cover_bytes(data.path(), &name(1)).is_err());
     assert!(publish_cover(data.path(), &name(1), &[255; 16], 2, 2).is_err());
+    assert!(publish_sleep_cover(data.path(), &name(1), &[255; 4], 2, 2).is_err());
     let request = MaintenanceRequest {
         touches: BTreeMap::from([(name(1), stamp(40))]),
         protected: BTreeSet::new(),

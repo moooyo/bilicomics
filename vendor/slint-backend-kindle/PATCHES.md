@@ -1,5 +1,36 @@
 # Project-owned queued refresh patch
 
+## Checked sleep presentation
+
+The sleep-frame completion contract was adapted from the reviewed local WeRead
+revision `6a1d070f3b4730146eafeea849fe8b67fc5cf14d` (2026-11-12). Its reference
+`src/sleep_presentation.rs` SHA-256 is
+`f152a12e9c525c7a09d96ae5f47a717a821ca456e58cc3895cd48d95c873f75a`.
+The existing upstream license notices and pinned backend revision remain intact.
+
+`DisplayLifecycleHandle::request_sleep_presentation()` returns a UI-thread token.
+The renderer captures the pending token before its complete Slint repaint,
+waits for the preceding accepted update before rewriting mapped pixels, requires
+acceptance of the full GC16 update, and checks completion of that update's own
+marker before acknowledging the captured token. Neither queued properties nor
+a redraw request establish presentation. Suspend/resume cancel unfinished
+requests; event-loop termination retires all tokens.
+
+Sleep presentation has a separate completion boundary from resumed/live-rotation
+input draining. Its completion releases the timer gate without waiting for a
+new touch SYN_REPORT, allowing the application's deferred persistence and timeout
+to advance while ordinary application intents remain inhibited. The next actual
+suspend releases touch, and wake retains the existing fresh-input drain barrier.
+
+Every attempted update consumes a unique nonzero marker across all detected
+driver ABIs. Rejected submissions do not replace the most recent accepted marker,
+and repeated completion waits reuse only a successfully observed completion.
+Ordinary refresh policy, orientation/polarity compensation, and performance
+submission records remain in place. Controlled tests cover token cancellation,
+termination, timer release, marker ordering, submission/wait failure, and ABI
+selection without opening a device framebuffer. These source-level contracts
+do not establish physical-device latency or panel quality.
+
 ## Provenance
 
 The baseline is [`KindleTweaks/slint-kindle-backend-patch` at `03aa48d3531e9eae7b360bdc24e90a72e9f307a4`](https://github.com/KindleTweaks/slint-kindle-backend-patch/tree/03aa48d3531e9eae7b360bdc24e90a72e9f307a4). `UPSTREAM_REVISION` records the same identity. The original `LICENSE-MIT` and `LICENSE-APACHE` files are preserved without changes. This dependency's license metadata does not select the application's project license.

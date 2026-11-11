@@ -1143,7 +1143,9 @@ snapshot_owned() {
                                              "launcher_lock_absent": lock_absent,
                                              "passed": done["recovery_complete"] and service_matches and wm_matches and lock_absent,
                                              "native_home_and_touch_require_operator_observation": True}
-            if self.state.get("content_mode", "demo") == "distinct_fixture" and self.state["recovery_checks"]["passed"]:
+            # Every content mode needs the same observed process-closure proof
+            # before the coordinator can finalize and release its device lease.
+            if self.state["recovery_checks"]["passed"]:
                 snapshot = self.state.get("post_restore_process_snapshot")
                 if not snapshot or not snapshot.get("passed"):
                     snapshot = self.post_restore_process_snapshot()

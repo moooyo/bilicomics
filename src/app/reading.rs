@@ -477,6 +477,17 @@ impl App {
         self.reading.as_ref().map(|state| (state.comic_id.as_str(), state.episode_id.as_str()))
     }
 
+    pub(super) fn current_sleep_comic(&self) -> Option<crate::domain::Comic> {
+        if self.route != "reader" { return None; }
+        let state = self.reading.as_ref().filter(|state| !state.cancelled.load(Ordering::Acquire))?;
+        state.detail.as_ref().map(|detail| &detail.comic)
+            .filter(|comic| comic.id == state.comic_id)
+            .or_else(|| self.catalog.detail.as_ref().map(|detail| &detail.comic)
+                .filter(|comic| comic.id == state.comic_id))
+            .or_else(|| self.catalog.comics.iter().find(|comic| comic.id == state.comic_id))
+            .cloned()
+    }
+
     pub(super) fn initialize_demo_anchor(&mut self) -> Result<()> {
         let Some(demo) = self.demo.as_ref() else { return Ok(()); };
         let resume_comic = demo.fixture["continue_reading"]["comic_id"].as_u64().map(|id| id.to_string());

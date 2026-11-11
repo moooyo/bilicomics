@@ -185,6 +185,7 @@ impl App {
             cover_files, cover_images: BTreeMap::new(), cover_sequence: 0,
             cover_pending: BTreeSet::new(), cover_failed,
             cover_state: covers::CoverState::default(),
+            sleep_screen: sleep_screen::SleepScreenState::default(),
             toast_until: None, dirty: true, view_dirty: ViewDirty::default(),
             quitting: false, online: options.demo && !options.offline,
             last_clock: if options.demo { "16:23".into() } else {

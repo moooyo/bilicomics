@@ -27,6 +27,14 @@ pub(super) fn read_cached_cover(data_dir: &Path, url: &str) -> anyhow::Result<Op
     disk::read_cover(data_dir, &format!("{}.png", hex_digest(url.as_bytes())))
 }
 
+pub(super) fn read_sleep_cover(data_dir: &Path, name: &str) -> anyhow::Result<Option<Vec<u8>>> {
+    disk::read_cover_bytes(data_dir, name)
+}
+
+pub(super) fn publish_sleep_cover(data_dir: &Path, name: &str, luma: &[u8], width: u32, height: u32) -> anyhow::Result<PathBuf> {
+    disk::publish_sleep_cover(data_dir, name, luma, width, height)
+}
+
 fn same_cover_source(known: &Path, expected: &Path, demo: bool) -> bool {
     if demo { return known == expected; }
     // Managed filenames contain the full URL hash; relative and absolute roots are equivalent.

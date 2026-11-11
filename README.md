@@ -18,7 +18,7 @@ Use `-Phases` to select the controlled regression stages and `-RemoteTargetDirec
 
 The client has its own SQLite database, account namespaces, credential file, image cache, preferences, and launcher. KOReader, Jobman, a custom server, and a server database are not runtime requirements.
 
-Startup now presents the project name and a low-frequency activity indicator before full font and local-state preparation. Sleep retains the same reader process and page; native display/input are handed to the system screensaver and reclaimed after unlock. This is separate from the ordinary startup destination preference. See [startup and sleep lifecycle](docs/STARTUP_AND_SLEEP.md).
+Startup presents the project name and a low-frequency activity indicator before full font and local-state preparation. Sleep retains the same reader process and page. With cover sleep enabled and native ownership confirmed, the prepared comic cover reaches the panel before checkpoint work, then remains visible through sleep. Wake restores the retained page. Unsupported or locked configurations retain the system screensaver. This is separate from the ordinary startup destination preference. See [startup and sleep lifecycle](docs/STARTUP_AND_SLEEP.md) and [comic-cover sleep](docs/SLEEP_COVER.md).
 
 ## Design preview
 
@@ -43,6 +43,7 @@ Normal execution uses the per-user `bilicomics` data directory; `--data-dir` ove
 | Document | Contents |
 | --- | --- |
 | [Implementation status](docs/IMPLEMENTATION_STATUS.md) | Implemented behavior, verification evidence, and acceptance boundaries |
+| [Comic-cover sleep](docs/SLEEP_COVER.md) | Prepared covers, checked presentation, native ownership, fallback, and verification scope |
 | [Design source](docs/DESIGN_SOURCE.md) | Downloaded design provenance and reference renders |
 | [V2 implementation review](docs/DESIGN_REVIEW_V2.md) | Confirmed visual and interaction corrections against the latest Downloads reference |
 | [Pre-device verification](docs/PRE_DEVICE_VERIFICATION.md) | Remote regression, native signing, controlled recovery, firmware integration, and the physical handoff gate |

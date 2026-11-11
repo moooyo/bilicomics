@@ -2,6 +2,33 @@
 
 Recorded: 2026-11-03 (Asia/Shanghai).
 
+## Comic-cover sleep reference reviewed on 2026-11-12
+
+The operator requested the corresponding optimization from the WeRead
+sleep-cover chat. The same local reference checkout is now clean at revision
+`6a1d070f3b4730146eafeea849fe8b67fc5cf14d`. The following inputs informed the
+bounded awake cover preparation, aspect-preserving overlay, explicit renderer
+completion gate, independent panel-update markers and retained native display
+ownership. Their reviewed bytes are identified below.
+
+| Reference input | SHA-256 |
+| --- | --- |
+| `src/app/sleep_screen.rs` | `25aa0e49f9038b1e7e659e1979524204298c29009925a7803e66fe6bf5232a66` |
+| `src/app/managed_sleep.rs` | `14eeb244a813cb59e7136fdf7a840fae41fa8eb50920cd45c72b0c26db26e1f4` |
+| `ui/sleep-screen.slint` | `0badece6fbf819e838acdbfb99e4ad9a38d5da049a10d67b7424ff7fc33c1c74` |
+| `packaging/kindle/launch.sh` | `713167110d4839f14505cd03c6b30753476772c729fe92890a86fbd0085fe6be` |
+| `vendor/slint-backend-kindle/src/sleep_presentation.rs` | `f152a12e9c525c7a09d96ae5f47a717a821ca456e58cc3895cd48d95c873f75a` |
+| `vendor/slint-backend-kindle/src/framebuffer/mod.rs` | `d6182d2272acfcc06621063e109d98af99c7a41d45c68a46b1ef2eda4512321d` |
+
+BiliComics keeps its own lifecycle-request protocol, account epochs, comic
+source adapter, managed cover cache, read-state checkpoints, native-presentation
+records and display lifecycle handle. WeRead business logic, account/session
+data, books, logs and research archives were not imported. Its accepted physical
+demonstration and software test results are reference-project evidence; they do
+not verify BiliComics. The backend's original licenses and pinned upstream
+revision remain unchanged. See [comic-cover sleep](SLEEP_COVER.md) for this
+project's implementation and verification boundary.
+
 ## Imported local working tree
 
 The technical reference is the user-supplied local WeRead project at `C:/Users/moooyo/Documents/Codex/2026-11-02/d/outputs/weread`.

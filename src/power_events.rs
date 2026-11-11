@@ -87,11 +87,28 @@ fn validate_native_power_record(record: &[u8]) -> Result<()> {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct PowerAck { pub checkpoint_saved: bool }
+pub struct PowerAck {
+    pub checkpoint_saved: bool,
+    deferred: bool,
+    sleep_cover_presented: bool,
+}
 
 impl PowerAck {
-    pub fn saved() -> Self { Self { checkpoint_saved: true } }
-    pub fn checkpoint_error() -> Self { Self { checkpoint_saved: false } }
+    pub fn saved() -> Self {
+        Self { checkpoint_saved: true, deferred: false, sleep_cover_presented: false }
+    }
+    pub fn checkpoint_error() -> Self {
+        Self { checkpoint_saved: false, deferred: false, sleep_cover_presented: false }
+    }
+    /// Return to the event loop without claiming persistence or display release.
+    pub fn deferred() -> Self {
+        Self { checkpoint_saved: false, deferred: true, sleep_cover_presented: false }
+    }
+    /// The caller has observed checked panel completion and released display/input.
+    pub fn with_sleep_cover(mut self, presented: bool) -> Self {
+        self.sleep_cover_presented = presented && self.checkpoint_saved && !self.deferred;
+        self
+    }
 }
 
 type PowerCallback = Box<dyn FnMut(PowerEvent) -> Result<PowerAck>>;
@@ -100,6 +117,8 @@ struct Binding {
     callback: PowerCallback,
     context: Option<LaunchContext>,
     last_ack: Option<(Request, PowerAck)>,
+    latest_request: Option<Request>,
+    pending: Option<Request>,
 }
 
 thread_local! { static BINDING: RefCell<Option<Binding>> = const { RefCell::new(None) }; }
@@ -119,6 +138,24 @@ struct LaunchContext {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct Request { generation: u64, token: String, sequence: u64, event: PowerEvent }
+
+/// An opaque identity for one current launcher-authorized cover presentation.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SleepCoverRequest(Request);
+
+/// Read only the current cover intent from the launcher's private directory.
+#[derive(Clone)]
+pub struct SleepCoverContext(LaunchContext);
+
+impl SleepCoverContext {
+    pub fn requested(&self) -> Result<Option<SleepCoverRequest>> {
+        self.0.records.ensure_current()?;
+        let Some(request) = self.0.request(PowerEvent::Suspend) else { return Ok(None); };
+        let requested = self.0.cover_requested(&request)?;
+        self.0.records.ensure_current()?;
+        Ok(requested.then_some(SleepCoverRequest(request)))
+    }
+}
 
 impl Request {
     fn parse(value: &str) -> Option<Self> {
@@ -177,8 +214,23 @@ impl LaunchContext {
     }
 
     fn acknowledge(&self, request: &Request, ack: PowerAck) -> Result<()> {
+        ensure!(!ack.deferred, "A pending power transition cannot be acknowledged");
+        ensure!(self.request(request.event).as_ref() == Some(request), "The lifecycle request changed before acknowledgement");
+        if ack.checkpoint_saved && ack.sleep_cover_presented && self.cover_requested(request)? {
+            atomic_marker(&self.directory, "sleep-cover-ready", &format!("{}\n", request.line()))?;
+        }
+        ensure!(self.request(request.event).as_ref() == Some(request), "The lifecycle request changed before acknowledgement");
         atomic_marker(&self.directory, "lifecycle-ack", &format!("{}:{}\n", request.line(),
             if ack.checkpoint_saved { "ok" } else { "checkpoint-error" }))
+    }
+
+    fn cover_requested(&self, request: &Request) -> Result<bool> {
+        if request.event != PowerEvent::Suspend || self.request(PowerEvent::Suspend).as_ref() != Some(request) {
+            return Ok(false);
+        }
+        let Some(raw) = self.records.read_optional("sleep-cover-request")? else { return Ok(false); };
+        let matches = Request::parse(&raw).as_ref() == Some(request);
+        Ok(matches && self.request(PowerEvent::Suspend).as_ref() == Some(request))
     }
 }
 
@@ -205,25 +257,40 @@ fn atomic_marker(directory: &Path, name: &str, content: &str) -> Result<()> {
     result
 }
 
-fn dispatch(event: PowerEvent) {
+fn dispatch(event: PowerEvent) { dispatch_request(event, None); }
+
+fn dispatch_request(event: PowerEvent, expected: Option<&Request>) {
     BINDING.with(|slot| {
         let Some(mut binding) = slot.borrow_mut().take() else { return; };
         let request = binding.context.as_ref().and_then(|context| context.request(event));
-        let permitted = event == PowerEvent::Quit || binding.context.is_none() || request.is_some();
+        let permitted = (event == PowerEvent::Quit || binding.context.is_none() || request.is_some())
+            && expected.is_none_or(|expected| request.as_ref() == Some(expected));
+        if expected.is_some() && !permitted { binding.pending = None; }
         if permitted {
             let duplicate = request.as_ref().and_then(|request| binding.last_ack.as_ref().filter(|(last, _)| last == request).map(|(_, ack)| *ack));
-            let stale = request.as_ref().zip(binding.last_ack.as_ref())
-                .is_some_and(|(request, (last, _))| request.sequence <= last.sequence && request != last);
+            let stale = request.as_ref().zip(binding.latest_request.as_ref())
+                .is_some_and(|(request, last)| request.sequence <= last.sequence && request != last);
             if !stale {
+                if let Some(request) = request.as_ref() { binding.latest_request = Some(request.clone()); }
+                binding.pending = None;
                 if let (Some(context), Some(request)) = (&binding.context, request.as_ref()) {
                     context.presentation.set_resume_sequence(if event == PowerEvent::Resume { request.sequence } else { 0 });
                 }
                 let result = duplicate.map(Ok).unwrap_or_else(|| (binding.callback)(event));
                 if let Some(context) = &binding.context { context.presentation.set_resume_sequence(0); }
                 match result {
+                    Ok(ack) if ack.deferred => {
+                        if let (Some(context), Some(request)) = (&binding.context, request) {
+                            if event == PowerEvent::Suspend && context.request(event).as_ref() == Some(&request) {
+                                binding.pending = Some(request);
+                            }
+                        }
+                    }
                     Ok(ack) => {
                         if let (Some(context), Some(request)) = (&binding.context, request) {
-                            if let Err(error) = context.acknowledge(&request, ack) {
+                            if context.request(event).as_ref() != Some(&request) {
+                                eprintln!("bilicomics: lifecycle request changed while preparing acknowledgement");
+                            } else if let Err(error) = context.acknowledge(&request, ack) {
                                 eprintln!("bilicomics: lifecycle acknowledgement failed: {error:#}");
                             } else { binding.last_ack = Some((request, ack)); }
                         }
@@ -253,6 +320,18 @@ impl SignalBridge {
     /// Clone presentation ownership before moving the bridge into its event loop.
     pub fn native_presentation_context(&self) -> Option<NativePresentationContext> {
         self.context.as_ref().map(|context| context.presentation.clone())
+    }
+
+    /// The context is independent of the detached callback binding.
+    pub fn sleep_cover_context(&self) -> Option<SleepCoverContext> {
+        self.context.clone().map(SleepCoverContext)
+    }
+
+    /// Retry only the original pending request on an existing UI maintenance turn.
+    /// This introduces no timer or wake source while the process is suspended.
+    pub fn poll_pending() {
+        let pending = BINDING.with(|slot| slot.borrow().as_ref().and_then(|binding| binding.pending.clone()));
+        if let Some(request) = pending { dispatch_request(request.event, Some(&request)); }
     }
 
     /// Install handlers and publish readiness without starting a thread.
@@ -299,7 +378,10 @@ impl SignalBridge {
 
     /// Bind on the UI thread after backend installation, then start the pipe reader.
     pub fn start(&mut self, callback: impl FnMut(PowerEvent) -> Result<PowerAck> + 'static) -> Result<()> {
-        BINDING.with(|slot| *slot.borrow_mut() = Some(Binding { callback: Box::new(callback), context: self.context.clone(), last_ack: None }));
+        BINDING.with(|slot| *slot.borrow_mut() = Some(Binding {
+            callback: Box::new(callback), context: self.context.clone(), last_ack: None,
+            latest_request: None, pending: None,
+        }));
         #[cfg(unix)] {
             use std::os::fd::AsRawFd;
             // Process early requests before the native event loop acquires input.
@@ -528,6 +610,7 @@ mod tests {
         let calls = Rc::new(Cell::new(0));
         let counter = calls.clone();
         BINDING.with(|slot| *slot.borrow_mut() = Some(Binding { context: Some(context.clone()), last_ack: None,
+            latest_request: None, pending: None,
             callback: Box::new(move |_| { counter.set(counter.get() + 1); Ok(PowerAck::checkpoint_error()) }) }));
         dispatch(PowerEvent::Suspend);
         dispatch(PowerEvent::Suspend);
@@ -536,6 +619,110 @@ mod tests {
         atomic_marker(directory.path(), "lifecycle-request", "1:0123456789abcdef0123456789abcdef:3:resume\n").unwrap();
         dispatch(PowerEvent::Resume);
         assert_eq!(calls.get(), 1);
+        BINDING.with(|slot| *slot.borrow_mut() = None);
+    }
+
+    #[test]
+    fn a_deferred_cover_never_acknowledges_until_display_release_and_checkpoint_completion() {
+        use std::{cell::Cell, rc::Rc};
+        let directory = tempfile::tempdir().unwrap();
+        let context = context(directory.path());
+        let request = format!("{}:4:suspend", context.header());
+        atomic_marker(directory.path(), "lifecycle-request", &format!("{request}\n")).unwrap();
+        atomic_marker(directory.path(), "sleep-cover-request", &format!("{request}\n")).unwrap();
+        let calls = Rc::new(Cell::new(0));
+        let counter = calls.clone();
+        BINDING.with(|slot| *slot.borrow_mut() = Some(Binding {
+            context: Some(context.clone()), last_ack: None, latest_request: None, pending: None,
+            callback: Box::new(move |_| {
+                counter.set(counter.get() + 1);
+                Ok(if counter.get() == 1 { PowerAck::deferred() } else { PowerAck::saved().with_sleep_cover(true) })
+            }),
+        }));
+        dispatch(PowerEvent::Suspend);
+        assert_eq!(calls.get(), 1);
+        assert!(!directory.path().join("lifecycle-ack").exists());
+        assert!(!directory.path().join("sleep-cover-ready").exists());
+        SignalBridge::poll_pending();
+        assert_eq!(calls.get(), 2);
+        assert_eq!(context.read("sleep-cover-ready").unwrap().trim(), request);
+        assert_eq!(context.read("lifecycle-ack").unwrap().trim(), format!("{request}:ok"));
+        SignalBridge::poll_pending();
+        dispatch(PowerEvent::Suspend);
+        assert_eq!(calls.get(), 2);
+        BINDING.with(|slot| *slot.borrow_mut() = None);
+    }
+
+    #[test]
+    fn deferred_requests_fence_older_sequences_and_never_retry_a_replaced_intent() {
+        use std::{cell::Cell, rc::Rc};
+        let directory = tempfile::tempdir().unwrap();
+        let context = context(directory.path());
+        atomic_marker(directory.path(), "lifecycle-request", &format!("{}:4:suspend\n", context.header())).unwrap();
+        let calls = Rc::new(Cell::new(0));
+        let counter = calls.clone();
+        BINDING.with(|slot| *slot.borrow_mut() = Some(Binding {
+            context: Some(context.clone()), last_ack: None, latest_request: None, pending: None,
+            callback: Box::new(move |_| { counter.set(counter.get() + 1); Ok(PowerAck::deferred()) }),
+        }));
+        dispatch(PowerEvent::Suspend);
+        atomic_marker(directory.path(), "lifecycle-request", &format!("{}:3:resume\n", context.header())).unwrap();
+        dispatch(PowerEvent::Resume);
+        SignalBridge::poll_pending();
+        assert_eq!(calls.get(), 1);
+        assert!(!directory.path().join("lifecycle-ack").exists());
+        BINDING.with(|slot| assert!(slot.borrow().as_ref().unwrap().pending.is_none()));
+        atomic_marker(directory.path(), "lifecycle-request", &format!("{}:4:resume\n", context.header())).unwrap();
+        dispatch(PowerEvent::Resume);
+        assert_eq!(calls.get(), 1);
+        BINDING.with(|slot| *slot.borrow_mut() = None);
+    }
+
+    #[test]
+    fn cover_intent_and_ready_records_are_bound_to_the_complete_current_request() {
+        let directory = tempfile::tempdir().unwrap();
+        let context = context(directory.path());
+        let cover = SleepCoverContext(context.clone());
+        let request = format!("{}:7:suspend", context.header());
+        atomic_marker(directory.path(), "lifecycle-request", &format!("{request}\n")).unwrap();
+        for mismatch in [
+            format!("2:{}:7:suspend", context.token),
+            "1:ffffffffffffffffffffffffffffffff:7:suspend".to_owned(),
+            format!("{}:6:suspend", context.header()),
+            format!("{}:7:resume", context.header()),
+            format!("{request}\n{request}"),
+        ] {
+            atomic_marker(directory.path(), "sleep-cover-request", &format!("{mismatch}\n")).unwrap();
+            assert!(cover.requested().unwrap().is_none());
+            context.acknowledge(&Request::parse(&request).unwrap(), PowerAck::saved().with_sleep_cover(true)).unwrap();
+            assert!(!directory.path().join("sleep-cover-ready").exists());
+        }
+        atomic_marker(directory.path(), "sleep-cover-request", &format!("{request}\n")).unwrap();
+        assert!(cover.requested().unwrap().is_some());
+        context.acknowledge(&Request::parse(&request).unwrap(), PowerAck::checkpoint_error().with_sleep_cover(true)).unwrap();
+        assert!(!directory.path().join("sleep-cover-ready").exists());
+        assert!(context.acknowledge(&Request::parse(&request).unwrap(), PowerAck::deferred()).is_err());
+    }
+
+    #[test]
+    fn a_request_replaced_during_the_callback_cannot_publish_cover_or_checkpoint_acknowledgement() {
+        let directory = tempfile::tempdir().unwrap();
+        let context = context(directory.path());
+        let request = format!("{}:8:suspend", context.header());
+        atomic_marker(directory.path(), "lifecycle-request", &format!("{request}\n")).unwrap();
+        atomic_marker(directory.path(), "sleep-cover-request", &format!("{request}\n")).unwrap();
+        let replacement_directory = directory.path().to_owned();
+        let replacement = format!("{}:9:resume\n", context.header());
+        BINDING.with(|slot| *slot.borrow_mut() = Some(Binding {
+            context: Some(context.clone()), last_ack: None, latest_request: None, pending: None,
+            callback: Box::new(move |_| {
+                atomic_marker(&replacement_directory, "lifecycle-request", &replacement)?;
+                Ok(PowerAck::saved().with_sleep_cover(true))
+            }),
+        }));
+        dispatch(PowerEvent::Suspend);
+        assert!(!directory.path().join("lifecycle-ack").exists());
+        assert!(!directory.path().join("sleep-cover-ready").exists());
         BINDING.with(|slot| *slot.borrow_mut() = None);
     }
 
@@ -569,6 +756,7 @@ mod tests {
         let calls = Rc::new(Cell::new(0));
         let counter = calls.clone();
         BINDING.with(|slot| *slot.borrow_mut() = Some(Binding { context: Some(context.clone()), last_ack: None,
+            latest_request: None, pending: None,
             callback: Box::new(move |event| {
                 assert_eq!(event, PowerEvent::Resume);
                 BINDING.with(|slot| assert!(slot.borrow().is_none()));
@@ -592,6 +780,7 @@ mod tests {
         atomic_marker(directory.path(), "lifecycle-request", &format!("{}:2:resume\n", context.header())).unwrap();
         let presentation = context.presentation.clone();
         BINDING.with(|slot| *slot.borrow_mut() = Some(Binding { context: Some(context.clone()), last_ack: None,
+            latest_request: None, pending: None,
             callback: Box::new(move |_| { presentation.resume_mode()?; Ok(PowerAck::saved()) }) }));
         dispatch(PowerEvent::Resume);
         assert!(!directory.path().join("lifecycle-ack").exists());

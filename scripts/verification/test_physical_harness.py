@@ -871,6 +871,104 @@ class PhysicalWrapperTraceTests(unittest.TestCase):
         self.assertEqual(self.trace.read_bytes(), oversized, "Tracing changed a pre-existing oversized file")
 
 
+class PhysicalWatchdogLockCleanupTests(unittest.TestCase):
+    COVER_LEAVES = ("sleep-cover-request", "sleep-cover-request.pending",
+                    "sleep-cover-ready", "sleep-cover-ready.pending")
+
+    def setUp(self):
+        if sys.platform != "linux" or os.environ.get("BILICOMICS_REMOTE_VERIFICATION") != "1":
+            raise RuntimeError("Run physical watchdog fixtures only through ssh test-env")
+        temporary = tempfile.TemporaryDirectory(prefix="bilicomics-watchdog-lock-")
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.root.chmod(0o700)
+        self.logs = self.root / "logs"
+        self.logs.mkdir(mode=0o700)
+        self.nonce = secrets.token_hex(16)
+        self.launcher_pid = str(os.getpid())
+        source = (HELPERS / "physical-watchdog.sh").read_text()
+        self.read_one = next(line for line in source.splitlines() if line.startswith("read_one() {"))
+        begin = source.index("\nremove_owned_lock() {")
+        self.cleanup_source = source[begin:source.index("\ncleanup() {", begin)]
+        self.prepare_lock("launcher.lock")
+
+    def prepare_lock(self, name):
+        self.lock = self.root / name
+        self.lock.mkdir(mode=0o700)
+        self.expected_inode = self.lock.stat().st_ino
+        self.contents = {"pid": self.launcher_pid + "\n", "nonce": self.nonce + "\n",
+                         "generation": f"1:{self.nonce}\n"}
+        self.contents.update({leaf: f"1:{self.nonce}:7:suspend\n" for leaf in self.COVER_LEAVES})
+        for leaf, content in self.contents.items():
+            path = self.lock / leaf
+            path.write_text(content)
+            path.chmod(0o600)
+
+    def run_cleanup(self):
+        # Execute the actual watchdog function with its recorded directory
+        # identity, without starting a launcher or replacing native services.
+        script = "set -eu\numask 077\n" + self.read_one + "\n" + self.cleanup_source + "\n" + \
+            'lock=$1\nlogs=$2\nlauncher_pid=$3\nowned_lock_nonce=$4\n' + \
+            'owned_lock_generation=1\nowned_lock_inode=$5\nrecovery_complete=1\n' + \
+            'remove_owned_lock\nprintf "%s\\n" "$recovery_complete"\n'
+        result = subprocess.run(["sh", "-c", script, "watchdog-lock-fixture", str(self.lock), str(self.logs),
+                                 self.launcher_pid, self.nonce, str(self.expected_inode)],
+                                capture_output=True, text=True, timeout=5)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(result.stdout.strip(), ("0", "1"))
+        return result.stdout.strip()
+
+    def assert_owned_records_unchanged(self):
+        for leaf, content in self.contents.items():
+            self.assertEqual((self.lock / leaf).read_text(), content,
+                             "Rejected cleanup changed an owned lock record")
+
+    def test_sleep_cover_records_are_removed_with_the_owned_lock(self):
+        self.assertEqual(self.run_cleanup(), "1")
+        self.assertFalse(self.lock.exists(), "Recognized cover records prevented exact lock cleanup")
+
+    def test_unknown_lock_entry_preserves_cover_records_and_the_lock(self):
+        unexpected = self.lock / "foreign-cover-record"
+        unexpected.write_text("unrecognized state must remain\n")
+        self.assertEqual(self.run_cleanup(), "0")
+        self.assertTrue(self.lock.is_dir())
+        self.assert_owned_records_unchanged()
+        self.assertEqual(unexpected.read_text(), "unrecognized state must remain\n")
+        self.assertIn("An unexpected lock entry requires operator review.",
+                      (self.logs / "recovery.log").read_text())
+
+    def test_cover_records_do_not_bypass_the_lock_identity(self):
+        (self.lock / "generation").write_text(f"2:{self.nonce}\n")
+        self.contents["generation"] = f"2:{self.nonce}\n"
+        self.assertEqual(self.run_cleanup(), "0")
+        self.assertTrue(self.lock.is_dir())
+        self.assert_owned_records_unchanged()
+        self.assertIn("Launcher lock identity is not proven; leaving it untouched.",
+                      (self.logs / "recovery.log").read_text())
+
+    def test_sleep_cover_records_still_require_regular_nonsymlink_leaves(self):
+        outside = self.root / "outside"
+        outside.write_text("external state must remain\n")
+        for index, leaf in enumerate(self.COVER_LEAVES):
+            for kind in ("symlink", "fifo", "directory"):
+                with self.subTest(leaf=leaf, kind=kind):
+                    self.prepare_lock(f"hostile-{index}-{kind}")
+                    bad = self.lock / leaf
+                    bad.unlink()
+                    if kind == "symlink":
+                        bad.symlink_to(outside)
+                    elif kind == "fifo":
+                        os.mkfifo(bad, 0o600)
+                    else:
+                        bad.mkdir(mode=0o700)
+                    self.assertEqual(self.run_cleanup(), "0")
+                    self.assertTrue(self.lock.is_dir())
+                    self.assertEqual((self.lock / "pid").read_text(), self.contents["pid"])
+                    self.assertEqual(outside.read_text(), "external state must remain\n")
+                    self.assertTrue(bad.is_symlink() if kind == "symlink" else bad.is_fifo() if kind == "fifo" else bad.is_dir(),
+                                    "Rejected cleanup removed a hostile cover record")
+
+
 class PhysicalHarnessTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

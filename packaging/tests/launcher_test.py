@@ -443,6 +443,14 @@ while True:
                 state["native_mode"] = fresh
             else:
                 state["native_mode"] = mode[3]
+            state["sleep_cover"] = False
+        cover_mode = env["TEST_SLEEP_COVER_MODE"]
+        cover_request = directory / "sleep-cover-request"
+        cover_requested = (action == "suspend" and cover_request.exists()
+                           and cover_request.read_text() == request + "\n")
+        if cover_requested and cover_mode != "disabled":
+            state["sleep_cover"] = True
+            log("cover-presented")
         state["suspended"] = action == "suspend"
         snapshot()
         log(action)
@@ -450,6 +458,14 @@ while True:
         mode = env["TEST_ACK_MODE"]
         if mode not in ("manual", "none"):
             suffix = "checkpoint-error" if mode == "checkpoint-error" and action == "suspend" else "ok"
+            if cover_requested and cover_mode != "disabled" and suffix == "ok":
+                if cover_mode == "normal":
+                    atomic_write(directory / "sleep-cover-ready", request)
+                elif cover_mode == "stale":
+                    stale = fields[:2] + [str(int(fields[2]) + 1), fields[3]]
+                    atomic_write(directory / "sleep-cover-ready", ":".join(stale))
+                elif cover_mode == "extra":
+                    atomic_write(directory / "sleep-cover-ready", request + "\nextra")
             atomic_write(directory / "lifecycle-ack", request if mode == "legacy" and action == "suspend" else request + ":" + suffix)
     if action_path.exists():
         action = action_path.read_text().strip()
@@ -490,6 +506,7 @@ class LauncherLifecycleTests(unittest.TestCase):
             .replace("/etc/prettyversion.txt", str(self.root / "firmware"))
             .replace("/dev/fb0", "/dev/null")
             .replace("/tmp/bilicomics-launcher.lock", str(self.root / "lock"))
+            .replace("/var/local/system/userpasswdenabled", str(self.root / "passcode"))
             .replace("\nsleep 2\n", "\n")
             .replace("                launch_trace wake_barrier_dropped\n            fi\n            ;;\n        '_bilicomics_app_exit '*)",
                      "                launch_trace wake_barrier_dropped\n            fi\n"
@@ -527,6 +544,10 @@ class LauncherLifecycleTests(unittest.TestCase):
             TEST_NATIVE_ORIENTATION=str(self.root / "native-orientation"),
             TEST_OUTPUT_CAPABILITY="legacy",
             TEST_NATIVE_QUERIES=str(self.root / "native-queries"),
+            TEST_COVER_QUERIES=str(self.root / "cover-queries"),
+            TEST_COVER_CONFIGURATION=str(self.root / "cover-configuration"),
+            TEST_COVER_CONFIGURATION_EXIT="0",
+            TEST_SLEEP_COVER_MODE="disabled",
             TEST_CAPTURE_GROUPS="",
             BILICOMICS_LAUNCH_TRACE="0",
             TEST_OBSERVER_RELAY_PIDS=str(self.root / "observer-relay-pids"),
@@ -548,6 +569,7 @@ class LauncherLifecycleTests(unittest.TestCase):
         (self.root / "framebuffer-rotation").write_text("0\n")
         (self.root / "portrait-metadata").write_text("FIXED:0\n")
         (self.root / "native-orientation").write_text("U\n")
+        (self.root / "cover-configuration").write_text("screensaver\n")
         self.script(self.bin / "status", 'printf "statusbar %s\\n" "$(cat "$TEST_STATUSBAR_STATE")"')
         self.script(
             self.bin / "stop",
@@ -581,6 +603,11 @@ class LauncherLifecycleTests(unittest.TestCase):
                       orientation_body='cat "$TEST_NATIVE_ORIENTATION"'):
         self.script(
             self.bin / "lipc-get-prop",
+            'if [ "$*" = "-s com.lab126.blanket load" ]; then\n'
+            '  printf "%s\\n" "$*" >>"$TEST_COVER_QUERIES"\n'
+            '  cat "$TEST_COVER_CONFIGURATION"\n'
+            '  exit "$TEST_COVER_CONFIGURATION_EXIT"\n'
+            'fi\n'
             'printf "%s\\n" "$*" >>"$TEST_NATIVE_QUERIES"\n'
             'if [ -n "$TEST_CAPTURE_GROUPS" ]; then\n'
             '  ( IFS= read -r entry </proc/self/stat; tail=${entry##*) }; set -- $tail; '
@@ -884,6 +911,37 @@ class LauncherLifecycleTests(unittest.TestCase):
     def configure_native_profile(self, profile):
         (self.home / "data" / "device-profile").write_text(profile + "\n")
         (self.home / "data" / "device-allowlist").write_text(f"{profile} 5.20.1\n")
+
+    def configure_sleep_cover(self, mode="normal", capability="framebuffer8"):
+        self.env.update(TEST_HOLD="1", TEST_SLEEP_COVER_MODE=mode,
+                        TEST_OUTPUT_CAPABILITY=capability, BILICOMICS_LAUNCH_TRACE="1")
+        manager = subprocess.Popen(["sleep", "60"])
+        self.addCleanup(self.stop_fixture_process, manager)
+        self.script(self.bin / "pidof", f"printf '%s\\n' '{manager.pid}'")
+        return manager
+
+    def suspend_with_cover(self):
+        count = len([row for row in self.timing() if row["event"] == "cover_sleep_retained"])
+        self.emit("goingToScreenSaver 2")
+        self.wait_until(lambda: len([row for row in self.timing()
+                                    if row["event"] == "cover_sleep_retained"]) == count + 1)
+
+    def assert_sleep_cover_fallback(self, mode="normal", capability="framebuffer8", requested=True):
+        manager = self.configure_sleep_cover(mode, capability)
+
+        def drive(_):
+            self.ready()
+            self.suspend()
+            self.assertTrue(self.state()["suspended"])
+            self.assertNotIn("cover_sleep_retained", [row["event"] for row in self.timing()])
+            self.assertEqual((self.root / "lock" / "sleep-cover-request").exists(), requested)
+            self.assertFalse(self.process_state(manager.pid).startswith("T"))
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 0, error)
+        self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+        self.assertFalse((self.root / "lock").exists())
 
     def test_unaccepted_firmware_changes_no_services(self):
         (self.home / "data" / "device-allowlist").write_text("# Empty until acceptance.\n")
@@ -2112,6 +2170,199 @@ class LauncherLifecycleTests(unittest.TestCase):
         self.assertEqual(self.lines("native-queries"), [
             "-s com.lab126.powerd state", "-s com.lab126.winmgr epdcMode", "-s com.lab126.powerd state",
         ] * 2)
+
+    def test_sleep_cover_retains_native_pause_and_resumes_the_same_page_without_exit_event(self):
+        manager = self.configure_sleep_cover()
+        self.configure_portrait("U", 1)
+
+        def drive(_):
+            self.ready()
+            original = self.state()
+            self.suspend_with_cover()
+            self.assertEqual(self.trace(), ["stop:statusbar"])
+            self.assertTrue(self.process_state(manager.pid).startswith("T"))
+            self.assertTrue(self.state()["sleep_cover"])
+            request = self.request()
+            self.assertEqual((self.root / "lock" / "sleep-cover-request").read_text(), request + "\n")
+            self.assertEqual((self.root / "lock" / "sleep-cover-ready").read_text(), request + "\n")
+            self.assertLess(self.app_events().index("cover-presented"), self.app_events().index("suspend"))
+            (self.root / "framebuffer-mode").write_text("Y8INV\n")
+            (self.root / "framebuffer-rotation").write_text("3\n")
+            (self.root / "native-mode").write_text("unavailable\n")
+            self.emit("outOfScreenSaver 1")
+            self.wait_until(lambda: "resume" in self.app_events())
+            restored = self.state()
+            self.assertEqual(restored["pid"], original["pid"])
+            self.assertEqual(restored["page"], original["page"])
+            self.assertEqual(restored["route"], original["route"])
+            self.assertEqual(restored["native_mode"], "Y8INV")
+            self.assertEqual(restored["portrait_orientation"], "D")
+            self.assertEqual(restored["resume_presentation"], "FRAMEBUFFER")
+            self.assertFalse(restored["sleep_cover"])
+            self.assertTrue(self.process_state(manager.pid).startswith("T"))
+            self.assertEqual(self.trace(), ["stop:statusbar"])
+            self.assertEqual(self.lines("native-queries").count("-s com.lab126.winmgr epdcMode"), 1)
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 0, error)
+        self.assertEqual(len(self.starts()), 1)
+        self.assertFalse(self.process_state(manager.pid).startswith("T"))
+        self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_sleep_cover_rtc_wake_never_reads_power_or_resumes_the_reader(self):
+        manager = self.configure_sleep_cover()
+
+        def drive(_):
+            self.ready()
+            self.suspend_with_cover()
+            baseline = self.lines("native-queries")
+            self.emit("wakeupFromSuspend 0", "wakeupFromSuspend 0", "exitingScreenSaver 1")
+            time.sleep(0.2)
+            self.assertNotIn("resume", self.app_events())
+            self.assertEqual(self.lines("native-queries"), baseline)
+            self.assertTrue(self.process_state(manager.pid).startswith("T"))
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 0, error)
+
+    def test_sleep_cover_user_wake_waits_for_confirmed_active_power(self):
+        self.configure_sleep_cover()
+
+        def drive(_):
+            self.ready()
+            self.suspend_with_cover()
+            (self.root / "power-state").write_text("screenSaver\n")
+            self.emit("outOfScreenSaver 1")
+            self.wait_until(lambda: "cover_wake_inactive" in [row["event"] for row in self.timing()])
+            self.assertNotIn("resume", self.app_events())
+            self.assertEqual(self.trace(), ["stop:statusbar"])
+            (self.root / "power-state").write_text("active\n")
+            self.wait_until(lambda: "resume" in self.app_events())
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 0, error)
+        self.assertEqual(self.app_events().count("resume"), 1)
+
+    def test_sleep_cover_wake_before_suspend_ack_is_retained_without_wm_queries(self):
+        self.configure_sleep_cover()
+        self.env["TEST_ACK_DELAY"] = "0.25"
+
+        def drive(_):
+            self.ready()
+            self.emit("goingToScreenSaver 2", "outOfScreenSaver 1")
+            self.wait_until(lambda: "resume" in self.app_events())
+            self.assertIn("cover_sleep_retained", [row["event"] for row in self.timing()])
+            self.assertEqual(self.trace(), ["stop:statusbar"])
+            self.assertEqual(self.lines("native-queries").count("-s com.lab126.winmgr epdcMode"), 1)
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 0, error)
+        self.assertEqual(len(self.starts()), 1)
+
+    def test_new_sleep_invalidates_an_earlier_cover_wake_barrier(self):
+        self.configure_sleep_cover()
+
+        def drive(_):
+            self.ready()
+            self.suspend_with_cover()
+            self.emit("outOfScreenSaver 1", "goingToScreenSaver 2")
+            self.wait_until(lambda: "wake_barrier_dropped" in [row["event"] for row in self.timing()])
+            self.assertNotIn("resume", self.app_events())
+            self.assertTrue(self.state()["suspended"])
+            self.emit("outOfScreenSaver 1")
+            self.wait_until(lambda: "resume" in self.app_events())
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 0, error)
+        self.assertEqual(self.app_events().count("resume"), 1)
+
+    def test_disabled_sleep_cover_uses_stock_handoff(self):
+        self.assert_sleep_cover_fallback(mode="disabled")
+
+    def test_missing_sleep_cover_ready_uses_stock_handoff(self):
+        self.assert_sleep_cover_fallback(mode="missing")
+
+    def test_stale_sleep_cover_ready_uses_stock_handoff(self):
+        self.assert_sleep_cover_fallback(mode="stale")
+
+    def test_extra_sleep_cover_ready_record_uses_stock_handoff(self):
+        self.assert_sleep_cover_fallback(mode="extra")
+
+    def test_sleep_cover_without_current_framebuffer_capability_uses_stock_handoff(self):
+        self.assert_sleep_cover_fallback(capability="legacy")
+
+    def test_advertisement_configuration_keeps_stock_sleep(self):
+        (self.root / "cover-configuration").write_text("screensaver ad_screensaver\n")
+        self.assert_sleep_cover_fallback(requested=False)
+
+    def test_unknown_sleep_cover_configuration_keeps_stock_sleep(self):
+        self.env["TEST_COVER_CONFIGURATION_EXIT"] = "7"
+        self.assert_sleep_cover_fallback(requested=False)
+
+    def test_empty_sleep_cover_configuration_keeps_stock_sleep(self):
+        (self.root / "cover-configuration").write_text(" \n")
+        self.assert_sleep_cover_fallback(requested=False)
+
+    def test_binary_sleep_cover_configuration_keeps_stock_sleep(self):
+        (self.root / "cover-configuration").write_bytes(b"screensaver\0\n")
+        self.assert_sleep_cover_fallback(requested=False)
+
+    def test_overflowed_sleep_cover_configuration_keeps_stock_sleep(self):
+        (self.root / "cover-configuration").write_bytes(b"screensaver " + b"x" * 128)
+        self.assert_sleep_cover_fallback(requested=False)
+
+    def test_native_passcode_configuration_keeps_stock_sleep(self):
+        (self.root / "passcode").touch()
+        self.assert_sleep_cover_fallback(requested=False)
+
+    def test_dangling_native_passcode_marker_keeps_stock_sleep(self):
+        (self.root / "passcode").symlink_to(self.root / "absent-password-marker")
+        self.assert_sleep_cover_fallback(requested=False)
+
+    def test_failed_sleep_checkpoint_cannot_retain_a_cover(self):
+        self.env["TEST_ACK_MODE"] = "checkpoint-error"
+        self.assert_sleep_cover_fallback()
+
+    def test_new_native_passcode_releases_an_already_retained_cover_before_wake(self):
+        manager = self.configure_sleep_cover()
+
+        def drive(_):
+            self.ready()
+            self.suspend_with_cover()
+            (self.root / "passcode").touch()
+            (self.root / "power-state").write_text("screenSaver\n")
+            self.emit("outOfScreenSaver 1")
+            self.wait_until(lambda: "cover_sleep_fallback" in [row["event"] for row in self.timing()])
+            self.assertNotIn("resume", self.app_events())
+            self.assertFalse(self.process_state(manager.pid).startswith("T"))
+            self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+            (self.root / "power-state").write_text("active\n")
+            self.emit("exitingScreenSaver 1")
+            self.wait_until(lambda: "resume" in self.app_events())
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 0, error)
+
+    def test_sleep_cover_usb_takeover_restores_native_control(self):
+        manager = self.configure_sleep_cover()
+
+        def drive(_):
+            self.ready()
+            self.suspend_with_cover()
+            self.emit("usbConfigured 1")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 143, error)
+        self.assertFalse(self.process_state(manager.pid).startswith("T"))
+        self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+        self.assertFalse((self.root / "lock").exists())
 
     def test_framebuffer_capability_uses_fresh_resume_probe_without_mode_queries(self):
         self.env.update(TEST_HOLD="1", TEST_OUTPUT_CAPABILITY="framebuffer8")

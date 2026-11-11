@@ -21,6 +21,7 @@ pub(super) fn app(data_dir: &Path, profile: DeviceProfile, client: BiliClient,
         qr_key: None, qr_next_poll: Instant::now(), qr_polling: false,
         cover_files: BTreeMap::new(), cover_images: BTreeMap::new(), cover_sequence: 0,
         cover_pending: BTreeSet::new(), cover_failed: BTreeSet::new(), cover_state: covers::CoverState::default(),
+        sleep_screen: sleep_screen::SleepScreenState::default(),
         toast_until: None, dirty: true, view_dirty: ViewDirty::default(), quitting: false,
         online: true, last_clock: "16:23".into(), last_device_query: Instant::now(),
     })

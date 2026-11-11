@@ -53,6 +53,7 @@ pub(crate) struct DisplayLifecycle {
     resume_frame_pending: Cell<bool>,
     geometry: Cell<Option<(u32, u32)>>,
     sleep_settled: Cell<bool>,
+    sleep_presentation: crate::sleep_presentation::SleepPresentationControl,
     pending: Arc<Mutex<PendingRefresh>>,
     wake: Arc<OwnedFd>,
     quit: Arc<AtomicBool>,
@@ -202,6 +203,7 @@ impl DisplayLifecycleHandle {
                 resume_frame_pending: Cell::new(false),
                 geometry: Cell::new(None),
                 sleep_settled: Cell::new(false),
+                sleep_presentation: crate::sleep_presentation::SleepPresentationControl::default(),
                 pending,
                 wake,
                 quit,
@@ -211,6 +213,43 @@ impl DisplayLifecycleHandle {
 
     pub fn is_suspended(&self) -> bool {
         self.inner.state.suspended.load(Ordering::SeqCst)
+    }
+
+    /// Request a complete frame and a checked EPDC completion receipt.
+    ///
+    /// This queues no storage or native device work. The caller must return to
+    /// the event loop before polling the token and must inhibit ordinary intents
+    /// throughout presentation. Suspended or terminated displays reject requests.
+    pub fn request_sleep_presentation(&self) -> std::io::Result<u64> {
+        if self.inner.quit.load(Ordering::SeqCst) || self.is_suspended() {
+            return Err(std::io::Error::other("the Kindle display is unavailable for sleep presentation"));
+        }
+        let token = self.inner.sleep_presentation.request()?;
+        self.inner.window.request_redraw();
+        crate::wakeup::poke(&self.inner.wake);
+        Ok(token)
+    }
+
+    /// True only after the requested full frame's checked update has completed.
+    pub fn sleep_presentation_completed(&self, token: u64) -> std::io::Result<bool> {
+        if self.inner.quit.load(Ordering::SeqCst) {
+            return Err(std::io::Error::other("the Kindle event loop has terminated"));
+        }
+        self.inner.sleep_presentation.completed(token)
+    }
+
+    pub(crate) fn pending_sleep_presentation(&self) -> std::io::Result<Option<u64>> {
+        self.inner.sleep_presentation.pending()
+    }
+
+    /// Sleep feedback must not wait for a new touch SYN_REPORT. Ordinary intents
+    /// remain inhibited by the caller and suspend drops the input lease next.
+    pub(crate) fn complete_sleep_presentation(&self, token: u64) -> std::io::Result<()> {
+        self.inner.sleep_presentation.acknowledge(token)?;
+        self.inner.state.full_redraw.set(false);
+        self.inner.live_portrait_repaint_pending.set(false);
+        self.inner.live_input_drain_waiting.set(false);
+        Ok(())
     }
 
     /// Read current framebuffer polarity without mapping or writing the display.
@@ -727,6 +766,7 @@ impl DisplayLifecycleHandle {
             return Err(failure("the Kindle event loop has terminated"));
         }
         self.inner.resume_frame_pending.set(false);
+        self.inner.sleep_presentation.cancel_pending();
         let result = (|| {
             let mut observer = self.inner.portrait_observer.try_borrow_mut()
                 .map_err(|_| failure("portrait observer is already borrowed"))?;
@@ -789,6 +829,7 @@ impl DisplayLifecycleHandle {
         if self.inner.quit.load(Ordering::SeqCst) {
             return Err(failure("the Kindle event loop has terminated"));
         }
+        self.inner.sleep_presentation.cancel_pending();
         let was_suspended = self.is_suspended();
         let mut observer = self.inner.portrait_observer.try_borrow_mut()
             .map_err(|_| failure("portrait observer is already borrowed"))?;
@@ -984,6 +1025,7 @@ impl DisplayLifecycleHandle {
     }
 
     pub(crate) fn release_event_loop_io(&self) {
+        self.inner.sleep_presentation.terminate();
         self.inner.resume_frame_pending.set(false);
         self.inner.resume_trace_path.borrow_mut().take();
         self.inner.state.suspended.store(true, Ordering::SeqCst);
@@ -1057,6 +1099,56 @@ mod tests {
             Some((3, 2)),
         );
         assert!(handle.inner.state.input.borrow().is_none());
+    }
+
+    #[test]
+    fn sleep_presentation_is_deferred_and_does_not_require_native_input() {
+        let (handle, wake) = output_handle();
+        handle.inner.state.full_redraw.set(false);
+        handle.inner.live_portrait_repaint_pending.set(true);
+        handle.inner.live_input_drain_waiting.set(true);
+        let token = handle.request_sleep_presentation().unwrap();
+        assert_eq!(handle.pending_sleep_presentation().unwrap(), Some(token));
+        assert!(!handle.sleep_presentation_completed(token).unwrap());
+        assert!(handle.inner.framebuffer.borrow().is_none());
+        assert!(handle.inner.state.input.borrow().is_none());
+        assert_eq!(take_wake_bytes(&wake), 1);
+
+        // Simulate the event loop's checked panel-completion boundary. A sleep
+        // frame releases the timer gate even if a live input report is absent.
+        handle.complete_sleep_presentation(token).unwrap();
+        assert!(handle.sleep_presentation_completed(token).unwrap());
+        assert!(!handle.needs_full_redraw());
+        assert!(!handle.live_input_drain_waiting());
+        assert!(!handle.inner.live_portrait_repaint_pending.get());
+    }
+
+    #[test]
+    fn lifecycle_handoffs_cancel_only_unfinished_sleep_presentations() {
+        let (handle, _wake) = output_handle();
+        let interrupted = handle.request_sleep_presentation().unwrap();
+        handle.suspend().unwrap();
+        assert!(handle.sleep_presentation_completed(interrupted).is_err());
+        assert!(handle.request_sleep_presentation().is_err());
+        handle.resume().unwrap();
+        let completed = handle.request_sleep_presentation().unwrap();
+        handle.complete_sleep_presentation(completed).unwrap();
+        handle.suspend().unwrap();
+        assert!(handle.sleep_presentation_completed(completed).unwrap());
+        handle.resume().unwrap();
+        let stale = handle.request_sleep_presentation().unwrap();
+        handle.resume().unwrap();
+        assert!(handle.sleep_presentation_completed(stale).is_err());
+    }
+
+    #[test]
+    fn terminating_native_io_retires_sleep_presentation_tokens() {
+        let (handle, _wake) = output_handle();
+        let token = handle.request_sleep_presentation().unwrap();
+        handle.release_event_loop_io();
+        assert!(handle.request_sleep_presentation().is_err());
+        assert!(handle.sleep_presentation_completed(token).is_err());
+        assert!(handle.complete_sleep_presentation(token).is_err());
     }
 
     #[test]
