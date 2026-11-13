@@ -405,6 +405,9 @@ fn run(arguments: Arguments) -> Result<()> {
         platform.set_refresh_sink(Arc::new(platform::KindleRefreshSink::new(
             backend.refresh_handle(),
         )))?;
+        platform.set_dithering_sink(Arc::new(platform::KindleDitheringSink::new(
+            backend.dithering_handle(),
+        )))?;
         Some(mode)
     } else {
         startup_native_mode

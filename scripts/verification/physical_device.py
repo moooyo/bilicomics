@@ -279,8 +279,8 @@ def fixture_marker(geometry, projection, checkpoint, manifest):
     reader = checkpoint["reader_state"]
     orientation = checkpoint["native_process"].get("portrait_calibration") or {}
     native = checkpoint["fixture_publication"]["native_frame"]
-    require(orientation.get("direction") == "U" and geometry.get("rotate") == orientation.get("raw_rotation")
-            and native.get("rotation_degrees") == 0, "The fixture marker has no current upright orientation binding.")
+    require(orientation.get("direction") in ("U", "D") and geometry.get("rotate") == orientation.get("raw_rotation")
+            and native.get("rotation_degrees") == 0, "The fixture marker has no current bound portrait scanout.")
     width, height = geometry["width"], geometry["height"]
     require(projection.get("status") == "generated" and projection.get("image_mode") == "L"
             and native.get("framebuffer_size") == [width, height]
@@ -315,13 +315,95 @@ def fixture_marker(geometry, projection, checkpoint, manifest):
     return {"passed": True, "decoded_page_number": decoded, "samples": samples,
             "canvas_size": [width, height], "fit_image_size": [frame_width, frame_height],
             "fit_image_offset": [left, top],
-            "mapping": "upright, unmirrored, centered Page/FitPage at the verified framebuffer geometry",
+            "mapping": "logical unmirrored framebuffer coordinates; native portrait scanout is bound separately",
+            "startup_portrait_direction": orientation["direction"], "framebuffer_transform_degrees": 0,
             "pixel_polarity_source": "current explicit native EPDC mode after declared framebuffer visual conversion",
             "fixture_manifest_sha256": checkpoint["fixture_manifest_sha256"], "physical_panel_update_confirmed": False}
 
 
 def shell_line(*arguments):
     return shlex.join(str(argument) for argument in arguments)
+
+
+NATIVE_IDENTITY_STAGES = frozenset((
+    "basic.stat_read", "basic.exe_read", "basic.digest_read", "basic.environ_read",
+    "basic.physical_token", "basic.cmdline_read", "basic.flag_demo", "basic.flag_offline", "basic.flag_kindle",
+    "extra.status_read", "extra.status_separator", "extra.cmdline_read", "extra.cmdline_separator",
+    "extra.generation_read", "extra.nonce_read", "extra.portrait_read", "extra.generation_binding",
+    "extra.portrait_binding", "extra.environ_read", "extra.launch_token_binding", "extra.portrait_emit",
+    "extra.portrait_framing",
+))
+NATIVE_IDENTITY_REJECT = r'''native_identity_reject() { printf '%s\n' "BILICOMICS_NATIVE_IDENTITY_STAGE=$2" >&2; exit "$1"; }'''
+
+
+def native_identity_basic_script(pid, token, fixture_mode, *, proc_root="/proc"):
+    """Build the same three-line proof with fixed, non-sensitive failure labels."""
+    process = str(PurePosixPath(proc_root) / str(pid))
+    flags = "--offline --kindle" if fixture_mode else "--demo --offline --kindle"
+    return "\n".join((
+        NATIVE_IDENTITY_REJECT,
+        shell_line("cat", process + "/stat") + " 2>/dev/null || native_identity_reject 41 basic.stat_read",
+        shell_line("readlink", process + "/exe") + " 2>/dev/null || native_identity_reject 42 basic.exe_read",
+        shell_line("sha256sum", process + "/exe") + " 2>/dev/null || native_identity_reject 43 basic.digest_read",
+        r"native_environment=$(tr '\000' '\n' 2>/dev/null <" + shlex.quote(process + "/environ")
+            + ") || native_identity_reject 44 basic.environ_read",
+        r'''printf '%s\n' "$native_environment" | '''
+            + shell_line("grep", "-F", "-x", "BILICOMICS_PHYSICAL_TOKEN=" + token)
+            + " >/dev/null || native_identity_reject 45 basic.physical_token",
+        r"native_arguments=$(tr '\000' '\n' 2>/dev/null <" + shlex.quote(process + "/cmdline")
+            + ") || native_identity_reject 46 basic.cmdline_read",
+        "for flag in " + flags + "; do",
+        r'''    if ! printf '%s\n' "$native_arguments" | grep -F -x -e "$flag" >/dev/null; then''',
+        "        case \"$flag\" in",
+        "            --demo) native_identity_reject 47 basic.flag_demo ;;",
+        "            --offline) native_identity_reject 48 basic.flag_offline ;;",
+        "            --kindle) native_identity_reject 49 basic.flag_kindle ;;",
+        "        esac",
+        "    fi",
+        "done",
+        "",
+    ))
+
+
+def native_identity_extra_script(pid, *, proc_root="/proc", lock_dir=LOCK):
+    """Preserve status/NUL/argv/NUL framing and every owned-context predicate."""
+    process = str(PurePosixPath(proc_root) / str(pid))
+    lock = PurePosixPath(lock_dir)
+    return "\n".join((
+        NATIVE_IDENTITY_REJECT,
+        shell_line("cat", process + "/status") + " 2>/dev/null || native_identity_reject 61 extra.status_read",
+        r"printf '\000' || native_identity_reject 62 extra.status_separator",
+        shell_line("cat", process + "/cmdline") + " 2>/dev/null || native_identity_reject 63 extra.cmdline_read",
+        r"printf '\000' || native_identity_reject 64 extra.cmdline_separator",
+        "generation=$(cat " + shlex.quote(str(lock / "generation"))
+            + " 2>/dev/null) || native_identity_reject 65 extra.generation_read",
+        "nonce=$(cat " + shlex.quote(str(lock / "nonce"))
+            + " 2>/dev/null) || native_identity_reject 66 extra.nonce_read",
+        "portrait=$(cat " + shlex.quote(str(lock / "native-portrait-orientation"))
+            + " 2>/dev/null) || native_identity_reject 67 extra.portrait_read",
+        '[ "$(wc -c <' + shlex.quote(str(lock / "native-portrait-orientation"))
+            + ')" -eq "$((${#portrait} + 1))" ] || native_identity_reject 73 extra.portrait_framing',
+        r'''[ "$generation" = "1:$nonce" ] || native_identity_reject 68 extra.generation_binding''',
+        'prefix="$generation:"',
+        r'''case "$portrait" in "$prefix"U:[0-3]|"$prefix"D:[0-3]|"$prefix"FIXED:[0-3]) ;; *) native_identity_reject 69 extra.portrait_binding ;; esac''',
+        r"native_environment=$(tr '\000' '\n' 2>/dev/null <" + shlex.quote(process + "/environ")
+            + ") || native_identity_reject 70 extra.environ_read",
+        r'''printf '%s\n' "$native_environment" | grep -F -x -e "BILICOMICS_LAUNCH_TOKEN=$nonce" >/dev/null || native_identity_reject 71 extra.launch_token_binding''',
+        r'''printf '%s\n' "${portrait#"$prefix"}" || native_identity_reject 72 extra.portrait_emit''',
+        "",
+    ))
+
+
+def native_identity_output(result, phase):
+    """Expose only allowlisted rejection labels, never stderr or process data."""
+    if result.returncode:
+        prefix = b"BILICOMICS_NATIVE_IDENTITY_STAGE="
+        labels = [line[len(prefix):].decode("ascii", errors="replace")
+                  for line in result.stderr.splitlines() if line.startswith(prefix)]
+        label = labels[0] if len(labels) == 1 and labels[0] in NATIVE_IDENTITY_STAGES \
+            and labels[0].startswith(phase + ".") else phase + ".transport_or_unlabelled"
+        raise RuntimeError(f"The native identity proof rejected stage {label} (exit {result.returncode}).")
+    return result.stdout
 
 
 def json_write(path, value):
@@ -769,20 +851,17 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
 
     def native_identity(self):
         fields = self.read(self.logs + "/native.identity").decode().strip().split("|")
-        require(len(fields) == 5 and secrets.compare_digest(fields[4], self.run_token()), "The wrapper's native identity is not this run's identity.")
+        require(len(fields) == 5 and secrets.compare_digest(fields[4], self.run_token()), "basic.wrapper_identity: The wrapper's native identity is not this run's identity.")
         pid, ticks, executable, parent, _ = fields
-        require(pid.isdecimal() and int(pid) > 1 and ticks.isdecimal() and parent.isdecimal(), "Invalid native process identity.")
-        require(executable == self.root + "/app/" + self.state["binary_name"], "The application executable is outside the isolated run.")
+        require(pid.isdecimal() and int(pid) > 1 and ticks.isdecimal() and parent.isdecimal(), "basic.pid_format: Invalid native process identity.")
+        require(executable == self.root + "/app/" + self.state["binary_name"], "basic.exe_path: The application executable is outside the isolated run.")
         fixture_mode = self.state.get("content_mode", "demo") == "distinct_fixture"
-        flags = "--offline --kindle" if fixture_mode else "--demo --offline --kindle"
-        script = shell_line("cat", f"/proc/{pid}/stat") + "\n" + shell_line("readlink", f"/proc/{pid}/exe") + "\n" + shell_line("sha256sum", f"/proc/{pid}/exe") + "\n" + \
-                 "tr '\\000' '\\n' <" + shlex.quote(f"/proc/{pid}/environ") + " | " + shell_line("grep", "-F", "-x", "BILICOMICS_PHYSICAL_TOKEN=" + self.run_token()) + " >/dev/null\n" + \
-                 "for flag in " + flags + "; do tr '\\000' '\\n' <" + shlex.quote(f"/proc/{pid}/cmdline") + " | grep -F -x -e \"$flag\" >/dev/null; done\n"
-        rows = self.remote(script).stdout.decode().splitlines()
-        require(len(rows) == 3, "The native process could not be fully identified.")
+        script = native_identity_basic_script(pid, self.run_token(), fixture_mode)
+        rows = native_identity_output(self.remote(script, check=False), "basic").decode().splitlines()
+        require(len(rows) == 3, "basic.output_shape: The native process could not be fully identified.")
         actual_ticks = rows[0].rsplit(")", 1)[1].split()[19]
         require(actual_ticks == ticks and rows[1] == executable and rows[2].split()[0] == self.state["binary_sha256"],
-                "The live PID, start time, executable path or digest changed.")
+                "basic.process_binding: The live PID, start time, executable path or digest changed.")
         identity = {"pid": int(pid), "start_ticks": int(ticks), "exe_path": executable, "exe_sha256": self.state["binary_sha256"],
                     "demo_offline_native_arguments_verified": not fixture_mode}
         if fixture_mode:
@@ -794,41 +873,37 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
             require(all(proof[key] == self.state["socket_guard"]["probe"][key] for key in
                         ("uid", "gid", "effective_uid", "effective_gid", "no_new_privs", "audit_arch")),
                     "The actual UI guard changed the approved process context.")
-            extra = self.remote(shell_line("cat", f"/proc/{pid}/status") + "\nprintf '\\000'\n" +
-                                shell_line("cat", f"/proc/{pid}/cmdline") + "\nprintf '\\000'\n" +
-                                "generation=$(cat " + shlex.quote(LOCK + "/generation") + ")\n" +
-                                "nonce=$(cat " + shlex.quote(LOCK + "/nonce") + ")\n" +
-                                "portrait=$(cat " + shlex.quote(LOCK + "/native-portrait-orientation") + ")\n" +
-                                '[ "$generation" = "1:$nonce" ]\nprefix="$generation:"\ncase "$portrait" in "$prefix"U:[0-3]) ;; *) exit 4 ;; esac\n' +
-                                "tr '\\000' '\\n' <" + shlex.quote(f"/proc/{pid}/environ") +
-                                ' | grep -F -x -e "BILICOMICS_LAUNCH_TOKEN=$nonce" >/dev/null\n' +
-                                'printf \'%s\\n\' "${portrait#"$prefix"}"\n').stdout
+            extra = native_identity_output(self.remote(native_identity_extra_script(pid), check=False), "extra")
             status_bytes, tail = extra.split(b"\0", 1)
             argument_bytes, portrait_bytes = tail.rsplit(b"\0\0", 1)
             arguments = [value.decode() for value in argument_bytes.split(b"\0")]
             expected = [executable, "--kindle", "--device", self.state["profile"], "--data-dir", self.root + "/data",
                         "--performance-trace", self.logs + "/performance.jsonl", "--offline", "--screen", "reader",
                         "--lifecycle-trace", self.logs + "/lifecycle.jsonl", "--exit-after-ms", str(self.state["exit_after_ms"])]
-            require(arguments == expected, "The fixture UI arguments differ from the approved offline guest launch.")
+            require(arguments == expected, "extra.argv_binding: The fixture UI arguments differ from the approved offline guest launch.")
             status = dict(line.split(":", 1) for line in status_bytes.decode().splitlines() if ":" in line)
             # Linux added the proc status field in 4.10. The guard still
             # proves its pre-exec value with prctl on older kernels; absence
             # here is unknown live metadata, not permission to omit Seccomp.
             reported_no_new_privs = status.get("NoNewPrivs")
             require(reported_no_new_privs is None or reported_no_new_privs.strip() == str(proof["no_new_privs"]),
-                    "The reported live no-new-privileges value differs from the guard proof.")
+                    "extra.no_new_privs_binding: The reported live no-new-privileges value differs from the guard proof.")
             require(status.get("Seccomp", "").strip() == "2"
                     and [int(value) for value in status.get("Uid", "").split()[:2]] == [proof["uid"], proof["effective_uid"]]
                     and [int(value) for value in status.get("Gid", "").split()[:2]] == [proof["gid"], proof["effective_gid"]],
-                    "The live fixture process no longer has the proved socket filter or credentials.")
+                    "extra.credentials_binding: The live fixture process no longer has the proved socket filter or credentials.")
             portrait = portrait_bytes.decode().strip()
-            require(re.fullmatch(r"U:[0-3]", portrait) is not None, "The fixture lacks an owned upright portrait calibration.")
+            calibration = re.fullmatch(r"(U|D|FIXED):([0-3])", portrait)
+            require(calibration is not None, "extra.portrait_output: The fixture lacks an owned portrait calibration.")
+            record_direction = calibration.group(1)
             identity.update({"content_mode": "distinct_fixture", "offline_guest_native_arguments_verified": True,
                              "socket_guard_proof": proof, "live_seccomp_mode": 2,
                              "live_no_new_privs": int(reported_no_new_privs.strip()) if reported_no_new_privs is not None else None,
                              "live_no_new_privs_scope": "proc status field when exposed; guard proof independently records the pre-exec prctl value",
-                             "portrait_calibration": {"direction": "U", "raw_rotation": int(portrait[-1]),
-                                                      "source": "owned launcher calibration; current geometry must still match"}})
+                             "portrait_calibration": {"direction": "U" if record_direction == "FIXED" else record_direction,
+                                                      "fixed": record_direction == "FIXED", "record_direction": record_direction,
+                                                      "raw_rotation": int(calibration.group(2)),
+                                                      "source": "owned startup launcher calibration; current geometry must still match"}})
         return identity
 
     def trace(self):
@@ -990,8 +1065,36 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
             require(self.args.capture == (self.args.require != "suspended"),
                     "An awake fixture checkpoint requires its marker capture; suspended checkpoints forbid captures.")
         deadline = time.monotonic() + self.args.wait_seconds
+        last_rejection = None
+        first_native_proof_rejection = None
+
+        def terminal_failure(message, stage, error=None):
+            report = {"schema_version": 1, "evidence_class": "host-checkpoint-diagnostic",
+                      "checkpoint": self.args.name, "requested_checkpoint": self.args.require,
+                      "wait_seconds": self.args.wait_seconds, "terminal_stage": stage,
+                      "terminal_reason": message, "last_rejection": last_rejection,
+                      "first_native_proof_rejection": first_native_proof_rejection,
+                      "checkpoint_accepted": False, "diagnostic_device_operations": False}
+            path = self.output / (self.args.name + ".checkpoint-failure-" + secrets.token_hex(4) + ".json")
+            detail = message
+            if last_rejection is not None:
+                detail += "; last " + last_rejection["stage"] + ": " + last_rejection["message"]
+            if first_native_proof_rejection is not None and first_native_proof_rejection != last_rejection:
+                detail += "; first native_proof: " + first_native_proof_rejection["message"]
+            try:
+                with path.open("x", encoding="utf-8") as stream:
+                    json.dump(report, stream, indent=2, ensure_ascii=True)
+                    stream.write("\n")
+                detail += "; host diagnostic: " + path.name
+            except OSError as report_error:
+                detail += "; host diagnostic write failed: " + type(report_error).__name__
+            failure_type = TimeoutError if isinstance(error, TimeoutError) else RuntimeError
+            raise failure_type(detail) from error
+
         while True:
-            require(self.done(required=False) is None, "The run has ended; collect recovery evidence.")
+            if self.done(required=False) is not None:
+                terminal_failure("The run has ended; collect recovery evidence.", "run_ended")
+            stage = "readiness_hint"
             try:
                 # Hints only defer the full native proof; they cannot authorize
                 # a checkpoint or framebuffer read.
@@ -1001,11 +1104,15 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
                         if fixture_mode else checkpoint_ready_hint(hints, self.args.require, before, self.args.expect))
                 require(hint,
                         "The untrusted lifecycle hint has not reached the requested checkpoint.")
+                stage = "native_proof"
                 value = self.checkpoint_value(self.args.require)
                 break
-            except (RuntimeError, TimeoutError):
+            except (RuntimeError, TimeoutError) as error:
+                last_rejection = {"stage": stage, "type": type(error).__name__, "message": str(error)[:1024]}
+                if stage == "native_proof" and first_native_proof_rejection is None:
+                    first_native_proof_rejection = dict(last_rejection)
                 if time.monotonic() >= deadline:
-                    raise
+                    terminal_failure("The checkpoint wait deadline expired.", "wait_deadline", error)
                 time.sleep(0.5)
         if self.args.compare_to:
             before = self.state["checkpoints"].get(self.args.compare_to)

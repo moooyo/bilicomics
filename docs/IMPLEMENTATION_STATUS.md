@@ -6,6 +6,45 @@ Automatic brightness is outside the requirements and acceptance scope following
 the user's cross-project instruction on 2026-11-09. Manual brightness and warmth
 controls remain in scope when supported by the device.
 
+## Hardware Y4 follow-up: 2026-11-13
+
+The reader now offers software, hardware, and off dithering choices. The
+[hardware Y4 record](HARDWARE_Y4_DITHERING.md) documents the native MTK flag,
+reviewed Scribe hardware identities, unquantized Gray8 preparation, frame-bound
+mode changes, and software fallback. Unknown hardware and Paperwhite 5 retain
+software processing. Uncertain hardware-path delivery stops native writes and
+returns through the existing restoration path rather than retrying blindly.
+
+The frozen follow-up passes 725 application/Main/integration tests, 185 backend
+tests, 21 fixture tests, six real desktop setting/restart processes, selected
+Reader/guest/startup/lifecycle cases, and ARM package checks. Nine opt-in tests
+remain explicitly ignored. The application version remains `0.1.23`; the linked
+record identifies this candidate by exact source, executable, and archive hashes.
+
+The separately coordinated R57 physical attempt stopped in deployment because
+the normal-native display observation was unavailable. The application did not
+start; transport closure and exact owner/token lease release completed before
+peer notification and analysis. Native Y4 acceptance and physical panel quality
+remain unverified for this candidate. This is distinct from the earlier cover
+sleep and operator observations below.
+
+At the user's subsequent request, the same remotely compiled desktop artifact
+also passed the six-process setting/page/restart checks on the local Debian 13
+WSL runtime. An actual WSLg window was visually reviewed. Compilation remained
+on `test-env`; this is local Linux/WSL evidence, not native Windows or Kindle
+hardware acceptance. The hardware Y4 record links the exact local reports.
+
+A later real-device run found and corrected the proc identity's trailing NUL
+handling while retaining the hardware whitelist. The corrected ARM
+`4dabdd791462ceb0bf2d18fab96ccb5a42d7d3f41c62baaa0b2e7abe9cd2d5f5`
+passes 15 selected application tests, all 189 backend tests, and package checks.
+After correcting the harness's authenticated Down/fixed-portrait compatibility,
+R68 completed the full live-context and source-marker capture on Scribe 2022 /
+5.19.5. GC16 plus hardware Y4 was accepted without software fallback, and the
+captured ramp retained every input value from 0 through 255. Native restoration
+and exact lease release passed before analysis. The linked hardware record keeps
+this driver/input pass separate from panel reflectance or physical-touch claims.
+
 ## Comic-cover sleep: 0.1.23 implementation
 
 The [comic-cover sleep record](SLEEP_COVER.md) adapts the accepted WeRead

@@ -507,3 +507,68 @@ remain unchanged. Empty regions and a cached unsupported ABI issue no ioctl.
 No additional refresh or wait is introduced. An ioctl return or acceptance is
 explicitly distinct from physical panel completion, which is not measured by
 these samples.
+
+## Explicit MTK Y4 image dithering
+
+The independent `dithering` module adds a cloneable `DitheringHandle`, available
+through `KindleBackend::dithering_handle()`. Its owner stages the processing mode
+with the actual image publication. A mode revision requires a complete scene
+rewrite and GC16 refresh, preserving the existing sleep and native presentation
+barriers. A request survives a rejected hardware capability until the matching
+software image is published; retained Gray8 pixels cannot silently lose their
+dithering treatment.
+
+Eligibility uses only a read-only `/proc/usid` identity and framebuffer GET
+metadata. The exact Scribe 2022 and 2024 device-code sets follow
+[KOReader 7c38cf104cb9ea89df243e47ec820ef4aa97cab8](https://github.com/koreader/koreader/blob/7c38cf104cb9ea89df243e47ec820ef4aa97cab8/frontend/device/kindle/device.lua#L2156).
+The accepted format is an identified monochrome 8-bit native framebuffer.
+Unknown, Paperwhite 5, and color identities are not enabled. Complete serial
+numbers are neither retained nor logged. The metadata query maps no memory,
+submits no update, and acquires no input, including during initial sleep.
+
+A supervised read-only Scribe 2022 observation exposed a 17-byte `/proc/usid`
+payload: a complete 16-byte identity followed by one NUL byte. Its public model
+code was `23L`, already present in the reviewed whitelist. Identity transport
+now uses `read_exact` for the first 16 bytes, matching
+[FBInk's fixed-width read](https://github.com/NiLuJe/FBInk/blob/ded92fa510c957e0157c92ae83bd5c51af710c05/fbink_device_id.c#L538),
+instead of requiring the entire proc file to have the identity's length. The
+16-byte ASCII format and model-code checks remain unchanged. Synthetic tests
+cover NUL and multiple padding bytes, short and fragmented reads, embedded NUL,
+unknown identities, bounded consumption, and read errors. This correction is
+identity parsing evidence, separate from acceptance of a hardware Y4 update.
+
+The reviewed MTK contract comes from
+[FBInk ded92fa510c957e0157c92ae83bd5c51af710c05](https://github.com/NiLuJe/FBInk/blob/ded92fa510c957e0157c92ae83bd5c51af710c05/eink/mtk-kindle.h#L163)
+and [KOReader-base f64c3eb11049e9a75189f186d7345d97c07d87b9](https://github.com/koreader/koreader-base/blob/f64c3eb11049e9a75189f186d7345d97c07d87b9/ffi/framebuffer_mxcfb.lua#L635).
+Y4 uses flag `0x4000`; `0x8000` belongs to REGAL on this ABI. `dither_mode` and
+`quant_bit` remain zero because the flag selects MTK's MDP conversion rather
+than EPDCv2's quantization fields. Hardware regions expand to eight-pixel
+boundaries and clip to the visible panel. Every update in a Gray8 image scene
+uses GC16, including requests originally asking for DU/A2/Auto, so an overlay
+cannot expose retained gray content through a binary waveform. Ordinary scenes
+and explicit bilevel rendering retain their original waveform behavior.
+
+Explicit `EINVAL`, `ENOTTY`, or `EOPNOTSUPP` rejection disables hardware Y4 for
+the session. After checked completion of the preceding accepted update, the
+complete visible mapping is software-quantized using physical-coordinate Bayer
+phase and logical output polarity, then submitted without Y4 under a fresh
+marker. Row padding and 32-bit alpha remain untouched. Unknown delivery errors,
+including `EIO` and `EINTR`, do not cause pixel rewriting or automatic retry.
+They latch a failure on this mapped framebuffer: later scene revisions cannot
+write, fill, refresh, or acknowledge an older marker. The event loop finishes
+its failed diagnostic observation outside native borrows and returns an error
+for the owner's existing native-control recovery. A rejected MTK ABI may probe
+other ABIs only after software conversion, and that probe also stops on its
+first uncertain outcome. Failed completion barriers use the same persistent
+stop policy.
+Normal future writes of a still-retained Gray8 scene use software fallback until
+the owner replaces that image, provided no uncertain delivery was observed. No
+device-wide mode or persistent firmware flag is changed.
+
+Numeric performance observations distinguish requested/available Y4, a final
+accepted Y4 ioctl, and actual software fallback. These values establish neither
+panel completion nor a physical grayscale count. Controlled test sources cover
+device filtering, MTK ABI fields, clipping, raw input preservation, waveform
+protection, explicit-versus-uncertain errors, completion barriers, fresh markers,
+fallback phase, and polarity. Their execution belongs to the designated remote
+verification environment; device and firmware acceptance remain separate.

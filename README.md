@@ -62,6 +62,7 @@ Normal execution uses the per-user `bilicomics` data directory; `--data-dir` ove
 | [Performance diagnostics](docs/PERFORMANCE_DIAGNOSTICS.md) | Opt-in 0.1.20 stage tracing, operation correlation, clock boundaries and verification expectations |
 | [Measured ARM resize cause](docs/PERFORMANCE_ROOT_CAUSE_20261110.md) | R48 CPU attribution, R49 component comparisons, bounded 0.1.21 implementation, and R51 App acceptance |
 | [KOReader technique adoption](docs/KOREADER_OPTIMIZATION_AUDIT_20261110.md) | Implemented, partial and unimplemented cache, grayscale, streaming and refresh mechanisms with upstream references |
+| [Hardware Y4 dithering](docs/HARDWARE_Y4_DITHERING.md) | Device-gated Gray8 processing, reader settings, presentation ordering, native flags, software fallback, and verification scope |
 | [Streaming resize and prepared next page](docs/PERFORMANCE_STREAMING_PREFETCH_20261110.md) | Version 0.1.22 bounded row storage, verified next-page hits, source checks, resource lifetimes, and selected software/Scribe observations |
 | [Native presentation compatibility](docs/NATIVE_PRESENTATION_COMPATIBILITY.md) | Version 0.1.7 read-only display-mode observation, pixel compensation, ordered power events, and scoped verification |
 | [Wake continuity and settings](docs/WAKE_CONTINUITY_AND_SETTINGS.md) | Verified no-Home wake on the scoped Scribe, the SGID compatibility correction, and removal of the user inversion setting in 0.1.9 |

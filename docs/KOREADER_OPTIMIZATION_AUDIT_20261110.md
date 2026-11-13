@@ -13,6 +13,10 @@ The later `0.1.22` streaming-row and single prepared-page implementation is
 tracked in the [follow-up record](PERFORMANCE_STREAMING_PREFETCH_20261110.md).
 The table below retains this audit's original `0.1.21` scope.
 
+The subsequent hardware Y4 implementation and its independently scoped checks
+are documented in [hardware Y4 dithering](HARDWARE_Y4_DITHERING.md). The original
+status below describes the source reviewed on 2026-11-10.
+
 ## Status at a glance
 
 | Technique | Current status | Remaining work or reason for deferral |

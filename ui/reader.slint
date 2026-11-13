@@ -61,6 +61,7 @@ export global ReaderModel {
     // Kept for preference and integration compatibility; quiet reading has no footer.
     in-out property <bool> show-footer: true;
     in-out property <bool> dither: true;
+    in-out property <string> dither-method: "software";
     in-out property <bool> cover-alone: true;
     in-out property <bool> next-locked: true;
     in-out property <bool> next-available: true;
@@ -685,7 +686,7 @@ export component ReaderScreen inherits Rectangle {
                 ReaderChoiceRow { label: Strings.read-fit; value: ReaderModel.fit; options: [{value: "page", label: Strings.read-fit-page}, {value: "width", label: Strings.read-fit-width}]; picked(value) => { ReaderModel.fit = value; ReaderModel.action("setting", "fit:" + value); } }
                 ReaderChoiceRow { label: Strings.read-direction; value: ReaderModel.direction; options: [{value: "ltr", label: Strings.read-ltr}, {value: "rtl", label: Strings.read-rtl}]; picked(value) => { ReaderModel.direction = value; ReaderModel.action("setting", "direction:" + value); } }
                 ReaderChoiceRow { label: Strings.read-full-refresh; value: ReaderModel.refresh-policy; options: [{value: "smart", label: Strings.read-refresh-smart}, {value: "1", label: Strings.read-refresh-every}, {value: "6", label: Strings.read-refresh-six}, {value: "0", label: Strings.read-refresh-never}]; picked(value) => { ReaderModel.refresh-policy = value; ReaderModel.action("setting", "refresh-policy:" + value); } }
-                ReaderChoiceRow { label: Strings.read-dither; value: ReaderModel.dither ? "on" : "off"; options: [{value: "on", label: Strings.read-on}, {value: "off", label: Strings.read-off}]; picked(value) => { ReaderModel.dither = value == "on"; ReaderModel.action("setting", "dither:" + value); } }
+                ReaderChoiceRow { label: Strings.read-dither; value: ReaderModel.dither ? ReaderModel.dither-method : "off"; options: [{value: "software", label: Strings.read-dither-software}, {value: "hardware", label: Strings.read-dither-hardware}, {value: "off", label: Strings.read-off}]; picked(value) => { ReaderModel.dither = value != "off"; if value == "off" { ReaderModel.action("setting", "dither:off"); } else { ReaderModel.dither-method = value; ReaderModel.action("setting", "dither-method:" + value); } } }
             }
             if root.wide-landscape: HorizontalLayout {
                 x: root.reader-edge;
@@ -706,7 +707,7 @@ export component ReaderScreen inherits Rectangle {
                     spacing: 12px;
                     ReaderChoiceRow { label: Strings.read-cover-page; value: ReaderModel.cover-alone ? "on" : "off"; options: [{value: "on", label: Strings.read-on}, {value: "off", label: Strings.read-off}]; picked(value) => { ReaderModel.cover-alone = value == "on"; ReaderModel.action("setting", "cover-alone:" + value); } }
                     ReaderChoiceRow { label: Strings.read-full-refresh; value: ReaderModel.refresh-policy; options: [{value: "smart", label: Strings.read-refresh-smart}, {value: "1", label: Strings.read-refresh-every}, {value: "6", label: Strings.read-refresh-six}, {value: "0", label: Strings.read-refresh-never}]; picked(value) => { ReaderModel.refresh-policy = value; ReaderModel.action("setting", "refresh-policy:" + value); } }
-                    ReaderChoiceRow { label: Strings.read-dither; value: ReaderModel.dither ? "on" : "off"; options: [{value: "on", label: Strings.read-on}, {value: "off", label: Strings.read-off}]; picked(value) => { ReaderModel.dither = value == "on"; ReaderModel.action("setting", "dither:" + value); } }
+                    ReaderChoiceRow { label: Strings.read-dither; value: ReaderModel.dither ? ReaderModel.dither-method : "off"; options: [{value: "software", label: Strings.read-dither-software}, {value: "hardware", label: Strings.read-dither-hardware}, {value: "off", label: Strings.read-off}]; picked(value) => { ReaderModel.dither = value != "off"; if value == "off" { ReaderModel.action("setting", "dither:off"); } else { ReaderModel.dither-method = value; ReaderModel.action("setting", "dither-method:" + value); } } }
                     Rectangle { min-height: 0px; vertical-stretch: 1; }
                 }
             }

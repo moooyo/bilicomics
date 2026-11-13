@@ -212,6 +212,60 @@ class CheckpointPollingTests(unittest.TestCase):
         harness.remote.assert_not_called()
         self.assert_not_accepted(harness)
 
+    def test_run_end_preserves_the_last_rejected_native_proof(self):
+        harness = self.fixture([reader_trace()], wait=2, capture=True, fault="arguments")
+        harness.done = Mock(side_effect=[None, {"recovery_complete": True}])
+        with self.assertRaisesRegex(RuntimeError, "The run has ended;.*last native_proof:.*native arguments"):
+            self.run_checkpoint(harness)
+        reports = list(harness.output.glob("candidate.checkpoint-failure-*.json"))
+        self.assertEqual(len(reports), 1)
+        report = json.loads(reports[0].read_text())
+        self.assertEqual(report["terminal_stage"], "run_ended")
+        self.assertEqual(report["last_rejection"], {
+            "stage": "native_proof", "type": "RuntimeError",
+            "message": "The fixture native arguments were not verified.",
+        })
+        self.assertFalse(report["checkpoint_accepted"])
+        self.assertFalse(report["diagnostic_device_operations"])
+        self.assertEqual(harness.native_identity.call_count, 1)
+        self.assert_not_accepted(harness)
+
+    def test_wait_deadline_records_pending_hint_without_accepting_or_running_full_proof(self):
+        harness = self.fixture([[]], wait=1)
+        with self.assertRaisesRegex(RuntimeError, "wait deadline expired.*last readiness_hint:.*untrusted lifecycle hint"):
+            self.run_checkpoint(harness)
+        reports = list(harness.output.glob("candidate.checkpoint-failure-*.json"))
+        self.assertEqual(len(reports), 1)
+        report = json.loads(reports[0].read_text())
+        self.assertEqual(report["terminal_stage"], "wait_deadline")
+        self.assertEqual(report["last_rejection"]["stage"], "readiness_hint")
+        self.assertFalse(report["checkpoint_accepted"])
+        self.assertEqual(self.clock.now, 1)
+        harness.native_identity.assert_not_called()
+        harness.remote.assert_not_called()
+        self.assert_not_accepted(harness)
+
+    def test_process_exit_cannot_replace_the_first_native_proof_rejection(self):
+        harness = self.fixture([reader_trace()], wait=2, capture=True)
+        harness.native_identity.side_effect = [
+            RuntimeError("The native identity proof rejected stage extra.launch_token_binding (exit 71)."),
+            RuntimeError("The native identity proof rejected stage basic.stat_read (exit 41)."),
+        ]
+        harness.done = Mock(side_effect=[None, None, {"recovery_complete": True}])
+        with self.assertRaises(RuntimeError) as rejected:
+            self.run_checkpoint(harness)
+        self.assertIn("extra.launch_token_binding", str(rejected.exception))
+        self.assertIn("basic.stat_read", str(rejected.exception))
+        reports = list(harness.output.glob("candidate.checkpoint-failure-*.json"))
+        self.assertEqual(len(reports), 1)
+        report = json.loads(reports[0].read_text())
+        self.assertIn("extra.launch_token_binding", report["first_native_proof_rejection"]["message"])
+        self.assertIn("basic.stat_read", report["last_rejection"]["message"])
+        self.assertEqual(report["terminal_stage"], "run_ended")
+        self.assertEqual(harness.native_identity.call_count, 2)
+        harness.remote.assert_not_called()
+        self.assert_not_accepted(harness)
+
     def test_next_page_waits_for_the_target_hint_then_performs_full_proof(self):
         harness = self.fixture([reader_trace(), reader_trace(), reader_trace(1)], wait=2,
                                capture=True, compare=True, expect="next-page")

@@ -107,6 +107,114 @@ class DistinctReaderFixtureTests(unittest.TestCase):
         with self.assertRaises(fixture.FixtureError):
             fixture.generate_fixture(self.source)
 
+    def test_default_contract_remains_the_legacy_off_palette(self):
+        self.assertEqual(self.manifest["format_version"], 1)
+        self.assertNotIn("variant", self.manifest)
+        self.assertIs(self.manifest["initial_preferences"]["dither"], False)
+        self.assertNotIn("dither_method", self.manifest["initial_preferences"])
+        for page in self.manifest["pages"]:
+            self.assertEqual(page["pattern"]["palette_step"], 17)
+            self.assertNotIn("gray8_ramp", page["pattern"])
+        first = fixture._decode_png((self.case / self.manifest["pages"][0]["file"]).read_bytes())
+        self.assertTrue(all(value % 17 == 0 for value in set(first)))
+
+    def test_hardware_ramp_variant_binds_all_gray8_values_and_guest_preferences(self):
+        output = self.workspace_path / "hardware-ramp"
+        manifest = fixture.generate_fixture(output, dithering="hardware", gray8_ramp=True)
+        report = fixture.validate_fixture(output)
+        self.assertEqual(report["manifest"], manifest)
+        self.assertEqual(manifest["format_version"], 2)
+        self.assertEqual(manifest["variant"], {"dithering": "hardware", "artwork": fixture.RAMP_ARTWORK})
+        self.assertIs(manifest["initial_preferences"]["dither"], True)
+        self.assertEqual(manifest["initial_preferences"]["dither_method"], "hardware")
+        first = manifest["pages"][0]
+        self.assertEqual(first["pattern"]["palette_step"], 1)
+        self.assertEqual(first["pattern"]["gray8_ramp"]["levels"], 256)
+        pixels = fixture._decode_png((output / first["file"]).read_bytes())
+        left, top, width, height = fixture.RAMP_RECT
+        for y in (top, top + height // 2, top + height - 1):
+            self.assertEqual(set(pixels[y * fixture.WIDTH + left:y * fixture.WIDTH + left + width]),
+                             set(range(256)))
+        for sample in first["machine_marker"]["samples"]:
+            self.assertEqual(pixels[sample["y"] * fixture.WIDTH + sample["x"]], sample["luma"])
+        self.assertFalse(manifest["safety"]["credentials_seeded"])
+        self.assertEqual(manifest["safety"]["network_source_urls"], [])
+        self.assertFalse(report["application_decode_proof_claimed"])
+
+    def test_software_variant_keeps_legacy_artwork_and_ramp_off_keeps_dither_disabled(self):
+        software = self.workspace_path / "software-variant"
+        manifest = fixture.generate_fixture(software, dithering="software")
+        self.assertEqual(fixture.validate_fixture(software)["manifest"], manifest)
+        self.assertEqual(manifest["variant"], {"dithering": "software", "artwork": fixture.LEGACY_ARTWORK})
+        self.assertEqual(manifest["initial_preferences"]["dither_method"], "software")
+        self.assertIs(manifest["initial_preferences"]["dither"], True)
+        for actual, old in zip(manifest["pages"], self.manifest["pages"]):
+            self.assertEqual(actual, old)
+            self.assertEqual((software / actual["file"]).read_bytes(), (self.source / old["file"]).read_bytes())
+        off = self.workspace_path / "ramp-with-dither-off"
+        off_manifest = fixture.generate_fixture(off, gray8_ramp=True)
+        self.assertEqual(fixture.validate_fixture(off)["manifest"], off_manifest)
+        self.assertEqual(off_manifest["variant"]["dithering"], "off")
+        self.assertIs(off_manifest["initial_preferences"]["dither"], False)
+        self.assertNotIn("dither_method", off_manifest["initial_preferences"])
+
+    def test_rejects_uncontrolled_variants_before_creating_an_output(self):
+        for number, parameters in enumerate((
+            {"dithering": "automatic"}, {"dithering": "HARDWARE"},
+            {"dithering": ["hardware"]}, {"gray8_ramp": 1},
+        )):
+            with self.subTest(parameters=parameters):
+                output = self.workspace_path / ("invalid-variant-" + str(number))
+                with self.assertRaises(fixture.FixtureError):
+                    fixture.generate_fixture(output, **parameters)
+                self.assertFalse(output.exists())
+
+    def test_variant_declaration_cannot_relabel_legacy_artwork_or_preferences(self):
+        manifest = self.load_manifest()
+        manifest["variant"] = {"dithering": "hardware", "artwork": fixture.LEGACY_ARTWORK}
+        self.write_manifest(manifest)
+        self.assert_rejected("legacy fixture")
+        manifest["format_version"] = 2
+        self.write_manifest(manifest)
+        self.assert_rejected("preferences")
+        manifest["variant"]["artwork"] = fixture.RAMP_ARTWORK
+        self.write_manifest(manifest)
+        self.assert_rejected("full-page pattern")
+
+    def test_ramp_variant_rejects_preference_tampering_after_database_rehash(self):
+        self.case = self.workspace_path / "hardware-preference-tamper"
+        fixture.generate_fixture(self.case, dithering="hardware", gray8_ramp=True)
+        self.execute_database(
+            "UPDATE preferences SET payload=json_set(payload,'$.dither_method','software') WHERE key='preferences'")
+        self.assert_rejected("guest-only seed")
+
+    def test_variant_rejects_unknown_fields_missing_choices_and_noninteger_version(self):
+        for variant in (
+            {"dithering": "hardware", "artwork": fixture.LEGACY_ARTWORK, "bypass": True},
+            {"dithering": "hardware"},
+            {"dithering": "automatic", "artwork": fixture.LEGACY_ARTWORK},
+            {"dithering": "hardware", "artwork": "arbitrary"},
+        ):
+            with self.subTest(variant=variant):
+                manifest = self.load_manifest()
+                manifest.update(format_version=2, variant=variant)
+                self.write_manifest(manifest)
+                self.assert_rejected("variant")
+        manifest = self.load_manifest()
+        manifest["format_version"] = True
+        self.write_manifest(manifest)
+        self.assert_rejected("format version")
+
+    def test_cli_can_generate_the_explicit_hardware_gray8_variant(self):
+        output = self.workspace_path / "cli-hardware-ramp"
+        response = io.StringIO()
+        with redirect_stdout(response):
+            status = fixture.main(["generate", "--output", str(output), "--dithering", "hardware", "--gray8-ramp"])
+        self.assertEqual(status, 0)
+        report = json.loads(response.getvalue())
+        self.assertEqual(report["manifest"]["variant"], {"dithering": "hardware", "artwork": fixture.RAMP_ARTWORK})
+        self.assertEqual(report["manifest"]["format_version"], 2)
+
     def test_machine_markers_are_large_independent_page_codes(self):
         codes = set()
         for page in self.manifest["pages"]:

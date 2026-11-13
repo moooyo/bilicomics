@@ -13,6 +13,7 @@ use slint::platform::software_renderer::{
 use slint::platform::{Clipboard, EventLoopProxy, Platform, PlatformError, WindowAdapter};
 
 use crate::clipboard::{ClipboardKind, ClipboardStore};
+use crate::dithering::DitheringHandle;
 use crate::lifecycle::DisplayLifecycleHandle;
 use crate::performance::{ClockSample, PerformanceSampleKind, PerformanceTraceHandle, Recording};
 use crate::power::{arm_wakealarm, find_wakealarm, suspend_to_mem};
@@ -36,6 +37,7 @@ pub(crate) struct KindlePlatform {
     black_and_white: Arc<AtomicBool>,
     rotation: Arc<AtomicU32>,
     refresh_pending: Arc<Mutex<PendingRefresh>>,
+    dithering: DitheringHandle,
     lifecycle: DisplayLifecycleHandle,
     performance_trace: PerformanceTraceHandle,
     clipboard: RefCell<ClipboardStore>,
@@ -52,6 +54,7 @@ impl KindlePlatform {
         let wakeup = wakeup::make_wakeup()?;
         let quit_flag = Arc::new(AtomicBool::new(false));
         let refresh_pending = Arc::new(Mutex::new(PendingRefresh::default()));
+        let dithering = DitheringHandle::native(wakeup.write.clone());
         let lifecycle = DisplayLifecycleHandle::new(
             window.clone(),
             refresh_pending.clone(),
@@ -69,6 +72,7 @@ impl KindlePlatform {
             black_and_white,
             rotation,
             refresh_pending,
+            dithering,
             lifecycle,
             performance_trace: PerformanceTraceHandle::default(),
             clipboard: RefCell::new(ClipboardStore::default()),
@@ -88,6 +92,10 @@ impl KindlePlatform {
         self.lifecycle.clone()
     }
 
+    pub(crate) fn dithering_handle(&self) -> DitheringHandle {
+        self.dithering.clone()
+    }
+
     pub(crate) fn performance_trace_handle(&self) -> PerformanceTraceHandle {
         self.performance_trace.clone()
     }
@@ -104,6 +112,9 @@ impl KindlePlatform {
         trace.sample.rotation_degrees = Some(rotation_degrees);
         trace.sample.output_inverted = Some(framebuffer.output_inverted());
         trace.sample.black_and_white = Some(black_and_white);
+        trace.sample.hardware_y4_requested = Some(self.dithering.requested());
+        trace.sample.hardware_y4_available = Some(self.dithering.hardware_y4_available());
+        trace.sample.software_dither_fallback = Some(framebuffer.software_dither_active());
         trace.sample.rendered = rendered;
         trace.sample.initial_frame = initial_frame && rendered;
         trace.sample.forced_full = forced_full;
@@ -232,6 +243,7 @@ impl Platform for KindlePlatform {
         let mut render_offset = 0;
         let mut initial_fill = true;
         let mut applied_rotation = self.rotation.load(Ordering::Relaxed);
+        let mut applied_dithering = self.dithering.revision();
         let wakeup_read_fd = self.wakeup.read.as_raw_fd();
         let mut wakealarm = None;
         let mut last_interaction = Instant::now();
@@ -458,6 +470,8 @@ impl Platform for KindlePlatform {
                 .map_err(|error| PlatformError::Other(error.to_string()))?;
             let force_full = force_full || self.lifecycle.needs_full_redraw() || sleep_token.is_some();
             let black_and_white = self.black_and_white.load(Ordering::Relaxed);
+            let dithering_revision = self.dithering.revision();
+            let dithering_changed = dithering_revision != applied_dithering;
             let app_rotation = self.rotation.load(Ordering::Relaxed);
             let native_render_offset = self
                 .lifecycle
@@ -484,23 +498,26 @@ impl Platform for KindlePlatform {
                 .lock()
                 .expect("refresh queue poisoned")
                 .take();
-            if !pending.is_empty() || force_full {
+            if !pending.is_empty() || force_full || dithering_changed {
                 self.window.request_redraw();
             }
             let mut dirty_region = None;
             let mut did_draw = false;
             let mut frame_trace = None;
-            self.lifecycle.with_framebuffer(|frame_buffer| -> Result<(), PlatformError> {
+            let frame_result = self.lifecycle.with_framebuffer(|frame_buffer| -> Result<(), PlatformError> {
+                frame_buffer.require_known_dithering_delivery()
+                    .map_err(|error| PlatformError::Other(format!("Y4 display delivery is uncertain; further native writes are blocked: {error}")))?;
+                frame_buffer.set_dithering(self.dithering.clone(), black_and_white);
                 // The preceding accepted update may still scan mapped pixels.
                 // Do not rewrite any sleep-frame pixels until it has completed.
-                if sleep_token.is_some() {
+                if sleep_token.is_some() || dithering_changed {
                     frame_buffer.wait_for_pending_update_complete_checked()
                         .map_err(|error| PlatformError::Other(format!("failed to settle preceding display update: {error}")))?;
                 }
                 self.window.draw_if_needed(|renderer| {
                     did_draw = true;
                     frame_trace = self.begin_frame_trace(frame_buffer, true, initial_fill,
-                        rotation_changed || force_full, (applied_rotation + render_offset) % 360,
+                        rotation_changed || force_full || dithering_changed, (applied_rotation + render_offset) % 360,
                         black_and_white);
                     if initial_fill {
                         let fill_started = frame_trace.as_ref().map(|_| ClockSample::now());
@@ -518,7 +535,7 @@ impl Platform for KindlePlatform {
                             _ => RenderingRotation::NoRotation,
                         },
                     );
-                    if rotation_changed || force_full {
+                    if rotation_changed || force_full || dithering_changed {
                         renderer.set_repaint_buffer_type(RepaintBufferType::NewBuffer);
                         renderer.set_repaint_buffer_type(RepaintBufferType::ReusedBuffer);
                     }
@@ -566,14 +583,9 @@ impl Platform for KindlePlatform {
                 });
                 // All framebuffer writes above are complete before an ioctl is
                 // issued. The existing descriptor and detected ABI are reused.
-                if did_draw && (rotation_changed || force_full) {
+                if did_draw && (rotation_changed || force_full || dithering_changed) {
                     let submit_started = frame_trace.as_ref().map(|_| ClockSample::now());
-                    let submission = if sleep_token.is_some() {
-                        frame_buffer.refresh_full_checked()
-                            .map_err(|error| PlatformError::Other(format!("sleep presentation update was rejected: {error}")))?
-                    } else {
-                        frame_buffer.refresh_full()
-                    };
+                    let submission = frame_buffer.refresh_full();
                     if let Some(trace) = frame_trace.as_mut() {
                         trace.sample.stages.refresh_submit = submit_started.map(ClockSample::finish);
                         trace.sample.refresh_region = Some(PhysicalRect { x: 0, y: 0,
@@ -583,8 +595,20 @@ impl Platform for KindlePlatform {
                         trace.sample.refresh_ioctl_attempts = submission.ioctl_attempts;
                         trace.sample.refresh_accepted = Some(submission.accepted);
                         trace.sample.refresh_errno = submission.last_errno;
+                        trace.sample.hardware_y4_available = Some(self.dithering.hardware_y4_available());
+                        trace.sample.hardware_y4_applied = Some(submission.accepted
+                            && submission.y4_attempted && !submission.software_dither_fallback);
+                        trace.sample.software_dither_fallback = Some(submission.software_dither_fallback
+                            || trace.sample.software_dither_fallback == Some(true));
                     }
+                    frame_buffer.require_known_dithering_delivery()
+                        .map_err(|error| PlatformError::Other(format!("Y4 display delivery is uncertain; further native writes are blocked: {error}")))?;
                     if sleep_token.is_some() {
+                        if !submission.accepted {
+                            let error = submission.last_errno.map(std::io::Error::from_raw_os_error)
+                                .unwrap_or_else(|| std::io::Error::other("the EPDC rejected the full-frame update"));
+                            return Err(PlatformError::Other(format!("sleep presentation update was rejected: {error}")));
+                        }
                         frame_buffer.wait_for_update_complete_checked()
                             .map_err(|error| PlatformError::Other(format!("sleep presentation update did not complete: {error}")))?;
                     }
@@ -595,6 +619,7 @@ impl Platform for KindlePlatform {
                     panel_height,
                     (applied_rotation + render_offset) % 360,
                 ) {
+                    let refresh = frame_buffer.resolve_dithering(refresh);
                     if frame_trace.is_none() {
                         frame_trace = self.begin_frame_trace(frame_buffer, false, false,
                             false, (applied_rotation + render_offset) % 360, black_and_white);
@@ -603,16 +628,37 @@ impl Platform for KindlePlatform {
                     let submission = frame_buffer.refresh_planned(refresh);
                     if let Some(trace) = frame_trace.as_mut() {
                         trace.sample.stages.refresh_submit = submit_started.map(ClockSample::finish);
-                        trace.sample.refresh_region = Some(refresh.region);
+                        trace.sample.refresh_region = Some(if submission.software_dither_fallback {
+                            PhysicalRect { x: 0, y: 0, width: panel_width, height: panel_height }
+                        } else { refresh.region });
                         trace.sample.refresh_waveform = Some(refresh.waveform);
-                        trace.sample.refresh_flashing = Some(refresh.flashing);
+                        trace.sample.refresh_flashing = Some(refresh.flashing || submission.software_dither_fallback);
                         trace.sample.refresh_ioctl_attempts = submission.ioctl_attempts;
                         trace.sample.refresh_accepted = Some(submission.accepted);
                         trace.sample.refresh_errno = submission.last_errno;
+                        trace.sample.hardware_y4_available = Some(self.dithering.hardware_y4_available());
+                        trace.sample.hardware_y4_applied = Some(submission.accepted
+                            && submission.y4_attempted && !submission.software_dither_fallback);
+                        trace.sample.software_dither_fallback = Some(submission.software_dither_fallback
+                            || trace.sample.software_dither_fallback == Some(true));
                     }
+                    frame_buffer.require_known_dithering_delivery()
+                        .map_err(|error| PlatformError::Other(format!("Y4 display delivery is uncertain; further native writes are blocked: {error}")))?;
+                }
+                if did_draw {
+                    applied_dithering = dithering_revision;
                 }
                 Ok(())
-            })??;
+            });
+            match frame_result {
+                Ok(Ok(())) => {},
+                Ok(Err(error)) | Err(error) => {
+                    // Finish the failed observation only after releasing the
+                    // framebuffer/lifecycle borrow, then stop this display loop.
+                    if let Some(trace) = frame_trace.take() { trace.finish(); }
+                    return Err(error);
+                }
+            }
             if let Some(token) = sleep_token.filter(|_| did_draw) {
                 // This is a separate barrier from wake/reorientation input
                 // draining: its completion must let application timers run so

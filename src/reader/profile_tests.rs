@@ -57,7 +57,7 @@ pub(super) fn canvas_reference(source: &GrayImage, viewport: Viewport, left: u32
 fn canvas_rows_candidate(source: &GrayImage, viewport: Viewport, left: u32, top: u32,
     dither: bool, table: bool) -> (Vec<u8>, u64)
 {
-    if table { return paint_quantized_canvas(source, viewport, left, top, dither); }
+    if table { return paint_quantized_canvas(source, viewport, left, top, dither, false); }
     let mut canvas = vec![255; viewport.width as usize * viewport.height as usize * 4];
     let stride = viewport.width as usize * 4;
     let width = source.width() as usize;

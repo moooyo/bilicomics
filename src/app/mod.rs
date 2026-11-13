@@ -70,6 +70,7 @@ pub(super) struct Preferences {
     pub landscape: String,
     pub cover_alone: bool,
     pub dither: bool,
+    pub dither_method: String,
     pub footer: bool,
     pub smart: bool,
     pub ahead: u32,
@@ -90,7 +91,7 @@ impl Default for Preferences {
         Self {
             mode: "page".into(), fit: "page".into(), direction: "ltr".into(),
             every: "smart".into(), landscape: "spread".into(), cover_alone: true,
-            dither: true, footer: true, smart: true, ahead: 2, concurrency: 2,
+            dither: true, dither_method: "software".into(), footer: true, smart: true, ahead: 2, concurrency: 2,
             preload: 3, wifi: "auto".into(), cache_limit: 512, launch: "resume".into(),
             sleep_cover: true, flashui: true, orientation: "auto".into(),
             onboarded: false, reader_guidance_seen: false,
@@ -231,6 +232,7 @@ impl App {
             self.advance_startup()?;
             return Ok(());
         }
+        self.reconcile_reader_dithering()?;
         self.tick_reader_checkpoints();
         self.maintain_catalog_cache();
         let mut jobs_applied = false;
@@ -282,6 +284,7 @@ impl App {
 
     fn refresh_views(&mut self) -> Result<()> {
         self.prepare_sleep_screen();
+        self.sync_presented_reader_dithering();
         let Some(ui) = self.ui.upgrade() else { return Ok(()); };
         let shell = ui.global::<ShellModel>();
         shell.set_suspended(self.is_suspended());

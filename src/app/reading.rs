@@ -37,6 +37,7 @@ struct SavedReaderPreferences {
     landscape: String,
     cover_alone: bool,
     dither: bool,
+    dither_method: String,
     footer: bool,
 }
 
@@ -48,7 +49,7 @@ impl From<&Preferences> for SavedReaderPreferences {
     fn from(value: &Preferences) -> Self {
         Self { mode: value.mode.clone(), fit: value.fit.clone(), direction: value.direction.clone(),
             every: value.every.clone(), landscape: value.landscape.clone(), cover_alone: value.cover_alone,
-            dither: value.dither, footer: value.footer }
+            dither: value.dither, dither_method: value.dither_method.clone(), footer: value.footer }
     }
 }
 
@@ -173,6 +174,20 @@ impl ReadingState {
         self.presented_core.as_ref().is_some_and(|core| !core.is_transition())
             && self.page.size().width > 0 && self.missing_pages.is_empty()
             && self.error.is_none()
+    }
+
+    fn displayed_dither_settings(&self) -> Option<&ReaderSettings> {
+        let core = self.presented_core.as_ref()?;
+        let expired = self.episode().is_some_and(|episode| !episode.readable_at(now()));
+        if core.is_transition() || self.page.size().width == 0 || expired
+            || self.error.is_some() && !self.loading
+            || self.loading && !self.retain_frame_during_preparation() { return None; }
+        Some(core.settings())
+    }
+
+    fn thumbnail_dithering(&self) -> (bool, bool) {
+        self.displayed_dither_settings().map_or((self.saved.dither, false),
+            |settings| (settings.dither, settings.uses_hardware_dither()))
     }
 
     fn preparation_feedback_due(&self) -> bool {
@@ -470,11 +485,68 @@ struct ThumbnailPlan {
     end: usize,
     size: (u32, u32),
     dither: bool,
+    hardware_dither: bool,
 }
 
 impl App {
     pub(super) fn active_reader_identity(&self) -> Option<(&str, &str)> {
         self.reading.as_ref().map(|state| (state.comic_id.as_str(), state.episode_id.as_str()))
+    }
+
+    /// Keep processing attached to the pixels on screen, including retained
+    /// frames while another setting or page is being prepared in a worker.
+    pub(super) fn sync_presented_reader_dithering(&mut self) {
+        let enabled = self.route == "reader" && !self.sleep_screen.active
+            && self.reading.as_ref().and_then(ReadingState::displayed_dither_settings)
+                .is_some_and(ReaderSettings::uses_hardware_dither);
+        let changed = self.platform.reader_hardware_y4_requested() != enabled;
+        if changed {
+            // A failed hardware path retains this intent until software pixels
+            // are installed, allowing safe processing of the old Gray8 frame.
+            self.platform.set_reader_hardware_y4(enabled);
+            // Time-based entitlement changes can hide a retained page without
+            // a job or input event. Publish that scene change in this same tick.
+            if self.route == "reader" { self.view_dirty.mark(super::View::Reader); }
+        }
+        if self.is_suspended() || self.sleep_screen.active { return; }
+        if changed {
+            if let Some(ui) = self.ui.upgrade() { ui.window().request_redraw(); }
+            let _ = self.platform.submit_refresh(RefreshPlan { kind: RefreshKind::Full, rect: None });
+        }
+        let thumbnails_changed = self.route == "reader" && self.reading.as_ref().is_some_and(|state| {
+            let expected = state.thumbnail_dithering();
+            state.sheet == "grid" && state.thumbnail_plan.as_ref()
+                .is_some_and(|plan| (plan.dither, plan.hardware_dither) != expected)
+        });
+        if thumbnails_changed {
+            if let Err(error) = self.request_reader_thumbnails() {
+                eprintln!("bilicomics: reader dithering thumbnail refresh failed: {error:#}");
+            }
+        }
+    }
+
+    /// Rebuild the target after a rejected hardware request without changing
+    /// the retained image's processing intent before its replacement arrives.
+    pub(super) fn reconcile_reader_dithering(&mut self) -> Result<()> {
+        self.sync_presented_reader_dithering();
+        if self.route != "reader" || self.sleep_screen.active { return Ok(()); }
+        let available = self.platform.hardware_y4_available();
+        let changed = if let Some(state) = self.reading.as_mut() {
+            let hardware_dither = reader_hardware_dither(&state.saved, available);
+            if let Some(core) = state.core.as_mut().filter(|core| core.settings().hardware_dither != hardware_dither) {
+                let mut settings = core.settings().clone();
+                settings.hardware_dither = hardware_dither;
+                core.update_settings(settings)?;
+                state.next_frame.cancel();
+                state.version = state.version.wrapping_add(1);
+                true
+            } else { false }
+        } else { false };
+        if changed {
+            self.view_dirty.mark(super::View::Reader);
+            self.request_reader_render()?;
+        }
+        Ok(())
     }
 
     pub(super) fn current_sleep_comic(&self) -> Option<crate::domain::Comic> {
@@ -636,6 +708,7 @@ impl App {
 
     fn release_reader(&mut self) -> Result<()> {
         self.platform.set_reader_performance_operation(None);
+        self.platform.set_reader_hardware_y4(false);
         let mut released = Ok(());
         if let Some(state) = self.reading.as_mut() {
             state.cancelled.store(true, Ordering::Release);
@@ -707,7 +780,8 @@ impl App {
             return Ok(());
         }
         let state = self.reading.as_mut().context("Reader state disappeared")?;
-        let mut core = ReaderCore::new(index.clone(), reader_settings(&state.saved, self.options.landscape, self.platform.logical_viewport_size()))?;
+        let mut core = ReaderCore::new(index.clone(), reader_settings_for_display(&state.saved,
+            self.options.landscape, self.platform.logical_viewport_size(), self.platform.hardware_y4_available()))?;
         if let Some(anchor) = anchor.as_ref() {
             if core.restore(anchor).is_err() {
                 state.pending_index = Some(index);
@@ -717,7 +791,8 @@ impl App {
                 return Ok(());
             }
         }
-        core.update_settings(reader_settings(&state.saved, self.options.landscape, self.platform.logical_viewport_size()))?;
+        core.update_settings(reader_settings_for_display(&state.saved, self.options.landscape,
+            self.platform.logical_viewport_size(), self.platform.hardware_y4_available()))?;
         core.set_landscape(self.options.landscape);
         attach_demo_panels(&mut core, self.demo.as_deref())?;
         state.paged_anchor = anchor;
@@ -741,6 +816,7 @@ impl App {
         if let Some(state) = self.reading.as_mut() {
             state.next_frame.cancel(); state.loading = false; state.error = Some(i18n::text(key));
         }
+        self.sync_presented_reader_dithering();
         self.dirty = true;
     }
 
@@ -941,6 +1017,7 @@ impl App {
 
     fn change_reader_setting(&mut self, setting: &str) -> Result<()> {
         let Some((key, value)) = setting.split_once(':') else { return Ok(()); };
+        let hardware_y4_available = self.platform.hardware_y4_available();
         let Some(state) = self.reading.as_mut() else { return Ok(()); };
         match key {
             "mode" if ["page", "panel", "strip"].contains(&value) => { state.saved.mode = value.into(); self.preferences.mode = value.into(); }
@@ -950,6 +1027,10 @@ impl App {
             "landscape-layout" if ["spread", "single"].contains(&value) => { state.saved.landscape = value.into(); self.preferences.landscape = value.into(); }
             "cover-alone" if ["on", "off"].contains(&value) => { state.saved.cover_alone = value == "on"; self.preferences.cover_alone = value == "on"; }
             "dither" if ["on", "off"].contains(&value) => { state.saved.dither = value == "on"; self.preferences.dither = value == "on"; }
+            "dither-method" if ["software", "hardware"].contains(&value) => {
+                state.saved.dither_method = value.into(); self.preferences.dither_method = value.into();
+                state.saved.dither = true; self.preferences.dither = true;
+            }
             "show-footer" if ["on", "off"].contains(&value) => { state.saved.footer = value == "on"; self.preferences.footer = value == "on"; }
             _ => return Ok(()),
         }
@@ -962,11 +1043,24 @@ impl App {
                 settings.footer = saved.footer;
                 core.update_settings(settings)?;
             }
+        } else if matches!(key, "dither" | "dither-method") {
+            if let Some(core) = state.core.as_mut() {
+                let mut settings = core.settings().clone();
+                settings.dither = saved.dither;
+                settings.hardware_dither = reader_hardware_dither(&saved, hardware_y4_available);
+                core.update_settings(settings)?;
+            }
+            state.version = state.version.wrapping_add(1);
+            state.error = None;
         } else {
             let strip = saved.mode == "strip" && self.demo.as_ref().is_some_and(|demo| demo.strip.is_some());
             if strip != state.demo_strip { self.switch_demo_strip(strip)?; }
             if let Some(state) = self.reading.as_mut() {
-                if let Some(core) = state.core.as_mut() { core.update_settings(reader_settings(&saved, self.options.landscape, self.platform.logical_viewport_size()))?; core.set_landscape(self.options.landscape); }
+                if let Some(core) = state.core.as_mut() {
+                    core.update_settings(reader_settings_for_display(&saved, self.options.landscape,
+                        self.platform.logical_viewport_size(), hardware_y4_available))?;
+                    core.set_landscape(self.options.landscape);
+                }
                 state.version = state.version.wrapping_add(1);
                 state.error = None;
             }
@@ -991,7 +1085,8 @@ impl App {
         if let Some((anchor, false)) = state.displayed_anchor(now()) {
             state.paged_anchor = Some(anchor);
         }
-        let settings = reader_settings(&state.saved, self.options.landscape, self.platform.logical_viewport_size());
+        let settings = reader_settings_for_display(&state.saved, self.options.landscape,
+            self.platform.logical_viewport_size(), self.platform.hardware_y4_available());
         let mut core = if enable {
             let page_id = hex_digest(format!("design-strip:{}:{}", index.episode_id, index.revision).as_bytes());
             let strip_index = ImageIndex { episode_id: format!("{}:design-strip", index.episode_id),
@@ -1218,6 +1313,7 @@ impl App {
                 state.loading = false; state.error = None; state.missing_pages.clear();
                 state.presented_core = Some(core); state.presented_strip = state.demo_strip;
             }
+            self.sync_presented_reader_dithering();
             self.queue_reading_position()?;
             self.reader_turn_refresh(0.0, true);
             return Ok(());
@@ -1336,6 +1432,7 @@ impl App {
                                 state.error = None;
                                 state.performance_presented = trace;
                             }
+                            app.sync_presented_reader_dithering();
                             if let (Some(trace), Some(measured)) = (trace, measured) {
                                 trace.record("ui_image_import", &serde_json::json!({
                                     "elapsed": measured.finish(), "copied_bytes": copied_bytes,
@@ -1484,7 +1581,9 @@ impl App {
         let end = (start + per_page).min(index.images.len());
         let current = if state.demo_strip { state.paged_anchor.as_ref().map_or(0, |anchor| anchor.page_index) }
             else { state.core.as_ref().map_or(0, ReaderCore::page_index) };
-        let dither = state.saved.dither;
+        // A pending preference must not put raw thumbnails beside a retained
+        // software page, or software thumbnails beside an active raw page.
+        let (dither, hardware_dither) = state.thumbnail_dithering();
         let demo_uncached = self.demo.is_some() && !self.options.offline;
         let columns = if self.is_scribe() { 5 } else { 4 };
         let mut logical = self.platform.logical_viewport_size();
@@ -1499,7 +1598,7 @@ impl App {
             .max(48).min(if self.is_scribe() { 180 } else { 118 });
         let size = (((width.saturating_sub(8)) as f32 * scale).round() as u32,
             (thumb_height.saturating_sub(8) as f32 * scale).round() as u32);
-        let plan = ThumbnailPlan { revision: index.revision.clone(), start, end, size, dither };
+        let plan = ThumbnailPlan { revision: index.revision.clone(), start, end, size, dither, hardware_dither };
         let replace = state.thumbnail_plan.as_ref() != Some(&plan);
         if replace {
             self.cancel_reader_thumbnails();
@@ -1542,7 +1641,8 @@ impl App {
             let mut result = Vec::new();
             let mut prepared = BTreeMap::<String, Arc<Raster>>::new();
             if cancelled.load(Ordering::Acquire) { return Ok(result); }
-            let mut core = ReaderCore::new(index.clone(), ReaderSettings { dither, landscape_spread: false, ..Default::default() })?;
+            let mut core = ReaderCore::new(index.clone(), ReaderSettings { dither, hardware_dither,
+                landscape_spread: false, ..Default::default() })?;
             for position in requested {
                 if cancelled.load(Ordering::Acquire) { break; }
                 if demo_uncached && position >= 30 {
@@ -1786,6 +1886,7 @@ impl App {
     }
 
     pub(super) fn refresh_reader_view(&mut self, ui: &AppWindow) -> Result<()> {
+        self.sync_presented_reader_dithering();
         if self.is_suspended() { return Ok(()); }
         let Some(state) = self.reading.as_ref() else { return Ok(()); };
         let view = ui.global::<ReaderModel>();
@@ -1851,9 +1952,11 @@ impl App {
         view.set_offline(self.options.offline);
         view.set_show_footer(state.saved.footer);
         view.set_dither(state.saved.dither);
+        view.set_dither_method(normalized_dither_method(&state.saved.dither_method).into());
         view.set_cover_alone(state.saved.cover_alone);
         view.set_zoom_available(false);
-        view.set_dither_note(if state.saved.dither { tr("read_dither_software_note") } else { "".into() });
+        view.set_dither_note(reader_dither_note(&state.saved, state.displayed_dither_settings(),
+            self.platform.hardware_y4_available()).into());
         view.set_panel_index((crop_index + 1) as i32);
         view.set_panel_count(crop_count as i32);
         view.set_strip_screen((crop_index + 1) as i32);
@@ -2050,7 +2153,13 @@ impl App {
             "mode": state.saved.mode, "core_mode": anchor.mode,
             "fit": state.saved.fit, "direction": state.saved.direction,
             "landscape_layout": state.saved.landscape, "cover_alone": state.saved.cover_alone,
-            "dither": state.saved.dither, "footer": state.saved.footer
+            "dither": state.saved.dither,
+            "dither_method": normalized_dither_method(&state.saved.dither_method),
+            "hardware_y4_available": self.platform.hardware_y4_available(),
+            "hardware_dither": state.presented_core.as_ref().is_some_and(|core| core.settings().uses_hardware_dither()),
+            "target_hardware_dither": state.core.as_ref().is_some_and(|core| core.settings().uses_hardware_dither()),
+            "hardware_y4_requested": self.platform.reader_hardware_y4_requested(),
+            "footer": state.saved.footer
         });
         let presentation = serde_json::json!({
             "demo_strip": state.demo_strip, "transition": core.is_transition(),
@@ -2108,6 +2217,37 @@ fn reader_settings(saved: &SavedReaderPreferences, landscape: bool, logical: (u3
         landscape_spread: landscape && logical.1 >= 1100 && saved.landscape == "spread", cover_alone: saved.cover_alone,
         dither: saved.dither, footer: saved.footer, ..Default::default()
     }
+}
+
+fn normalized_dither_method(method: &str) -> &'static str {
+    if method == "hardware" { "hardware" } else { "software" }
+}
+
+fn reader_hardware_dither(saved: &SavedReaderPreferences, available: bool) -> bool {
+    saved.dither && normalized_dither_method(&saved.dither_method) == "hardware" && available
+}
+
+fn reader_settings_for_display(saved: &SavedReaderPreferences, landscape: bool,
+    logical: (u32, u32), hardware_y4_available: bool) -> ReaderSettings
+{
+    let mut settings = reader_settings(saved, landscape, logical);
+    settings.hardware_dither = reader_hardware_dither(saved, hardware_y4_available);
+    settings
+}
+
+fn reader_dither_note(saved: &SavedReaderPreferences, displayed: Option<&ReaderSettings>,
+    hardware_y4_available: bool) -> String
+{
+    let expected = (saved.dither, reader_hardware_dither(saved, hardware_y4_available));
+    let actual = displayed.map_or(expected, |settings| (settings.dither, settings.uses_hardware_dither()));
+    let key = if !actual.0 { "read_dither_off_note" }
+        else if actual.1 && hardware_y4_available { "read_dither_hardware_note" }
+        else if normalized_dither_method(&saved.dither_method) == "hardware" && !hardware_y4_available {
+            "read_dither_fallback_note"
+        } else { "read_dither_software_note" };
+    let mut note = i18n::text(key);
+    if actual != expected { note.push_str(&i18n::text("read_dither_pending_note")); }
+    note
 }
 
 fn reader_visible_pages(core: &ReaderCore) -> Vec<usize> {
@@ -2246,7 +2386,8 @@ fn render_reader_sources(core: &mut ReaderCore,
     } else { page = primary.take(); metadata.left_page = primary_index as i32 + 1; }
     let overview = if core.settings().mode == DisplayMode::Panel {
         if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
-        let mut overview = ReaderCore::new(index, ReaderSettings { dither: core.settings().dither, ..Default::default() })?;
+        let mut overview = ReaderCore::new(index, ReaderSettings { dither: core.settings().dither,
+            hardware_dither: core.settings().hardware_dither, ..Default::default() })?;
         overview.set_page(primary_index)?;
         let size = Viewport::new(overview_size.0, overview_size.1);
         let Some(rendered) = overview.render_validated_source_cancellable(&source, size, cancelled,
@@ -2337,6 +2478,10 @@ mod prepared_reader_tests;
 #[cfg(test)]
 #[path = "prepared_reader_source_tests.rs"]
 mod prepared_reader_source_tests;
+
+#[cfg(test)]
+#[path = "hardware_dither_tests.rs"]
+mod hardware_dither_tests;
 
 #[cfg(test)]
 mod tests {

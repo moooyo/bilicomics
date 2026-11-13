@@ -34,6 +34,7 @@ impl CoverIdentity {
 
 #[derive(Default)]
 pub(super) struct SleepScreenState {
+    pub(super) active: bool,
     identity: Option<CoverIdentity>,
     title: SharedString,
     author: SharedString,
@@ -224,12 +225,15 @@ impl App {
         model.set_title(title);
         model.set_author(author);
         model.set_active(true);
+        self.sleep_screen.active = true;
+        self.sync_presented_reader_dithering();
         ui.window().request_redraw();
         Ok(())
     }
 
     /// Hide the temporary overlay before the native backend redraws the retained scene.
     pub fn hide_sleep_screen(&mut self) {
+        self.sleep_screen.active = false;
         if let Some(ui) = self.ui.upgrade() {
             let model = ui.global::<SleepScreenModel>();
             model.set_active(false);
@@ -238,6 +242,7 @@ impl App {
             model.set_title("".into());
             model.set_author("".into());
         }
+        self.sync_presented_reader_dithering();
     }
 }
 

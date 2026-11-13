@@ -34,6 +34,8 @@ mod profile_tests;
 mod preparation_profile_tests;
 #[cfg(test)]
 mod cancellation_tests;
+#[cfg(test)]
+mod hardware_dither_tests;
 mod triangle;
 
 pub const MAX_ENCODED_BYTES: u64 = crate::image_integrity::MAX_ENCODED_BYTES;
@@ -110,6 +112,8 @@ pub struct ReaderSettings {
     pub landscape_spread: bool,
     pub cover_alone: bool,
     pub dither: bool,
+    /// Keep Gray8 pixels intact for the display backend's hardware Y4 path.
+    pub hardware_dither: bool,
     pub footer: bool,
     pub rotation: u16,
     pub zoom_ratio: f64,
@@ -124,6 +128,7 @@ impl Default for ReaderSettings {
             landscape_spread: true,
             cover_alone: true,
             dither: true,
+            hardware_dither: false,
             footer: true,
             rotation: 0,
             zoom_ratio: 1.0,
@@ -132,6 +137,10 @@ impl Default for ReaderSettings {
 }
 
 impl ReaderSettings {
+    pub fn uses_hardware_dither(&self) -> bool {
+        self.dither && self.hardware_dither
+    }
+
     pub fn validate(&self) -> Result<()> {
         if !matches!(self.rotation, 0 | 90 | 180 | 270)
             || !self.zoom_ratio.is_finite()
@@ -905,10 +914,11 @@ impl ReaderCore {
 
     fn paint_canvas(&self, source: &GrayImage, viewport: Viewport, left: u32, top: u32) -> (Vec<u8>, u64) {
         #[cfg(test)]
-        if self.raster_path == TestRasterPath::Reference {
+        if self.raster_path == TestRasterPath::Reference && !self.settings.uses_hardware_dither() {
             return profile_tests::canvas_reference(source, viewport, left, top, self.settings.dither);
         }
-        paint_quantized_canvas(source, viewport, left, top, self.settings.dither)
+        paint_quantized_canvas(source, viewport, left, top, self.settings.dither,
+            self.settings.uses_hardware_dither())
     }
 
     fn paint_canvas_cancellable(&self, source: &GrayImage, viewport: Viewport, left: u32, top: u32,
@@ -921,7 +931,8 @@ impl ReaderCore {
             let canvas = self.paint_canvas(source, viewport, left, top);
             return (!cancellation.is_cancelled(RenderWork::Boundary, 0)).then_some(canvas);
         }
-        paint_quantized_canvas_cancellable(source, viewport, left, top, self.settings.dither, cancellation)
+        paint_quantized_canvas_cancellable(source, viewport, left, top, self.settings.dither,
+            self.settings.uses_hardware_dither(), cancellation)
     }
 
     fn spread_base(&self) -> usize {
@@ -1321,7 +1332,7 @@ const RENDER_COPY_BLOCK_BYTES: usize = 64 * 1024;
 
 /// Paint complete, opaque RGBA rows without changing the crop-local Bayer phase.
 fn paint_quantized_canvas(source: &GrayImage, viewport: Viewport, left: u32, top: u32,
-    dither: bool) -> (Vec<u8>, u64)
+    dither: bool, hardware_dither: bool) -> (Vec<u8>, u64)
 {
     let mut canvas = vec![255; viewport.width as usize * viewport.height as usize * 4];
     let stride = viewport.width as usize * 4;
@@ -1332,7 +1343,7 @@ fn paint_quantized_canvas(source: &GrayImage, viewport: Viewport, left: u32, top
         let output = &mut canvas[start..start + width * 4];
         for (x, (&value, output)) in row.iter().zip(output.chunks_exact_mut(4)).enumerate() {
             let phase = if dither { (y % 4) * 4 + x % 4 } else { 16 };
-            let tone = TONE_TABLES[phase][usize::from(value)];
+            let tone = if dither && hardware_dither { value } else { TONE_TABLES[phase][usize::from(value)] };
             dark += u64::from(tone <= 68);
             output.copy_from_slice(&[tone, tone, tone, 255]);
         }
@@ -1343,9 +1354,9 @@ fn paint_quantized_canvas(source: &GrayImage, viewport: Viewport, left: u32, top
 /// Keep the normal canvas path intact; only application workers opt into these
 /// bounded cancellation checks. No partly painted canvas escapes this function.
 fn paint_quantized_canvas_cancellable(source: &GrayImage, viewport: Viewport, left: u32, top: u32,
-    dither: bool, cancellation: &RenderCancellation<'_>) -> Option<(Vec<u8>, u64)>
+    dither: bool, hardware_dither: bool, cancellation: &RenderCancellation<'_>) -> Option<(Vec<u8>, u64)>
 {
-    if !cancellation.is_enabled() { return Some(paint_quantized_canvas(source, viewport, left, top, dither)); }
+    if !cancellation.is_enabled() { return Some(paint_quantized_canvas(source, viewport, left, top, dither, hardware_dither)); }
     if cancellation.is_cancelled(RenderWork::Boundary, 0) { return None; }
     let length = viewport.width as usize * viewport.height as usize * 4;
     let mut canvas = Vec::with_capacity(length);
@@ -1366,7 +1377,7 @@ fn paint_quantized_canvas_cancellable(source: &GrayImage, viewport: Viewport, le
                 .zip(output[first * 4..end * 4].chunks_exact_mut(4)).enumerate() {
                 let x = first + offset;
                 let phase = if dither { (y % 4) * 4 + x % 4 } else { 16 };
-                let tone = TONE_TABLES[phase][usize::from(value)];
+                let tone = if dither && hardware_dither { value } else { TONE_TABLES[phase][usize::from(value)] };
                 dark += u64::from(tone <= 68);
                 output.copy_from_slice(&[tone, tone, tone, 255]);
             }

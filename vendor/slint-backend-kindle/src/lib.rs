@@ -19,6 +19,7 @@
 
 mod clipboard;
 mod command;
+mod dithering;
 mod framebuffer;
 mod lifecycle;
 mod performance;
@@ -33,6 +34,7 @@ mod touch;
 mod wakeup;
 
 pub use command::run_bounded_command;
+pub use dithering::DitheringHandle;
 pub use lifecycle::DisplayLifecycleHandle;
 pub use performance::{
     PerformanceFrameSample, PerformanceSampleKind, PerformanceStageTimings,
@@ -136,6 +138,7 @@ pub struct KindleBackend<State = NoSchedule> {
     black_and_white: Arc<AtomicBool>,
     rotation: Arc<AtomicU32>,
     refresh_handle: RefreshHandle,
+    dithering_handle: DitheringHandle,
     lifecycle_handle: DisplayLifecycleHandle,
     performance_trace: PerformanceTraceHandle,
     _state: PhantomData<State>,
@@ -150,6 +153,11 @@ impl<State> KindleBackend<State> {
     /// Queue display requests for execution after the current frame is drawn.
     pub fn refresh_handle(&self) -> RefreshHandle {
         self.refresh_handle.clone()
+    }
+
+    /// Configure final-frame Y4 processing for the image already in the scene.
+    pub fn dithering_handle(&self) -> DitheringHandle {
+        self.dithering_handle.clone()
     }
 
     /// External screensaver ownership, called synchronously on the UI thread.
@@ -211,6 +219,7 @@ impl<State> KindleBackend<State> {
             black_and_white: self.black_and_white,
             rotation: self.rotation,
             refresh_handle: self.refresh_handle,
+            dithering_handle: self.dithering_handle,
             lifecycle_handle: self.lifecycle_handle,
             performance_trace: self.performance_trace,
             _state: PhantomData,
@@ -303,6 +312,7 @@ pub fn install(font_data: &[u8]) -> Result<KindleBackend, slint::PlatformError> 
     .map_err(|e| slint::PlatformError::Other(format!("failed to init Kindle platform: {e}")))?;
     let window = platform.window.clone();
     let refresh_handle = platform.refresh_handle();
+    let dithering_handle = platform.dithering_handle();
     let lifecycle_handle = platform.lifecycle_handle();
     let performance_trace = platform.performance_trace_handle();
     slint::platform::set_platform(Box::new(platform))
@@ -314,6 +324,7 @@ pub fn install(font_data: &[u8]) -> Result<KindleBackend, slint::PlatformError> 
         black_and_white,
         rotation,
         refresh_handle,
+        dithering_handle,
         lifecycle_handle,
         performance_trace,
         _state: PhantomData,

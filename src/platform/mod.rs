@@ -1,5 +1,7 @@
 mod profile;
 mod refresh;
+#[cfg(test)]
+mod dithering_tests;
 
 #[cfg(all(feature = "kindle", target_os = "linux"))]
 mod native;
@@ -9,6 +11,7 @@ mod native_capture;
 pub use profile::DeviceProfile;
 pub use refresh::{RefreshKind, RefreshPlan, RefreshReason, RefreshRect, RefreshScheduler};
 
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
@@ -87,6 +90,14 @@ pub trait RefreshSink: Send + Sync {
     fn submit(&self, plan: RefreshPlan) -> Result<(), PlatformError>;
 }
 
+/// Configure the processing required by the image that is actually displayed.
+/// Capability reflects the reviewed native path, not physical panel acceptance.
+pub trait DitheringSink: Send + Sync {
+    fn hardware_y4_available(&self) -> bool;
+    /// Retain the requested input format even if hardware needs software fallback.
+    fn set_hardware_y4(&self, enabled: bool) -> bool;
+}
+
 struct DesktopControl;
 
 impl DeviceControl for DesktopControl {
@@ -122,6 +133,8 @@ pub struct Platform {
     control: Arc<dyn DeviceControl>,
     refresh: Mutex<RefreshScheduler>,
     refresh_sink: Mutex<Option<Arc<dyn RefreshSink>>>,
+    dithering_sink: Mutex<Option<Arc<dyn DitheringSink>>>,
+    reader_hardware_y4: AtomicBool,
     #[cfg(all(feature = "kindle", target_os = "linux"))]
     performance_trace: Mutex<Option<slint_backend_kindle::PerformanceTraceHandle>>,
     started: Instant,
@@ -155,6 +168,8 @@ impl Platform {
             control,
             refresh: Mutex::new(RefreshScheduler::default()),
             refresh_sink: Mutex::new(None),
+            dithering_sink: Mutex::new(None),
+            reader_hardware_y4: AtomicBool::new(false),
             #[cfg(all(feature = "kindle", target_os = "linux"))]
             performance_trace: Mutex::new(None),
             started: Instant::now(),
@@ -237,6 +252,30 @@ impl Platform {
             .map_err(|_| PlatformError::Operation("refresh sink lock was poisoned".into()))? =
             Some(sink);
         Ok(())
+    }
+
+    pub fn set_dithering_sink(&self, sink: Arc<dyn DitheringSink>) -> Result<(), PlatformError> {
+        sink.set_hardware_y4(self.reader_hardware_y4_requested());
+        *self.dithering_sink.lock()
+            .map_err(|_| PlatformError::Operation("dithering sink lock was poisoned".into()))? = Some(sink);
+        Ok(())
+    }
+
+    pub fn hardware_y4_available(&self) -> bool {
+        self.dithering_sink.lock().ok().and_then(|sink| sink.clone())
+            .is_some_and(|sink| sink.hardware_y4_available())
+    }
+
+    /// This describes the retained frame's input format, not a pending preference.
+    pub fn reader_hardware_y4_requested(&self) -> bool {
+        self.reader_hardware_y4.load(Ordering::Acquire)
+    }
+
+    /// Switch together with a newly imported frame, never while it is preparing.
+    pub fn set_reader_hardware_y4(&self, enabled: bool) -> bool {
+        self.reader_hardware_y4.store(enabled, Ordering::Release);
+        self.dithering_sink.lock().ok().and_then(|sink| sink.clone())
+            .is_some_and(|sink| sink.set_hardware_y4(enabled))
     }
 
     /// Connect opt-in diagnostics without changing refresh or lifecycle policy.
@@ -497,6 +536,27 @@ pub fn publish_native_portrait_orientation(
 
 #[cfg(all(feature = "kindle", target_os = "linux"))]
 pub struct KindleRefreshSink(slint_backend_kindle::RefreshHandle);
+
+#[cfg(all(feature = "kindle", target_os = "linux"))]
+pub struct KindleDitheringSink(slint_backend_kindle::DitheringHandle);
+
+#[cfg(all(feature = "kindle", target_os = "linux"))]
+impl KindleDitheringSink {
+    pub fn new(handle: slint_backend_kindle::DitheringHandle) -> Self {
+        Self(handle)
+    }
+}
+
+#[cfg(all(feature = "kindle", target_os = "linux"))]
+impl DitheringSink for KindleDitheringSink {
+    fn hardware_y4_available(&self) -> bool {
+        self.0.hardware_y4_available()
+    }
+
+    fn set_hardware_y4(&self, enabled: bool) -> bool {
+        self.0.set_hardware_y4(enabled)
+    }
+}
 
 #[cfg(all(feature = "kindle", target_os = "linux"))]
 impl KindleRefreshSink {

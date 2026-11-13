@@ -7,7 +7,8 @@ application must upgrade the version-zero receipts through complete decoding;
 this seed is not an application validation proof. Launching it requires the
 separate inherited AF_UNIX-only network guard.
 
-Public API: generate_fixture(output, anchor_index=0) returns the manifest;
+Public API: generate_fixture(output, anchor_index=0, dithering="off",
+gray8_ramp=False) returns the manifest;
 validate_fixture(directory) returns a machine-readable prelaunch report and
 raises FixtureError on rejection. Validation intentionally rejects data after
 the application has migrated or modified it.
@@ -31,6 +32,11 @@ import zlib
 
 KIND = "distinct_offline_guest_fixture"
 FORMAT_VERSION = 1
+VARIANT_FORMAT_VERSION = 2
+DITHERING_METHODS = ("off", "software", "hardware")
+LEGACY_ARTWORK = "distinct-geometry-v1"
+RAMP_ARTWORK = "distinct-gray8-ramp-v1"
+RAMP_RECT = (82, 128, 1536, 384)
 ACCOUNT = "guest"
 ACCOUNT_HASH = hashlib.sha256(ACCOUNT.encode("ascii")).hexdigest()
 COMIC = "900000012"
@@ -118,12 +124,18 @@ def machine_marker(page_number):
     }
 
 
-def _pattern(index):
-    return {
+def _pattern(index, *, gray8_ramp=False):
+    value = {
         "geometry_version": 1, "name": PATTERN_NAMES[index], "page_number": index + 1,
         "dimensions": [WIDTH, HEIGHT], "digit_style": "seven-segment-v1",
         "palette_step": 17, "machine_marker": machine_marker(index + 1),
     }
+    if gray8_ramp:
+        value.update(palette_step=1, gray8_ramp={
+            "version": 1, "rect": list(RAMP_RECT), "axis": "horizontal",
+            "levels": 256, "minimum": 0, "maximum": 255,
+        })
+    return value
 
 
 def _rectangle(pixels, x, y, width, height, tone):
@@ -135,7 +147,7 @@ def _rectangle(pixels, x, y, width, height, tone):
         pixels[start:start + width] = row
 
 
-def _render_pixels(index):
+def _render_pixels(index, *, gray8_ramp=False):
     """Render integer-only geometry and font-independent large page numerals."""
     require(type(index) is int and 0 <= index < PAGE_COUNT, "The artwork index is invalid")
     pixels = bytearray(WIDTH * HEIGHT)
@@ -192,6 +204,13 @@ def _render_pixels(index):
             row = bytes(34 if abs(cx) * HEIGHT < abs(cy) * WIDTH else 221 for cx in centered_x)
         pixels[y * WIDTH:(y + 1) * WIDTH] = row
 
+    if gray8_ramp:
+        left, top, width, height = RAMP_RECT
+        row = bytes(x * 256 // width for x in range(width))
+        for y in range(top, top + height):
+            start = y * WIDTH + left
+            pixels[start:start + width] = row
+
     # The number panel occupies less than one quarter of the page area.
     _rectangle(pixels, 390, 750, 920, 860, 0)
     _rectangle(pixels, 402, 762, 896, 836, 255)
@@ -233,9 +252,9 @@ def _encode_png(pixels):
             + _png_chunk(b"IDAT", zlib.compress(rows, 9)) + _png_chunk(b"IEND", b""))
 
 
-@lru_cache(maxsize=PAGE_COUNT)
-def _artwork(index):
-    pixels = _render_pixels(index)
+@lru_cache(maxsize=PAGE_COUNT * 2)
+def _artwork(index, *, gray8_ramp=False):
+    pixels = _render_pixels(index, gray8_ramp=gray8_ramp)
     return _encode_png(pixels), hashlib.sha256(pixels).hexdigest()
 
 
@@ -361,9 +380,9 @@ def _safe_relative(value):
     return value
 
 
-def _page_record(index, encoded, pixel_digest):
+def _page_record(index, encoded, pixel_digest, *, gray8_ramp=False):
     digest = hashlib.sha256(encoded).hexdigest()
-    pattern = _pattern(index)
+    pattern = _pattern(index, gray8_ramp=gray8_ramp)
     return {
         "index": index, "page_index": index, "page_number": index + 1,
         "page_id": digest, "source_id": f"synthetic-distinct-{index + 1:02d}",
@@ -374,7 +393,7 @@ def _page_record(index, encoded, pixel_digest):
     }
 
 
-def _state(pages, anchor_index):
+def _state(pages, anchor_index, *, dithering="off"):
     comic = {
         "id": COMIC, "title": "Distinct Reader Fixture", "author": "Local fixture", "cover_url": "",
         "description": "Synthetic geometric pages for an isolated offline guest run", "genre": "",
@@ -402,6 +421,8 @@ def _state(pages, anchor_index):
         "mode": "page", "fit": "page", "direction": "ltr", "dither": False,
         "landscape": "single", "cover_alone": True, "footer": True,
     }
+    if dithering != "off":
+        preferences.update(dither=True, dither_method=dithering)
     rows = {
         "comics": [(ACCOUNT, COMIC, canonical_json(comic), STAMP, STAMP)],
         "comic_details": [(ACCOUNT, COMIC, canonical_json(detail))],
@@ -427,12 +448,12 @@ def _file_record(relative, content):
     return {"path": relative, "bytes": len(content), "sha256": hashlib.sha256(content).hexdigest()}
 
 
-def _manifest(pages, database_bytes, anchor_index):
-    _, anchor, preferences = _state(pages, anchor_index)
+def _manifest(pages, database_bytes, anchor_index, *, dithering="off", gray8_ramp=False):
+    _, anchor, preferences = _state(pages, anchor_index, dithering=dithering)
     files = [_file_record(DATABASE, database_bytes)]
     files.extend({"path": page["file"], "bytes": page["bytes"], "sha256": page["encoded_sha256"]} for page in pages)
     files.sort(key=lambda value: value["path"])
-    return {
+    manifest = {
         "kind": KIND, "format_version": FORMAT_VERSION, "account_key": ACCOUNT,
         "comic_id": COMIC, "episode_id": EPISODE, "revision": REVISION,
         "schema_version": SCHEMA_VERSION, "schema_source": "scripts/verification/reader_guest_fixtures.py:SCHEMA",
@@ -450,11 +471,20 @@ def _manifest(pages, database_bytes, anchor_index):
             "application_decode_proof_claimed": False,
         },
     }
+    if dithering != "off" or gray8_ramp:
+        manifest.update(format_version=VARIANT_FORMAT_VERSION, variant={
+            "dithering": dithering,
+            "artwork": RAMP_ARTWORK if gray8_ramp else LEGACY_ARTWORK,
+        })
+    return manifest
 
 
-def generate_fixture(output, *, anchor_index=0):
+def generate_fixture(output, *, anchor_index=0, dithering="off", gray8_ramp=False):
     """Write a new fixture below an existing real parent; never overwrite data."""
     require(type(anchor_index) is int and anchor_index in (0, 1), "The initial page index must be 0 or 1")
+    require(isinstance(dithering, str) and dithering in DITHERING_METHODS,
+            "The dithering method must be off, software, or hardware")
+    require(type(gray8_ramp) is bool, "The Gray8 ramp option must be a boolean")
     output = Path(output)
     require(".." not in output.parts, "Directory traversal is not allowed")
     output = output.absolute()
@@ -465,12 +495,12 @@ def generate_fixture(output, *, anchor_index=0):
         (output / directory).mkdir(mode=0o700)
     pages = []
     for index in range(PAGE_COUNT):
-        encoded, pixel_digest = _artwork(index)
-        page = _page_record(index, encoded, pixel_digest)
+        encoded, pixel_digest = _artwork(index, gray8_ramp=gray8_ramp)
+        page = _page_record(index, encoded, pixel_digest, gray8_ramp=gray8_ramp)
         require(len(encoded) <= MAX_PNG_BYTES, "Generated artwork exceeds the encoded page limit")
         _write_new(output / page["file"], encoded)
         pages.append(page)
-    rows, _, _ = _state(pages, anchor_index)
+    rows, _, _ = _state(pages, anchor_index, dithering=dithering)
     database = output / DATABASE
     with closing(sqlite3.connect(database, timeout=5)) as connection:
         connection.executescript(_guest_schema())
@@ -481,7 +511,8 @@ def generate_fixture(output, *, anchor_index=0):
         connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
         connection.execute("PRAGMA journal_mode=DELETE")
     database.chmod(0o600)
-    manifest = _manifest(pages, _read_file(database, MAX_DATABASE_BYTES), anchor_index)
+    manifest = _manifest(pages, _read_file(database, MAX_DATABASE_BYTES), anchor_index,
+                         dithering=dithering, gray8_ramp=gray8_ramp)
     _write_new(output / "manifest.json", (canonical_json(manifest) + "\n").encode("ascii"))
     return manifest
 
@@ -497,9 +528,9 @@ def _expected_schema_rows():
         return _schema_rows(connection)
 
 
-def _validate_database(database, expected_bytes, pages, anchor_index):
+def _validate_database(database, expected_bytes, pages, anchor_index, *, dithering="off"):
     require(expected_bytes.startswith(b"SQLite format 3\0"), "The state file is not a SQLite database")
-    expected_rows, _, _ = _state(pages, anchor_index)
+    expected_rows, _, _ = _state(pages, anchor_index, dithering=dithering)
     uri = database.as_uri() + "?mode=ro&immutable=1"
     with closing(sqlite3.connect(uri, uri=True, timeout=5)) as connection:
         connection.execute("PRAGMA query_only=ON")
@@ -532,6 +563,23 @@ def _validate_fixture(directory):
     manifest_bytes = _read_file(root / "manifest.json", MAX_MANIFEST_BYTES)
     manifest = _parse_json(manifest_bytes)
     require(isinstance(manifest, dict), "The manifest root must be an object")
+    version = manifest.get("format_version")
+    require(type(version) is int and version in (FORMAT_VERSION, VARIANT_FORMAT_VERSION),
+            "The manifest format version is unsupported")
+    dithering, gray8_ramp = "off", False
+    if version == FORMAT_VERSION:
+        require("variant" not in manifest, "The legacy fixture cannot declare a variant")
+    else:
+        variant = manifest.get("variant")
+        require(isinstance(variant, dict) and set(variant) == {"dithering", "artwork"},
+                "The fixture variant must declare only dithering and artwork")
+        dithering = variant.get("dithering")
+        require(isinstance(dithering, str) and dithering in DITHERING_METHODS,
+                "The fixture variant has an unsupported dithering method")
+        artwork = variant.get("artwork")
+        require(isinstance(artwork, str) and artwork in (LEGACY_ARTWORK, RAMP_ARTWORK),
+                "The fixture variant has unsupported artwork")
+        gray8_ramp = artwork == RAMP_ARTWORK
     anchor_index = manifest.get("initial_page_index")
     require(type(anchor_index) is int and anchor_index in (0, 1), "The initial page index must be 0 or 1")
     declared_pages = manifest.get("pages")
@@ -554,8 +602,9 @@ def _validate_fixture(directory):
         encoded = _read_file(*inventory[relative])
         pixels = _decode_png(encoded)
         pixel_digest = hashlib.sha256(pixels).hexdigest()
-        require(pixel_digest == _artwork(index)[1], "A decoded page differs from its declared full-page pattern")
-        page = _page_record(index, encoded, pixel_digest)
+        require(pixel_digest == _artwork(index, gray8_ramp=gray8_ramp)[1],
+                "A decoded page differs from its declared full-page pattern")
+        page = _page_record(index, encoded, pixel_digest, gray8_ramp=gray8_ramp)
         require(canonical_json(declared) == canonical_json(page), "A page identity or artwork declaration differs")
         require(page["encoded_sha256"] not in encoded_digests and pixel_digest not in pixel_digests,
                 "Encoded and decoded page identities must each be unique")
@@ -563,12 +612,13 @@ def _validate_fixture(directory):
         pixel_digests.add(pixel_digest)
         pages.append(page)
     database_bytes = _read_file(root / DATABASE, MAX_DATABASE_BYTES)
-    expected_manifest = _manifest(pages, database_bytes, anchor_index)
+    expected_manifest = _manifest(pages, database_bytes, anchor_index,
+                                  dithering=dithering, gray8_ramp=gray8_ramp)
     require(canonical_json(manifest) == canonical_json(expected_manifest),
             "The manifest file bindings, preferences, or safety contract differ")
     expected_inventory = {"manifest.json", *[value["path"] for value in expected_manifest["files"]]}
     require(set(inventory) == expected_inventory, "The file inventory differs from the manifest")
-    _validate_database(root / DATABASE, database_bytes, pages, anchor_index)
+    _validate_database(root / DATABASE, database_bytes, pages, anchor_index, dithering=dithering)
     final_inventory, final_total = _inventory(root)
     require(set(final_inventory) == set(inventory) and final_total == total_bytes
             and _read_file(root / "manifest.json", MAX_MANIFEST_BYTES) == manifest_bytes,
@@ -605,11 +655,14 @@ def main(argv=None):
         generate = commands.add_parser("generate", help="Create a new isolated guest fixture directory")
         generate.add_argument("--output", type=Path, required=True)
         generate.add_argument("--anchor-index", type=int, default=0, choices=(0, 1))
+        generate.add_argument("--dithering", choices=DITHERING_METHODS, default="off")
+        generate.add_argument("--gray8-ramp", action="store_true")
         validate = commands.add_parser("validate", help="Validate an untouched fixture before launch")
         validate.add_argument("directory", type=Path)
         args = parser.parse_args(argv)
         if args.command == "generate":
-            generate_fixture(args.output, anchor_index=args.anchor_index)
+            generate_fixture(args.output, anchor_index=args.anchor_index,
+                             dithering=args.dithering, gray8_ramp=args.gray8_ramp)
             report = validate_fixture(args.output)
         else:
             report = validate_fixture(args.directory)

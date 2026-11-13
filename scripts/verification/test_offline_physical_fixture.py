@@ -330,9 +330,12 @@ class OfflinePhysicalFixtureTests(unittest.TestCase):
         memory = physical.framebuffer_memory_pixels(GEOMETRY, self.source_projection())
         projection = physical.framebuffer_panel_projection(GEOMETRY, memory, "Y8")
         variants = []
-        downward = deepcopy(checkpoint)
-        downward["native_process"]["portrait_calibration"]["direction"] = "D"
-        variants.append((GEOMETRY, projection, downward))
+        unknown = deepcopy(checkpoint)
+        unknown["native_process"]["portrait_calibration"]["direction"] = "L"
+        variants.append((GEOMETRY, projection, unknown))
+        residual = deepcopy(checkpoint)
+        residual["fixture_publication"]["native_frame"]["rotation_degrees"] = 180
+        variants.append((GEOMETRY, projection, residual))
         variants.append(({**GEOMETRY, "rotate": 1}, projection, checkpoint))
         wrong_mode = deepcopy(checkpoint)
         wrong_mode["native_epdc_mode"] = "Y8INV"
@@ -346,6 +349,18 @@ class OfflinePhysicalFixtureTests(unittest.TestCase):
             harness.capture("wrong-page", checkpoint)
         self.assertFalse((self.output / "wrong-page.png").exists())
         self.assertFalse((self.output / "wrong-page.framebuffer.json").exists())
+
+    def test_down_scanout_uses_bound_logical_framebuffer_coordinates_without_an_extra_rotation(self):
+        harness = self.harness()
+        checkpoint = harness.checkpoint_value("reader")
+        checkpoint["native_process"]["portrait_calibration"].update(direction="D", fixed=False)
+        memory = physical.framebuffer_memory_pixels(GEOMETRY, self.source_projection())
+        projection = physical.framebuffer_panel_projection(GEOMETRY, memory, "Y8")
+        marker = physical.fixture_marker(GEOMETRY, projection, checkpoint, self.manifest)
+        self.assertEqual(marker["decoded_page_number"], 5)
+        self.assertEqual(marker["startup_portrait_direction"], "D")
+        self.assertEqual(marker["framebuffer_transform_degrees"], 0)
+        self.assertFalse(marker["physical_panel_update_confirmed"])
 
     def test_capture_rejects_geometry_and_page_changes_before_artifact_acceptance(self):
         for fault in ("geometry", "reader"):
@@ -468,7 +483,7 @@ class OfflinePhysicalFixtureTests(unittest.TestCase):
 
     def test_native_identity_uses_guard_sidecar_while_application_log_is_buffered(self):
         self.assertIn("ui-socket-guard.json", physical.SAFE_LOGS)
-        for fault in (None, "wrong_pid", "missing_sidecar", "extra_arguments", "legacy_no_new_privs",
+        for fault in (None, "downward", "fixed", "wrong_pid", "missing_sidecar", "extra_arguments", "legacy_no_new_privs",
                       "missing_seccomp", "invalid_seccomp", "mismatched_no_new_privs"):
             with self.subTest(fault=fault):
                 harness = self.harness()
@@ -525,12 +540,14 @@ class OfflinePhysicalFixtureTests(unittest.TestCase):
                         status = status.replace(b"Seccomp:\t2\n", b"Seccomp:\t1\n")
                     elif fault == "mismatched_no_new_privs":
                         status = status.replace(b"NoNewPrivs:\t1\n", b"NoNewPrivs:\t0\n")
-                    result = status + b"\0" + b"\0".join(value.encode("ascii") for value in arguments) + b"\0\0U:2\n"
+                    direction = "D" if fault == "downward" else "FIXED" if fault == "fixed" else "U"
+                    result = status + b"\0" + b"\0".join(value.encode("ascii") for value in arguments) \
+                        + b"\0\0" + (direction + ":2\n").encode("ascii")
                     return CompletedProcess([], 0, result, b"")
 
                 harness.read = Mock(side_effect=read)
                 harness.remote = Mock(side_effect=remote)
-                if fault in (None, "legacy_no_new_privs"):
+                if fault in (None, "downward", "fixed", "legacy_no_new_privs"):
                     identity = harness.native_identity()
                     self.assertEqual(identity["pid"], PID)
                     self.assertEqual(identity["live_seccomp_mode"], 2)
@@ -540,7 +557,8 @@ class OfflinePhysicalFixtureTests(unittest.TestCase):
                     self.assertIn("pre-exec prctl", identity["live_no_new_privs_scope"])
                     self.assertTrue(identity["offline_guest_native_arguments_verified"])
                     self.assertFalse(identity["demo_offline_native_arguments_verified"])
-                    self.assertEqual(identity["portrait_calibration"]["direction"], "U")
+                    self.assertEqual(identity["portrait_calibration"]["direction"], "D" if fault == "downward" else "U")
+                    self.assertEqual(identity["portrait_calibration"]["fixed"], fault == "fixed")
                     self.assertEqual(identity["portrait_calibration"]["raw_rotation"], 2)
                     self.assertEqual(harness.remote.call_count, 2)
                 else:

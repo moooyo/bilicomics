@@ -251,8 +251,12 @@ def write_png(path, width, height, rgb):
 class X11:
     def __init__(self):
         require(os.environ.get("DISPLAY", "").startswith(":"), "Use a private local Xvfb display")
-        self.lib = ctypes.CDLL(ctypes.util.find_library("X11"))
-        self.test = ctypes.CDLL(ctypes.util.find_library("Xtst"))
+        x11_library = os.environ.get("BILICOMICS_X11_LIBRARY") or ctypes.util.find_library("X11")
+        xtest_library = os.environ.get("BILICOMICS_XTEST_LIBRARY") or ctypes.util.find_library("Xtst")
+        require(x11_library and xtest_library,
+                "X11/XTest libraries are required; isolated runtimes can supply explicit library paths")
+        self.lib = ctypes.CDLL(x11_library)
+        self.test = ctypes.CDLL(xtest_library)
         self.lib.XOpenDisplay.argtypes = [ctypes.c_char_p]
         self.lib.XOpenDisplay.restype = ctypes.c_void_p
         self.lib.XDefaultScreen.argtypes = [ctypes.c_void_p]
