@@ -99,7 +99,6 @@ struct DownloadRow {
     task_note: String,
     task_has_bar: bool,
     can_read: bool,
-    has_task: bool,
     priority: u64,
     progress: f32,
     error: bool,
@@ -447,7 +446,7 @@ impl App {
                 let priority = self.download_ui.demo_priority.get(&id).copied().unwrap_or_default();
                 rows.push(DownloadRow { id, title: value["title"].as_str().unwrap_or_default().into(), status, subtitle, summary,
                     task_title, task_note, task_has_bar: kind == "active", can_read: bytes > 0,
-                    has_task: matches!(kind, "active" | "queued"), priority,
+                    priority,
                     progress: percent / 100.0, error, active, queued, paused,
                     bytes,
                     chapters, ..Default::default() });
@@ -520,7 +519,7 @@ impl App {
                 .map(|record| record.priority).max().unwrap_or_default();
             rows.push(DownloadRow { id, title: records.first().map(|record| record.comic_title.clone()).unwrap_or_default(), status,
                 subtitle, summary, task_title, task_note, task_has_bar: !error && (active || paused && total > 0), can_read: completed > 0,
-                has_task: active || queued || paused, priority, progress: percent, error, active, queued, paused, bytes, chapters });
+                priority, progress: percent, error, active, queued, paused, bytes, chapters });
         }
         sort_download_rows(&mut rows);
         Ok(rows)
@@ -554,20 +553,28 @@ impl App {
         model.set_page(self.download_ui.page as i32 + 1);
         model.set_page_count(pages as i32);
         model.set_storage_free(i18n::format("dl_runtime_free_space", &[("size", self.download_ui.free.clone())]).into());
-        let active = if self.demo.is_some() { rows.iter().filter(|row| row.has_task).count() }
-            else { rows.iter().filter(|row| row.active || row.queued).count() };
+        let active = rows.iter().filter(|row| row.active || row.queued).count();
+        let paused = rows.iter().filter(|row| row.paused).count();
         let failed = rows.iter().filter(|row| row.error).count();
         let (has_controls, all_paused) = global_download_controls(&rows);
         model.set_has_active(has_controls);
         model.set_all_paused(all_paused);
         let cache_bytes = self.demo.as_ref().and_then(|demo| demo.fixture["download_summary"]["cache_mb"].as_u64()).unwrap_or_default().saturating_mul(1_000_000);
         let total_bytes = rows.iter().map(|row| row.bytes).sum::<u64>().saturating_add(cache_bytes);
-        let summary = i18n::format(if self.is_scribe() { "dl_summary_scribe" } else { "dl_summary_paperwhite" }, &[
+        let mut status = Vec::new();
+        if active > 0 {
+            status.push(i18n::format("dl_status_active", &[("count", active.to_string())]));
+        } else if paused > 0 {
+            status.push(i18n::format("dl_status_paused", &[("count", paused.to_string())]));
+        }
+        if failed > 0 {
+            status.push(i18n::format("dl_status_failed", &[("count", failed.to_string())]));
+        }
+        model.set_status_summary(if status.is_empty() { i18n::text("dl_status_idle") } else { status.join(" · ") }.into());
+        let summary = i18n::format("dl_storage_summary", &[
             ("count", rows.len().to_string()), ("size", if self.demo.is_some() { format_design_bytes(total_bytes) } else { format_bytes(total_bytes) }),
-            ("active", if active > 0 { i18n::format("dl_summary_active", &[("count", active.to_string())]) } else { String::new() }),
-            ("failed", if failed > 0 { i18n::format("dl_summary_failed", &[("count", failed.to_string())]) } else { String::new() }),
         ]);
-        let summary = if self.is_scribe() {
+        let summary = if !self.download_ui.free.is_empty() {
             format!("{summary} · {}", i18n::format("dl_runtime_free_space", &[("size", self.download_ui.free.clone())]))
         } else { summary };
         model.set_summary(summary.into());
@@ -1184,8 +1191,8 @@ mod lifecycle_tests {
 
     #[test]
     fn all_paused_downloads_keep_a_visible_resume_control() {
-        let rows = vec![DownloadRow { paused: true, has_task: true, ..Default::default() },
-            DownloadRow { paused: true, has_task: true, ..Default::default() },
+        let rows = vec![DownloadRow { paused: true, ..Default::default() },
+            DownloadRow { paused: true, ..Default::default() },
             DownloadRow { error: true, ..Default::default() }];
         assert_eq!(global_download_controls(&rows), (true, true));
         let mut mixed = rows;

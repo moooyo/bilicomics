@@ -15,7 +15,12 @@ export struct ReaderChapter {
     order: string,
     title: string,
     tag: string,
+    progress: string,
+    access: string,
+    storage: string,
     current: bool,
+    read: bool,
+    downloaded: bool,
     readable: bool,
     temporary: bool,
 }
@@ -96,6 +101,11 @@ export global ReaderModel {
     in-out property <int> grid-pages: 1;
     in-out property <[ReaderChapter]> chapters;
     in-out property <int> chapter-count;
+    in-out property <int> chapter-page: 1;
+    in-out property <int> chapter-pages: 1;
+    in-out property <string> chapter-filter: "all";
+    in-out property <bool> chapter-descending;
+    in-out property <int> chapter-capacity: 14;
 }
 
 struct ReaderOption {
@@ -240,15 +250,15 @@ component ReaderTool inherits Rectangle {
     in property <string> icon;
     in property <string> label;
     callback clicked();
-    height: Theme.scribe ? 84px : 68px;
+    height: Theme.scribe ? 68px : 60px;
     background: touch.pressed ? Theme.ink : Theme.paper;
     accessible-role: button;
     accessible-label: root.label;
     accessible-action-default => { root.clicked(); }
-    Icon { x: (parent.width - self.width) / 2; y: Theme.scribe ? 12px : 8px; width: Theme.scribe ? 30px : 26px; height: self.width; kind: root.icon; inverted: touch.pressed; }
+    Icon { x: (parent.width - self.width) / 2; y: 4px; width: Theme.scribe ? 30px : 26px; height: self.width; kind: root.icon; inverted: touch.pressed; }
     ReaderText {
-        y: Theme.scribe ? 46px : 38px;
-        height: 26px;
+        y: Theme.scribe ? 38px : 34px;
+        height: 22px;
         text: root.label;
         color: touch.pressed ? Theme.paper : Theme.ink;
         font-size: Theme.scribe ? 16px : 14px;
@@ -260,6 +270,46 @@ component ReaderTool inherits Rectangle {
             if event.kind == PointerEventKind.up { Theme.refresh("release"); }
         }
         clicked => { root.clicked(); }
+    }
+}
+
+component ReaderSeek inherits Rectangle {
+    in property <int> value: 1;
+    in property <int> count: 1;
+    in property <string> label;
+    callback picked(int);
+    property <float> ratio: max(0, min(1, (min(root.count, root.value) - 1) / max(1, root.count - 1)));
+    min-width: 48px;
+    accessible-role: slider;
+    accessible-label: root.label;
+    accessible-enabled: root.count > 0;
+    accessible-orientation: Orientation.horizontal;
+    accessible-value: root.value;
+    accessible-value-minimum: 1;
+    accessible-value-maximum: max(1, root.count);
+    accessible-value-step: 1;
+    accessible-action-set-value(value) => { if value.is-float() { root.picked(max(1, min(root.count, round(value.to-float())))); } }
+    accessible-action-increment => { if root.count > 0 { root.picked(min(root.count, root.value + 1)); } }
+    accessible-action-decrement => { if root.count > 0 { root.picked(max(1, root.value - 1)); } }
+    forward-focus: keyboard;
+    Rectangle { x: 0px; y: (parent.height - 8px) / 2; height: 8px; width: parent.width; background: Theme.paper; border-width: 1.5px; border-color: Theme.ink; }
+    Rectangle { x: 0px; y: (parent.height - 8px) / 2; height: 8px; width: parent.width * root.ratio; background: Theme.ink; }
+    Rectangle { x: max(0px, min(parent.width - 22px, parent.width * root.ratio - 11px)); y: (parent.height - 24px) / 2; width: 22px; height: 24px; background: Theme.paper; border-width: 2.5px; border-color: Theme.ink; }
+    if keyboard.has-focus: Rectangle { x: 4px; y: 6px; width: parent.width - 8px; height: parent.height - 12px; border-width: 2px; border-color: Theme.ink; background: transparent; }
+    TouchArea {
+        enabled: root.count > 0;
+        height: parent.height;
+        clicked => { root.picked(max(1, round(min(1, max(0, self.mouse-x / self.width)) * max(0, root.count - 1)) + 1)); }
+    }
+    keyboard := FocusScope {
+        x: 0px; y: 0px; width: 0px; height: 0px; enabled: root.count > 0;
+        key-pressed(event) => {
+            if event.text == Key.RightArrow { root.picked(min(root.count, root.value + 1)); return accept; }
+            if event.text == Key.LeftArrow { root.picked(max(1, root.value - 1)); return accept; }
+            if event.text == Key.Home { root.picked(1); return accept; }
+            if event.text == Key.End { root.picked(root.count); return accept; }
+            return reject;
+        }
     }
 }
 
@@ -367,11 +417,21 @@ export component ReaderScreen inherits Rectangle {
     property <length> reader-status: Theme.scribe ? 32px : 28px;
     property <length> reader-button: Theme.scribe ? 56px : 48px;
     property <length> reader-edge: Theme.scribe ? 48px : 24px;
-    property <length> toolbar-left: Theme.scribe ? 32px : 12px;
-    property <length> toolbar-right: Theme.scribe ? 48px : 24px;
+    property <length> toolbar-left: root.reader-edge;
+    property <length> toolbar-right: root.reader-edge;
     property <int> guide-dash-count: ceil(root.height / 14px);
     property <string> progress: root.spread && ReaderModel.spread-label != "" ? ReaderModel.spread-label : ReaderModel.progress-label != "" ? ReaderModel.progress-label : ReaderModel.mode == "strip" ? Strings.read-page-prefix + ReaderModel.strip-screen + " / " + ReaderModel.strip-count + Strings.read-screen-suffix : ReaderModel.mode == "panel" ? min(ReaderModel.page-index, ReaderModel.page-count) + " / " + ReaderModel.page-count + " · " + Strings.read-panel-prefix + ReaderModel.panel-index : min(ReaderModel.page-index, ReaderModel.page-count) + " / " + ReaderModel.page-count;
-    property <string> reading-context: ReaderModel.mode == "panel" ? Strings.read-panel-prefix + ReaderModel.panel-index + " / " + ReaderModel.panel-count : ReaderModel.mode == "strip" ? Strings.read-strip + (ReaderModel.overlap ? " · " + Strings.read-previous-screen-end : "") : root.spread ? Strings.read-spread : Strings.read-single-page + " · " + (ReaderModel.fit == "width" ? Strings.read-fit-width : Strings.read-fit-page);
+    property <bool> directory-stacked-controls: root.width < (Theme.scribe ? 680px : 540px);
+    property <bool> directory-wide-columns: Theme.scribe && root.width >= 760px;
+    property <length> directory-header: Theme.scribe ? 72px : 64px;
+    property <length> directory-filter-gap: Theme.scribe ? 16px : 12px;
+    property <length> directory-filter-row: Theme.scribe ? 52px : 48px;
+    property <length> directory-filter-height: root.directory-stacked-controls ? 2 * root.directory-filter-row + 8px : root.directory-filter-row;
+    property <length> directory-columns: root.directory-wide-columns ? 36px : 0px;
+    property <length> directory-row: Theme.scribe ? 68px : 60px;
+    property <length> directory-footer: Theme.scribe ? 64px : 72px;
+    property <length> directory-body-top: root.reader-status + root.directory-header + root.directory-filter-gap + root.directory-filter-height + 16px + root.directory-columns;
+    property <int> directory-capacity: max(1, floor((root.height - root.directory-body-top - root.directory-footer) / root.directory-row));
 
     // Menu and sheet overlays never change the reading canvas or its image geometry.
     if root.show-content && !root.spread && ReaderModel.mode == "page": Image {
@@ -527,7 +587,7 @@ export component ReaderScreen inherits Rectangle {
                 height: Theme.scribe ? 60px : 52px; vertical-stretch: 0;
                 spacing: 10px;
                 NavigationButton { text: Strings.read-return-last; icon: "back"; icon-size: Theme.scribe ? 18px : 15px; icon-spacing: (Theme.scribe ? 18px : 15px) * 0.15; height: parent.height; width: (parent.width - 20px) / 3; outlined: true; text-size: Theme.scribe ? 18px : 15px; clicked => { ReaderModel.action("last-view", ""); } }
-                ActionButton { text: Strings.read-chapter-catalog; height: parent.height; horizontal-stretch: 1; text-size: Theme.scribe ? 18px : 15px; clicked => { ReaderModel.action("back", ""); } }
+                ActionButton { text: Strings.read-chapter-catalog; height: parent.height; horizontal-stretch: 1; text-size: Theme.scribe ? 18px : 15px; clicked => { ReaderModel.chapter-capacity = root.directory-capacity; ReaderModel.menu = true; ReaderModel.sheet = "toc"; ReaderModel.action("sheet", "toc"); } }
                 ActionButton { text: Strings.read-return-shelf; height: parent.height; horizontal-stretch: 1; text-size: Theme.scribe ? 18px : 15px; clicked => { ReaderModel.action("shelf", ""); } }
             }
         }
@@ -562,21 +622,19 @@ export component ReaderScreen inherits Rectangle {
                 ReaderText { x: parent.width * 0.4; y: 0px; width: parent.width * 0.6; height: parent.height; text: (ReaderModel.offline ? Strings.read-offline : ReaderModel.network-label) + " · " + ReaderModel.battery-label; font-size: 16px; horizontal-alignment: right; }
             }
             if !root.wide-landscape: HorizontalLayout {
-                x: Theme.scribe ? 32px : 8px;
+                x: root.reader-edge;
                 y: root.reader-status;
-                width: parent.width - (Theme.scribe ? 64px : 20px);
+                width: parent.width - 2 * root.reader-edge;
                 height: root.reader-bar;
-                spacing: 4px;
+                spacing: 12px;
                 Rectangle {
-                    width: Theme.scribe ? 86px : 78px; height: parent.height;
+                    width: Theme.scribe ? 92px : 80px; height: parent.height;
                     IconButton { x: 0px; y: (parent.height - self.height) / 2; icon: "back"; text: Strings.read-back; width: parent.width; height: root.reader-button; icon-size: Theme.scribe ? 26px : 24px; text-size: Theme.scribe ? 18px : 15px; clicked => { ReaderModel.action("back", ""); } }
                 }
                 Rectangle {
                     horizontal-stretch: 1;
                     height: parent.height;
-                    property <length> content-height: portrait-heading.preferred-height + portrait-cache.preferred-height;
-                    portrait-heading := ReaderText { x: 0px; y: (parent.height - parent.content-height) / 2; width: parent.width; height: self.preferred-height; text: ReaderModel.comic-title + " · " + ReaderModel.episode-title; font-size: Theme.scribe ? 20px : 17px; font-weight: 700; overflow: elide; }
-                    portrait-cache := ReaderText { x: 0px; y: portrait-heading.y + portrait-heading.height; width: parent.width; height: self.preferred-height; text: ReaderModel.cache-label; font-size: Theme.scribe ? 16px : 14px; color: Theme.secondary; overflow: elide; }
+                    ReaderText { x: 0px; y: 0px; width: parent.width; height: parent.height; text: ReaderModel.comic-title + " · " + ReaderModel.episode-title; font-size: Theme.scribe ? 20px : 17px; font-weight: 700; overflow: elide; }
                 }
                 Rectangle {
                     width: root.reader-button; height: parent.height;
@@ -591,14 +649,12 @@ export component ReaderScreen inherits Rectangle {
                 x: 24px; y: root.reader-status; width: parent.width - 48px; height: root.reader-bar; spacing: 8px;
                 Rectangle {
                     width: spread-back.preferred-width; height: parent.height;
-                    spread-back := NavigationButton { x: 0px; y: (parent.height - self.height) / 2; text: Strings.read-toc; icon: "back"; icon-size: 26px; text-size: 18px; height: 56px; clicked => { ReaderModel.action("back", ""); } }
+                    spread-back := NavigationButton { x: 0px; y: (parent.height - self.height) / 2; text: Strings.read-back; icon: "back"; icon-size: 26px; text-size: 18px; height: 56px; clicked => { ReaderModel.action("back", ""); } }
                 }
                 Rectangle {
                     horizontal-stretch: 1;
                     height: parent.height;
-                    property <length> content-height: spread-heading.preferred-height + spread-description.preferred-height;
-                    spread-heading := ReaderText { x: 0px; y: (parent.height - parent.content-height) / 2; width: parent.width; height: self.preferred-height; text: ReaderModel.comic-title + " · " + ReaderModel.episode-title; font-size: 20px; font-weight: 700; overflow: elide; }
-                    spread-description := ReaderText { x: 0px; y: spread-heading.y + spread-heading.height; width: parent.width; height: self.preferred-height; text: ReaderModel.cache-label + " · " + ReaderModel.landscape-subtitle; font-size: 16px; color: Theme.secondary; overflow: elide; }
+                    ReaderText { x: 0px; y: 0px; width: parent.width; height: parent.height; text: ReaderModel.comic-title + " · " + ReaderModel.episode-title; font-size: 20px; font-weight: 700; overflow: elide; }
                 }
                 Rectangle {
                     width: 64px; height: parent.height;
@@ -610,48 +666,55 @@ export component ReaderScreen inherits Rectangle {
         if ReaderModel.sheet == "": Rectangle {
             y: parent.height - self.height;
             width: parent.width;
-            height: Theme.scribe ? 208px : 182px;
+            height: Theme.scribe ? 208px : 184px;
             background: Theme.paper;
             TouchArea { clicked => { } }
             Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
-            ReaderText { x: root.toolbar-left; y: 10px; width: parent.width - root.toolbar-left - root.toolbar-right; height: 24px; text: root.reading-context; font-size: Theme.scribe ? 16px : 14px; color: Theme.secondary; overflow: elide; }
             HorizontalLayout {
                 x: root.toolbar-left;
-                y: 42px;
+                y: 8px;
                 width: parent.width - root.toolbar-left - root.toolbar-right;
-                height: Theme.scribe ? 64px : 56px;
+                height: Theme.scribe ? 56px : 48px;
                 spacing: 8px;
                 Rectangle {
                     width: beginning-button.preferred-width; height: parent.height;
                     beginning-button := NavigationButton { x: 0px; y: (parent.height - self.height) / 2; text: Strings.read-beginning; icon: "back"; icon-size: Theme.scribe ? 18px : 15px; horizontal-padding: 10px; icon-spacing: (Theme.scribe ? 18px : 15px) * 0.15; height: root.reader-button; text-size: Theme.scribe ? 18px : 15px; clicked => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("beginning", ""); } }
                 }
-                seek := Rectangle {
+                ReaderSeek {
                     horizontal-stretch: 1;
                     height: parent.height;
-                    accessible-role: button;
-                    accessible-label: Strings.read-seek + " · " + root.progress;
-                    accessible-action-default => { ReaderModel.sheet = "grid"; ReaderModel.action("sheet", "grid"); }
-                    property <float> ratio: max(0, min(1, (min(ReaderModel.seek-count, ReaderModel.seek-index) - 1) / max(1, ReaderModel.seek-count - 1)));
-                    Rectangle { x: 0px; y: (parent.height - 8px) / 2; height: 8px; width: parent.width; background: Theme.paper; border-width: 1.5px; border-color: Theme.ink; }
-                    Rectangle { x: 0px; y: (parent.height - 8px) / 2; height: 8px; width: parent.width * parent.ratio; background: Theme.ink; }
-                    Rectangle { x: parent.width * parent.ratio - 11px; y: (parent.height - 24px) / 2; width: 22px; height: 24px; background: Theme.paper; border-width: 2.5px; border-color: Theme.ink; }
-                    TouchArea { height: parent.height; clicked => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("seek", "" + max(1, round(min(1, max(0, self.mouse-x / self.width)) * max(0, ReaderModel.seek-count - 1)) + 1)); } }
+                    value: ReaderModel.seek-index;
+                    count: ReaderModel.seek-count;
+                    label: Strings.read-seek + " · " + root.progress;
+                    picked(value) => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("seek", "" + value); }
                 }
                 Rectangle {
                     width: max(64px, seek-caption.preferred-width); height: parent.height;
                     seek-caption := ReaderText { x: 0px; y: 0px; width: parent.width; height: parent.height; text: root.progress; horizontal-alignment: right; }
                 }
             }
+            ReaderChoice {
+                x: root.toolbar-left;
+                y: Theme.scribe ? 68px : 60px;
+                width: parent.width - root.toolbar-left - root.toolbar-right;
+                value: ReaderModel.fit;
+                options: [
+                    {value: "original", label: Strings.read-zoom-original},
+                    {value: "page", label: Strings.read-zoom-page},
+                    {value: "height", label: Strings.read-zoom-height},
+                    {value: "width", label: Strings.read-zoom-width}
+                ];
+                picked(value) => { ReaderModel.fit = value; ReaderModel.action("setting", "fit:" + value); }
+            }
             for tool[index] in [
                 {id: "toc", label: Strings.read-toc, icon: "reader-list"},
-                {id: "grid", label: Strings.read-overview, icon: "reader-grid"},
                 {id: "display", label: Strings.read-settings, icon: "reader-display"},
-                {id: "refresh", label: Strings.read-refresh-screen, icon: "reader-refresh"},
+                {id: "refresh", label: Strings.read-refresh-short, icon: "reader-refresh"},
                 {id: "light", label: Strings.read-frontlight, icon: "light"}
             ]: ReaderTool {
-                x: root.toolbar-left + index * ((parent.width - root.toolbar-left - root.toolbar-right - 24px) / 5 + 6px);
-                y: Theme.scribe ? 112px : 104px;
-                width: (parent.width - root.toolbar-left - root.toolbar-right - 24px) / 5;
+                x: root.toolbar-left + index * (parent.width - root.toolbar-left - root.toolbar-right) / 4;
+                y: Theme.scribe ? 132px : 116px;
+                width: (parent.width - root.toolbar-left - root.toolbar-right) / 4;
                 icon: tool.icon;
                 label: tool.label;
                 clicked => {
@@ -660,6 +723,7 @@ export component ReaderScreen inherits Rectangle {
                         ReaderModel.sheet = "";
                         ReaderModel.action("refresh", "");
                     } else {
+                        if tool.id == "toc" { ReaderModel.chapter-capacity = root.directory-capacity; }
                         ReaderModel.sheet = tool.id;
                         ReaderModel.action("sheet", tool.id);
                     }
@@ -683,7 +747,7 @@ export component ReaderScreen inherits Rectangle {
                 height: display-sheet.options-height;
                 spacing: 12px;
                 ReaderChoiceRow { label: Strings.read-mode; value: ReaderModel.mode; options: [{value: "page", label: Strings.read-single-page}, {value: "panel", label: Strings.read-panel}, {value: "strip", label: Strings.read-strip}]; picked(value) => { ReaderModel.mode = value; ReaderModel.action("setting", "mode:" + value); } }
-                ReaderChoiceRow { label: Strings.read-fit; value: ReaderModel.fit; options: [{value: "page", label: Strings.read-fit-page}, {value: "width", label: Strings.read-fit-width}]; picked(value) => { ReaderModel.fit = value; ReaderModel.action("setting", "fit:" + value); } }
+                ReaderChoiceRow { label: Strings.read-fit; value: ReaderModel.fit; options: [{value: "original", label: Strings.read-zoom-original}, {value: "page", label: Strings.read-zoom-page}, {value: "height", label: Strings.read-zoom-height}, {value: "width", label: Strings.read-zoom-width}]; picked(value) => { ReaderModel.fit = value; ReaderModel.action("setting", "fit:" + value); } }
                 ReaderChoiceRow { label: Strings.read-direction; value: ReaderModel.direction; options: [{value: "ltr", label: Strings.read-ltr}, {value: "rtl", label: Strings.read-rtl}]; picked(value) => { ReaderModel.direction = value; ReaderModel.action("setting", "direction:" + value); } }
                 ReaderChoiceRow { label: Strings.read-full-refresh; value: ReaderModel.refresh-policy; options: [{value: "smart", label: Strings.read-refresh-smart}, {value: "1", label: Strings.read-refresh-every}, {value: "6", label: Strings.read-refresh-six}, {value: "0", label: Strings.read-refresh-never}]; picked(value) => { ReaderModel.refresh-policy = value; ReaderModel.action("setting", "refresh-policy:" + value); } }
                 ReaderChoiceRow { label: Strings.read-dither; value: ReaderModel.dither ? ReaderModel.dither-method : "off"; options: [{value: "software", label: Strings.read-dither-software}, {value: "hardware", label: Strings.read-dither-hardware}, {value: "off", label: Strings.read-off}]; picked(value) => { ReaderModel.dither = value != "off"; if value == "off" { ReaderModel.action("setting", "dither:off"); } else { ReaderModel.dither-method = value; ReaderModel.action("setting", "dither-method:" + value); } } }
@@ -698,7 +762,7 @@ export component ReaderScreen inherits Rectangle {
                     horizontal-stretch: 1;
                     spacing: 12px;
                     ReaderChoiceRow { label: Strings.read-mode; value: ReaderModel.mode; options: [{value: "page", label: Strings.read-single-page}, {value: "panel", label: Strings.read-panel}, {value: "strip", label: Strings.read-strip}]; picked(value) => { ReaderModel.mode = value; ReaderModel.action("setting", "mode:" + value); } }
-                    ReaderChoiceRow { label: Strings.read-fit; value: ReaderModel.fit; options: [{value: "page", label: Strings.read-fit-page}, {value: "width", label: Strings.read-fit-width}]; picked(value) => { ReaderModel.fit = value; ReaderModel.action("setting", "fit:" + value); } }
+                    ReaderChoiceRow { label: Strings.read-fit; value: ReaderModel.fit; options: [{value: "original", label: Strings.read-zoom-original}, {value: "page", label: Strings.read-zoom-page}, {value: "height", label: Strings.read-zoom-height}, {value: "width", label: Strings.read-zoom-width}]; picked(value) => { ReaderModel.fit = value; ReaderModel.action("setting", "fit:" + value); } }
                     ReaderChoiceRow { label: Strings.read-direction; value: ReaderModel.direction; options: [{value: "ltr", label: Strings.read-ltr}, {value: "rtl", label: Strings.read-rtl}]; picked(value) => { ReaderModel.direction = value; ReaderModel.action("setting", "direction:" + value); } }
                     ReaderChoiceRow { label: Strings.read-landscape-layout; value: ReaderModel.landscape-layout; options: [{value: "spread", label: Strings.read-spread}, {value: "single", label: Strings.read-single-page}]; picked(value) => { ReaderModel.landscape-layout = value; ReaderModel.action("setting", "landscape-layout:" + value); } }
                 }
@@ -714,118 +778,152 @@ export component ReaderScreen inherits Rectangle {
             display-note := ReaderText { x: root.reader-edge; y: root.reader-bar + 26px + display-sheet.options-height; width: parent.width - 2 * root.reader-edge; height: self.preferred-height; text: (ReaderModel.refresh-policy == "smart" ? Strings.read-refresh-smart-note : Strings.read-refresh-fixed-note) + ReaderModel.dither-note; font-size: Theme.scribe ? 16px : 14px; color: Theme.secondary; wrap: word-wrap; vertical-alignment: top; }
         }
 
-        if ReaderModel.sheet == "grid": overview-sheet := Rectangle {
-            y: parent.height - self.height;
-            width: parent.width;
-            height: root.reader-bar + 52px + 3 * (self.thumb-height + self.caption-height + 4px);
+        if ReaderModel.sheet == "toc": directory := Rectangle {
+            x: 0px;
+            y: 0px;
+            width: root.width;
+            height: root.height;
             background: Theme.paper;
             TouchArea { clicked => { } }
-            property <int> columns: Theme.scribe ? 5 : 4;
-            property <length> caption-height: caption-probe.preferred-height;
-            property <length> thumb-height: min(Theme.scribe ? 180px : 118px, max(48px, (root.height - root.reader-status - 2 * root.reader-bar - 52px) / 3 - self.caption-height - 4px));
-            property <length> cell-width: (self.width - 2 * root.reader-edge - (self.columns - 1) * 14px) / self.columns;
-            caption-probe := ReaderText { x: 0px; y: 0px; width: 40px; height: self.preferred-height; visible: false; text: "0"; font-size: Theme.scribe ? 16px : 14px; }
-            Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
-            overview-header := Rectangle {
-                x: root.reader-edge;
-                y: 2px;
-                width: parent.width - 2 * root.reader-edge;
-                height: root.reader-bar;
-                property <length> close-width: Theme.scribe ? 64px : 58px;
-                property <length> caption-width: max(56px, grid-caption.preferred-width);
-                property <length> controls-width: max(self.width * 0.55, 2 * root.reader-button + self.caption-width + self.close-width + 12px);
-                ReaderText { x: 0px; y: 0px; width: max(0px, parent.width - parent.controls-width - 8px); height: parent.height; text: ReaderModel.thumbnails-loading ? Strings.read-overview-loading : Strings.read-overview; font-size: Theme.scribe ? 24px : 20px; font-weight: 700; overflow: elide; }
-                HorizontalLayout {
-                    x: overview-header.width - overview-header.controls-width;
-                    width: overview-header.controls-width;
-                    height: parent.height;
-                    spacing: 4px;
-                    alignment: end;
-                    Rectangle {
-                        min-width: root.reader-button; max-width: root.reader-button; height: parent.height;
-                        IconButton { x: 0px; y: (parent.height - self.height) / 2; icon: "back"; icon-size: 24px; label: Strings.read-previous-pair; width: parent.width; height: root.reader-button; enabled: ReaderModel.grid-page > 1; clicked => { ReaderModel.action("grid", "previous"); } }
-                    }
-                    grid-caption := ReaderText { text: ReaderModel.grid-page + " / " + ReaderModel.grid-pages; horizontal-alignment: center; min-width: overview-header.caption-width; }
-                    Rectangle {
-                        min-width: root.reader-button; max-width: root.reader-button; height: parent.height;
-                        IconButton { x: 0px; y: (parent.height - self.height) / 2; icon: "next"; icon-size: 24px; label: Strings.read-next-pair; width: parent.width; height: root.reader-button; enabled: ReaderModel.grid-page < ReaderModel.grid-pages; clicked => { ReaderModel.action("grid", "next"); } }
-                    }
-                    Rectangle {
-                        min-width: overview-header.close-width; max-width: overview-header.close-width; height: parent.height;
-                        ActionButton { x: 0px; y: (parent.height - self.height) / 2; text: Strings.read-close; width: parent.width; height: root.reader-button; text-size: Theme.scribe ? 18px : 15px; clicked => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("menu", "close"); } }
-                    }
-                }
-                Rectangle { y: parent.height - 1px; width: parent.width; height: 1px; background: Theme.line; }
+            StatusBar {
+                x: 0px; y: 0px; width: parent.width; height: root.reader-status;
+                edge: root.reader-edge; clock: ReaderModel.clock;
+                online: ReaderModel.connected;
+                network: ReaderModel.offline ? Strings.read-offline : ReaderModel.network-label;
+                battery: ReaderModel.battery-label;
             }
-            for thumb[index] in ReaderModel.thumbnails: Rectangle {
-                x: root.reader-edge + mod(index, parent.columns) * (parent.cell-width + 14px);
-                y: root.reader-bar + 14px + floor(index / parent.columns) * (parent.thumb-height + parent.caption-height + 16px);
-                width: parent.cell-width;
-                height: parent.thumb-height + parent.caption-height + 4px;
-                background: Theme.paper;
-                accessible-role: button;
-                accessible-label: thumb.label;
-                accessible-action-default => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("source-page", "" + thumb.page); }
-                Rectangle {
-                    x: 0px;
-                    y: 0px;
-                    width: parent.width;
-                    height: overview-sheet.thumb-height;
-                    background: Theme.paper;
-                    border-width: thumb.current ? 4px : thumb.cached ? 1.5px : 0px;
-                    border-color: Theme.ink;
-                    if thumb.cached: Image { x: 4px; y: 4px; width: parent.width - 8px; height: parent.height - 8px; source: thumb.picture; image-fit: contain; }
-                    if !thumb.cached && !thumb.current: ReaderDashedBox { width: parent.width; height: parent.height; }
+            Rectangle {
+                x: 0px; y: root.reader-status; width: parent.width; height: root.directory-header;
+                property <length> back-width: Theme.scribe ? 164px : 116px;
+                property <length> count-width: Theme.scribe ? 112px : 64px;
+                NavigationButton {
+                    x: root.reader-edge - 12px; y: (parent.height - self.height) / 2;
+                    width: parent.back-width; height: root.reader-button;
+                    icon: "back"; text: Strings.read-return-reading;
+                    icon-size: Theme.scribe ? 26px : 24px; icon-spacing: Theme.scribe ? 6px : 4px;
+                    text-size: Theme.scribe ? 20px : 16px;
+                    clicked => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("menu", "close"); }
                 }
-                Rectangle {
-                    y: overview-sheet.thumb-height + 4px;
-                    width: parent.width;
-                    height: overview-sheet.caption-height;
-                    background: thumb.current || touch.pressed ? Theme.ink : Theme.paper;
-                    ReaderText { text: thumb.label != "" ? thumb.label : "" + thumb.page; font-size: Theme.scribe ? 16px : 14px; font-weight: thumb.current ? 700 : 400; horizontal-alignment: center; color: thumb.current || touch.pressed ? Theme.paper : Theme.secondary; }
+                ReaderText {
+                    x: root.reader-edge + parent.back-width + (Theme.scribe ? 20px : 8px);
+                    y: 0px; width: max(0px, parent.width - root.reader-edge - parent.count-width - self.x - 8px);
+                    height: parent.height; text: ReaderModel.comic-title + " · " + Strings.read-toc;
+                    font-size: Theme.scribe ? 25px : 20px; font-weight: 700; overflow: elide;
                 }
-                touch := TouchArea { clicked => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("source-page", "" + thumb.page); } }
+                ReaderText {
+                    x: parent.width - root.reader-edge - parent.count-width; y: 0px;
+                    width: parent.count-width; height: parent.height;
+                    text: (Theme.scribe ? Strings.read-directory-count-prefix : "") + ReaderModel.chapter-count + Strings.read-episode-suffix;
+                    font-size: Theme.scribe ? 18px : 15px; color: Theme.secondary; horizontal-alignment: right;
+                }
+                Rectangle { x: 0px; y: parent.height - 1px; width: parent.width; height: 1px; background: Theme.ink; }
             }
-        }
-
-        if ReaderModel.sheet == "toc": Rectangle {
-            y: parent.height - self.height;
-            width: parent.width;
-            height: root.reader-bar + 3px + min(6, ReaderModel.chapters.length) * (Theme.scribe ? 69px : 61px);
-            background: Theme.paper;
-            TouchArea { clicked => { } }
-            Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
             Rectangle {
                 x: root.reader-edge;
-                y: 2px;
-                width: parent.width - root.reader-edge - (Theme.scribe ? 36px : 12px);
-                height: root.reader-bar;
-                ReaderText { x: 0px; y: 0px; width: parent.width - full-toc.width - close-toc.width - 12px; height: parent.height; text: Strings.read-toc-total-prefix + ReaderModel.chapter-count + Strings.read-episode-suffix; font-size: Theme.scribe ? 24px : 20px; font-weight: 700; }
-                full-toc := NavigationButton { x: parent.width - self.width - close-toc.width - 4px; y: (parent.height - self.height) / 2; text: Strings.read-full-toc; trailing: true; icon: "next"; icon-size: Theme.scribe ? 18px : 15px; icon-spacing: (Theme.scribe ? 18px : 15px) * 0.15; text-size: Theme.scribe ? 18px : 15px; height: root.reader-button; clicked => { ReaderModel.action("back", ""); } }
-                close-toc := ActionButton { x: parent.width - self.width; y: (parent.height - self.height) / 2; width: Theme.scribe ? 60px : 54px; height: root.reader-button; text: Strings.read-close; text-size: Theme.scribe ? 18px : 15px; quiet: true; clicked => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("menu", "close"); } }
-            }
-            Rectangle { x: 0px; y: root.reader-bar + 2px; width: parent.width; height: 1px; background: Theme.ink; }
-            for chapter[index] in ReaderModel.chapters: Rectangle {
-                visible: index < 6;
-                y: root.reader-bar + 3px + index * self.height;
-                width: parent.width;
-                height: Theme.scribe ? 69px : 61px;
-                background: toc-touch.pressed ? Theme.ink : Theme.paper;
-                accessible-role: button;
-                accessible-label: chapter.order + " " + chapter.title + " " + chapter.tag;
-                accessible-action-default => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("episode", chapter.id); }
-                if chapter.current: Rectangle { x: 0px; y: 8px; width: 6px; height: parent.height - 16px; background: toc-touch.pressed ? Theme.paper : Theme.ink; }
-                ReaderText { x: root.reader-edge; width: 34px; text: chapter.order; font-weight: 700; color: toc-touch.pressed ? Theme.paper : Theme.ink; }
-                ReaderText { x: root.reader-edge + 46px; width: parent.width - tag.width - 2 * root.reader-edge - 58px; text: chapter.title; font-weight: chapter.current ? 700 : 400; color: toc-touch.pressed ? Theme.paper : Theme.ink; overflow: elide; }
-                tag := Rectangle {
-                    x: parent.width - self.width - root.reader-edge; y: (parent.height - self.height) / 2;
-                    width: tag-label.preferred-width + 14px; height: Theme.scribe ? 28px : 24px;
-                    border-width: chapter.temporary ? 0px : 1px; border-color: toc-touch.pressed ? Theme.paper : Theme.ink; background: transparent;
-                    if chapter.temporary: DashedOutline { width: parent.width; height: parent.height; stroke: 1px; stroke-color: toc-touch.pressed ? Theme.paper : Theme.ink; }
-                    tag-label := ReaderText { x: 7px; width: parent.width - 14px; text: chapter.tag; font-size: Theme.scribe ? 16px : 14px; color: toc-touch.pressed ? Theme.paper : Theme.ink; }
+                y: root.reader-status + root.directory-header + root.directory-filter-gap;
+                width: parent.width - 2 * root.reader-edge;
+                height: root.directory-filter-height;
+                property <length> filter-width: min(parent.width - 2 * root.reader-edge, Theme.scribe ? 348px : 278px);
+                property <length> sort-width: Theme.scribe ? 76px : 54px;
+                property <length> locate-width: Theme.scribe ? 122px : 104px;
+                for entry[index] in [
+                    {value: "all", label: Strings.cat-all + " " + ReaderModel.chapter-count},
+                    {value: "unread", label: Strings.cat-unread},
+                    {value: "readable", label: Strings.cat-readable},
+                    {value: "downloaded", label: Strings.cat-downloaded}
+                ]: ActionButton {
+                    x: index * parent.filter-width / 4; y: 0px;
+                    width: parent.filter-width / 4; height: root.directory-filter-row;
+                    text: entry.label; quiet: true; selected: ReaderModel.chapter-filter == entry.value;
+                    text-size: Theme.scribe ? 18px : 15px;
+                    clicked => { ReaderModel.chapter-capacity = root.directory-capacity; ReaderModel.action("toc", "filter:" + entry.value); }
                 }
+                ActionButton {
+                    x: parent.width - parent.sort-width - parent.locate-width - 12px;
+                    y: root.directory-stacked-controls ? root.directory-filter-row + 8px : 0px;
+                    width: parent.locate-width; height: root.directory-filter-row;
+                    text: Strings.read-directory-locate; text-size: Theme.scribe ? 18px : 15px;
+                    clicked => { ReaderModel.chapter-capacity = root.directory-capacity; ReaderModel.action("toc", "locate"); }
+                }
+                ActionButton {
+                    x: parent.width - parent.sort-width;
+                    y: root.directory-stacked-controls ? root.directory-filter-row + 8px : 0px;
+                    width: parent.sort-width; height: root.directory-filter-row;
+                    text: ReaderModel.chapter-descending ? Strings.cat-descending : Strings.cat-ascending;
+                    quiet: true; text-size: Theme.scribe ? 18px : 15px;
+                    clicked => { ReaderModel.chapter-capacity = root.directory-capacity; ReaderModel.action("toc", ReaderModel.chapter-descending ? "sort:asc" : "sort:desc"); }
+                }
+            }
+            if root.directory-wide-columns: Rectangle {
+                x: 0px; y: root.directory-body-top - root.directory-columns;
+                width: parent.width; height: root.directory-columns;
+                ReaderText { x: root.reader-edge; y: 0px; width: 50px; height: parent.height; text: Strings.cat-episode-column; font-size: 16px; color: Theme.secondary; }
+                ReaderText { x: root.reader-edge + 64px; y: 0px; width: max(0px, parent.width - root.reader-edge - 368px - self.x - 32px); height: parent.height; text: Strings.read-directory-title-column; font-size: 16px; color: Theme.secondary; }
+                ReaderText { x: parent.width - root.reader-edge - 368px; y: 0px; width: 140px; height: parent.height; text: Strings.read-directory-progress-column; font-size: 16px; color: Theme.secondary; }
+                ReaderText { x: parent.width - root.reader-edge - 212px; y: 0px; width: 112px; height: parent.height; text: Strings.cat-access-column; font-size: 16px; color: Theme.secondary; }
+                ReaderText { x: parent.width - root.reader-edge - 84px; y: 0px; width: 84px; height: parent.height; text: Strings.cat-local-column; font-size: 16px; color: Theme.secondary; }
+            }
+            for chapter[index] in ReaderModel.chapters: Rectangle {
+                visible: index < root.directory-capacity;
+                y: root.directory-body-top + index * self.height;
+                width: parent.width;
+                height: root.directory-row;
+                background: directory-touch.pressed ? Theme.ink : Theme.paper;
+                accessible-role: button;
+                accessible-label: chapter.order + " " + chapter.title + " " + chapter.progress + " " + chapter.access + " " + chapter.storage;
+                accessible-action-default => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("episode", chapter.id); }
+                if chapter.current: Rectangle { x: 0px; y: 8px; width: 4px; height: parent.height - 16px; background: directory-touch.pressed ? Theme.paper : Theme.ink; }
+                ReaderText { x: root.reader-edge; y: 0px; width: 48px; height: parent.height; text: chapter.order; font-size: Theme.scribe ? 20px : 18px; font-weight: chapter.current ? 700 : 500; color: directory-touch.pressed ? Theme.paper : Theme.ink; }
+                if root.directory-wide-columns: ReaderText { x: root.reader-edge + 64px; y: 0px; width: max(0px, parent.width - root.reader-edge - 368px - self.x - 32px); height: parent.height; text: chapter.title; font-size: 20px; font-weight: chapter.current ? 700 : 400; color: directory-touch.pressed ? Theme.paper : Theme.ink; overflow: elide; }
+                if root.directory-wide-columns: ReaderText { x: parent.width - root.reader-edge - 368px; y: 0px; width: 140px; height: parent.height; text: chapter.progress; font-size: 17px; font-weight: chapter.current ? 700 : 400; color: directory-touch.pressed ? Theme.paper : chapter.current ? Theme.ink : Theme.secondary; overflow: elide; }
+                if !root.directory-wide-columns: Rectangle {
+                    x: root.reader-edge + (Theme.scribe ? 52px : 46px); y: 0px;
+                    width: max(0px, parent.width - root.reader-edge - 132px - self.x); height: parent.height;
+                    ReaderText { x: 0px; y: Theme.scribe ? 10px : 4px; width: parent.width; height: 28px; text: chapter.title; font-size: Theme.scribe ? 20px : 18px; font-weight: chapter.current ? 700 : 400; color: directory-touch.pressed ? Theme.paper : Theme.ink; overflow: elide; }
+                    ReaderText { x: 0px; y: Theme.scribe ? 40px : 33px; width: parent.width; height: 22px; text: chapter.progress + (chapter.storage != "" && chapter.storage != "—" ? " · " + chapter.storage : ""); font-size: 14px; font-weight: chapter.current ? 500 : 400; color: directory-touch.pressed ? Theme.paper : chapter.current ? Theme.ink : Theme.secondary; overflow: elide; }
+                }
+                tag := Rectangle {
+                    x: root.directory-wide-columns ? parent.width - root.reader-edge - 212px : parent.width - root.reader-edge - self.width;
+                    y: (parent.height - self.height) / 2;
+                    width: min(116px, max(48px, tag-label.preferred-width + 14px)); height: Theme.scribe ? 28px : 26px;
+                    border-width: chapter.temporary ? 0px : 1px; border-color: directory-touch.pressed ? Theme.paper : Theme.ink; background: transparent;
+                    if chapter.temporary: DashedOutline { width: parent.width; height: parent.height; stroke: 1px; stroke-color: directory-touch.pressed ? Theme.paper : Theme.ink; }
+                    tag-label := ReaderText { x: 7px; y: 0px; width: parent.width - 14px; height: parent.height; text: chapter.access != "" ? chapter.access : chapter.tag; font-size: Theme.scribe ? 16px : 13px; color: directory-touch.pressed ? Theme.paper : Theme.ink; horizontal-alignment: center; overflow: elide; }
+                }
+                if root.directory-wide-columns: ReaderText { x: parent.width - root.reader-edge - 84px; y: 0px; width: 84px; height: parent.height; text: chapter.storage; font-size: 16px; color: directory-touch.pressed ? Theme.paper : Theme.secondary; overflow: elide; }
                 Rectangle { y: parent.height - 1px; width: parent.width; height: 1px; background: Theme.line; }
-                toc-touch := TouchArea { clicked => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("episode", chapter.id); } }
+                directory-touch := TouchArea {
+                    pointer-event(event) => {
+                        if event.kind == PointerEventKind.down { Theme.refresh("press"); }
+                        if event.kind == PointerEventKind.up { Theme.refresh("release"); }
+                    }
+                    clicked => { ReaderModel.menu = false; ReaderModel.sheet = ""; ReaderModel.action("episode", chapter.id); }
+                }
+            }
+            if ReaderModel.chapters.length == 0: ReaderText {
+                x: root.reader-edge; y: root.directory-body-top;
+                width: parent.width - 2 * root.reader-edge;
+                height: max(root.directory-row, parent.height - root.directory-body-top - root.directory-footer);
+                text: Strings.read-directory-empty; font-size: Theme.scribe ? 20px : 17px;
+                color: Theme.secondary; horizontal-alignment: center; wrap: word-wrap;
+            }
+            Rectangle {
+                x: 0px; y: parent.height - root.directory-footer;
+                width: parent.width; height: root.directory-footer; background: Theme.paper;
+                Rectangle { x: 0px; y: 0px; width: parent.width; height: 1px; background: Theme.ink; }
+                NavigationButton {
+                    x: root.reader-edge - 12px; y: (parent.height - self.height) / 2;
+                    height: root.reader-button; icon: "back"; text: Strings.cat-previous-page;
+                    text-size: Theme.scribe ? 18px : 16px; enabled: ReaderModel.chapter-page > 1;
+                    clicked => { ReaderModel.chapter-capacity = root.directory-capacity; ReaderModel.action("toc", "previous"); }
+                }
+                ReaderText { x: parent.width / 2 - 60px; y: 0px; width: 120px; height: parent.height; text: ReaderModel.chapter-page + " / " + ReaderModel.chapter-pages; horizontal-alignment: center; font-size: Theme.scribe ? 18px : 16px; }
+                NavigationButton {
+                    x: parent.width - root.reader-edge - self.width + 12px; y: (parent.height - self.height) / 2;
+                    height: root.reader-button; icon: "next"; trailing: true; text: Strings.cat-next-page;
+                    text-size: Theme.scribe ? 18px : 16px; enabled: ReaderModel.chapter-page < ReaderModel.chapter-pages;
+                    clicked => { ReaderModel.chapter-capacity = root.directory-capacity; ReaderModel.action("toc", "next"); }
+                }
             }
         }
 

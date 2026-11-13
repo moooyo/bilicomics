@@ -84,7 +84,7 @@ fn native_window_geometry_reaches_every_available_pixel() {
 }
 
 #[test]
-fn fit_page_preserves_the_whole_source_and_all_four_corners() -> Result<()> {
+fn page_fit_stretches_the_complete_source_to_both_edges_and_keeps_all_four_corners() -> Result<()> {
     let directory = tempfile::tempdir()?;
     let path = directory.path().join("synthetic-corners.png");
     let (source_width, source_height) = (161, 239);
@@ -123,19 +123,15 @@ fn fit_page_preserves_the_whole_source_and_all_four_corners() -> Result<()> {
             assert_eq!(image.get_pixel(right, bottom)[0], 204);
             let width = right - left + 1;
             let height = bottom - top + 1;
-            assert!(width == viewport.width || height == viewport.height);
-            assert!(u64::from(width).saturating_mul(u64::from(source_height))
-                .abs_diff(u64::from(height) * u64::from(source_width))
-                <= u64::from(source_width + source_height));
-            assert!(left.abs_diff(viewport.width - right - 1) <= 1);
-            assert!(top.abs_diff(viewport.height - bottom - 1) <= 1);
+            assert_eq!((width, height), (viewport.width, viewport.height));
+            assert_eq!((left, top, right, bottom), (0, 0, viewport.width - 1, viewport.height - 1));
         }
     }
     Ok(())
 }
 
 #[test]
-fn panel_width_fit_keeps_the_complete_top_aligned_canvas() -> Result<()> {
+fn panel_width_fit_keeps_the_complete_source_centered_in_the_canvas() -> Result<()> {
     let directory = tempfile::tempdir()?;
     let path = directory.path().join("synthetic-flat-panel.png");
     image::GrayImage::from_fn(320, 80, |x, y| {
@@ -158,12 +154,12 @@ fn panel_width_fit_keeps_the_complete_top_aligned_canvas() -> Result<()> {
         else { anyhow::bail!("A complete synthetic panel must render"); };
     assert_eq!((frame.page.width, frame.page.height), (320, 240));
     let canvas = image::RgbaImage::from_raw(frame.page.width, frame.page.height, frame.page.rgba)
-        .context("Read the complete top-aligned panel canvas")?;
-    assert_eq!(canvas.get_pixel(0, 0)[0], 17);
-    assert_eq!(canvas.get_pixel(319, 0)[0], 68);
-    assert_eq!(canvas.get_pixel(0, 79)[0], 136);
-    assert_eq!(canvas.get_pixel(319, 79)[0], 204);
-    assert!(canvas.enumerate_pixels().filter(|(_, y, _)| *y >= 80)
+        .context("Read the complete centered panel canvas")?;
+    assert_eq!(canvas.get_pixel(0, 80)[0], 17);
+    assert_eq!(canvas.get_pixel(319, 80)[0], 68);
+    assert_eq!(canvas.get_pixel(0, 159)[0], 136);
+    assert_eq!(canvas.get_pixel(319, 159)[0], 204);
+    assert!(canvas.enumerate_pixels().filter(|(_, y, _)| *y < 80 || *y >= 160)
         .all(|(_, _, pixel)| pixel.0 == [255; 4]));
     assert_eq!((frame.metadata.focus_x, frame.metadata.focus_y), (0.0, 0.0));
     assert_eq!((frame.metadata.focus_width, frame.metadata.focus_height), (1.0, 1.0));
@@ -199,11 +195,17 @@ fn full_window_regions_and_anchors_survive_legacy_footer_changes() -> Result<()>
         let viewport = reader_viewport((240, 320), false, &settings, 1.0);
         let mut core = ReaderCore::new(index.clone(), settings)?;
         install_synthetic_panels(&mut core)?;
-        core.set_page(1)?;
+        // A Page fit advances source pages; Strip and Panel advance their regions.
+        core.set_page(if mode == DisplayMode::Page { 0 } else { 1 })?;
         core.render(&path, viewport)?;
         assert_eq!(core.step(true), ReaderMove::Moved);
         let selected = core.render(&path, viewport)?;
-        assert!(selected.crop_index > 0);
+        assert_eq!(selected.page_index, 1);
+        if mode == DisplayMode::Page {
+            assert_eq!((selected.crop_index, selected.crop_count), (0, 1));
+        } else {
+            assert!(selected.crop_index > 0);
+        }
         let anchor = core.anchor(0);
         assert!(anchor.source_y > 0.0);
 

@@ -21,6 +21,7 @@ mod clipboard;
 mod command;
 mod dithering;
 mod framebuffer;
+mod frame_render;
 mod lifecycle;
 mod performance;
 mod platform;

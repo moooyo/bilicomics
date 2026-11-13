@@ -15,7 +15,7 @@ use slint::platform::{Clipboard, EventLoopProxy, Platform, PlatformError, Window
 use crate::clipboard::{ClipboardKind, ClipboardStore};
 use crate::dithering::DitheringHandle;
 use crate::lifecycle::DisplayLifecycleHandle;
-use crate::performance::{ClockSample, PerformanceSampleKind, PerformanceTraceHandle, Recording};
+use crate::performance::{ClockSample, PerformanceSampleKind, PerformanceTraceHandle, Recording, observe_rgb_frame};
 use crate::power::{arm_wakealarm, find_wakealarm, suspend_to_mem};
 use crate::refresh::{PendingRefresh, PhysicalRect, RefreshHandle};
 use crate::touch::has_accelerometer;
@@ -118,6 +118,8 @@ impl KindlePlatform {
         trace.sample.rendered = rendered;
         trace.sample.initial_frame = initial_frame && rendered;
         trace.sample.forced_full = forced_full;
+        trace.sample.preceding_update_marker = framebuffer.last_accepted_update_marker();
+        trace.sample.completed_update_marker = framebuffer.last_completed_update_marker();
         Some(trace)
     }
 
@@ -498,6 +500,8 @@ impl Platform for KindlePlatform {
                 .lock()
                 .expect("refresh queue poisoned")
                 .take();
+            let complete_frame_replacement = pending.requires_complete_frame();
+            let full_repaint = rotation_changed || force_full || dithering_changed || complete_frame_replacement;
             if !pending.is_empty() || force_full || dithering_changed {
                 self.window.request_redraw();
             }
@@ -506,84 +510,93 @@ impl Platform for KindlePlatform {
             let mut frame_trace = None;
             let frame_result = self.lifecycle.with_framebuffer(|frame_buffer| -> Result<(), PlatformError> {
                 frame_buffer.require_known_dithering_delivery()
-                    .map_err(|error| PlatformError::Other(format!("Y4 display delivery is uncertain; further native writes are blocked: {error}")))?;
+                    .map_err(|error| PlatformError::Other(format!("display delivery is uncertain; further native writes are blocked: {error}")))?;
                 frame_buffer.set_dithering(self.dithering.clone(), black_and_white);
-                // The preceding accepted update may still scan mapped pixels.
-                // Do not rewrite any sleep-frame pixels until it has completed.
-                if sleep_token.is_some() || dithering_changed {
-                    frame_buffer.wait_for_pending_update_complete_checked()
-                        .map_err(|error| PlatformError::Other(format!("failed to settle preceding display update: {error}")))?;
-                }
+                let mut draw_error = None;
                 self.window.draw_if_needed(|renderer| {
                     did_draw = true;
-                    frame_trace = self.begin_frame_trace(frame_buffer, true, initial_fill,
-                        rotation_changed || force_full || dithering_changed, (applied_rotation + render_offset) % 360,
+                    frame_trace = self.begin_frame_trace(frame_buffer, false, false,
+                        full_repaint, (applied_rotation + render_offset) % 360,
                         black_and_white);
-                    if initial_fill {
-                        let fill_started = frame_trace.as_ref().map(|_| ClockSample::now());
-                        frame_buffer.fill(0xff);
-                        initial_fill = false;
+                    if let Some(trace) = frame_trace.as_mut() {
+                        trace.sample.complete_frame_replacement = complete_frame_replacement;
+                    }
+                    draw_error = with_settled_mapping(frame_buffer, &mut frame_trace, |frame_buffer, frame_trace| {
+                        let was_initial_frame = initial_fill;
+                        if initial_fill {
+                            let fill_started = frame_trace.as_ref().map(|_| ClockSample::now());
+                            frame_buffer.fill(0xff);
+                            initial_fill = false;
+                            if let Some(trace) = frame_trace.as_mut() {
+                                trace.sample.stages.initial_fill = fill_started.map(ClockSample::finish);
+                            }
+                        }
+                        renderer.set_rendering_rotation(
+                            match (applied_rotation + render_offset) % 360 {
+                                90 => RenderingRotation::Rotate90,
+                                180 => RenderingRotation::Rotate180,
+                                270 => RenderingRotation::Rotate270,
+                                _ => RenderingRotation::NoRotation,
+                            },
+                        );
+                        let width = panel_width as usize;
+                        let render_started = frame_trace.as_ref().map(|_| ClockSample::now());
+                        let dirty = crate::frame_render::render_scene(renderer, &mut rgb_buffer, width, full_repaint);
                         if let Some(trace) = frame_trace.as_mut() {
-                            trace.sample.stages.initial_fill = fill_started.map(ClockSample::finish);
+                            trace.sample.rendered = true;
+                            trace.sample.initial_frame = was_initial_frame;
+                            trace.sample.stages.slint_render = render_started.map(ClockSample::finish);
                         }
-                    }
-                    renderer.set_rendering_rotation(
-                        match (applied_rotation + render_offset) % 360 {
-                            90 => RenderingRotation::Rotate90,
-                            180 => RenderingRotation::Rotate180,
-                            270 => RenderingRotation::Rotate270,
-                            _ => RenderingRotation::NoRotation,
-                        },
-                    );
-                    if rotation_changed || force_full || dithering_changed {
-                        renderer.set_repaint_buffer_type(RepaintBufferType::NewBuffer);
-                        renderer.set_repaint_buffer_type(RepaintBufferType::ReusedBuffer);
-                    }
-                    let width = panel_width as usize;
-                    let render_started = frame_trace.as_ref().map(|_| ClockSample::now());
-                    let dirty = renderer.render(&mut rgb_buffer, width);
-                    if let Some(trace) = frame_trace.as_mut() {
-                        trace.sample.stages.slint_render = render_started.map(ClockSample::finish);
-                    }
-                    let origin = dirty.bounding_box_origin();
-                    let size = dirty.bounding_box_size();
-                    let (x0, y0) = (origin.x as usize, origin.y as usize);
-                    let (w, h) = (size.width as usize, size.height as usize);
+                        observe_rgb_frame(frame_trace.as_mut(), &rgb_buffer);
+                        let origin = dirty.bounding_box_origin();
+                        let size = dirty.bounding_box_size();
+                        let (x0, y0) = (origin.x as usize, origin.y as usize);
+                        let (w, h) = (size.width as usize, size.height as usize);
 
-                    let write_started = frame_trace.as_ref().map(|_| ClockSample::now());
-                    let gray = &mut gray_buffer[..w];
-                    for row in 0..h {
-                        let start = (y0 + row) * width + x0;
-                        let rgb = &rgb_buffer[start..start + w];
-                        for (g, p) in gray.iter_mut().zip(rgb.iter()) {
-                            let value =
-                                ((77 * p.r as u32 + 150 * p.g as u32 + 29 * p.b as u32) >> 8) as u8;
-                            // Black-and-white mode forces pure black/white based on threshold
-                            *g = if black_and_white {
-                                if value < 128 { 0x00 } else { 0xff }
-                            } else {
-                                value
-                            };
+                        let write_started = frame_trace.as_ref().map(|_| ClockSample::now());
+                        let gray = &mut gray_buffer[..w];
+                        for row in 0..h {
+                            let start = (y0 + row) * width + x0;
+                            let rgb = &rgb_buffer[start..start + w];
+                            for (g, p) in gray.iter_mut().zip(rgb.iter()) {
+                                let value =
+                                    ((77 * p.r as u32 + 150 * p.g as u32 + 29 * p.b as u32) >> 8) as u8;
+                                // Black-and-white mode forces pure black/white based on threshold.
+                                *g = if black_and_white {
+                                    if value < 128 { 0x00 } else { 0xff }
+                                } else {
+                                    value
+                                };
+                            }
+                            frame_buffer.write_line(y0 + row, x0..x0 + w, gray);
                         }
-                        frame_buffer.write_line(y0 + row, x0..x0 + w, gray);
-                    }
-                    if let Some(trace) = frame_trace.as_mut() {
-                        trace.sample.stages.framebuffer_write = write_started.map(ClockSample::finish);
-                    }
+                        if let Some(trace) = frame_trace.as_mut() {
+                            trace.sample.stages.framebuffer_write = write_started.map(ClockSample::finish);
+                        }
 
-                    dirty_region = Some(PhysicalRect {
-                        x: origin.x,
-                        y: origin.y,
-                        width: size.width,
-                        height: size.height,
-                    });
-                    if let Some(trace) = frame_trace.as_mut() {
-                        trace.sample.dirty_region = dirty_region;
-                    }
+                        dirty_region = Some(PhysicalRect {
+                            x: origin.x,
+                            y: origin.y,
+                            width: size.width,
+                            height: size.height,
+                        });
+                        if let Some(trace) = frame_trace.as_mut() {
+                            trace.sample.dirty_region = dirty_region;
+                        }
+                    }).err();
                 });
+                if let Some(error) = draw_error { return Err(error); }
+                if complete_frame_replacement && !did_draw {
+                    frame_trace = self.begin_frame_trace(frame_buffer, false, false,
+                        true, (applied_rotation + render_offset) % 360, black_and_white);
+                    if let Some(trace) = frame_trace.as_mut() {
+                        trace.sample.complete_frame_replacement = true;
+                    }
+                    return Err(PlatformError::Other("complete-frame replacement did not render the current scene".into()));
+                }
                 // All framebuffer writes above are complete before an ioctl is
                 // issued. The existing descriptor and detected ABI are reused.
-                if did_draw && (rotation_changed || force_full || dithering_changed) {
+                if did_draw && full_repaint {
                     let submit_started = frame_trace.as_ref().map(|_| ClockSample::now());
                     let submission = frame_buffer.refresh_full();
                     if let Some(trace) = frame_trace.as_mut() {
@@ -593,7 +606,9 @@ impl Platform for KindlePlatform {
                         trace.sample.refresh_waveform = Some(crate::RefreshWaveform::Gc16);
                         trace.sample.refresh_flashing = Some(true);
                         trace.sample.refresh_ioctl_attempts = submission.ioctl_attempts;
+                        trace.sample.refresh_abi = submission.refresh_abi;
                         trace.sample.refresh_accepted = Some(submission.accepted);
+                        trace.sample.accepted_update_marker = submission.update_marker;
                         trace.sample.refresh_errno = submission.last_errno;
                         trace.sample.hardware_y4_available = Some(self.dithering.hardware_y4_available());
                         trace.sample.hardware_y4_applied = Some(submission.accepted
@@ -602,15 +617,9 @@ impl Platform for KindlePlatform {
                             || trace.sample.software_dither_fallback == Some(true));
                     }
                     frame_buffer.require_known_dithering_delivery()
-                        .map_err(|error| PlatformError::Other(format!("Y4 display delivery is uncertain; further native writes are blocked: {error}")))?;
-                    if sleep_token.is_some() {
-                        if !submission.accepted {
-                            let error = submission.last_errno.map(std::io::Error::from_raw_os_error)
-                                .unwrap_or_else(|| std::io::Error::other("the EPDC rejected the full-frame update"));
-                            return Err(PlatformError::Other(format!("sleep presentation update was rejected: {error}")));
-                        }
-                        frame_buffer.wait_for_update_complete_checked()
-                            .map_err(|error| PlatformError::Other(format!("sleep presentation update did not complete: {error}")))?;
+                        .map_err(|error| PlatformError::Other(format!("display delivery is uncertain; further native writes are blocked: {error}")))?;
+                    if sleep_token.is_some() || complete_frame_replacement {
+                        complete_frame_update(frame_buffer, &submission, &mut frame_trace)?;
                     }
                 } else if let Some(refresh) = crate::refresh::resolve(
                     pending,
@@ -624,6 +633,11 @@ impl Platform for KindlePlatform {
                         frame_trace = self.begin_frame_trace(frame_buffer, false, false,
                             false, (applied_rotation + render_offset) % 360, black_and_white);
                     }
+                    if !did_draw {
+                        // Even a refresh of unchanged pixels must not replace the
+                        // one outstanding marker before its completion is known.
+                        with_settled_mapping(frame_buffer, &mut frame_trace, |_, _| ())?;
+                    }
                     let submit_started = frame_trace.as_ref().map(|_| ClockSample::now());
                     let submission = frame_buffer.refresh_planned(refresh);
                     if let Some(trace) = frame_trace.as_mut() {
@@ -634,7 +648,9 @@ impl Platform for KindlePlatform {
                         trace.sample.refresh_waveform = Some(refresh.waveform);
                         trace.sample.refresh_flashing = Some(refresh.flashing || submission.software_dither_fallback);
                         trace.sample.refresh_ioctl_attempts = submission.ioctl_attempts;
+                        trace.sample.refresh_abi = submission.refresh_abi;
                         trace.sample.refresh_accepted = Some(submission.accepted);
+                        trace.sample.accepted_update_marker = submission.update_marker;
                         trace.sample.refresh_errno = submission.last_errno;
                         trace.sample.hardware_y4_available = Some(self.dithering.hardware_y4_available());
                         trace.sample.hardware_y4_applied = Some(submission.accepted
@@ -643,7 +659,7 @@ impl Platform for KindlePlatform {
                             || trace.sample.software_dither_fallback == Some(true));
                     }
                     frame_buffer.require_known_dithering_delivery()
-                        .map_err(|error| PlatformError::Other(format!("Y4 display delivery is uncertain; further native writes are blocked: {error}")))?;
+                        .map_err(|error| PlatformError::Other(format!("display delivery is uncertain; further native writes are blocked: {error}")))?;
                 }
                 if did_draw {
                     applied_dithering = dithering_revision;
@@ -685,6 +701,56 @@ impl Platform for KindlePlatform {
         }
     }
 }
+
+fn with_settled_mapping<T>(framebuffer: &mut crate::framebuffer::Framebuffer,
+    trace: &mut Option<Recording>,
+    write: impl FnOnce(&mut crate::framebuffer::Framebuffer, &mut Option<Recording>) -> T)
+    -> Result<T, PlatformError>
+{
+    if let Some(recording) = trace.as_mut() {
+        recording.sample.preceding_update_marker = framebuffer.last_accepted_update_marker();
+        recording.sample.completed_update_marker = framebuffer.last_completed_update_marker();
+    }
+    let wait_started = trace.as_ref().map(|_| ClockSample::now());
+    let mut entered_writer = false;
+    let result = framebuffer.write_after_pending_update(|framebuffer| {
+        entered_writer = true;
+        if let Some(recording) = trace.as_mut() {
+            recording.sample.stages.preceding_update_wait = wait_started.map(ClockSample::finish);
+            recording.sample.completed_update_marker = framebuffer.last_completed_update_marker();
+        }
+        write(framebuffer, trace)
+    });
+    if !entered_writer {
+        if let Some(recording) = trace.as_mut() {
+            recording.sample.stages.preceding_update_wait = wait_started.map(ClockSample::finish);
+            recording.sample.completed_update_marker = framebuffer.last_completed_update_marker();
+            recording.sample.completion_errno = result.as_ref().err().and_then(std::io::Error::raw_os_error);
+        }
+    }
+    result.map_err(|error| PlatformError::Other(format!("failed to settle preceding display update; further native writes are blocked: {error}")))
+}
+
+fn complete_frame_update(framebuffer: &crate::framebuffer::Framebuffer,
+    submission: &crate::framebuffer::RefreshSubmission, trace: &mut Option<Recording>)
+    -> Result<(), PlatformError>
+{
+    let wait_started = trace.as_ref().map(|_| ClockSample::now());
+    let result = framebuffer.complete_replacement_checked(submission);
+    if let Some(recording) = trace.as_mut() {
+        recording.sample.stages.refresh_complete_wait = wait_started.map(ClockSample::finish);
+        recording.sample.completed_update_marker = framebuffer.last_completed_update_marker();
+        recording.sample.completion_errno = result.as_ref().err().and_then(std::io::Error::raw_os_error);
+        recording.sample.driver_completion_observed = result.is_ok() && submission.accepted
+            && submission.update_marker.is_some()
+            && submission.update_marker == framebuffer.last_completed_update_marker();
+    }
+    result.map_err(|error| PlatformError::Other(format!("complete-frame presentation did not complete; further native writes are blocked: {error}")))
+}
+
+#[cfg(test)]
+#[path = "platform_frame_tests.rs"]
+mod frame_transaction_tests;
 
 fn rotated_size(size: (u32, u32), rotation: u32, launch_offset: u32) -> slint::PhysicalSize {
     if (rotation + launch_offset).is_multiple_of(180) {

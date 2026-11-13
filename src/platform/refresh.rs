@@ -36,6 +36,8 @@ pub enum RefreshReason {
     OverlayClosed(RefreshRect),
     Progress,
     ReaderTurn,
+    /// Replace a prepared reader geometry in one complete presentation.
+    ReaderGeometry,
     ImageLoaded(RefreshRect),
 }
 
@@ -134,6 +136,10 @@ impl RefreshScheduler {
                 } else {
                     (Kind::Partial, None)
                 }
+            }
+            RefreshReason::ReaderGeometry => {
+                self.reader_partials = 0;
+                (Kind::Full, None)
             }
             RefreshReason::ImageLoaded(rect) => (Kind::Full, Some(rect)),
         };
@@ -270,5 +276,23 @@ mod tests {
                 .kind,
             RefreshKind::Full
         );
+    }
+
+    #[test]
+    fn reader_geometry_replacement_is_full_and_restarts_the_reader_budget() {
+        for interval in [0, 1, 6, 12] {
+            let mut scheduler = RefreshScheduler::default();
+            scheduler.set_reader_interval(interval).unwrap();
+            if interval > 1 {
+                for _ in 1..interval {
+                    assert_eq!(scheduler.plan(RefreshReason::ReaderTurn, Duration::ZERO)
+                        .unwrap().kind, RefreshKind::Partial);
+                }
+            }
+            assert_eq!(scheduler.plan(RefreshReason::ReaderGeometry, Duration::ZERO),
+                Some(RefreshPlan { kind: RefreshKind::Full, rect: None }));
+            assert_eq!(scheduler.plan(RefreshReason::ReaderTurn, Duration::ZERO).unwrap().kind,
+                if interval == 1 { RefreshKind::Full } else { RefreshKind::Partial });
+        }
     }
 }

@@ -612,6 +612,19 @@ mod tests {
 
     #[cfg(all(feature = "kindle", target_os = "linux"))]
     #[test]
+    fn reader_geometry_maps_to_a_complete_gc16_native_presentation() {
+        use slint_backend_kindle::{RefreshArea, RefreshWaveform};
+        let mut scheduler = RefreshScheduler::default();
+        scheduler.set_reader_interval(0).unwrap();
+        let request = kindle_refresh_request(
+            scheduler.plan(RefreshReason::ReaderGeometry, Duration::ZERO).unwrap());
+        assert_eq!(request.area, RefreshArea::Full);
+        assert_eq!(request.waveform, RefreshWaveform::Gc16);
+        assert!(request.flashing);
+    }
+
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    #[test]
     fn keyboard_feedback_maps_to_native_a2_and_dirty_ui_updates() {
         use slint_backend_kindle::{RefreshArea, RefreshWaveform};
         let mut scheduler = RefreshScheduler::default();

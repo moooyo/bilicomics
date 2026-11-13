@@ -7,6 +7,10 @@ mod output_tests;
 #[cfg(test)]
 mod refresh_submission_tests;
 #[cfg(test)]
+mod frame_transaction_tests;
+#[cfg(test)]
+mod abi_selection_tests;
+#[cfg(test)]
 mod dithering_tests;
 #[cfg(test)]
 mod test_support;
@@ -49,6 +53,14 @@ enum UpdateVariant {
 impl UpdateVariant {
     /// Probed oldest ABI first.
     const PROBE_ORDER: [UpdateVariant; 4] = [Self::Legacy, Self::Rex, Self::Zelda, Self::Mtk];
+
+    fn label(self) -> Option<&'static str> {
+        match self {
+            Self::Legacy => Some("legacy"), Self::Rex => Some("rex"),
+            Self::Zelda => Some("zelda"), Self::Mtk => Some("mtk"),
+            Self::Unsupported => None,
+        }
+    }
 }
 
 /// Diagnostic result of submitting an update, not proof of panel completion.
@@ -56,6 +68,10 @@ impl UpdateVariant {
 pub(crate) struct RefreshSubmission {
     pub ioctl_attempts: u32,
     pub accepted: bool,
+    /// The identity of this accepted update, never a preceding submission.
+    pub update_marker: Option<u32>,
+    /// The last ABI actually attempted, never an untested device identifier.
+    pub refresh_abi: Option<&'static str>,
     pub last_errno: Option<i32>,
     pub y4_attempted: bool,
     pub software_dither_fallback: bool,
@@ -88,6 +104,7 @@ fn refresh_submission_with_policy(
             ioctl_attempts: 1,
             accepted: result.is_ok(),
             last_errno: result.err().flatten(),
+            refresh_abi: variant.label(),
             ..Default::default()
         });
     }
@@ -95,6 +112,7 @@ fn refresh_submission_with_policy(
     let mut submission = RefreshSubmission::default();
     for variant in UpdateVariant::PROBE_ORDER {
         submission.ioctl_attempts += 1;
+        submission.refresh_abi = variant.label();
         match submit(variant) {
             Ok(()) => {
                 submission.accepted = true;
@@ -140,8 +158,8 @@ pub(crate) struct Framebuffer {
     output_inverted: bool,
     dithering: DitheringHandle,
     bilevel: bool,
-    /// Once an update has uncertain delivery, this mapping cannot safely be
-    /// rewritten or resubmitted, including after a later scene/mode revision.
+    /// Once delivery or a required completion barrier fails, this mapping
+    /// cannot safely be rewritten or resubmitted after a later scene revision.
     dithering_delivery_failure: Cell<Option<Option<i32>>>,
     /// The update ioctl variant this kernel accepts, cached after the first
     /// successful refresh. `None` until then.
@@ -166,6 +184,14 @@ impl Framebuffer {
             // The mapping admits only the existing 8-bit and 32-bit paths.
             bits_per_pixel: self.bytes_per_pixel as u32 * 8,
         }
+    }
+
+    pub(crate) fn last_accepted_update_marker(&self) -> Option<u32> {
+        self.last_submitted_marker.get()
+    }
+
+    pub(crate) fn last_completed_update_marker(&self) -> Option<u32> {
+        self.last_completed_marker.get()
     }
 
     /// Open the framebuffer device and query its geometry from the kernel.
@@ -311,6 +337,60 @@ impl Framebuffer {
         }
     }
 
+    /// A single mapped buffer must not change while an accepted update reads it.
+    pub(crate) fn write_after_pending_update<T>(&mut self,
+        write: impl FnOnce(&mut Self) -> T) -> std::io::Result<T>
+    {
+        self.write_after_pending_update_with(
+            |framebuffer| framebuffer.wait_for_pending_update_complete_checked(), write)
+    }
+
+    fn write_after_pending_update_with<T>(&mut self,
+        wait: impl FnOnce(&Self) -> std::io::Result<()>,
+        write: impl FnOnce(&mut Self) -> T) -> std::io::Result<T>
+    {
+        self.require_known_dithering_delivery()?;
+        if self.last_submitted_marker.get().is_some() {
+            if let Err(error) = wait(self) {
+                self.dithering_delivery_failure.set(Some(error.raw_os_error()));
+                return Err(error);
+            }
+        }
+        Ok(write(self))
+    }
+
+    /// A replacement succeeds only after its own accepted marker completes.
+    pub(crate) fn complete_replacement_checked(&self,
+        submission: &RefreshSubmission) -> std::io::Result<()>
+    {
+        self.complete_replacement_with(submission,
+            |framebuffer| framebuffer.wait_for_update_complete_checked())
+    }
+
+    fn complete_replacement_with(&self, submission: &RefreshSubmission,
+        wait: impl FnOnce(&Self) -> std::io::Result<()>) -> std::io::Result<()>
+    {
+        let result = (|| {
+            self.require_known_dithering_delivery()?;
+            if !submission.accepted {
+                return Err(submission.last_errno.map(std::io::Error::from_raw_os_error)
+                    .unwrap_or_else(|| std::io::Error::other("the EPDC rejected the replacement update")));
+            }
+            let marker = submission.update_marker
+                .filter(|marker| *marker != 0 && Some(*marker) == self.last_submitted_marker.get())
+                .ok_or_else(|| std::io::Error::other("the replacement has no current accepted update marker"))?;
+            wait(self)?;
+            if self.last_completed_marker.get() != Some(marker) {
+                return Err(std::io::Error::other("the replacement update marker did not complete"));
+            }
+            Ok(())
+        })();
+        if let Err(error) = &result {
+            self.dithering_delivery_failure.set(Some(error.raw_os_error()));
+        }
+        result
+    }
+
     fn block_uncertain_dithering_delivery(&self, result: &mut RefreshSubmission) {
         self.dithering_delivery_failure.set(Some(result.last_errno));
         result.dithering_delivery_uncertain = true;
@@ -442,7 +522,9 @@ impl Framebuffer {
             // Never probe another ABI with a raw image and a missing Y4 flag.
             self.update_variant.set(Some(UpdateVariant::Mtk));
         }
-        let mut result = self.submit_update_with_policy(region.width, region.height, gray8_scene,
+        // A failed return can still have submitted an asynchronous reader of
+        // this mapping. Only explicit rejection permits another ABI attempt.
+        let mut result = self.submit_update_with_policy(region.width, region.height, true,
             |variant, marker| submit(variant, region, waveform, mode, marker,
                 y4 && variant == UpdateVariant::Mtk));
         result.y4_attempted = y4 && result.ioctl_attempts != 0;
@@ -469,6 +551,8 @@ impl Framebuffer {
                 |variant, marker| submit(variant, full, WAVEFORM_MODE_GC16, UPDATE_MODE_FULL, marker, false));
             result.ioctl_attempts = result.ioctl_attempts.saturating_add(retry.ioctl_attempts);
             result.accepted = retry.accepted;
+            result.update_marker = retry.update_marker;
+            result.refresh_abi = retry.refresh_abi.or(result.refresh_abi);
             result.last_errno = retry.last_errno;
             result.software_dither_fallback = true;
             if !retry.accepted && retry.ioctl_attempts != 0
@@ -476,7 +560,7 @@ impl Framebuffer {
             {
                 self.block_uncertain_dithering_delivery(&mut result);
             }
-        } else if gray8_scene && !result.accepted && result.ioctl_attempts != 0
+        } else if !result.accepted && result.ioctl_attempts != 0
             && !explicit_update_rejection(result.last_errno)
         {
             self.block_uncertain_dithering_delivery(&mut result);
@@ -527,8 +611,18 @@ impl Framebuffer {
             return RefreshSubmission { last_errno: errno, dithering_delivery_uncertain: true,
                 ..Default::default() };
         }
+        if width == 0 || height == 0 {
+            return RefreshSubmission::default();
+        }
+        // The reviewed native Scribe identity selects its ABI even for startup
+        // and bilevel scenes, independently of whether hardware Y4 is requested.
+        if self.update_variant.get().is_none() && self.bytes_per_pixel == 1
+            && self.dithering.reviewed_mtk_abi()
+        {
+            self.update_variant.set(Some(UpdateVariant::Mtk));
+        }
         let cached = self.update_variant.get();
-        if width == 0 || height == 0 || cached == Some(UpdateVariant::Unsupported) {
+        if cached == Some(UpdateVariant::Unsupported) {
             return RefreshSubmission::default();
         }
         let Some(marker) = self.last_issued_marker.get().checked_add(1) else {
@@ -537,7 +631,7 @@ impl Framebuffer {
         // Consume the identity before probing: an uncertain failure must never
         // let a later update claim an older completion receipt.
         self.last_issued_marker.set(marker);
-        let (selected, submission) = refresh_submission_with_policy(cached, width, height, stop_on_uncertain,
+        let (selected, mut submission) = refresh_submission_with_policy(cached, width, height, stop_on_uncertain,
             |variant| submit(variant, marker));
         if cached.is_none() && submission.ioctl_attempts != 0 {
             if selected == Some(UpdateVariant::Unsupported) {
@@ -550,6 +644,7 @@ impl Framebuffer {
         }
         if submission.accepted {
             self.last_submitted_marker.set(Some(marker));
+            submission.update_marker = Some(marker);
         }
         submission
     }

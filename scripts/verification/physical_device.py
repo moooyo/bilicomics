@@ -41,11 +41,27 @@ SAFE_LOGS = ("launcher.log", "application.log", "watchdog.log", "recovery.log", 
 EPDC_MODES = ("Y8", "Y8INV")
 INVERT_BYTES = bytes(255 - value for value in range(256))
 CONTENT_MODES = ("demo", "distinct_fixture")
+READER_CACHE_COUNTS = frozenset(("source_cache_bytes", "source_cache_entries"))
 GUARD_FIELDS = frozenset(("offline_socket_guard", "schema_version", "mode", "process_id", "uid", "gid",
     "effective_uid", "effective_gid", "no_new_privs", "seccomp_mode", "installed", "checks_passed", "audit_arch",
     "inherited_non_unix_closed", "inherited_unix_preserved", "inherited_non_socket_preserved", "denied_socket_mask",
     "denied_socketpair_mask", "unix_socket_allowed", "unix_socketpair_allowed", "socketcall_checked",
     "socketcall_denied", "x32_checked", "x32_denied"))
+
+
+class PendingReaderPublication(RuntimeError):
+    """A proved reader has a valid newer request but no current publication yet."""
+
+
+class RetryableReaderCaptureChange(RuntimeError):
+    """A fully proved boundary changed only the same page's view or resources."""
+
+    def __init__(self, before, after):
+        super().__init__("The same reader page changed verified capture state; the candidate was discarded.")
+        self.observed_checkpoint = after
+        old, new = before["reader_state"], after["reader_state"]
+        self.reader_view_changed = any(old.get(key) != new.get(key) for key in set(old) | set(new)
+                                       if key not in READER_CACHE_COUNTS)
 
 
 def require(condition, message):
@@ -208,10 +224,6 @@ def fixture_publication(values, snapshot, pid):
     require(type(origin.get("monotonic_ns")) is int and origin["monotonic_ns"] <= clock
             and type(snapshot["state_record"].get("monotonic_ns")) is int
             and clock <= snapshot["state_record"]["monotonic_ns"], "The fixture publication and current state chronology differ.")
-    require(not any(value.get("kind") == "reader" and value.get("stage") in
-                    ("navigation_request", "render_request", "render_deferred", "reader_transition")
-                    and type(value.get("monotonic_ns")) is int and value["monotonic_ns"] > clock for value in records),
-            "A newer reader request has not been published; the old page is not current evidence.")
     native_frames = [value for value in records if value.get("kind") == "native" and value.get("stage") == "frame"
                      and (value.get("data") or {}).get("reader_operation_id") == operation]
     submissions = []
@@ -243,6 +255,37 @@ def fixture_publication(values, snapshot, pid):
         require(type(timing.get("started_monotonic_ns")) is int and type(timing.get("finished_monotonic_ns")) is int
                 and clock <= timing["started_monotonic_ns"] <= timing["finished_monotonic_ns"] <= native["monotonic_ns"],
                 "The fixture native frame has an incomplete stage.")
+    pending = []
+    for value in records:
+        if value.get("kind") != "reader" or value.get("stage") not in (
+                "navigation_request", "render_request", "render_deferred", "reader_transition"):
+            continue
+        request_clock = value.get("monotonic_ns")
+        require(type(request_clock) is int and request_clock > 0,
+                "A newer reader request has a malformed monotonic identity.")
+        if request_clock <= clock:
+            continue
+        require(type(value.get("operation_id")) is int and value["operation_id"] > operation,
+                "A newer reader request has a malformed operation identity.")
+        request_data = value.get("data")
+        if value["stage"] == "render_request":
+            require(isinstance(request_data, dict) and request_data.get("source_kind") == "receipt"
+                    and type(request_data.get("generation")) is int
+                    and request_data["generation"] == reader["reader_generation"]
+                    and type(request_data.get("version")) is int
+                    and request_data["version"] > reader["render_version"],
+                    "A newer reader request has a malformed or foreign generation/version binding.")
+        elif value["stage"] == "navigation_request":
+            require(isinstance(request_data, dict) and isinstance(request_data.get("action"), str)
+                    and bool(request_data["action"]), "A newer reader request has a malformed navigation action.")
+        else:
+            require(request_data is None or request_data == {}, "A newer reader request has malformed transition data.")
+        pending.append(value)
+    if pending:
+        # A pending request never authorizes reuse of the old native frame.
+        # Validate that frame first so pending cannot hide malformed evidence.
+        raise PendingReaderPublication(
+            "A newer reader request has not been published; the old page is not current evidence.")
     return {"operation_id": operation, "binding": binding, "render_request_present": request is not None,
             "request_generation_version_verified": request is not None, "latency_origin": origin["stage"],
             "published_monotonic_ns": clock, "native_frame": data, "marker_required": True,
@@ -274,8 +317,8 @@ def fixture_ready_hint(values, manifest, kind, before=None, expect="retained"):
         return False
 
 
-def fixture_marker(geometry, projection, checkpoint, manifest):
-    """Check one evidenced orientation and polarity; never search rotations or mirrors."""
+def fixture_projection_binding(geometry, projection, checkpoint):
+    """Require the same scanout and projection binding before any pixel proof."""
     reader = checkpoint["reader_state"]
     orientation = checkpoint["native_process"].get("portrait_calibration") or {}
     native = checkpoint["fixture_publication"]["native_frame"]
@@ -288,6 +331,178 @@ def fixture_marker(geometry, projection, checkpoint, manifest):
             and native.get("output_inverted") == (checkpoint["native_epdc_mode"] == "Y8INV")
             and [reader["viewport_width"], reader["viewport_height"]] == [width, height],
             "The fixture marker geometry or explicit EPDC polarity is unbound.")
+
+
+def retryable_reader_capture_change(before, after):
+    """Allow typed same-page view and resource updates after both full gates."""
+    def same_except(left, right, mutable):
+        return (isinstance(left, dict) and isinstance(right, dict) and set(left) == set(right)
+                and all(type(left[key]) is type(right[key]) and left[key] == right[key]
+                        for key in left if key not in mutable))
+
+    def advances(left, right, fields):
+        return all(type(left[key]) is int and type(right[key]) is int
+                   and 0 <= left[key] <= right[key] for key in fields)
+
+    def valid_timing(value):
+        if value is None:
+            return True
+        keys = {"started_monotonic_ns", "finished_monotonic_ns", "started_thread_cpu_ns",
+                "finished_thread_cpu_ns", "wall_ns", "thread_cpu_ns", "same_thread"}
+        if not isinstance(value, dict) or set(value) - keys:
+            return False
+        if any(item is not None and (type(item) is not int or item < 0)
+               for key, item in value.items() if key != "same_thread"):
+            return False
+        if "same_thread" in value and type(value["same_thread"]) is not bool:
+            return False
+        return all(value.get(start) is None or value.get(end) is None or value[start] <= value[end]
+                   for start, end in (("started_monotonic_ns", "finished_monotonic_ns"),
+                                      ("started_thread_cpu_ns", "finished_thread_cpu_ns")))
+
+    view_fields = {"fit", "presented_fit", "target_fit", "zoom_ratio", "source_x", "source_y",
+                   "focus_x", "focus_y", "focus_width", "focus_height", "render_version", "menu"}
+    publication_fields = {"operation_id", "published_monotonic_ns", "state_evidence_monotonic_ns",
+                          "native_frame", "empty_native_frames_excluded", "binding", "render_request_present",
+                          "request_generation_version_verified", "latency_origin"}
+    native_fields = {"reader_operation_id", "render_sequence", "timing", "stages", "rgb_fingerprint",
+                     "black_and_white", "initial_frame", "forced_full", "complete_frame_replacement",
+                     "preceding_update_marker", "accepted_update_marker", "completed_update_marker",
+                     "dirty_region", "refresh_region", "refresh_waveform", "refresh_flashing",
+                     "refresh_ioctl_attempts", "driver_completion_observed"}
+    stage_keys = {"active_io", "buffer_setup", "window_setup", "portrait_observer_setup", "initial_fill",
+                  "preceding_update_wait", "slint_render", "rgb_fingerprint", "framebuffer_write",
+                  "refresh_submit", "refresh_complete_wait", "lifecycle_complete"}
+    try:
+        if (before["content_mode"] != "distinct_fixture" or after["content_mode"] != "distinct_fixture"
+                or not same_except(before, after, {"reader_state", "trace_records", "native_epdc_mode_evidence",
+                                                   "fixture_publication", "requested_checkpoint", "comparison"})):
+            return False
+        old, new = before["reader_state"], after["reader_state"]
+        if (not same_except(old, new, view_fields | READER_CACHE_COUNTS)
+                or old.get("sheet") != "" or new.get("sheet") != ""
+                or old.get("rendering") is not False or new.get("rendering") is not False
+                or old.get("transition") is not False or new.get("transition") is not False
+                or not advances(old, new, ("render_version",)) or old["render_version"] <= 0):
+            return False
+        for reader in (old, new):
+            cache_fields = READER_CACHE_COUNTS | {"source_cache_budget"}
+            if cache_fields.intersection(reader):
+                if (not cache_fields.issubset(reader)
+                        or any(type(reader[key]) is not int or reader[key] < 0 for key in cache_fields)
+                        or reader["source_cache_bytes"] > reader["source_cache_budget"]
+                        or reader["source_cache_entries"] > reader["source_cache_bytes"]
+                        or (reader["source_cache_entries"] == 0) != (reader["source_cache_bytes"] == 0)):
+                    return False
+            if type(reader["menu"]) is not bool:
+                return False
+            if any(reader[key] not in ("original", "page", "height", "width")
+                   for key in ("fit", "presented_fit", "target_fit") if key in reader):
+                return False
+            for key in view_fields - {"fit", "presented_fit", "target_fit", "render_version", "menu"}:
+                if key not in reader:
+                    continue
+                value = reader[key]
+                if type(value) not in (int, float) or not math.isfinite(value):
+                    return False
+                if not (1 <= value <= 8 if key == "zoom_ratio" else 0 <= value <= 1):
+                    return False
+                if key in ("focus_width", "focus_height") and value <= 0:
+                    return False
+        if not advances(before, after, ("trace_records",)):
+            return False
+        old_epdc, new_epdc = before["native_epdc_mode_evidence"], after["native_epdc_mode_evidence"]
+        if (not same_except(old_epdc, new_epdc, {"trace_record_index"})
+                or not advances(old_epdc, new_epdc, ("trace_record_index",))
+                or new_epdc["trace_record_index"] >= after["trace_records"]):
+            return False
+        old_pub, new_pub = before["fixture_publication"], after["fixture_publication"]
+        if (not same_except(old_pub, new_pub, publication_fields)
+                or not advances(old_pub, new_pub, ("operation_id", "published_monotonic_ns", "state_evidence_monotonic_ns"))
+                or any(type(value["empty_native_frames_excluded"]) is not int
+                       or value["empty_native_frames_excluded"] < 0 for value in (old_pub, new_pub))):
+            return False
+        binding_fields = ("binding", "render_request_present", "request_generation_version_verified", "latency_origin")
+        for value in (old_pub, new_pub):
+            if (type(value["render_request_present"]) is not bool
+                    or type(value["request_generation_version_verified"]) is not bool
+                    or tuple(value[key] for key in binding_fields) not in (
+                        ("render_request", True, True, "render_request"),
+                        ("deferred_without_render_request", False, False, "navigation_request"))):
+                return False
+        if new["render_version"] > old["render_version"]:
+            if (new_pub["operation_id"] <= old_pub["operation_id"]
+                    or new_pub["published_monotonic_ns"] <= old_pub["published_monotonic_ns"]):
+                return False
+        elif (new_pub["operation_id"] != old_pub["operation_id"]
+              or any(old_pub[key] != new_pub[key] for key in binding_fields)):
+            return False
+        if (any(old.get(key) != new.get(key) for key in view_fields - {"menu", "render_version"})
+                and new["render_version"] <= old["render_version"]):
+            return False
+        if old != new and new_pub["state_evidence_monotonic_ns"] <= old_pub["state_evidence_monotonic_ns"]:
+            return False
+        old_frame, new_frame = old_pub["native_frame"], new_pub["native_frame"]
+        if not same_except(old_frame, new_frame, native_fields):
+            return False
+        for frame, publication in ((old_frame, old_pub), (new_frame, new_pub)):
+            if frame["reader_operation_id"] != publication["operation_id"]:
+                return False
+            if frame.get("completion_errno") is not None:
+                return False
+            if "timing" in frame and not valid_timing(frame["timing"]):
+                return False
+            if (not isinstance(frame["stages"], dict) or set(frame["stages"]) - stage_keys
+                    or not all(valid_timing(value) for value in frame["stages"].values())):
+                return False
+            for key in ("black_and_white", "initial_frame", "forced_full", "complete_frame_replacement",
+                        "refresh_flashing", "driver_completion_observed"):
+                if key in frame and type(frame[key]) is not bool:
+                    return False
+            for key in ("preceding_update_marker", "accepted_update_marker", "completed_update_marker"):
+                if key in frame and frame[key] is not None and (type(frame[key]) is not int or frame[key] < 0):
+                    return False
+            if type(frame.get("render_sequence")) is not int or frame["render_sequence"] <= 0:
+                return False
+            if "refresh_waveform" in frame and frame["refresh_waveform"] not in (None, "auto", "gc16", "du", "a2"):
+                return False
+            if frame.get("rgb_fingerprint") is not None:
+                if (re.fullmatch(r"[0-9a-f]{16}", frame["rgb_fingerprint"]) is None
+                        or frame.get("rgb_fingerprint_algorithm") != "fnv1a64-rgb8-row-major"):
+                    return False
+            for key in ("dirty_region", "refresh_region"):
+                rectangle = frame.get(key)
+                if rectangle is None:
+                    continue
+                if (not isinstance(rectangle, dict) or set(rectangle) != {"x", "y", "width", "height"}
+                        or any(type(value) is not int or value < 0 for value in rectangle.values())
+                        or rectangle["x"] + rectangle["width"] > frame["framebuffer_size"][0]
+                        or rectangle["y"] + rectangle["height"] > frame["framebuffer_size"][1]):
+                    return False
+        if (not advances(old_frame["stages"]["refresh_submit"], new_frame["stages"]["refresh_submit"],
+                         ("finished_monotonic_ns",))
+                or ("render_sequence" in old_frame and not advances(old_frame, new_frame, ("render_sequence",)))
+                or (old_frame.get("initial_frame") is False and new_frame.get("initial_frame") is True)):
+            return False
+        if old_frame["render_sequence"] == new_frame["render_sequence"] and old_frame != new_frame:
+            return False
+        for key in ("preceding_update_marker", "accepted_update_marker", "completed_update_marker"):
+            if old_frame.get(key) is not None and new_frame.get(key) is not None and not advances(old_frame, new_frame, (key,)):
+                return False
+        native_advanced = (new_frame["stages"]["refresh_submit"]["finished_monotonic_ns"]
+                           > old_frame["stages"]["refresh_submit"]["finished_monotonic_ns"]
+                           and new_frame["render_sequence"] > old_frame["render_sequence"])
+        return old != new or native_advanced
+    except (KeyError, TypeError, ValueError, OverflowError):
+        return False
+
+
+def fixture_marker(geometry, projection, checkpoint, manifest):
+    """Check one evidenced orientation and polarity; never search rotations or mirrors."""
+    fixture_projection_binding(geometry, projection, checkpoint)
+    reader = checkpoint["reader_state"]
+    orientation = checkpoint["native_process"]["portrait_calibration"]
+    width, height = geometry["width"], geometry["height"]
     page = manifest["pages"][reader["page_index"]]
     marker = page["machine_marker"]
     require(marker.get("encoding") == "binary-lsb-first-v1" and marker.get("value") == reader["page_number"],
@@ -910,8 +1125,10 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         raw = self.read(self.logs + "/lifecycle.jsonl", required=False)
         return [json.loads(line) for line in raw.splitlines(keepends=True) if line.endswith(b"\n") and line.strip()]
 
-    def checkpoint_value(self, kind):
+    def checkpoint_value(self, kind, *, expected_identity=None):
         identity = self.native_identity()
+        if expected_identity is not None:
+            require(identity == expected_identity, "The app identity changed at the framebuffer capture boundary.")
         values = [value for value in self.trace() if value.get("process_id") == identity["pid"]]
         if self.state.get("content_mode", "demo") == "distinct_fixture":
             snapshot = fixture_reader_snapshot(values, self.state["fixture_manifest"], kind)
@@ -919,10 +1136,10 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
                            if line.endswith(b"\n") and line.strip()]
             require(not any(value.get("kind") == "diagnostic" and value.get("stage") == "trace_stopped" for value in performance),
                     "The fixture performance trace stopped before it could prove the current page.")
-            publication = (fixture_publication(performance, snapshot, identity["pid"]) if kind != "suspended"
-                           else {"binding": "suspended-no-frame-capture", "marker_required": False})
             epdc = trace_epdc_mode(values)
             require(epdc["mode"] in EPDC_MODES, "The fixture needs an explicit current native EPDC mode.")
+            publication = (fixture_publication(performance, snapshot, identity["pid"]) if kind != "suspended"
+                           else {"binding": "suspended-no-frame-capture", "marker_required": False})
             epdc.update({"profile": self.state["profile"], **self.lease_identity, "native_process": identity,
                          "preflight": self.state.get("native_epdc_mode_preflight"), "preflight_used_as_current_mode_fallback": False})
             return {"native_process": identity, "reader_state": snapshot["reader_state"], "latest_power": snapshot["latest_power"],
@@ -991,40 +1208,70 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
                      "done <" + shlex.quote(self.logs + "/native-baseline.tsv") + "\n"
             self.remote(script)
             current = self.checkpoint_value("reader" if checkpoint.get("content_mode") == "distinct_fixture"
-                                            or checkpoint.get("ui", {}).get("route") == "reader" else "ready")
-            require(current["native_process"] == identity, "The app identity changed at the framebuffer capture boundary.")
+                                            or checkpoint.get("ui", {}).get("route") == "reader" else "ready",
+                                            expected_identity=identity)
             return current
         before = display_gate()
         fixture_mode = checkpoint.get("content_mode") == "distinct_fixture"
         proof_fields = ("ui", "reader_state", "latest_power", "trace_records", "native_epdc_mode", "native_epdc_mode_evidence")
         if fixture_mode:
             proof_fields += ("fixture_publication", "fixture_manifest_sha256")
+        if (fixture_mode and any(before.get(field) != checkpoint.get(field) for field in proof_fields)
+                and retryable_reader_capture_change(checkpoint, before)):
+            raise RetryableReaderCaptureChange(checkpoint, before)
         require(all(before.get(field) == checkpoint.get(field) for field in proof_fields),
                 "The reader state changed after the checkpoint; the image would not match its saved anchor.")
         before_geometry = (json.loads(self.remote(shell_line(self.root + "/app/physical-framebuffer", "--info")).stdout)
                            if fixture_mode else None)
         response = self.remote(shell_line(self.root + "/app/physical-framebuffer", "--capture"), timeout=30).stdout
-        after = display_gate()
-        require(before.get("latest_power") == after.get("latest_power") and before["trace_records"] == after["trace_records"],
-                "The demo UI changed during capture; the framebuffer payload was discarded.")
-        require(before.get("native_epdc_mode_evidence") == after.get("native_epdc_mode_evidence"),
-                "The explicit native EPDC snapshot changed during capture; the framebuffer payload was discarded.")
+        pending = None
+        try:
+            after = display_gate()
+        except PendingReaderPublication as error:
+            pending = error
+            after = None
         header, pixels = response.split(b"\n", 1)
         geometry = json.loads(header)
         self.check_geometry(geometry)
         if fixture_mode:
             after_geometry = json.loads(self.remote(shell_line(self.root + "/app/physical-framebuffer", "--info")).stdout)
-            require(before_geometry == geometry == after_geometry and all(before.get(key) == after.get(key) for key in proof_fields),
+            require(before_geometry == geometry == after_geometry,
                     "The fixture page, native frame or framebuffer geometry changed during capture.")
         require(len(pixels) == geometry["visible_bytes"], "The framebuffer read is incomplete.")
+        memory = framebuffer_memory_pixels(geometry, pixels)
+        projection = framebuffer_panel_projection(geometry, memory, checkpoint.get("native_epdc_mode"))
+        if pending is not None:
+            # Only discard valid in-memory bytes. Transport, geometry and
+            # conversion failures remain fatal even during a reader request.
+            if fixture_mode:
+                fixture_projection_binding(geometry, projection, checkpoint)
+            raise pending
+        change = None
+        if fixture_mode and any(before.get(key) != after.get(key) for key in proof_fields):
+            fixture_projection_binding(geometry, projection, before)
+            fixture_projection_binding(geometry, projection, after)
+            if retryable_reader_capture_change(before, after):
+                change = RetryableReaderCaptureChange(before, after)
+                if change.reader_view_changed:
+                    raise change
+        if change is None:
+            require(before.get("latest_power") == after.get("latest_power") and before["trace_records"] == after["trace_records"],
+                    "The demo UI changed during capture; the framebuffer payload was discarded.")
+            require(before.get("native_epdc_mode_evidence") == after.get("native_epdc_mode_evidence"),
+                    "The explicit native EPDC snapshot changed during capture; the framebuffer payload was discarded.")
+            if fixture_mode:
+                require(all(before.get(key) == after.get(key) for key in proof_fields),
+                        "The fixture page, native frame or framebuffer geometry changed during capture.")
         raw_path = self.output / (name + ".framebuffer.raw")
         with raw_path.open("xb") as stream:
             stream.write(pixels)
         raw_sha256 = file_hash(raw_path)
         require(raw_sha256 == sha256(pixels), "The saved raw framebuffer evidence differs from the captured bytes.")
-        memory = framebuffer_memory_pixels(geometry, pixels)
-        projection = framebuffer_panel_projection(geometry, memory, checkpoint.get("native_epdc_mode"))
         marker = fixture_marker(geometry, projection, checkpoint, self.state["fixture_manifest"]) if fixture_mode else None
+        if change is not None:
+            # Native or resource-only updates keep the pixel anchor. A mismatching
+            # marker above is fatal and its raw evidence remains on disk.
+            raise change
         from PIL import Image
         size = geometry["width"], geometry["height"]
         path = self.output / (name + ".png")
@@ -1067,6 +1314,7 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         deadline = time.monotonic() + self.args.wait_seconds
         last_rejection = None
         first_native_proof_rejection = None
+        capture_attempts = []
 
         def terminal_failure(message, stage, error=None):
             report = {"schema_version": 1, "evidence_class": "host-checkpoint-diagnostic",
@@ -1074,6 +1322,7 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
                       "wait_seconds": self.args.wait_seconds, "terminal_stage": stage,
                       "terminal_reason": message, "last_rejection": last_rejection,
                       "first_native_proof_rejection": first_native_proof_rejection,
+                      "capture_attempts": capture_attempts,
                       "checkpoint_accepted": False, "diagnostic_device_operations": False}
             path = self.output / (self.args.name + ".checkpoint-failure-" + secrets.token_hex(4) + ".json")
             detail = message
@@ -1092,6 +1341,8 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
             raise failure_type(detail) from error
 
         while True:
+            if capture_attempts and time.monotonic() >= deadline:
+                terminal_failure("The checkpoint wait deadline expired.", "wait_deadline")
             if self.done(required=False) is not None:
                 terminal_failure("The run has ended; collect recovery evidence.", "run_ended")
             stage = "readiness_hint"
@@ -1106,7 +1357,6 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
                         "The untrusted lifecycle hint has not reached the requested checkpoint.")
                 stage = "native_proof"
                 value = self.checkpoint_value(self.args.require)
-                break
             except (RuntimeError, TimeoutError) as error:
                 last_rejection = {"stage": stage, "type": type(error).__name__, "message": str(error)[:1024]}
                 if stage == "native_proof" and first_native_proof_rejection is None:
@@ -1114,22 +1364,54 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
                 if time.monotonic() >= deadline:
                     terminal_failure("The checkpoint wait deadline expired.", "wait_deadline", error)
                 time.sleep(0.5)
-        if self.args.compare_to:
-            before = self.state["checkpoints"].get(self.args.compare_to)
-            require(before is not None, "The comparison checkpoint does not exist.")
-            require(before["native_process"] == value["native_process"], "Sleep or input changed the native application process.")
-            old, new = before["reader_state"], value["reader_state"]
-            require(isinstance(old, dict) and isinstance(new, dict), "A reader comparison requires two actual reader states.")
-            require(all(old.get(field) == new.get(field) for field in IDENTITY_FIELDS), "Reader identity or settings changed unexpectedly.")
-            if self.args.expect == "next-page":
-                require(new.get("page_index") == old.get("page_index", -2) + 1 and new.get("page_id") != old.get("page_id"),
-                        "The observed native state did not advance to the next source page.")
-            else:
-                require(all(old.get(field) == new.get(field) for field in ANCHOR_FIELDS), "The in-memory reading anchor changed across sleep.")
-            value["comparison"] = {"before": self.args.compare_to, "expected": self.args.expect, "passed": True,
-                                   "input_source": "native state transition; physical input requires explicit operator observation"}
-        if self.args.capture:
-            value["framebuffer"] = self.capture(self.args.name, value)
+                continue
+            if self.args.compare_to:
+                before = self.state["checkpoints"].get(self.args.compare_to)
+                require(before is not None, "The comparison checkpoint does not exist.")
+                require(before["native_process"] == value["native_process"], "Sleep or input changed the native application process.")
+                old, new = before["reader_state"], value["reader_state"]
+                require(isinstance(old, dict) and isinstance(new, dict), "A reader comparison requires two actual reader states.")
+                require(all(old.get(field) == new.get(field) for field in IDENTITY_FIELDS), "Reader identity or settings changed unexpectedly.")
+                if self.args.expect == "next-page":
+                    require(new.get("page_index") == old.get("page_index", -2) + 1 and new.get("page_id") != old.get("page_id"),
+                            "The observed native state did not advance to the next source page.")
+                else:
+                    require(all(old.get(field) == new.get(field) for field in ANCHOR_FIELDS), "The in-memory reading anchor changed across sleep.")
+                value["comparison"] = {"before": self.args.compare_to, "expected": self.args.expect, "passed": True,
+                                       "input_source": "native state transition; physical input requires explicit operator observation"}
+            if self.args.capture:
+                capture_name = (self.args.name if not capture_attempts else self.args.name + ".capture-attempt-"
+                                + str(len(capture_attempts) + 1) + "-" + secrets.token_hex(4))
+                attempt = {"name": capture_name}
+                capture_attempts.append(attempt)
+                try:
+                    value["framebuffer"] = self.capture(capture_name, value)
+                except (PendingReaderPublication, RetryableReaderCaptureChange) as error:
+                    # Capture performs no process quiescence. Each rejected
+                    # attempt retains its identity and any already-written raw.
+                    attempt["status"] = ("reader-publication-pending" if isinstance(error, PendingReaderPublication)
+                                         else "reader-view-changed")
+                    last_rejection = {"stage": "capture", "type": type(error).__name__, "message": str(error)[:1024]}
+                    attempt["rejection"] = dict(last_rejection)
+                    diagnostic = self.output / (capture_name + ".pending-" + secrets.token_hex(4) + ".json")
+                    with diagnostic.open("x", encoding="utf-8") as stream:
+                        json.dump({"schema_version": 1, "evidence_class": "host-checkpoint-capture-candidate",
+                                   "checkpoint": self.args.name, "attempt": attempt, "candidate_checkpoint": value,
+                                   "observed_checkpoint": getattr(error, "observed_checkpoint", None),
+                                   "checkpoint_accepted": False,
+                                   "framebuffer_payload_retained": (self.output / (capture_name + ".framebuffer.raw")).exists(),
+                                   "diagnostic_device_operations": False}, stream, indent=2, ensure_ascii=True)
+                        stream.write("\n")
+                    attempt["diagnostic"] = str(diagnostic)
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        terminal_failure("The checkpoint wait deadline expired.", "wait_deadline", error)
+                    time.sleep(min(0.5, remaining))
+                    continue
+                attempt["status"] = "accepted"
+                if len(capture_attempts) > 1:
+                    value["capture_attempts"] = capture_attempts
+            break
         self.state["checkpoints"][self.args.name] = value
         self.save()
         json_write(self.output / (self.args.name + ".checkpoint.json"), value)

@@ -36,6 +36,8 @@ mod preparation_profile_tests;
 mod cancellation_tests;
 #[cfg(test)]
 mod hardware_dither_tests;
+#[cfg(test)]
+mod fit_tests;
 mod triangle;
 
 pub const MAX_ENCODED_BYTES: u64 = crate::image_integrity::MAX_ENCODED_BYTES;
@@ -90,9 +92,36 @@ pub enum DisplayMode {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum FitMode {
+    /// Keep small sources at native size and shrink larger ones to fit.
+    Original,
+    /// Stretch the selected source view across both viewport axes.
     #[default]
     Page,
+    /// Use one height-derived scale and center any horizontal overflow.
+    Height,
+    /// Use one width-derived scale and center any vertical overflow.
     Width,
+}
+
+impl FitMode {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Original => "original",
+            Self::Page => "page",
+            Self::Height => "height",
+            Self::Width => "width",
+        }
+    }
+
+    pub fn parse(value: &str) -> Option<Self> {
+        match value {
+            "original" => Some(Self::Original),
+            "page" => Some(Self::Page),
+            "height" => Some(Self::Height),
+            "width" => Some(Self::Width),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -405,6 +434,24 @@ struct Region {
     overlap: bool,
 }
 
+#[derive(Clone, Copy)]
+struct CenteredSample {
+    bounds: SourceRect,
+    center_x: f64,
+    center_y: f64,
+    scale: f64,
+}
+
+#[derive(Clone, Copy)]
+struct FitGeometry {
+    crop: SourceRect,
+    width: u32,
+    height: u32,
+    sample: Option<CenteredSample>,
+    origin_x: f64,
+    origin_y: f64,
+}
+
 #[derive(Clone)]
 struct PageLayout {
     viewport: Viewport,
@@ -425,6 +472,7 @@ pub struct ReaderCore {
     source_y: f64,
     restore_focus: bool,
     preserve_region_for_pan: bool,
+    explicit_pan: bool,
     restore_last_region: bool,
     transition: bool,
     landscape_override: Option<bool>,
@@ -461,6 +509,7 @@ impl ReaderCore {
             source_y: 0.0,
             restore_focus: false,
             preserve_region_for_pan: false,
+            explicit_pan: false,
             restore_last_region: false,
             transition: false,
             landscape_override: None,
@@ -511,6 +560,9 @@ impl ReaderCore {
         if self.settings != settings {
             let reflow = self.settings.mode != settings.mode || self.settings.fit != settings.fit
                 || self.settings.direction != settings.direction || self.settings.rotation != settings.rotation;
+            if settings.zoom_ratio == 1.0 || self.settings.fit != settings.fit {
+                self.explicit_pan = false;
+            }
             self.settings = settings;
             if reflow {
                 self.layouts.clear();
@@ -533,6 +585,7 @@ impl ReaderCore {
         self.source_y = 0.0;
         self.restore_focus = false;
         self.preserve_region_for_pan = false;
+        self.explicit_pan = false;
         self.restore_last_region = false;
         self.transition = false;
         Ok(())
@@ -581,12 +634,15 @@ impl ReaderCore {
     }
 
     /// Pan coordinates refer to the unrotated original source image.
+    /// At unit zoom they locate an existing panel or strip region without
+    /// replacing the preset's centered placement with a top-left offset.
     pub fn pan_to(&mut self, source_x: f64, source_y: f64) -> Result<()> {
         validate_coordinates(source_x, source_y)?;
         self.source_x = source_x;
         self.source_y = source_y;
         self.restore_focus = true;
         self.preserve_region_for_pan = true;
+        self.explicit_pan = self.settings.zoom_ratio > 1.0;
         self.restore_last_region = false;
         Ok(())
     }
@@ -620,6 +676,7 @@ impl ReaderCore {
         };
         self.restore_focus = true;
         self.preserve_region_for_pan = false;
+        self.explicit_pan = anchor.zoom_ratio > 1.0;
         self.restore_last_region = false;
         self.transition = anchor.finished;
         self.layouts.clear();
@@ -814,10 +871,9 @@ impl ReaderCore {
                             }).collect(), false)
                         } else { (panel_regions(&grayscale, viewport, self.settings.direction)?, true) }
                     }
+                    // Strip and panel regions belong to their reading modes;
+                    // fit choices never add hidden windows to a source page.
                     DisplayMode::Strip => (strip_regions(&grayscale, viewport)?, false),
-                    DisplayMode::Page if self.settings.fit == FitMode::Width => {
-                        (strip_regions(&grayscale, viewport)?, false)
-                    }
                     DisplayMode::Page => (vec![Region { rect: SourceRect::whole(width, height), overlap: false }], false),
                 };
                 self.layouts.insert(self.page_index, PageLayout { viewport, width, height, regions, heuristic,
@@ -840,23 +896,34 @@ impl ReaderCore {
             self.preserve_region_for_pan = false;
             self.crop_index = self.crop_index.min(layout.regions.len() - 1);
             let region = layout.regions[self.crop_index];
-            let crop = zoom_crop(region.rect, width, height, self.settings.zoom_ratio,
-                rotate_point(self.source_x, self.source_y, self.settings.rotation));
+            let focus = self.explicit_pan.then(|| {
+                let point = rotate_point(self.source_x, self.source_y, self.settings.rotation);
+                (point.0 * f64::from(width), point.1 * f64::from(height))
+            });
+            let geometry = fit_geometry(region.rect, viewport, self.settings.fit, self.settings.zoom_ratio, focus);
+            if geometry.sample.is_none()
+                && triangle_intermediate_bytes(geometry.crop.width, geometry.height)
+                    .min(triangle_intermediate_bytes(geometry.crop.height, geometry.width))
+                    > MAX_DECODE_ALLOCATION
+            {
+                return Err(ReaderError::SourceImageTooLarge);
+            }
             let crop_count = layout.regions.len();
             let heuristic = layout.heuristic;
-            let ratio = (f64::from(viewport.width) / f64::from(crop.width))
-                .min(f64::from(viewport.height) / f64::from(crop.height));
-            let target_width = (f64::from(crop.width) * ratio).round().clamp(1.0, f64::from(viewport.width)) as u32;
-            let target_height = (f64::from(crop.height) * ratio).round().clamp(1.0, f64::from(viewport.height)) as u32;
-            Ok((width, height, crop, crop_count, heuristic, target_width, target_height, region.overlap))
+            Ok((width, height, geometry, crop_count, heuristic, region.overlap))
         })();
         let completed = layout_result.is_ok();
         profile_elapsed(&mut profile, started, "layout", completed,
             completed.then_some(|profile: &mut ReaderPreparationProfile| &mut profile.layout_us));
-        let (width, height, crop, crop_count, heuristic, target_width, target_height, overlap_from_previous) = layout_result?;
+        let (width, height, geometry, crop_count, heuristic, overlap_from_previous) = layout_result?;
+        let FitGeometry { crop, width: target_width, height: target_height, sample, origin_x, origin_y } = geometry;
         if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
         let started = profile_start(&profile);
-        let resized = self.resize_crop_cancellable(grayscale.as_ref(), crop, target_width, target_height, cancellation);
+        let resized = if let Some(sample) = sample {
+            resize_centered_sample(grayscale.as_ref(), sample, target_width, target_height, cancellation)
+        } else {
+            self.resize_crop_cancellable(grayscale.as_ref(), crop, target_width, target_height, cancellation)
+        };
         let completed = resized.is_some();
         profile_elapsed(&mut profile, started, "resize", completed,
             completed.then_some(|profile: &mut ReaderPreparationProfile| &mut profile.resize_us));
@@ -864,9 +931,7 @@ impl ReaderCore {
         let started = profile_start(&profile);
         drop(grayscale);
         let left = (viewport.width - target_width) / 2;
-        let top = if self.settings.fit == FitMode::Width || self.settings.mode == DisplayMode::Strip {
-            0
-        } else { (viewport.height - target_height) / 2 };
+        let top = (viewport.height - target_height) / 2;
         let painted = self.paint_canvas_cancellable(&resized, viewport, left, top, cancellation);
         let completed = painted.is_some();
         profile_elapsed(&mut profile, started, "canvas", completed,
@@ -878,7 +943,7 @@ impl ReaderCore {
             profile.output_bytes = profile.output_bytes.saturating_add(u64::from(viewport.width) * u64::from(viewport.height) * 4);
         }
         let (source_x, source_y) = unrotate_point(
-            f64::from(crop.x) / f64::from(width), f64::from(crop.y) / f64::from(height), self.settings.rotation);
+            origin_x / f64::from(width), origin_y / f64::from(height), self.settings.rotation);
         self.source_x = source_x;
         self.source_y = source_y;
         Ok(Some(RenderedPage {
@@ -894,6 +959,16 @@ impl ReaderCore {
         cancellation: &RenderCancellation<'_>) -> Option<GrayImage>
     {
         if !cancellation.is_enabled() { return Some(self.resize_crop(source, crop, width, height)); }
+        if transpose_triangle_resize(crop, width, height) {
+            if cancellation.is_cancelled(RenderWork::Boundary, 0) { return None; }
+            let view = image::imageops::crop_imm(source, crop.x, crop.y, crop.width, crop.height);
+            let transposed = image::imageops::rotate90(&*view);
+            let resized = self.resize_crop_cancellable(&transposed,
+                SourceRect::whole(crop.height, crop.width), height, width, cancellation)?;
+            if cancellation.is_cancelled(RenderWork::Boundary, 0) { return None; }
+            let output = image::imageops::rotate270(&resized);
+            return (!cancellation.is_cancelled(RenderWork::Boundary, 0)).then_some(output);
+        }
         #[cfg(test)]
         if self.raster_path == TestRasterPath::Reference {
             if cancellation.is_cancelled(RenderWork::Boundary, 0) { return None; }
@@ -904,6 +979,12 @@ impl ReaderCore {
     }
 
     fn resize_crop(&self, source: &GrayImage, crop: SourceRect, width: u32, height: u32) -> GrayImage {
+        if transpose_triangle_resize(crop, width, height) {
+            let view = image::imageops::crop_imm(source, crop.x, crop.y, crop.width, crop.height);
+            let transposed = image::imageops::rotate90(&*view);
+            let resized = self.resize_crop(&transposed, SourceRect::whole(crop.height, crop.width), height, width);
+            return image::imageops::rotate270(&resized);
+        }
         #[cfg(test)]
         if self.raster_path == TestRasterPath::Reference {
             let view = image::imageops::crop_imm(source, crop.x, crop.y, crop.width, crop.height);
@@ -958,6 +1039,7 @@ impl ReaderCore {
                 self.source_y = y;
                 self.restore_focus = false;
                 self.preserve_region_for_pan = false;
+                self.explicit_pan = false;
                 // An explicit region move supersedes a deferred jump to the last viewport.
                 self.restore_last_region = false;
             }
@@ -1163,6 +1245,129 @@ fn prepare_gray_source(proof: &ValidatedImage,
     Some(ValidatedGraySource { proof: proof.clone(), pixels: grayscale })
 }
 
+/// A fit preset changes one selected source view, never its reading-region count.
+fn fit_geometry(region: SourceRect, viewport: Viewport, fit: FitMode, zoom: f64,
+    focus: Option<(f64, f64)>) -> FitGeometry
+{
+    let source_width = f64::from(region.width);
+    let source_height = f64::from(region.height);
+    if fit == FitMode::Page {
+        let crop = centered_source_window(region, source_width / zoom, source_height / zoom, focus);
+        return FitGeometry { crop, width: viewport.width, height: viewport.height, sample: None,
+            origin_x: f64::from(crop.x), origin_y: f64::from(crop.y) };
+    }
+    let width_scale = f64::from(viewport.width) / source_width;
+    let height_scale = f64::from(viewport.height) / source_height;
+    let scale = match fit {
+        FitMode::Original => 1.0f64.min(width_scale).min(height_scale),
+        FitMode::Height => height_scale,
+        FitMode::Width => width_scale,
+        FitMode::Page => unreachable!("Stretch geometry was handled above"),
+    } * zoom;
+    let visible_width = source_width.min(f64::from(viewport.width) / scale);
+    let visible_height = source_height.min(f64::from(viewport.height) / scale);
+    let output_width = (source_width * scale).round().clamp(1.0, f64::from(viewport.width)) as u32;
+    let output_height = (source_height * scale).round().clamp(1.0, f64::from(viewport.height)) as u32;
+    if scale > 1.0 && (visible_width < source_width || visible_height < source_height) {
+        let origin_x = focus.map_or(f64::from(region.x) + (source_width - visible_width) / 2.0,
+            |point| point.0.clamp(f64::from(region.x), f64::from(region.x) + source_width - visible_width));
+        let origin_y = focus.map_or(f64::from(region.y) + (source_height - visible_height) / 2.0,
+            |point| point.1.clamp(f64::from(region.y), f64::from(region.y) + source_height - visible_height));
+        let sample = CenteredSample { bounds: region, center_x: origin_x + visible_width / 2.0,
+            center_y: origin_y + visible_height / 2.0, scale };
+        let crop = guarded_source_window(region, origin_x, origin_y, visible_width, visible_height);
+        return FitGeometry { crop, width: output_width, height: output_height, sample: Some(sample), origin_x, origin_y };
+    }
+    // At downsampling scales, an integer source window differs from the ideal
+    // centered affine by at most one output pixel. Keep the existing Triangle
+    // antialiasing and compute both output dimensions from the same scale.
+    let crop = centered_source_window(region, visible_width, visible_height, focus);
+    let width = (f64::from(crop.width) * scale).round().clamp(1.0, f64::from(viewport.width)) as u32;
+    let height = (f64::from(crop.height) * scale).round().clamp(1.0, f64::from(viewport.height)) as u32;
+    FitGeometry { crop, width, height, sample: None, origin_x: f64::from(crop.x), origin_y: f64::from(crop.y) }
+}
+
+fn centered_source_window(region: SourceRect, width: f64, height: f64, focus: Option<(f64, f64)>) -> SourceRect {
+    let width = width.round().clamp(1.0, f64::from(region.width)) as u32;
+    let height = height.round().clamp(1.0, f64::from(region.height)) as u32;
+    let x = focus.map_or(region.x + (region.width - width) / 2,
+        |point| (point.0.round() as u32).clamp(region.x, region.x + region.width - width));
+    let y = focus.map_or(region.y + (region.height - height) / 2,
+        |point| (point.1.round() as u32).clamp(region.y, region.y + region.height - height));
+    SourceRect { x, y, width, height }
+}
+
+fn snap_source_boundary(value: f64) -> f64 {
+    let integer = value.round();
+    if (value - integer).abs() <= 1e-9 { integer } else { value }
+}
+
+/// Metadata uses a guarded integer envelope; fractional sampling uses its own
+/// continuous window and the anchor retains that window's normalized origin.
+fn guarded_source_window(region: SourceRect, x: f64, y: f64, width: f64, height: f64) -> SourceRect {
+    let left = snap_source_boundary(x).floor().clamp(f64::from(region.x), f64::from(region.x + region.width - 1)) as u32;
+    let top = snap_source_boundary(y).floor().clamp(f64::from(region.y), f64::from(region.y + region.height - 1)) as u32;
+    let right = snap_source_boundary(x + width).ceil().clamp(f64::from(left + 1), f64::from(region.x + region.width)) as u32;
+    let bottom = snap_source_boundary(y + height).ceil().clamp(f64::from(top + 1), f64::from(region.y + region.height)) as u32;
+    SourceRect { x: left, y: top, width: right - left, height: bottom - top }
+}
+
+fn triangle_intermediate_bytes(source_width: u32, target_height: u32) -> u64 {
+    u64::from(source_width).saturating_mul(u64::from(target_height)).saturating_mul(std::mem::size_of::<f32>() as u64)
+}
+
+/// A failed Triangle weight plan uses a full source-width intermediate. Stretch
+/// can make that unsafe for extreme aspect ratios. Swapping the axes retains
+/// Triangle filtering with a bounded alternative pass order; it adds only a
+/// source-sized rotation and a viewport-sized output, never a full enlarged page.
+fn transpose_triangle_resize(crop: SourceRect, width: u32, height: u32) -> bool {
+    let normal = triangle_intermediate_bytes(crop.width, height);
+    let alternate = triangle_intermediate_bytes(crop.height, width);
+    normal > MAX_DECODE_ALLOCATION && alternate < normal
+}
+
+/// Triangle upsampling is bilinear. Sample only the bounded visible output,
+/// rather than allocating the potentially enormous full enlarged source.
+fn resize_centered_sample(source: &GrayImage, sample: CenteredSample, width: u32, height: u32,
+    cancellation: &RenderCancellation<'_>) -> Option<GrayImage>
+{
+    if cancellation.is_cancelled(RenderWork::Boundary, 0) { return None; }
+    let mut output = source.buffer_with_dimensions(width, height);
+    let output_pixels: &mut [u8] = output.as_mut();
+    let source_pixels = source.as_raw();
+    let stride = source.width() as usize;
+    let right = sample.bounds.x + sample.bounds.width - 1;
+    let bottom = sample.bounds.y + sample.bounds.height - 1;
+    for y in 0..height {
+        let source_y = (sample.center_y + (f64::from(y) + 0.5 - f64::from(height) / 2.0) / sample.scale - 0.5)
+            .clamp(f64::from(sample.bounds.y), f64::from(bottom));
+        let top = source_y.floor() as u32;
+        let next_y = top.saturating_add(1).min(bottom);
+        let y_weight = source_y - f64::from(top);
+        for first in (0..width as usize).step_by(RENDER_PIXEL_BLOCK) {
+            let completed = y as usize * width as usize + first;
+            if cancellation.is_cancelled(RenderWork::ResizeHorizontal, completed) { return None; }
+            for x in first..(first + RENDER_PIXEL_BLOCK).min(width as usize) {
+                let source_x = (sample.center_x + (x as f64 + 0.5 - f64::from(width) / 2.0) / sample.scale - 0.5)
+                    .clamp(f64::from(sample.bounds.x), f64::from(right));
+                let left = source_x.floor() as u32;
+                let next_x = left.saturating_add(1).min(right);
+                let x_weight = source_x - f64::from(left);
+                let top_left = f64::from(source_pixels[top as usize * stride + left as usize]);
+                let top_right = f64::from(source_pixels[top as usize * stride + next_x as usize]);
+                let bottom_left = f64::from(source_pixels[next_y as usize * stride + left as usize]);
+                let bottom_right = f64::from(source_pixels[next_y as usize * stride + next_x as usize]);
+                let first = top_left + (top_right - top_left) * x_weight;
+                let second = bottom_left + (bottom_right - bottom_left) * x_weight;
+                let value = first + (second - first) * y_weight;
+                // Keep half-way values stable after normalized anchor round trips.
+                output_pixels[y as usize * width as usize + x] = (value + 0.5 + 1e-9).floor().clamp(0.0, 255.0) as u8;
+            }
+        }
+    }
+    (!cancellation.is_cancelled(RenderWork::Boundary, 0)).then_some(output)
+}
+
 fn strip_regions(image: &GrayImage, viewport: Viewport) -> Result<Vec<Region>> {
     let width = image.width();
     let height = image.height();
@@ -1279,19 +1484,6 @@ fn region_for_focus(regions: &[Region], x: u32, y: u32, preferred: Option<usize>
     regions.iter().position(|region| region.rect.x == x && region.rect.y == y)
         .or_else(|| regions.iter().rposition(|region| region.rect.contains(x, y)))
         .unwrap_or_else(|| nearest_region(regions, x, y))
-}
-
-fn zoom_crop(region: SourceRect, source_width: u32, source_height: u32, zoom: f64, focus: (f64, f64)) -> SourceRect {
-    if zoom <= 1.0 { return region; }
-    let width = (f64::from(region.width) / zoom).round().max(1.0) as u32;
-    let height = (f64::from(region.height) / zoom).round().max(1.0) as u32;
-    let x = (focus.0 * f64::from(source_width)).round() as u32;
-    let y = (focus.1 * f64::from(source_height)).round() as u32;
-    SourceRect {
-        x: x.clamp(region.x, region.x + region.width - width),
-        y: y.clamp(region.y, region.y + region.height - height),
-        width, height,
-    }
 }
 
 fn rotate_point(x: f64, y: f64, rotation: u16) -> (f64, f64) {
@@ -1539,7 +1731,7 @@ mod tests {
     }
 
     #[test]
-    fn returning_to_the_last_page_starts_at_its_first_panel_or_width_view() {
+    fn returning_to_the_last_page_uses_its_first_panel_or_centered_single_page() {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("page.png");
         GrayImage::from_pixel(100, 400, image::Luma([0])).save(&path).unwrap();
@@ -1547,12 +1739,13 @@ mod tests {
             ReaderSettings { mode: DisplayMode::Panel, ..Default::default() },
             ReaderSettings { fit: FitMode::Width, ..Default::default() },
         ] {
+            let panel_mode = settings.mode == DisplayMode::Panel;
             let mut descriptor = index(2);
             for page in &mut descriptor.images { page.height = 400; }
             let mut reader = ReaderCore::new(descriptor, settings).unwrap();
             reader.set_page(1).unwrap();
             let frame = reader.render(&path, Viewport::new(100, 100)).unwrap();
-            assert!(frame.crop_count > 1);
+            assert_eq!(frame.crop_count > 1, panel_mode);
             while reader.step(true) == ReaderMove::Moved {}
             assert!(reader.is_transition());
 
@@ -1561,7 +1754,7 @@ mod tests {
             assert_eq!(reader.crop_index(), 0);
             let frame = reader.render(&path, Viewport::new(100, 100)).unwrap();
             assert_eq!(frame.crop_index, 0);
-            assert_eq!(frame.crop.y, 0);
+            assert_eq!(frame.crop.y, if panel_mode { 0 } else { 150 });
             assert!(!reader.is_transition());
         }
     }
@@ -1648,21 +1841,20 @@ mod tests {
     }
 
     #[test]
-    fn width_fit_cannot_skip_strip_regions_as_a_spread() {
+    fn width_fit_has_one_centered_source_view_and_does_not_skip_pages_as_a_spread() {
         let settings = ReaderSettings { fit: FitMode::Width, ..ReaderSettings::default() };
-        let mut reader = ReaderCore::new(index(4), settings).unwrap();
+        let mut descriptor = index(4);
+        for page in &mut descriptor.images { page.height = 400; }
+        let mut reader = ReaderCore::new(descriptor, settings).unwrap();
         reader.set_landscape(true);
-        reader.layouts.insert(0, PageLayout {
-            viewport: Viewport::new(1200, 900), width: 100, height: 200, heuristic: false, source_identity: None,
-            regions: vec![
-                Region { rect: SourceRect { x: 0, y: 0, width: 100, height: 100 }, overlap: false },
-                Region { rect: SourceRect { x: 0, y: 100, width: 100, height: 100 }, overlap: false },
-            ],
-        });
+        let source = GrayImage::from_pixel(100, 400, image::Luma([0]));
+        let frame = reader.render_source(&source, Viewport::new(120, 90)).unwrap();
         assert!(!reader.is_spread());
+        assert_eq!(frame.crop_count, 1);
+        assert!(frame.crop.y > 0);
         assert_eq!(reader.step(true), ReaderMove::Moved);
-        assert_eq!(reader.page_index(), 0);
-        assert_eq!(reader.crop_index(), 1);
+        assert_eq!(reader.page_index(), 1);
+        assert_eq!(reader.crop_index(), 0);
     }
 
     #[test]

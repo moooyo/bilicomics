@@ -2,7 +2,7 @@
 
 use std::os::fd::{FromRawFd, OwnedFd};
 
-use super::Framebuffer;
+use super::{Framebuffer, RefreshSubmission, UpdateVariant};
 
 impl Framebuffer {
     /// Allocate an anonymous mapping and an ordinary pipe, never a native device.
@@ -64,5 +64,16 @@ impl Framebuffer {
     pub(crate) fn mapped_bytes_for_test(&self) -> &[u8] {
         // SAFETY: This immutable borrow cannot outlive or mutate the owned mapping.
         unsafe { std::slice::from_raw_parts(self.map, self.len) }
+    }
+
+    /// Accept an update through the real marker bookkeeping without any ioctl.
+    pub(crate) fn fake_accept_update_for_test(&self) -> RefreshSubmission {
+        self.update_variant.set(Some(UpdateVariant::Mtk));
+        self.submit_update_with(self.width, self.height, |_, _| Ok(()))
+    }
+
+    /// Cache a completion receipt without consulting a native device.
+    pub(crate) fn fake_complete_latest_update_for_test(&self) -> std::io::Result<()> {
+        self.wait_for_update_complete_with(|_| Ok(()))
     }
 }

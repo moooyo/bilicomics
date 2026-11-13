@@ -1,5 +1,10 @@
 {
   "dl_title": "下载",
+  "dl_status_active": "{count} 项进行中",
+  "dl_status_paused": "{count} 项已暂停",
+  "dl_status_failed": "{count} 项失败",
+  "dl_status_idle": "暂无进行中的任务",
+  "dl_storage_summary": "{count} 部 · {size}",
   "dl_select_title": "选择要移除的漫画",
   "dl_failed": "下载失败",
   "dl_pause_all": "全部暂停",

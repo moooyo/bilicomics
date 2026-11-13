@@ -97,6 +97,12 @@ impl PendingRefresh {
         self.requests.is_empty()
     }
 
+    /// An explicit full update replaces the complete retained scene.
+    /// Waveform strength and rectangle dimensions alone do not request it.
+    pub(crate) fn requires_complete_frame(&self) -> bool {
+        self.requests.iter().any(|request| matches!(request.area, RefreshArea::Full))
+    }
+
     pub(crate) fn take(&mut self) -> Self {
         std::mem::take(self)
     }
@@ -303,6 +309,69 @@ mod tests {
         let mut pending = PendingRefresh::default();
         pending.push(request);
         pending
+    }
+
+    #[test]
+    fn dirty_and_rect_updates_do_not_replace_the_complete_scene() {
+        let mut pending = PendingRefresh::default();
+        assert!(!pending.requires_complete_frame());
+        for area in [RefreshArea::Dirty, RefreshArea::Rect(rect(0, 0, 1860, 2480))] {
+            for waveform in [RefreshWaveform::Auto, RefreshWaveform::Gc16, RefreshWaveform::Du, RefreshWaveform::A2] {
+                for flashing in [false, true] {
+                    pending.push(RefreshRequest { waveform, flashing, area });
+                    assert!(!pending.requires_complete_frame());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn an_explicit_full_update_replaces_the_scene_at_any_queue_position() {
+        let partial = [
+            RefreshRequest { waveform: RefreshWaveform::Du, flashing: false, area: RefreshArea::Dirty },
+            RefreshRequest { waveform: RefreshWaveform::Gc16, flashing: true,
+                area: RefreshArea::Rect(rect(8, 12, 100, 48)) },
+        ];
+        for position in 0..=partial.len() {
+            let mut requests = partial.to_vec();
+            requests.insert(position, RefreshRequest {
+                waveform: RefreshWaveform::A2, flashing: false, area: RefreshArea::Full,
+            });
+            let mut pending = PendingRefresh::default();
+            for request in requests { pending.push(request); }
+            assert!(pending.requires_complete_frame());
+        }
+    }
+
+    #[test]
+    fn taking_a_complete_frame_request_resets_only_the_producer_queue() {
+        let mut pending = pending(RefreshRequest::full());
+        let taken = pending.take();
+        assert!(taken.requires_complete_frame());
+        assert!(pending.is_empty());
+        assert!(!pending.requires_complete_frame());
+        assert!(!pending.overflowed);
+        pending.push(RefreshRequest {
+            waveform: RefreshWaveform::Gc16, flashing: true, area: RefreshArea::Dirty,
+        });
+        assert!(!pending.requires_complete_frame());
+        assert!(taken.requires_complete_frame());
+    }
+
+    #[test]
+    fn queue_overflow_conservatively_requires_a_complete_frame() {
+        let partial = RefreshRequest {
+            waveform: RefreshWaveform::Du, flashing: false, area: RefreshArea::Dirty,
+        };
+        let mut pending = PendingRefresh::default();
+        for _ in 0..MAX_PENDING { pending.push(partial); }
+        assert!(!pending.requires_complete_frame());
+        pending.push(partial);
+        assert!(pending.requires_complete_frame());
+        assert!(pending.overflowed);
+        assert_eq!(pending.requests, vec![RefreshRequest::full()]);
+        pending.push(partial);
+        assert_eq!(pending.requests, vec![RefreshRequest::full()]);
     }
 
     #[test]

@@ -1,5 +1,69 @@
 # Project-owned queued refresh patch
 
+## Checked complete-frame replacements
+
+An explicit `RefreshArea::Full`, including the bounded queue's overflow fallback,
+now means a complete scene replacement. The renderer keeps `NewBuffer` active
+through the actual software render, rebuilds every visible pixel even when the
+UI properties are unchanged, writes the complete target, and submits one logical
+GC16 flashing presentation. Only an accepted update followed by a successful
+completion wait for that update's own marker satisfies the replacement. A stale
+completed marker cannot acknowledge a rejected or superseded submission.
+
+Every drawing iteration settles the preceding accepted marker before entering
+the mapping writer, including initial fill and ordinary dirty-region writes.
+Refreshes without a draw also settle it before replacing the tracked accepted
+marker. This keeps at most one outstanding accepted update against the single
+mapping without assuming that completion of a later marker implies completion
+of earlier readers. A required wait failure prevents all subsequent writes,
+submissions, and completion acknowledgements on that mapping. Waiting can add
+input-feedback latency while an earlier native update remains in progress;
+physical timing remains a separate measurement.
+
+Unknown submission outcomes such as `EIO` and `EINTR` stop ABI probing and block
+future mapping changes in ordinary scenes as well as Gray8/Y4 scenes. Only the
+existing explicit rejection set permits another ABI attempt. Rejected ABI
+probes and the existing explicit Y4 fallback retain distinct attempted markers
+and at most one accepted replacement. Sleep tokens, orientation compensation,
+native input draining, and owner recovery keep their existing responsibilities.
+
+The existing strict Scribe identity and read-only 8-bit framebuffer checks also
+retain an immutable reviewed MTK ABI decision. An unselected 8-bit framebuffer
+uses that ABI before its first submission, including startup and bilevel scenes;
+the decision does not depend on the Y4 request and survives hardware-dithering
+rejection. This follows the pinned KOReader separation of
+[`isMTK` and `canHWDither`](https://github.com/koreader/koreader/blob/7c38cf104cb9ea89df243e47ec820ef4aa97cab8/frontend/device/kindle/device.lua#L1174)
+and [ABI selection](https://github.com/koreader/koreader-base/f64c3eb11049e9a75189f186d7345d97c07d87b9/ffi/framebuffer_mxcfb.lua#L1071).
+Unknown identities retain strict probing and unknown-delivery failure handling.
+No framebuffer-name heuristic, resolution-based model assumption, or additional
+retryable errno is introduced. Submission samples report only the allowlisted
+last attempted ABI label (`legacy`, `rex`, `zelda`, or `mtk`), never a raw serial
+or hardware identifier. This corrects startup compatibility without weakening
+the synchronization boundary or explaining the earlier physical zoom report.
+
+Optional performance samples distinguish the preceding, newly accepted, and
+last completed markers, the preceding/completion wait stages, and numeric wait
+errors. `driver_completion_observed` records a successful kernel completion
+receipt for the current accepted update. `panel_completion_observed` remains
+false because no optical panel observation occurs in the backend.
+
+Full row-major RGB8 FNV-1a fingerprints require the separate
+`PerformanceTraceHandle::set_rgb_fingerprints_enabled(true)` authorization and an
+active diagnostic callback. Owners may enable this only for synthetic fixtures,
+never account or acquired content. It defaults to false and callback replacement
+or retirement revokes it; ordinary traces neither traverse content pixels nor
+compute content fingerprints. Fingerprints diagnose submitted software frames
+and do not establish optical panel behavior.
+
+Controlled tests use anonymous mappings, pipes, injected driver results, and the
+real Slint software renderer. They cover complete repaints of changed and
+unchanged scenes, preserved partial repaint behavior, write/submit/completion
+ordering across ABIs, fail-closed waits and unknown submissions, explicit
+rejection fallback, accurate failure samples, and fingerprint authorization.
+This strengthens a synchronization boundary; it does not identify the cause of
+the reported gradual physical zoom transition. Test execution is recorded by
+the application task in its designated remote verification environment.
+
 ## Checked sleep presentation
 
 The sleep-frame completion contract was adapted from the reviewed local WeRead
@@ -504,7 +568,7 @@ Existing refresh functions now return an observational submission result with
 the exact ioctl attempt count, acceptance status, and final numeric errno.
 The ABI probe order, cached variant, waveforms, markers, and original error log
 remain unchanged. Empty regions and a cached unsupported ABI issue no ioctl.
-No additional refresh or wait is introduced. An ioctl return or acceptance is
+Performance sampling itself adds no refresh or wait. An ioctl return or acceptance is
 explicitly distinct from physical panel completion, which is not measured by
 these samples.
 

@@ -15,6 +15,7 @@
   "acct_refresh_balance": "刷新余额",
   "acct_recharge": "充值",
   "acct_signed_out": "未登录",
+  "acct_signed_in": "已登录",
   "acct_login_description": "登录后同步书架、阅读进度和已购章节。已下载内容不登录也能阅读。",
   "acct_login": "扫码登录",
   "acct_reading_defaults": "阅读默认值",

@@ -143,6 +143,7 @@ component FlatAction inherits Rectangle {
     accessible-role: button;
     accessible-label: root.label;
     accessible-enabled: root.enabled;
+    accessible-action-default => { if root.enabled { root.clicked(); } }
     caption := CatalogText {
         text: root.text;
         color: !root.enabled ? Theme.muted : root.selected || hit.pressed ? Theme.paper : Theme.ink;
@@ -412,18 +413,14 @@ component ShelfMenu inherits Rectangle {
 export component ShelfScreen inherits Rectangle {
     background: Theme.paper;
     clip: true;
-    property <length> header-height: Theme.scribe ? 73px : 53px;
-    property <length> resume-height: Theme.scribe && CatalogModel.has-resume ? 337px : 0px;
-    property <length> pager-height: Theme.scribe ? 72px : 60px;
-    Rectangle { x: 0px; y: 0px; width: 100%;
-        height: root.header-height;
-        CatalogText { y: 0px; height: 100%; x: Theme.margin; width: parent.width - 2 * Theme.margin - 60px; text: Strings.cat-shelf; font-size: Theme.title-size; font-weight: 700; }
-        IconButton { x: parent.width - (Theme.scribe ? 88px : 60px); y: (parent.height - self.height) / 2; width: Theme.scribe ? 56px : 48px; height: self.width; icon: "filter"; label: Strings.cat-filter-sort; clicked => { CatalogModel.action("shelf.menu", "toggle"); } }
-        Rectangle { x: 0px; width: 100%; y: parent.height - 1px; height: 1px; background: Theme.ink; }
-    }
+    property <length> header-height: 0px;
+    property <length> resume-height: CatalogModel.shelf-state == "ready" && Theme.scribe && CatalogModel.has-resume ? 337px : 0px;
+    property <length> controls-height: Theme.scribe ? 72px : 60px;
+    property <length> footer-height: Theme.scribe ? 72px : 53px;
     if CatalogModel.shelf-state == "ready": Rectangle { x: 0px; width: 100%;
-        y: root.header-height;
-        height: parent.height - self.y;
+        y: 0px;
+        height: max(0px, parent.height - root.footer-height);
+        clip: true;
         if Theme.scribe && CatalogModel.has-resume: Rectangle { x: 0px; y: 0px; width: 100%;
             height: root.resume-height;
             BookCover { x: 48px; y: 28px; width: 210px; height: 280px; cover: CatalogModel.resume.cover; title: CatalogModel.resume.title; badge: ""; progress: -1; }
@@ -453,11 +450,11 @@ export component ShelfScreen inherits Rectangle {
         }
         Rectangle { x: 0px; width: 100%;
             y: root.resume-height;
-            height: root.pager-height;
+            height: root.controls-height;
             if !Theme.scribe && CatalogModel.has-resume && CatalogModel.shelf-filter == "all": Rectangle {
                 x: Theme.margin;
                 y: 6px;
-                width: parent.width - Theme.margin - 156px;
+                width: max(0px, parent.width - Theme.margin * 2 - 84px);
                 height: 48px;
                 border-width: 2px;
                 border-color: Theme.ink;
@@ -470,17 +467,16 @@ export component ShelfScreen inherits Rectangle {
             }
             if Theme.scribe || CatalogModel.shelf-filter != "all" || !CatalogModel.has-resume: HorizontalLayout { y: 0px; height: 100%;
                 x: Theme.margin;
-                width: parent.width - Theme.margin - (Theme.scribe ? 208px : 160px);
+                width: max(0px, parent.width - Theme.margin * 2 - (Theme.scribe ? 80px : 88px));
                 spacing: 12px;
                 alignment: start;
                 if CatalogModel.shelf-filter != "all": FlatAction { height: Theme.scribe ? 48px : 44px; text: CatalogModel.shelf-filter == "updated" ? Strings.cat-updated + " ×" : CatalogModel.shelf-filter == "downloaded" ? Strings.cat-downloaded + " ×" : Strings.cat-finished + " ×"; selected: true; text-size: Theme.scribe ? 17px : 15px; clicked => { CatalogModel.action("shelf.filter", "all"); } }
                 CatalogText { text: CatalogModel.shelf-count-label; font-size: Theme.scribe ? 18px : 15px; }
                 if Theme.scribe: CatalogText { text: Strings.cat-recent-order; font-size: 17px; color: Theme.secondary; }
             }
-            InlinePager { x: parent.width - self.width - (Theme.scribe ? 32px : 8px); y: (parent.height - self.height) / 2; page: CatalogModel.shelf-page; pages: CatalogModel.shelf-pages; turn(delta) => { CatalogModel.action("shelf.page", delta); } }
         }
         if CatalogModel.shelf-view == "grid": ComicGrid { x: 0px; width: 100%;
-            y: root.resume-height + root.pager-height + (Theme.scribe ? 4px : 6px);
+            y: root.resume-height + root.controls-height + (Theme.scribe ? 4px : 6px);
             height: parent.height - self.y;
             items: CatalogModel.shelf-items;
             open(id) => { CatalogModel.action("comic.open", id); }
@@ -488,12 +484,27 @@ export component ShelfScreen inherits Rectangle {
             turn(delta) => { CatalogModel.action("shelf.page", delta); }
         }
         if CatalogModel.shelf-view == "list": ShelfList { x: 0px; width: 100%;
-            y: root.resume-height + root.pager-height;
+            y: root.resume-height + root.controls-height;
             height: parent.height - self.y;
             items: CatalogModel.shelf-items;
             read(id) => { CatalogModel.action("comic.cover", id); }
             turn(delta) => { CatalogModel.action("shelf.page", delta); }
         }
+    }
+    if CatalogModel.shelf-state == "ready": Rectangle {
+        x: 0px; y: parent.height - root.footer-height; width: parent.width; height: root.footer-height;
+        background: Theme.paper;
+        Rectangle { x: 0px; y: 0px; width: parent.width; height: 1px; background: Theme.line; }
+        if Theme.scribe: HorizontalLayout {
+            x: Theme.margin; y: 8px; width: parent.width - Theme.margin * 2; height: 56px;
+            NavigationButton { text: Strings.cat-previous-page; icon: "back"; text-size: 18px; enabled: CatalogModel.shelf-page > 1; clicked => { CatalogModel.action("shelf.page", "-1"); } }
+            Rectangle { horizontal-stretch: 1; }
+            CatalogText { width: 120px; text: CatalogModel.shelf-page + " / " + CatalogModel.shelf-pages; font-size: 18px; horizontal-alignment: center; }
+            Rectangle { horizontal-stretch: 1; }
+            NavigationButton { text: Strings.cat-next-page; icon: "next"; trailing: true; text-size: 18px; enabled: CatalogModel.shelf-page < CatalogModel.shelf-pages; clicked => { CatalogModel.action("shelf.page", "1"); } }
+        }
+        if !Theme.scribe: CatalogText { x: Theme.margin; y: 0px; width: max(0px, parent.width - Theme.margin * 2 - 156px); height: parent.height; text: Strings.cat-recent-order; font-size: 15px; color: Theme.secondary; }
+        if !Theme.scribe: InlinePager { x: parent.width - self.width - Theme.margin; y: (parent.height - self.height) / 2; page: CatalogModel.shelf-page; pages: CatalogModel.shelf-pages; turn(delta) => { CatalogModel.action("shelf.page", delta); } }
     }
     if CatalogModel.shelf-state == "signed-out": Rectangle { x: 0px; width: 100%;
         y: root.header-height;
@@ -541,35 +552,45 @@ export component ShelfScreen inherits Rectangle {
             Rectangle { vertical-stretch: 1; }
         }
     }
+    FlatAction {
+        x: parent.width - Theme.margin - self.width;
+        y: root.resume-height + (Theme.scribe ? 8px : 6px);
+        width: Theme.scribe ? 56px : 72px; height: Theme.scribe ? 56px : 48px;
+        text: Strings.cat-filter; label: Strings.cat-filter-sort; text-size: Theme.scribe ? 18px : 16px;
+        outlined: true;
+        clicked => { CatalogModel.action("shelf.menu", "toggle"); }
+    }
     if CatalogModel.shelf-menu-open: Rectangle { x: 0px; y: 0px; width: 100%; height: 100%;
         CatalogHitArea { x: 0px; y: 0px; width: 100%; height: 100%; tapped => { CatalogModel.action("shelf.menu", "close"); } }
-        ShelfMenu { x: parent.width - self.width - Theme.margin; y: root.header-height - 3px; }
+        ShelfMenu { x: parent.width - self.width - Theme.margin; y: min(root.resume-height + root.controls-height - 3px, max(0px, parent.height - self.height - 8px)); }
     }
 }
 
 export component StoreScreen inherits Rectangle {
     background: Theme.paper;
     clip: true;
-    property <length> header-height: Theme.scribe ? 73px : 53px;
+    property <length> header-height: Theme.scribe ? 72px : 56px;
     property <length> categories-height: Theme.scribe ? 140px : 0px;
     property <length> pager-height: Theme.scribe ? 60px : 56px;
     Rectangle { x: 0px; y: 0px; width: 100%;
         height: root.header-height;
-        CatalogText { y: 0px; height: 100%; x: Theme.margin; width: Theme.scribe ? 60px : 48px; text: Strings.cat-store; font-size: Theme.title-size; font-weight: 700; }
         Rectangle {
-            x: Theme.margin + (Theme.scribe ? 80px : 62px);
-            y: Theme.scribe ? 10px : 6px;
-            width: parent.width - self.x - Theme.margin;
-            height: Theme.scribe ? 52px : 40px;
+            x: Theme.margin;
+            y: Theme.scribe ? 8px : 4px;
+            width: parent.width - Theme.margin * 2;
+            height: Theme.scribe ? 56px : 48px;
             border-width: 2px;
             border-color: Theme.ink;
             background: search-hit.pressed ? Theme.ink : Theme.paper;
+            accessible-role: button;
+            accessible-label: Strings.cat-search;
+            accessible-action-default => { CatalogModel.action("search.open", ""); }
             Icon { x: Theme.scribe ? 16px : 12px; y: (parent.height - self.height) / 2; kind: "search"; inverted: search-hit.pressed; }
             CatalogText { y: 0px; height: 100%; x: Theme.scribe ? 50px : 40px; width: parent.width - self.x - 12px; text: Strings.cat-search-placeholder; font-size: Theme.scribe ? 19px : 16px; color: search-hit.pressed ? Theme.paper : Theme.muted; }
         }
         search-hit := CatalogHitArea {
-            x: Theme.margin + (Theme.scribe ? 80px : 62px); y: 0px;
-            width: parent.width - self.x - Theme.margin; height: parent.height - 1px;
+            x: Theme.margin; y: 0px;
+            width: parent.width - Theme.margin * 2; height: parent.height - 1px;
             tapped => { CatalogModel.action("search.open", ""); }
         }
         Rectangle { x: 0px; width: 100%; y: parent.height - 1px; height: 1px; background: Theme.ink; }

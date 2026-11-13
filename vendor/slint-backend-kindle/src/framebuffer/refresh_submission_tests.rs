@@ -15,6 +15,7 @@ fn first_probe_stops_at_the_first_accepted_abi_and_clears_prior_errno() {
             ioctl_attempts: (accepted + 1) as u32,
             accepted: true,
             last_errno: None,
+            refresh_abi: UpdateVariant::PROBE_ORDER[accepted].label(),
             ..Default::default()
         });
     }
@@ -34,6 +35,7 @@ fn a_failed_initial_probe_records_the_last_errno_and_caches_unsupported() {
         ioctl_attempts: 4,
         accepted: false,
         last_errno: Some(libc::EIO),
+        refresh_abi: Some("mtk"),
         ..Default::default()
     });
     let (retained, next) = refresh_submission_with(selected, 1860, 2480, |_| {
@@ -58,6 +60,7 @@ fn a_cached_abi_has_exactly_one_attempt_on_success_or_failure() {
                 ioctl_attempts: 1,
                 accepted: result.is_ok(),
                 last_errno: result.err().flatten(),
+                refresh_abi: variant.label(),
                 ..Default::default()
             });
         }

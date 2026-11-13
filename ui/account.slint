@@ -150,33 +150,25 @@ export component AccountScreen inherits Rectangle {
     property <float> manual-ratio: AccountModel.storage-manual-fill < 0.0 ? 0.0 : AccountModel.storage-manual-fill > 1.0 ? 1.0 : AccountModel.storage-manual-fill;
     property <float> cache-ratio: AccountModel.storage-cache-fill < 0.0 ? 0.0 : AccountModel.storage-cache-fill > 1.0 ? 1.0 : AccountModel.storage-cache-fill;
     property <int> recharge-page: 0;
-    property <length> account-header-height: Theme.header-height + (Theme.scribe ? 1px : 0px);
-    property <length> top: root.account-header-height + (Theme.scribe ? 120px : root.home ? 0px : 20px);
+    property <length> account-header-height: root.home ? 0px : Theme.header-height + (Theme.scribe ? 1px : 0px);
+    property <length> profile-top: Theme.scribe ? 20px : 16px;
+    property <length> profile-height: AccountModel.signed-in ? (Theme.scribe ? 80px : 56px) : (Theme.scribe ? 216px : 176px);
+    property <length> wallet-top: root.profile-top + root.profile-height + (Theme.scribe ? 24px : 14px);
+    property <length> home-content-end: AccountModel.signed-in ? root.wallet-top + (Theme.scribe ? 140px : 60px) : root.profile-top + root.profile-height;
+    property <length> section-tabs-top: root.home ? root.home-content-end + 24px : root.account-header-height + 20px;
+    property <length> top: root.account-header-height + (Theme.scribe ? 120px : 20px);
     property <string> section-title: AccountModel.section == "reading" ? Strings.acct-reading : AccountModel.section == "download" ? Strings.acct-download-network : AccountModel.section == "storage" ? Strings.acct-storage : AccountModel.section == "system" ? Strings.acct-screen-system : AccountModel.section == "about" ? Strings.acct-about : Strings.acct-title;
-    if Theme.scribe || root.home: Rectangle {
-        x: 0px; y: 0px; height: root.account-header-height;
-        background: Theme.paper;
-        Text {
-            x: Theme.margin; y: 0px;
-            width: parent.width - Theme.margin * 2 - Theme.touch-size;
-            height: parent.height;
-            text: Strings.acct-title;
-            font-family: Theme.ui-font; font-size: Theme.title-size; font-weight: 700;
-            color: Theme.ink; vertical-alignment: center; overflow: elide;
-        }
-        Rectangle { x: 0px; y: parent.height - 1px; width: parent.width; height: 1px; background: Theme.ink; }
-    }
-    if !Theme.scribe && !root.home: PageHeader { title: root.section-title; back-text: Strings.acct-title; back => { AccountModel.action("back", ""); } }
+    if !root.home: PageHeader { width: parent.width; title: root.section-title; back => { AccountModel.action("back", ""); } }
     IconButton {
-        x: root.width - (Theme.scribe ? 32px : 8px) - Theme.touch-size;
-        y: (root.account-header-height - Theme.touch-size) / 2;
-        width: Theme.touch-size; height: Theme.touch-size;
-        icon: "close"; label: Strings.acct-close-app;
+        x: root.width - Theme.margin - self.width;
+        y: root.home ? root.profile-top + (Theme.scribe ? 12px : 6px) : (root.account-header-height - self.height) / 2;
+        width: Theme.scribe ? 56px : 48px; height: self.width;
+        icon: "close"; icon-size: 24px; label: Strings.acct-close-app;
         enabled: !AccountModel.recharge-visible;
         clicked => { AccountModel.action("exit", ""); }
     }
     if Theme.scribe: Rectangle {
-        x: Theme.margin; y: root.account-header-height + 20px; width: parent.width - Theme.margin * 2; height: 68px; border-width: 2px; border-color: Theme.ink;
+        x: Theme.margin; y: root.section-tabs-top; width: parent.width - Theme.margin * 2; height: 68px; border-width: 2px; border-color: Theme.ink;
         for tab[index] in [{id: "account", label: Strings.acct-account}, {id: "reading", label: Strings.acct-reading}, {id: "download", label: Strings.acct-download-network}, {id: "storage", label: Strings.acct-storage}, {id: "system", label: Strings.acct-screen-system}, {id: "about", label: Strings.acct-about}]: Rectangle { y: 2px;
             x: 2px + index * (parent.width - 4px) / 6; width: (parent.width - 4px) / 6; height: parent.height - 4px;
             background: AccountModel.section == tab.id || touch.pressed ? Theme.ink : Theme.paper;
@@ -186,17 +178,16 @@ export component AccountScreen inherits Rectangle {
         }
     }
     if root.home: Rectangle { x: 0px;
-        y: root.top; width: parent.width; height: parent.height - root.top;
-        property <length> account-height: Theme.scribe ? 480px : AccountModel.signed-in ? 146px : 120px;
+        y: 0px; width: parent.width; height: parent.height;
+        property <length> account-height: root.home-content-end + (AccountModel.signed-in ? 0px : 16px);
         if AccountModel.signed-in: Rectangle {
-            x: Theme.margin; y: Theme.scribe ? 0px : 16px; width: parent.width - Theme.margin * 2; height: Theme.scribe ? 80px : 56px;
+            x: Theme.margin; y: root.profile-top; width: parent.width - Theme.margin * 2; height: root.profile-height;
             Rectangle { x: 0px; y: 0px; width: Theme.scribe ? 80px : 56px; height: parent.height; border-radius: self.width / 2; border-width: 2px; border-color: Theme.ink; Text { x: 0px; y: 0px; width: parent.width; height: parent.height; text: AccountModel.initial; font-family: Theme.ui-font; font-size: Theme.scribe ? 30px : 22px; font-weight: 700; color: Theme.ink; horizontal-alignment: center; vertical-alignment: center; } }
-            Text { x: Theme.scribe ? 100px : 70px; y: Theme.scribe ? 4px : 0px; width: parent.width - (Theme.scribe ? 100px : 160px); height: Theme.scribe ? 38px : 30px; text: AccountModel.username; font-family: Theme.ui-font; font-size: Theme.scribe ? 26px : 20px; font-weight: 700; color: Theme.ink; }
-            Text { x: Theme.scribe ? 100px : 70px; y: Theme.scribe ? 44px : 32px; width: parent.width - (Theme.scribe ? 100px : 150px); height: Theme.scribe ? 30px : 22px; text: AccountModel.session-status; font-family: Theme.ui-font; font-size: Theme.scribe ? 17px : 14px; color: Theme.secondary; overflow: elide; }
-            if !Theme.scribe: ActionButton { x: parent.width - 94px; y: 6px; width: 94px; height: 44px; quiet: true; text: Strings.acct-logout; text-size: 15px; clicked => { AccountModel.action("logout", ""); } }
+            Text { x: Theme.scribe ? 100px : 70px; y: Theme.scribe ? 4px : 0px; width: parent.width - (Theme.scribe ? 180px : 150px); height: Theme.scribe ? 38px : 30px; text: AccountModel.username; font-family: Theme.ui-font; font-size: Theme.scribe ? 26px : 20px; font-weight: 700; color: Theme.ink; overflow: elide; }
+            Text { x: Theme.scribe ? 100px : 70px; y: Theme.scribe ? 44px : 32px; width: parent.width - (Theme.scribe ? 180px : 150px); height: Theme.scribe ? 30px : 22px; text: Strings.acct-signed-in; font-family: Theme.ui-font; font-size: Theme.scribe ? 17px : 14px; color: Theme.secondary; overflow: elide; }
         }
         if AccountModel.signed-in: Rectangle {
-            x: Theme.margin; y: Theme.scribe ? 104px : 86px; width: parent.width - Theme.margin * 2; height: Theme.scribe ? 140px : 44px; border-width: Theme.scribe ? 2px : 0px; border-color: Theme.ink;
+            x: Theme.margin; y: root.wallet-top; width: parent.width - Theme.margin * 2; height: Theme.scribe ? 140px : 60px; border-width: Theme.scribe ? 2px : 0px; border-color: Theme.ink;
             if Theme.scribe: Text { x: 24px; y: 44px; width: 136px; height: 26px; text: Strings.acct-coin; font-family: Theme.ui-font; font-size: 17px; color: Theme.secondary; }
             if Theme.scribe: Text { x: 24px; y: 64px; width: 136px; height: 54px; text: AccountModel.balance; font-family: Theme.ui-font; font-size: 40px; font-weight: 700; color: Theme.ink; overflow: elide; }
             if Theme.scribe: Text { x: 172px; y: 44px; width: 130px; height: 26px; text: Strings.acct-coupon; font-family: Theme.ui-font; font-size: 17px; color: Theme.secondary; }
@@ -216,10 +207,10 @@ export component AccountScreen inherits Rectangle {
             ActionButton { x: parent.width - (Theme.scribe ? 110px : 76px); y: Theme.scribe ? 58px : 0px; width: Theme.scribe ? 84px : 76px; height: Theme.scribe ? 56px : 44px; primary: Theme.scribe; text: Strings.acct-recharge; text-size: Theme.scribe ? 18px : 15px; clicked => { AccountModel.action("recharge", ""); } }
         }
         if !AccountModel.signed-in: Rectangle {
-            x: Theme.scribe ? Theme.margin : 0px; y: 0px; width: Theme.scribe ? parent.width - Theme.margin * 2 : parent.width; height: Theme.scribe ? 160px : 120px; border-width: Theme.scribe ? 2px : 0px; border-color: Theme.ink;
-            Text { x: Theme.scribe ? 28px : Theme.margin; y: 20px; width: parent.width - (Theme.scribe ? 230px : 184px); height: 38px; text: Strings.acct-signed-out; font-family: Theme.ui-font; font-size: Theme.scribe ? 26px : 20px; font-weight: 700; color: Theme.ink; }
-            Text { x: Theme.scribe ? 28px : Theme.margin; y: 64px; width: parent.width - (Theme.scribe ? 230px : 184px); height: 64px; text: Strings.acct-login-description; font-family: Theme.ui-font; font-size: Theme.scribe ? 18px : 14px; wrap: word-wrap; color: Theme.secondary; }
-            ActionButton { x: parent.width - (Theme.scribe ? 192px : 152px); y: (parent.height - Theme.button-height) / 2; width: Theme.scribe ? 164px : 128px; height: Theme.button-height; primary: true; text: Strings.acct-login; clicked => { AccountModel.action("login", ""); } }
+            x: Theme.scribe ? Theme.margin : 0px; y: root.profile-top; width: Theme.scribe ? parent.width - Theme.margin * 2 : parent.width; height: root.profile-height; border-width: Theme.scribe ? 2px : 0px; border-color: Theme.ink;
+            Text { x: Theme.scribe ? 28px : Theme.margin; y: 20px; width: parent.width - (Theme.scribe ? 140px : 128px); height: 38px; text: Strings.acct-signed-out; font-family: Theme.ui-font; font-size: Theme.scribe ? 26px : 20px; font-weight: 700; color: Theme.ink; overflow: elide; }
+            Text { x: Theme.scribe ? 28px : Theme.margin; y: 64px; width: parent.width - (Theme.scribe ? 84px : Theme.margin * 2); height: Theme.scribe ? 52px : 44px; text: Strings.acct-login-description; font-family: Theme.ui-font; font-size: Theme.scribe ? 18px : 14px; wrap: word-wrap; color: Theme.secondary; }
+            ActionButton { x: Theme.scribe ? 28px : Theme.margin; y: Theme.scribe ? 132px : 112px; width: Theme.scribe ? 164px : 128px; height: Theme.button-height; primary: true; text: Strings.acct-login; clicked => { AccountModel.action("login", ""); } }
         }
         if !Theme.scribe: Rectangle { x: 0px; y: parent.account-height - 2px; width: parent.width; height: 2px; background: Theme.ink; }
         if !Theme.scribe: VerticalLayout {
@@ -230,9 +221,10 @@ export component AccountScreen inherits Rectangle {
             AccountRow { edge-to-edge: true; title: Strings.acct-storage; value: Strings.acct-used-prefix + AccountModel.storage-used + " · " + Strings.acct-cache-limit-prefix + AccountModel.cache-limit + " MB"; thick: true; clicked => { AccountModel.action("section", "storage"); } }
             AccountRow { edge-to-edge: true; title: Strings.acct-sleep; value: !AccountModel.can-sleep-cover ? Strings.acct-device-unsupported : AccountModel.sleep-cover == "cover" ? Strings.acct-sleep-cover-summary : Strings.acct-sleep-system-summary; enabled: AccountModel.can-sleep-cover; chevron: false; clicked => { AccountModel.action("sleep-cover", AccountModel.sleep-cover == "cover" ? "system" : "cover"); } }
             AccountRow { edge-to-edge: true; title: Strings.acct-about-diagnostics; value: "v" + AccountModel.version + " · " + AccountModel.device-short; thick: true; clicked => { AccountModel.action("section", "about"); } }
+            if AccountModel.signed-in: AccountRow { edge-to-edge: true; title: Strings.acct-logout; value: Strings.acct-clear-credentials; chevron: false; clicked => { AccountModel.action("logout", ""); } }
         }
         if Theme.scribe: VerticalLayout {
-            x: Theme.margin; y: AccountModel.signed-in ? 268px : 184px; width: parent.width - Theme.margin * 2; spacing: 0px; alignment: start;
+            x: Theme.margin; y: root.section-tabs-top + 92px; width: parent.width - Theme.margin * 2; spacing: 0px; alignment: start;
             Rectangle { height: 2px; background: Theme.ink; }
             if AccountModel.signed-in: AccountRow { title: Strings.acct-purchase-history; value: AccountModel.last-purchase; clicked => { AccountModel.action("purchase-history", ""); } }
             if AccountModel.signed-in: AccountRow { title: Strings.acct-recharge-history; clicked => { AccountModel.action("recharge-history", ""); } }

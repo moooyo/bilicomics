@@ -366,7 +366,10 @@ fn run(arguments: Arguments) -> Result<()> {
     #[cfg(all(feature = "kindle", target_os = "linux"))]
     if bilicomics::performance::enabled() {
         if let Some(backend) = native_backend.as_ref() {
-            platform.set_kindle_performance_trace(backend.performance_trace_handle())?;
+            let trace = backend.performance_trace_handle();
+            platform.set_kindle_performance_trace(trace.clone())?;
+            // Content fingerprints belong only to isolated synthetic demo evidence.
+            trace.set_rgb_fingerprints_enabled(arguments.demo);
         }
     }
     #[cfg(all(feature = "kindle", target_os = "linux"))]
@@ -1353,6 +1356,7 @@ fn save_png(ui: &AppWindow, path: &Path) -> Result<(u32, u32)> {
 fn ui_state(ui: &AppWindow) -> serde_json::Value {
     let catalog = ui.global::<CatalogModel>();
     let downloads = ui.global::<DownloadModel>();
+    let reader = ui.global::<ReaderModel>();
     let candidates = catalog.get_candidates();
     let candidates = (0..candidates.row_count())
         .filter_map(|index| candidates.row_data(index))
@@ -1363,11 +1367,19 @@ fn ui_state(ui: &AppWindow) -> serde_json::Value {
         "id": item.id.as_str(), "status": item.status.as_str(), "progress": item.progress,
         "error": item.error, "active": item.active, "has_bar": item.has_bar, "selected": item.selected
     })).collect::<Vec<_>>();
+    let chapters = reader.get_chapters();
+    let chapter_rows = (0..chapters.row_count()).filter_map(|index| chapters.row_data(index))
+        .map(|chapter| serde_json::json!({
+            "order": chapter.order.as_str(), "current": chapter.current,
+            "read": chapter.read, "readable": chapter.readable, "downloaded": chapter.downloaded,
+        })).collect::<Vec<_>>();
     serde_json::json!({
         "route": ui.global::<ShellModel>().get_route().as_str(),
         "toast": ui.global::<ShellModel>().get_toast().as_str(),
         "account": {"section": ui.global::<AccountModel>().get_section().as_str()},
         "catalog": {
+            "shelf_view": catalog.get_shelf_view().as_str(), "shelf_menu": catalog.get_shelf_menu_open(),
+            "shelf_page": catalog.get_shelf_page(), "shelf_pages": catalog.get_shelf_pages(),
             "query": catalog.get_query().as_str(), "composition": catalog.get_composition().as_str(),
             "keyboard": catalog.get_keyboard_visible(), "candidate_page": catalog.get_candidate_page(),
             "candidate_pages": catalog.get_candidate_pages(), "candidates": candidates,
@@ -1377,6 +1389,8 @@ fn ui_state(ui: &AppWindow) -> serde_json::Value {
             "selection_size": catalog.get_selection_size().as_str()
         },
         "downloads": {
+            "status_summary": downloads.get_status_summary().as_str(),
+            "summary": downloads.get_summary().as_str(), "selecting": downloads.get_selecting(),
             "all_paused": downloads.get_all_paused(), "has_active": downloads.get_has_active(),
             "sheet_open": downloads.get_sheet_open(), "sheet_id": downloads.get_sheet_id().as_str(),
             "task_primary_action": downloads.get_task_primary_action().as_str(),
@@ -1385,6 +1399,12 @@ fn ui_state(ui: &AppWindow) -> serde_json::Value {
             "items": items
         },
         "reader": {
+            "fit": reader.get_fit().as_str(),
+            "chapter_page": reader.get_chapter_page(), "chapter_pages": reader.get_chapter_pages(),
+            "chapter_filter": reader.get_chapter_filter().as_str(),
+            "chapter_descending": reader.get_chapter_descending(),
+            "chapter_capacity": reader.get_chapter_capacity(), "chapter_count": reader.get_chapter_count(),
+            "chapter_rows": chapter_rows,
             "page": ui.global::<ReaderModel>().get_page_index(),
             "mode": ui.global::<ReaderModel>().get_mode().as_str(),
             "menu": ui.global::<ReaderModel>().get_menu(),
@@ -1440,6 +1460,7 @@ fn capture_window(
                 "page": ui.global::<ReaderModel>().get_page_index(), "pages": ui.global::<ReaderModel>().get_page_count(),
                 "comic_title": ui.global::<ReaderModel>().get_comic_title().as_str(), "episode_title": ui.global::<ReaderModel>().get_episode_title().as_str(),
                 "mode": ui.global::<ReaderModel>().get_mode().as_str(), "direction": ui.global::<ReaderModel>().get_direction().as_str(),
+                "fit": ui.global::<ReaderModel>().get_fit().as_str(),
                 "menu": ui.global::<ReaderModel>().get_menu(), "sheet": ui.global::<ReaderModel>().get_sheet().as_str(),
                 "loading": ui.global::<ReaderModel>().get_loading(), "transition": ui.global::<ReaderModel>().get_transition(),
                 "thumbnails_loading": ui.global::<ReaderModel>().get_thumbnails_loading(),

@@ -23,6 +23,7 @@ export global DownloadModel {
     in-out property <bool> selecting: false;
     in-out property <bool> has-active: false;
     in-out property <bool> all-paused: false;
+    in-out property <string> status-summary;
     in-out property <string> summary;
     in-out property <string> smart-label;
     in-out property <string> storage-free;
@@ -100,21 +101,27 @@ component DownloadRow inherits Rectangle {
 export component DownloadsScreen inherits Rectangle {
     background: Theme.paper;
     clip: true;
-    property <length> header-height: Theme.header-height + 1px;
-    property <length> summary-height: Theme.scribe ? 66px : 54px;
+    property <length> header-height: DownloadModel.selecting ? Theme.header-height + 1px : Theme.scribe ? 64px : 52px;
+    property <length> summary-height: Theme.scribe ? 54px : 48px;
+    property <length> header-button-height: Theme.scribe ? 56px : 48px;
+    property <length> select-width: Theme.scribe ? 96px : 68px;
+    property <length> pause-width: Theme.scribe ? 180px : 120px;
+    property <length> header-actions-width: root.select-width + (!DownloadModel.selecting && DownloadModel.has-active ? root.pause-width + 12px : 0px);
+    property <length> smart-width: Theme.scribe ? 196px : 156px;
+    property <bool> show-pagination: !Theme.scribe || DownloadModel.page-count > 1;
     property <float> task-ratio: DownloadModel.task-progress < 0.0 ? 0.0 : DownloadModel.task-progress > 1.0 ? 1.0 : DownloadModel.task-progress;
-    property <length> footer-height: DownloadModel.selecting ? Theme.scribe ? 96px : 72px : Theme.scribe ? 0px : 52px;
-    Rectangle { x: 0px; y: 0px;
+    property <length> footer-height: DownloadModel.selecting ? Theme.scribe ? 96px : 72px : root.show-pagination ? 52px : 0px;
+    Rectangle { x: 0px; y: 0px; width: 100%;
         height: root.header-height;
-        Text { y: 0px; x: Theme.margin; width: parent.width - Theme.margin - (Theme.scribe ? 360px : 230px); height: parent.height; text: DownloadModel.selecting ? Strings.dl-select-title : Strings.dl-title; font-family: Theme.ui-font; font-size: DownloadModel.selecting ? Theme.scribe ? 26px : 20px : Theme.title-size; font-weight: 700; vertical-alignment: center; color: Theme.ink; }
-        if !DownloadModel.selecting && DownloadModel.has-active: ActionButton { x: parent.width - (Theme.scribe ? 300px : 200px); y: (parent.height - (Theme.scribe ? 56px : 48px)) / 2; width: Theme.scribe ? 180px : 120px; height: Theme.scribe ? 56px : 48px; quiet: true; text: DownloadModel.all-paused ? Strings.dl-resume-all : Strings.dl-pause-all; text-size: Theme.scribe ? 19px : 16px; clicked => { DownloadModel.action("toggle-all", ""); } }
-        ActionButton { x: parent.width - (Theme.scribe ? 128px : 80px); y: (parent.height - (Theme.scribe ? 56px : 48px)) / 2; width: Theme.scribe ? 96px : 68px; height: Theme.scribe ? 56px : 48px; quiet: true; text: DownloadModel.selecting ? Strings.dl-cancel : Strings.dl-select; text-size: Theme.scribe ? 19px : 16px; clicked => { DownloadModel.action(DownloadModel.selecting ? "cancel-select" : "select", ""); } }
+        Text { y: 0px; x: Theme.margin; width: max(0px, parent.width - Theme.margin * 2 - root.header-actions-width - 16px); height: parent.height; text: DownloadModel.selecting ? Strings.dl-select-title : DownloadModel.status-summary; font-family: Theme.ui-font; font-size: DownloadModel.selecting ? Theme.scribe ? 26px : 20px : Theme.scribe ? 20px : 17px; font-weight: DownloadModel.selecting ? 700 : 500; vertical-alignment: center; color: Theme.ink; overflow: elide; }
+        if !DownloadModel.selecting && DownloadModel.has-active: ActionButton { x: parent.width - Theme.margin - root.select-width - 12px - root.pause-width; y: (parent.height - root.header-button-height) / 2; width: root.pause-width; height: root.header-button-height; quiet: true; text: DownloadModel.all-paused ? Strings.dl-resume-all : Strings.dl-pause-all; text-size: Theme.scribe ? 19px : 16px; clicked => { DownloadModel.action("toggle-all", ""); } }
+        ActionButton { x: parent.width - Theme.margin - root.select-width; y: (parent.height - root.header-button-height) / 2; width: root.select-width; height: root.header-button-height; quiet: true; text: DownloadModel.selecting ? Strings.dl-cancel : Strings.dl-select; text-size: Theme.scribe ? 19px : 16px; clicked => { DownloadModel.action(DownloadModel.selecting ? "cancel-select" : "select", ""); } }
         Rectangle { x: 0px; y: parent.height - 1px; height: 1px; width: parent.width; background: Theme.ink; }
     }
     Rectangle { x: 0px;
         y: root.header-height; width: parent.width; height: root.summary-height;
-        Text { y: 0px; x: Theme.margin; width: parent.width - Theme.margin - (Theme.scribe ? 238px : 172px); height: parent.height; text: DownloadModel.summary; font-family: Theme.ui-font; font-size: Theme.scribe ? 18px : 15px; color: Theme.ink; vertical-alignment: center; overflow: elide; }
-        NavigationButton { x: parent.width - (Theme.scribe ? 232px : 170px); y: (parent.height - (Theme.scribe ? 56px : 48px)) / 2; width: Theme.scribe ? 208px : 162px; height: Theme.scribe ? 56px : 48px; text: DownloadModel.smart-label; icon: "next"; trailing: true; text-size: Theme.scribe ? 18px : 15px; icon-size: Theme.scribe ? 18px : 15px; clicked => { DownloadModel.action("smart-settings", ""); } }
+        Text { y: 0px; x: Theme.margin; width: max(0px, parent.width - Theme.margin * 2 - root.smart-width - 16px); height: parent.height; text: DownloadModel.summary; font-family: Theme.ui-font; font-size: Theme.scribe ? 18px : 15px; color: Theme.ink; vertical-alignment: center; overflow: elide; }
+        NavigationButton { x: parent.width - Theme.margin - root.smart-width; y: (parent.height - (Theme.scribe ? 52px : 48px)) / 2; width: root.smart-width; height: Theme.scribe ? 52px : 48px; text: DownloadModel.smart-label; icon: "next"; trailing: true; text-size: Theme.scribe ? 18px : 15px; icon-size: Theme.scribe ? 18px : 15px; clicked => { DownloadModel.action("smart-settings", ""); } }
         Rectangle { x: 0px; y: parent.height - 2px; height: 2px; width: parent.width; background: Theme.ink; }
     }
     Rectangle { x: 0px;
@@ -124,9 +131,8 @@ export component DownloadsScreen inherits Rectangle {
         for item[index] in DownloadModel.items: DownloadRow { x: 0px; y: index * (Theme.scribe ? 104px : 84px); width: parent.width; item: item; clicked => { DownloadModel.action(DownloadModel.selecting ? "toggle-item" : "open", item.id); } }
         if DownloadModel.items.length == 0: Text { x: Theme.margin; y: 96px; width: parent.width - Theme.margin * 2; height: 96px; text: Strings.dl-empty; font-family: Theme.ui-font; font-size: Theme.body-size; color: Theme.secondary; horizontal-alignment: center; wrap: word-wrap; }
     }
-    if !DownloadModel.selecting && !Theme.scribe: Rectangle { x: 0px;
+    if !DownloadModel.selecting && root.show-pagination: Rectangle { x: 0px;
         y: parent.height - 52px; width: parent.width; height: 52px;
-        Text { y: 0px; x: Theme.margin; width: parent.width - 190px; height: parent.height; text: DownloadModel.storage-free; font-family: Theme.ui-font; font-size: 14px; color: Theme.secondary; vertical-alignment: center; }
         IconButton { width: 48px; height: 48px; x: parent.width - 156px; y: 2px; icon: "back"; icon-size: 22px; label: Strings.dl-previous; enabled: DownloadModel.page > 1; clicked => { DownloadModel.action("page", "-1"); } }
         Text { y: 0px; x: parent.width - 108px; width: 52px; height: parent.height; text: DownloadModel.page + " / " + DownloadModel.page-count; font-family: Theme.ui-font; font-size: 15px; color: Theme.ink; horizontal-alignment: center; vertical-alignment: center; }
         IconButton { width: 48px; height: 48px; x: parent.width - 56px; y: 2px; icon: "next"; icon-size: 22px; label: Strings.dl-next; enabled: DownloadModel.page < DownloadModel.page-count; clicked => { DownloadModel.action("page", "1"); } }

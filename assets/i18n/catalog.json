@@ -1,5 +1,6 @@
 {
   "cat_shelf": "书架",
+  "cat_filter": "筛选",
   "cat_all_recommendations": "全部推荐",
   "cat_loaded_count": "已加载 {count} 部",
   "cat_filtered_count": "{count} / {total} 部",
@@ -70,7 +71,7 @@
   "cat_browse_more": "去书城看看",
   "cat_store": "书城",
   "cat_search": "搜索",
-  "cat_search_placeholder": "漫画名、作者或漫画 ID",
+  "cat_search_placeholder": "漫画名、作者或 ID",
   "cat_continue_reading": "继续阅读",
   "cat_chapters": "章节目录",
   "cat_view_chapters": "查看章节",

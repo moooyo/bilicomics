@@ -4,6 +4,11 @@ An independent Rust and Slint Bilibili Comics application for jailbroken Kindle 
 
 The interface follows the user-supplied Paperwhite and Scribe design: bookshelf, bookstore and Chinese search, comic details, paged comic reading, panel and strip views, landscape spreads, downloads, account settings, QR sign-in, and explicit chapter purchase flows. Interface text is Chinese; code and documentation are English.
 
+The approved [header and reader refinement](docs/UI_REFINEMENT_20261113.md)
+removes repeated primary-page headings, adds four named image fits,
+and opens the complete chapter directory directly while retaining the current
+reading page.
+
 ## Development
 
 The operator environment is Windows and PowerShell. Build, tests, and rendering run on the designated remote worker:

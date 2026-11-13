@@ -1307,7 +1307,7 @@ impl App {
         Ok(())
     }
 
-    fn episode_view(&self, detail: &ComicDetail, episode: &Episode) -> Result<EpisodeItem> {
+    pub(super) fn episode_view(&self, detail: &ComicDetail, episode: &Episode) -> Result<EpisodeItem> {
         let anchor = self.store.load_anchor(&self.account, &detail.comic.id)?;
         let current = anchor.as_ref().map_or_else(|| self.demo.is_some() && episode.extra["current"].as_bool().unwrap_or(false), |anchor| anchor.episode_id == episode.id);
         let local = self.local_episode(episode)?;
@@ -1341,6 +1341,10 @@ impl App {
 
     fn local_episode(&self, episode: &Episode) -> Result<LocalEpisode> {
         Ok(self.catalog.local_snapshot.episodes.get(&episode.id).cloned().unwrap_or_default())
+    }
+
+    pub(super) fn reader_episode_downloaded(&self, episode: &Episode) -> bool {
+        self.local_episode(episode).is_ok_and(|status| status.retained)
     }
 
     pub(super) fn comic_has_download(&self, comic: &Comic) -> bool {

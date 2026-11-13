@@ -99,7 +99,7 @@ class OfflinePhysicalFixtureTests(unittest.TestCase):
                     "monotonic_ns": clock, "data": data or {}}
         requests = ([record("navigation_request", 120), record("render_deferred", 130)] if deferred else
                     [record("render_request", 120, {"source_kind": "receipt", "generation": 7, "version": 11})])
-        native = {"reader_operation_id": OPERATION, "rendered": True, "refresh_accepted": True,
+        native = {"reader_operation_id": OPERATION, "render_sequence": 1, "rendered": True, "refresh_accepted": True,
                   "rotation_degrees": 0, "refresh_ioctl_returned": True, "refresh_ioctl_attempts": 1,
                   "refresh_errno": None, "framebuffer_bits_per_pixel": 8,
                   "framebuffer_size": [GEOMETRY["width"], GEOMETRY["height"]],
@@ -163,6 +163,488 @@ class OfflinePhysicalFixtureTests(unittest.TestCase):
             return CompletedProcess([], 0, b"", b"")
 
         harness.remote = Mock(side_effect=remote)
+
+    def pending_request(self):
+        return {"process_id": PID, "kind": "reader", "stage": "render_request",
+                "operation_id": OPERATION + 1, "monotonic_ns": 250,
+                "data": {"source_kind": "receipt", "generation": 7, "version": 12}}
+
+    def publish_next_fixture(self, harness, records):
+        traces = self.trace(page=5)
+        for value in traces:
+            value["monotonic_ns"] += 1000
+        traces[-1]["reader_state"]["render_version"] = 12
+        harness.trace.return_value = traces
+        fresh = self.performance()
+        for value in fresh:
+            value["operation_id"] += 1
+            value["monotonic_ns"] += 1000
+        fresh[0]["data"]["version"] = 12
+        fresh[-1]["data"]["reader_operation_id"] += 1
+        fresh[-1]["data"]["render_sequence"] += 1
+        for timing in fresh[-1]["data"]["stages"].values():
+            timing["started_monotonic_ns"] += 1000
+            timing["finished_monotonic_ns"] += 1000
+        records[:] = fresh
+
+    def publish_same_page_view(self, harness, records, *, menu=False, new_version=True):
+        if new_version:
+            self.publish_next_fixture(harness, records)
+            reader = harness.trace.return_value[-1]["reader_state"]
+            reader.update(page_id=self.manifest["pages"][4]["page_id"], page_index=4, page_number=5)
+            return
+        traces = self.trace()
+        traces[-1]["monotonic_ns"] += 1000
+        traces[-1]["reader_state"]["menu"] = menu
+        harness.trace.return_value = traces
+        fresh = self.performance()
+        fresh[-1]["monotonic_ns"] += 1000
+        fresh[-1]["data"]["render_sequence"] += 1
+        for timing in fresh[-1]["data"]["stages"].values():
+            timing["started_monotonic_ns"] += 1000
+            timing["finished_monotonic_ns"] += 1000
+        records[:] = fresh
+
+    def publish_cache_snapshot(self, harness, cache):
+        later = deepcopy(harness.trace.return_value[-1])
+        later["monotonic_ns"] += 1000
+        for key in ("source_cache_budget", "source_cache_bytes", "source_cache_entries"):
+            later["reader_state"].pop(key, None)
+        later["reader_state"].update(cache)
+        harness.trace.return_value = [*harness.trace.return_value, later]
+
+    def run_retry_checkpoint(self, harness, *, wait=2, on_sleep=None):
+        harness.state.update(phase="running", checkpoints={})
+        harness.args = SimpleNamespace(name="candidate", require="reader", wait_seconds=wait,
+                                       capture=True, compare_to=None, expect="retained")
+        harness.done = Mock(return_value=None)
+        harness.save = Mock()
+        if not isinstance(harness.capture, Mock):
+            harness.capture = Mock(wraps=harness.capture)
+        clock = SimpleNamespace(now=0.0, sleeps=[])
+        self.retry_clock = clock
+
+        def sleep(seconds):
+            clock.sleeps.append(seconds)
+            clock.now += seconds
+            if on_sleep is not None:
+                on_sleep()
+
+        with patch.object(physical.time, "monotonic", side_effect=lambda: clock.now), \
+                patch.object(physical.time, "sleep", side_effect=sleep):
+            return harness.checkpoint()
+
+    def test_capture_pending_gates_retry_and_accept_only_the_new_matching_frame(self):
+        for boundary in ("before", "after"):
+            with self.subTest(boundary=boundary):
+                records = self.performance()
+                harness = self.harness(performance=records)
+                harness.output = self.output / boundary
+                harness.output.mkdir()
+                captures = []
+
+                def capture(name, checkpoint):
+                    captures.append(name)
+                    if boundary == "before" and len(captures) == 1:
+                        records.append(self.pending_request())
+                    return physical.Harness.capture(harness, name, checkpoint)
+
+                harness.capture = Mock(side_effect=capture)
+                self.attach_framebuffer(harness, self.source_projection(), after_capture=(
+                    lambda: records.append(self.pending_request())) if boundary == "after" else None)
+
+                def ready():
+                    self.assertFalse(list(harness.output.glob("*.framebuffer.*")))
+                    self.assertFalse(list(harness.output.glob("*.png")))
+                    self.publish_next_fixture(harness, records)
+                    self.attach_framebuffer(harness, self.source_projection(page=5))
+
+                result = self.run_retry_checkpoint(harness, on_sleep=ready)
+                checkpoint = harness.state["checkpoints"]["candidate"]
+                self.assertEqual(self.retry_clock.sleeps, [0.5])
+                self.assertEqual(result["reader_state"]["page_index"], 5)
+                self.assertEqual(checkpoint["reader_state"]["render_version"], 12)
+                self.assertEqual(checkpoint["fixture_publication"]["operation_id"], OPERATION + 1)
+                self.assertEqual(checkpoint["framebuffer"]["fixture_marker"]["decoded_page_number"], 6)
+                self.assertEqual(len(set(captures)), 2)
+                self.assertEqual([attempt["status"] for attempt in checkpoint["capture_attempts"]],
+                                 ["reader-publication-pending", "accepted"])
+                rejected = json.loads(Path(checkpoint["capture_attempts"][0]["diagnostic"]).read_text())
+                self.assertFalse(rejected["checkpoint_accepted"])
+                self.assertFalse(rejected["framebuffer_payload_retained"])
+                self.assertEqual(rejected["candidate_checkpoint"]["reader_state"]["page_index"], 4)
+                self.assertFalse((harness.output / "candidate.framebuffer.raw").exists())
+                self.assertEqual(physical.file_hash(Path(checkpoint["framebuffer"]["raw_framebuffer"]["path"])),
+                                 physical.sha256(self.source_projection(page=5)))
+
+    def test_capture_pending_forever_uses_the_original_deadline_without_stale_acceptance(self):
+        records = self.performance()
+        harness = self.harness(performance=records)
+
+        def capture(name, checkpoint):
+            records.append(self.pending_request())
+            return physical.Harness.capture(harness, name, checkpoint)
+
+        harness.capture = Mock(side_effect=capture)
+        self.attach_framebuffer(harness, self.source_projection())
+        with self.assertRaisesRegex(RuntimeError, "wait deadline expired"):
+            self.run_retry_checkpoint(harness, wait=1)
+        self.assertEqual(self.retry_clock.now, 1)
+        self.assertEqual(harness.capture.call_count, 1)
+        self.assertNotIn("candidate", harness.state["checkpoints"])
+        harness.save.assert_not_called()
+        self.assertFalse(list(self.output.glob("*.framebuffer.*")))
+        report = json.loads(next(self.output.glob("candidate.checkpoint-failure-*.json")).read_text())
+        self.assertEqual(report["terminal_stage"], "wait_deadline")
+        self.assertFalse(report["checkpoint_accepted"])
+        self.assertEqual(report["capture_attempts"][0]["status"], "reader-publication-pending")
+
+    def test_capture_retry_does_not_start_a_new_attempt_at_the_deadline(self):
+        records = self.performance()
+        harness = self.harness(performance=records)
+
+        def capture(name, checkpoint):
+            self.retry_clock.now = 0.75
+            records.append(self.pending_request())
+            return physical.Harness.capture(harness, name, checkpoint)
+
+        harness.capture = Mock(side_effect=capture)
+        self.attach_framebuffer(harness, self.source_projection())
+        with self.assertRaisesRegex(RuntimeError, "wait deadline expired"):
+            self.run_retry_checkpoint(harness, wait=1,
+                                      on_sleep=lambda: self.publish_next_fixture(harness, records))
+        self.assertEqual(self.retry_clock.sleeps, [0.25])
+        self.assertEqual(harness.capture.call_count, 1)
+        self.assertNotIn("candidate", harness.state["checkpoints"])
+
+    def test_capture_pending_never_softens_malformed_or_foreign_proofs(self):
+        faults = ("operation", "clock", "generation", "version", "rotation", "submission", "identity", "epdc")
+        for fault in faults:
+            with self.subTest(fault=fault):
+                records = self.performance()
+                harness = self.harness(performance=records)
+                pending = self.pending_request()
+
+                def capture(name, checkpoint):
+                    if fault == "operation":
+                        pending["operation_id"] = True
+                    elif fault == "clock":
+                        pending["monotonic_ns"] = "250"
+                    elif fault == "generation":
+                        pending["data"]["generation"] += 1
+                    elif fault == "version":
+                        pending["data"]["version"] = 11
+                    elif fault == "rotation":
+                        records[-1]["data"]["rotation_degrees"] = 180
+                    elif fault == "submission":
+                        records[-1]["data"]["refresh_ioctl_attempts"] = "1"
+                    elif fault == "identity":
+                        harness.native_identity.return_value = {**checkpoint["native_process"], "pid": PID + 1}
+                    else:
+                        harness.trace.return_value[-1]["native_epdc_mode"] = "unknown"
+                    records.append(pending)
+                    return physical.Harness.capture(harness, name, checkpoint)
+
+                harness.capture = Mock(side_effect=capture)
+                self.attach_framebuffer(harness, self.source_projection())
+                with self.assertRaises(RuntimeError) as rejected:
+                    self.run_retry_checkpoint(harness)
+                self.assertNotIsInstance(rejected.exception, physical.PendingReaderPublication)
+                self.assertEqual(self.retry_clock.sleeps, [])
+                self.assertEqual(harness.capture.call_count, 1)
+                self.assertNotIn("candidate", harness.state["checkpoints"])
+                harness.save.assert_not_called()
+
+    def test_post_capture_pending_preserves_response_and_projection_failures(self):
+        for fault in ("json", "length", "geometry", "projection", "transport"):
+            with self.subTest(fault=fault):
+                records = self.performance()
+                harness = self.harness(performance=records)
+                pixels = self.source_projection()
+                self.attach_framebuffer(harness, pixels[:-1] if fault == "length" else pixels,
+                                        changed_geometry=fault == "geometry",
+                                        after_capture=lambda: records.append(self.pending_request()))
+                remote = harness.remote.side_effect
+
+                def response(script, **kwargs):
+                    if script.endswith("/physical-framebuffer --capture") and fault == "transport":
+                        raise TimeoutError("Synthetic uncertain capture transport.")
+                    value = remote(script, **kwargs)
+                    if script.endswith("/physical-framebuffer --capture") and fault == "json":
+                        return CompletedProcess([], 0, b"invalid-json\n" + pixels, b"")
+                    return value
+
+                harness.remote.side_effect = response
+                project = physical.framebuffer_panel_projection
+
+                def projection(*args):
+                    value = project(*args)
+                    if fault == "projection":
+                        value["status"] = "unavailable"
+                    return value
+
+                with patch.object(physical, "framebuffer_panel_projection", side_effect=projection):
+                    with self.assertRaises((RuntimeError, ValueError, TimeoutError)) as rejected:
+                        self.run_retry_checkpoint(harness)
+                self.assertNotIsInstance(rejected.exception, physical.PendingReaderPublication)
+                self.assertEqual(self.retry_clock.sleeps, [])
+                self.assertEqual(harness.capture.call_count, 1)
+                self.assertNotIn("candidate", harness.state["checkpoints"])
+                self.assertFalse(list(self.output.glob("*.framebuffer.*")))
+
+    def test_retry_with_a_new_model_still_rejects_old_page_pixels(self):
+        records = self.performance()
+        harness = self.harness(performance=records)
+        self.attach_framebuffer(harness, self.source_projection(),
+                                after_capture=lambda: records.append(self.pending_request()))
+
+        def ready_with_stale_pixels():
+            self.publish_next_fixture(harness, records)
+            self.attach_framebuffer(harness, self.source_projection())
+
+        with self.assertRaisesRegex(RuntimeError, "marker differs"):
+            self.run_retry_checkpoint(harness, on_sleep=ready_with_stale_pixels)
+        self.assertEqual(harness.capture.call_count, 2)
+        self.assertEqual(len({call.args[0] for call in harness.capture.call_args_list}), 2)
+        self.assertNotIn("candidate", harness.state["checkpoints"])
+        self.assertFalse(list(self.output.glob("*.framebuffer.json")))
+
+    def test_completed_same_page_publications_retry_before_or_during_capture(self):
+        for boundary in ("before", "after"):
+            with self.subTest(boundary=boundary):
+                records = self.performance()
+                harness = self.harness(performance=records)
+                harness.output = self.output / boundary
+                harness.output.mkdir()
+                names = []
+
+                def capture(name, checkpoint):
+                    names.append(name)
+                    if boundary == "before" and len(names) == 1:
+                        self.publish_same_page_view(harness, records)
+                    return physical.Harness.capture(harness, name, checkpoint)
+
+                harness.capture = Mock(side_effect=capture)
+                self.attach_framebuffer(harness, self.source_projection(), after_capture=(
+                    lambda: self.publish_same_page_view(harness, records)) if boundary == "after" else None)
+
+                def ready():
+                    self.assertFalse(list(harness.output.glob("*.framebuffer.*")))
+                    self.attach_framebuffer(harness, self.source_projection())
+
+                result = self.run_retry_checkpoint(harness, on_sleep=ready)
+                self.assertEqual(self.retry_clock.sleeps, [0.5])
+                self.assertEqual(result["reader_state"]["page_index"], 4)
+                self.assertEqual(result["reader_state"]["render_version"], 12)
+                self.assertEqual(len(set(names)), 2)
+                attempts = harness.state["checkpoints"]["candidate"]["capture_attempts"]
+                self.assertEqual([attempt["status"] for attempt in attempts], ["reader-view-changed", "accepted"])
+                rejected = json.loads(Path(attempts[0]["diagnostic"]).read_text())
+                self.assertEqual(rejected["observed_checkpoint"]["reader_state"]["render_version"], 12)
+                self.assertFalse(rejected["framebuffer_payload_retained"])
+
+    def test_menu_toggle_with_the_same_publication_retries_capture(self):
+        records = self.performance()
+        harness = self.harness(performance=records)
+        snapshot = physical.fixture_reader_snapshot
+
+        def menu_snapshot(values, manifest, kind):
+            # The supervised reader adapter permits the menu. Keep the base
+            # fixture's other identity and native-input checks for this mock.
+            normalized = deepcopy(values)
+            menu = normalized[-1]["reader_state"]["menu"]
+            self.assertIs(type(menu), bool)
+            for value in normalized:
+                if isinstance(value.get("reader_state"), dict):
+                    value["reader_state"]["menu"] = False
+            result = snapshot(normalized, manifest, kind)
+            result["reader_state"]["menu"] = menu
+            return result
+
+        self.attach_framebuffer(harness, self.source_projection(), after_capture=(
+            lambda: self.publish_same_page_view(harness, records, menu=True, new_version=False)))
+        with patch.object(physical, "fixture_reader_snapshot", side_effect=menu_snapshot):
+            result = self.run_retry_checkpoint(harness, on_sleep=(
+                lambda: self.attach_framebuffer(harness, self.source_projection())))
+        self.assertTrue(result["reader_state"]["menu"])
+        self.assertEqual(result["reader_state"]["render_version"], 11)
+        self.assertEqual(harness.capture.call_count, 2)
+        self.assertEqual(self.retry_clock.sleeps, [0.5])
+        self.assertEqual(harness.state["checkpoints"]["candidate"]["fixture_publication"]["operation_id"], OPERATION)
+
+    def test_completed_view_changes_do_not_soften_bad_payloads_or_foreign_boundaries(self):
+        for fault in ("source", "identity", "epdc", "geometry", "json", "projection"):
+            with self.subTest(fault=fault):
+                records = self.performance()
+                harness = self.harness(performance=records)
+                pixels = self.source_projection()
+
+                def changed():
+                    if fault == "source":
+                        self.publish_next_fixture(harness, records)
+                    else:
+                        self.publish_same_page_view(harness, records)
+                    if fault == "identity":
+                        harness.native_identity.return_value = {**harness.native_identity.return_value, "pid": PID + 1}
+                    elif fault == "epdc":
+                        harness.trace.return_value[-1]["native_epdc_mode"] = "Y8INV"
+                        records[-1]["data"]["output_inverted"] = True
+
+                self.attach_framebuffer(harness, pixels if fault in ("json", "projection") else pixels[:-1],
+                                        changed_geometry=fault == "geometry", after_capture=changed)
+                remote = harness.remote.side_effect
+
+                def response(script, **kwargs):
+                    result = remote(script, **kwargs)
+                    if fault == "json" and script.endswith("/physical-framebuffer --capture"):
+                        return CompletedProcess([], 0, b"invalid-json\n" + pixels, b"")
+                    return result
+
+                harness.remote.side_effect = response
+                project = physical.framebuffer_panel_projection
+
+                def projection(*args):
+                    value = project(*args)
+                    if fault == "projection":
+                        value["status"] = "unavailable"
+                    return value
+
+                with patch.object(physical, "framebuffer_panel_projection", side_effect=projection):
+                    with self.assertRaises((RuntimeError, ValueError)) as rejected:
+                        self.run_retry_checkpoint(harness)
+                self.assertNotIsInstance(rejected.exception, physical.RetryableReaderCaptureChange)
+                self.assertEqual(self.retry_clock.sleeps, [])
+                self.assertEqual(harness.capture.call_count, 1)
+                self.assertNotIn("candidate", harness.state["checkpoints"])
+
+    def test_native_only_advance_still_rejects_and_retains_wrong_page_pixels(self):
+        records = self.performance()
+        records[-1]["data"]["render_sequence"] = 1
+        harness = self.harness(performance=records)
+        pixels = self.source_projection(page=5)
+
+        def redraw():
+            fresh = deepcopy(records)
+            fresh[-1]["monotonic_ns"] += 1000
+            fresh[-1]["data"]["render_sequence"] += 1
+            for timing in fresh[-1]["data"]["stages"].values():
+                timing["started_monotonic_ns"] += 1000
+                timing["finished_monotonic_ns"] += 1000
+            records[:] = fresh
+
+        self.attach_framebuffer(harness, pixels, after_capture=redraw)
+        with self.assertRaisesRegex(RuntimeError, "marker differs"):
+            self.run_retry_checkpoint(harness)
+        self.assertEqual(self.retry_clock.sleeps, [])
+        self.assertEqual(harness.capture.call_count, 1)
+        self.assertNotIn("candidate", harness.state["checkpoints"])
+        self.assertEqual(physical.file_hash(self.output / "candidate.framebuffer.raw"), physical.sha256(pixels))
+
+    def test_completed_view_retry_keeps_the_original_deadline(self):
+        records = self.performance()
+        harness = self.harness(performance=records)
+
+        def changed():
+            self.retry_clock.now = 0.75
+            self.publish_same_page_view(harness, records)
+
+        self.attach_framebuffer(harness, self.source_projection(), after_capture=changed)
+        with self.assertRaisesRegex(RuntimeError, "wait deadline expired"):
+            self.run_retry_checkpoint(harness, wait=1)
+        self.assertEqual(self.retry_clock.now, 1)
+        self.assertEqual(self.retry_clock.sleeps, [0.25])
+        self.assertEqual(harness.capture.call_count, 1)
+        self.assertNotIn("candidate", harness.state["checkpoints"])
+
+    def test_capture_change_allowlist_rejects_unknown_views_and_malformed_telemetry(self):
+        records = self.performance()
+        harness = self.harness(performance=records)
+        before = harness.checkpoint_value("reader")
+        self.publish_same_page_view(harness, records)
+        after = harness.checkpoint_value("reader")
+        self.assertTrue(physical.retryable_reader_capture_change(before, after))
+        faults = (("reader_state", "sheet", "unknown-sheet"), ("reader_state", "rotation", 180),
+                  ("reader_state", "page_id", "foreign-page"), ("reader_state", "viewport_width", 1),
+                  ("reader_state", "zoom_ratio", float("nan")), ("reader_state", "zoom_ratio", True),
+                  ("reader_state", "unknown_future_view", True))
+        for container, key, value in faults:
+            with self.subTest(key=key):
+                changed = deepcopy(after)
+                changed[container][key] = value
+                self.assertFalse(physical.retryable_reader_capture_change(before, changed))
+        for key, value in (("dirty_region", {"x": 0, "y": 0, "width": -1, "height": 1}),
+                           ("stages", {"unknown_stage": {}}), ("render_sequence", True)):
+            with self.subTest(key=key):
+                old, changed = deepcopy(before), deepcopy(after)
+                if key == "dirty_region":
+                    old["fixture_publication"]["native_frame"][key] = {
+                        "x": 0, "y": 0, "width": GEOMETRY["width"], "height": GEOMETRY["height"]}
+                changed["fixture_publication"]["native_frame"][key] = value
+                self.assertFalse(physical.retryable_reader_capture_change(old, changed))
+        same_sequence = deepcopy(after)
+        same_sequence["fixture_publication"]["native_frame"]["render_sequence"] = 1
+        self.assertFalse(physical.retryable_reader_capture_change(before, same_sequence))
+
+    def test_resource_only_cache_progress_and_eviction_keep_the_pixel_gate(self):
+        for name, old, new in (("progress", (0, 0), (400, 2)),
+                               ("eviction", (400, 2), (100, 1)), ("empty", (100, 1), (0, 0))):
+            with self.subTest(name=name):
+                harness = self.harness()
+                harness.output = self.output / name
+                harness.output.mkdir()
+                harness.trace.return_value[-1]["reader_state"].update(
+                    source_cache_budget=1024, source_cache_bytes=old[0], source_cache_entries=old[1])
+                cache = {"source_cache_budget": 1024, "source_cache_bytes": new[0], "source_cache_entries": new[1]}
+                pixels = self.source_projection()
+                self.attach_framebuffer(harness, pixels, after_capture=lambda: self.publish_cache_snapshot(harness, cache))
+                result = self.run_retry_checkpoint(harness, on_sleep=lambda: self.attach_framebuffer(harness, pixels))
+                self.assertEqual(result["reader_state"]["source_cache_bytes"], new[0])
+                self.assertEqual(result["reader_state"]["source_cache_entries"], new[1])
+                self.assertEqual(harness.capture.call_count, 2)
+                self.assertEqual(self.retry_clock.sleeps, [0.5])
+                self.assertEqual(physical.file_hash(harness.output / "candidate.framebuffer.raw"), physical.sha256(pixels))
+                attempt = harness.state["checkpoints"]["candidate"]["capture_attempts"][0]
+                diagnostic = json.loads(Path(attempt["diagnostic"]).read_text())
+                self.assertTrue(diagnostic["framebuffer_payload_retained"])
+                change = physical.RetryableReaderCaptureChange(
+                    diagnostic["candidate_checkpoint"], diagnostic["observed_checkpoint"])
+                self.assertFalse(change.reader_view_changed)
+
+    def test_cache_counts_and_budget_changes_remain_fatal(self):
+        initial = {"source_cache_budget": 1024, "source_cache_bytes": 100, "source_cache_entries": 1}
+        changes = [{"source_cache_bytes": True}, {"source_cache_entries": True}, {"source_cache_budget": True},
+                   {"source_cache_bytes": -1}, {"source_cache_entries": -1}, {"source_cache_budget": -1},
+                   {"source_cache_bytes": 1025}, {"source_cache_entries": 101},
+                   {"source_cache_entries": 0}, {"source_cache_bytes": 0},
+                   {"source_cache_budget": 2048}, {"source_cache_bytes": 100.0}]
+        cases = [{**initial, **change} for change in changes]
+        cases.extend({key: value for key, value in initial.items() if key != missing} for missing in initial)
+        pixels = self.source_projection()
+        for cache in cases:
+            with self.subTest(cache=cache):
+                harness = self.harness()
+                harness.trace.return_value[-1]["reader_state"].update(initial)
+                self.attach_framebuffer(harness, pixels, after_capture=lambda: self.publish_cache_snapshot(harness, cache))
+                with self.assertRaises(RuntimeError) as rejected:
+                    self.run_retry_checkpoint(harness)
+                self.assertNotIsInstance(rejected.exception, physical.RetryableReaderCaptureChange)
+                self.assertEqual(harness.capture.call_count, 1)
+                self.assertEqual(self.retry_clock.sleeps, [])
+                self.assertNotIn("candidate", harness.state["checkpoints"])
+
+    def test_resource_only_cache_change_retains_and_rejects_bad_pixels(self):
+        harness = self.harness()
+        harness.trace.return_value[-1]["reader_state"].update(
+            source_cache_budget=1024, source_cache_bytes=0, source_cache_entries=0)
+        cache = {"source_cache_budget": 1024, "source_cache_bytes": 100, "source_cache_entries": 1}
+        pixels = self.source_projection(page=5)
+        self.attach_framebuffer(harness, pixels, after_capture=lambda: self.publish_cache_snapshot(harness, cache))
+        with self.assertRaisesRegex(RuntimeError, "marker differs"):
+            self.run_retry_checkpoint(harness)
+        self.assertEqual(harness.capture.call_count, 1)
+        self.assertEqual(self.retry_clock.sleeps, [])
+        self.assertNotIn("candidate", harness.state["checkpoints"])
+        self.assertEqual(physical.file_hash(self.output / "candidate.framebuffer.raw"), physical.sha256(pixels))
 
     def test_inputs_bind_guard_manifest_and_every_guest_file(self):
         value = physical.fixture_inputs(self.input_arguments())

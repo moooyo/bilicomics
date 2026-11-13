@@ -120,7 +120,7 @@ fn a_source_larger_than_the_cache_budget_is_decoded_without_retaining_it() {
 }
 
 #[test]
-fn reusable_sources_preserve_regions_and_restored_anchors_in_strip_panel_and_width_modes() {
+fn reusable_sources_preserve_mode_regions_and_centered_page_fit_anchors() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("tall-source.png");
     let encoded = encoded_source(60, 400, 17);
@@ -130,13 +130,29 @@ fn reusable_sources_preserve_regions_and_restored_anchors_in_strip_panel_and_wid
     let descriptor = index(60, 400);
     let viewport = Viewport::new(60, 100);
     for (mode, fit) in [(DisplayMode::Strip, FitMode::Page),
-        (DisplayMode::Panel, FitMode::Page), (DisplayMode::Page, FitMode::Width)] {
+        (DisplayMode::Panel, FitMode::Page), (DisplayMode::Page, FitMode::Original),
+        (DisplayMode::Page, FitMode::Page), (DisplayMode::Page, FitMode::Height),
+        (DisplayMode::Page, FitMode::Width)] {
         let settings = ReaderSettings { mode, fit, dither: false, landscape_spread: false, ..Default::default() };
         let mut reused = reader(&descriptor, &settings);
         let mut from_path = reader(&descriptor, &settings);
         let first = reused.render_source(&source, viewport).unwrap();
-        assert!(first.crop_count > 2);
         assert_same_frame(&first, &from_path.render(&path, viewport).unwrap());
+        if mode == DisplayMode::Page {
+            assert_eq!((first.crop_index, first.crop_count), (0, 1));
+            let anchor = reused.anchor(0);
+            assert_eq!(anchor, from_path.anchor(0));
+            let mut restored = reader(&descriptor, &settings);
+            restored.restore(&anchor).unwrap();
+            assert_same_frame(&restored.render_source(&source, viewport).unwrap(), &first);
+            assert_eq!(restored.anchor(0), anchor);
+            assert_eq!(reused.step(false), ReaderMove::Moved);
+            assert_eq!(reused.render_source(&source, viewport).unwrap().page_index, 0);
+            assert_eq!(reused.step(true), ReaderMove::Moved);
+            assert_same_frame(&reused.render_source(&source, viewport).unwrap(), &first);
+            continue;
+        }
+        assert!(first.crop_count > 2);
         for _ in 0..2 {
             assert_eq!(reused.step(true), ReaderMove::Moved);
             assert_eq!(from_path.step(true), ReaderMove::Moved);
@@ -235,8 +251,7 @@ fn same_geometry_source_replacements_reflow_gutters_around_the_retained_source_a
     let descriptor = index(60, 400);
     let viewport = Viewport::new(60, 100);
     let resources = ReaderResources::new(1024 * 1024);
-    for (mode, fit) in [(DisplayMode::Strip, FitMode::Page),
-        (DisplayMode::Page, FitMode::Width), (DisplayMode::Panel, FitMode::Page)] {
+    for (mode, fit) in [(DisplayMode::Strip, FitMode::Page), (DisplayMode::Panel, FitMode::Page)] {
         let settings = ReaderSettings { mode, fit, dither: false, landscape_spread: false, ..Default::default() };
         // Use the heuristic panel path, without the explicit fixture panel map.
         let mut current = ReaderCore::new(descriptor.clone(), settings.clone()).unwrap();
@@ -268,5 +283,39 @@ fn same_geometry_source_replacements_reflow_gutters_around_the_retained_source_a
         assert_eq!(current.anchor(0), reference.anchor(0));
         assert_ne!(changed.crop, selected.crop);
         assert_same_frame(&current.render_validated_source(&changed_source, viewport).unwrap(), &expected);
+    }
+}
+
+#[test]
+fn same_geometry_source_replacements_refresh_pixels_without_reflowing_centered_page_fits() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("changing-centered-page.png");
+    let original = encoded_source(60, 400, 0);
+    let changed = GrayImage::from_fn(60, 400, |_, y| Luma([if (190..200).contains(&y) { 255 } else { 0 }]));
+    let mut encoded = Cursor::new(Vec::new());
+    DynamicImage::ImageLuma8(changed).write_to(&mut encoded, ImageFormat::Png).unwrap();
+    let changed = encoded.into_inner();
+    let descriptor = index(60, 400);
+    let viewport = Viewport::new(60, 100);
+    let resources = ReaderResources::new(1024 * 1024);
+    for fit in [FitMode::Original, FitMode::Page, FitMode::Height, FitMode::Width] {
+        let settings = ReaderSettings { fit, dither: false, landscape_spread: false, ..Default::default() };
+        let mut current = reader(&descriptor, &settings);
+        fs::write(&path, &original).unwrap();
+        let first_source = load_validated_source_with_resources(&path, &resources).unwrap();
+        let before = current.render_validated_source(&first_source, viewport).unwrap();
+        let anchor = current.anchor(0);
+
+        fs::write(&path, &changed).unwrap();
+        let replacement = load_validated_source_with_resources(&path, &resources).unwrap();
+        let after = current.render_validated_source(&replacement, viewport).unwrap();
+        assert_eq!((after.crop_index, after.crop_count), (0, 1));
+        assert_eq!(after.crop, before.crop);
+        assert_eq!(current.anchor(0), anchor);
+        assert_ne!(after.rgba, before.rgba);
+        let mut restored = reader(&descriptor, &settings);
+        restored.restore(&anchor).unwrap();
+        assert_same_frame(&restored.render_validated_source(&replacement, viewport).unwrap(), &after);
+        assert_same_frame(&current.render_validated_source(&first_source, viewport).unwrap(), &before);
     }
 }

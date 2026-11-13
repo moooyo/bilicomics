@@ -30,7 +30,12 @@ A physical run still requires a fresh exclusive handoff, lease and native return
 
 Records contain static categories, opaque numeric identities and quantitative
 timing/geometry/resource fields. Do not add account names, comic or episode IDs,
-content hashes, paths, URLs, credentials, raw errors, pixels or input coordinates.
+paths, URLs, credentials, raw errors, pixels or input coordinates to traces.
+Content hashes are forbidden in real-account traces. Isolated synthetic
+`--demo` runs may record prepared RGBA and native RGB fingerprints to distinguish discrete geometry replacement
+from repeated UI feedback. Fingerprinting is off by default in the backend,
+requires enabled diagnostics and explicit demo activation, and is reset when
+the callback is replaced or cleared. It never adds raw image bytes to a trace.
 Real-account traces remain private; committed verification must use fictional
 fixtures and an explicitly filtered export.
 
@@ -66,7 +71,11 @@ The file begins with `diagnostic/trace_started` and normally ends with
 `diagnostic/trace_stopped`, reason `finished`, with `truncated=false`. A size,
 serialization or I/O stop invalidates assumptions about missing events. A write
 failure can also make a terminal record impossible; the process-local diagnostic
-status distinguishes this case. No diagnostic mechanism waits for panel completion.
+status distinguishes this case. Diagnostic sampling does not request a refresh
+or add a completion wait. The native presentation policy can require checked
+EPDC marker completion before reusing its mapped pixels and after complete
+replacement. Its trace reports `driver_completion_observed` separately from
+physical panel observation; the driver receipt never proves optical behavior.
 
 ## Reader operation path
 

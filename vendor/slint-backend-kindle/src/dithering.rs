@@ -10,6 +10,7 @@ struct State {
     available: AtomicBool,
     requested: AtomicBool,
     revision: AtomicU32,
+    reviewed_mtk_abi: bool,
 }
 
 /// A producer-side choice for the image already published to the scene.
@@ -36,13 +37,14 @@ impl DitheringHandle {
         // Unit fixtures must not depend on, or inspect, their host's devices.
         #[cfg(test)]
         let supported = false;
-        Self::with_availability(supported, Some(wake))
+        Self::with_availability(supported, supported, Some(wake))
     }
 
-    fn with_availability(available: bool, wake: Option<Arc<OwnedFd>>) -> Self {
+    fn with_availability(available: bool, reviewed_mtk_abi: bool, wake: Option<Arc<OwnedFd>>) -> Self {
         Self {
             state: Arc::new(State {
                 available: AtomicBool::new(available),
+                reviewed_mtk_abi,
                 ..State::default()
             }),
             wake,
@@ -51,6 +53,12 @@ impl DitheringHandle {
 
     pub fn hardware_y4_available(&self) -> bool {
         self.state.available.load(Ordering::Acquire)
+    }
+
+    /// Strict native identity and read-only 8-bit metadata establish this ABI
+    /// independently of scene processing or later rejection of the Y4 flag.
+    pub(crate) fn reviewed_mtk_abi(&self) -> bool {
+        self.state.reviewed_mtk_abi
     }
 
     /// Stage the mode of the currently presented image and wake the renderer.
@@ -94,7 +102,12 @@ impl DitheringHandle {
 
     #[cfg(test)]
     pub(crate) fn for_test(available: bool) -> Self {
-        Self::with_availability(available, None)
+        Self::with_availability(available, false, None)
+    }
+
+    #[cfg(test)]
+    pub(crate) fn for_reviewed_mtk_test() -> Self {
+        Self::with_availability(true, true, None)
     }
 }
 
