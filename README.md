@@ -27,6 +27,10 @@ Startup presents the project name and a low-frequency activity indicator before 
 
 ## Design preview
 
+The [frozen UI/UX baseline](docs/uiux/README.md) preserves 51 native-resolution
+Paperwhite 6 and Scribe screenshots from version 0.1.25, with an offline viewer,
+scene indexes, and repeatable remote capture instructions for future iterations.
+
 After building on the remote worker, use the actual Cargo target directory:
 
 ```sh

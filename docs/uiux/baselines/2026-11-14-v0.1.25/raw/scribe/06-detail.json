@@ -1,0 +1,97 @@
+{
+  "id": "06-detail",
+  "profile": "scribe",
+  "session": "reading",
+  "captured_at": "2026-11-14T12:16:07.972625+00:00",
+  "file": "raw/scribe/06-detail.png",
+  "sha256": "863498734d4918a00f7309bb6258c1abf442ba194994de391a42ced06077c4f7",
+  "width": 1860,
+  "height": 2480,
+  "logical_size": [
+    930,
+    1240
+  ],
+  "scale_factor": 2,
+  "binary_sha256": "9fc0e395f879f2758eda41f924e5aec6888c796aa15c500f7da68833c50738f5",
+  "process_id": 1812604,
+  "source": "Actual X11 application window",
+  "pixel_processing": "None; untouched X11 RGB pixels",
+  "stability": {
+    "minimum_settle_seconds": 1.5,
+    "identical_samples": 3,
+    "sampling_seconds": 1.064
+  },
+  "ui_record": {
+    "demo": true,
+    "elapsed_ms": 629.472368,
+    "event": "ui-state",
+    "monotonic_ns": 400698228523108,
+    "native_epdc_mode": null,
+    "process_id": 1812604,
+    "state": {
+      "account": {
+        "section": "account"
+      },
+      "catalog": {
+        "candidate_page": 0,
+        "candidate_pages": 1,
+        "candidates": [],
+        "composition": "",
+        "detail_id": "28601",
+        "download_selecting": false,
+        "episode_filter": "all",
+        "episode_page": 2,
+        "episode_pages": 4,
+        "keyboard": true,
+        "query": "",
+        "selection_count": 0,
+        "selection_size": "勾选要带走的章节",
+        "shelf_menu": false,
+        "shelf_page": 1,
+        "shelf_pages": 1,
+        "shelf_view": "grid"
+      },
+      "downloads": {
+        "all_paused": false,
+        "can_read": false,
+        "has_active": false,
+        "items": [],
+        "selected_count": 0,
+        "selecting": false,
+        "sheet_id": "",
+        "sheet_open": false,
+        "status_summary": "",
+        "summary": "",
+        "task_primary_action": "",
+        "task_secondary_action": ""
+      },
+      "reader": {
+        "chapter_capacity": 14,
+        "chapter_count": 0,
+        "chapter_descending": false,
+        "chapter_filter": "all",
+        "chapter_page": 1,
+        "chapter_pages": 1,
+        "chapter_rows": [],
+        "fit": "page",
+        "loading": false,
+        "menu": false,
+        "mode": "page",
+        "page": 1,
+        "panel": 1,
+        "sheet": "",
+        "strip_screen": 1,
+        "thumbnail_count": 0,
+        "thumbnails_loading": false,
+        "transition": false
+      },
+      "route": "detail",
+      "toast": ""
+    },
+    "view_model_fixture_only": false
+  },
+  "reader_record": null,
+  "demo": true,
+  "live_account_used": false,
+  "physical_device_used": false
+}

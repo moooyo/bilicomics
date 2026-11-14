@@ -1,0 +1,301 @@
+{
+  "verification_host": "test-env",
+  "captured_source_commit": "91d57c7ba9c294da3c45c779ad39347bb00c1e5e",
+  "captured_binary_sha256": "9fc0e395f879f2758eda41f924e5aec6888c796aa15c500f7da68833c50738f5",
+  "original_capture_stages": [
+    {
+      "stage": "navigation",
+      "errors": [],
+      "sessions": [
+        {
+          "profile": "pw6",
+          "name": "navigation",
+          "screenshots": 11,
+          "pointer_actions": 15,
+          "clean_exit": true
+        },
+        {
+          "profile": "scribe",
+          "name": "navigation",
+          "screenshots": 12,
+          "pointer_actions": 14,
+          "clean_exit": true
+        }
+      ]
+    },
+    {
+      "stage": "reading",
+      "errors": [],
+      "sessions": [
+        {
+          "profile": "pw6",
+          "name": "reading",
+          "screenshots": 9,
+          "pointer_actions": 20,
+          "clean_exit": true,
+          "directory_anchor": {
+            "before": {
+              "comic_id": "28601",
+              "episode_id": "2860112",
+              "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+              "page_index": 17,
+              "source_x": 0.0,
+              "source_y": 0.0,
+              "fit": "page"
+            },
+            "after": {
+              "comic_id": "28601",
+              "episode_id": "2860112",
+              "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+              "page_index": 17,
+              "source_x": 0.0,
+              "source_y": 0.0,
+              "fit": "page"
+            },
+            "preserved": true
+          }
+        },
+        {
+          "profile": "scribe",
+          "name": "reading",
+          "screenshots": 9,
+          "pointer_actions": 20,
+          "clean_exit": true,
+          "directory_anchor": {
+            "before": {
+              "comic_id": "28601",
+              "episode_id": "2860112",
+              "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+              "page_index": 17,
+              "source_x": 0.0,
+              "source_y": 0.0,
+              "fit": "page"
+            },
+            "after": {
+              "comic_id": "28601",
+              "episode_id": "2860112",
+              "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+              "page_index": 17,
+              "source_x": 0.0,
+              "source_y": 0.0,
+              "fit": "page"
+            },
+            "preserved": true
+          }
+        }
+      ]
+    },
+    {
+      "stage": "extras",
+      "errors": [],
+      "sessions": [
+        {
+          "profile": "pw6",
+          "name": "welcome",
+          "screenshots": 1,
+          "pointer_actions": 0,
+          "clean_exit": true
+        },
+        {
+          "profile": "pw6",
+          "name": "login",
+          "screenshots": 1,
+          "pointer_actions": 0,
+          "clean_exit": true
+        },
+        {
+          "profile": "pw6",
+          "name": "purchase",
+          "screenshots": 1,
+          "pointer_actions": 0,
+          "clean_exit": true
+        },
+        {
+          "profile": "pw6",
+          "name": "landscape",
+          "screenshots": 1,
+          "pointer_actions": 0,
+          "clean_exit": true
+        },
+        {
+          "profile": "pw6",
+          "name": "offline",
+          "screenshots": 1,
+          "pointer_actions": 0,
+          "clean_exit": true
+        },
+        {
+          "profile": "scribe",
+          "name": "welcome",
+          "screenshots": 1,
+          "pointer_actions": 0,
+          "clean_exit": true
+        },
+        {
+          "profile": "scribe",
+          "name": "login",
+          "screenshots": 1,
+          "pointer_actions": 0,
+          "clean_exit": true
+        },
+        {
+          "profile": "scribe",
+          "name": "purchase",
+          "screenshots": 1,
+          "pointer_actions": 0,
+          "clean_exit": true
+        },
+        {
+          "profile": "scribe",
+          "name": "landscape",
+          "screenshots": 1,
+          "pointer_actions": 0,
+          "clean_exit": true
+        },
+        {
+          "profile": "scribe",
+          "name": "offline",
+          "screenshots": 1,
+          "pointer_actions": 0,
+          "clean_exit": true
+        }
+      ]
+    }
+  ],
+  "original_preview": {
+    "passed": true,
+    "scene_count": 13,
+    "check_count": 19,
+    "page_errors": []
+  },
+  "standalone_offline_preview": {
+    "passed": true,
+    "scene_count": 13,
+    "check_count": 19,
+    "page_errors": [],
+    "network_requests": [],
+    "checks": [
+      "scene-01-shelf",
+      "scene-03-store",
+      "scene-04-search-keyboard",
+      "scene-05-search-results",
+      "scene-06-detail",
+      "scene-07-downloads",
+      "scene-09-account",
+      "scene-10-account-reading",
+      "scene-15-reader-controls",
+      "scene-19-chapter-directory",
+      "scene-20-reader-settings",
+      "scene-21-reader-light",
+      "scene-23-login",
+      "desktop-comparison",
+      "focus-pw6",
+      "focus-scribe",
+      "narrow-comparison",
+      "dark-reader-controls",
+      "restored-selection"
+    ]
+  },
+  "portable_capture_recipe": {
+    "stages": [
+      "reading"
+    ],
+    "harness_sha256": "f6542826ba8341ec076a28676946d0fee4ffb6ec26784fcd6fde04de62688fc8",
+    "errors": [],
+    "native_pngs_matching_frozen_source": [
+      {
+        "profile": "pw6",
+        "scene": "06-detail",
+        "sha256": "48b54b6dbf739428e6f110c162f5f97e821d98d3d2edd09fc2bc6536cc921b10"
+      },
+      {
+        "profile": "pw6",
+        "scene": "14-reader-page",
+        "sha256": "dd3d3b48b1e2a5bc1143e396191951026e2a3dbee9eb6777b1dd1f2540ebe4a5"
+      },
+      {
+        "profile": "pw6",
+        "scene": "15-reader-controls",
+        "sha256": "1c83ac0ce7c32cf5783f48da9924bc337467747e1f1b23ef2ac5b8ace319b0a6"
+      },
+      {
+        "profile": "pw6",
+        "scene": "16-reader-original",
+        "sha256": "92115f2484b809be12194c1936fe4b2b195589ff6b96d7d5f38368d5dbc0c1f5"
+      },
+      {
+        "profile": "pw6",
+        "scene": "17-reader-height",
+        "sha256": "92115f2484b809be12194c1936fe4b2b195589ff6b96d7d5f38368d5dbc0c1f5"
+      },
+      {
+        "profile": "pw6",
+        "scene": "18-reader-width",
+        "sha256": "663f8ff8fd4bef7b9ed7d6d9e6cae7d4ac4c9f5257c5117be93b76bed93ac4d7"
+      },
+      {
+        "profile": "pw6",
+        "scene": "19-chapter-directory",
+        "sha256": "7de0faa5a30c4394eed7bbb54b19a9399639b31ed0d144fa0047015f35b8b70b"
+      },
+      {
+        "profile": "pw6",
+        "scene": "20-reader-settings",
+        "sha256": "8635fc1ef382641aeb45448d090ee3aeaa4613eb2b0a0008485a232c76ad0d77"
+      },
+      {
+        "profile": "pw6",
+        "scene": "21-reader-light",
+        "sha256": "915c9a8e72519448b234f96e4e535e714fbab675d2af6052d34d804e41ec1bf6"
+      },
+      {
+        "profile": "scribe",
+        "scene": "06-detail",
+        "sha256": "863498734d4918a00f7309bb6258c1abf442ba194994de391a42ced06077c4f7"
+      },
+      {
+        "profile": "scribe",
+        "scene": "14-reader-page",
+        "sha256": "2989ece0b98509b5f1f13c21077e6c8826d11a1f77d1bce0fa2edebb5b785b2a"
+      },
+      {
+        "profile": "scribe",
+        "scene": "15-reader-controls",
+        "sha256": "93beb8e2ac5d5aac224dd137cb4a4b971c58fafc1f54be5b1e40f47ac760af01"
+      },
+      {
+        "profile": "scribe",
+        "scene": "16-reader-original",
+        "sha256": "c4ebc1c2877b5512d8a33a6ffaa8c3c11b2a561158c33c270f83d32d3ac891b3"
+      },
+      {
+        "profile": "scribe",
+        "scene": "17-reader-height",
+        "sha256": "c4ebc1c2877b5512d8a33a6ffaa8c3c11b2a561158c33c270f83d32d3ac891b3"
+      },
+      {
+        "profile": "scribe",
+        "scene": "18-reader-width",
+        "sha256": "665185777e481447ac53e2524d0cc8e56a15c8e589f76057891a61113c4c7947"
+      },
+      {
+        "profile": "scribe",
+        "scene": "19-chapter-directory",
+        "sha256": "fc99b39c8011601eee21403fd8e18a44d166e14c91a29759bd6bf69d13c108dc"
+      },
+      {
+        "profile": "scribe",
+        "scene": "20-reader-settings",
+        "sha256": "5e150cf0aaac3f8159fd335491ebef16366aa8dc60ad437598de1053f6d83a1f"
+      },
+      {
+        "profile": "scribe",
+        "scene": "21-reader-light",
+        "sha256": "b17b48f8b51d596fe54752e28debd888e01c592f3976b55fbbd0c32ec504daa3"
+      }
+    ]
+  },
+  "review_scope": "Human visual inspection of the original delivered software-demo captures; no new UI approval or hardware acceptance",
+  "physical_device_used": false,
+  "live_account_used": false
+}

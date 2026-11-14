@@ -1,5 +1,14 @@
 # Design Source
 
+## Frozen implementation baseline
+
+The user requested preserving the current remote-rendered UI on 2026-11-14.
+The [UI/UX baseline index](uiux/README.md) links 51 unchanged Paperwhite 6 and
+Scribe captures, full scene indexes, four-fit comparisons, and an offline
+viewer from application version 0.1.25. This is the implementation record for
+future comparisons; the design reference and subsequent approvals below
+retain their own authority and provenance.
+
 ## Current reference: v2
 
 On 2026-11-04 the user supplied the v2 self-contained HTML from Downloads and requested an implementation walkthrough and corrections. The 2,831,763-byte file has SHA-256 `62425b5a36df75457fd1769667b5fe88ef06a9d7c6c566a9608a12549aa88414`.

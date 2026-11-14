@@ -11,3 +11,6 @@
 
 # Preserve the exact pinned upstream reference bytes and checksum contract.
 /vendor/image-triangle-reference-0.25.10/** -text
+
+# Preserve frozen screenshot and exported-viewer checksums on every platform.
+/docs/uiux/baselines/** -text

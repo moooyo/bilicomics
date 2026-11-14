@@ -1,0 +1,1301 @@
+{
+  "run_id": "kindle-uiux-20261114-cf02f69e",
+  "source_commit": "91d57c7ba9c294da3c45c779ad39347bb00c1e5e",
+  "source_worktree_clean": true,
+  "application_version": "0.1.25",
+  "binary_sha256": "9fc0e395f879f2758eda41f924e5aec6888c796aa15c500f7da68833c50738f5",
+  "capture_host": "test-env",
+  "renderer": "Slint winit software renderer",
+  "scale_factor": 2,
+  "input": "Actual XTest pointer input; no injected named UI actions or direct view-model setters",
+  "date_in_user_timezone": "2026-11-14",
+  "timezone": "Asia/Shanghai",
+  "raw_pixel_processing": "None. Original PNG files are copied byte for byte from the X11 capture outputs.",
+  "preview_processing": "Proportional Lanczos downsampling; WebP for the inline viewer only. Labels remain outside the screenshots.",
+  "capture_stability": "Minimum 1.5-second settle, followed by three consecutive identical X11 pixel captures.",
+  "capture_count": 51,
+  "profiles": {
+    "pw6": {
+      "portrait_pixels": [
+        1264,
+        1680
+      ],
+      "count": 25
+    },
+    "scribe": {
+      "portrait_pixels": [
+        1860,
+        2480
+      ],
+      "count": 26
+    }
+  },
+  "directory_return_anchor_preserved": true,
+  "live_account_used": false,
+  "physical_kindle_used": false,
+  "firmware_emulator_used": false,
+  "hardware_compatibility_claimed": false,
+  "excluded_initial_take": "The initial fixed-delay captures were superseded after visual inspection found delayed Scribe painting.",
+  "inline_preview": {
+    "scenes": [
+      "01-shelf",
+      "03-store",
+      "04-search-keyboard",
+      "05-search-results",
+      "06-detail",
+      "07-downloads",
+      "09-account",
+      "10-account-reading",
+      "15-reader-controls",
+      "19-chapter-directory",
+      "20-reader-settings",
+      "21-reader-light",
+      "23-login"
+    ],
+    "bytes": 941037,
+    "webp_quality": 88
+  },
+  "captures": [
+    {
+      "id": "01-shelf",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "bda42d79cd64e2e67c90fa1da01688e77b8ac4e9f3af557fb368d293655238d1",
+      "captured_at": "2026-11-14T12:16:00.894493+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.01
+      }
+    },
+    {
+      "id": "02-shelf-filter",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "479e5ee4ce24c4446fe9508d95dac8feb3f30d08af3de0584fd00bfb0b20030e",
+      "captured_at": "2026-11-14T12:16:03.704453+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.993
+      }
+    },
+    {
+      "id": "03-store",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "fc7c1ea621dfcf337308bcbb40355deb6996c3d83de08e953d871127559e7283",
+      "captured_at": "2026-11-14T12:16:06.735543+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.006
+      }
+    },
+    {
+      "id": "04-search-keyboard",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "73013aaede2cecd2b19675fdb728a417458a0dfe725fc482e191a10ed9572f98",
+      "captured_at": "2026-11-14T12:16:09.437995+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.988
+      }
+    },
+    {
+      "id": "05-search-results",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "e65786714c21cc87a982fdc102206d5d3fe078a7a432f8913e1eb9e20f7d8fbd",
+      "captured_at": "2026-11-14T12:16:12.130794+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.978
+      }
+    },
+    {
+      "id": "07-downloads",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "ac6aa90e3df2f7ac74d533ab97a1250adfb7dcc0b41e7e885d725bfc94f4b3f0",
+      "captured_at": "2026-11-14T12:16:14.872498+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.977
+      }
+    },
+    {
+      "id": "08-download-selection",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "fb5cb6755a0e9f77eb811d7ff97f09fcde0f533a91c52e5a5bd3cbf7356c2660",
+      "captured_at": "2026-11-14T12:16:17.881049+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.981
+      }
+    },
+    {
+      "id": "09-account",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "ab5e0d201bd01accb06b44357dcd6fea067184e3b13b328687b02e4c46aebfee",
+      "captured_at": "2026-11-14T12:16:20.894769+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.985
+      }
+    },
+    {
+      "id": "10-account-reading",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "7cc7e257a557606a6121c2d8010a40b108e794c118f6f2e5b32cb653cb84199b",
+      "captured_at": "2026-11-14T12:16:23.647039+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.985
+      }
+    },
+    {
+      "id": "11-account-storage",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "c878f60cee0453004149efa0f2d2d452c16080241356a5e64d69b43c38cb5ba9",
+      "captured_at": "2026-11-14T12:16:26.609024+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.984
+      }
+    },
+    {
+      "id": "12-account-download",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "0cc7f38c106fafdaea086acaa72004c9372816a7b3587fd0a9db86342c8ebebe",
+      "captured_at": "2026-11-14T12:16:29.567587+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.979
+      }
+    },
+    {
+      "id": "06-detail",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "48b54b6dbf739428e6f110c162f5f97e821d98d3d2edd09fc2bc6536cc921b10",
+      "captured_at": "2026-11-14T12:15:35.670375+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.99
+      }
+    },
+    {
+      "id": "14-reader-page",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "dd3d3b48b1e2a5bc1143e396191951026e2a3dbee9eb6777b1dd1f2540ebe4a5",
+      "captured_at": "2026-11-14T12:15:38.893458+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.002
+      }
+    },
+    {
+      "id": "15-reader-controls",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "1c83ac0ce7c32cf5783f48da9924bc337467747e1f1b23ef2ac5b8ace319b0a6",
+      "captured_at": "2026-11-14T12:15:41.801665+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.99
+      }
+    },
+    {
+      "id": "16-reader-original",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "92115f2484b809be12194c1936fe4b2b195589ff6b96d7d5f38368d5dbc0c1f5",
+      "captured_at": "2026-11-14T12:15:45.020584+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.985
+      }
+    },
+    {
+      "id": "17-reader-height",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "92115f2484b809be12194c1936fe4b2b195589ff6b96d7d5f38368d5dbc0c1f5",
+      "captured_at": "2026-11-14T12:15:48.661609+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.991
+      }
+    },
+    {
+      "id": "18-reader-width",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "663f8ff8fd4bef7b9ed7d6d9e6cae7d4ac4c9f5257c5117be93b76bed93ac4d7",
+      "captured_at": "2026-11-14T12:15:52.306532+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.99
+      }
+    },
+    {
+      "id": "19-chapter-directory",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "7de0faa5a30c4394eed7bbb54b19a9399639b31ed0d144fa0047015f35b8b70b",
+      "captured_at": "2026-11-14T12:15:55.688796+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.979
+      }
+    },
+    {
+      "id": "20-reader-settings",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "8635fc1ef382641aeb45448d090ee3aeaa4613eb2b0a0008485a232c76ad0d77",
+      "captured_at": "2026-11-14T12:15:59.334022+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.985
+      }
+    },
+    {
+      "id": "21-reader-light",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "915c9a8e72519448b234f96e4e535e714fbab675d2af6052d34d804e41ec1bf6",
+      "captured_at": "2026-11-14T12:16:02.925808+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.98
+      }
+    },
+    {
+      "id": "22-welcome",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "5876019b3e830deca71ba80f31409095b29203a8f9b9b72f236b58a85679e232",
+      "captured_at": "2026-11-14T12:19:47.034400+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.977
+      }
+    },
+    {
+      "id": "23-login",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "87ef31b7662cd68a98e18ab2ed081777f167597544c7b0fcfb7aab3d374f198f",
+      "captured_at": "2026-11-14T12:19:51.223761+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.975
+      }
+    },
+    {
+      "id": "24-purchase",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "a8f1ea61a6a035b65fef2f0b8aca92f1cf635226fde90ae9713a0b314ebbc7d0",
+      "captured_at": "2026-11-14T12:19:55.417325+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.979
+      }
+    },
+    {
+      "id": "25-reader-landscape",
+      "profile": "pw6",
+      "width": 1680,
+      "height": 1264,
+      "sha256": "ba6bbddb9773d89b23806024c12d3ddab3047803d9ffa78fe80199c63ff639ef",
+      "captured_at": "2026-11-14T12:19:59.821326+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.988
+      }
+    },
+    {
+      "id": "26-store-offline",
+      "profile": "pw6",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "fc776711b5333d1dd449b60ab59cf918d4f9f2cca276e893a98ddbfc44726d93",
+      "captured_at": "2026-11-14T12:20:04.440846+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.994
+      }
+    },
+    {
+      "id": "01-shelf",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "f4c76c78a2aa898e501568ab6ee316dca47fa2a51f0aa5b759fee6caa9a1719e",
+      "captured_at": "2026-11-14T12:16:33.973548+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.086
+      }
+    },
+    {
+      "id": "02-shelf-filter",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "7e99bbb90bf225822a9704301288fa38f373b917981e9722bb59e085c60c8362",
+      "captured_at": "2026-11-14T12:16:36.972204+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.084
+      }
+    },
+    {
+      "id": "03-store",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "000d88570572384daf87d0c7d48fbb84484a81be275765d8e7c1d80ff3c5c72b",
+      "captured_at": "2026-11-14T12:16:40.146415+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.096
+      }
+    },
+    {
+      "id": "04-search-keyboard",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "b9012bf4cd787ca3bbea3bdf6516a66b36ee10a51e7109a6578907a06a372726",
+      "captured_at": "2026-11-14T12:16:42.965286+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.053
+      }
+    },
+    {
+      "id": "05-search-results",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "f1fca41aa097c90388542812549b4f34b78f39b87731ca22e2693fa930e4015d",
+      "captured_at": "2026-11-14T12:16:45.744930+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.065
+      }
+    },
+    {
+      "id": "07-downloads",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "028323757620420a08dc604da1d8c41019306584ffaeb41a3e931a08412cb0e1",
+      "captured_at": "2026-11-14T12:16:48.634170+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.124
+      }
+    },
+    {
+      "id": "08-download-selection",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "4899a47f8e7c3f9510bb0d3fec134b8387bbdfce3f069185cbdf18cfcc8b94c6",
+      "captured_at": "2026-11-14T12:16:51.698562+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.085
+      }
+    },
+    {
+      "id": "09-account",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "e2a24853c6aa21fc6d6be50dc67f6b9f56f6d3182242109e7d6410899057625a",
+      "captured_at": "2026-11-14T12:16:54.837699+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.056
+      }
+    },
+    {
+      "id": "10-account-reading",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "0fc63c6867e71ac5bb12c429ef5487767d32d9615156c3aabf097bd22d21c2a2",
+      "captured_at": "2026-11-14T12:16:57.698824+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.094
+      }
+    },
+    {
+      "id": "11-account-storage",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "3360a081125a65906b156ed84e06d4d3e6d652c9ae3aac39b0c52e9ad8e5c45b",
+      "captured_at": "2026-11-14T12:17:00.519705+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.055
+      }
+    },
+    {
+      "id": "12-account-download",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "ab2e925c557e3368f90b06751a2ab82a7fca8fb03dba7d028058ea014e7e35eb",
+      "captured_at": "2026-11-14T12:17:03.348050+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.062
+      }
+    },
+    {
+      "id": "13-account-system",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "c7ab020fc31e31128e40dcabbdddcf37d052795f5310e94b031fadf545f4a846",
+      "captured_at": "2026-11-14T12:17:06.119170+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.057
+      }
+    },
+    {
+      "id": "06-detail",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "863498734d4918a00f7309bb6258c1abf442ba194994de391a42ced06077c4f7",
+      "captured_at": "2026-11-14T12:16:07.972625+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.064
+      }
+    },
+    {
+      "id": "14-reader-page",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "2989ece0b98509b5f1f13c21077e6c8826d11a1f77d1bce0fa2edebb5b785b2a",
+      "captured_at": "2026-11-14T12:16:11.325139+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.081
+      }
+    },
+    {
+      "id": "15-reader-controls",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "93beb8e2ac5d5aac224dd137cb4a4b971c58fafc1f54be5b1e40f47ac760af01",
+      "captured_at": "2026-11-14T12:16:14.109991+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.07
+      }
+    },
+    {
+      "id": "16-reader-original",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "c4ebc1c2877b5512d8a33a6ffaa8c3c11b2a561158c33c270f83d32d3ac891b3",
+      "captured_at": "2026-11-14T12:16:17.879679+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.08
+      }
+    },
+    {
+      "id": "17-reader-height",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "c4ebc1c2877b5512d8a33a6ffaa8c3c11b2a561158c33c270f83d32d3ac891b3",
+      "captured_at": "2026-11-14T12:16:22.276038+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.082
+      }
+    },
+    {
+      "id": "18-reader-width",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "665185777e481447ac53e2524d0cc8e56a15c8e589f76057891a61113c4c7947",
+      "captured_at": "2026-11-14T12:16:26.671003+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.076
+      }
+    },
+    {
+      "id": "19-chapter-directory",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "fc99b39c8011601eee21403fd8e18a44d166e14c91a29759bd6bf69d13c108dc",
+      "captured_at": "2026-11-14T12:16:30.646836+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.064
+      }
+    },
+    {
+      "id": "20-reader-settings",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "5e150cf0aaac3f8159fd335491ebef16366aa8dc60ad437598de1053f6d83a1f",
+      "captured_at": "2026-11-14T12:16:34.780543+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.056
+      }
+    },
+    {
+      "id": "21-reader-light",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "b17b48f8b51d596fe54752e28debd888e01c592f3976b55fbbd0c32ec504daa3",
+      "captured_at": "2026-11-14T12:16:39.077947+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.067
+      }
+    },
+    {
+      "id": "22-welcome",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "54e519ba3e8c980417ff7d0336ee201e9ad508b6128e984b3fdf90a3ebd94f3d",
+      "captured_at": "2026-11-14T12:20:09.103349+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.05
+      }
+    },
+    {
+      "id": "23-login",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "a099a89b5e5567d601c4fdbc190c03b0b632c09437125a7c7722e9d9571f985e",
+      "captured_at": "2026-11-14T12:20:13.768326+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.052
+      }
+    },
+    {
+      "id": "24-purchase",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "2a3c5773d8a5abdd22fb81567e96867f40fba3af570f1d7da605a5cc467f7c59",
+      "captured_at": "2026-11-14T12:20:18.297825+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.053
+      }
+    },
+    {
+      "id": "25-reader-landscape",
+      "profile": "scribe",
+      "width": 2480,
+      "height": 1860,
+      "sha256": "dd43abb8c41de1d53141c19d22cae1e759e8c96b3049032f323b57e342ae0064",
+      "captured_at": "2026-11-14T12:20:23.773842+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.105
+      }
+    },
+    {
+      "id": "26-store-offline",
+      "profile": "scribe",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "1431a196e792974cb9afda1fabc38d25991a6ab074a99779d79854c0c25baaca",
+      "captured_at": "2026-11-14T12:20:29.338006+00:00",
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.092
+      }
+    }
+  ],
+  "preview_verification": {
+    "host": "test-env",
+    "passed": true,
+    "checks": 19,
+    "page_errors": []
+  },
+  "repository_baseline": {
+    "path": "docs/uiux/baselines/2026-11-14-v0.1.25",
+    "status": "Frozen implementation record requested by the user",
+    "native_pngs_copied_without_changes": true,
+    "raw_state_sidecars_retained": true,
+    "standalone_export": "Bundled visualize 1.0.103 exporter; unused remote icon loader removed; original fragment preserved",
+    "git_newline_conversion": "Disabled for the baseline directory",
+    "reusable_capture": "scripts/verification/capture_uiux_baseline.py",
+    "integrity_check": "scripts/verification/verify_uiux_baseline.py"
+  },
+  "repository_files": [
+    {
+      "path": "README.md",
+      "bytes": 6506,
+      "sha256": "0dd6b5da4c7042ee7e617410bcc7157e3f1fb87370dfa4d505d0574627a7bd56"
+    },
+    {
+      "path": "labels.zh-CN.json",
+      "bytes": 1823,
+      "sha256": "faea3d2e924643572ebb7fb080a7d615385b350ed601b74835d61d6d3b6fa006"
+    },
+    {
+      "path": "previews/device-comparison.png",
+      "bytes": 371776,
+      "sha256": "301724b110e4f3d649921b42579ae85ea4c2c49e8e1d1e9fe254650bd54fb008"
+    },
+    {
+      "path": "previews/pw6-overview.png",
+      "bytes": 1024845,
+      "sha256": "5b8c828983f9b1b95861ee91d38e70fbb184ae62a87dca3f063b2a7186aa3e28"
+    },
+    {
+      "path": "previews/pw6-reading-fits.png",
+      "bytes": 1207974,
+      "sha256": "92215e3a100d3e9a90985a3555ea5d8c3fbfec008498cd24b5161f58b84dd307"
+    },
+    {
+      "path": "previews/scribe-overview.png",
+      "bytes": 991963,
+      "sha256": "6eafcd5c683893ef13a084b48a7728130b368e56140c74e644842a519e4e0494"
+    },
+    {
+      "path": "previews/scribe-reading-fits.png",
+      "bytes": 1077263,
+      "sha256": "9328cc4a4aad222bb7956d04c93ccbdeb49c8834de5e259351e1c1be06bece8f"
+    },
+    {
+      "path": "raw/pw6/01-shelf.json",
+      "bytes": 2514,
+      "sha256": "da1a13346161b988c907f9ff74d39a56f02751c6a9d879be9efc79b5bebce43c"
+    },
+    {
+      "path": "raw/pw6/01-shelf.png",
+      "bytes": 135222,
+      "sha256": "bda42d79cd64e2e67c90fa1da01688e77b8ac4e9f3af557fb368d293655238d1"
+    },
+    {
+      "path": "raw/pw6/02-shelf-filter.json",
+      "bytes": 2529,
+      "sha256": "4dbedaec50093da64864279a797bad81e2b6c50938bd5cf8f98e078e6e935228"
+    },
+    {
+      "path": "raw/pw6/02-shelf-filter.png",
+      "bytes": 140382,
+      "sha256": "479e5ee4ce24c4446fe9508d95dac8feb3f30d08af3de0584fd00bfb0b20030e"
+    },
+    {
+      "path": "raw/pw6/03-store.json",
+      "bytes": 2509,
+      "sha256": "17b11acce7e4ed9b29b7e403465d4231c3de1d05b6084c02635e16856a2909c0"
+    },
+    {
+      "path": "raw/pw6/03-store.png",
+      "bytes": 130835,
+      "sha256": "fc7c1ea621dfcf337308bcbb40355deb6996c3d83de08e953d871127559e7283"
+    },
+    {
+      "path": "raw/pw6/04-search-keyboard.json",
+      "bytes": 2530,
+      "sha256": "8896098aaf4eab7bbdebcf8a6db41f27fbdb7a5b827be13bcbadf9f006a0d1b8"
+    },
+    {
+      "path": "raw/pw6/04-search-keyboard.png",
+      "bytes": 84513,
+      "sha256": "73013aaede2cecd2b19675fdb728a417458a0dfe725fc482e191a10ed9572f98"
+    },
+    {
+      "path": "raw/pw6/05-search-results.json",
+      "bytes": 2536,
+      "sha256": "dbf120442f714591dd165615bb2b919d97e96bc74c470c7233c7dd7dfcbd1e2b"
+    },
+    {
+      "path": "raw/pw6/05-search-results.png",
+      "bytes": 75813,
+      "sha256": "e65786714c21cc87a982fdc102206d5d3fe078a7a432f8913e1eb9e20f7d8fbd"
+    },
+    {
+      "path": "raw/pw6/06-detail.json",
+      "bytes": 2526,
+      "sha256": "9e24b4f918e63f29f8160b212b61bad711b5ef1154f0b60319948e13eb8b1be4"
+    },
+    {
+      "path": "raw/pw6/06-detail.png",
+      "bytes": 117013,
+      "sha256": "48b54b6dbf739428e6f110c162f5f97e821d98d3d2edd09fc2bc6536cc921b10"
+    },
+    {
+      "path": "raw/pw6/07-downloads.json",
+      "bytes": 4036,
+      "sha256": "3abdc3c866fcc82677e0ee32ee8d87b632947df01214c512da618c44dfc2b080"
+    },
+    {
+      "path": "raw/pw6/07-downloads.png",
+      "bytes": 113508,
+      "sha256": "ac6aa90e3df2f7ac74d533ab97a1250adfb7dcc0b41e7e885d725bfc94f4b3f0"
+    },
+    {
+      "path": "raw/pw6/08-download-selection.json",
+      "bytes": 4058,
+      "sha256": "d80c38946ba5a777852077910000abea0f2a324232222eb360e8b746bf04ba3d"
+    },
+    {
+      "path": "raw/pw6/08-download-selection.png",
+      "bytes": 121373,
+      "sha256": "fb5cb6755a0e9f77eb811d7ff97f09fcde0f533a91c52e5a5bd3cbf7356c2660"
+    },
+    {
+      "path": "raw/pw6/09-account.json",
+      "bytes": 4030,
+      "sha256": "03b5dc4b4a16b1e3425784cdd1dc8b6b24a2da16d4faaea2116d90e8593263ed"
+    },
+    {
+      "path": "raw/pw6/09-account.png",
+      "bytes": 96819,
+      "sha256": "ab5e0d201bd01accb06b44357dcd6fea067184e3b13b328687b02e4c46aebfee"
+    },
+    {
+      "path": "raw/pw6/10-account-reading.json",
+      "bytes": 4046,
+      "sha256": "a30676d7f5a3ec6b7f55e3a7c336a65ab1eeee38351043931643c4fe58dae8ed"
+    },
+    {
+      "path": "raw/pw6/10-account-reading.png",
+      "bytes": 93077,
+      "sha256": "7cc7e257a557606a6121c2d8010a40b108e794c118f6f2e5b32cb653cb84199b"
+    },
+    {
+      "path": "raw/pw6/11-account-storage.json",
+      "bytes": 4052,
+      "sha256": "f05f54f5c24f98007d55446c37bcbab9bafd91a18ff69d1de8e7438925e4c7c8"
+    },
+    {
+      "path": "raw/pw6/11-account-storage.png",
+      "bytes": 74683,
+      "sha256": "c878f60cee0453004149efa0f2d2d452c16080241356a5e64d69b43c38cb5ba9"
+    },
+    {
+      "path": "raw/pw6/12-account-download.json",
+      "bytes": 4055,
+      "sha256": "6d60e775ccca72d42dda540193f639bd55657b36755f34c0788d1793f037174d"
+    },
+    {
+      "path": "raw/pw6/12-account-download.png",
+      "bytes": 90455,
+      "sha256": "0cc7f38c106fafdaea086acaa72004c9372816a7b3587fd0a9db86342c8ebebe"
+    },
+    {
+      "path": "raw/pw6/14-reader-page.json",
+      "bytes": 5662,
+      "sha256": "9ad24479695eab8bfce34b4e3f919852d90ff40d5170812a25da7167f5a242f1"
+    },
+    {
+      "path": "raw/pw6/14-reader-page.png",
+      "bytes": 86937,
+      "sha256": "dd3d3b48b1e2a5bc1143e396191951026e2a3dbee9eb6777b1dd1f2540ebe4a5"
+    },
+    {
+      "path": "raw/pw6/15-reader-controls.json",
+      "bytes": 5677,
+      "sha256": "20423dfd4225f4f9227241574072dbf96562d36bd3785b739157d74a921e285d"
+    },
+    {
+      "path": "raw/pw6/15-reader-controls.png",
+      "bytes": 89914,
+      "sha256": "1c83ac0ce7c32cf5783f48da9924bc337467747e1f1b23ef2ac5b8ace319b0a6"
+    },
+    {
+      "path": "raw/pw6/16-reader-original.json",
+      "bytes": 5692,
+      "sha256": "81d6ce2c37d11104ed16fde07a046f16603a1e851a035f9ee215bc329cf6db2a"
+    },
+    {
+      "path": "raw/pw6/16-reader-original.png",
+      "bytes": 82802,
+      "sha256": "92115f2484b809be12194c1936fe4b2b195589ff6b96d7d5f38368d5dbc0c1f5"
+    },
+    {
+      "path": "raw/pw6/17-reader-height.json",
+      "bytes": 5674,
+      "sha256": "e90e983149ca0a52b794a33674e25d8c2bcac8f7ab71dfc5fa3b24a3365d28d9"
+    },
+    {
+      "path": "raw/pw6/17-reader-height.png",
+      "bytes": 82802,
+      "sha256": "92115f2484b809be12194c1936fe4b2b195589ff6b96d7d5f38368d5dbc0c1f5"
+    },
+    {
+      "path": "raw/pw6/18-reader-width.json",
+      "bytes": 5719,
+      "sha256": "46b38e930e6b67377e3506d76e139075d414e99b62dc3d4b990562f5124ad73c"
+    },
+    {
+      "path": "raw/pw6/18-reader-width.png",
+      "bytes": 86953,
+      "sha256": "663f8ff8fd4bef7b9ed7d6d9e6cae7d4ac4c9f5257c5117be93b76bed93ac4d7"
+    },
+    {
+      "path": "raw/pw6/19-chapter-directory.json",
+      "bytes": 7412,
+      "sha256": "d9636b67f69e91f4e264711acad1f1edd1dc940088e0f3cd1f7ea27c7b55efbe"
+    },
+    {
+      "path": "raw/pw6/19-chapter-directory.png",
+      "bytes": 114811,
+      "sha256": "7de0faa5a30c4394eed7bbb54b19a9399639b31ed0d144fa0047015f35b8b70b"
+    },
+    {
+      "path": "raw/pw6/20-reader-settings.json",
+      "bytes": 5687,
+      "sha256": "fdb3993f8f9a6701674b4f01698794f94c8be6dc5af822579a5b94cb87127a18"
+    },
+    {
+      "path": "raw/pw6/20-reader-settings.png",
+      "bytes": 104390,
+      "sha256": "8635fc1ef382641aeb45448d090ee3aeaa4613eb2b0a0008485a232c76ad0d77"
+    },
+    {
+      "path": "raw/pw6/21-reader-light.json",
+      "bytes": 5683,
+      "sha256": "d36dbecf34b39affdf2c53240ae6bc922107b8edddb9570ba789377595a74391"
+    },
+    {
+      "path": "raw/pw6/21-reader-light.png",
+      "bytes": 72548,
+      "sha256": "915c9a8e72519448b234f96e4e535e714fbab675d2af6052d34d804e41ec1bf6"
+    },
+    {
+      "path": "raw/pw6/22-welcome.json",
+      "bytes": 2518,
+      "sha256": "1accf8df3801a186214b7e47af20f7923c073a66fada792c1dfa2349c40f4384"
+    },
+    {
+      "path": "raw/pw6/22-welcome.png",
+      "bytes": 59018,
+      "sha256": "5876019b3e830deca71ba80f31409095b29203a8f9b9b72f236b58a85679e232"
+    },
+    {
+      "path": "raw/pw6/23-login.json",
+      "bytes": 2503,
+      "sha256": "435fd8e6849dec9568a857773aa6636704d6ae30334649c82d74c5f53523c714"
+    },
+    {
+      "path": "raw/pw6/23-login.png",
+      "bytes": 55864,
+      "sha256": "87ef31b7662cd68a98e18ab2ed081777f167597544c7b0fcfb7aab3d374f198f"
+    },
+    {
+      "path": "raw/pw6/24-purchase.json",
+      "bytes": 2515,
+      "sha256": "8f727ae3514e89aed6e4dfa937c2f17d52fc4a08df4a565d3bd062e03327726d"
+    },
+    {
+      "path": "raw/pw6/24-purchase.png",
+      "bytes": 110078,
+      "sha256": "a8f1ea61a6a035b65fef2f0b8aca92f1cf635226fde90ae9713a0b314ebbc7d0"
+    },
+    {
+      "path": "raw/pw6/25-reader-landscape.json",
+      "bytes": 5653,
+      "sha256": "5d132166458834ae0a12bec3eff62c957d59bb6c225e49e9d73062b7b893ba86"
+    },
+    {
+      "path": "raw/pw6/25-reader-landscape.png",
+      "bytes": 85432,
+      "sha256": "ba6bbddb9773d89b23806024c12d3ddab3047803d9ffa78fe80199c63ff639ef"
+    },
+    {
+      "path": "raw/pw6/26-store-offline.json",
+      "bytes": 2521,
+      "sha256": "89aa1a16106404aee80c7ef0d7441f6b2b371067cf162220a27154b3f3ba8835"
+    },
+    {
+      "path": "raw/pw6/26-store-offline.png",
+      "bytes": 133490,
+      "sha256": "fc776711b5333d1dd449b60ab59cf918d4f9f2cca276e893a98ddbfc44726d93"
+    },
+    {
+      "path": "raw/scribe/01-shelf.json",
+      "bytes": 2522,
+      "sha256": "aa5344cd59bc6943f509d90df9eb9613840f5368eba520bc67799634791c71e3"
+    },
+    {
+      "path": "raw/scribe/01-shelf.png",
+      "bytes": 247793,
+      "sha256": "f4c76c78a2aa898e501568ab6ee316dca47fa2a51f0aa5b759fee6caa9a1719e"
+    },
+    {
+      "path": "raw/scribe/02-shelf-filter.json",
+      "bytes": 2528,
+      "sha256": "0a88fd351e4e06d84337d4f5102ea3606f3aad5b9a1b3af7efc8e022434c2094"
+    },
+    {
+      "path": "raw/scribe/02-shelf-filter.png",
+      "bytes": 254248,
+      "sha256": "7e99bbb90bf225822a9704301288fa38f373b917981e9722bb59e085c60c8362"
+    },
+    {
+      "path": "raw/scribe/03-store.json",
+      "bytes": 2516,
+      "sha256": "0f8da22edd2592b18376a37cd01f784ba55a6bb00b94630eac8c153fbdc819f1"
+    },
+    {
+      "path": "raw/scribe/03-store.png",
+      "bytes": 305972,
+      "sha256": "000d88570572384daf87d0c7d48fbb84484a81be275765d8e7c1d80ff3c5c72b"
+    },
+    {
+      "path": "raw/scribe/04-search-keyboard.json",
+      "bytes": 2538,
+      "sha256": "d53ac8ae11db2e824dadd7e8f2e00fa16fe0210368292b35659a5421b288f7de"
+    },
+    {
+      "path": "raw/scribe/04-search-keyboard.png",
+      "bytes": 115520,
+      "sha256": "b9012bf4cd787ca3bbea3bdf6516a66b36ee10a51e7109a6578907a06a372726"
+    },
+    {
+      "path": "raw/scribe/05-search-results.json",
+      "bytes": 2543,
+      "sha256": "34e83a1644389a246956f8ad2f6c91421993e3717b901b6e18568ceb0b785ec6"
+    },
+    {
+      "path": "raw/scribe/05-search-results.png",
+      "bytes": 169509,
+      "sha256": "f1fca41aa097c90388542812549b4f34b78f39b87731ca22e2693fa930e4015d"
+    },
+    {
+      "path": "raw/scribe/06-detail.json",
+      "bytes": 2544,
+      "sha256": "448c9f1649d958b8f060b3ef2d834097987d76f3e68ebfef918c3185ab62d011"
+    },
+    {
+      "path": "raw/scribe/06-detail.png",
+      "bytes": 200322,
+      "sha256": "863498734d4918a00f7309bb6258c1abf442ba194994de391a42ced06077c4f7"
+    },
+    {
+      "path": "raw/scribe/07-downloads.json",
+      "bytes": 4516,
+      "sha256": "7c4dd0eddaacb5a3fc5e0f065ef6f28f8365576e27896bc4e06cf5230e98b784"
+    },
+    {
+      "path": "raw/scribe/07-downloads.png",
+      "bytes": 179005,
+      "sha256": "028323757620420a08dc604da1d8c41019306584ffaeb41a3e931a08412cb0e1"
+    },
+    {
+      "path": "raw/scribe/08-download-selection.json",
+      "bytes": 4532,
+      "sha256": "e186aa23417109cf5f058bf2222f8873b4a0cbe244cb7f78d59c13d01dcf1055"
+    },
+    {
+      "path": "raw/scribe/08-download-selection.png",
+      "bytes": 194452,
+      "sha256": "4899a47f8e7c3f9510bb0d3fec134b8387bbdfce3f069185cbdf18cfcc8b94c6"
+    },
+    {
+      "path": "raw/scribe/09-account.json",
+      "bytes": 4504,
+      "sha256": "2374a7363a8692f1e354e42c66e1ebd5aec05796c52ad4957a2cb58fd27b8f75"
+    },
+    {
+      "path": "raw/scribe/09-account.png",
+      "bytes": 109676,
+      "sha256": "e2a24853c6aa21fc6d6be50dc67f6b9f56f6d3182242109e7d6410899057625a"
+    },
+    {
+      "path": "raw/scribe/10-account-reading.json",
+      "bytes": 4526,
+      "sha256": "a2436dd35593434fbfb6fc24469b786b6a71ddab2c56d436f297fa65400c7cab"
+    },
+    {
+      "path": "raw/scribe/10-account-reading.png",
+      "bytes": 153632,
+      "sha256": "0fc63c6867e71ac5bb12c429ef5487767d32d9615156c3aabf097bd22d21c2a2"
+    },
+    {
+      "path": "raw/scribe/11-account-storage.json",
+      "bytes": 4520,
+      "sha256": "7c0b0057064c286a18814b3af4299ff33da1324b74b5974434c19d4cb4efc765"
+    },
+    {
+      "path": "raw/scribe/11-account-storage.png",
+      "bytes": 117006,
+      "sha256": "3360a081125a65906b156ed84e06d4d3e6d652c9ae3aac39b0c52e9ad8e5c45b"
+    },
+    {
+      "path": "raw/scribe/12-account-download.json",
+      "bytes": 4523,
+      "sha256": "5fa1715087b138f390add8acd585aa67fd3235f22c2a088922c4a88d07883ba2"
+    },
+    {
+      "path": "raw/scribe/12-account-download.png",
+      "bytes": 135044,
+      "sha256": "ab2e925c557e3368f90b06751a2ab82a7fca8fb03dba7d028058ea014e7e35eb"
+    },
+    {
+      "path": "raw/scribe/13-account-system.json",
+      "bytes": 4517,
+      "sha256": "7c8ec210f1e78bc20330a646d78031a6266e8a36dd5e9595f274cbe41dfa72d6"
+    },
+    {
+      "path": "raw/scribe/13-account-system.png",
+      "bytes": 132135,
+      "sha256": "c7ab020fc31e31128e40dcabbdddcf37d052795f5310e94b031fadf545f4a846"
+    },
+    {
+      "path": "raw/scribe/14-reader-page.json",
+      "bytes": 5682,
+      "sha256": "00f9923212c5320bd0c26632ba92c998ba7228329a69ec9fba0b81b35f042a40"
+    },
+    {
+      "path": "raw/scribe/14-reader-page.png",
+      "bytes": 165291,
+      "sha256": "2989ece0b98509b5f1f13c21077e6c8826d11a1f77d1bce0fa2edebb5b785b2a"
+    },
+    {
+      "path": "raw/scribe/15-reader-controls.json",
+      "bytes": 5691,
+      "sha256": "d968c5f94a5121999014f652f0f53ee8c2072e8d57778ecaf213294b6bd70782"
+    },
+    {
+      "path": "raw/scribe/15-reader-controls.png",
+      "bytes": 159846,
+      "sha256": "93beb8e2ac5d5aac224dd137cb4a4b971c58fafc1f54be5b1e40f47ac760af01"
+    },
+    {
+      "path": "raw/scribe/16-reader-original.json",
+      "bytes": 5705,
+      "sha256": "9625a34444a6a4c906d232bf4faabfdea90ebc8a32f28ff3c2c418a4843db59f"
+    },
+    {
+      "path": "raw/scribe/16-reader-original.png",
+      "bytes": 165517,
+      "sha256": "c4ebc1c2877b5512d8a33a6ffaa8c3c11b2a561158c33c270f83d32d3ac891b3"
+    },
+    {
+      "path": "raw/scribe/17-reader-height.json",
+      "bytes": 5706,
+      "sha256": "d7214e89ffacca0e50d8e702becd9df6b0b5bd989e43a185e2a55a78f73cc751"
+    },
+    {
+      "path": "raw/scribe/17-reader-height.png",
+      "bytes": 165517,
+      "sha256": "c4ebc1c2877b5512d8a33a6ffaa8c3c11b2a561158c33c270f83d32d3ac891b3"
+    },
+    {
+      "path": "raw/scribe/18-reader-width.json",
+      "bytes": 5742,
+      "sha256": "34a9c36dc3557b6a51905783ecea6589b024a92a7076868b726875cdb86248b8"
+    },
+    {
+      "path": "raw/scribe/18-reader-width.png",
+      "bytes": 163760,
+      "sha256": "665185777e481447ac53e2524d0cc8e56a15c8e589f76057891a61113c4c7947"
+    },
+    {
+      "path": "raw/scribe/19-chapter-directory.json",
+      "bytes": 8090,
+      "sha256": "b98c762a1a58a0e648e0c040827784b6962570522b76e5380e548c567787476b"
+    },
+    {
+      "path": "raw/scribe/19-chapter-directory.png",
+      "bytes": 170818,
+      "sha256": "fc99b39c8011601eee21403fd8e18a44d166e14c91a29759bd6bf69d13c108dc"
+    },
+    {
+      "path": "raw/scribe/20-reader-settings.json",
+      "bytes": 5714,
+      "sha256": "0de06f20af287acfdca4449a958b767626b9ba4acd874d6712bc461c4a9223db"
+    },
+    {
+      "path": "raw/scribe/20-reader-settings.png",
+      "bytes": 148376,
+      "sha256": "5e150cf0aaac3f8159fd335491ebef16366aa8dc60ad437598de1053f6d83a1f"
+    },
+    {
+      "path": "raw/scribe/21-reader-light.json",
+      "bytes": 5698,
+      "sha256": "5ee6364f70f53a84fcb18b78fdf9a7215a8ec48d1ec7e41ce7bbe99134cffcfa"
+    },
+    {
+      "path": "raw/scribe/21-reader-light.png",
+      "bytes": 143075,
+      "sha256": "b17b48f8b51d596fe54752e28debd888e01c592f3976b55fbbd0c32ec504daa3"
+    },
+    {
+      "path": "raw/scribe/22-welcome.json",
+      "bytes": 2517,
+      "sha256": "5dd037c7f65a13f351dfdb2350ce129efb95c8b432a380985bcce7c8337e5a9f"
+    },
+    {
+      "path": "raw/scribe/22-welcome.png",
+      "bytes": 86835,
+      "sha256": "54e519ba3e8c980417ff7d0336ee201e9ad508b6128e984b3fdf90a3ebd94f3d"
+    },
+    {
+      "path": "raw/scribe/23-login.json",
+      "bytes": 2517,
+      "sha256": "9963db40f232f6ee862b5ccf46e24247e5429983d0bfe1720c5208492ae70f1e"
+    },
+    {
+      "path": "raw/scribe/23-login.png",
+      "bytes": 81321,
+      "sha256": "a099a89b5e5567d601c4fdbc190c03b0b632c09437125a7c7722e9d9571f985e"
+    },
+    {
+      "path": "raw/scribe/24-purchase.json",
+      "bytes": 2522,
+      "sha256": "a3bfe4f516ce5eb0a4248e1529c6f81c4c22e1f7e036e47dea9721274037d5c9"
+    },
+    {
+      "path": "raw/scribe/24-purchase.png",
+      "bytes": 150897,
+      "sha256": "2a3c5773d8a5abdd22fb81567e96867f40fba3af570f1d7da605a5cc467f7c59"
+    },
+    {
+      "path": "raw/scribe/25-reader-landscape.json",
+      "bytes": 5664,
+      "sha256": "71b76a94875021a5d67ff183d2a7e27a67916d38ecb4424c2aef6b496164256d"
+    },
+    {
+      "path": "raw/scribe/25-reader-landscape.png",
+      "bytes": 204506,
+      "sha256": "dd43abb8c41de1d53141c19d22cae1e759e8c96b3049032f323b57e342ae0064"
+    },
+    {
+      "path": "raw/scribe/26-store-offline.json",
+      "bytes": 2528,
+      "sha256": "e39296f2d70733ece139c5dbbc2102f1b5ecdc59d349c397010fa25406fd164e"
+    },
+    {
+      "path": "raw/scribe/26-store-offline.png",
+      "bytes": 305068,
+      "sha256": "1431a196e792974cb9afda1fabc38d25991a6ab074a99779d79854c0c25baaca"
+    },
+    {
+      "path": "verification.json",
+      "bytes": 8596,
+      "sha256": "e0ea6be0f9de6c9d2f77383a97c26a07cd31b47d1012ace99d23387915b7674e"
+    },
+    {
+      "path": "viewer.fragment.html",
+      "bytes": 941037,
+      "sha256": "fda6a3f9fa190b9f053a487d5278db498c1a0866e41680ae6a7f2ffdf11e82c3"
+    },
+    {
+      "path": "viewer.html",
+      "bytes": 1031730,
+      "sha256": "7336f017ae7c30362a4884b4d153f4fb2a6b9907d34c5020a2aee9d258833a6c"
+    }
+  ]
+}
