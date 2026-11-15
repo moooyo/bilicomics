@@ -17,11 +17,11 @@ use crate::{
     downloads::{DownloadEvent, DownloadEventKind, DownloadRequest, LocalPageResolver},
     i18n,
     performance::{Operation, Span},
-    platform::{RefreshKind, RefreshPlan, RefreshReason, RefreshRect},
+    platform::{ReaderRefreshScene, RefreshKind, RefreshPlan, RefreshReason, RefreshRect},
     reader::{DisplayMode, FitMode, NormalizedRect, PageDirection, ReaderCore, ReaderMove, ReaderSettings, RenderedPage, Viewport},
     source::ErrorKind,
     store::{DownloadRecord, DownloadStatus},
-    ui::{AppWindow, ReaderChapter, ReaderModel, ReaderThumbnail, ShellModel},
+    ui::{AppWindow, AuthModel, ReaderChapter, ReaderModel, ReaderThumbnail, ShellModel},
 };
 
 const MAX_QUEUED_INTENTS: usize = 32;
@@ -34,10 +34,12 @@ struct SavedReaderPreferences {
     fit: String,
     direction: String,
     every: String,
+    refresh_mode: String,
     landscape: String,
     cover_alone: bool,
     dither: bool,
     dither_method: String,
+    jpeg_acceleration: bool,
     footer: bool,
 }
 
@@ -48,8 +50,9 @@ impl Default for SavedReaderPreferences {
 impl From<&Preferences> for SavedReaderPreferences {
     fn from(value: &Preferences) -> Self {
         Self { mode: value.mode.clone(), fit: value.fit.clone(), direction: value.direction.clone(),
-            every: value.every.clone(), landscape: value.landscape.clone(), cover_alone: value.cover_alone,
-            dither: value.dither, dither_method: value.dither_method.clone(), footer: value.footer }
+            every: value.every.clone(), refresh_mode: value.refresh_mode.clone(), landscape: value.landscape.clone(), cover_alone: value.cover_alone,
+            dither: value.dither, dither_method: value.dither_method.clone(),
+            jpeg_acceleration: value.jpeg_acceleration, footer: value.footer }
     }
 }
 
@@ -225,6 +228,19 @@ impl ReadingState {
     fn preparation_feedback_due(&self) -> bool {
         self.loading && self.retain_frame_during_preparation()
             && self.render_started.is_some_and(|started| started.elapsed() >= Duration::from_millis(600))
+    }
+
+    fn refresh_scene(&self) -> ReaderRefreshScene {
+        let Some(core) = self.presented_core.as_ref() else { return ReaderRefreshScene::Normal; };
+        if !core.settings().fast_mode { return ReaderRefreshScene::Normal; }
+        let expired = self.episode().is_some_and(|episode| !episode.readable_at(now()));
+        let loading_overlay = self.loading && (!self.retain_frame_during_preparation() || self.preparation_feedback_due());
+        let guidance = self.guidance && !self.loading && self.error.is_none();
+        let error = expired || self.error.is_some() && !self.loading;
+        if core.is_transition() || self.page.size().width == 0 || self.menu || !self.sheet.is_empty()
+            || guidance || error || loading_overlay {
+            ReaderRefreshScene::FastOverlay
+        } else { ReaderRefreshScene::FastContent }
     }
 
     /// Cancel only the target actually owned by this render job. Notifications
@@ -415,6 +431,7 @@ struct NextFrame {
     core: ReaderCore,
     frame: PreparedFrame,
     proof: crate::image_integrity::ValidatedImage,
+    preparation: crate::reader::SourcePreparation,
 }
 
 impl NextFrame {
@@ -516,6 +533,24 @@ impl ReaderFiles {
                 &page.id, cancelled, |input| crate::reader::load_hashed_source(input, previous, cancelled)),
         }
     }
+
+    fn prepared_source_profiled(&self, index: &ImageIndex, position: usize,
+        previous: Option<&crate::image_integrity::ValidatedImage>, preparation: crate::reader::SourcePreparation,
+        cancelled: &AtomicBool, profile: Option<&mut crate::reader::ReaderPreparationProfile>,
+    ) -> Result<Option<Option<crate::reader::PreparedGraySource>>> {
+        let Some(page) = index.images.get(position) else { return Ok(None); };
+        match (self, profile) {
+            (Self::Demo { .. }, profile) => self.local_page(index, position)?
+                .map(|path| crate::reader::prepare_changed_source(&path, previous, preparation, cancelled, profile)
+                    .map_err(anyhow::Error::new)).transpose(),
+            (Self::Account(resolver), Some(profile)) => resolver.with_verified_page_profiled(
+                &index.episode_id, &index.revision, &page.id, cancelled, profile,
+                |profile| &mut profile.stages,
+                |input, profile| crate::reader::prepare_hashed_source(input, previous, preparation, cancelled, Some(profile))),
+            (Self::Account(resolver), None) => resolver.with_verified_page(&index.episode_id, &index.revision,
+                &page.id, cancelled, |input| crate::reader::prepare_hashed_source(input, previous, preparation, cancelled, None)),
+        }
+    }
 }
 
 struct PreparedThumbnail {
@@ -541,9 +576,27 @@ impl App {
         self.reading.as_ref().map(|state| (state.comic_id.as_str(), state.episode_id.as_str()))
     }
 
+    fn presented_reader_refresh_scene(&self) -> ReaderRefreshScene {
+        if self.route != "reader" || self.sleep_screen.active || self.is_suspended() {
+            return ReaderRefreshScene::Normal;
+        }
+        let scene = self.reading.as_ref().map_or(ReaderRefreshScene::Normal, ReadingState::refresh_scene);
+        let visible_global_overlay = self.ui.upgrade().map(|ui|
+            ui.global::<AuthModel>().get_net_visible() || !ui.global::<ShellModel>().get_toast().is_empty());
+        let global_overlay = reader_global_overlay_visible(visible_global_overlay, self.pending_network.is_some(),
+            self.toast_until.is_some_and(|until| until > Instant::now()));
+        if scene == ReaderRefreshScene::FastContent && global_overlay { ReaderRefreshScene::FastOverlay }
+        else { scene }
+    }
+
     /// Keep processing attached to the pixels on screen, including retained
     /// frames while another setting or page is being prepared in a worker.
     pub(super) fn sync_presented_reader_dithering(&mut self) {
+        let scene = self.presented_reader_refresh_scene();
+        let scene_changed = self.platform.reader_refresh_scene() != scene;
+        // Publish the visible scene before changing the retained input format.
+        // A pending preference never qualifies old Gray8 pixels for DU.
+        self.platform.set_reader_refresh_scene(scene);
         let enabled = self.route == "reader" && !self.sleep_screen.active
             && self.reading.as_ref().and_then(ReadingState::displayed_dither_settings)
                 .is_some_and(ReaderSettings::uses_hardware_dither);
@@ -552,14 +605,18 @@ impl App {
             // A failed hardware path retains this intent until software pixels
             // are installed, allowing safe processing of the old Gray8 frame.
             self.platform.set_reader_hardware_y4(enabled);
-            // Time-based entitlement changes can hide a retained page without
-            // a job or input event. Publish that scene change in this same tick.
-            if self.route == "reader" { self.view_dirty.mark(super::View::Reader); }
         }
+        // Expiry and preparation feedback can change the visible scene without
+        // an input event; publish that change before the same tick renders it.
+        if (changed || scene_changed) && self.route == "reader" { self.view_dirty.mark(super::View::Reader); }
         if self.is_suspended() || self.sleep_screen.active { return; }
-        if changed {
+        if changed || scene_changed {
             if let Some(ui) = self.ui.upgrade() { ui.window().request_redraw(); }
-            let _ = self.platform.submit_refresh(RefreshPlan { kind: RefreshKind::Full, rect: None });
+            match scene {
+                ReaderRefreshScene::FastContent => { let _ = self.platform.request_refresh(RefreshReason::ReaderGeometry); }
+                ReaderRefreshScene::FastOverlay => { let _ = self.platform.submit_refresh(RefreshPlan { kind: RefreshKind::Ui, rect: None }); }
+                ReaderRefreshScene::Normal => { let _ = self.platform.submit_refresh(RefreshPlan { kind: RefreshKind::Full, rect: None }); }
+            }
         }
         let thumbnails_changed = self.route == "reader" && self.reading.as_ref().is_some_and(|state| {
             let expected = state.thumbnail_dithering();
@@ -579,11 +636,15 @@ impl App {
         self.sync_presented_reader_dithering();
         if self.route != "reader" || self.sleep_screen.active { return Ok(()); }
         let available = self.platform.hardware_y4_available();
+        let media_available = crate::native_media::availability().available();
         let changed = if let Some(state) = self.reading.as_mut() {
             let hardware_dither = reader_hardware_dither(&state.saved, available);
-            if let Some(core) = state.core.as_mut().filter(|core| core.settings().hardware_dither != hardware_dither) {
+            let media_acceleration = reader_media_acceleration(&state.saved, media_available);
+            if let Some(core) = state.core.as_mut().filter(|core|
+                core.settings().hardware_dither != hardware_dither || core.settings().media_acceleration != media_acceleration) {
                 let mut settings = core.settings().clone();
                 settings.hardware_dither = hardware_dither;
+                settings.media_acceleration = media_acceleration;
                 core.update_settings(settings)?;
                 state.next_frame.cancel();
                 state.version = state.version.wrapping_add(1);
@@ -756,6 +817,7 @@ impl App {
 
     fn release_reader(&mut self) -> Result<()> {
         self.platform.set_reader_performance_operation(None);
+        self.platform.set_reader_refresh_scene(ReaderRefreshScene::Normal);
         self.platform.set_reader_hardware_y4(false);
         let mut released = Ok(());
         if let Some(state) = self.reading.as_mut() {
@@ -1070,6 +1132,7 @@ impl App {
             "brightness" | "warmth" => { self.change_reader_light(action, value); return Ok(()); }
             "refresh" => {
                 if let Some(state) = self.reading.as_mut() { state.menu = false; state.sheet.clear(); }
+                self.sync_presented_reader_dithering();
                 if self.platform.capabilities().explicit_refresh {
                     if self.platform.submit_refresh(RefreshPlan { kind: RefreshKind::Full, rect: None }).is_err() { self.toast("common_not_supported"); }
                 } else if !self.platform.is_kindle {
@@ -1182,7 +1245,16 @@ impl App {
     fn change_reader_setting(&mut self, setting: &str) -> Result<()> {
         let Some((key, value)) = setting.split_once(':') else { return Ok(()); };
         let hardware_y4_available = self.platform.hardware_y4_available();
+        let media_available = crate::native_media::availability().available();
+        if key == "jpeg-acceleration" && value == "on" && !media_available {
+            self.toast("common_unavailable");
+            return Ok(());
+        }
         let Some(state) = self.reading.as_mut() else { return Ok(()); };
+        if key == "refresh-policy" && normalized_refresh_mode(&state.saved.refresh_mode) == "fast" { return Ok(()); }
+        if key == "refresh-mode" && ["normal", "fast"].contains(&value)
+            && normalized_refresh_mode(&state.saved.refresh_mode) == value
+            && state.core.as_ref().is_some_and(|core| core.settings().fast_mode == (value == "fast")) { return Ok(()); }
         let fit_trace = if key == "fit" && FitMode::parse(value).is_some() {
             Operation::new("reader")
         } else { None };
@@ -1205,12 +1277,19 @@ impl App {
             "fit" if FitMode::parse(value).is_some() => { state.saved.fit = value.into(); self.preferences.fit = value.into(); }
             "direction" if ["ltr", "rtl"].contains(&value) => { state.saved.direction = value.into(); self.preferences.direction = value.into(); }
             "refresh-policy" if ["smart", "0", "1", "6"].contains(&value) => { state.saved.every = value.into(); self.preferences.every = value.into(); }
+            "refresh-mode" if ["normal", "fast"].contains(&value) => {
+                state.saved.refresh_mode = value.into(); self.preferences.refresh_mode = value.into();
+            }
             "landscape-layout" if ["spread", "single"].contains(&value) => { state.saved.landscape = value.into(); self.preferences.landscape = value.into(); }
             "cover-alone" if ["on", "off"].contains(&value) => { state.saved.cover_alone = value == "on"; self.preferences.cover_alone = value == "on"; }
             "dither" if ["on", "off"].contains(&value) => { state.saved.dither = value == "on"; self.preferences.dither = value == "on"; }
             "dither-method" if ["software", "hardware"].contains(&value) => {
                 state.saved.dither_method = value.into(); self.preferences.dither_method = value.into();
                 state.saved.dither = true; self.preferences.dither = true;
+            }
+            "jpeg-acceleration" if ["on", "off"].contains(&value) => {
+                state.saved.jpeg_acceleration = value == "on";
+                self.preferences.jpeg_acceleration = value == "on";
             }
             "show-footer" if ["on", "off"].contains(&value) => { state.saved.footer = value == "on"; self.preferences.footer = value == "on"; }
             _ => return Ok(()),
@@ -1224,11 +1303,13 @@ impl App {
                 settings.footer = saved.footer;
                 core.update_settings(settings)?;
             }
-        } else if matches!(key, "dither" | "dither-method") {
+        } else if matches!(key, "dither" | "dither-method" | "jpeg-acceleration" | "refresh-mode") {
             if let Some(core) = state.core.as_mut() {
                 let mut settings = core.settings().clone();
                 settings.dither = saved.dither;
+                settings.fast_mode = normalized_refresh_mode(&saved.refresh_mode) == "fast";
                 settings.hardware_dither = reader_hardware_dither(&saved, hardware_y4_available);
+                settings.media_acceleration = reader_media_acceleration(&saved, media_available);
                 core.update_settings(settings)?;
             }
             state.version = state.version.wrapping_add(1);
@@ -1256,7 +1337,9 @@ impl App {
         let saved_defaults = self.save_preferences();
         if saved_comic.is_err() || saved_defaults.is_err() { self.toast("common_storage_error"); }
         if key == "show-footer" { return Ok(()); }
-        self.configure_reader_refresh()?;
+        if key != "refresh-mode" && normalized_refresh_mode(&saved.refresh_mode) != "fast" {
+            self.configure_reader_refresh()?;
+        }
         if self.save_reading_position().is_err() { self.toast("common_storage_error"); }
         self.request_reader_render_traced(fit_trace)?;
         Ok(())
@@ -1333,6 +1416,53 @@ impl App {
     pub(super) fn reader_preload_changed(&mut self) {
         if self.preferences.preload == 0 { self.retire_next_frame(); }
         else { self.request_next_frame(); }
+    }
+
+    pub(super) fn reader_jpeg_acceleration_changed(&mut self) -> Result<()> {
+        let available = crate::native_media::availability().available();
+        let Some(state) = self.reading.as_mut() else { return Ok(()); };
+        state.saved.jpeg_acceleration = self.preferences.jpeg_acceleration;
+        let saved = state.saved.clone();
+        let comic = state.comic_id.clone();
+        if let Some(core) = state.core.as_mut() {
+            let mut settings = core.settings().clone();
+            settings.media_acceleration = reader_media_acceleration(&saved, available);
+            core.update_settings(settings)?;
+        }
+        state.next_frame.cancel();
+        state.version = state.version.wrapping_add(1);
+        state.error = None;
+        if self.store.set_preference(&self.account, &format!("reader_preferences_{comic}"), &saved).is_err() {
+            self.toast("common_storage_error");
+        }
+        self.view_dirty.mark(super::View::Reader);
+        self.request_reader_render()
+    }
+
+    pub(super) fn reader_refresh_mode_changed(&mut self) -> Result<()> {
+        let Some(state) = self.reading.as_mut() else { return Ok(()); };
+        let mode = normalized_refresh_mode(&self.preferences.refresh_mode);
+        let fast_mode = mode == "fast";
+        if state.saved.refresh_mode == mode && state.core.as_ref().is_some_and(|core| core.settings().fast_mode == fast_mode) {
+            return Ok(());
+        }
+        state.saved.refresh_mode = mode.into();
+        let saved = state.saved.clone();
+        let comic = state.comic_id.clone();
+        if let Some(core) = state.core.as_mut() {
+            let mut settings = core.settings().clone();
+            settings.fast_mode = fast_mode;
+            settings.hardware_dither = reader_hardware_dither(&saved, self.platform.hardware_y4_available());
+            core.update_settings(settings)?;
+        }
+        state.next_frame.cancel();
+        state.version = state.version.wrapping_add(1);
+        state.error = None;
+        if self.store.set_preference(&self.account, &format!("reader_preferences_{comic}"), &saved).is_err() {
+            self.toast("common_storage_error");
+        }
+        self.view_dirty.mark(super::View::Reader);
+        self.request_reader_render()
     }
 
     fn request_next_frame(&mut self) {
@@ -1967,7 +2097,13 @@ impl App {
         if let (Some(state), Some(ui)) = (self.reading.as_ref(), self.ui.upgrade()) {
             let view = ui.global::<ReaderModel>();
             let feedback = state.preparation_feedback_due();
-            if view.get_preparing_feedback() != feedback { view.set_preparing_feedback(feedback); }
+            if view.get_preparing_feedback() != feedback {
+                view.set_preparing_feedback(feedback);
+                // The 600ms boundary may be crossed after the tick's initial
+                // scene snapshot. Route this newly visible gray overlay before
+                // returning control to the renderer.
+                self.sync_presented_reader_dithering();
+            }
         }
     }
 
@@ -1991,18 +2127,32 @@ impl App {
     }
 
     fn reader_turn_refresh(&mut self, dark_fraction: f32, transition: bool, geometry_changed: bool) {
+        self.sync_presented_reader_dithering();
+        let scene = self.platform.reader_refresh_scene();
         let Some(state) = self.reading.as_mut() else { return; };
+        let fast_mode = state.presented_core.as_ref().is_some_and(|core| core.settings().fast_mode);
         let spread = state.core.as_ref().is_some_and(ReaderCore::is_spread);
         let first = state.last_dark_fraction.is_none();
         // These conservative thresholds are image heuristics, not panel acceptance results.
-        let smart_full = state.saved.every == "smart" && state.last_dark_fraction.is_some_and(|previous|
+        let smart_full = !fast_mode && state.saved.every == "smart" && state.last_dark_fraction.is_some_and(|previous|
             dark_fraction > 0.30 && previous <= 0.30 || (dark_fraction - previous).abs() > 0.35);
         state.last_dark_fraction = Some(dark_fraction);
         if let Some(trace) = state.performance_presented {
             trace.record("reader_refresh_requested", &serde_json::json!({
                 "geometry_replacement": geometry_changed, "first": first,
                 "spread": spread, "smart_full": smart_full, "transition": transition,
+                "fast_mode": fast_mode, "reader_refresh_scene": reader_refresh_scene_name(scene),
             }));
+        }
+        if fast_mode {
+            if scene == ReaderRefreshScene::FastContent {
+                let reason = if geometry_changed || first || spread { RefreshReason::ReaderGeometry }
+                    else { RefreshReason::ReaderTurn };
+                let _ = self.platform.request_refresh(reason);
+            } else if !self.is_suspended() && !self.sleep_screen.active {
+                let _ = self.platform.submit_refresh(RefreshPlan { kind: RefreshKind::Ui, rect: None });
+            }
+            return;
         }
         if geometry_changed {
             let _ = self.platform.request_refresh(RefreshReason::ReaderGeometry);
@@ -2011,10 +2161,22 @@ impl App {
         } else { let _ = self.platform.request_refresh(RefreshReason::ReaderTurn); }
     }
 
-    fn reader_overlay_refresh(&self, opened: bool) {
+    fn reader_overlay_refresh(&mut self, opened: bool) {
+        self.sync_presented_reader_dithering();
         let (mut width, mut height) = self.platform.logical_viewport_size();
         if self.options.landscape { std::mem::swap(&mut width, &mut height); }
         let rect = RefreshRect { x: 0, y: 0, width, height };
+        match self.platform.reader_refresh_scene() {
+            ReaderRefreshScene::FastContent => {
+                let _ = self.platform.request_refresh(RefreshReason::ReaderGeometry);
+                return;
+            }
+            ReaderRefreshScene::FastOverlay => {
+                let _ = self.platform.submit_refresh(RefreshPlan { kind: RefreshKind::Ui, rect: Some(rect) });
+                return;
+            }
+            ReaderRefreshScene::Normal => {}
+        }
         let _ = self.platform.request_refresh(if opened { RefreshReason::OverlayOpened(rect) } else { RefreshReason::OverlayClosed(rect) });
     }
 
@@ -2154,6 +2316,11 @@ impl App {
         view.set_fit(FitMode::parse(&state.saved.fit).unwrap_or(FitMode::Page).as_str().into());
         view.set_direction(state.saved.direction.clone().into());
         view.set_refresh_policy(state.saved.every.clone().into());
+        view.set_refresh_mode(normalized_refresh_mode(&state.saved.refresh_mode).into());
+        view.set_refresh_mode_note(i18n::text(if normalized_refresh_mode(&state.saved.refresh_mode) == "fast" {
+            "refresh_mode_fast_note"
+        } else { "refresh_mode_normal_note" }).into());
+        view.set_presented_fast_mode(state.displayed_dither_settings().is_some_and(|settings| settings.fast_mode));
         view.set_landscape_layout(state.saved.landscape.clone().into());
         view.set_landscape(self.options.landscape);
         view.set_spread_active(core.is_some_and(ReaderCore::is_spread));
@@ -2175,6 +2342,10 @@ impl App {
         view.set_show_footer(state.saved.footer);
         view.set_dither(state.saved.dither);
         view.set_dither_method(normalized_dither_method(&state.saved.dither_method).into());
+        let media_availability = crate::native_media::availability();
+        view.set_jpeg_acceleration(state.saved.jpeg_acceleration);
+        view.set_jpeg_acceleration_available(media_availability.available());
+        view.set_jpeg_acceleration_note(crate::native_media_ui::availability_note(media_availability).into());
         view.set_cover_alone(state.saved.cover_alone);
         view.set_zoom_available(false);
         view.set_dither_note(reader_dither_note(&state.saved, state.displayed_dither_settings(),
@@ -2230,6 +2401,10 @@ impl App {
             }));
             if let Some(state) = self.reading.as_mut() { state.performance_model_id = Some(trace.id()); }
         }
+        // Reconcile after all model setters too: preparing feedback can become
+        // due during view construction, while clear/loading changes must be
+        // completely published before a later render consumes the scene.
+        self.sync_presented_reader_dithering();
         Ok(())
     }
 
@@ -2323,13 +2498,20 @@ impl App {
     /// Inspect live UI references and cache accounting, including after reader close.
     pub fn reader_resource_snapshot(&self) -> serde_json::Value {
         let usage = crate::reader::ReaderResources::shared().cache_usage();
+        let processed = crate::reader::ReaderResources::shared().processed_cache_usage();
         let mut snapshot = serde_json::json!({
             "reader_active": self.reading.is_some(),
             "reader_generation": self.reading.as_ref().map(|state| state.generation),
             "page_size": null, "second_page_size": null, "overview_image_size": null,
             "thumbnails_count": null, "chapters_count": null,
             "source_cache_bytes": usage.retained_bytes, "source_cache_budget": usage.byte_budget,
-            "source_cache_entries": usage.entries
+            "source_cache_entries": usage.entries,
+            "processed_source_cache_bytes": processed.retained_bytes,
+            "processed_source_cache_budget": processed.byte_budget,
+            "processed_source_cache_entries": processed.entries,
+            "native_media": crate::native_media::statistics(),
+            "reader_refresh_scene": reader_refresh_scene_name(self.platform.reader_refresh_scene()),
+            "media_availability": crate::native_media::availability().reason()
         });
         snapshot["prepared_frame_state"] = serde_json::json!(self.reading.as_ref()
             .map_or("empty", |state| state.next_frame.label()));
@@ -2377,6 +2559,17 @@ impl App {
             "landscape_layout": state.saved.landscape, "cover_alone": state.saved.cover_alone,
             "dither": state.saved.dither,
             "dither_method": normalized_dither_method(&state.saved.dither_method),
+            "refresh_mode": normalized_refresh_mode(&state.saved.refresh_mode),
+            "fast_mode": state.displayed_dither_settings().is_some_and(|settings| settings.fast_mode),
+            "presented_fast_mode": state.displayed_dither_settings().is_some_and(|settings| settings.fast_mode),
+            "target_fast_mode": state.core.as_ref().is_some_and(|core| core.settings().fast_mode),
+            "reader_refresh_scene": reader_refresh_scene_name(self.platform.reader_refresh_scene()),
+            "jpeg_acceleration": state.saved.jpeg_acceleration,
+            "media_acceleration": reader_media_acceleration(&state.saved, crate::native_media::availability().available()),
+            "presented_media_acceleration": core.settings().media_acceleration,
+            "target_media_acceleration": state.core.as_ref().map(|core| core.settings().media_acceleration),
+            "media_availability": crate::native_media::availability().reason(),
+            "native_media": crate::native_media::statistics(),
             "hardware_y4_available": self.platform.hardware_y4_available(),
             "hardware_dither": state.presented_core.as_ref().is_some_and(|core| core.settings().uses_hardware_dither()),
             "target_hardware_dither": state.core.as_ref().is_some_and(|core| core.settings().uses_hardware_dither()),
@@ -2404,8 +2597,12 @@ impl App {
         });
         snapshot.as_object_mut()?.extend(presentation.as_object()?.clone());
         let usage = crate::reader::ReaderResources::shared().cache_usage();
+        let processed = crate::reader::ReaderResources::shared().processed_cache_usage();
         let resources = serde_json::json!({ "source_cache_bytes": usage.retained_bytes,
-            "source_cache_budget": usage.byte_budget, "source_cache_entries": usage.entries });
+            "source_cache_budget": usage.byte_budget, "source_cache_entries": usage.entries,
+            "processed_source_cache_bytes": processed.retained_bytes,
+            "processed_source_cache_budget": processed.byte_budget,
+            "processed_source_cache_entries": processed.entries });
         snapshot.as_object_mut()?.extend(resources.as_object()?.clone());
         Some(snapshot)
     }
@@ -2454,7 +2651,8 @@ fn reader_settings(saved: &SavedReaderPreferences, landscape: bool, logical: (u3
         fit: FitMode::parse(&saved.fit).unwrap_or(FitMode::Page),
         direction: if saved.direction == "rtl" { PageDirection::RightToLeft } else { PageDirection::LeftToRight },
         landscape_spread: landscape && logical.1 >= 1100 && saved.landscape == "spread", cover_alone: saved.cover_alone,
-        dither: saved.dither, footer: saved.footer, ..Default::default()
+        dither: saved.dither, fast_mode: normalized_refresh_mode(&saved.refresh_mode) == "fast",
+        footer: saved.footer, ..Default::default()
     }
 }
 
@@ -2462,8 +2660,32 @@ fn normalized_dither_method(method: &str) -> &'static str {
     if method == "hardware" { "hardware" } else { "software" }
 }
 
+fn normalized_refresh_mode(mode: &str) -> &'static str {
+    if mode == "fast" { "fast" } else { "normal" }
+}
+
+fn reader_refresh_scene_name(scene: ReaderRefreshScene) -> &'static str {
+    match scene {
+        ReaderRefreshScene::Normal => "normal",
+        ReaderRefreshScene::FastContent => "fast_content",
+        ReaderRefreshScene::FastOverlay => "fast_overlay",
+    }
+}
+
+fn reader_global_overlay_visible(ui_visible: Option<bool>, network_pending: bool, toast_pending: bool) -> bool {
+    // Visible gray UI wins over an expired intent timestamp. The toast intent
+    // also covers toast_text's same-turn interval before its model is set.
+    ui_visible.unwrap_or(network_pending) || toast_pending
+}
+
 fn reader_hardware_dither(saved: &SavedReaderPreferences, available: bool) -> bool {
-    saved.dither && normalized_dither_method(&saved.dither_method) == "hardware" && available
+    normalized_refresh_mode(&saved.refresh_mode) != "fast"
+        && saved.dither && normalized_dither_method(&saved.dither_method) == "hardware" && available
+}
+
+fn reader_media_acceleration(saved: &SavedReaderPreferences, available: bool) -> crate::native_media::Acceleration {
+    if saved.jpeg_acceleration && available { crate::native_media::Acceleration::DecodeAndResize }
+    else { crate::native_media::Acceleration::Off }
 }
 
 fn reader_settings_for_display(saved: &SavedReaderPreferences, landscape: bool,
@@ -2471,6 +2693,7 @@ fn reader_settings_for_display(saved: &SavedReaderPreferences, landscape: bool,
 {
     let mut settings = reader_settings(saved, landscape, logical);
     settings.hardware_dither = reader_hardware_dither(saved, hardware_y4_available);
+    settings.media_acceleration = reader_media_acceleration(saved, crate::native_media::availability().available());
     settings
 }
 
@@ -2479,13 +2702,20 @@ fn reader_dither_note(saved: &SavedReaderPreferences, displayed: Option<&ReaderS
 {
     let expected = (saved.dither, reader_hardware_dither(saved, hardware_y4_available));
     let actual = displayed.map_or(expected, |settings| (settings.dither, settings.uses_hardware_dither()));
+    let expected_fast = normalized_refresh_mode(&saved.refresh_mode) == "fast";
+    let actual_fast = displayed.map_or(expected_fast, |settings| settings.fast_mode);
+    if actual_fast {
+        let mut note = i18n::text("refresh_mode_dither_saved_note");
+        if actual_fast != expected_fast { note.push_str(&i18n::text("read_dither_pending_note")); }
+        return note;
+    }
     let key = if !actual.0 { "read_dither_off_note" }
         else if actual.1 && hardware_y4_available { "read_dither_hardware_note" }
         else if normalized_dither_method(&saved.dither_method) == "hardware" && !hardware_y4_available {
             "read_dither_fallback_note"
         } else { "read_dither_software_note" };
     let mut note = i18n::text(key);
-    if actual != expected { note.push_str(&i18n::text("read_dither_pending_note")); }
+    if actual != expected || actual_fast != expected_fast { note.push_str(&i18n::text("read_dither_pending_note")); }
     note
 }
 
@@ -2563,11 +2793,12 @@ fn prepare_reader_frame_profiled(core: &mut ReaderCore, files: &ReaderFiles, vie
     let primary_index = core.page_index();
     let spread = core.is_spread();
     let pair = if spread { core.spread_indices() } else { [Some(primary_index), None] };
+    let preparation = core.source_preparation(viewport);
     let mut sources = Vec::new();
     let mut missing = Vec::new();
     for position in pair.into_iter().flatten() {
         if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
-        let source = files.source_profiled(&index, position, None, cancelled, profile.as_deref_mut());
+        let source = files.prepared_source_profiled(&index, position, None, preparation, cancelled, profile.as_deref_mut());
         if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
         if let Some(Some(source)) = source? { sources.push((position, source)); }
         else { missing.push(position); }
@@ -2578,7 +2809,7 @@ fn prepare_reader_frame_profiled(core: &mut ReaderCore, files: &ReaderFiles, vie
 }
 
 fn render_reader_sources(core: &mut ReaderCore,
-    sources: Vec<(usize, crate::reader::ValidatedGraySource)>, viewport: Viewport,
+    sources: Vec<(usize, crate::reader::PreparedGraySource)>, viewport: Viewport,
     overview_size: (u32, u32), cancelled: &AtomicBool,
     mut profile: Option<&mut crate::reader::ReaderPreparationProfile>,
 ) -> Result<PreparedOutcome> {
@@ -2589,7 +2820,7 @@ fn render_reader_sources(core: &mut ReaderCore,
     let source = &sources.iter().find(|(position, _)| *position == primary_index).or_else(|| sources.first())
         .context("The visible page has no verified source")?.1;
     if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
-    let Some(rendered) = core.render_validated_source_cancellable(&source, viewport, cancelled,
+    let Some(rendered) = core.render_prepared_source_cancellable(&source, viewport, cancelled,
         profile.as_deref_mut())? else { return Ok(PreparedOutcome::Cancelled); };
     if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
     let mut metadata = FrameMetadata { overlap: rendered.overlap_from_previous, ratio: rendered.crop.width as f32 / rendered.crop.height.max(1) as f32,
@@ -2613,7 +2844,7 @@ fn render_reader_sources(core: &mut ReaderCore,
                     leaf.set_landscape(false);
                     leaf.set_page(position)?;
                     if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
-                    let Some(rendered) = leaf.render_validated_source_cancellable(leaf_source, viewport, cancelled,
+                    let Some(rendered) = leaf.render_prepared_source_cancellable(leaf_source, viewport, cancelled,
                         profile.as_deref_mut())? else { return Ok(PreparedOutcome::Cancelled); };
                     Some(rendered_raster(rendered))
                 }
@@ -2629,7 +2860,7 @@ fn render_reader_sources(core: &mut ReaderCore,
             hardware_dither: core.settings().hardware_dither, ..Default::default() })?;
         overview.set_page(primary_index)?;
         let size = Viewport::new(overview_size.0, overview_size.1);
-        let Some(rendered) = overview.render_validated_source_cancellable(&source, size, cancelled,
+        let Some(rendered) = overview.render_prepared_source_cancellable(&source, size, cancelled,
             profile.as_deref_mut())? else { return Ok(PreparedOutcome::Cancelled); };
         Some(rendered_raster(rendered))
     } else { None };
@@ -2644,9 +2875,10 @@ fn prepare_next_frame(mut core: ReaderCore, key: NextFrameKey, files: &ReaderFil
 ) -> Result<Option<NextFrame>> {
     if cancelled.load(Ordering::Acquire) { return Ok(None); }
     let position = core.page_index();
+    let preparation = core.source_preparation(key.viewport);
     // This local-only lookup is also the existence check. A receipt lookup can
     // perform integrity work and therefore never belongs on the UI thread.
-    let source = files.source_profiled(core.index(), position, None, cancelled, profile.as_deref_mut())?;
+    let source = files.prepared_source_profiled(core.index(), position, None, preparation, cancelled, profile.as_deref_mut())?;
     if cancelled.load(Ordering::Acquire) { return Ok(None); }
     let Some(Some(source)) = source else { return Ok(None); };
     let proof = source.proof().clone();
@@ -2654,7 +2886,7 @@ fn prepare_next_frame(mut core: ReaderCore, key: NextFrameKey, files: &ReaderFil
         (1, 1), cancelled, profile)?;
     if cancelled.load(Ordering::Acquire) { return Ok(None); }
     let PreparedOutcome::Ready(frame) = outcome else { return Ok(None); };
-    let candidate = NextFrame { key, core, frame, proof };
+    let candidate = NextFrame { key, core, frame, proof, preparation };
     if candidate.retained_bytes() > NEXT_FRAME_BYTES { return Ok(None); }
     Ok(Some(candidate))
 }
@@ -2664,8 +2896,14 @@ fn reuse_next_frame(core: &mut ReaderCore, next: NextFrame, files: &ReaderFiles,
     mut profile: Option<&mut crate::reader::ReaderPreparationProfile>, trace: Option<Operation>,
 ) -> Result<PreparedOutcome> {
     if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
-    let source = files.source_profiled(core.index(), core.page_index(), Some(&next.proof),
-        cancelled, profile.as_deref_mut());
+    let preparation = core.source_preparation(viewport);
+    let same_preparation = next.preparation == preparation
+        && next.key.target.matches(core)
+        && (core.settings().media_acceleration == crate::native_media::Acceleration::Off
+            || crate::native_media::availability().available());
+    let previous = same_preparation.then_some(&next.proof);
+    let source = files.prepared_source_profiled(core.index(), core.page_index(), previous,
+        preparation, cancelled, profile.as_deref_mut());
     if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
     match source? {
         Some(None) => {
@@ -2721,6 +2959,14 @@ mod prepared_reader_source_tests;
 #[cfg(test)]
 #[path = "hardware_dither_tests.rs"]
 mod hardware_dither_tests;
+
+#[cfg(test)]
+#[path = "media_acceleration_tests.rs"]
+mod media_acceleration_tests;
+
+#[cfg(test)]
+#[path = "fast_reader_tests.rs"]
+mod fast_reader_tests;
 
 #[cfg(test)]
 #[path = "reader_directory_tests.rs"]

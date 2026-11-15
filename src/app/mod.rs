@@ -67,10 +67,12 @@ pub(super) struct Preferences {
     pub fit: String,
     pub direction: String,
     pub every: String,
+    pub refresh_mode: String,
     pub landscape: String,
     pub cover_alone: bool,
     pub dither: bool,
     pub dither_method: String,
+    pub jpeg_acceleration: bool,
     pub footer: bool,
     pub smart: bool,
     pub ahead: u32,
@@ -90,8 +92,9 @@ impl Default for Preferences {
     fn default() -> Self {
         Self {
             mode: "page".into(), fit: "page".into(), direction: "ltr".into(),
-            every: "smart".into(), landscape: "spread".into(), cover_alone: true,
-            dither: true, dither_method: "software".into(), footer: true, smart: true, ahead: 2, concurrency: 2,
+            every: "smart".into(), refresh_mode: "normal".into(), landscape: "spread".into(), cover_alone: true,
+            dither: true, dither_method: "software".into(), jpeg_acceleration: false,
+            footer: true, smart: true, ahead: 2, concurrency: 2,
             preload: 3, wifi: "auto".into(), cache_limit: 512, launch: "resume".into(),
             sleep_cover: true, flashui: true, orientation: "auto".into(),
             onboarded: false, reader_guidance_seen: false,
@@ -219,6 +222,7 @@ impl App {
             _ => anyhow::bail!("Unsupported application section"),
         }
         self.dirty = true;
+        self.sync_presented_reader_dithering();
         if content_refresh_action(section, action) {
             let _ = self.platform.request_refresh(RefreshReason::Content);
         }
@@ -278,6 +282,7 @@ impl App {
         }
         self.schedule_cover_maintenance(false);
         self.prepare_sleep_screen();
+        self.sync_presented_reader_dithering();
         if jobs_applied || self.dirty || self.view_dirty.needs_route(&self.route) { self.refresh_views()?; }
         Ok(())
     }
@@ -364,6 +369,7 @@ impl App {
             auth.set_net_action(self.network_action_label(section, action, value).into());
             auth.set_net_message("".into());
         }
+        self.sync_presented_reader_dithering();
         false
     }
 
@@ -695,8 +701,9 @@ impl App {
 
     fn toast(&mut self, key: &str) { self.toast_text(i18n::text(key)); }
     fn toast_text(&mut self, text: String) {
-        if let Some(ui) = self.ui.upgrade() { ui.global::<ShellModel>().set_toast(text.into()); }
         self.toast_until = Some(Instant::now() + Duration::from_secs(3));
+        self.sync_presented_reader_dithering();
+        if let Some(ui) = self.ui.upgrade() { ui.global::<ShellModel>().set_toast(text.into()); }
     }
     fn save_preferences(&self) -> Result<()> { self.store.set_preference(&self.account, "preferences", &self.preferences) }
     fn is_scribe(&self) -> bool { self.options.profile.is_scribe() }

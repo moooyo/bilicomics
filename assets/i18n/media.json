@@ -1,0 +1,11 @@
+{
+  "media_jpeg_acceleration": "JPEG 硬件加速",
+  "media_jpeg_available": "适用的灰度 JPEG 解码与缩小使用硬件处理，其他图片自动使用软件处理。",
+  "media_unavailable_platform": "当前预览环境未启用 JPEG 硬件加速。",
+  "media_unavailable_device": "当前设备尚未验证，使用软件处理。",
+  "media_unavailable_helper": "硬件组件缺失，使用软件处理。",
+  "media_unavailable_driver": "当前驱动未通过检查，使用软件处理。",
+  "media_unavailable_diagnostics": "无法检查设备错误，使用软件处理。",
+  "media_unavailable_busy": "硬件正在使用中，使用软件处理。",
+  "media_unavailable_failed": "本次运行的硬件加速已停用，使用软件处理。"
+}

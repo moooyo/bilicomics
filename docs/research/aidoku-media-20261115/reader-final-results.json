@@ -1,0 +1,1041 @@
+{
+  "schema": 1,
+  "results": [
+    {
+      "run_id": "reader-native-1abc9d4b",
+      "case": "444-spread",
+      "status": "completed",
+      "artifacts": {
+        "native-reader-integration-arm": "100a4daa41135c63324eb700ecaf8d7bff9e4cbb7b5135fdda902e772597e25c",
+        "kindle-jpeg-worker": "6f45e6b977cc94238cf22a1885dbb7298c7834abfc072aacbc19b748b8b277e2",
+        "jpeg-444-scribe.jpg": "57f507f9aa188c83fc9174937828abd443e3382c66493bd0e2ceaaf44b5afb94"
+      },
+      "native_ui_parked": true,
+      "reader": {
+        "availability": "available",
+        "crop_borders": false,
+        "final_availability": "available",
+        "fit": "page",
+        "input_sha256": "57f507f9aa188c83fc9174937828abd443e3382c66493bd0e2ceaaf44b5afb94",
+        "native_opt_in": true,
+        "results": [
+          {
+            "median_ms": 474.395616,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "off",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 2306400,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              474.395616
+            ],
+            "sha256": "725c307a0398445fcac217580d6075b0b3cd9555869515657d28686793dba18d"
+          },
+          {
+            "median_ms": 196.256307,
+            "observed_operations": [
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              }
+            ],
+            "policy": "decode_and_resize",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": false,
+              "mae": 0.04079084287200833,
+              "max_error": 16,
+              "pixel_count": 2306400,
+              "pixels_over_4": 4208,
+              "psnr_db": 53.068020512250776
+            },
+            "samples_ms": [
+              196.256307
+            ],
+            "sha256": "dcb5182c15904cba67ba92d434466a2e9883e39665ce159df526b9e7af10f230"
+          }
+        ],
+        "samples_per_policy": 1,
+        "schema": 1,
+        "scope": "Actual production fitted Reader API. Includes admission, entropy verification, process startup, IPC, DMA staging, driver lifecycle, normalization, crop/resize and canvas allocation. Resident input; file I/O and hashing excluded. No display waveform timing.",
+        "target": [
+          930,
+          2480
+        ],
+        "warmups_per_policy": 1
+      },
+      "same_boot": true,
+      "native_restored": true,
+      "staging_removed": true,
+      "lease_released": true,
+      "new_critical_kernel_lines": 0
+    },
+    {
+      "run_id": "reader-native-2185fe21",
+      "case": "444-half",
+      "status": "completed",
+      "artifacts": {
+        "native-reader-integration-arm": "100a4daa41135c63324eb700ecaf8d7bff9e4cbb7b5135fdda902e772597e25c",
+        "kindle-jpeg-worker": "6f45e6b977cc94238cf22a1885dbb7298c7834abfc072aacbc19b748b8b277e2",
+        "jpeg-444-scribe.jpg": "57f507f9aa188c83fc9174937828abd443e3382c66493bd0e2ceaaf44b5afb94"
+      },
+      "native_ui_parked": true,
+      "reader": {
+        "availability": "available",
+        "crop_borders": false,
+        "final_availability": "available",
+        "fit": "page",
+        "input_sha256": "57f507f9aa188c83fc9174937828abd443e3382c66493bd0e2ceaaf44b5afb94",
+        "native_opt_in": true,
+        "results": [
+          {
+            "median_ms": 353.98276899999996,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "off",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              360.69561500000003,
+              353.98276899999996,
+              353.165615,
+              356.700846,
+              350.849154,
+              355.028462,
+              352.92600000000004
+            ],
+            "sha256": "34ee007e4b1a3522feba8b5fffdd175460bd18144308715f5f518178081a545f"
+          },
+          {
+            "median_ms": 139.265231,
+            "observed_operations": [
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              }
+            ],
+            "policy": "decode_and_resize",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": false,
+              "mae": 0.08358133888310787,
+              "max_error": 36,
+              "pixel_count": 1153200,
+              "pixels_over_4": 4162,
+              "psnr_db": 47.24783824330818
+            },
+            "samples_ms": [
+              127.506923,
+              141.078847,
+              138.238847,
+              139.265231,
+              140.16030800000001,
+              136.563,
+              144.760153
+            ],
+            "sha256": "8262aaf6fe8a522ffe2123cce2e38ded9396c75eea35625ade15e6fc13f57e67"
+          }
+        ],
+        "samples_per_policy": 7,
+        "schema": 1,
+        "scope": "Actual production fitted Reader API. Includes admission, entropy verification, process startup, IPC, DMA staging, driver lifecycle, normalization, crop/resize and canvas allocation. Resident input; file I/O and hashing excluded. No display waveform timing.",
+        "target": [
+          930,
+          1240
+        ],
+        "warmups_per_policy": 1
+      },
+      "same_boot": true,
+      "native_restored": true,
+      "staging_removed": true,
+      "lease_released": true,
+      "new_critical_kernel_lines": 0
+    },
+    {
+      "run_id": "reader-native-31ecd33f",
+      "case": "fallback-odd",
+      "status": "completed",
+      "artifacts": {
+        "native-reader-integration-arm": "100a4daa41135c63324eb700ecaf8d7bff9e4cbb7b5135fdda902e772597e25c",
+        "kindle-jpeg-worker": "6f45e6b977cc94238cf22a1885dbb7298c7834abfc072aacbc19b748b8b277e2",
+        "jpeg-444-odd.jpg": "38e8b5b1591eba6e2cdee3ee8c82d5fa3c69b2f42706dec99ba99c20a2011560"
+      },
+      "native_ui_parked": true,
+      "reader": {
+        "availability": "available",
+        "crop_borders": false,
+        "final_availability": "available",
+        "fit": "page",
+        "input_sha256": "38e8b5b1591eba6e2cdee3ee8c82d5fa3c69b2f42706dec99ba99c20a2011560",
+        "native_opt_in": true,
+        "results": [
+          {
+            "median_ms": 63.610845999999995,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "off",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              63.610845999999995
+            ],
+            "sha256": "71ab11ab34ec8ebe0ae8973b3858f7e8317d050234878ab00c0d13c857c747d3"
+          },
+          {
+            "median_ms": 61.03723,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "decode_and_resize",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              61.03723
+            ],
+            "sha256": "71ab11ab34ec8ebe0ae8973b3858f7e8317d050234878ab00c0d13c857c747d3"
+          }
+        ],
+        "samples_per_policy": 1,
+        "schema": 1,
+        "scope": "Actual production fitted Reader API. Includes admission, entropy verification, process startup, IPC, DMA staging, driver lifecycle, normalization, crop/resize and canvas allocation. Resident input; file I/O and hashing excluded. No display waveform timing.",
+        "target": [
+          930,
+          1240
+        ],
+        "warmups_per_policy": 1
+      },
+      "same_boot": true,
+      "native_restored": true,
+      "staging_removed": true,
+      "lease_released": true,
+      "new_critical_kernel_lines": 0
+    },
+    {
+      "run_id": "reader-native-32e6bbd5",
+      "case": "422-native",
+      "status": "completed",
+      "artifacts": {
+        "native-reader-integration-arm": "100a4daa41135c63324eb700ecaf8d7bff9e4cbb7b5135fdda902e772597e25c",
+        "kindle-jpeg-worker": "6f45e6b977cc94238cf22a1885dbb7298c7834abfc072aacbc19b748b8b277e2",
+        "jpeg-422-scribe.jpg": "37864004b79b32b7c141608a8a30a6265f572dffc09614c778dd3fe52a3ecc20"
+      },
+      "native_ui_parked": true,
+      "reader": {
+        "availability": "available",
+        "crop_borders": false,
+        "final_availability": "available",
+        "fit": "page",
+        "input_sha256": "37864004b79b32b7c141608a8a30a6265f572dffc09614c778dd3fe52a3ecc20",
+        "native_opt_in": true,
+        "results": [
+          {
+            "median_ms": 267.472231,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "off",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 4612800,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              267.472231
+            ],
+            "sha256": "c0e036925e14fd930ea7c6f067a24735a7a6e6d4b41fb64cba2420732b94760a"
+          },
+          {
+            "median_ms": 263.627616,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "decode_and_resize",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 4612800,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              263.627616
+            ],
+            "sha256": "c0e036925e14fd930ea7c6f067a24735a7a6e6d4b41fb64cba2420732b94760a"
+          }
+        ],
+        "samples_per_policy": 1,
+        "schema": 1,
+        "scope": "Actual production fitted Reader API. Includes admission, entropy verification, process startup, IPC, DMA staging, driver lifecycle, normalization, crop/resize and canvas allocation. Resident input; file I/O and hashing excluded. No display waveform timing.",
+        "target": [
+          1860,
+          2480
+        ],
+        "warmups_per_policy": 1
+      },
+      "same_boot": true,
+      "native_restored": true,
+      "staging_removed": true,
+      "lease_released": true,
+      "new_critical_kernel_lines": 0
+    },
+    {
+      "run_id": "reader-native-3d0b0f7e",
+      "case": "fallback-png-key",
+      "status": "completed",
+      "artifacts": {
+        "native-reader-integration-arm": "100a4daa41135c63324eb700ecaf8d7bff9e4cbb7b5135fdda902e772597e25c",
+        "kindle-jpeg-worker": "6f45e6b977cc94238cf22a1885dbb7298c7834abfc072aacbc19b748b8b277e2",
+        "png-gray8-key-small.png": "20d8bfc5b0c6f62eef992b65a2ef811f8bba086f958852c6ee3b22ff69c35ecb"
+      },
+      "native_ui_parked": true,
+      "reader": {
+        "availability": "available",
+        "crop_borders": false,
+        "final_availability": "available",
+        "fit": "page",
+        "input_sha256": "20d8bfc5b0c6f62eef992b65a2ef811f8bba086f958852c6ee3b22ff69c35ecb",
+        "native_opt_in": true,
+        "results": [
+          {
+            "median_ms": 57.130616,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "off",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              57.130616
+            ],
+            "sha256": "8e21539a5b0d98015f606eaa73df5c259dbdbba1031dc2d0a7bd29ce889fe5b6"
+          },
+          {
+            "median_ms": 55.958923,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "decode_and_resize",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              55.958923
+            ],
+            "sha256": "8e21539a5b0d98015f606eaa73df5c259dbdbba1031dc2d0a7bd29ce889fe5b6"
+          }
+        ],
+        "samples_per_policy": 1,
+        "schema": 1,
+        "scope": "Actual production fitted Reader API. Includes admission, entropy verification, process startup, IPC, DMA staging, driver lifecycle, normalization, crop/resize and canvas allocation. Resident input; file I/O and hashing excluded. No display waveform timing.",
+        "target": [
+          930,
+          1240
+        ],
+        "warmups_per_policy": 1
+      },
+      "same_boot": true,
+      "native_restored": true,
+      "staging_removed": true,
+      "lease_released": true,
+      "new_critical_kernel_lines": 0
+    },
+    {
+      "run_id": "reader-native-70a2671d",
+      "case": "fallback-progressive",
+      "status": "completed",
+      "artifacts": {
+        "native-reader-integration-arm": "100a4daa41135c63324eb700ecaf8d7bff9e4cbb7b5135fdda902e772597e25c",
+        "kindle-jpeg-worker": "6f45e6b977cc94238cf22a1885dbb7298c7834abfc072aacbc19b748b8b277e2",
+        "jpeg-progressive.jpg": "f1cc3912cdd420c970c82656a71df2d3b62174afd3a7de3a5c8f186e2cafc613"
+      },
+      "native_ui_parked": true,
+      "reader": {
+        "availability": "available",
+        "crop_borders": false,
+        "final_availability": "available",
+        "fit": "page",
+        "input_sha256": "f1cc3912cdd420c970c82656a71df2d3b62174afd3a7de3a5c8f186e2cafc613",
+        "native_opt_in": true,
+        "results": [
+          {
+            "median_ms": 61.212692,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "off",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              61.212692
+            ],
+            "sha256": "783ef225817f1346604e25cc1de8eb7e112d1769690ef53121aad5a9412c1583"
+          },
+          {
+            "median_ms": 59.769538999999995,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "decode_and_resize",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              59.769538999999995
+            ],
+            "sha256": "783ef225817f1346604e25cc1de8eb7e112d1769690ef53121aad5a9412c1583"
+          }
+        ],
+        "samples_per_policy": 1,
+        "schema": 1,
+        "scope": "Actual production fitted Reader API. Includes admission, entropy verification, process startup, IPC, DMA staging, driver lifecycle, normalization, crop/resize and canvas allocation. Resident input; file I/O and hashing excluded. No display waveform timing.",
+        "target": [
+          930,
+          1240
+        ],
+        "warmups_per_policy": 1
+      },
+      "same_boot": true,
+      "native_restored": true,
+      "staging_removed": true,
+      "lease_released": true,
+      "new_critical_kernel_lines": 0
+    },
+    {
+      "run_id": "reader-native-88cacbe4",
+      "case": "gray-half",
+      "status": "completed",
+      "artifacts": {
+        "native-reader-integration-arm": "100a4daa41135c63324eb700ecaf8d7bff9e4cbb7b5135fdda902e772597e25c",
+        "kindle-jpeg-worker": "6f45e6b977cc94238cf22a1885dbb7298c7834abfc072aacbc19b748b8b277e2",
+        "benchmark-scene.jpg": "376ec78abb2c33477cbaf83fac6b5a3f940fc515e10a97a75cf80cdde90bf34b"
+      },
+      "native_ui_parked": true,
+      "reader": {
+        "availability": "available",
+        "crop_borders": false,
+        "final_availability": "available",
+        "fit": "page",
+        "input_sha256": "376ec78abb2c33477cbaf83fac6b5a3f940fc515e10a97a75cf80cdde90bf34b",
+        "native_opt_in": true,
+        "results": [
+          {
+            "median_ms": 279.65153799999996,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "off",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              290.624538,
+              284.930923,
+              279.65153799999996,
+              279.43730700000003,
+              278.95822999999996,
+              281.381153,
+              277.52907700000003
+            ],
+            "sha256": "1e342adf9c995c2445801b4d5734bb842edcf5508a25dfe0b508c86af7b1fa6f"
+          },
+          {
+            "median_ms": 85.914,
+            "observed_operations": [
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              }
+            ],
+            "policy": "decode_and_resize",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": false,
+              "mae": 0.060815990287894556,
+              "max_error": 58,
+              "pixel_count": 1153200,
+              "pixels_over_4": 1394,
+              "psnr_db": 50.95514770075773
+            },
+            "samples_ms": [
+              86.810462,
+              85.914,
+              83.265385,
+              84.350769,
+              86.780385,
+              83.793308,
+              88.07630800000001
+            ],
+            "sha256": "ca792e870f3fdc2ece1bdaea85cdaeeae6282d7e34c840ce09c3bb8126527c49"
+          }
+        ],
+        "samples_per_policy": 7,
+        "schema": 1,
+        "scope": "Actual production fitted Reader API. Includes admission, entropy verification, process startup, IPC, DMA staging, driver lifecycle, normalization, crop/resize and canvas allocation. Resident input; file I/O and hashing excluded. No display waveform timing.",
+        "target": [
+          930,
+          1240
+        ],
+        "warmups_per_policy": 1
+      },
+      "same_boot": true,
+      "native_restored": true,
+      "staging_removed": true,
+      "lease_released": true,
+      "new_critical_kernel_lines": 0
+    },
+    {
+      "run_id": "reader-native-9f70a91d",
+      "case": "fallback-420",
+      "status": "completed",
+      "artifacts": {
+        "native-reader-integration-arm": "100a4daa41135c63324eb700ecaf8d7bff9e4cbb7b5135fdda902e772597e25c",
+        "kindle-jpeg-worker": "6f45e6b977cc94238cf22a1885dbb7298c7834abfc072aacbc19b748b8b277e2",
+        "jpeg-420-scribe.jpg": "50d63187f6035e038f8c92d070fcc13163484aaf13b9122d05243bb5afaf4b94"
+      },
+      "native_ui_parked": true,
+      "reader": {
+        "availability": "available",
+        "crop_borders": false,
+        "final_availability": "available",
+        "fit": "page",
+        "input_sha256": "50d63187f6035e038f8c92d070fcc13163484aaf13b9122d05243bb5afaf4b94",
+        "native_opt_in": true,
+        "results": [
+          {
+            "median_ms": 427.94692299999997,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "off",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              427.94692299999997
+            ],
+            "sha256": "130b95433123ea2d27dded6054babf879772564f1a601cb771897b503dfb5dc6"
+          },
+          {
+            "median_ms": 421.54638500000004,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "decode_and_resize",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              421.54638500000004
+            ],
+            "sha256": "130b95433123ea2d27dded6054babf879772564f1a601cb771897b503dfb5dc6"
+          }
+        ],
+        "samples_per_policy": 1,
+        "schema": 1,
+        "scope": "Actual production fitted Reader API. Includes admission, entropy verification, process startup, IPC, DMA staging, driver lifecycle, normalization, crop/resize and canvas allocation. Resident input; file I/O and hashing excluded. No display waveform timing.",
+        "target": [
+          930,
+          1240
+        ],
+        "warmups_per_policy": 1
+      },
+      "same_boot": true,
+      "native_restored": true,
+      "staging_removed": true,
+      "lease_released": true,
+      "new_critical_kernel_lines": 0
+    },
+    {
+      "run_id": "reader-native-a8b40921",
+      "case": "gray-native",
+      "status": "completed",
+      "artifacts": {
+        "native-reader-integration-arm": "100a4daa41135c63324eb700ecaf8d7bff9e4cbb7b5135fdda902e772597e25c",
+        "kindle-jpeg-worker": "6f45e6b977cc94238cf22a1885dbb7298c7834abfc072aacbc19b748b8b277e2",
+        "benchmark-scene.jpg": "376ec78abb2c33477cbaf83fac6b5a3f940fc515e10a97a75cf80cdde90bf34b"
+      },
+      "native_ui_parked": true,
+      "reader": {
+        "availability": "available",
+        "crop_borders": false,
+        "final_availability": "available",
+        "fit": "page",
+        "input_sha256": "376ec78abb2c33477cbaf83fac6b5a3f940fc515e10a97a75cf80cdde90bf34b",
+        "native_opt_in": true,
+        "results": [
+          {
+            "median_ms": 466.310692,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              },
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "off",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 4612800,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              468.79077,
+              465.56384699999995,
+              466.310692,
+              466.150385,
+              465.313,
+              466.907923,
+              466.895462
+            ],
+            "sha256": "69ffa1f19314937ccec64fe47cb21d15f55bf26d62866b2e16237de38b1349cc"
+          },
+          {
+            "median_ms": 150.939153,
+            "observed_operations": [
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              },
+              {
+                "attempts": 1,
+                "completed": 1,
+                "hardware_resizes": 1
+              }
+            ],
+            "policy": "decode_and_resize",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": false,
+              "mae": 0.003922346514047867,
+              "max_error": 7,
+              "pixel_count": 4612800,
+              "pixels_over_4": 2,
+              "psnr_db": 70.5929105150791
+            },
+            "samples_ms": [
+              150.339,
+              154.173231,
+              149.821693,
+              145.316,
+              153.449077,
+              150.939153,
+              152.587153
+            ],
+            "sha256": "87f0c9aacd8cf08a32179392200d6d8e7e2635a42dff30b47c7083724caace72"
+          }
+        ],
+        "samples_per_policy": 7,
+        "schema": 1,
+        "scope": "Actual production fitted Reader API. Includes admission, entropy verification, process startup, IPC, DMA staging, driver lifecycle, normalization, crop/resize and canvas allocation. Resident input; file I/O and hashing excluded. No display waveform timing.",
+        "target": [
+          1860,
+          2480
+        ],
+        "warmups_per_policy": 1
+      },
+      "same_boot": true,
+      "native_restored": true,
+      "staging_removed": true,
+      "lease_released": true,
+      "new_critical_kernel_lines": 0
+    },
+    {
+      "run_id": "reader-native-eb41de32",
+      "case": "444-crop",
+      "status": "completed",
+      "artifacts": {
+        "native-reader-integration-arm": "100a4daa41135c63324eb700ecaf8d7bff9e4cbb7b5135fdda902e772597e25c",
+        "kindle-jpeg-worker": "6f45e6b977cc94238cf22a1885dbb7298c7834abfc072aacbc19b748b8b277e2",
+        "jpeg-444-scribe.jpg": "57f507f9aa188c83fc9174937828abd443e3382c66493bd0e2ceaaf44b5afb94"
+      },
+      "native_ui_parked": true,
+      "reader": {
+        "availability": "available",
+        "crop_borders": true,
+        "final_availability": "available",
+        "fit": "page",
+        "input_sha256": "57f507f9aa188c83fc9174937828abd443e3382c66493bd0e2ceaaf44b5afb94",
+        "native_opt_in": true,
+        "results": [
+          {
+            "median_ms": 354.456846,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "off",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              354.456846
+            ],
+            "sha256": "34ee007e4b1a3522feba8b5fffdd175460bd18144308715f5f518178081a545f"
+          },
+          {
+            "median_ms": 350.72369199999997,
+            "observed_operations": [
+              {
+                "attempts": 0,
+                "completed": 0,
+                "hardware_resizes": 0
+              }
+            ],
+            "policy": "decode_and_resize",
+            "quality": {
+              "comparison_gate_passed": true,
+              "exact": true,
+              "mae": 0.0,
+              "max_error": 0,
+              "pixel_count": 1153200,
+              "pixels_over_4": 0,
+              "psnr_db": null
+            },
+            "samples_ms": [
+              350.72369199999997
+            ],
+            "sha256": "34ee007e4b1a3522feba8b5fffdd175460bd18144308715f5f518178081a545f"
+          }
+        ],
+        "samples_per_policy": 1,
+        "schema": 1,
+        "scope": "Actual production fitted Reader API. Includes admission, entropy verification, process startup, IPC, DMA staging, driver lifecycle, normalization, crop/resize and canvas allocation. Resident input; file I/O and hashing excluded. No display waveform timing.",
+        "target": [
+          930,
+          1240
+        ],
+        "warmups_per_policy": 1
+      },
+      "same_boot": true,
+      "native_restored": true,
+      "staging_removed": true,
+      "lease_released": true,
+      "new_critical_kernel_lines": 0
+    }
+  ]
+}

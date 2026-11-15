@@ -1,0 +1,183 @@
+{
+  "automated_ui_passed": true,
+  "captures": 20,
+  "restart_cases": 8,
+  "visual_review": {
+    "accepted": true,
+    "date": "2026-11-16",
+    "timezone": "Asia/Shanghai",
+    "reviewed_run": "fast-ui-r1",
+    "frozen_run_acceptance_condition": "Every final PNG must be byte-identical to the reviewed original; the remote sealer enforces this condition.",
+    "source_fingerprint": "f1d99a8addddf145c0ab46683619156d04a6beae54380f329e18a484532fc7ee",
+    "binary_sha256": "497dc507f433019828874f5789496eacce7ed4c0d7c9e8846add56d3fe4bc067",
+    "reviews": [
+      {
+        "reviewer": "root",
+        "profile": "scribe",
+        "original_pngs_inspected": 10,
+        "accepted": true,
+        "findings": "Normal/Fast selection, retained disabled every-six controls, readable sequential explanations, Reader Done controls, landscape columns, and quiet complete binary pages are clear. Account landscape content intentionally scrolls inside its bounded viewport. The fixed header and navigation are preserved."
+      },
+      {
+        "reviewer": "media_verification_map",
+        "profile": "pw6",
+        "original_pngs_inspected": 10,
+        "accepted": true,
+        "findings": "All ten original PNGs were individually inspected. Refresh selectors and notes do not overlap; Normal/Fast and every-six states are correct; landscape Reader columns, Done controls, and explanations are complete; quiet Fast pages fill the viewport without persistent chrome. Scroll reachability and fixed header/navigation are independently checked in the capture report."
+      }
+    ],
+    "reviewed_capture_paths": [
+      "raw/pw6/10-account-reading-normal-portrait.png",
+      "raw/pw6/10-account-reading-fast-portrait.png",
+      "raw/pw6/10-account-reading-normal-landscape.png",
+      "raw/pw6/10-account-reading-fast-landscape.png",
+      "raw/pw6/20-reader-settings-normal-portrait.png",
+      "raw/pw6/20-reader-settings-fast-portrait.png",
+      "raw/pw6/27-reader-settings-normal-landscape.png",
+      "raw/pw6/27-reader-settings-fast-landscape.png",
+      "raw/pw6/14-reader-fast-portrait.png",
+      "raw/pw6/25-reader-fast-landscape.png",
+      "raw/scribe/10-account-reading-normal-portrait.png",
+      "raw/scribe/10-account-reading-fast-portrait.png",
+      "raw/scribe/10-account-reading-normal-landscape.png",
+      "raw/scribe/10-account-reading-fast-landscape.png",
+      "raw/scribe/20-reader-settings-normal-portrait.png",
+      "raw/scribe/20-reader-settings-fast-portrait.png",
+      "raw/scribe/27-reader-settings-normal-landscape.png",
+      "raw/scribe/27-reader-settings-fast-landscape.png",
+      "raw/scribe/14-reader-fast-portrait.png",
+      "raw/scribe/25-reader-fast-landscape.png"
+    ],
+    "scope": "Offline desktop profile visual review of untouched X11 PNGs; not a new product specification.",
+    "physical_device_used": false,
+    "native_waveform_delivery_claimed": false,
+    "live_account_used": false
+  },
+  "original_report_preserved": true,
+  "reviewed_to_frozen_pixel_identity": [
+    {
+      "file": "raw/pw6/20-reader-settings-normal-portrait.png",
+      "sha256": "6074750848831f9d70373cb2f04b8669a8487c3e0d081a33177da899b399bb3e",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/pw6/20-reader-settings-fast-portrait.png",
+      "sha256": "376d7f08ac6d1ecdea96ec55bbaa090bf4bad628d045d365d8c52ec6d72eeb21",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/pw6/14-reader-fast-portrait.png",
+      "sha256": "72c32cf007950ca4945355fe725ab2f5ed44f1fd23d1755abbff6db639a6adfd",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/pw6/10-account-reading-normal-portrait.png",
+      "sha256": "166cd26cb87d1786968dee405f51559cc569ff4986d9de36d7ca93bbdd7af49c",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/pw6/10-account-reading-fast-portrait.png",
+      "sha256": "4f91643e88dc69895eefdfba427617f23a1d28cfe7660669effc40bf1b72f688",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/pw6/27-reader-settings-normal-landscape.png",
+      "sha256": "2ea2ac23fc4988dee47b191b80bdeeb3566b8b67112652f45887f0fa1eb3256e",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/pw6/27-reader-settings-fast-landscape.png",
+      "sha256": "a7e11727cf01a7e99b3d7e0b4171a5db35e4c0b9c7d5c432792c171e72a0d124",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/pw6/25-reader-fast-landscape.png",
+      "sha256": "47e0fb5410939ed5489c194a37e459032ffd028ff839b6bd543c83b1b72974c9",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/pw6/10-account-reading-normal-landscape.png",
+      "sha256": "e2f990ce59875af2c6aba6920ef1afac36062b22e6a2d16e95302d58de69be75",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/pw6/10-account-reading-fast-landscape.png",
+      "sha256": "2513f9eac79e4ea0aedf737f530d35fca5f0a49f16faa4815f33fb73f149917c",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/scribe/20-reader-settings-normal-portrait.png",
+      "sha256": "e78382a0ed738b3a0b40d61107abbe4128cf25a3d6988b385b1494ec9d96d89e",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/scribe/20-reader-settings-fast-portrait.png",
+      "sha256": "59d24cbbad04c7811b56968c1cf06be4f7543e46cbe5edad2de6df3dcc5d24b9",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/scribe/14-reader-fast-portrait.png",
+      "sha256": "0f294cb9cd58b5659bd7d67acbe353baa133a7f4e5af0eb702ded8d95a970577",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/scribe/10-account-reading-normal-portrait.png",
+      "sha256": "fbdb798015efacc267312f1db11cdfb62f052ebd121524647f27328b89e43d03",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/scribe/10-account-reading-fast-portrait.png",
+      "sha256": "f7baf0c7eab59ab8ccee05ab8f499dbfbb9e407de3cf6c8e3432cc3b921b93e4",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/scribe/27-reader-settings-normal-landscape.png",
+      "sha256": "4818fc099c54259735793d1826183134d7362b04a8c24ead44c7314af537cd4c",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/scribe/27-reader-settings-fast-landscape.png",
+      "sha256": "0c3a5ccf46f9dbe5c76807a8289eb6822cfdb6cab15acc70ac52136b2b03c709",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/scribe/25-reader-fast-landscape.png",
+      "sha256": "bcb0a56a40de0fdb0a7113b47284071c352db388f855d4915ad15365741375b6",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/scribe/10-account-reading-normal-landscape.png",
+      "sha256": "41793bde61a0045af19d02f4c4f678fc518d0e960979fc8f32ed91df091e3491",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    },
+    {
+      "file": "raw/scribe/10-account-reading-fast-landscape.png",
+      "sha256": "facac6bc6c103cada95e276b1bee8894db360135756cc6532198f8de4e5733e0",
+      "reviewed_run": "fast-ui-r1",
+      "frozen_run": "fast-ui-r2"
+    }
+  ],
+  "physical_device_used": false,
+  "native_driver_exercised": false,
+  "hardware_waveform_proof": false,
+  "live_account_used": false
+}

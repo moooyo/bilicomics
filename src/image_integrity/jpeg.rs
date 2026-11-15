@@ -240,6 +240,37 @@ pub(super) fn decode_jpeg(bytes: &[u8]) -> Result<DynamicImage> {
         .expect("an uncancelled JPEG decode must not return cancellation"))
 }
 
+fn strict_options() -> DecoderOptions {
+    DecoderOptions::default().set_strict_mode(true)
+        .set_max_width(u16::MAX as usize).set_max_height(u16::MAX as usize)
+        .jpeg_set_out_colorspace(ColorSpace::RGB)
+}
+
+/// Preserve the existing proof policy without running CPU IDCT. A separate
+/// entropy-only validator must still verify every qualified baseline block.
+pub(super) fn validated_header_dimensions(bytes: &[u8]) -> Result<(u32, u32)> {
+    if bytes.len() as u64 > MAX_ENCODED_BYTES { return Err(Fault::resource("image_size_limit")); }
+    let frame = container(bytes)?;
+    if frame.allocation_budget(bytes.len())? > MAX_DECODE_ALLOCATION {
+        return Err(Fault::resource("jpeg_decode_allocation_limit"));
+    }
+    let mut input = Cursor::new(bytes);
+    let mut decoder = JpegDecoder::new_with_options(&mut input, strict_options());
+    decoder.decode_headers().map_err(decoder_fault)?;
+    if decoder.dimensions() != Some((frame.width as usize, frame.height as usize)) {
+        return Err(Fault::corrupt("jpeg_geometry_changed"));
+    }
+    if decoder.input_colorspace().is_none_or(|space| space.num_components() != frame.components.len()) {
+        return Err(Fault::unsupported("jpeg_header_components_unsupported"));
+    }
+    let length = decoder.output_buffer_size().ok_or_else(|| Fault::resource("jpeg_decode_allocation_limit"))?;
+    if length as u64 != u64::from(frame.width) * u64::from(frame.height) * 3
+        || length as u64 > MAX_DECODE_ALLOCATION {
+        return Err(Fault::resource("jpeg_decode_allocation_limit"));
+    }
+    Ok((frame.width, frame.height))
+}
+
 pub(super) fn decode_jpeg_cancellable(bytes: &[u8], is_cancelled: &dyn Fn() -> bool)
     -> Result<Option<DynamicImage>>
 {
@@ -250,11 +281,8 @@ pub(super) fn decode_jpeg_cancellable(bytes: &[u8], is_cancelled: &dyn Fn() -> b
         return Err(Fault::resource("jpeg_decode_allocation_limit"));
     }
     if is_cancelled() { return Ok(None); }
-    let options = DecoderOptions::default().set_strict_mode(true)
-        .set_max_width(u16::MAX as usize).set_max_height(u16::MAX as usize)
-        .jpeg_set_out_colorspace(ColorSpace::RGB);
     let mut input = Cursor::new(bytes);
-    let mut decoder = JpegDecoder::new_with_options(&mut input, options);
+    let mut decoder = JpegDecoder::new_with_options(&mut input, strict_options());
     decoder.decode_headers().map_err(decoder_fault)?;
     if decoder.dimensions() != Some((frame.width as usize, frame.height as usize)) {
         return Err(Fault::corrupt("jpeg_geometry_changed"));

@@ -587,6 +587,26 @@ fn complete_sequential_jpeg_blocks_decode_to_the_declared_pixels() {
 }
 
 #[test]
+fn native_header_validation_checks_deferred_component_semantics_without_idct() {
+    let original = sequential_grayscale_jpeg(16, 16, &[0], None);
+    let scan_start = jpeg_entropy_offset(&original) - 10;
+    for transform in [0, 1, 255] {
+        let mut bytes = original[..scan_start].to_vec();
+        append_jpeg_segment(&mut bytes, 0xee,
+            &[b'A', b'd', b'o', b'b', b'e', 0, 100, 0, 0, 0, 0, transform]);
+        bytes.extend_from_slice(&original[scan_start..]);
+        let before = decode_attempt_count();
+        let error = jpeg::validated_header_dimensions(&bytes)
+            .expect_err("A grayscale frame cannot acquire an Adobe color transform");
+        assert_eq!(error.kind, IntegrityFailureKind::Unsupported);
+        assert_eq!(decode_attempt_count(), before, "Header policy must not run CPU IDCT");
+        let software = rejected(&bytes, None);
+        assert_eq!(software.kind, IntegrityFailureKind::Unsupported);
+        assert!(software.encoding_evidence().is_none());
+    }
+}
+
+#[test]
 fn sequential_jpeg_padding_cannot_supply_a_missing_declared_block() {
     let bytes = sequential_grayscale_jpeg(16, 8, &[0x3f], None);
     assert_header_dimensions(&bytes, ImageFormat::Jpeg, 16, 8);

@@ -20,3 +20,17 @@ This file records principal reused sources and assets. It does not select this p
 The font bundle contains Sans Regular, Medium, and Bold, and Serif Regular and Bold. The retained original notice also mentions additional source faces that are not bundled here.
 
 Official signing WASM is not redistributed here. Runtime acquisition checks the pinned digest and remains separate from account data. Public asset URLs are not represented as a redistribution grant.
+
+## Aidoku native JPEG processing
+
+The isolated JPEG process owner, conservative entropy admission and shared C
+transaction in `src/native_media/`, `src/bin/kindle-jpeg-worker.rs`,
+`scripts/native-codec-probe.c` and `scripts/native-codec-bench.h` are adapted
+from AidokuForKindle's uncommitted 2026-11-15 media candidate under
+GPL-3.0-or-later. The complete original license, unchanged selected-source
+snapshots, base-commit identity, handoff-declared candidate fingerprint,
+per-file SHA-256 records and BiliComics changes are retained in
+`vendor/aidoku-native-media/`. This source-specific notice does not select an
+overall project license. Aidoku performance and physical-device results do
+not establish BiliComics acceptance; image processing and Y4 display behavior
+retain independent qualification boundaries.

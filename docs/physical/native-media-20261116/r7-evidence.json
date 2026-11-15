@@ -1,0 +1,4165 @@
+{
+  "schema_version": 1,
+  "evidence_class": "physical-device-controlled-offline-receipt-fixture",
+  "run_id": "media-20261116-r7-04df24e0",
+  "status": "completed",
+  "started_at": "2026-11-15T16:59:49.660835+00:00",
+  "finished_at": "2026-11-15T17:05:21.612935+00:00",
+  "device": {
+    "operator_confirmed_model": "Kindle Scribe 2022 (23L)",
+    "observed_firmware": "5.19.5"
+  },
+  "identities": {
+    "package_sha256": "84b27b9cb960ab1d28ad560f6a5415463e8bfef487be0fff42f3093f34b43d5e",
+    "binary_sha256": "e56a0ac6e22e65d40ddebb3825555394b64123825d740e543589ba9ebc47c14c",
+    "worker_sha256": "f135945d85928464850c4036b2875ca4cb7031da315f4993e7e906ae93f07127",
+    "fixture_manifest_sha256": "ff860e5511934e04a0983de3c72268154d4a46dbb500afd93b4d84daa4aba6b6",
+    "source_manifest_sha256": "17629c73eafb64cff585bea4046e9cdd8092eacda91c13921d71a60cc552792c"
+  },
+  "hardware_policy": "Supported hardware model and actual driver; production exact two Gray source-target tuples",
+  "phase_count": 18,
+  "phases": [
+    {
+      "phase": 0,
+      "operation_id": 2,
+      "render_version": 1,
+      "actual_published": true,
+      "page_number": 1,
+      "fixture_name": "gray-large",
+      "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "page",
+      "requested": false,
+      "effective_policy": "off",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 0,
+        "completed": 0,
+        "resized": 0,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 111381,
+        "decoded_sources": 1,
+        "grayscale_us": 235505,
+        "integrity_decode_us": 132543,
+        "layout_rebuilds": 1,
+        "layout_us": 13,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 410502,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 4,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 89788,
+            "partial": 0,
+            "wall_us": 132543
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 286780,
+            "partial": 0,
+            "wall_us": 368104
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 82823,
+            "partial": 0,
+            "wall_us": 111381
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 89643,
+            "partial": 0,
+            "wall_us": 132388
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 6
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 196942,
+            "partial": 0,
+            "wall_us": 235505
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 15,
+            "partial": 0,
+            "wall_us": 16
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 14,
+            "partial": 0,
+            "wall_us": 13
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5209,
+            "partial": 0,
+            "wall_us": 9278
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 629,
+            "partial": 0,
+            "wall_us": 251904
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 334144,
+            "partial": 0,
+            "wall_us": 410502
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 4,
+            "partial": 0,
+            "wall_us": 4
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 11,
+            "partial": 0,
+            "wall_us": 11
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2881,
+            "partial": 0,
+            "wall_us": 5670
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1556,
+            "partial": 0,
+            "wall_us": 5917
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 13,
+            "partial": 0,
+            "wall_us": 12
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 99,
+        "performance_preparation": 146,
+        "performance_publication": 153,
+        "lifecycle_ready": 27
+      },
+      "backend": {
+        "performance_line": 154,
+        "render_sequence": 11,
+        "reader_operation_id": 2,
+        "accepted_update_marker": 11,
+        "completed_update_marker": 11,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": true,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": true,
+        "forced_full": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 1,
+      "operation_id": 4,
+      "render_version": 2,
+      "actual_published": true,
+      "page_number": 1,
+      "fixture_name": "gray-large",
+      "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "page",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 1,
+        "completed": 1,
+        "resized": 1,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "native_decode_resize",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 53215,
+        "decoded_sources": 0,
+        "grayscale_us": 0,
+        "integrity_decode_us": 0,
+        "layout_rebuilds": 0,
+        "layout_us": 12,
+        "native_sources": 1,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 0,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 0,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 34245,
+            "partial": 0,
+            "wall_us": 183830
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 52662,
+            "partial": 0,
+            "wall_us": 53215
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 17147,
+            "partial": 0,
+            "wall_us": 17216
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 11,
+            "partial": 0,
+            "wall_us": 12
+          },
+          "native_decode_resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 16958,
+            "partial": 0,
+            "wall_us": 166465
+          },
+          "processed_source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 883,
+            "partial": 0,
+            "wall_us": 1475
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 495,
+            "partial": 0,
+            "wall_us": 490
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2759,
+            "partial": 0,
+            "wall_us": 2757
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1044,
+            "partial": 0,
+            "wall_us": 2589
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 155,
+        "performance_preparation": 164,
+        "performance_publication": 171,
+        "lifecycle_ready": 30
+      },
+      "backend": {
+        "performance_line": 172,
+        "render_sequence": 13,
+        "reader_operation_id": 4,
+        "accepted_update_marker": 13,
+        "completed_update_marker": 12,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 2,
+      "operation_id": 5,
+      "render_version": 3,
+      "actual_published": true,
+      "page_number": 1,
+      "fixture_name": "gray-large",
+      "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "page",
+      "requested": false,
+      "effective_policy": "off",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 1,
+        "completed": 1,
+        "resized": 1,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "canonical_source_cache",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 54411,
+        "decoded_sources": 0,
+        "grayscale_us": 33,
+        "integrity_decode_us": 54,
+        "layout_rebuilds": 0,
+        "layout_us": 10,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 373767,
+        "resized_pixels": 4612800,
+        "reused_sources": 1,
+        "rotation_us": 4,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 53,
+            "partial": 0,
+            "wall_us": 54
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 148,
+            "partial": 0,
+            "wall_us": 148
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 54352,
+            "partial": 0,
+            "wall_us": 54411
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 6
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 32,
+            "partial": 0,
+            "wall_us": 33
+          },
+          "integrity_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 9,
+            "partial": 0,
+            "wall_us": 6
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 10,
+            "partial": 0,
+            "wall_us": 10
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 820,
+            "partial": 0,
+            "wall_us": 1625
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 424,
+            "partial": 0,
+            "wall_us": 422
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 327928,
+            "partial": 0,
+            "wall_us": 373767
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 4,
+            "partial": 0,
+            "wall_us": 4
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 13,
+            "partial": 0,
+            "wall_us": 14
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2898,
+            "partial": 0,
+            "wall_us": 2894
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1217,
+            "partial": 0,
+            "wall_us": 2365
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 173,
+        "performance_preparation": 182,
+        "performance_publication": 189,
+        "lifecycle_ready": 33
+      },
+      "backend": {
+        "performance_line": 190,
+        "render_sequence": 15,
+        "reader_operation_id": 5,
+        "accepted_update_marker": 14,
+        "completed_update_marker": 13,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 3,
+      "operation_id": 6,
+      "render_version": 4,
+      "actual_published": true,
+      "page_number": 1,
+      "fixture_name": "gray-large",
+      "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "page",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 1,
+        "completed": 1,
+        "resized": 1,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "processed_source_cache",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 56245,
+        "decoded_sources": 0,
+        "grayscale_us": 0,
+        "integrity_decode_us": 0,
+        "layout_rebuilds": 0,
+        "layout_us": 11,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 1,
+        "rendered_frames": 1,
+        "resize_us": 0,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 0,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 18453,
+            "partial": 0,
+            "wall_us": 18626
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 56262,
+            "partial": 0,
+            "wall_us": 56245
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 18356,
+            "partial": 0,
+            "wall_us": 18523
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 10,
+            "partial": 0,
+            "wall_us": 11
+          },
+          "processed_source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 27,
+            "partial": 0,
+            "wall_us": 27
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1102,
+            "partial": 0,
+            "wall_us": 1473
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 401,
+            "partial": 0,
+            "wall_us": 396
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2774,
+            "partial": 0,
+            "wall_us": 2772
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1043,
+            "partial": 0,
+            "wall_us": 1889
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 191,
+        "performance_preparation": 200,
+        "performance_publication": 207,
+        "lifecycle_ready": 36
+      },
+      "backend": {
+        "performance_line": 208,
+        "render_sequence": 17,
+        "reader_operation_id": 6,
+        "accepted_update_marker": 15,
+        "completed_update_marker": 14,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 4,
+      "operation_id": 7,
+      "render_version": 5,
+      "actual_published": true,
+      "page_number": 1,
+      "fixture_name": "gray-large",
+      "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "original",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 2,
+        "completed": 2,
+        "resized": 2,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "native_decode_resize",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 54982,
+        "decoded_sources": 0,
+        "grayscale_us": 0,
+        "integrity_decode_us": 0,
+        "layout_rebuilds": 1,
+        "layout_us": 20,
+        "native_sources": 1,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 0,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 0,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 35911,
+            "partial": 0,
+            "wall_us": 167078
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 54306,
+            "partial": 0,
+            "wall_us": 54982
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 19839,
+            "partial": 0,
+            "wall_us": 20409
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 20,
+            "partial": 0,
+            "wall_us": 20
+          },
+          "native_decode_resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 15944,
+            "partial": 0,
+            "wall_us": 146519
+          },
+          "processed_source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 7,
+            "partial": 0,
+            "wall_us": 8
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 844,
+            "partial": 0,
+            "wall_us": 1305
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 701,
+            "partial": 0,
+            "wall_us": 698
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 4123,
+            "partial": 0,
+            "wall_us": 4120
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1201,
+            "partial": 0,
+            "wall_us": 1898
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 210,
+        "performance_preparation": 219,
+        "performance_publication": 226,
+        "lifecycle_ready": 39
+      },
+      "backend": {
+        "performance_line": 227,
+        "render_sequence": 19,
+        "reader_operation_id": 7,
+        "accepted_update_marker": 16,
+        "completed_update_marker": 16,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": true,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": true,
+        "forced_full": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 5,
+      "operation_id": 8,
+      "render_version": 6,
+      "actual_published": true,
+      "page_number": 1,
+      "fixture_name": "gray-large",
+      "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "height",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 3,
+        "completed": 3,
+        "resized": 3,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "native_decode_resize",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 57641,
+        "decoded_sources": 0,
+        "grayscale_us": 0,
+        "integrity_decode_us": 0,
+        "layout_rebuilds": 1,
+        "layout_us": 24,
+        "native_sources": 1,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 0,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 0,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 35813,
+            "partial": 0,
+            "wall_us": 177086
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 54240,
+            "partial": 0,
+            "wall_us": 57641
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 19579,
+            "partial": 0,
+            "wall_us": 20186
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 23,
+            "partial": 0,
+            "wall_us": 24
+          },
+          "native_decode_resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 16062,
+            "partial": 0,
+            "wall_us": 156713
+          },
+          "processed_source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 9,
+            "partial": 0,
+            "wall_us": 9
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 971,
+            "partial": 0,
+            "wall_us": 1492
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1093,
+            "partial": 0,
+            "wall_us": 1479
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 4633,
+            "partial": 0,
+            "wall_us": 4628
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1377,
+            "partial": 0,
+            "wall_us": 2373
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 229,
+        "performance_preparation": 238,
+        "performance_publication": 245,
+        "lifecycle_ready": 42
+      },
+      "backend": {
+        "performance_line": 246,
+        "render_sequence": 21,
+        "reader_operation_id": 8,
+        "accepted_update_marker": 18,
+        "completed_update_marker": 18,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": true,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": true,
+        "forced_full": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 6,
+      "operation_id": 9,
+      "render_version": 7,
+      "actual_published": true,
+      "page_number": 1,
+      "fixture_name": "gray-large",
+      "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 4,
+        "completed": 4,
+        "resized": 4,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "native_decode_resize",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 58569,
+        "decoded_sources": 0,
+        "grayscale_us": 0,
+        "integrity_decode_us": 0,
+        "layout_rebuilds": 1,
+        "layout_us": 20,
+        "native_sources": 1,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 0,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 0,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 35006,
+            "partial": 0,
+            "wall_us": 237037
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 56008,
+            "partial": 0,
+            "wall_us": 58569
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 16797,
+            "partial": 0,
+            "wall_us": 34245
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 20,
+            "partial": 0,
+            "wall_us": 20
+          },
+          "native_decode_resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 16719,
+            "partial": 0,
+            "wall_us": 201171
+          },
+          "processed_source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 10,
+            "partial": 0,
+            "wall_us": 10
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 834,
+            "partial": 0,
+            "wall_us": 2200
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1007,
+            "partial": 0,
+            "wall_us": 20588
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2874,
+            "partial": 0,
+            "wall_us": 3608
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1054,
+            "partial": 0,
+            "wall_us": 2611
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 248,
+        "performance_preparation": 257,
+        "performance_publication": 264,
+        "lifecycle_ready": 45
+      },
+      "backend": {
+        "performance_line": 265,
+        "render_sequence": 23,
+        "reader_operation_id": 9,
+        "accepted_update_marker": 20,
+        "completed_update_marker": 20,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": true,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": true,
+        "forced_full": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 7,
+      "operation_id": 10,
+      "render_version": 8,
+      "actual_published": true,
+      "page_number": 2,
+      "fixture_name": "color422-large",
+      "page_id": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 4,
+        "completed": 4,
+        "resized": 4,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 45890,
+        "decoded_sources": 1,
+        "grayscale_us": 203953,
+        "integrity_decode_us": 267540,
+        "layout_rebuilds": 1,
+        "layout_us": 20,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 325028,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 5,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 211793,
+            "partial": 0,
+            "wall_us": 267540
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 416789,
+            "partial": 0,
+            "wall_us": 472888
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 45563,
+            "partial": 0,
+            "wall_us": 45890
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 211689,
+            "partial": 0,
+            "wall_us": 267422
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 8,
+            "partial": 0,
+            "wall_us": 12
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 203610,
+            "partial": 0,
+            "wall_us": 203953
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 14,
+            "partial": 0,
+            "wall_us": 13
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 0,
+            "cpu_us": 1297,
+            "partial": 1,
+            "wall_us": 1287
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 20,
+            "partial": 0,
+            "wall_us": 20
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1027,
+            "partial": 0,
+            "wall_us": 1643
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 729,
+            "partial": 0,
+            "wall_us": 719
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 323431,
+            "partial": 0,
+            "wall_us": 325028
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 12,
+            "partial": 0,
+            "wall_us": 12
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 4680,
+            "partial": 0,
+            "wall_us": 4670
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1862,
+            "partial": 0,
+            "wall_us": 4382
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 12,
+            "partial": 0,
+            "wall_us": 12
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 267,
+        "performance_preparation": 277,
+        "performance_publication": 284,
+        "lifecycle_ready": 48
+      },
+      "backend": {
+        "performance_line": 285,
+        "render_sequence": 26,
+        "reader_operation_id": 10,
+        "accepted_update_marker": 23,
+        "completed_update_marker": 22,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 8,
+      "operation_id": 11,
+      "render_version": 9,
+      "actual_published": true,
+      "page_number": 3,
+      "fixture_name": "color444-large",
+      "page_id": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 4,
+        "completed": 4,
+        "resized": 4,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 46947,
+        "decoded_sources": 1,
+        "grayscale_us": 192578,
+        "integrity_decode_us": 194753,
+        "layout_rebuilds": 1,
+        "layout_us": 17,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 321393,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 5,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 193227,
+            "partial": 0,
+            "wall_us": 194753
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 386644,
+            "partial": 0,
+            "wall_us": 389135
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 46650,
+            "partial": 0,
+            "wall_us": 46947
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 193136,
+            "partial": 0,
+            "wall_us": 194650
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 6,
+            "partial": 0,
+            "wall_us": 7
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 191621,
+            "partial": 0,
+            "wall_us": 192578
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 11,
+            "partial": 0,
+            "wall_us": 11
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 0,
+            "cpu_us": 1714,
+            "partial": 1,
+            "wall_us": 1707
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 17,
+            "partial": 0,
+            "wall_us": 17
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1838,
+            "partial": 0,
+            "wall_us": 3139
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 657,
+            "partial": 0,
+            "wall_us": 654
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 317822,
+            "partial": 0,
+            "wall_us": 321393
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 13,
+            "partial": 0,
+            "wall_us": 13
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 6237,
+            "partial": 0,
+            "wall_us": 6650
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 3414,
+            "partial": 0,
+            "wall_us": 6109
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 12,
+            "partial": 0,
+            "wall_us": 12
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 287,
+        "performance_preparation": 297,
+        "performance_publication": 304,
+        "lifecycle_ready": 51
+      },
+      "backend": {
+        "performance_line": 305,
+        "render_sequence": 29,
+        "reader_operation_id": 11,
+        "accepted_update_marker": 25,
+        "completed_update_marker": 24,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 9,
+      "operation_id": 12,
+      "render_version": 10,
+      "actual_published": true,
+      "page_number": 4,
+      "fixture_name": "color420-fallback",
+      "page_id": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 4,
+        "completed": 4,
+        "resized": 4,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 49096,
+        "decoded_sources": 1,
+        "grayscale_us": 198166,
+        "integrity_decode_us": 222305,
+        "layout_rebuilds": 1,
+        "layout_us": 22,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 344772,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 5,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 220716,
+            "partial": 0,
+            "wall_us": 222305
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 413788,
+            "partial": 0,
+            "wall_us": 420569
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 48747,
+            "partial": 0,
+            "wall_us": 49096
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 220619,
+            "partial": 0,
+            "wall_us": 222196
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 13,
+            "partial": 0,
+            "wall_us": 20
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 192983,
+            "partial": 0,
+            "wall_us": 198166
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 12,
+            "partial": 0,
+            "wall_us": 13
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 0,
+            "cpu_us": 14,
+            "partial": 1,
+            "wall_us": 14
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 21,
+            "partial": 0,
+            "wall_us": 22
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1445,
+            "partial": 0,
+            "wall_us": 2423
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 693,
+            "partial": 0,
+            "wall_us": 684
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 335506,
+            "partial": 0,
+            "wall_us": 344772
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 14,
+            "partial": 0,
+            "wall_us": 14
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 4613,
+            "partial": 0,
+            "wall_us": 4611
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2306,
+            "partial": 0,
+            "wall_us": 4455
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 12,
+            "partial": 0,
+            "wall_us": 13
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 307,
+        "performance_preparation": 317,
+        "performance_publication": 324,
+        "lifecycle_ready": 54
+      },
+      "backend": {
+        "performance_line": 325,
+        "render_sequence": 32,
+        "reader_operation_id": 12,
+        "accepted_update_marker": 27,
+        "completed_update_marker": 26,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 10,
+      "operation_id": 13,
+      "render_version": 11,
+      "actual_published": true,
+      "page_number": 5,
+      "fixture_name": "progressive-fallback",
+      "page_id": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 4,
+        "completed": 4,
+        "resized": 4,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 50033,
+        "decoded_sources": 1,
+        "grayscale_us": 224534,
+        "integrity_decode_us": 330772,
+        "layout_rebuilds": 1,
+        "layout_us": 19,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 346373,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 5,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 293764,
+            "partial": 0,
+            "wall_us": 330772
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 489203,
+            "partial": 0,
+            "wall_us": 555567
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 49868,
+            "partial": 0,
+            "wall_us": 50033
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 293663,
+            "partial": 0,
+            "wall_us": 330664
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 6,
+            "partial": 0,
+            "wall_us": 7
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 195188,
+            "partial": 0,
+            "wall_us": 224534
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 13,
+            "partial": 0,
+            "wall_us": 13
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 0,
+            "cpu_us": 15,
+            "partial": 1,
+            "wall_us": 16
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 19,
+            "partial": 0,
+            "wall_us": 19
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1356,
+            "partial": 0,
+            "wall_us": 2783
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 806,
+            "partial": 0,
+            "wall_us": 799
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 336629,
+            "partial": 0,
+            "wall_us": 346373
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 14,
+            "partial": 0,
+            "wall_us": 14
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1875,
+            "partial": 0,
+            "wall_us": 1866
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 948,
+            "partial": 0,
+            "wall_us": 2310
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 12,
+            "partial": 0,
+            "wall_us": 12
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 327,
+        "performance_preparation": 337,
+        "performance_publication": 344,
+        "lifecycle_ready": 57
+      },
+      "backend": {
+        "performance_line": 345,
+        "render_sequence": 35,
+        "reader_operation_id": 13,
+        "accepted_update_marker": 29,
+        "completed_update_marker": 28,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 11,
+      "operation_id": 14,
+      "render_version": 12,
+      "actual_published": true,
+      "page_number": 6,
+      "fixture_name": "png-fallback",
+      "page_id": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 4,
+        "completed": 4,
+        "resized": 4,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 51112,
+        "decoded_sources": 1,
+        "grayscale_us": 21,
+        "integrity_decode_us": 37771,
+        "layout_rebuilds": 1,
+        "layout_us": 22,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 350306,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 5,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 37476,
+            "partial": 0,
+            "wall_us": 37771
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 37552,
+            "partial": 0,
+            "wall_us": 37846
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 46920,
+            "partial": 0,
+            "wall_us": 51112
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 37386,
+            "partial": 0,
+            "wall_us": 37670
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 6,
+            "partial": 0,
+            "wall_us": 6
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 21,
+            "partial": 0,
+            "wall_us": 21
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 11,
+            "partial": 0,
+            "wall_us": 11
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 0,
+            "cpu_us": 5,
+            "partial": 1,
+            "wall_us": 5
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 20,
+            "partial": 0,
+            "wall_us": 22
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1363,
+            "partial": 0,
+            "wall_us": 2120
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 715,
+            "partial": 0,
+            "wall_us": 706
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 331243,
+            "partial": 0,
+            "wall_us": 350306
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 13,
+            "partial": 0,
+            "wall_us": 13
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 241,
+            "partial": 0,
+            "wall_us": 241
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 391,
+            "partial": 0,
+            "wall_us": 892
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 11,
+            "partial": 0,
+            "wall_us": 11
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 347,
+        "performance_preparation": 356,
+        "performance_publication": 363,
+        "lifecycle_ready": 60
+      },
+      "backend": {
+        "performance_line": 364,
+        "render_sequence": 37,
+        "reader_operation_id": 14,
+        "accepted_update_marker": 30,
+        "completed_update_marker": 29,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 12,
+      "operation_id": 15,
+      "render_version": 13,
+      "actual_published": true,
+      "page_number": 7,
+      "fixture_name": "wide-gray",
+      "page_id": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b",
+      "source_pixels": [
+        1920,
+        1280
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 5,
+        "completed": 5,
+        "resized": 5,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "native_decode_resize",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 32043,
+        "decoded_sources": 0,
+        "grayscale_us": 0,
+        "integrity_decode_us": 0,
+        "layout_rebuilds": 1,
+        "layout_us": 13,
+        "native_sources": 1,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 0,
+        "resized_pixels": 2306400,
+        "reused_sources": 0,
+        "rotation_us": 0,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 25280,
+            "partial": 0,
+            "wall_us": 118799
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 32050,
+            "partial": 0,
+            "wall_us": 32043
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 12826,
+            "partial": 0,
+            "wall_us": 12818
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 13,
+            "partial": 0,
+            "wall_us": 13
+          },
+          "native_decode_resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 12330,
+            "partial": 0,
+            "wall_us": 105840
+          },
+          "processed_source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 10,
+            "partial": 0,
+            "wall_us": 10
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1450,
+            "partial": 0,
+            "wall_us": 2198
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 660,
+            "partial": 0,
+            "wall_us": 777
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2479,
+            "partial": 0,
+            "wall_us": 2470
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1146,
+            "partial": 0,
+            "wall_us": 2229
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 366,
+        "performance_preparation": 375,
+        "performance_publication": 382,
+        "lifecycle_ready": 63
+      },
+      "backend": {
+        "performance_line": 383,
+        "render_sequence": 39,
+        "reader_operation_id": 15,
+        "accepted_update_marker": 31,
+        "completed_update_marker": 30,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 13,
+      "operation_id": 16,
+      "render_version": 14,
+      "actual_published": true,
+      "page_number": 7,
+      "fixture_name": "wide-gray",
+      "page_id": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b",
+      "source_pixels": [
+        1920,
+        1280
+      ],
+      "fit": "height",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.25,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.25,
+        "focus_y": 0.0,
+        "focus_width": 0.5,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 5,
+        "completed": 5,
+        "resized": 5,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 46378,
+        "decoded_sources": 1,
+        "grayscale_us": 102164,
+        "integrity_decode_us": 64545,
+        "layout_rebuilds": 1,
+        "layout_us": 20,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 479168,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 5,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 49264,
+            "partial": 0,
+            "wall_us": 64545
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 162707,
+            "partial": 0,
+            "wall_us": 179365
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 46128,
+            "partial": 0,
+            "wall_us": 46378
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 49185,
+            "partial": 0,
+            "wall_us": 64455
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 6,
+            "partial": 0,
+            "wall_us": 6
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 100801,
+            "partial": 0,
+            "wall_us": 102164
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 10,
+            "partial": 0,
+            "wall_us": 10
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 12547,
+            "partial": 0,
+            "wall_us": 12541
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 21,
+            "partial": 0,
+            "wall_us": 20
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 828,
+            "partial": 0,
+            "wall_us": 1451
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 710,
+            "partial": 0,
+            "wall_us": 705
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 475606,
+            "partial": 0,
+            "wall_us": 479168
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 10,
+            "partial": 0,
+            "wall_us": 10
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2471,
+            "partial": 0,
+            "wall_us": 2467
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 913,
+            "partial": 0,
+            "wall_us": 2169
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 8,
+            "partial": 0,
+            "wall_us": 8
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 385,
+        "performance_preparation": 395,
+        "performance_publication": 402,
+        "lifecycle_ready": 66
+      },
+      "backend": {
+        "performance_line": 403,
+        "render_sequence": 42,
+        "reader_operation_id": 16,
+        "accepted_update_marker": 33,
+        "completed_update_marker": 33,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": true,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": true,
+        "forced_full": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 14,
+      "operation_id": 17,
+      "render_version": 15,
+      "actual_published": true,
+      "page_number": 8,
+      "fixture_name": "tall-gray",
+      "page_id": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d",
+      "source_pixels": [
+        1280,
+        2560
+      ],
+      "fit": "height",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 5,
+        "completed": 5,
+        "resized": 5,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 44163,
+        "decoded_sources": 1,
+        "grayscale_us": 139522,
+        "integrity_decode_us": 59755,
+        "layout_rebuilds": 1,
+        "layout_us": 19,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 214500,
+        "resized_pixels": 3075200,
+        "reused_sources": 0,
+        "rotation_us": 5,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 58702,
+            "partial": 0,
+            "wall_us": 59755
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 204604,
+            "partial": 0,
+            "wall_us": 225569
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 44005,
+            "partial": 0,
+            "wall_us": 44163
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 58613,
+            "partial": 0,
+            "wall_us": 59653
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 7,
+            "partial": 0,
+            "wall_us": 7
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 130878,
+            "partial": 0,
+            "wall_us": 139522
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 11,
+            "partial": 0,
+            "wall_us": 11
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 14932,
+            "partial": 0,
+            "wall_us": 26181
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 19,
+            "partial": 0,
+            "wall_us": 19
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1673,
+            "partial": 0,
+            "wall_us": 3196
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1060,
+            "partial": 0,
+            "wall_us": 3912
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 211078,
+            "partial": 0,
+            "wall_us": 214500
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 10,
+            "partial": 0,
+            "wall_us": 10
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2960,
+            "partial": 0,
+            "wall_us": 2954
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1425,
+            "partial": 0,
+            "wall_us": 3020
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 10,
+            "partial": 0,
+            "wall_us": 11
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 405,
+        "performance_preparation": 414,
+        "performance_publication": 421,
+        "lifecycle_ready": 69
+      },
+      "backend": {
+        "performance_line": 422,
+        "render_sequence": 44,
+        "reader_operation_id": 17,
+        "accepted_update_marker": 35,
+        "completed_update_marker": 34,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 15,
+      "operation_id": 18,
+      "render_version": 16,
+      "actual_published": true,
+      "page_number": 8,
+      "fixture_name": "tall-gray",
+      "page_id": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d",
+      "source_pixels": [
+        1280,
+        2560
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.16666666666666666
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.16640624403953552,
+        "focus_width": 1.0,
+        "focus_height": 0.667187511920929
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 5,
+        "completed": 5,
+        "resized": 5,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "canonical_source_cache",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 53423,
+        "decoded_sources": 0,
+        "grayscale_us": 5,
+        "integrity_decode_us": 40,
+        "layout_rebuilds": 1,
+        "layout_us": 16,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 476033,
+        "resized_pixels": 4612800,
+        "reused_sources": 1,
+        "rotation_us": 4,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 40,
+            "partial": 0,
+            "wall_us": 40
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 15622,
+            "partial": 0,
+            "wall_us": 16183
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 52835,
+            "partial": 0,
+            "wall_us": 53423
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 4,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "integrity_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 15524,
+            "partial": 0,
+            "wall_us": 16079
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 16,
+            "partial": 0,
+            "wall_us": 16
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 879,
+            "partial": 0,
+            "wall_us": 1587
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 375,
+            "partial": 0,
+            "wall_us": 374
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 474927,
+            "partial": 0,
+            "wall_us": 476033
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 4,
+            "partial": 0,
+            "wall_us": 4
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 10,
+            "partial": 0,
+            "wall_us": 10
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 3020,
+            "partial": 0,
+            "wall_us": 3016
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1026,
+            "partial": 0,
+            "wall_us": 1713
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 424,
+        "performance_preparation": 433,
+        "performance_publication": 440,
+        "lifecycle_ready": 72
+      },
+      "backend": {
+        "performance_line": 441,
+        "render_sequence": 46,
+        "reader_operation_id": 18,
+        "accepted_update_marker": 36,
+        "completed_update_marker": 36,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": true,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": true,
+        "forced_full": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 16,
+      "operation_id": 19,
+      "render_version": 17,
+      "actual_published": true,
+      "page_number": 9,
+      "fixture_name": "small-gray",
+      "page_id": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c",
+      "source_pixels": [
+        100,
+        50
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        7.105427357601002e-17,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 5,
+        "completed": 5,
+        "resized": 5,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 31130,
+        "decoded_sources": 1,
+        "grayscale_us": 387,
+        "integrity_decode_us": 732,
+        "layout_rebuilds": 1,
+        "layout_us": 15,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 181922,
+        "resized_pixels": 1729800,
+        "reused_sources": 0,
+        "rotation_us": 5,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 731,
+            "partial": 0,
+            "wall_us": 732
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1551,
+            "partial": 0,
+            "wall_us": 1551
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 30733,
+            "partial": 0,
+            "wall_us": 31130
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 625,
+            "partial": 0,
+            "wall_us": 623
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 6,
+            "partial": 0,
+            "wall_us": 7
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 387,
+            "partial": 0,
+            "wall_us": 387
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 14,
+            "partial": 0,
+            "wall_us": 14
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 359,
+            "partial": 0,
+            "wall_us": 356
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 15,
+            "partial": 0,
+            "wall_us": 15
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1544,
+            "partial": 0,
+            "wall_us": 3147
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 825,
+            "partial": 0,
+            "wall_us": 824
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 180365,
+            "partial": 0,
+            "wall_us": 181922
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 19,
+            "partial": 0,
+            "wall_us": 19
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 71,
+            "partial": 0,
+            "wall_us": 71
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 193,
+            "partial": 0,
+            "wall_us": 449
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 18,
+            "partial": 0,
+            "wall_us": 17
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 443,
+        "performance_preparation": 452,
+        "performance_publication": 459,
+        "lifecycle_ready": 75
+      },
+      "backend": {
+        "performance_line": 460,
+        "render_sequence": 48,
+        "reader_operation_id": 19,
+        "accepted_update_marker": 38,
+        "completed_update_marker": 37,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 17,
+      "operation_id": 20,
+      "render_version": 18,
+      "actual_published": true,
+      "page_number": 10,
+      "fixture_name": "identity-gray",
+      "page_id": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+      "source_pixels": [
+        1860,
+        2480
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 5,
+        "completed": 5,
+        "resized": 5,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 74404,
+        "decoded_sources": 1,
+        "grayscale_us": 211850,
+        "integrity_decode_us": 78519,
+        "layout_rebuilds": 1,
+        "layout_us": 20,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 11810,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 5,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 78000,
+            "partial": 0,
+            "wall_us": 78519
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 276731,
+            "partial": 0,
+            "wall_us": 306150
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 66433,
+            "partial": 0,
+            "wall_us": 74404
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 77904,
+            "partial": 0,
+            "wall_us": 78411
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 8,
+            "partial": 0,
+            "wall_us": 8
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 182958,
+            "partial": 0,
+            "wall_us": 211850
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 11,
+            "partial": 0,
+            "wall_us": 11
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 15677,
+            "partial": 0,
+            "wall_us": 15671
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 20,
+            "partial": 0,
+            "wall_us": 20
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1776,
+            "partial": 0,
+            "wall_us": 2854
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 653,
+            "partial": 0,
+            "wall_us": 651
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 9931,
+            "partial": 0,
+            "wall_us": 11810
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 16,
+            "partial": 0,
+            "wall_us": 16
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 3067,
+            "partial": 0,
+            "wall_us": 3066
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1817,
+            "partial": 0,
+            "wall_us": 3332
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 11,
+            "partial": 0,
+            "wall_us": 11
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 462,
+        "performance_preparation": 471,
+        "performance_publication": 478,
+        "lifecycle_ready": 78
+      },
+      "backend": {
+        "performance_line": 479,
+        "render_sequence": 50,
+        "reader_operation_id": 20,
+        "accepted_update_marker": 39,
+        "completed_update_marker": 38,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    }
+  ],
+  "final_native_media": {
+    "attempts": 5,
+    "completed": 5,
+    "resized": 5,
+    "software_fallbacks": 0
+  },
+  "original_receipt_evidence": {
+    "initial_database": {
+      "bytes": 110592,
+      "sha256": "79c030c760972c87c969417a10a163997f7f068a1b6914b82f7af3e88696ac52",
+      "preferences": {
+        "preferences": {
+          "mode": "page",
+          "fit": "page",
+          "direction": "ltr",
+          "landscape": "single",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": false,
+          "footer": true
+        },
+        "reader_preferences_900000015": {
+          "mode": "page",
+          "fit": "page",
+          "direction": "ltr",
+          "landscape": "single",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": false,
+          "footer": true
+        }
+      },
+      "reading_anchors": [
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+          "page_index": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "zoom_ratio": 1.0,
+          "rotation": 0,
+          "mode": "page",
+          "finished": false,
+          "updated_at": 1700000000,
+          "row_updated_at": 1700000000
+        }
+      ],
+      "receipts": [
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+          "page_index": 0,
+          "file_name": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7.jpg",
+          "sha256": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+          "bytes": 230973,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 0,
+          "decode_validation_version": 0
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c",
+          "page_index": 1,
+          "file_name": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c.jpg",
+          "sha256": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c",
+          "bytes": 361909,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 0,
+          "decode_validation_version": 0
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394",
+          "page_index": 2,
+          "file_name": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394.jpg",
+          "sha256": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394",
+          "bytes": 466978,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 0,
+          "decode_validation_version": 0
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce",
+          "page_index": 3,
+          "file_name": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce.jpg",
+          "sha256": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce",
+          "bytes": 303041,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 0,
+          "decode_validation_version": 0
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e",
+          "page_index": 4,
+          "file_name": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e.jpg",
+          "sha256": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e",
+          "bytes": 138066,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 0,
+          "decode_validation_version": 0
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800",
+          "page_index": 5,
+          "file_name": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800.png",
+          "sha256": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800",
+          "bytes": 17632,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 0,
+          "decode_validation_version": 0
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b",
+          "page_index": 6,
+          "file_name": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b.jpg",
+          "sha256": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b",
+          "bytes": 174723,
+          "width": 1920,
+          "height": 1280,
+          "retained": true,
+          "verified_at": 0,
+          "decode_validation_version": 0
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d",
+          "page_index": 7,
+          "file_name": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d.jpg",
+          "sha256": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d",
+          "bytes": 185138,
+          "width": 1280,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 0,
+          "decode_validation_version": 0
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c",
+          "page_index": 8,
+          "file_name": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c.jpg",
+          "sha256": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c",
+          "bytes": 1489,
+          "width": 100,
+          "height": 50,
+          "retained": true,
+          "verified_at": 0,
+          "decode_validation_version": 0
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+          "page_index": 9,
+          "file_name": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89.jpg",
+          "sha256": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+          "bytes": 217277,
+          "width": 1860,
+          "height": 2480,
+          "retained": true,
+          "verified_at": 0,
+          "decode_validation_version": 0
+        }
+      ]
+    },
+    "exit_database": {
+      "bytes": 155648,
+      "sha256": "42e23cc9c39e74239aab496a56453f1f71f9a873c52dc28fa348b6cd6d855a36",
+      "preferences": {
+        "preferences": {
+          "mode": "page",
+          "fit": "width",
+          "direction": "ltr",
+          "landscape": "single",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": true,
+          "footer": true
+        },
+        "reader_preferences_900000015": {
+          "mode": "page",
+          "fit": "width",
+          "direction": "ltr",
+          "landscape": "single",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": true,
+          "footer": true
+        }
+      },
+      "reading_anchors": [
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+          "page_index": 9,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "zoom_ratio": 1.0,
+          "rotation": 0,
+          "mode": "page",
+          "finished": false,
+          "updated_at": 1794762299,
+          "row_updated_at": 1794762299
+        }
+      ],
+      "receipts": [
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+          "page_index": 0,
+          "file_name": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7.jpg",
+          "sha256": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+          "bytes": 230973,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762057,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c",
+          "page_index": 1,
+          "file_name": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c.jpg",
+          "sha256": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c",
+          "bytes": 361909,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762058,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394",
+          "page_index": 2,
+          "file_name": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394.jpg",
+          "sha256": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394",
+          "bytes": 466978,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762058,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce",
+          "page_index": 3,
+          "file_name": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce.jpg",
+          "sha256": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce",
+          "bytes": 303041,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762059,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e",
+          "page_index": 4,
+          "file_name": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e.jpg",
+          "sha256": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e",
+          "bytes": 138066,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762059,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800",
+          "page_index": 5,
+          "file_name": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800.png",
+          "sha256": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800",
+          "bytes": 17632,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b",
+          "page_index": 6,
+          "file_name": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b.jpg",
+          "sha256": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b",
+          "bytes": 174723,
+          "width": 1920,
+          "height": 1280,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d",
+          "page_index": 7,
+          "file_name": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d.jpg",
+          "sha256": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d",
+          "bytes": 185138,
+          "width": 1280,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c",
+          "page_index": 8,
+          "file_name": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c.jpg",
+          "sha256": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c",
+          "bytes": 1489,
+          "width": 100,
+          "height": 50,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+          "page_index": 9,
+          "file_name": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89.jpg",
+          "sha256": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+          "bytes": 217277,
+          "width": 1860,
+          "height": 2480,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        }
+      ]
+    },
+    "complete_receipt_rows_and_payload_text_unchanged": false,
+    "complete_identity_history_rows_unchanged": false,
+    "comparison_scope": "Read-only immutable copies of the recorded fixture and application-exit databases; database files are not included."
+  },
+  "captures": [
+    {
+      "file": "r7-gray-hardware.png",
+      "checkpoint": "gray-hardware",
+      "bytes": 50902,
+      "sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109",
+      "recorded_png_sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109",
+      "visible_memory_sha256": "5bba434ec2a95aba08b2819de0c5cd5bca3e7ab08ea0204347a4bd384813f3bb",
+      "projected_png_sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109",
+      "memory_and_projection_png_bytes_equal": true,
+      "native_process": {
+        "pid": 9629,
+        "start_ticks": 6303193,
+        "exe_sha256": "e56a0ac6e22e65d40ddebb3825555394b64123825d740e543589ba9ebc47c14c",
+        "content_mode": "media_fixture",
+        "offline_guest_native_arguments_verified": true
+      },
+      "reader": {
+        "page_number": 1,
+        "page_index": 0,
+        "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+        "revision": "native-media-physical-v1",
+        "reader_generation": 3,
+        "render_version": 2,
+        "fit": "page",
+        "jpeg_acceleration": true,
+        "media_acceleration": "decode_and_resize",
+        "native_media": {
+          "attempts": 1,
+          "completed": 1,
+          "resized": 1,
+          "software_fallbacks": 0
+        },
+        "source_x": 0.0,
+        "source_y": 0.0,
+        "zoom_ratio": 1.0,
+        "rotation": 0,
+        "hardware_y4_requested": false,
+        "hardware_dither": false
+      },
+      "source_receipt": {
+        "episode_id": "90000001501",
+        "revision": "native-media-physical-v1",
+        "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+        "page_index": 0,
+        "file_name": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7.jpg",
+        "sha256": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+        "bytes": 230973,
+        "width": 1920,
+        "height": 2560,
+        "retained": true,
+        "verified_at": 1794762057,
+        "decode_validation_version": 1
+      },
+      "publication": {
+        "operation_id": 4,
+        "binding": "render_request",
+        "render_request_present": true,
+        "request_generation_version_verified": true,
+        "published_monotonic_ns": 28892759182643,
+        "state_evidence_event": "reader-ready",
+        "state_evidence_monotonic_ns": 28892762859797,
+        "physical_panel_update_confirmed": false
+      },
+      "backend": {
+        "render_sequence": 13,
+        "reader_operation_id": 4,
+        "accepted_update_marker": 13,
+        "completed_update_marker": 12,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      },
+      "rgb_fingerprint_present": false,
+      "epdc": {
+        "mode": "Y8",
+        "source": "native-application-trace",
+        "trace_event": "reader-ready",
+        "trace_record_index": 29,
+        "gap": null,
+        "preflight_used_as_current_mode_fallback": false
+      },
+      "framebuffer_geometry": {
+        "width": 1860,
+        "height": 2480,
+        "virtual_width": 1872,
+        "virtual_height": 4960,
+        "xoffset": 0,
+        "yoffset": 0,
+        "bits_per_pixel": 8,
+        "line_length": 1872,
+        "smem_len": 9285120,
+        "visual": 1,
+        "grayscale": 1,
+        "rotate": 3,
+        "red_offset": 0,
+        "red_length": 8,
+        "red_msb_right": 0,
+        "green_offset": 0,
+        "green_length": 8,
+        "green_msb_right": 0,
+        "blue_offset": 0,
+        "blue_length": 8,
+        "blue_msb_right": 0,
+        "byte_order": "little",
+        "visible_bytes": 4612800,
+        "read_only": true
+      },
+      "synthetic_nonce_oracle_used": false,
+      "physical_panel_update_confirmed": false
+    },
+    {
+      "file": "r7-final.png",
+      "checkpoint": "final",
+      "bytes": 57303,
+      "sha256": "ddc5912b8bca631177de1cd8753911a2a89f4c50db21c67a6850bac6bc5ca968",
+      "recorded_png_sha256": "ddc5912b8bca631177de1cd8753911a2a89f4c50db21c67a6850bac6bc5ca968",
+      "visible_memory_sha256": "f43ed78257dd42ee5e9a42216ccdd7fc67ea1533aeb9e4392f8993502dfdc367",
+      "projected_png_sha256": "ddc5912b8bca631177de1cd8753911a2a89f4c50db21c67a6850bac6bc5ca968",
+      "memory_and_projection_png_bytes_equal": true,
+      "native_process": {
+        "pid": 9629,
+        "start_ticks": 6303193,
+        "exe_sha256": "e56a0ac6e22e65d40ddebb3825555394b64123825d740e543589ba9ebc47c14c",
+        "content_mode": "media_fixture",
+        "offline_guest_native_arguments_verified": true
+      },
+      "reader": {
+        "page_number": 10,
+        "page_index": 9,
+        "page_id": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+        "revision": "native-media-physical-v1",
+        "reader_generation": 3,
+        "render_version": 18,
+        "fit": "width",
+        "jpeg_acceleration": true,
+        "media_acceleration": "decode_and_resize",
+        "native_media": {
+          "attempts": 5,
+          "completed": 5,
+          "resized": 5,
+          "software_fallbacks": 0
+        },
+        "source_x": 0.0,
+        "source_y": 0.0,
+        "zoom_ratio": 1.0,
+        "rotation": 0,
+        "hardware_y4_requested": false,
+        "hardware_dither": false
+      },
+      "source_receipt": {
+        "episode_id": "90000001501",
+        "revision": "native-media-physical-v1",
+        "page_id": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+        "page_index": 9,
+        "file_name": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89.jpg",
+        "sha256": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+        "bytes": 217277,
+        "width": 1860,
+        "height": 2480,
+        "retained": true,
+        "verified_at": 1794762060,
+        "decode_validation_version": 1
+      },
+      "publication": {
+        "operation_id": 20,
+        "binding": "render_request",
+        "render_request_present": true,
+        "request_generation_version_verified": true,
+        "published_monotonic_ns": 29082939582732,
+        "state_evidence_event": "reader-ready",
+        "state_evidence_monotonic_ns": 29082946118655,
+        "physical_panel_update_confirmed": false
+      },
+      "backend": {
+        "render_sequence": 50,
+        "reader_operation_id": 20,
+        "accepted_update_marker": 39,
+        "completed_update_marker": 38,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      },
+      "rgb_fingerprint_present": false,
+      "epdc": {
+        "mode": "Y8",
+        "source": "native-application-trace",
+        "trace_event": "reader-ready",
+        "trace_record_index": 77,
+        "gap": null,
+        "preflight_used_as_current_mode_fallback": false
+      },
+      "framebuffer_geometry": {
+        "width": 1860,
+        "height": 2480,
+        "virtual_width": 1872,
+        "virtual_height": 4960,
+        "xoffset": 0,
+        "yoffset": 0,
+        "bits_per_pixel": 8,
+        "line_length": 1872,
+        "smem_len": 9285120,
+        "visual": 1,
+        "grayscale": 1,
+        "rotate": 3,
+        "red_offset": 0,
+        "red_length": 8,
+        "red_msb_right": 0,
+        "green_offset": 0,
+        "green_length": 8,
+        "green_msb_right": 0,
+        "blue_offset": 0,
+        "blue_length": 8,
+        "blue_msb_right": 0,
+        "byte_order": "little",
+        "visible_bytes": 4612800,
+        "read_only": true
+      },
+      "synthetic_nonce_oracle_used": false,
+      "physical_panel_update_confirmed": false
+    }
+  ],
+  "recovery": {
+    "new_critical_kernel_lines": 0,
+    "same_boot": true,
+    "native_recovered": true,
+    "lease_released": true,
+    "lighting_preserved": true,
+    "native_baseline_restored": true,
+    "exact_owner_and_token_checked": true,
+    "native_restored_and_connections_closed": true,
+    "lease_directory_absent_after_recorded_release": true,
+    "application_process_exited": true,
+    "native_worker_drained": true,
+    "session_absent": true,
+    "physical_home_and_touch_confirmation": "pending operator observation"
+  },
+  "evidence_scope": {
+    "scripted_application_intents": true,
+    "finger_touch_claimed": false,
+    "live_account_used": false,
+    "remote_account_writes": false,
+    "physical_panel_review": "pending",
+    "hardware_support_accepted": false,
+    "framebuffer_memory_capture": true,
+    "independent_nonce_or_pixel_oracle_claimed": false,
+    "optical_panel_completion_claimed": false,
+    "optical_gray_levels_verified": false,
+    "hardware_y4_exercised": false,
+    "raw_sidecars_logs_databases_private_configuration_or_secret_tokens_copied": false,
+    "authoring_scope": "Read-only analysis of previously collected host evidence; no new tests or device operations."
+  },
+  "source_evidence_files": [
+    "preparation-final.json",
+    "batch-result.json",
+    "run/run.json",
+    "run/lifecycle.jsonl",
+    "run/performance.jsonl",
+    "run/gray-hardware.checkpoint.json",
+    "run/gray-hardware.framebuffer.json",
+    "run/final.checkpoint.json",
+    "run/final.framebuffer.json",
+    "app-exit-provenance.json"
+  ]
+}

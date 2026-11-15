@@ -10,7 +10,7 @@ VERSION=$(python3 -c 'import pathlib,tomllib; print(tomllib.loads(pathlib.Path("
 case "$VERSION" in *[!A-Za-z0-9._-]*|'') printf '%s\n' 'Invalid package version.' >&2; exit 1 ;; esac
 mkdir -p artifacts/verification
 cargo zigbuild --locked --offline --release --target armv7-unknown-linux-musleabihf \
-    --no-default-features --features kindle > artifacts/verification/kindle-build.log 2>&1 || {
+    --no-default-features --features kindle --bins > artifacts/verification/kindle-build.log 2>&1 || {
     cat artifacts/verification/kindle-build.log; exit 1;
 }
 STAGING="$ROOT/kindle-package"
@@ -18,7 +18,9 @@ mkdir -p "$STAGING/bilicomics/app" "$STAGING/bilicomics/data"
 mkdir -p "$STAGING/notices/backend" "$STAGING/notices/fonts" "$STAGING/notices/pinyin" "$STAGING/notices/protocol"
 mkdir -p "$STAGING/notices/jpeg"
 mkdir -p "$STAGING/notices/image-triangle"
+mkdir -p "$STAGING/notices/aidoku-native-media"
 cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/bilicomics" "$STAGING/bilicomics/app/bilicomics"
+cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/kindle-jpeg-worker" "$STAGING/bilicomics/app/kindle-jpeg-worker"
 cp packaging/kindle/launch.sh "$STAGING/bilicomics/launch.sh"
 cp packaging/kindle/device-allowlist.example "$STAGING/bilicomics/data/device-allowlist"
 printf '%s\n' pw5 > "$STAGING/bilicomics/data/device-profile"
@@ -39,7 +41,9 @@ cp vendor/zune-jpeg/LICENSE-APACHE vendor/zune-jpeg/LICENSE-MIT vendor/zune-jpeg
 cp vendor/zune-jpeg/patches/0001-strict-entropy-completeness.patch "$STAGING/notices/jpeg/"
 cp vendor/image-triangle-reference-0.25.10/LICENSE-MIT vendor/image-triangle-reference-0.25.10/LICENSE-APACHE \
     vendor/image-triangle-reference-0.25.10/README.md vendor/image-triangle-reference-0.25.10/SHA256SUMS "$STAGING/notices/image-triangle/"
-chmod 755 "$STAGING/bilicomics/app/bilicomics" "$STAGING/bilicomics/launch.sh"
+cp vendor/aidoku-native-media/LICENSE-GPL-3.0-or-later vendor/aidoku-native-media/README.md \
+    vendor/aidoku-native-media/UPSTREAM_FILES.json "$STAGING/notices/aidoku-native-media/"
+chmod 755 "$STAGING/bilicomics/app/bilicomics" "$STAGING/bilicomics/app/kindle-jpeg-worker" "$STAGING/bilicomics/launch.sh"
 python3 - "$STAGING" "$ROOT/app/artifacts/verification/bilicomics-kindle-$VERSION-dev.zip" <<'PY'
 import hashlib
 import json
@@ -51,7 +55,7 @@ root = pathlib.Path(sys.argv[1])
 output = pathlib.Path(sys.argv[2])
 manifest = []
 allowed = [
-    "README.md", "THIRD_PARTY_NOTICES.md", "bilicomics/app/bilicomics",
+    "README.md", "THIRD_PARTY_NOTICES.md", "bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker",
     "bilicomics/launch.sh", "bilicomics/data/device-allowlist", "bilicomics/data/device-profile",
     "notices/Cargo.lock", "notices/backend/LICENSE-MIT", "notices/backend/LICENSE-APACHE",
     "notices/backend/UPSTREAM_REVISION", "notices/backend/PATCHES.md",
@@ -65,6 +69,8 @@ allowed = [
     "notices/jpeg/UPSTREAM.md", "notices/jpeg/PATCHES.md", "notices/jpeg/0001-strict-entropy-completeness.patch",
     "notices/image-triangle/LICENSE-MIT", "notices/image-triangle/LICENSE-APACHE",
     "notices/image-triangle/README.md", "notices/image-triangle/SHA256SUMS",
+    "notices/aidoku-native-media/LICENSE-GPL-3.0-or-later", "notices/aidoku-native-media/README.md",
+    "notices/aidoku-native-media/UPSTREAM_FILES.json",
 ]
 with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
     for relative in sorted(allowed):

@@ -14,12 +14,16 @@ use std::{
 
 use image::GrayImage;
 
+use super::{PROCESSED_SOURCE_VERSION, ProcessedSourceKey};
+
 use crate::image_integrity::{
     MAX_ENCODED_BYTES, MAX_SOURCE_PIXELS, VALIDATION_VERSION, ValidatedImage,
 };
 
 pub(crate) const DEFAULT_SOURCE_CACHE_BYTES: usize = 32 * 1024 * 1024;
+const DEFAULT_PROCESSED_CACHE_BYTES: usize = 16 * 1024 * 1024;
 const MAX_SOURCE_CACHE_ENTRIES: usize = 128;
+const MAX_PROCESSED_CACHE_ENTRIES: usize = 16;
 
 struct SourceEntry {
     proof: ValidatedImage,
@@ -154,13 +158,98 @@ fn valid_source(proof: &ValidatedImage, source: &GrayImage) -> bool {
         && u64::try_from(source.as_raw().len()).ok() == Some(pixels)
 }
 
+struct ProcessedEntry {
+    key: ProcessedSourceKey,
+    source: Arc<GrayImage>,
+    bytes: usize,
+}
+
+/// A separate bounded LRU; resized pixels never enter the canonical source cache.
+struct ProcessedSourceCache {
+    entries: VecDeque<ProcessedEntry>,
+    retained_bytes: usize,
+    byte_budget: usize,
+}
+
+impl ProcessedSourceCache {
+    fn new(byte_budget: usize) -> Self {
+        Self { entries: VecDeque::new(), retained_bytes: 0, byte_budget }
+    }
+
+    fn lookup(&mut self, key: &ProcessedSourceKey) -> Option<Arc<GrayImage>> {
+        let position = self.entries.iter().position(|entry| entry.key == *key)?;
+        let entry = self.entries.remove(position)?;
+        self.retained_bytes -= entry.bytes;
+        if !valid_processed_source(&entry.key, &entry.source) { return None; }
+        let pixels = entry.source.clone();
+        self.retained_bytes += entry.bytes;
+        self.entries.push_back(entry);
+        Some(pixels)
+    }
+
+    fn insert(&mut self, key: ProcessedSourceKey, source: Arc<GrayImage>) -> bool {
+        if let Some(position) = self.entries.iter().position(|entry| entry.key == key) {
+            if let Some(entry) = self.entries.remove(position) { self.retained_bytes -= entry.bytes; }
+        }
+        if !valid_processed_source(&key, &source) { return false; }
+        let bytes = source.as_raw().capacity();
+        if bytes > self.byte_budget { return false; }
+        while bytes > self.byte_budget - self.retained_bytes
+            || self.entries.len() >= MAX_PROCESSED_CACHE_ENTRIES
+        {
+            let Some(entry) = self.entries.pop_front() else { return false; };
+            self.retained_bytes -= entry.bytes;
+        }
+        self.retained_bytes += bytes;
+        self.entries.push_back(ProcessedEntry { key, source, bytes });
+        true
+    }
+
+    fn remove_digest(&mut self, digest: &str) -> usize {
+        let mut removed = 0;
+        self.entries.retain(|entry| {
+            if entry.key.proof.sha256() == digest {
+                self.retained_bytes -= entry.bytes;
+                removed += 1;
+                false
+            } else { true }
+        });
+        removed
+    }
+
+    fn clear(&mut self) {
+        self.entries.clear();
+        self.retained_bytes = 0;
+    }
+
+    fn usage(&self) -> SourceCacheUsage {
+        SourceCacheUsage { entries: self.entries.len(), retained_bytes: self.retained_bytes,
+            byte_budget: self.byte_budget }
+    }
+}
+
+fn valid_processed_source(key: &ProcessedSourceKey, source: &GrayImage) -> bool {
+    let pixels = u64::from(key.geometry.width) * u64::from(key.geometry.height);
+    key.version == PROCESSED_SOURCE_VERSION
+        && key.proof.validation_version() == VALIDATION_VERSION
+        && key.proof.format == image::ImageFormat::Jpeg
+        && key.proof.byte_len() > 0 && key.proof.byte_len() <= MAX_ENCODED_BYTES
+        && key.preparation.geometry(key.proof.width(), key.proof.height()) == Some(key.geometry)
+        && crate::native_media::qualified_geometry((key.proof.width(), key.proof.height()),
+            (key.geometry.width, key.geometry.height))
+        && source.dimensions() == (key.geometry.width, key.geometry.height)
+        && u64::try_from(source.as_raw().len()).ok() == Some(pixels)
+}
+
 pub(crate) struct ReaderResources {
     sources: Mutex<GraySourceCache>,
+    processed: Mutex<ProcessedSourceCache>,
 }
 
 impl ReaderResources {
     pub(crate) fn new(source_cache_bytes: usize) -> Self {
-        Self { sources: Mutex::new(GraySourceCache::new(source_cache_bytes)) }
+        Self { sources: Mutex::new(GraySourceCache::new(source_cache_bytes)),
+            processed: Mutex::new(ProcessedSourceCache::new(source_cache_bytes.min(DEFAULT_PROCESSED_CACHE_BYTES))) }
     }
 
     pub(crate) fn shared() -> &'static Self {
@@ -182,12 +271,34 @@ impl ReaderResources {
     }
 
     pub(crate) fn remove_digest(&self, digest: &str) -> usize {
-        self.lock_sources().remove_digest(digest)
+        let sources = self.lock_sources().remove_digest(digest);
+        sources + self.lock_processed().remove_digest(digest)
+    }
+
+    pub(super) fn processed_source(&self, key: &ProcessedSourceKey) -> Option<Arc<GrayImage>> {
+        self.lock_processed().lookup(key)
+    }
+
+    pub(super) fn insert_processed_source(&self, key: ProcessedSourceKey, source: Arc<GrayImage>) -> bool {
+        self.lock_processed().insert(key, source)
     }
 
     #[cfg(test)]
     pub(crate) fn clear_sources(&self) { self.lock_sources().clear(); }
     pub(crate) fn cache_usage(&self) -> SourceCacheUsage { self.lock_sources().usage() }
+    pub(crate) fn processed_cache_usage(&self) -> SourceCacheUsage { self.lock_processed().usage() }
+
+    fn lock_processed(&self) -> MutexGuard<'_, ProcessedSourceCache> {
+        match self.processed.lock() {
+            Ok(cache) => cache,
+            Err(error) => {
+                let mut cache = error.into_inner();
+                cache.clear();
+                self.processed.clear_poison();
+                cache
+            }
+        }
+    }
 
     fn lock_sources(&self) -> MutexGuard<'_, GraySourceCache> {
         match self.sources.lock() {

@@ -19,6 +19,7 @@ ALLOWED_FILES = {
     "README.md",
     "THIRD_PARTY_NOTICES.md",
     "bilicomics/app/bilicomics",
+    "bilicomics/app/kindle-jpeg-worker",
     "bilicomics/launch.sh",
     "bilicomics/data/device-allowlist",
     "bilicomics/data/device-profile",
@@ -48,8 +49,11 @@ ALLOWED_FILES = {
     "notices/image-triangle/LICENSE-APACHE",
     "notices/image-triangle/README.md",
     "notices/image-triangle/SHA256SUMS",
+    "notices/aidoku-native-media/LICENSE-GPL-3.0-or-later",
+    "notices/aidoku-native-media/README.md",
+    "notices/aidoku-native-media/UPSTREAM_FILES.json",
 }
-EXECUTABLE_FILES = {"bilicomics/app/bilicomics", "bilicomics/launch.sh"}
+EXECUTABLE_FILES = {"bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker", "bilicomics/launch.sh"}
 FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 
 
@@ -73,14 +77,19 @@ def record(report, name, **details):
 def check_package(args, report):
     archive_path = args.archive.resolve(strict=True)
     binary = args.binary.resolve(strict=True)
+    worker = (args.worker or binary.with_name("kindle-jpeg-worker")).resolve(strict=True)
     app_root = args.app_root.resolve(strict=True)
     manifest_path = archive_path.with_suffix(".manifest.json")
     require(app_root.is_dir(), "The application source root is not a directory")
-    require(archive_path.is_file() and binary.is_file(), "The archive and binary must be regular files")
+    require(archive_path.is_file() and binary.is_file() and worker.is_file(),
+            "The archive, application, and JPEG worker must be regular files")
     require(manifest_path.is_file() and not manifest_path.is_symlink(), "The archive manifest is unavailable or is a symlink")
     binary_digest = sha256(binary)
+    worker_digest = sha256(worker)
     archive_digest = sha256(archive_path)
     require(binary_digest == args.expected_binary_sha256.lower(), "The ARM binary SHA-256 differs from the selected input")
+    if args.expected_worker_sha256:
+        require(worker_digest == args.expected_worker_sha256.lower(), "The JPEG worker SHA-256 differs from the selected input")
     if args.expected_archive_sha256:
         require(archive_digest == args.expected_archive_sha256.lower(), "The archive SHA-256 differs from the selected input")
     report["inputs"] = {
@@ -92,9 +101,13 @@ def check_package(args, report):
         "binary": str(binary),
         "binary_bytes": binary.stat().st_size,
         "binary_sha256": binary_digest,
+        "worker": str(worker),
+        "worker_bytes": worker.stat().st_size,
+        "worker_sha256": worker_digest,
         "app_root": str(app_root),
     }
-    record(report, "selected_input_digests", archive_digest_explicitly_selected=bool(args.expected_archive_sha256))
+    record(report, "selected_input_digests", archive_digest_explicitly_selected=bool(args.expected_archive_sha256),
+           worker_digest_explicitly_selected=bool(args.expected_worker_sha256))
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     require(manifest.get("development_candidate") is True and manifest.get("device_verified") is False,
@@ -135,6 +148,11 @@ def check_package(args, report):
         require(len(embedded) == binary.stat().st_size and hashlib.sha256(embedded).hexdigest() == binary_digest,
                 "The packaged executable differs from the selected ARM binary")
         record(report, "packaged_binary_matches_selected_binary")
+        embedded_worker = archive.read("bilicomics/app/kindle-jpeg-worker")
+        require(len(embedded_worker) == worker.stat().st_size
+                and hashlib.sha256(embedded_worker).hexdigest() == worker_digest,
+                "The packaged JPEG worker differs from the selected ARM binary")
+        record(report, "packaged_jpeg_worker_matches_selected_binary")
         accepted = [line for line in archive.read("bilicomics/data/device-allowlist").decode("utf-8").splitlines()
                     if line.strip() and not line.lstrip().startswith("#")]
         require(not accepted, "The development archive unexpectedly accepts a device/firmware combination")
@@ -172,52 +190,65 @@ def check_package(args, report):
                     f"A retained Triangle resize notice differs from the selected source: {name}")
         record(report, "triangle_resize_notice_provenance", retained_files=list(triangle_notices))
 
-    with binary.open("rb") as stream:
-        header = stream.read(64)
-    require(len(header) >= 52 and header[:7] == b"\x7fELF\x01\x01\x01", "The executable is not ELF32 little-endian version 1")
-    machine = struct.unpack_from("<H", header, 18)[0]
-    flags = struct.unpack_from("<I", header, 36)[0]
-    require(machine == 40, "The executable is not an ARM ELF")
-    require(flags >> 24 == 5, "The executable does not declare ARM EABI5")
-    require(flags & 0x400 and not flags & 0x200, "The executable does not declare the ARM hard-float ABI")
-    record(report, "arm_elf_header", elf_class=32, byte_order="little", machine="ARM", eabi_version=5, hard_float=True)
+        media_notices = ("LICENSE-GPL-3.0-or-later", "README.md", "UPSTREAM_FILES.json")
+        for name in media_notices:
+            require(archive.read("notices/aidoku-native-media/" + name)
+                    == (app_root / "vendor/aidoku-native-media" / name).read_bytes(),
+                    f"A retained native-media notice differs from the selected source: {name}")
+        record(report, "native_media_notice_provenance", retained_files=list(media_notices))
 
-    readelf_parts = []
-    environment = os.environ.copy()
-    environment["LC_ALL"] = "C"
-    for option in ("-h", "-l", "-d"):
-        command = ["readelf", option, str(binary)]
-        completed = subprocess.run(command, capture_output=True, text=True, env=environment, timeout=30)
-        readelf_parts.append("$ " + " ".join(command) + "\n" + completed.stdout + completed.stderr)
-        require(completed.returncode == 0, f"readelf {option} failed: {completed.stderr.strip()}")
-        if option == "-l":
-            require(not re.search(r"^\s*INTERP\s", completed.stdout, re.MULTILINE), "The executable requests a dynamic interpreter")
-        if option == "-d":
-            require("(NEEDED)" not in completed.stdout, "The executable requires a shared library")
-    readelf_path = args.output.with_suffix(".readelf.txt")
-    with readelf_path.open("x", encoding="utf-8") as stream:
-        stream.write("\n".join(readelf_parts))
-    record(report, "no_dynamic_interpreter_or_required_shared_libraries", evidence=str(readelf_path),
-           readelf_sha256=sha256(readelf_path))
+    for role, executable, suffix in (("", binary, ".readelf.txt"), ("jpeg_worker_", worker, ".worker.readelf.txt")):
+        with executable.open("rb") as stream:
+            header = stream.read(64)
+        require(len(header) >= 52 and header[:7] == b"\x7fELF\x01\x01\x01",
+                f"The {role}executable is not ELF32 little-endian version 1")
+        machine = struct.unpack_from("<H", header, 18)[0]
+        flags = struct.unpack_from("<I", header, 36)[0]
+        require(machine == 40, f"The {role}executable is not an ARM ELF")
+        require(flags >> 24 == 5, f"The {role}executable does not declare ARM EABI5")
+        require(flags & 0x400 and not flags & 0x200, f"The {role}executable does not declare the ARM hard-float ABI")
+        record(report, role + "arm_elf_header", elf_class=32, byte_order="little", machine="ARM", eabi_version=5, hard_float=True)
+
+        readelf_parts = []
+        environment = os.environ.copy()
+        environment["LC_ALL"] = "C"
+        for option in ("-h", "-l", "-d"):
+            command = ["readelf", option, str(executable)]
+            completed = subprocess.run(command, capture_output=True, text=True, env=environment, timeout=30)
+            readelf_parts.append("$ " + " ".join(command) + "\n" + completed.stdout + completed.stderr)
+            require(completed.returncode == 0, f"readelf {option} failed: {completed.stderr.strip()}")
+            if option == "-l":
+                require(not re.search(r"^\s*INTERP\s", completed.stdout, re.MULTILINE),
+                        f"The {role}executable requests a dynamic interpreter")
+            if option == "-d":
+                require("(NEEDED)" not in completed.stdout, f"The {role}executable requires a shared library")
+        readelf_path = args.output.with_suffix(suffix)
+        with readelf_path.open("x", encoding="utf-8") as stream:
+            stream.write("\n".join(readelf_parts))
+        record(report, role + "no_dynamic_interpreter_or_required_shared_libraries", evidence=str(readelf_path),
+               readelf_sha256=sha256(readelf_path))
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument("--binary", type=Path, required=True)
+    parser.add_argument("--worker", type=Path, help="Default: kindle-jpeg-worker beside --binary")
     parser.add_argument("--app-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True, help="A new JSON evidence file")
     parser.add_argument("--expected-binary-sha256", required=True)
+    parser.add_argument("--expected-worker-sha256")
     parser.add_argument("--expected-archive-sha256")
     args = parser.parse_args()
-    for name in ("expected_binary_sha256", "expected_archive_sha256"):
+    for name in ("expected_binary_sha256", "expected_archive_sha256", "expected_worker_sha256"):
         value = getattr(args, name)
         if value is not None and not re.fullmatch(r"[0-9a-fA-F]{64}", value):
             parser.error(f"--{name.replace('_', '-')} must be a SHA-256 hex digest")
     os.umask(0o077)
     args.output = args.output.resolve()
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    if args.output.exists() or args.output.with_suffix(".readelf.txt").exists():
+    if any(path.exists() for path in (args.output, args.output.with_suffix(".readelf.txt"),
+                                      args.output.with_suffix(".worker.readelf.txt"))):
         parser.error("The evidence paths already exist; select a new output file")
     report = {
         "schema_version": 1,

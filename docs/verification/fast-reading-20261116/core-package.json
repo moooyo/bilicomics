@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "started_at": "2026-11-15T19:49:20.113294+00:00",
+  "workspace": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5",
+  "app_root": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/app",
+  "output": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/evidence/core-package",
+  "runner": {
+    "path": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/app/scripts/verification/run_suite.py",
+    "bytes": 25429,
+    "sha256": "0476158b2c0c0bb5f8bc5da47a11435b6ae4a266beacf8c0bccfd60702c8ec54"
+  },
+  "host": {
+    "hostname": "test-env",
+    "system": "Linux",
+    "machine": "x86_64"
+  },
+  "resources": {
+    "cargo_build_jobs": "2",
+    "rust_test_threads": "1",
+    "stage_commands_serial": true,
+    "default_capture_workers": 1
+  },
+  "source_inputs": {
+    "path": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/evidence/core-package/source-inputs.sha256",
+    "bytes": 55531,
+    "sha256": "f1d99a8addddf145c0ab46683619156d04a6beae54380f329e18a484532fc7ee"
+  },
+  "pipeline_inputs": {
+    "path": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/evidence/core-package/pipeline-inputs.sha256",
+    "bytes": 64207,
+    "sha256": "606d847534416d6c9c117380bb9be3c5df21296285005b0f8c6cd6b619532bb5"
+  },
+  "binary_input_provenance": {
+    "kind": "built_in_this_run",
+    "build_source_manifest": {
+      "path": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/evidence/core-package/source-inputs.sha256",
+      "bytes": 55531,
+      "sha256": "f1d99a8addddf145c0ab46683619156d04a6beae54380f329e18a484532fc7ee"
+    }
+  },
+  "selected_phases": [
+    "core",
+    "package"
+  ],
+  "phases": {
+    "core": {
+      "status": "passed",
+      "seconds": 140.609,
+      "checks": [
+        {
+          "name": "cargo-check",
+          "arguments": [
+            "cargo",
+            "check",
+            "--locked",
+            "--offline"
+          ],
+          "exit_code": 0,
+          "seconds": 22.389,
+          "log": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/evidence/core-package/logs/cargo-check.log",
+          "log_sha256": "fcd56d1dc5801c2a5fc48bf73aa99e43b82c230711c770a4e2cc55936e48d8ad"
+        },
+        {
+          "name": "cargo-lib-tests",
+          "arguments": [
+            "cargo",
+            "test",
+            "--locked",
+            "--offline",
+            "--lib"
+          ],
+          "exit_code": 0,
+          "seconds": 83.379,
+          "log": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/evidence/core-package/logs/cargo-lib-tests.log",
+          "log_sha256": "ea13f3e592ba3cb904b97d2aae31002a929d4ba2fadfb597022e0017f59e51cf"
+        },
+        {
+          "name": "cargo-desktop-build",
+          "arguments": [
+            "cargo",
+            "build",
+            "--locked",
+            "--offline",
+            "--bin",
+            "bilicomics"
+          ],
+          "exit_code": 0,
+          "seconds": 34.423,
+          "log": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/evidence/core-package/logs/cargo-desktop-build.log",
+          "log_sha256": "bdfdff0021a3f64e3bef4376c57f760316001d930c7ffbe85b687f61e96c2f95"
+        }
+      ],
+      "test_summary": {
+        "passed": 798,
+        "failed": 0,
+        "ignored": 3
+      },
+      "scope": "Application library tests and desktop build"
+    },
+    "defaults": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "pointer": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "reader": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "guest": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "startup": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "lifecycle": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "launcher": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "package": {
+      "status": "passed",
+      "seconds": 195.686,
+      "checks": [
+        {
+          "name": "arm-build-package",
+          "arguments": [
+            "sh",
+            "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/app/scripts/build-kindle.sh",
+            "/root/bilicomics-fast-reading-20261116-01a1d11a-r5"
+          ],
+          "exit_code": 0,
+          "seconds": 195.069,
+          "log": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/evidence/core-package/logs/arm-build-package.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "package",
+          "arguments": [
+            "/usr/bin/python3",
+            "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/app/scripts/verification/verify_package.py",
+            "--archive",
+            "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.zip",
+            "--binary",
+            "/root/bilicomics-native-media-20261115-01a1d11a-r1/target/armv7-unknown-linux-musleabihf/release/bilicomics",
+            "--app-root",
+            "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/app",
+            "--output",
+            "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/evidence/core-package/package.json",
+            "--expected-binary-sha256",
+            "eb6977cabf79ccbb947979a9c184f069d9beaa3e4ed3f50522085ae1e091b774"
+          ],
+          "exit_code": 0,
+          "seconds": 0.516,
+          "log": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/evidence/core-package/logs/package.log",
+          "log_sha256": "dc9474059f1ce846d0196bb31ddd357772fcc3e90f97a49da1cc59efde011158"
+        }
+      ],
+      "archive": {
+        "path": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.zip",
+        "bytes": 51386859,
+        "sha256": "7f84ebff2a11bef0a9105521d59496396b7e132be3a7130821d43d30586c1c44"
+      },
+      "arm_binary": {
+        "path": "/root/bilicomics-native-media-20261115-01a1d11a-r1/target/armv7-unknown-linux-musleabihf/release/bilicomics",
+        "bytes": 67355000,
+        "sha256": "eb6977cabf79ccbb947979a9c184f069d9beaa3e4ed3f50522085ae1e091b774"
+      },
+      "build_executed_in_this_run": true,
+      "physical_device_verified": false
+    }
+  },
+  "automated_status": "passed",
+  "visual_acceptance": "not_claimed",
+  "physical_device_connected": false,
+  "firmware_emulator_run": false,
+  "live_account_used": false,
+  "remote_transactions_performed": false,
+  "limits": [
+    "Captured pixels and automatic state assertions do not establish human visual acceptance.",
+    "Controlled OS fixtures do not establish native firmware or physical panel behavior.",
+    "No physical Kindle connection, real credentials, or account content is used by this runner."
+  ],
+  "desktop_binary": {
+    "path": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/sealed/497dc507f433019828874f5789496eacce7ed4c0d7c9e8846add56d3fe4bc067/bilicomics",
+    "bytes": 240656528,
+    "sha256": "497dc507f433019828874f5789496eacce7ed4c0d7c9e8846add56d3fe4bc067"
+  },
+  "inputs_unchanged_during_run": true,
+  "desktop_binary_unchanged_during_run": true,
+  "evidence_portability": {
+    "regular_files_and_directories_only": true,
+    "special_files_rejected": [],
+    "manifest": "/root/bilicomics-fast-reading-20261116-01a1d11a-r5/evidence/core-package/evidence-manifest.json",
+    "policy": "Each harness must remove its own FIFOs and other special files before Windows evidence retrieval"
+  },
+  "finished_at": "2026-11-15T19:54:56.626612+00:00"
+}

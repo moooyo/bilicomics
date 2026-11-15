@@ -393,6 +393,12 @@ signal.signal(signal.SIGHUP, stop)
 signal.signal(signal.SIGINT, stop)
 snapshot()
 log("started")
+if env.get("TEST_DMA_WORKER_BINARY"):
+    # Model the production worker's separate session and private pipe ownership.
+    # The driver is a host-only flock fixture and never opens a device.
+    subprocess.Popen([env["TEST_DMA_WORKER_BINARY"], env["TEST_DMA_WORKER_DRIVER"]],
+                     stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                     stderr=subprocess.DEVNULL, start_new_session=True)
 if env.get("TEST_APP_STDOUT"):
     print(env["TEST_APP_STDOUT"], flush=True)
 stdout_remaining = int(env.get("TEST_APP_STDOUT_BYTES", "0"))
@@ -3154,6 +3160,128 @@ class LauncherLifecycleTests(unittest.TestCase):
         status, _, error = self.run_launcher(drive)
         self.assertEqual(status, 143, error)
         self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+
+    def assert_detached_dma_owner_survives_launcher_cleanup(self, exit_kind):
+        import fcntl
+
+        worker = self.home / "app" / "kindle-jpeg-worker"
+        shutil.copyfile(Path(sys.executable).resolve(), worker)
+        worker.chmod(0o755)
+        driver = self.root / "jpeg-worker-driver.py"
+        identity_path = self.root / "jpeg-worker-identity.json"
+        lock_path = self.root / "jpeg-hardware.lock"
+        release_path = self.root / "jpeg-worker-release"
+        done_path = self.root / "jpeg-worker-done"
+        signals_path = self.root / "jpeg-worker-signals"
+        driver.write_text(r"""
+import fcntl
+import json
+import os
+from pathlib import Path
+import signal
+import time
+
+env = os.environ
+root = Path(env["TEST_DMA_FIXTURE_ROOT"])
+
+def notice(number, frame):
+    with (root / "jpeg-worker-signals").open("a") as output:
+        output.write(str(number) + "\n")
+
+for number in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
+    signal.signal(number, notice)
+descriptor = os.open(root / "jpeg-hardware.lock", os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+fields = Path("/proc/self/stat").read_text().rsplit(") ", 1)[1].split()
+identity = {"pid": os.getpid(), "parent": int(fields[1]), "birth": fields[19],
+            "group": os.getpgrp(), "session": os.getsid(0),
+            "launch_token": env["BILICOMICS_LAUNCH_TOKEN"],
+            "physical_token": env["BILICOMICS_PHYSICAL_TOKEN"]}
+pending = root / "jpeg-worker-identity.pending"
+pending.write_text(json.dumps(identity))
+pending.replace(root / "jpeg-worker-identity.json")
+deadline = time.monotonic() + 40
+while not (root / "jpeg-worker-release").exists():
+    if time.monotonic() >= deadline:
+        raise SystemExit(4)
+    time.sleep(0.01)
+os.close(descriptor)
+(root / "jpeg-worker-done").write_text("complete\n")
+""")
+        self.env.update(TEST_HOLD="1", TEST_DMA_WORKER_BINARY=str(worker),
+                        TEST_DMA_WORKER_DRIVER=str(driver), TEST_DMA_FIXTURE_ROOT=str(self.root),
+                        BILICOMICS_PHYSICAL_TOKEN="e" * 64)
+        if exit_kind == "forced-application-stop":
+            application = self.home / "app" / "bilicomics"
+            application.write_text(application.read_text().replace(
+                "signal.signal(signal.SIGTERM, stop)",
+                "signal.signal(signal.SIGTERM, signal.SIG_IGN)",
+            ))
+        observed = {}
+
+        def running(identity):
+            try:
+                current = self.process_identity(identity["pid"])
+                return (current["birth"] == identity["birth"]
+                        and current["state"] not in ("Z", "X"))
+            except FileNotFoundError:
+                return False
+
+        def release_fixture():
+            release_path.touch()
+            if not observed:
+                return
+            deadline = time.monotonic() + 5
+            while running(observed) and time.monotonic() < deadline:
+                time.sleep(0.01)
+            if running(observed) and os.readlink(f"/proc/{observed['pid']}/exe") == str(worker):
+                # This exact copied Python fixture cannot own hardware. A
+                # failed test may reap it without signalling a real worker.
+                os.kill(observed["pid"], signal.SIGKILL)
+
+        self.addCleanup(release_fixture)
+
+        def drive(launcher):
+            self.ready()
+            self.wait_until(identity_path.exists)
+            observed.update(json.loads(identity_path.read_text()))
+            self.assertEqual(observed["parent"], self.state()["pid"])
+            self.assertEqual(observed["group"], observed["pid"])
+            self.assertEqual(observed["session"], observed["pid"])
+            self.assertNotEqual(observed["group"], launcher.pid)
+            self.assertEqual(observed["launch_token"], (self.root / "lock" / "nonce").read_text().strip())
+            self.assertEqual(observed["physical_token"], self.env["BILICOMICS_PHYSICAL_TOKEN"])
+            if exit_kind == "ordinary-exit":
+                self.app_action("quit")
+            else:
+                launcher.send_signal(signal.SIGTERM)
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 0 if exit_kind == "ordinary-exit" else 143, error)
+        self.assertTrue(running(observed), "Launcher cleanup killed the independent DMA-owner fixture")
+        self.assertEqual(os.readlink(f"/proc/{observed['pid']}/exe"), str(worker))
+        self.assertFalse(signals_path.exists(), "Launcher cleanup signalled the independent owner")
+        self.assertFalse((self.root / "lock").exists())
+        self.assertTrue(worker.is_file(), "Launcher cleanup removed the worker's staging directory")
+        self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+        inode = lock_path.stat().st_ino
+        with lock_path.open("r+b") as descriptor:
+            with self.assertRaises(BlockingIOError):
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            release_path.touch()
+            self.wait_until(lambda: not running(observed))
+            self.assertEqual(done_path.read_text(), "complete\n")
+            self.assertEqual(lock_path.stat().st_ino, inode)
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+    def test_ordinary_exit_preserves_the_detached_jpeg_dma_owner(self):
+        self.assert_detached_dma_owner_survives_launcher_cleanup("ordinary-exit")
+
+    def test_launcher_signal_preserves_the_detached_jpeg_dma_owner(self):
+        self.assert_detached_dma_owner_survives_launcher_cleanup("launcher-signal")
+
+    def test_forced_application_stop_preserves_the_detached_jpeg_dma_owner(self):
+        self.assert_detached_dma_owner_survives_launcher_cleanup("forced-application-stop")
 
     def test_repeated_cleanup_signals_preserve_the_first_status(self):
         self.env.update(

@@ -5,6 +5,12 @@ edition = "2024"
 rust-version = "1.92"
 description = "Independent Bilibili Comics client for Kindle with a Rust core and Slint interface"
 publish = false
+default-run = "bilicomics"
+
+[[bin]]
+name = "kindle-jpeg-worker"
+path = "src/bin/kindle-jpeg-worker.rs"
+required-features = ["kindle"]
 
 [features]
 default = ["desktop"]

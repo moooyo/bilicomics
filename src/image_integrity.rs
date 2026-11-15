@@ -114,6 +114,23 @@ impl HashedImage {
 
     pub(crate) fn sha256(&self) -> &str { &self.digest }
     pub(crate) fn byte_len(&self) -> u64 { self.encoded.len() as u64 }
+    pub(crate) fn encoded(&self) -> &[u8] { &self.encoded }
+}
+
+/// Seal only the narrow JPEG subset whose complete entropy has been checked.
+/// A hardware admission rejection is not corruption evidence: broader software
+/// support and its existing error classification remain authoritative.
+pub(crate) fn validate_native_jpeg(input: &HashedImage) -> Option<ValidatedImage> {
+    let (width, height) = crate::native_media::information(input.encoded())?;
+    // Keep this version's container, segment budget, and decoder header policy
+    // even if the native hardware admission parser later grows new support.
+    if jpeg::validated_header_dimensions(input.encoded()).ok()? != (width, height) { return None; }
+    check_policy(width, height, None).ok()?;
+    Some(ValidatedImage(ImageMetadata {
+        width, height, format: ImageFormat::Jpeg, extension: "jpg",
+        sha256: input.sha256().to_owned(), byte_len: input.byte_len(),
+        validation_version: VALIDATION_VERSION,
+    }))
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -177,7 +194,7 @@ fn record_decode_attempt() {
 }
 
 #[cfg(test)]
-fn decode_attempt_count() -> usize { DECODE_ATTEMPTS.with(std::cell::Cell::get) }
+pub(crate) fn decode_attempt_count() -> usize { DECODE_ATTEMPTS.with(std::cell::Cell::get) }
 
 #[cfg(test)]
 fn memo_len() -> usize { memo().lock().unwrap_or_else(|error| error.into_inner()).entries.len() }

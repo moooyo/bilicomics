@@ -5,6 +5,19 @@ mod native_build;
 
 fn main() {
     native_build::build();
+    if env::var_os("CARGO_FEATURE_KINDLE").is_some()
+        && env::var("CARGO_CFG_TARGET_OS").is_ok_and(|os| os == "linux")
+    {
+        println!("cargo:rerun-if-changed=src/native_media/codec.c");
+        println!("cargo:rerun-if-changed=scripts/native-codec-probe.c");
+        println!("cargo:rerun-if-changed=scripts/native-codec-bench.h");
+        cc::Build::new()
+            .file("src/native_media/codec.c")
+            .std("c11")
+            .opt_level(2)
+            .warnings(true)
+            .compile("bilicomics_jpeg_worker");
+    }
     println!("cargo:rerun-if-changed=assets/i18n");
     println!("cargo:rerun-if-changed=assets/design-tokens.json");
     let output = PathBuf::from(env::var_os("OUT_DIR").expect("Cargo output directory"));

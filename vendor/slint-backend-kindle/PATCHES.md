@@ -636,3 +636,54 @@ device filtering, MTK ABI fields, clipping, raw input preservation, waveform
 protection, explicit-versus-uncertain errors, completion barriers, fresh markers,
 fallback phase, and polarity. Their execution belongs to the designated remote
 verification environment; device and firmware acceptance remain separate.
+
+## Bounded continuous DU request floods
+
+The 32-entry refresh queue now coalesces an overflow into one nonflashing
+`Du`/`Dirty` request only when every pending request and the incoming request
+have that exact form. Repeated bilevel dirty requests all refer to the next
+frame's dirty pixels; their overflow does not create a full-scene replacement,
+promote the waveform to GC16, or refresh an unchanged frame.
+
+This coalescing leaves the producer queue open. A later Auto or GC16 menu
+overlay, flashing update, or explicit Full request can still be queued and
+resolved with the existing waveform priority and combined area. Auto continues
+to outrank DU. Any mixed waveform, flashing request, or explicit rectangle/full
+area in an overflowing batch retains the original flashing GC16 complete-frame
+fallback and its bounded absorbing state. The independent Gray8/Y4 waveform
+protection and framebuffer ownership/completion barriers are unchanged.
+
+This change was written independently against the BiliComics backend. The
+controlled test cases cover repeated DU overflow, unchanged pixels, later gray
+overlays and Auto dirty updates, manual full refreshes, and a mixed request at
+every queue position. Test execution belongs to the designated remote worker;
+these sources do not establish device timing or physical-panel acceptance.
+
+## Binary complete rewrites with DU
+
+The render loop keeps complete pixel rewriting separate from waveform strength.
+Closing a Gray8/Y4 image or requesting a complete replacement still redraws and
+writes the entire RGB scene through the existing settled framebuffer mapping.
+It may use the requested nonflashing DU waveform only when every pending
+request is nonflashing DU with Dirty or Full area, Y4 is no longer requested,
+the complete RGB buffer has exactly the panel's pixel count, and every pixel
+is equal-channel black or white. Explicit rectangles are conservatively outside
+this exception. Empty, incomplete, gray or colored buffers retain the prior
+full-refresh behavior.
+
+Rotation, lifecycle recovery, sleep presentation, manual GC16 Full clearing,
+and mixed gray/DU requests retain their strong full-refresh behavior. A Y4
+hardware rejection retains the Gray8 request and therefore cannot enter the
+binary exception. No framebuffer dithering protection, uncertain-delivery
+handling, mapping barrier, or completion-marker check is removed. Complete
+DU replacements also wait through the existing complete-frame update barrier.
+
+BiliComics supplies this policy through one atomic visible Reader scene:
+Normal, FastContent, or FastOverlay. The application marks FastContent only
+after publishing a quiet binary image; gray controls use FastOverlay. Fast
+content does not spend the ordinary periodic refresh budgets, and full canvas
+copying uses a distinct nonflashing DU/full-area plan. Manual clearing remains
+GC16. Policy and recording-sink fixtures exercise scene transitions, late gray
+overlays, complete binary buffers, all strong-refresh exclusions, and manual
+clearing. This implementation was written independently for this backend;
+execution and device acceptance remain separate verification scopes.

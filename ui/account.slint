@@ -1,6 +1,6 @@
 import { Theme } from "theme.slint";
 import { Strings } from "strings.slint";
-import { ActionButton, IconButton, Icon, PageHeader } from "widgets.slint";
+import { ActionButton, IconButton, Icon, PageHeader, ToggleRow } from "widgets.slint";
 
 export struct AccountInfoItem { label: string, value: string }
 struct AccountOption { id: string, label: string }
@@ -34,7 +34,12 @@ export global AccountModel {
     in-out property <string> mode: "page";
     in-out property <string> direction: "ltr";
     in-out property <string> every: "smart";
+    in-out property <string> refresh-mode: "normal";
+    in-out property <string> refresh-mode-note;
     in-out property <string> landscape: "spread";
+    in-out property <bool> jpeg-acceleration: false;
+    in-out property <bool> jpeg-acceleration-available: false;
+    in-out property <string> jpeg-acceleration-note;
     in-out property <string> smart: "on";
     in-out property <int> ahead: 2;
     in-out property <int> concurrency: 2;
@@ -93,16 +98,24 @@ component ChoiceGroup inherits Rectangle {
     in property <[AccountOption]> options;
     in property <string> selected;
     in property <bool> enabled: true;
+    in property <bool> compact: false;
     callback chosen(string);
-    height: Theme.scribe ? 103px : 86px;
-    Text { x: 0px; y: 0px; height: Theme.scribe ? 29px : 26px; width: parent.width * 0.52; text: root.title; font-family: Theme.ui-font; font-size: Theme.scribe ? 20px : 17px; font-weight: 500; color: root.enabled ? Theme.ink : Theme.muted; vertical-alignment: center; }
-    Text { x: parent.width * 0.52; y: 0px; height: Theme.scribe ? 29px : 26px; width: parent.width * 0.48; text: root.hint; font-family: Theme.ui-font; font-size: Theme.scribe ? 16px : 14px; color: Theme.secondary; horizontal-alignment: right; vertical-alignment: center; overflow: elide; }
-    Rectangle { x: 0px;
-        y: Theme.scribe ? 39px : 34px; width: parent.width; height: Theme.scribe ? 64px : 52px;
+    height: root.compact ? (Theme.scribe ? 60px : 52px) : (Theme.scribe ? 103px : 86px);
+    property <length> compact-label-width: Theme.scribe ? 142px : 108px;
+    Text { x: 0px; y: 0px; height: root.compact ? parent.height : Theme.scribe ? 29px : 26px; width: root.compact ? root.compact-label-width : parent.width * 0.52; text: root.title; font-family: Theme.ui-font; font-size: Theme.scribe ? 20px : 17px; font-weight: 500; color: root.enabled ? Theme.ink : Theme.muted; vertical-alignment: center; }
+    if !root.compact: Text { x: parent.width * 0.52; y: 0px; height: Theme.scribe ? 29px : 26px; width: parent.width * 0.48; text: root.hint; font-family: Theme.ui-font; font-size: Theme.scribe ? 16px : 14px; color: Theme.secondary; horizontal-alignment: right; vertical-alignment: center; overflow: elide; }
+    Rectangle { x: root.compact ? root.compact-label-width + 12px : 0px;
+        y: root.compact ? 0px : Theme.scribe ? 39px : 34px; width: parent.width - self.x; height: root.compact ? parent.height : Theme.scribe ? 64px : 52px;
         border-width: 2px; border-color: root.enabled ? Theme.ink : Theme.line;
         for option[index] in root.options: Rectangle { y: 2px;
             x: 2px + index * (parent.width - 4px) / max(1, root.options.length); width: (parent.width - 4px) / max(1, root.options.length); height: parent.height - 4px;
             background: root.enabled && (root.selected == option.id || touch.pressed) ? Theme.ink : Theme.paper;
+            accessible-role: button;
+            accessible-label: root.title + " " + option.label;
+            accessible-enabled: root.enabled;
+            accessible-checkable: true;
+            accessible-checked: root.selected == option.id;
+            accessible-action-default => { if root.enabled { root.chosen(option.id); } }
             if index > 0: Rectangle { x: 0px; y: 0px; width: 2px; height: parent.height; background: root.enabled ? Theme.ink : Theme.line; }
             Text { x: 0px; y: 0px; width: parent.width; height: parent.height; text: option.label; font-family: Theme.ui-font; font-size: Theme.scribe ? 19px : 16px; font-weight: root.selected == option.id ? 700 : 400; horizontal-alignment: center; vertical-alignment: center; color: !root.enabled ? Theme.muted : root.selected == option.id || touch.pressed ? Theme.paper : Theme.ink; }
             touch := TouchArea { x: 0px; y: 0px; width: parent.width; height: parent.height; enabled: root.enabled; clicked => { root.chosen(option.id); } pointer-event(e) => { if e.kind == PointerEventKind.down { Theme.refresh("press"); } else if e.kind == PointerEventKind.up { Theme.refresh("release"); } } }
@@ -215,7 +228,7 @@ export component AccountScreen inherits Rectangle {
         if !Theme.scribe: Rectangle { x: 0px; y: parent.account-height - 2px; width: parent.width; height: 2px; background: Theme.ink; }
         if !Theme.scribe: VerticalLayout {
             x: 0px; y: parent.account-height; width: parent.width; spacing: 0px; alignment: start;
-            AccountRow { edge-to-edge: true; title: Strings.acct-reading-defaults; value: (AccountModel.mode == "panel" ? Strings.acct-panel : AccountModel.mode == "strip" ? Strings.acct-strip : Strings.acct-single) + " · " + (AccountModel.direction == "rtl" ? Strings.acct-rtl-short : Strings.acct-ltr-short) + " · " + (AccountModel.every == "smart" ? Strings.acct-smart-refresh : AccountModel.every == "0" ? Strings.acct-no-periodic-refresh : AccountModel.every == "1" ? Strings.acct-every-page : AccountModel.every == "6" ? Strings.acct-every-six : AccountModel.every); clicked => { AccountModel.action("section", "reading"); } }
+            AccountRow { edge-to-edge: true; title: Strings.acct-reading-defaults; value: (AccountModel.mode == "panel" ? Strings.acct-panel : AccountModel.mode == "strip" ? Strings.acct-strip : Strings.acct-single) + " · " + (AccountModel.direction == "rtl" ? Strings.acct-rtl-short : Strings.acct-ltr-short) + " · " + (AccountModel.refresh-mode == "fast" ? Strings.refresh-mode-fast : AccountModel.every == "smart" ? Strings.acct-smart-refresh : AccountModel.every == "0" ? Strings.acct-no-periodic-refresh : AccountModel.every == "1" ? Strings.acct-every-page : AccountModel.every == "6" ? Strings.acct-every-six : AccountModel.every); clicked => { AccountModel.action("section", "reading"); } }
             AccountRow { edge-to-edge: true; title: Strings.acct-launch; value: AccountModel.launch == "resume" ? Strings.acct-resume : Strings.acct-open-shelf; chevron: false; thick: true; clicked => { AccountModel.action("launch", AccountModel.launch == "resume" ? "shelf" : "resume"); } }
             AccountRow { edge-to-edge: true; title: Strings.acct-download-network; value: AccountModel.can-smart ? (AccountModel.smart == "on" ? Strings.acct-smart-download : Strings.acct-manual-mode) + " · " + (AccountModel.wifi == "always" ? Strings.acct-network-summary-always : Strings.acct-network-summary-auto) : Strings.acct-manual-download-only; clicked => { AccountModel.action("section", "download"); } }
             AccountRow { edge-to-edge: true; title: Strings.acct-storage; value: Strings.acct-used-prefix + AccountModel.storage-used + " · " + Strings.acct-cache-limit-prefix + AccountModel.cache-limit + " MB"; thick: true; clicked => { AccountModel.action("section", "storage"); } }
@@ -232,9 +245,18 @@ export component AccountScreen inherits Rectangle {
             if !AccountModel.signed-in: AccountRow { title: Strings.acct-import-session; value: Strings.acct-import-hint; clicked => { AccountModel.action("import-session", ""); } }
         }
     }
-    if !root.home: VerticalLayout {
+    if !root.home: Rectangle {
         x: Theme.margin; y: root.top; width: parent.width - Theme.margin * 2;
-        spacing: Theme.scribe ? AccountModel.section == "storage" ? 24px : 22px : 14px; alignment: start;
+        height: max(0px, parent.height - root.top - (Theme.scribe && (AccountModel.section == "reading" || AccountModel.section == "system") ? 72px : 12px));
+        clip: true;
+        Flickable {
+        width: parent.width; height: parent.height;
+        viewport-width: self.width;
+        viewport-height: AccountModel.section == "reading" ? max(self.height, account-options.preferred-height) : self.height;
+        interactive: AccountModel.section == "reading";
+        account-options := VerticalLayout {
+        x: 0px; y: 0px; width: parent.width; height: self.preferred-height;
+        spacing: AccountModel.section == "reading" ? (Theme.scribe ? 18px : 8px) : Theme.scribe ? AccountModel.section == "storage" ? 24px : 22px : 14px; alignment: start;
         if AccountModel.section == "reading": Rectangle {
             height: Theme.scribe ? 241px : 192px;
             Text { x: 0px; y: 0px; width: parent.width; height: Theme.scribe ? 29px : 30px; text: Strings.acct-default-mode; font-family: Theme.ui-font; font-size: Theme.scribe ? 20px : 17px; font-weight: 500; color: Theme.ink; }
@@ -246,9 +268,39 @@ export component AccountScreen inherits Rectangle {
                 ModeCard { kind: "strip"; title: Strings.acct-strip; description: Strings.acct-strip-description; selected: AccountModel.mode == "strip"; clicked => { AccountModel.action("mode", "strip"); } }
             }
         }
+        if AccountModel.section == "reading": VerticalLayout {
+            spacing: 4px; alignment: start;
+            refresh-choice := ChoiceGroup {
+                width: parent.width; compact: true; title: Strings.refresh-mode-label;
+                height: Theme.scribe ? 60px : 52px;
+                vertical-stretch: 0;
+                selected: AccountModel.refresh-mode;
+                options: [{id: "normal", label: Strings.refresh-mode-normal}, {id: "fast", label: Strings.refresh-mode-fast}];
+                chosen(value) => { AccountModel.action("refresh-mode", value); }
+            }
+            refresh-note := Text {
+                width: parent.width; height: self.preferred-height;
+                vertical-stretch: 0;
+                text: AccountModel.refresh-mode-note; font-family: Theme.ui-font;
+                font-size: Theme.scribe ? 16px : 14px; color: Theme.secondary; wrap: word-wrap;
+            }
+        }
         if AccountModel.section == "reading": ChoiceGroup { title: Strings.acct-direction; hint: Strings.acct-per-comic; selected: AccountModel.direction; options: [{id: "ltr", label: Strings.acct-ltr}, {id: "rtl", label: Strings.acct-rtl}]; chosen(value) => { AccountModel.action("direction", value); } }
-        if AccountModel.section == "reading": ChoiceGroup { title: Strings.acct-full-refresh; hint: Strings.acct-refresh-hint; selected: AccountModel.every; options: [{id: "smart", label: Strings.acct-smart}, {id: "1", label: Strings.acct-every-page}, {id: "6", label: Strings.acct-every-six}, {id: "0", label: Strings.acct-never}]; chosen(value) => { AccountModel.action("every", value); } }
+        if AccountModel.section == "reading": ChoiceGroup { title: Strings.acct-full-refresh; hint: AccountModel.refresh-mode == "fast" ? Strings.refresh-mode-interval-disabled : Strings.acct-refresh-hint; selected: AccountModel.every; enabled: AccountModel.refresh-mode != "fast"; options: [{id: "smart", label: Strings.acct-smart}, {id: "1", label: Strings.acct-every-page}, {id: "6", label: Strings.acct-every-six}, {id: "0", label: Strings.acct-never}]; chosen(value) => { AccountModel.action("every", value); } }
         if AccountModel.section == "reading": ChoiceGroup { title: Strings.acct-landscape; selected: AccountModel.landscape; options: [{id: "spread", label: Strings.acct-spread}, {id: "single", label: Strings.acct-single}]; chosen(value) => { AccountModel.action("landscape", value); } }
+        if AccountModel.section == "reading": Rectangle {
+            height: media-toggle.height + media-note.preferred-height + 4px;
+            media-toggle := ToggleRow {
+                width: parent.width; label: Strings.media-jpeg-acceleration;
+                checked: AccountModel.jpeg-acceleration; enabled: AccountModel.jpeg-acceleration-available;
+                toggled(value) => { AccountModel.action("jpeg-acceleration", value ? "on" : "off"); }
+            }
+            media-note := Text {
+                x: 0px; y: media-toggle.height + 4px; width: parent.width; height: self.preferred-height;
+                text: AccountModel.jpeg-acceleration-note; font-family: Theme.ui-font;
+                font-size: Theme.scribe ? 16px : 14px; color: Theme.secondary; wrap: word-wrap;
+            }
+        }
         if AccountModel.section == "download": ChoiceGroup { title: Strings.acct-smart-download; hint: AccountModel.can-smart ? Strings.acct-charging-wifi : Strings.acct-manual-download-only; selected: AccountModel.smart; enabled: AccountModel.can-smart; options: [{id: "on", label: Strings.acct-on}, {id: "off", label: Strings.acct-off}]; chosen(value) => { AccountModel.action("smart", value); } }
         if AccountModel.section == "download": ChoiceGroup { title: Strings.acct-download-ahead; hint: AccountModel.can-smart ? Strings.acct-readable-only : Strings.acct-manual-download-only; selected: AccountModel.ahead + ""; enabled: AccountModel.can-smart; options: [{id: "1", label: Strings.acct-one-episode}, {id: "2", label: Strings.acct-two-episodes}, {id: "3", label: Strings.acct-three-episodes}, {id: "5", label: Strings.acct-five-episodes}]; chosen(value) => { AccountModel.action("ahead", value); } }
         if AccountModel.section == "download": ChoiceGroup { title: Strings.acct-concurrency; hint: Strings.acct-concurrency-hint; selected: AccountModel.concurrency + ""; options: [{id: "1", label: "1"}, {id: "2", label: "2"}, {id: "3", label: "3"}, {id: "4", label: "4"}]; chosen(value) => { AccountModel.action("concurrency", value); } }
@@ -285,6 +337,8 @@ export component AccountScreen inherits Rectangle {
             AccountRow { title: Strings.acct-session; value: Strings.acct-local-only; chevron: false; }
         }
         if AccountModel.section == "about": HorizontalLayout { spacing: 14px; ActionButton { text: Strings.acct-export-diagnostics; clicked => { AccountModel.action("export-diagnostics", ""); } } ActionButton { text: Strings.acct-check-update; enabled: AccountModel.can-update; clicked => { AccountModel.action("check-update", ""); } } ActionButton { text: Strings.acct-onboarding; clicked => { AccountModel.action("onboarding", ""); } } }
+        }
+        }
     }
     if Theme.scribe && (AccountModel.section == "reading" || AccountModel.section == "system"): Text {
         x: Theme.margin; y: parent.height - 56px; width: parent.width - Theme.margin * 2; height: 24px;

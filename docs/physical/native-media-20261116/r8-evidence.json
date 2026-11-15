@@ -1,0 +1,1284 @@
+{
+  "schema_version": 1,
+  "evidence_class": "physical-device-controlled-offline-receipt-fixture",
+  "run_id": "media-20261116-r8-5619c7e9",
+  "status": "completed",
+  "started_at": "2026-11-15T17:07:02.058483+00:00",
+  "finished_at": "2026-11-15T17:09:32.500764+00:00",
+  "device": {
+    "operator_confirmed_model": "Kindle Scribe 2022 (23L)",
+    "observed_firmware": "5.19.5"
+  },
+  "identities": {
+    "package_sha256": "84b27b9cb960ab1d28ad560f6a5415463e8bfef487be0fff42f3093f34b43d5e",
+    "binary_sha256": "e56a0ac6e22e65d40ddebb3825555394b64123825d740e543589ba9ebc47c14c",
+    "worker_sha256": "f135945d85928464850c4036b2875ca4cb7031da315f4993e7e906ae93f07127",
+    "fixture_manifest_sha256": "bfb32b74ec96304220f71f7d64dac03c8c423413b41348a94de21a7f27a255a2",
+    "source_manifest_sha256": "17629c73eafb64cff585bea4046e9cdd8092eacda91c13921d71a60cc552792c"
+  },
+  "hardware_policy": "Supported hardware model and actual driver; production exact two Gray source-target tuples",
+  "phase_count": 3,
+  "phases": [
+    {
+      "phase": 0,
+      "operation_id": 2,
+      "render_version": 1,
+      "actual_published": true,
+      "page_number": 10,
+      "fixture_name": "identity-gray",
+      "page_id": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+      "source_pixels": [
+        1860,
+        2480
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 0,
+        "completed": 0,
+        "resized": 0,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 66400,
+        "decoded_sources": 1,
+        "grayscale_us": 195398,
+        "integrity_decode_us": 121820,
+        "layout_rebuilds": 1,
+        "layout_us": 34,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 11221,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 5,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 94973,
+            "partial": 0,
+            "wall_us": 121820
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 306274,
+            "partial": 0,
+            "wall_us": 343862
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 65437,
+            "partial": 0,
+            "wall_us": 66400
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 94818,
+            "partial": 0,
+            "wall_us": 121654
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 9,
+            "partial": 0,
+            "wall_us": 12
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 194919,
+            "partial": 0,
+            "wall_us": 195398
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 59,
+            "partial": 0,
+            "wall_us": 59
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 16259,
+            "partial": 0,
+            "wall_us": 26503
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 35,
+            "partial": 0,
+            "wall_us": 34
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5696,
+            "partial": 0,
+            "wall_us": 9582
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 954,
+            "partial": 0,
+            "wall_us": 1554
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 11225,
+            "partial": 0,
+            "wall_us": 11221
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 12,
+            "partial": 0,
+            "wall_us": 12
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2613,
+            "partial": 0,
+            "wall_us": 5876
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1398,
+            "partial": 0,
+            "wall_us": 6388
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 12,
+            "partial": 0,
+            "wall_us": 12
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 99,
+        "performance_preparation": 146,
+        "performance_publication": 153,
+        "lifecycle_ready": 27
+      },
+      "backend": {
+        "performance_line": 154,
+        "render_sequence": 11,
+        "reader_operation_id": 2,
+        "accepted_update_marker": 11,
+        "completed_update_marker": 11,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": true,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": true,
+        "forced_full": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 1,
+      "operation_id": 4,
+      "render_version": 2,
+      "actual_published": true,
+      "page_number": 1,
+      "fixture_name": "gray-large",
+      "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "width",
+      "requested": true,
+      "effective_policy": "decode_and_resize",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 1,
+        "completed": 1,
+        "resized": 1,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "native_decode_resize",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 72619,
+        "decoded_sources": 0,
+        "grayscale_us": 0,
+        "integrity_decode_us": 0,
+        "layout_rebuilds": 1,
+        "layout_us": 50,
+        "native_sources": 1,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 0,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 0,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 35080,
+            "partial": 0,
+            "wall_us": 220415
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 65988,
+            "partial": 0,
+            "wall_us": 72619
+          },
+          "jpeg_admission": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 17742,
+            "partial": 0,
+            "wall_us": 18120
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 49,
+            "partial": 0,
+            "wall_us": 50
+          },
+          "native_decode_resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 17195,
+            "partial": 0,
+            "wall_us": 202140
+          },
+          "processed_source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2030,
+            "partial": 0,
+            "wall_us": 2795
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1287,
+            "partial": 0,
+            "wall_us": 1868
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 3111,
+            "partial": 0,
+            "wall_us": 3109
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2040,
+            "partial": 0,
+            "wall_us": 3751
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 156,
+        "performance_preparation": 165,
+        "performance_publication": 172,
+        "lifecycle_ready": 30
+      },
+      "backend": {
+        "performance_line": 173,
+        "render_sequence": 13,
+        "reader_operation_id": 4,
+        "accepted_update_marker": 13,
+        "completed_update_marker": 12,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    },
+    {
+      "phase": 2,
+      "operation_id": 5,
+      "render_version": 3,
+      "actual_published": true,
+      "page_number": 1,
+      "fixture_name": "gray-large",
+      "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+      "source_pixels": [
+        1920,
+        2560
+      ],
+      "fit": "width",
+      "requested": false,
+      "effective_policy": "off",
+      "media_availability": "available",
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "focus": {
+        "focus_x": 0.0,
+        "focus_y": 0.0,
+        "focus_width": 1.0,
+        "focus_height": 1.0
+      },
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "y4": {
+        "dither": true,
+        "dither_method": "software",
+        "hardware_y4_available": true,
+        "hardware_y4_requested": false,
+        "hardware_dither": false,
+        "target_hardware_dither": false
+      },
+      "native_media": {
+        "attempts": 1,
+        "completed": 1,
+        "resized": 1,
+        "software_fallbacks": 0
+      },
+      "actual_preparation_path": "software_decode",
+      "preparation_outcome": "ready",
+      "profile": {
+        "canvas_us": 55661,
+        "decoded_sources": 1,
+        "grayscale_us": 195587,
+        "integrity_decode_us": 92103,
+        "layout_rebuilds": 0,
+        "layout_us": 18,
+        "native_sources": 0,
+        "output_bytes": 18451200,
+        "processed_source_hits": 0,
+        "rendered_frames": 1,
+        "resize_us": 333684,
+        "resized_pixels": 4612800,
+        "reused_sources": 0,
+        "rotation_us": 5,
+        "source_read_us": 0,
+        "stages": {
+          "aggregate_integrity": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 80182,
+            "partial": 0,
+            "wall_us": 92103
+          },
+          "aggregate_receipt_prepare": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 273591,
+            "partial": 0,
+            "wall_us": 287818
+          },
+          "canvas": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 55115,
+            "partial": 0,
+            "wall_us": 55661
+          },
+          "decode": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 80026,
+            "partial": 0,
+            "wall_us": 91937
+          },
+          "frame_validation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 7,
+            "partial": 0,
+            "wall_us": 8
+          },
+          "grayscale": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 193292,
+            "partial": 0,
+            "wall_us": 195587
+          },
+          "integrity_validation": {
+            "attempts": 2,
+            "completed": 2,
+            "cpu_us": 33,
+            "partial": 0,
+            "wall_us": 33
+          },
+          "layout": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 17,
+            "partial": 0,
+            "wall_us": 18
+          },
+          "receipt_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 940,
+            "partial": 0,
+            "wall_us": 2839
+          },
+          "receipt_recheck": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 1024,
+            "partial": 0,
+            "wall_us": 1418
+          },
+          "resize": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 333190,
+            "partial": 0,
+            "wall_us": 333684
+          },
+          "rotation": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 5,
+            "partial": 0,
+            "wall_us": 5
+          },
+          "source_cache_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 9,
+            "partial": 0,
+            "wall_us": 9
+          },
+          "source_hash": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 2696,
+            "partial": 0,
+            "wall_us": 3576
+          },
+          "source_read": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 961,
+            "partial": 0,
+            "wall_us": 2076
+          },
+          "validation_memo_lookup": {
+            "attempts": 1,
+            "completed": 1,
+            "cpu_us": 7,
+            "partial": 0,
+            "wall_us": 7
+          }
+        },
+        "unchanged_sources": 0
+      },
+      "evidence_lines": {
+        "performance_render_request": 174,
+        "performance_preparation": 183,
+        "performance_publication": 191,
+        "lifecycle_ready": 33
+      },
+      "backend": {
+        "performance_line": 192,
+        "render_sequence": 16,
+        "reader_operation_id": 5,
+        "accepted_update_marker": 15,
+        "completed_update_marker": 14,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "forced_full": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      }
+    }
+  ],
+  "final_native_media": {
+    "attempts": 1,
+    "completed": 1,
+    "resized": 1,
+    "software_fallbacks": 0
+  },
+  "original_receipt_evidence": {
+    "initial_database": {
+      "bytes": 155648,
+      "sha256": "42e23cc9c39e74239aab496a56453f1f71f9a873c52dc28fa348b6cd6d855a36",
+      "preferences": {
+        "preferences": {
+          "mode": "page",
+          "fit": "width",
+          "direction": "ltr",
+          "landscape": "single",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": true,
+          "footer": true
+        },
+        "reader_preferences_900000015": {
+          "mode": "page",
+          "fit": "width",
+          "direction": "ltr",
+          "landscape": "single",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": true,
+          "footer": true
+        }
+      },
+      "reading_anchors": [
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+          "page_index": 9,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "zoom_ratio": 1.0,
+          "rotation": 0,
+          "mode": "page",
+          "finished": false,
+          "updated_at": 1794762299,
+          "row_updated_at": 1794762299
+        }
+      ],
+      "receipts": [
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+          "page_index": 0,
+          "file_name": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7.jpg",
+          "sha256": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+          "bytes": 230973,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762057,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c",
+          "page_index": 1,
+          "file_name": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c.jpg",
+          "sha256": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c",
+          "bytes": 361909,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762058,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394",
+          "page_index": 2,
+          "file_name": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394.jpg",
+          "sha256": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394",
+          "bytes": 466978,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762058,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce",
+          "page_index": 3,
+          "file_name": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce.jpg",
+          "sha256": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce",
+          "bytes": 303041,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762059,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e",
+          "page_index": 4,
+          "file_name": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e.jpg",
+          "sha256": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e",
+          "bytes": 138066,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762059,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800",
+          "page_index": 5,
+          "file_name": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800.png",
+          "sha256": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800",
+          "bytes": 17632,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b",
+          "page_index": 6,
+          "file_name": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b.jpg",
+          "sha256": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b",
+          "bytes": 174723,
+          "width": 1920,
+          "height": 1280,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d",
+          "page_index": 7,
+          "file_name": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d.jpg",
+          "sha256": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d",
+          "bytes": 185138,
+          "width": 1280,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c",
+          "page_index": 8,
+          "file_name": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c.jpg",
+          "sha256": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c",
+          "bytes": 1489,
+          "width": 100,
+          "height": 50,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+          "page_index": 9,
+          "file_name": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89.jpg",
+          "sha256": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+          "bytes": 217277,
+          "width": 1860,
+          "height": 2480,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        }
+      ]
+    },
+    "exit_database": {
+      "bytes": 155648,
+      "sha256": "f29fe2b330edbbfc3396f2011bb00a5d518fe84f362f443dedaac964ac6fe66e",
+      "preferences": {
+        "preferences": {
+          "mode": "page",
+          "fit": "width",
+          "direction": "ltr",
+          "landscape": "single",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": false,
+          "footer": true
+        },
+        "reader_preferences_900000015": {
+          "mode": "page",
+          "fit": "width",
+          "direction": "ltr",
+          "landscape": "single",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": false,
+          "footer": true
+        }
+      },
+      "reading_anchors": [
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+          "page_index": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "zoom_ratio": 1.0,
+          "rotation": 0,
+          "mode": "page",
+          "finished": false,
+          "updated_at": 1794762551,
+          "row_updated_at": 1794762551
+        }
+      ],
+      "receipts": [
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+          "page_index": 0,
+          "file_name": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7.jpg",
+          "sha256": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+          "bytes": 230973,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762057,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c",
+          "page_index": 1,
+          "file_name": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c.jpg",
+          "sha256": "28b3285f40ee0bb32f3a2a29eca3920e0ce26ba1f67911641c29cb9e10daf71c",
+          "bytes": 361909,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762058,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394",
+          "page_index": 2,
+          "file_name": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394.jpg",
+          "sha256": "da01bde0d972829a608c994a62c7cc6c9e41380b8ef44d131ec7a32e83a92394",
+          "bytes": 466978,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762058,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce",
+          "page_index": 3,
+          "file_name": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce.jpg",
+          "sha256": "99e1f899be9e463ac1a73fa3398bec26d4beea47f8f1032ea14f83ed71ccf2ce",
+          "bytes": 303041,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762059,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e",
+          "page_index": 4,
+          "file_name": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e.jpg",
+          "sha256": "7d2828c80a83256e7869b35c5fc91c8e0a131159b9a8d689ed87d9420845636e",
+          "bytes": 138066,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762059,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800",
+          "page_index": 5,
+          "file_name": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800.png",
+          "sha256": "908d166b00a2247685ec7f4a1b5d1f853e26bcbe4009809ad2be1e03a577f800",
+          "bytes": 17632,
+          "width": 1920,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b",
+          "page_index": 6,
+          "file_name": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b.jpg",
+          "sha256": "537cde15076b6d34550c97a893e5f7f53ace3d0f6e9df8f6c1ce47a4acc5ca3b",
+          "bytes": 174723,
+          "width": 1920,
+          "height": 1280,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d",
+          "page_index": 7,
+          "file_name": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d.jpg",
+          "sha256": "1ae897762279b3a47850c831f15b2efadd2e99940457ae075a0bf8a870a21b0d",
+          "bytes": 185138,
+          "width": 1280,
+          "height": 2560,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c",
+          "page_index": 8,
+          "file_name": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c.jpg",
+          "sha256": "a7326d4a5c6d0787ddfe295ed95e9458441ea507801065402300974cef60ee3c",
+          "bytes": 1489,
+          "width": 100,
+          "height": 50,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        },
+        {
+          "episode_id": "90000001501",
+          "revision": "native-media-physical-v1",
+          "page_id": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+          "page_index": 9,
+          "file_name": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89.jpg",
+          "sha256": "01cda9d3ad387b6c5a63964a5b77fd3a3612c59c231ecbd80ad467820489db89",
+          "bytes": 217277,
+          "width": 1860,
+          "height": 2480,
+          "retained": true,
+          "verified_at": 1794762060,
+          "decode_validation_version": 1
+        }
+      ]
+    },
+    "complete_receipt_rows_and_payload_text_unchanged": true,
+    "complete_identity_history_rows_unchanged": true,
+    "comparison_scope": "Read-only immutable copies of the recorded fixture and application-exit databases; database files are not included."
+  },
+  "captures": [
+    {
+      "file": "r8-gray-hardware.png",
+      "checkpoint": "gray-hardware",
+      "bytes": 50902,
+      "sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109",
+      "recorded_png_sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109",
+      "visible_memory_sha256": "5bba434ec2a95aba08b2819de0c5cd5bca3e7ab08ea0204347a4bd384813f3bb",
+      "projected_png_sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109",
+      "memory_and_projection_png_bytes_equal": true,
+      "native_process": {
+        "pid": 2621,
+        "start_ticks": 6346487,
+        "exe_sha256": "e56a0ac6e22e65d40ddebb3825555394b64123825d740e543589ba9ebc47c14c",
+        "content_mode": "media_fixture",
+        "offline_guest_native_arguments_verified": true
+      },
+      "reader": {
+        "page_number": 1,
+        "page_index": 0,
+        "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+        "revision": "native-media-physical-v1",
+        "reader_generation": 3,
+        "render_version": 2,
+        "fit": "width",
+        "jpeg_acceleration": true,
+        "media_acceleration": "decode_and_resize",
+        "native_media": {
+          "attempts": 1,
+          "completed": 1,
+          "resized": 1,
+          "software_fallbacks": 0
+        },
+        "source_x": 0.0,
+        "source_y": 0.0,
+        "zoom_ratio": 1.0,
+        "rotation": 0,
+        "hardware_y4_requested": false,
+        "hardware_dither": false
+      },
+      "source_receipt": {
+        "episode_id": "90000001501",
+        "revision": "native-media-physical-v1",
+        "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+        "page_index": 0,
+        "file_name": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7.jpg",
+        "sha256": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+        "bytes": 230973,
+        "width": 1920,
+        "height": 2560,
+        "retained": true,
+        "verified_at": 1794762057,
+        "decode_validation_version": 1
+      },
+      "publication": {
+        "operation_id": 4,
+        "binding": "render_request",
+        "render_request_present": true,
+        "request_generation_version_verified": true,
+        "published_monotonic_ns": 29303890642822,
+        "state_evidence_event": "reader-ready",
+        "state_evidence_monotonic_ns": 29303892953206,
+        "physical_panel_update_confirmed": false
+      },
+      "backend": {
+        "render_sequence": 13,
+        "reader_operation_id": 4,
+        "accepted_update_marker": 13,
+        "completed_update_marker": 12,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      },
+      "rgb_fingerprint_present": false,
+      "epdc": {
+        "mode": "Y8",
+        "source": "native-application-trace",
+        "trace_event": "reader-ready",
+        "trace_record_index": 29,
+        "gap": null,
+        "preflight_used_as_current_mode_fallback": false
+      },
+      "framebuffer_geometry": {
+        "width": 1860,
+        "height": 2480,
+        "virtual_width": 1872,
+        "virtual_height": 4960,
+        "xoffset": 0,
+        "yoffset": 0,
+        "bits_per_pixel": 8,
+        "line_length": 1872,
+        "smem_len": 9285120,
+        "visual": 1,
+        "grayscale": 1,
+        "rotate": 3,
+        "red_offset": 0,
+        "red_length": 8,
+        "red_msb_right": 0,
+        "green_offset": 0,
+        "green_length": 8,
+        "green_msb_right": 0,
+        "blue_offset": 0,
+        "blue_length": 8,
+        "blue_msb_right": 0,
+        "byte_order": "little",
+        "visible_bytes": 4612800,
+        "read_only": true
+      },
+      "synthetic_nonce_oracle_used": false,
+      "physical_panel_update_confirmed": false
+    },
+    {
+      "file": "r8-final.png",
+      "checkpoint": "final",
+      "bytes": 51857,
+      "sha256": "a3df75af0ced03b2c8a0c185ecca50d6530f28afbc5b2fb201748fb0eebc2e81",
+      "recorded_png_sha256": "a3df75af0ced03b2c8a0c185ecca50d6530f28afbc5b2fb201748fb0eebc2e81",
+      "visible_memory_sha256": "2e16e2a212816b93823be723e7eb5a893ad19629afa6353df913b2099d1d30de",
+      "projected_png_sha256": "a3df75af0ced03b2c8a0c185ecca50d6530f28afbc5b2fb201748fb0eebc2e81",
+      "memory_and_projection_png_bytes_equal": true,
+      "native_process": {
+        "pid": 2621,
+        "start_ticks": 6346487,
+        "exe_sha256": "e56a0ac6e22e65d40ddebb3825555394b64123825d740e543589ba9ebc47c14c",
+        "content_mode": "media_fixture",
+        "offline_guest_native_arguments_verified": true
+      },
+      "reader": {
+        "page_number": 1,
+        "page_index": 0,
+        "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+        "revision": "native-media-physical-v1",
+        "reader_generation": 3,
+        "render_version": 3,
+        "fit": "width",
+        "jpeg_acceleration": false,
+        "media_acceleration": "off",
+        "native_media": {
+          "attempts": 1,
+          "completed": 1,
+          "resized": 1,
+          "software_fallbacks": 0
+        },
+        "source_x": 0.0,
+        "source_y": 0.0,
+        "zoom_ratio": 1.0,
+        "rotation": 0,
+        "hardware_y4_requested": false,
+        "hardware_dither": false
+      },
+      "source_receipt": {
+        "episode_id": "90000001501",
+        "revision": "native-media-physical-v1",
+        "page_id": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+        "page_index": 0,
+        "file_name": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7.jpg",
+        "sha256": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+        "bytes": 230973,
+        "width": 1920,
+        "height": 2560,
+        "retained": true,
+        "verified_at": 1794762057,
+        "decode_validation_version": 1
+      },
+      "publication": {
+        "operation_id": 5,
+        "binding": "render_request",
+        "render_request_present": true,
+        "request_generation_version_verified": true,
+        "published_monotonic_ns": 29336258561439,
+        "state_evidence_event": "reader-ready",
+        "state_evidence_monotonic_ns": 29336262005516,
+        "physical_panel_update_confirmed": false
+      },
+      "backend": {
+        "render_sequence": 16,
+        "reader_operation_id": 5,
+        "accepted_update_marker": 15,
+        "completed_update_marker": 14,
+        "rendered": true,
+        "refresh_ioctl_returned": true,
+        "refresh_accepted": true,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false,
+        "complete_frame_replacement": false,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "hardware_y4_requested": false,
+        "hardware_y4_applied": false
+      },
+      "rgb_fingerprint_present": false,
+      "epdc": {
+        "mode": "Y8",
+        "source": "native-application-trace",
+        "trace_event": "reader-ready",
+        "trace_record_index": 32,
+        "gap": null,
+        "preflight_used_as_current_mode_fallback": false
+      },
+      "framebuffer_geometry": {
+        "width": 1860,
+        "height": 2480,
+        "virtual_width": 1872,
+        "virtual_height": 4960,
+        "xoffset": 0,
+        "yoffset": 0,
+        "bits_per_pixel": 8,
+        "line_length": 1872,
+        "smem_len": 9285120,
+        "visual": 1,
+        "grayscale": 1,
+        "rotate": 3,
+        "red_offset": 0,
+        "red_length": 8,
+        "red_msb_right": 0,
+        "green_offset": 0,
+        "green_length": 8,
+        "green_msb_right": 0,
+        "blue_offset": 0,
+        "blue_length": 8,
+        "blue_msb_right": 0,
+        "byte_order": "little",
+        "visible_bytes": 4612800,
+        "read_only": true
+      },
+      "synthetic_nonce_oracle_used": false,
+      "physical_panel_update_confirmed": false
+    }
+  ],
+  "recovery": {
+    "new_critical_kernel_lines": 0,
+    "same_boot": true,
+    "native_recovered": true,
+    "lease_released": true,
+    "lighting_preserved": true,
+    "native_baseline_restored": true,
+    "exact_owner_and_token_checked": true,
+    "native_restored_and_connections_closed": true,
+    "lease_directory_absent_after_recorded_release": true,
+    "application_process_exited": true,
+    "native_worker_drained": true,
+    "session_absent": true,
+    "physical_home_and_touch_confirmation": "pending operator observation"
+  },
+  "evidence_scope": {
+    "scripted_application_intents": true,
+    "finger_touch_claimed": false,
+    "live_account_used": false,
+    "remote_account_writes": false,
+    "physical_panel_review": "pending",
+    "hardware_support_accepted": false,
+    "framebuffer_memory_capture": true,
+    "independent_nonce_or_pixel_oracle_claimed": false,
+    "optical_panel_completion_claimed": false,
+    "optical_gray_levels_verified": false,
+    "hardware_y4_exercised": false,
+    "raw_sidecars_logs_databases_private_configuration_or_secret_tokens_copied": false,
+    "authoring_scope": "Read-only analysis of previously collected host evidence; no new tests or device operations."
+  },
+  "source_evidence_files": [
+    "preparation-final.json",
+    "batch-result.json",
+    "run/run.json",
+    "run/lifecycle.jsonl",
+    "run/performance.jsonl",
+    "run/gray-hardware.checkpoint.json",
+    "run/gray-hardware.framebuffer.json",
+    "run/final.checkpoint.json",
+    "run/final.framebuffer.json",
+    "app-exit-provenance.json"
+  ],
+  "cold_restart_continuity": {
+    "restart_scope": "Ordinary application process restart on the same recorded device boot; not a Kindle reboot.",
+    "r7_exit_database_bytes": 155648,
+    "r7_exit_database_sha256": "42e23cc9c39e74239aab496a56453f1f71f9a873c52dc28fa348b6cd6d855a36",
+    "r8_initial_database_bytes": 155648,
+    "r8_initial_database_sha256": "42e23cc9c39e74239aab496a56453f1f71f9a873c52dc28fa348b6cd6d855a36",
+    "initial_database_bytes_equal_to_r7_exit": true,
+    "recorded_deployed_initial_database_sha256": "42e23cc9c39e74239aab496a56453f1f71f9a873c52dc28fa348b6cd6d855a36",
+    "application_state_written_by_generator": false,
+    "complete_receipt_rows_and_payload_text_equal_across_r7_exit_r8_initial_and_exit": true,
+    "complete_identity_history_rows_equal_across_r7_exit_r8_initial_and_exit": true
+  }
+}

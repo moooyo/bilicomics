@@ -140,6 +140,47 @@ class DistinctFixtureWrapperTests(unittest.TestCase):
         self.configure_guard(fixture, reject=True)
         self.assert_rejected_before_ui(fixture, guard_invoked=True)
 
+    def configure_media_actions(self, fixture):
+        self.configure_guard(fixture)
+        (fixture.logs / "content-mode").write_text("media_fixture\n")
+        relative = "data/media-actions.json"
+        plan = fixture.run_root / relative
+        plan.write_bytes(b"[]\n")
+        digest = hashlib.sha256(plan.read_bytes()).hexdigest()
+        size = str(plan.stat().st_size)
+        fixture_digest = "f" * 64
+        (fixture.logs / "media-actions-path").write_text(relative + "\n")
+        (fixture.logs / "media-actions-sha256").write_text(digest + "\n")
+        (fixture.logs / "media-actions-bytes").write_text(size + "\n")
+        binding = "|".join((fixture.token, fixture_digest, relative, digest, size))
+        (fixture.logs / "media-actions-approved").write_text(binding + "\n")
+        return plan
+
+    def test_media_plan_uses_same_pid_guard_and_exact_offline_action_path(self):
+        fixture = self.fixture()
+        plan = self.configure_media_actions(fixture)
+        fixture.start_fixture()
+        arguments = (fixture.arguments / f"application-{fixture.application['pid']}").read_text().splitlines()
+        self.assertNotIn("--demo", arguments)
+        self.assertEqual(arguments.count("--offline"), 1)
+        self.assertEqual(arguments.count("--actions"), 1)
+        self.assertEqual(arguments[arguments.index("--actions") + 1], str(plan))
+        self.assertEqual((fixture.root / "guard-record").read_text().splitlines(), [str(fixture.application["pid"])])
+        fixture.finish_fixture()
+
+    def test_media_plan_changed_bytes_or_binding_never_reach_the_ui(self):
+        for fault in ("changed-bytes", "parent-path", "unapproved-binding"):
+            with self.subTest(fault=fault):
+                fixture = self.fixture()
+                plan = self.configure_media_actions(fixture)
+                if fault == "changed-bytes":
+                    plan.write_bytes(b"[1]\n")
+                elif fault == "parent-path":
+                    (fixture.logs / "media-actions-path").write_text("data/../media-actions.json\n")
+                else:
+                    (fixture.logs / "media-actions-approved").write_text("unapproved\n")
+                self.assert_rejected_before_ui(fixture, guard_invoked=False)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

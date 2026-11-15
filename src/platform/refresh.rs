@@ -2,6 +2,18 @@ use std::time::Duration;
 
 const LIST_PARTIAL_UPDATES_BEFORE_FULL: u32 = 6;
 
+/// Refresh policy for the image and controls actually visible in the Reader.
+/// FastContent requires an already published, quiet, binary-only scene.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[repr(u8)]
+pub enum ReaderRefreshScene {
+    #[default]
+    Normal = 0,
+    FastContent = 1,
+    FastOverlay = 2,
+}
+
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct RefreshRect {
     pub x: u32,
@@ -16,6 +28,8 @@ pub enum RefreshKind {
     FlashUi,
     Ui,
     Fast,
+    /// Replace the complete binary scene using non-flashing DU.
+    FastFull,
     /// Binary feedback uses the native A2 waveform, separate from DU.
     A2,
     FlashPartial,
@@ -46,6 +60,31 @@ pub struct RefreshPlan {
     pub kind: RefreshKind,
     /// Logical design coordinates. A native sink must apply the fixed 2x scale.
     pub rect: Option<RefreshRect>,
+}
+
+impl RefreshPlan {
+    pub(super) fn for_reader_scene(self, scene: ReaderRefreshScene) -> Self {
+        let kind = match (scene, self.kind) {
+            // Explicit full requests include manual clearing and lifecycle
+            // recovery. A quiet binary scene must not weaken those requests.
+            (_, RefreshKind::Full) => RefreshKind::Full,
+            (ReaderRefreshScene::FastContent, RefreshKind::FastFull) => RefreshKind::FastFull,
+            (ReaderRefreshScene::FastContent, RefreshKind::FlashUi) if self.rect.is_none() => RefreshKind::FastFull,
+            (ReaderRefreshScene::FastContent, _) => RefreshKind::Fast,
+            (_, RefreshKind::FastFull) => RefreshKind::Full,
+            (ReaderRefreshScene::FastOverlay, RefreshKind::Fast | RefreshKind::A2) => RefreshKind::Ui,
+            _ => self.kind,
+        };
+        // The quiet binary scene uses the renderer's actual dirty pixels. It
+        // must not accumulate unrelated rectangle requests into a gray-safe
+        // overflow while page processing is still in sustained DU mode.
+        let rect = if scene == ReaderRefreshScene::FastContent && kind != RefreshKind::Full {
+            None
+        } else {
+            self.rect
+        };
+        Self { kind, rect }
+    }
 }
 
 /// Policy is separate from the backend's ability to execute a waveform.
@@ -88,6 +127,39 @@ impl RefreshScheduler {
     }
 
     pub fn plan(&mut self, reason: RefreshReason, now: Duration) -> Option<RefreshPlan> {
+        self.plan_with_scene(reason, now, ReaderRefreshScene::Normal)
+    }
+
+    pub fn plan_with_scene(
+        &mut self,
+        reason: RefreshReason,
+        now: Duration,
+        scene: ReaderRefreshScene,
+    ) -> Option<RefreshPlan> {
+        if scene == ReaderRefreshScene::FastContent {
+            if matches!(reason, RefreshReason::Progress) && !self.allow_progress(now) {
+                return None;
+            }
+            let kind = match reason {
+                RefreshReason::ReaderGeometry | RefreshReason::EnterScreen => RefreshKind::FastFull,
+                _ => RefreshKind::Fast,
+            };
+            // Continuous binary reading neither spends nor resets the normal
+            // list/page budgets, including geometry and automatic image work.
+            return Some(RefreshPlan { kind, rect: None });
+        }
+        self.plan_normal(reason, now).map(|plan| plan.for_reader_scene(scene))
+    }
+
+    fn allow_progress(&mut self, now: Duration) -> bool {
+        if self.last_progress.is_some_and(|last| now.saturating_sub(last) < Duration::from_secs(1)) {
+            return false;
+        }
+        self.last_progress = Some(now);
+        true
+    }
+
+    fn plan_normal(&mut self, reason: RefreshReason, now: Duration) -> Option<RefreshPlan> {
         use RefreshKind as Kind;
         let (kind, rect) = match reason {
             RefreshReason::EnterScreen => {
@@ -117,13 +189,9 @@ impl RefreshScheduler {
             RefreshReason::OverlayOpened(rect) => (Kind::Ui, Some(rect)),
             RefreshReason::OverlayClosed(rect) => (Kind::FlashPartial, Some(rect)),
             RefreshReason::Progress => {
-                if self
-                    .last_progress
-                    .is_some_and(|last| now.saturating_sub(last) < Duration::from_secs(1))
-                {
+                if !self.allow_progress(now) {
                     return None;
                 }
-                self.last_progress = Some(now);
                 (Kind::Fast, None)
             }
             RefreshReason::ReaderTurn => {

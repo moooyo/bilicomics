@@ -596,7 +596,14 @@ impl Platform for KindlePlatform {
                 }
                 // All framebuffer writes above are complete before an ioctl is
                 // issued. The existing descriptor and detected ABI are reused.
-                if did_draw && full_repaint {
+                // A full rewrite and a flashing waveform are independent.
+                // Retain every mapping/dithering barrier, but allow an explicit
+                // DU scene replacement only after proving the whole new image
+                // is binary and no lifecycle or rotation protection applies.
+                let binary_du_repaint = did_draw && full_repaint && binary_du_repaint_allowed(
+                    &pending, &rgb_buffer, (panel_width, panel_height), rotation_changed,
+                    force_full, sleep_token.is_some(), self.dithering.requested());
+                if did_draw && full_repaint && !binary_du_repaint {
                     let submit_started = frame_trace.as_ref().map(|_| ClockSample::now());
                     let submission = frame_buffer.refresh_full();
                     if let Some(trace) = frame_trace.as_mut() {
@@ -660,6 +667,9 @@ impl Platform for KindlePlatform {
                     }
                     frame_buffer.require_known_dithering_delivery()
                         .map_err(|error| PlatformError::Other(format!("display delivery is uncertain; further native writes are blocked: {error}")))?;
+                    if complete_frame_replacement {
+                        complete_frame_update(frame_buffer, &submission, &mut frame_trace)?;
+                    }
                 }
                 if did_draw {
                     applied_dithering = dithering_revision;
@@ -699,6 +709,96 @@ impl Platform for KindlePlatform {
             Some(message) => Err(PlatformError::Other(message)),
             None => Ok(()),
         }
+    }
+}
+
+fn binary_du_repaint_allowed(
+    pending: &PendingRefresh,
+    pixels: &[Rgb8Pixel],
+    panel_size: (u32, u32),
+    rotation_changed: bool,
+    lifecycle_forced: bool,
+    sleep_pending: bool,
+    hardware_y4_requested: bool,
+) -> bool {
+    if rotation_changed || lifecycle_forced || sleep_pending || hardware_y4_requested
+        || !pending.is_nonflashing_du_repaint()
+    {
+        return false;
+    }
+    let Some(expected) = (panel_size.0 as usize).checked_mul(panel_size.1 as usize) else {
+        return false;
+    };
+    expected != 0 && pixels.len() == expected && pixels.iter().all(|pixel| {
+        pixel.r == pixel.g && pixel.g == pixel.b && matches!(pixel.r, 0 | 255)
+    })
+}
+
+#[cfg(test)]
+mod binary_du_tests {
+    use super::*;
+    use crate::refresh::{RefreshArea, RefreshRequest, RefreshWaveform};
+
+    fn pending(area: RefreshArea) -> PendingRefresh {
+        let mut pending = PendingRefresh::default();
+        pending.test_push(RefreshRequest { waveform: RefreshWaveform::Du, flashing: false, area });
+        pending
+    }
+
+    fn pixels() -> [Rgb8Pixel; 4] {
+        [Rgb8Pixel { r: 0, g: 0, b: 0 }, Rgb8Pixel { r: 255, g: 255, b: 255 },
+         Rgb8Pixel { r: 255, g: 255, b: 255 }, Rgb8Pixel { r: 0, g: 0, b: 0 }]
+    }
+
+    fn allowed(pending: &PendingRefresh, pixels: &[Rgb8Pixel]) -> bool {
+        binary_du_repaint_allowed(pending, pixels, (2, 2), false, false, false, false)
+    }
+
+    #[test]
+    fn complete_binary_pixels_allow_du_for_dirty_and_complete_rewrites() {
+        for area in [RefreshArea::Dirty, RefreshArea::Full] {
+            assert!(allowed(&pending(area), &pixels()));
+        }
+    }
+
+    #[test]
+    fn gray_colored_or_incomplete_images_never_bypass_the_full_refresh_guard() {
+        let pending = pending(RefreshArea::Full);
+        for pixel in [Rgb8Pixel { r: 1, g: 1, b: 1 }, Rgb8Pixel { r: 128, g: 128, b: 128 },
+                      Rgb8Pixel { r: 255, g: 0, b: 0 }] {
+            let mut image = pixels();
+            image[3] = pixel;
+            assert!(!allowed(&pending, &image));
+        }
+        assert!(!allowed(&pending, &[]));
+        assert!(!allowed(&pending, &pixels()[..3]));
+        assert!(!binary_du_repaint_allowed(&pending, &pixels(), (0, 0), false, false, false, false));
+    }
+
+    #[test]
+    fn y4_intent_rotation_lifecycle_and_sleep_keep_the_strong_full_refresh_path() {
+        let pending = pending(RefreshArea::Dirty);
+        for blocked in 0..4 {
+            assert!(!binary_du_repaint_allowed(&pending, &pixels(), (2, 2),
+                blocked == 0, blocked == 1, blocked == 2, blocked == 3));
+        }
+        let dithering = DitheringHandle::for_test(true);
+        dithering.set_hardware_y4(true);
+        dithering.reject_hardware();
+        assert!(dithering.requested());
+        assert!(!binary_du_repaint_allowed(&pending, &pixels(), (2, 2), false, false, false,
+                                          dithering.requested()));
+    }
+
+    #[test]
+    fn manual_clear_and_gray_overlay_requests_are_never_weakened_by_binary_pixels() {
+        let mut pending = pending(RefreshArea::Dirty);
+        pending.test_push(RefreshRequest::full());
+        assert!(!allowed(&pending, &pixels()));
+        let mut pending = self::pending(RefreshArea::Full);
+        pending.test_push(RefreshRequest { waveform: RefreshWaveform::Auto, flashing: false,
+                                           area: RefreshArea::Dirty });
+        assert!(!allowed(&pending, &pixels()));
     }
 }
 

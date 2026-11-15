@@ -1,0 +1,401 @@
+{
+  "schema_version": 2,
+  "collection_id": "native-media-20261116",
+  "status": "frozen-selected-host-evidence",
+  "date_in_user_timezone": "2026-11-16",
+  "timezone": "Asia/Shanghai",
+  "evidence_class": "controlled-physical-device-receipt-fixture-and-framebuffer-memory",
+  "physical_report": {
+    "repository_path": "docs/KINDLE_MEDIA_ACCELERATION_PHYSICAL_20261116.md",
+    "bytes": 22655,
+    "sha256": "09cd2f8e129fcbf8c3aeac288215b3fb4222c8e517be3364495944f3c60f086b"
+  },
+  "historical_r6": {
+    "schema_version": 1,
+    "status": "preliminary",
+    "evidence_class": "physical-device-framebuffer-memory",
+    "run_id": "media-20261116-r6-5a0429ee",
+    "date_in_user_timezone": "2026-11-16",
+    "timezone": "Asia/Shanghai",
+    "device": {
+      "operator_confirmed_model": "Kindle Scribe 2022",
+      "model_code": "23L",
+      "observed_firmware": "5.19.5"
+    },
+    "capture": {
+      "file": "r6-gray-hardware.png",
+      "original_file_name": "gray-hardware.png",
+      "bytes": 50902,
+      "sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109",
+      "width": 1860,
+      "height": 2480,
+      "pixel_processing": "Original PNG copied byte for byte; no new rendering or pixel changes.",
+      "original_semantics": "Linear grayscale conversion of visible framebuffer memory; no EPDC inversion was required for Y8.",
+      "projected_panel_png_sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109"
+    },
+    "identities": {
+      "application_sha256": "4be5abe096a3b8aa1e68a13bb2626c8a37821780cd8d6e1562f2d2e84868b65f",
+      "worker_sha256": "290e51e6417f98d65ff2ead8e9cc4d990efdda328213e5674fca701dcfb61453",
+      "package_sha256": "a621ab4dc1c257543d674e3b0dfdf5987edd9b5423b7bb2bdfb46920a74aec98",
+      "fixture_manifest_sha256": "1a0e972ef6a8f1e6252669c16cab02a12eebe525a583931269f7df8435e2bade",
+      "source_manifest_sha256": "0815e502d1adf4e13026bd313dee274863cb14e5a80a40ca6b681a15e32d6a92",
+      "source_identity_scope": "Exact recorded R6 source-input manifest; no clean-checkout or replacement-package claim."
+    },
+    "native_process": {
+      "process_id": 24701,
+      "start_ticks": 6135070,
+      "content_mode": "media_fixture",
+      "offline_guest_native_arguments_verified": true
+    },
+    "source_receipt": {
+      "episode_id": "90000001501",
+      "revision": "native-media-physical-v1",
+      "page_index": 0,
+      "sha256": "8b28a2b01477186adbff47d1ee66f1090e8553fd13a7fc63127cd971c1585af7",
+      "bytes": 230973,
+      "width": 1920,
+      "height": 2560,
+      "decode_validation_version": 1,
+      "scope": "Original dimensions and encoded identity also retained in the recorded immutable application-exit receipt."
+    },
+    "reader_binding": {
+      "operation_id": 4,
+      "generation": 3,
+      "render_version": 2,
+      "page_number": 1,
+      "fit": "page",
+      "zoom_ratio": 1.0,
+      "rotation": 0,
+      "source_anchor": [
+        0.0,
+        0.0
+      ],
+      "request_generation_version_verified": true,
+      "published_monotonic_ns": 27211633619312,
+      "state_evidence_event": "reader-ready",
+      "state_evidence_monotonic_ns": 27211637481466,
+      "native_sources": 1,
+      "processed_source_hits": 0,
+      "native_media": {
+        "attempts": 1,
+        "completed": 1,
+        "resized": 1,
+        "software_fallbacks": 0
+      }
+    },
+    "backend_binding": {
+      "render_sequence": 13,
+      "reader_operation_id": 4,
+      "accepted_update_marker": 13,
+      "completed_update_marker_at_submission": 12,
+      "rendered": true,
+      "refresh_ioctl_returned": true,
+      "refresh_accepted": true,
+      "refresh_region": {
+        "x": 0,
+        "y": 0,
+        "width": 1860,
+        "height": 2480
+      },
+      "driver_completion_observed": false,
+      "panel_completion_observed": false,
+      "complete_frame_replacement": false,
+      "hardware_y4_requested": false,
+      "hardware_y4_applied": false,
+      "rgb_fingerprint_present": false
+    },
+    "epdc": {
+      "mode": "Y8",
+      "source": "native-application-trace",
+      "trace_event": "reader-ready",
+      "lifecycle_line": 30,
+      "preflight_used_as_current_mode_fallback": false,
+      "epdc_inversion_applied": false
+    },
+    "framebuffer": {
+      "width": 1860,
+      "height": 2480,
+      "virtual_width": 1872,
+      "virtual_height": 4960,
+      "line_length": 1872,
+      "bits_per_pixel": 8,
+      "grayscale": 1,
+      "raw_rotation": 3,
+      "xoffset": 0,
+      "yoffset": 0,
+      "visible_bytes": 4612800,
+      "visible_memory_sha256": "5bba434ec2a95aba08b2819de0c5cd5bca3e7ab08ea0204347a4bd384813f3bb"
+    },
+    "evidence_scope": {
+      "controlled_offline_receipt_fixture": true,
+      "framebuffer_memory_capture": true,
+      "current_process_model_backend_binding": true,
+      "synthetic_nonce_oracle_used": false,
+      "independent_pixel_oracle_claimed": false,
+      "physical_panel_update_confirmed": false,
+      "panel_photograph": false,
+      "optical_gray_levels_verified": false,
+      "finger_touch_claimed": false,
+      "hardware_y4_exercised": false,
+      "live_account_used": false,
+      "remote_account_writes": false,
+      "hardware_support_accepted": false,
+      "replacement_package_physical_pass_claimed": false,
+      "raw_sidecars_logs_databases_or_private_configuration_copied": false
+    },
+    "later_run_outcome": {
+      "status": "driver_fault",
+      "faulting_source_pixels": [
+        1280,
+        2560
+      ],
+      "faulting_target_pixels": [
+        1240,
+        2480
+      ],
+      "cumulative_attempts": 6,
+      "cumulative_completed": 5,
+      "new_critical_kernel_lines": 10,
+      "same_boot": true,
+      "native_recovered": true,
+      "lease_released": true,
+      "capture_precedes_fault": true,
+      "root_cause": "Unknown; no specific engine or geometry threshold is inferred."
+    }
+  },
+  "final_runs": [
+    {
+      "run_id": "media-20261116-r7-04df24e0",
+      "status": "completed",
+      "evidence_file": "r7-evidence.json",
+      "phase_count": 18,
+      "final_native_media": {
+        "attempts": 5,
+        "completed": 5,
+        "resized": 5,
+        "software_fallbacks": 0
+      },
+      "identities": {
+        "package_sha256": "84b27b9cb960ab1d28ad560f6a5415463e8bfef487be0fff42f3093f34b43d5e",
+        "binary_sha256": "e56a0ac6e22e65d40ddebb3825555394b64123825d740e543589ba9ebc47c14c",
+        "worker_sha256": "f135945d85928464850c4036b2875ca4cb7031da315f4993e7e906ae93f07127",
+        "fixture_manifest_sha256": "ff860e5511934e04a0983de3c72268154d4a46dbb500afd93b4d84daa4aba6b6",
+        "source_manifest_sha256": "17629c73eafb64cff585bea4046e9cdd8092eacda91c13921d71a60cc552792c"
+      },
+      "recovery": {
+        "new_critical_kernel_lines": 0,
+        "same_boot": true,
+        "native_recovered": true,
+        "lease_released": true,
+        "lighting_preserved": true,
+        "native_baseline_restored": true,
+        "exact_owner_and_token_checked": true,
+        "native_restored_and_connections_closed": true,
+        "lease_directory_absent_after_recorded_release": true,
+        "application_process_exited": true,
+        "native_worker_drained": true,
+        "session_absent": true,
+        "physical_home_and_touch_confirmation": "pending operator observation"
+      }
+    },
+    {
+      "run_id": "media-20261116-r8-5619c7e9",
+      "status": "completed",
+      "evidence_file": "r8-evidence.json",
+      "phase_count": 3,
+      "final_native_media": {
+        "attempts": 1,
+        "completed": 1,
+        "resized": 1,
+        "software_fallbacks": 0
+      },
+      "identities": {
+        "package_sha256": "84b27b9cb960ab1d28ad560f6a5415463e8bfef487be0fff42f3093f34b43d5e",
+        "binary_sha256": "e56a0ac6e22e65d40ddebb3825555394b64123825d740e543589ba9ebc47c14c",
+        "worker_sha256": "f135945d85928464850c4036b2875ca4cb7031da315f4993e7e906ae93f07127",
+        "fixture_manifest_sha256": "bfb32b74ec96304220f71f7d64dac03c8c423413b41348a94de21a7f27a255a2",
+        "source_manifest_sha256": "17629c73eafb64cff585bea4046e9cdd8092eacda91c13921d71a60cc552792c"
+      },
+      "recovery": {
+        "new_critical_kernel_lines": 0,
+        "same_boot": true,
+        "native_recovered": true,
+        "lease_released": true,
+        "lighting_preserved": true,
+        "native_baseline_restored": true,
+        "exact_owner_and_token_checked": true,
+        "native_restored_and_connections_closed": true,
+        "lease_directory_absent_after_recorded_release": true,
+        "application_process_exited": true,
+        "native_worker_drained": true,
+        "session_absent": true,
+        "physical_home_and_touch_confirmation": "pending operator observation"
+      }
+    }
+  ],
+  "capture_count": 5,
+  "final_capture_count": 4,
+  "captures": [
+    {
+      "run_id": "media-20261116-r6-5a0429ee",
+      "file": "r6-gray-hardware.png",
+      "bytes": 50902,
+      "sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109",
+      "width": 1860,
+      "height": 2480,
+      "checkpoint": "gray-hardware",
+      "evidence_record": "manifest.json / historical_r6"
+    },
+    {
+      "run_id": "media-20261116-r7-04df24e0",
+      "file": "r7-gray-hardware.png",
+      "bytes": 50902,
+      "sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109",
+      "width": 1860,
+      "height": 2480,
+      "checkpoint": "gray-hardware",
+      "operation_id": 4,
+      "render_version": 2,
+      "backend_frame": 13,
+      "evidence_record": "r7-evidence.json"
+    },
+    {
+      "run_id": "media-20261116-r7-04df24e0",
+      "file": "r7-final.png",
+      "bytes": 57303,
+      "sha256": "ddc5912b8bca631177de1cd8753911a2a89f4c50db21c67a6850bac6bc5ca968",
+      "width": 1860,
+      "height": 2480,
+      "checkpoint": "final",
+      "operation_id": 20,
+      "render_version": 18,
+      "backend_frame": 50,
+      "evidence_record": "r7-evidence.json"
+    },
+    {
+      "run_id": "media-20261116-r8-5619c7e9",
+      "file": "r8-gray-hardware.png",
+      "bytes": 50902,
+      "sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109",
+      "width": 1860,
+      "height": 2480,
+      "checkpoint": "gray-hardware",
+      "operation_id": 4,
+      "render_version": 2,
+      "backend_frame": 13,
+      "evidence_record": "r8-evidence.json"
+    },
+    {
+      "run_id": "media-20261116-r8-5619c7e9",
+      "file": "r8-final.png",
+      "bytes": 51857,
+      "sha256": "a3df75af0ced03b2c8a0c185ecca50d6530f28afbc5b2fb201748fb0eebc2e81",
+      "width": 1860,
+      "height": 2480,
+      "checkpoint": "final",
+      "operation_id": 5,
+      "render_version": 3,
+      "backend_frame": 16,
+      "evidence_record": "r8-evidence.json"
+    }
+  ],
+  "final_visual_review": {
+    "status": "reviewed",
+    "reviewer": "root",
+    "direct_final_captures": [
+      "r7-gray-hardware.png",
+      "r7-final.png",
+      "r8-final.png"
+    ],
+    "remaining_capture_basis": "The R8 first-Gray PNG is byte-identical to the reviewed R7 first-Gray PNG; separate per-run process and publication bindings remain in the selected evidence.",
+    "conclusion": "The reviewed final framebuffer images are clear with no new visual anomaly.",
+    "optical_panel_or_finger_touch_acceptance_claimed": false
+  },
+  "cleanup": {
+    "run_id": "media-clean-20261116-39a8fa8c",
+    "evidence_source": "Previously collected cleanup-result.json and root cleanup confirmation.",
+    "kind": "owned-synthetic-stage-cleanup",
+    "isolated_stages_removed": 8,
+    "guarded_stage_checks": [
+      "Per-stage run-token identity",
+      "Canonical stage path",
+      "No live owned PID"
+    ],
+    "guard_evidence_scope": "Root confirmed these checks before deletion; token values and deletion commands are omitted.",
+    "native_application_started": false,
+    "original_installations_modified": false,
+    "exit_code": 0,
+    "statusbar": "start/running",
+    "awesome_state": "S (sleeping)",
+    "brightness": 12,
+    "warmth": 8,
+    "fresh_cleanup_lease_exact_release_recorded": true,
+    "native_restored_and_connections_closed": true,
+    "lease_directory_absent_after_recorded_release": true,
+    "lease_released": true
+  },
+  "evidence_scope": {
+    "completed_final_batches": [
+      "R7",
+      "R8"
+    ],
+    "exact_final_package_and_executed_cases_only": true,
+    "controlled_offline_receipt_fixtures": true,
+    "scripted_application_intents": true,
+    "framebuffer_memory_captures": true,
+    "independent_nonce_or_pixel_oracle_claimed": false,
+    "optical_panel_completion_claimed": false,
+    "optical_gray_levels_verified": false,
+    "finger_touch_claimed": false,
+    "hardware_y4_exercised": false,
+    "live_account_used": false,
+    "remote_account_writes": false,
+    "general_hardware_support_or_release_acceptance_claimed": false,
+    "r4_r6_fault_root_cause": "Unknown; no specific engine, shared cause, scale ratio, or width threshold is inferred.",
+    "raw_sidecars_databases_full_logs_secret_tokens_or_private_configuration_copied": false,
+    "authoring_operations": "Read-only existing host evidence, unchanged PNG transfers, and documentation/manifest authoring; no new tests or device operation."
+  },
+  "repository_file_count": 9,
+  "repository_files": [
+    {
+      "path": "r6-gray-hardware.png",
+      "bytes": 50902,
+      "sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109"
+    },
+    {
+      "path": "r7-evidence.json",
+      "bytes": 117769,
+      "sha256": "710dfc67f5b106334ea7823740bddf8ffcaddd382f2bf2dd6317a38c0fba74b5"
+    },
+    {
+      "path": "r7-final.png",
+      "bytes": 57303,
+      "sha256": "ddc5912b8bca631177de1cd8753911a2a89f4c50db21c67a6850bac6bc5ca968"
+    },
+    {
+      "path": "r7-gray-hardware.png",
+      "bytes": 50902,
+      "sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109"
+    },
+    {
+      "path": "r8-evidence.json",
+      "bytes": 42005,
+      "sha256": "8ebd1b7284295b903131a3803be4f20e83bcc4a7620e489e3fb1975c26bd706e"
+    },
+    {
+      "path": "r8-final.png",
+      "bytes": 51857,
+      "sha256": "a3df75af0ced03b2c8a0c185ecca50d6530f28afbc5b2fb201748fb0eebc2e81"
+    },
+    {
+      "path": "r8-gray-hardware.png",
+      "bytes": 50902,
+      "sha256": "5a76710d128c5d861979f6d132695195744eff19d8de2181370eb78ee6d44109"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5007,
+      "sha256": "caecb0daaf6a66bbcd64ec380d99aeacd6c07730fc25e20d3b999a8ca8276523"
+    }
+  ]
+}

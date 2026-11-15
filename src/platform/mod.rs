@@ -2,6 +2,8 @@ mod profile;
 mod refresh;
 #[cfg(test)]
 mod dithering_tests;
+#[cfg(test)]
+mod refresh_scene_tests;
 
 #[cfg(all(feature = "kindle", target_os = "linux"))]
 mod native;
@@ -9,9 +11,9 @@ mod native;
 mod native_capture;
 
 pub use profile::DeviceProfile;
-pub use refresh::{RefreshKind, RefreshPlan, RefreshReason, RefreshRect, RefreshScheduler};
+pub use refresh::{ReaderRefreshScene, RefreshKind, RefreshPlan, RefreshReason, RefreshRect, RefreshScheduler};
 
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
@@ -135,6 +137,7 @@ pub struct Platform {
     refresh_sink: Mutex<Option<Arc<dyn RefreshSink>>>,
     dithering_sink: Mutex<Option<Arc<dyn DitheringSink>>>,
     reader_hardware_y4: AtomicBool,
+    reader_refresh_scene: AtomicU8,
     #[cfg(all(feature = "kindle", target_os = "linux"))]
     performance_trace: Mutex<Option<slint_backend_kindle::PerformanceTraceHandle>>,
     started: Instant,
@@ -170,6 +173,7 @@ impl Platform {
             refresh_sink: Mutex::new(None),
             dithering_sink: Mutex::new(None),
             reader_hardware_y4: AtomicBool::new(false),
+            reader_refresh_scene: AtomicU8::new(ReaderRefreshScene::Normal as u8),
             #[cfg(all(feature = "kindle", target_os = "linux"))]
             performance_trace: Mutex::new(None),
             started: Instant::now(),
@@ -242,7 +246,21 @@ impl Platform {
         self.refresh
             .lock()
             .ok()?
-            .plan(reason, self.started.elapsed())
+            .plan_with_scene(reason, self.started.elapsed(), self.reader_refresh_scene())
+    }
+
+    /// Stage only the policy of the currently presented scene, not a pending
+    /// preference or decode. Frame publication owns this single state change.
+    pub fn set_reader_refresh_scene(&self, scene: ReaderRefreshScene) {
+        self.reader_refresh_scene.store(scene as u8, Ordering::Release);
+    }
+
+    pub fn reader_refresh_scene(&self) -> ReaderRefreshScene {
+        match self.reader_refresh_scene.load(Ordering::Acquire) {
+            1 => ReaderRefreshScene::FastContent,
+            2 => ReaderRefreshScene::FastOverlay,
+            _ => ReaderRefreshScene::Normal,
+        }
     }
 
     pub fn set_refresh_sink(&self, sink: Arc<dyn RefreshSink>) -> Result<(), PlatformError> {
@@ -307,6 +325,9 @@ impl Platform {
     }
 
     pub fn submit_refresh(&self, plan: RefreshPlan) -> Result<(), PlatformError> {
+        // Recheck at submission so a previously planned binary feedback event
+        // cannot force DU after gray controls have become the visible scene.
+        let plan = plan.for_reader_scene(self.reader_refresh_scene());
         let sink = self
             .refresh_sink
             .lock()
@@ -581,11 +602,13 @@ fn kindle_refresh_request(plan: RefreshPlan) -> slint_backend_kindle::RefreshReq
         RefreshKind::Full | RefreshKind::FlashUi | RefreshKind::FlashPartial => {
             (RefreshWaveform::Gc16, true)
         }
-        RefreshKind::Fast => (RefreshWaveform::Du, false),
+        RefreshKind::Fast | RefreshKind::FastFull => (RefreshWaveform::Du, false),
         RefreshKind::A2 => (RefreshWaveform::A2, false),
         RefreshKind::Ui | RefreshKind::Partial => (RefreshWaveform::Auto, false),
     };
-    let area = if let Some(rect) = plan.rect {
+    let area = if plan.kind == RefreshKind::FastFull {
+        RefreshArea::Full
+    } else if let Some(rect) = plan.rect {
         RefreshArea::Rect(PhysicalRect {
             x: i32::try_from(rect.x.saturating_mul(2)).unwrap_or(i32::MAX),
             y: i32::try_from(rect.y.saturating_mul(2)).unwrap_or(i32::MAX),

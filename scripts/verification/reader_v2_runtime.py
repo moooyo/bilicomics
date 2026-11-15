@@ -469,11 +469,20 @@ def page_setup(page, direction="ltr"):
 def beginning_closes_menu(case):
     width, height = case.size
     require(not (case.landscape and width >= 1100), "The SC landscape reference has no beginning control")
-    case.click("open-reading-menu", (width // 2, height // 2))
+    fit = case.state["fit"]
+    case.click_reader("open-reading-menu", (width // 2, height // 2), {
+        "page_number": 5, "fit": fit, "menu": True, "sheet": "",
+    })
     case.snapshot("menu-before-beginning")
-    point = (89, height - 136) if case.profile == "scribe" else (61, height - 114)
+    toolbar_height, row_height = (208, 56) if case.profile == "scribe" else (184, 48)
+    point = (89 if case.profile == "scribe" else 61, height - toolbar_height + 8 + row_height // 2)
+    case.result["beginning_control_target"] = {
+        "client": list(point), "toolbar_height": toolbar_height,
+        "row_top": 8, "row_height": row_height,
+        "source": "Current reader toolbar first row; the following row contains fit choices",
+    }
     case.click_reader("beginning-with-menu-open", point, {
-        "page_number": 1, "crop_index": 0, "transition": False, "menu": False, "sheet": "",
+        "page_number": 1, "crop_index": 0, "transition": False, "menu": False, "sheet": "", "fit": fit,
     })
     case.final_expected = {"menu": False, "sheet": ""}
     case.visual_review("beginning-with-menu-open", [

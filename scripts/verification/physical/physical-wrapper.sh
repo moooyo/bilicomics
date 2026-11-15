@@ -435,7 +435,7 @@ if [ -e "$logs/content-mode" ] || [ -L "$logs/content-mode" ]; then
 fi
 case "$content_mode" in
     demo) ;;
-    distinct_fixture)
+    distinct_fixture|media_fixture)
         # The production launcher supplies exactly one isolated data directory.
         [ "$#" -eq 5 ] && [ "$1" = --kindle ] && [ "$2" = --device ] \
             && [ "$4" = --data-dir ] && [ "$5" = "$run_root/data" ] && [ "$screen" = reader ] || exit 2
@@ -464,7 +464,28 @@ case "$performance_trace" in
     1) set -- "$@" --performance-trace "$logs/performance.jsonl" ;;
     *) exit 2 ;;
 esac
-[ "$content_mode" != distinct_fixture ] || [ "$performance_trace" = 1 ] || exit 2
+case "$content_mode" in distinct_fixture|media_fixture) [ "$performance_trace" = 1 ] || exit 2 ;; esac
+if [ "$content_mode" = media_fixture ]; then
+    actions_relative=$(read_exact_record "$logs/media-actions-path") || exit 2
+    actions_digest=$(read_exact_record "$logs/media-actions-sha256") || exit 2
+    actions_bytes=$(read_exact_record "$logs/media-actions-bytes") || exit 2
+    case "$actions_relative" in data/*.json) ;; *) exit 2 ;; esac
+    actions_name=${actions_relative#data/}
+    actions_name=${actions_name%.json}
+    case "$actions_name" in ''|*[!a-z0-9-]*|-*) exit 2 ;; esac
+    [ "${#actions_name}" -le 63 ] || exit 2
+    case "$actions_digest" in ''|*[!0-9a-f]*) exit 2 ;; esac
+    [ "${#actions_digest}" -eq 64 ] || exit 2
+    case "$actions_bytes" in ''|*[!0-9]*|0*) exit 2 ;; esac
+    [ "${#actions_bytes}" -le 6 ] && [ "$actions_bytes" -le 131072 ] || exit 2
+    [ "$(read_exact_record "$logs/media-actions-approved" 512)" = "$token|$fixture_digest|$actions_relative|$actions_digest|$actions_bytes" ] || exit 2
+    actions_path=$run_root/$actions_relative
+    [ -f "$actions_path" ] && [ ! -L "$actions_path" ] \
+        && [ "$(readlink -f "$actions_path")" = "$actions_path" ] \
+        && [ "$(stat -c '%s' "$actions_path")" = "$actions_bytes" ] \
+        && [ "$(sha256sum "$actions_path" | awk '{ print $1 }')" = "$actions_digest" ] || exit 2
+    set -- "$@" --actions "$actions_path"
+fi
 
 # exec retains the PID expected by the production launcher's signal bridge.
 stat_tail=$(sed 's/^.*) //' "/proc/$$/stat")
@@ -483,7 +504,7 @@ tr '\000' '\n' <"/proc/$parent_pid/environ" | grep -F -x "BILICOMICS_PHYSICAL_TO
 publish_line runner.identity "$parent_pid|$parent_ticks|$parent_exe|$launcher_pid|$token" || exit 2
 publish_line native.pid "$$" || exit 2
 publish_line native.identity "$$|$start_ticks|$real_binary|$parent_pid|$token" || exit 2
-if [ "$content_mode" = distinct_fixture ]; then
+if [ "$content_mode" = distinct_fixture ] || [ "$content_mode" = media_fixture ]; then
     # The guard installs and proves its filter before the same PID execs the ARM.
     exec "$socket_guard" --proof-file "$logs/ui-socket-guard.json" -- "$real_binary" "$@" --offline --screen "$screen" \
         --lifecycle-trace "$logs/lifecycle.jsonl" --exit-after-ms "$duration"

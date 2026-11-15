@@ -25,7 +25,8 @@ import uuid
 
 PHASES = ("core", "defaults", "pointer", "reader", "guest", "startup", "lifecycle", "launcher", "package")
 SOURCE_TREES = ("assets", "src", "ui", "vendor", "tests")
-ROOT_INPUTS = ("Cargo.toml", "Cargo.lock", "build.rs", ".cargo/config.toml")
+ROOT_INPUTS = ("Cargo.toml", "Cargo.lock", "build.rs", ".cargo/config.toml",
+               "scripts/native-codec-probe.c", "scripts/native-codec-bench.h")
 PIPELINE_TREES = ("scripts", "packaging")
 LIFECYCLE_KEYS = ("BILICOMICS_LIFECYCLE_DIR", "BILICOMICS_LAUNCH_TOKEN", "BILICOMICS_LAUNCH_GENERATION")
 

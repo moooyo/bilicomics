@@ -44,6 +44,8 @@ observer_anchor_generation=''
 observer_anchor_nonce=''
 cleanup_started=0
 recovery_complete=1
+media_worker_recovery_blocked=0
+media_worker_wait_deadline=''
 reason=unexpected-exit
 ready_seen=0
 statusbar_was_running=0
@@ -543,11 +545,65 @@ record_observer_group_members() {
         if ! grep -F -x "$observer_member_line" "$logs/owned-processes.tsv" >/dev/null 2>&1; then
             printf '%s\n' "$observer_member_line" >>"$logs/owned-processes.tsv" || recovery_complete=0
         fi
+        if observer_sleep_member "$observer_member_pid" "$observer_member_ticks" "$observer_member_exe" "$observer_member_parent"; then
+            observer_sleep_line=$observer_member_pid'|'$observer_member_ticks'|'$observer_member_exe'|'$observer_member_parent'|observer-sleep'
+            if ! grep -F -x "$observer_sleep_line" "$logs/owned-processes.tsv" >/dev/null 2>&1; then
+                printf '%s\n' "$observer_sleep_line" >>"$logs/owned-processes.tsv" || recovery_complete=0
+            fi
+        fi
         observer_member_line=$observer_member_line'|'$observer_anchor_pid'|'$observer_anchor_pid
         if ! grep -F -x "$observer_member_line" "$logs/observer-group-members.tsv" >/dev/null 2>&1; then
             printf '%s\n' "$observer_member_line" >>"$logs/observer-group-members.tsv" || recovery_complete=0
         fi
     done
+}
+observer_sleep_member() {
+    sleep_member_pid=$1
+    sleep_member_ticks=$2
+    sleep_member_exe=$3
+    sleep_member_parent=$4
+    sleep_parent_ticks=$(proc_ticks "$sleep_member_parent")
+    sleep_parent_exe=$(proc_exe "$sleep_member_parent" || :)
+    recorded_observer_anchor "$sleep_member_parent" "$sleep_parent_ticks" "$sleep_parent_exe" \
+        && same_process "$sleep_member_parent" "$sleep_parent_ticks" "$sleep_parent_exe" || return 1
+    [ "$(proc_parent "$sleep_member_pid")" = "$sleep_member_parent" ] \
+        && [ "$(proc_group_session "$sleep_member_pid")" = "$observer_anchor_pid:$observer_anchor_pid" ] || return 1
+    sleep_command=$(command -v sleep 2>/dev/null || :)
+    case "$sleep_command" in
+        /*) [ "$(readlink -f "$sleep_command" 2>/dev/null || :)" = "$sleep_member_exe" ] || return 1 ;;
+        sleep) case "$sleep_member_exe" in /bin/busybox|/usr/bin/busybox) ;; *) return 1 ;; esac ;;
+        *) return 1 ;;
+    esac
+    sleep_arguments=$(tr '\000' '\n' <"/proc/$sleep_member_pid/cmdline" 2>/dev/null) || return 1
+    [ "$sleep_arguments" = "$(printf 'sleep\n1')" ] \
+        && [ "$(wc -c <"/proc/$sleep_member_pid/cmdline" 2>/dev/null)" -eq 8 ] \
+        && same_process "$sleep_member_pid" "$sleep_member_ticks" "$sleep_member_exe"
+}
+observer_group_has_media_worker() {
+    for protected_member_dir in /proc/[0-9]*; do
+        protected_member_pid=${protected_member_dir#/proc/}
+        [ "$(proc_group_session "$protected_member_pid")" = "$observer_anchor_pid:$observer_anchor_pid" ] || continue
+        protected_member_ticks=$(proc_ticks "$protected_member_pid")
+        protected_member_state=$(proc_state "$protected_member_pid")
+        case "$protected_member_state" in Z|X|'') continue ;; esac
+        protected_member_exe=$(proc_exe "$protected_member_pid" || :)
+        protected_member_parent=$(proc_parent "$protected_member_pid")
+        if [ "$protected_member_exe" != "$run_root/app/kindle-jpeg-worker" ] \
+            && ! recorded_ui_child "$protected_member_pid" "$protected_member_ticks" \
+            && same_process "$protected_member_pid" "$protected_member_ticks" "$protected_member_exe" \
+            && recorded_observer_member "$protected_member_pid" "$protected_member_ticks" "$protected_member_exe"; then
+            continue
+        fi
+        # A group signal cannot exclude a DMA owner or an unbound member
+        # that could still exec into one. Membership alone grants no signal.
+        media_worker_recovery_blocked=1
+        recovery_complete=0
+        printf 'Observer group signal withheld for an exact media worker or unbound member: %s|%s|%s|%s\n' \
+            "$protected_member_pid" "$protected_member_ticks" "$protected_member_exe" \
+            "$protected_member_parent" >>"$logs/recovery.log"
+        return 0
+    done
+    return 1
 }
 stop_owned_observer_group() {
     # Preserve the anchor until this point. It pins the private PGID/SID even
@@ -555,6 +611,7 @@ stop_owned_observer_group() {
     observer_group_target_matches || return 0
     record_observer_group_members
     observer_group_target_matches || { recovery_complete=0; return 0; }
+    observer_group_has_media_worker && return 0
     if kill -KILL "-$observer_anchor_pid" 2>/dev/null; then
         printf 'A proven observer group received KILL: %s\n' "$observer_anchor_pid" >>"$logs/recovery.log"
     elif observer_group_target_matches; then
@@ -577,14 +634,18 @@ discover_children() {
     fallback_scan=0
     while IFS='|' read -r parent_pid parent_ticks parent_exe parent_parent parent_role; do
         same_process "$parent_pid" "$parent_ticks" "$parent_exe" || continue
-        children_file=/proc/$parent_pid/task/$parent_pid/children
-        if [ -r "$children_file" ]; then
-            child_numbers=''
-            IFS= read -r child_numbers <"$children_file" || :
-            for discover_pid in $child_numbers; do record_process "$discover_pid" "$parent_pid" descendant; done
-        else
-            fallback_scan=1
-        fi
+        parent_tasks_seen=0
+        for children_file in /proc/$parent_pid/task/[0-9]*/children; do
+            if [ -r "$children_file" ]; then
+                parent_tasks_seen=1
+                child_numbers=''
+                IFS= read -r child_numbers <"$children_file" || :
+                for discover_pid in $child_numbers; do record_process "$discover_pid" "$parent_pid" descendant; done
+            else
+                fallback_scan=1
+            fi
+        done
+        [ "$parent_tasks_seen" -ne 0 ] || fallback_scan=1
     done <"$logs/owned-processes.tsv"
     if [ "$fallback_scan" -eq 1 ]; then
         for process_dir in /proc/[0-9]*; do
@@ -599,6 +660,12 @@ discover_children() {
 }
 signal_record() {
     same_process "$1" "$2" "$3" || return 0
+    if [ "$3" = "$run_root/app/kindle-jpeg-worker" ]; then
+        printf 'Exact media worker reserved for natural exit, not %s: %s|%s|%s\n' \
+            "$4" "$1" "$2" "$3" >>"$logs/recovery.log"
+        return 0
+    fi
+    recorded_signal_role "$1" "$2" "$3" || return 0
     kill "-$4" "$1" 2>/dev/null || :
 }
 recorded_observer_anchor() {
@@ -622,6 +689,7 @@ signal_descendants() {
             fi
             continue
         fi
+        case "$child_role" in runner|application|relay|power-event|source-runner) ;; *) continue ;; esac
         if [ "$observer_group_proven" -eq 1 ] && same_process "$child_pid" "$child_ticks" "$child_exe" \
             && [ "$(proc_group_session "$child_pid")" = "$observer_anchor_pid:$observer_anchor_pid" ]; then
             # A group signal must retain its live anchor or member pin. Killing
@@ -630,6 +698,172 @@ signal_descendants() {
         fi
         signal_record "$child_pid" "$child_ticks" "$child_exe" "$requested_signal"
     done <"$logs/owned-processes.tsv"
+}
+recorded_signal_role() {
+    signal_role_pid=$1
+    signal_role_ticks=$2
+    signal_role_exe=$3
+    while IFS='|' read -r signal_known_pid signal_known_ticks signal_known_exe signal_known_parent signal_known_role; do
+        [ "$signal_role_pid:$signal_role_ticks:$signal_role_exe" = "$signal_known_pid:$signal_known_ticks:$signal_known_exe" ] || continue
+        case "$signal_known_role" in runner|application|relay|power-event|source-runner) return 0 ;; esac
+    done <"$logs/owned-processes.tsv"
+    return 1
+}
+recorded_observer_member() {
+    observer_role_pid=$1
+    observer_role_ticks=$2
+    observer_role_exe=$3
+    while IFS='|' read -r observer_known_pid observer_known_ticks observer_known_exe observer_known_parent observer_known_role; do
+        [ "$observer_role_pid:$observer_role_ticks:$observer_role_exe" = "$observer_known_pid:$observer_known_ticks:$observer_known_exe" ] || continue
+        case "$observer_known_role" in observer|observer-anchor|relay|power-event|source-runner|observer-sleep) return 0 ;; esac
+    done <"$logs/owned-processes.tsv"
+    return 1
+}
+recorded_application_parent() {
+    application_parent_pid=$1
+    while IFS='|' read -r application_known_pid application_known_ticks application_known_exe application_known_parent application_known_role; do
+        [ "$application_known_role" = application ] && [ "$application_known_pid" = "$application_parent_pid" ] || continue
+        [ "$application_known_exe" = "$run_root/app/$(read_one "$logs/binary-name")" ] && return 0
+    done <"$logs/owned-processes.tsv"
+    return 1
+}
+recorded_ui_child() {
+    ui_child_pid=$1
+    ui_child_ticks=$2
+    while IFS='|' read -r ui_known_pid ui_known_ticks ui_known_exe ui_known_parent ui_known_role; do
+        [ "$ui_known_role" = descendant ] && [ "$ui_child_pid:$ui_child_ticks" = "$ui_known_pid:$ui_known_ticks" ] || continue
+        recorded_application_parent "$ui_known_parent" && return 0
+    done <"$logs/owned-processes.tsv"
+    return 1
+}
+recorded_media_worker() {
+    media_record_pid=$1
+    media_record_ticks=$2
+    while IFS='|' read -r media_known_pid media_known_ticks media_known_exe media_known_parent media_known_role; do
+        [ "$media_record_pid:$media_record_ticks" = "$media_known_pid:$media_known_ticks" ] || continue
+        [ "$media_known_exe" = "$run_root/app/kindle-jpeg-worker" ] || continue
+        case "$media_known_parent" in *[!0-9]*|''|0) continue ;; esac
+        case "$media_known_role" in descendant|observer-group) return 0 ;; esac
+    done <"$logs/owned-processes.tsv"
+    return 1
+}
+process_birth_exited() {
+    exited_pid=$1
+    exited_ticks=$2
+    case "$exited_pid:$exited_ticks" in *[!0-9:]*|:*|*:) return 1 ;; esac
+    [ "$exited_pid" -gt 1 ] || return 1
+    [ -d "/proc/$exited_pid" ] || return 0
+    exited_current_ticks=$(proc_ticks "$exited_pid")
+    [ -n "$exited_current_ticks" ] || return 1
+    [ "$exited_current_ticks" = "$exited_ticks" ] || return 0
+    case "$(proc_state "$exited_pid")" in Z|X) return 0 ;; esac
+    return 1
+}
+media_producers_gone() {
+    producers_gone=1
+    if [ -n "$launcher_pid" ] && ! process_birth_exited "$launcher_pid" "$launcher_ticks"; then
+        producers_gone=0
+    fi
+    while IFS='|' read -r producer_pid producer_ticks producer_exe producer_parent producer_role; do
+        case "$producer_role" in application|runner) ;; *) continue ;; esac
+        if ! process_birth_exited "$producer_pid" "$producer_ticks"; then
+            producers_gone=0
+            printf 'Waiting for recorded media producer exit: %s|%s|%s|%s\n' \
+                "$producer_pid" "$producer_ticks" "$producer_exe" "$producer_role" >>"$logs/recovery.log"
+        fi
+    done <"$logs/owned-processes.tsv"
+    if [ -e "$logs/native.identity" ] || [ -L "$logs/native.identity" ]; then
+        [ -f "$logs/native.identity" ] && [ ! -L "$logs/native.identity" ] || return 1
+        producer_identity=$(read_one "$logs/native.identity")
+        IFS='|' read -r native_producer_pid native_producer_ticks native_producer_exe native_producer_parent native_producer_token <<EOF
+$producer_identity
+EOF
+        case "$native_producer_pid:$native_producer_ticks:$native_producer_parent" in *[!0-9:]*|:*|*:) return 1 ;; esac
+        [ "$producer_identity" = "$native_producer_pid|$native_producer_ticks|$native_producer_exe|$native_producer_parent|$token" ] \
+            && [ "$native_producer_exe" = "$run_root/app/$(read_one "$logs/binary-name")" ] || return 1
+        process_birth_exited "$native_producer_pid" "$native_producer_ticks" || producers_gone=0
+    fi
+    [ "$producers_gone" -eq 1 ]
+}
+wait_for_media_workers() {
+    # Share one five-second drain budget across cleanup checks. The host stop
+    # deadline must still cover the existing launcher and native recovery.
+    if [ -z "$media_worker_wait_deadline" ]; then
+        media_worker_wait_deadline=$(( $(now_seconds) + 5 ))
+    fi
+    while :; do
+        discover_children || { recovery_complete=0; media_worker_recovery_blocked=1; return 1; }
+        media_worker_pending=0
+        media_producers_gone || media_worker_pending=1
+        # A forked UI child can still have the application's old executable
+        # before pre_exec/exec. Pin PID/birth and ancestry until natural exit;
+        # an executable-name check alone cannot close that signal race.
+        while IFS='|' read -r media_ui_pid media_ui_ticks media_ui_exe media_ui_parent media_ui_role; do
+            if [ "$media_ui_exe" != "$run_root/app/kindle-jpeg-worker" ]; then
+                [ "$media_ui_role" = descendant ] && recorded_ui_child "$media_ui_pid" "$media_ui_ticks" || continue
+            fi
+            [ "$(proc_ticks "$media_ui_pid")" = "$media_ui_ticks" ] || continue
+            case "$(proc_state "$media_ui_pid")" in Z|X|'') continue ;; esac
+            media_ui_current_exe=$(proc_exe "$media_ui_pid" || :)
+            if ! has_token "$media_ui_pid" || [ -z "$media_ui_current_exe" ] \
+                || { [ "$media_ui_exe" = "$run_root/app/kindle-jpeg-worker" ] && [ "$media_ui_current_exe" != "$media_ui_exe" ]; }; then
+                [ "$(proc_ticks "$media_ui_pid")" = "$media_ui_ticks" ] || continue
+                case "$(proc_state "$media_ui_pid")" in Z|X|'') continue ;; esac
+                recovery_complete=0
+                media_worker_recovery_blocked=1
+                printf 'Recorded media owner identity is unproven; recovery withheld: %s|%s|%s|%s\n' \
+                    "$media_ui_pid" "$media_ui_ticks" "$media_ui_current_exe" "$media_ui_parent" >>"$logs/recovery.log"
+                return 1
+            fi
+            if [ "$media_ui_current_exe" = "$run_root/app/kindle-jpeg-worker" ] \
+                && ! recorded_media_worker "$media_ui_pid" "$media_ui_ticks" \
+                && same_process "$media_ui_pid" "$media_ui_ticks" "$media_ui_current_exe"; then
+                printf '%s|%s|%s|%s|descendant\n' "$media_ui_pid" "$media_ui_ticks" \
+                    "$media_ui_current_exe" "$media_ui_parent" >>"$logs/owned-processes.tsv" || {
+                    recovery_complete=0; media_worker_recovery_blocked=1; return 1;
+                }
+            fi
+            media_worker_pending=1
+            printf 'Waiting for potential UI media owner natural exit: %s|%s|%s|%s|token-matched\n' \
+                "$media_ui_pid" "$media_ui_ticks" "$media_ui_current_exe" "$media_ui_parent" >>"$logs/recovery.log"
+        done <"$logs/owned-processes.tsv"
+        for media_candidate_dir in /proc/[0-9]*; do
+            media_candidate_pid=${media_candidate_dir#/proc/}
+            [ "$(proc_exe "$media_candidate_pid" || :)" = "$run_root/app/kindle-jpeg-worker" ] || continue
+            media_candidate_ticks=$(proc_ticks "$media_candidate_pid")
+            media_candidate_state=$(proc_state "$media_candidate_pid")
+            case "$media_candidate_state" in Z|X|'') continue ;; esac
+            media_candidate_token=unproven
+            # An unrecorded exact-path candidate with a missing token also
+            # blocks shutdown; discovery never grants it signal authority.
+            if has_token "$media_candidate_pid"; then
+                media_candidate_token=matched
+            fi
+            if ! same_process "$media_candidate_pid" "$media_candidate_ticks" "$run_root/app/kindle-jpeg-worker" \
+                || ! recorded_media_worker "$media_candidate_pid" "$media_candidate_ticks"; then
+                # The child may have exited between the read-only samples.
+                [ "$(proc_ticks "$media_candidate_pid")" = "$media_candidate_ticks" ] || continue
+                case "$(proc_state "$media_candidate_pid")" in Z|X|'') continue ;; esac
+                recovery_complete=0
+                media_worker_recovery_blocked=1
+                printf 'Exact media worker ownership is unproven; recovery withheld: %s|%s|%s|%s|token-%s\n' \
+                    "$media_candidate_pid" "$media_candidate_ticks" "$run_root/app/kindle-jpeg-worker" \
+                    "$(proc_parent "$media_candidate_pid")" "$media_candidate_token" >>"$logs/recovery.log"
+                return 1
+            fi
+            media_worker_pending=1
+            printf 'Waiting for exact media worker natural exit: %s|%s|%s|%s|%s|token-matched\n' \
+                "$media_candidate_pid" "$media_candidate_ticks" "$media_known_exe" "$media_known_parent" "$media_known_role" >>"$logs/recovery.log"
+        done
+        [ "$media_worker_pending" -ne 0 ] || return 0
+        if [ "$(now_seconds)" -ge "$media_worker_wait_deadline" ]; then
+            recovery_complete=0
+            media_worker_recovery_blocked=1
+            printf '%s\n' 'Media producer or owner natural-exit deadline expired; storage and watchdog control cleanup are withheld.' >>"$logs/recovery.log"
+            return 1
+        fi
+        sleep 1
+    done
 }
 restore_native() {
     restoration_allowed=0
@@ -720,10 +954,17 @@ remove_owned_lock() {
     rm -f "$lock/log-stopping"
     rmdir "$lock" 2>/dev/null || recovery_complete=0
 }
+publish_cleanup_result() {
+    if [ -e "$lock" ] || [ -L "$lock" ]; then printf '%s\n' present >"$logs/launcher-lock-after.txt"; else printf '%s\n' absent >"$logs/launcher-lock-after.txt"; fi
+    printf '%s|%s|%s|%s\n' "$token" "$reason" "$recovery_complete" "$launcher_status" >"$logs/watchdog.done.pending"
+    mv "$logs/watchdog.done.pending" "$logs/watchdog.done"
+    [ "$recovery_complete" -eq 1 ]
+}
 cleanup() {
     [ "$cleanup_started" -eq 0 ] || return 0
     cleanup_started=1
-    # Evidence storage failure must never skip remaining native restoration.
+    # Continue after evidence I/O errors; codec ownership still gates native
+    # restoration and control-file removal.
     set +e
     trap '' HUP INT TERM
     trap - 0
@@ -764,6 +1005,14 @@ cleanup() {
             printf '%s\n' 'The launcher did not reach a reapable state.' >>"$logs/recovery.log"
         fi
     fi
+    if [ "$media_worker_recovery_blocked" -eq 0 ] && wait_for_media_workers; then
+        media_worker_drained=1
+    else
+        media_worker_drained=0
+        reason=media-worker-recovery-blocked
+        recovery_complete=0
+        printf '%s\n' 'Watchdog final cleanup is withheld; launcher may already have restored native display. Stage, worker storage and ownership evidence remain retained.' >>"$logs/recovery.log"
+    fi
     while IFS='|' read -r child_pid child_ticks child_exe child_parent child_role; do
         if same_process "$child_pid" "$child_ticks" "$child_exe"; then
             recovery_complete=0
@@ -780,13 +1029,12 @@ cleanup() {
         recovery_complete=0
         printf 'An unproven owned-token process requires operator review: %s|%s|%s|%s\n' "$orphan_pid" "$(proc_ticks "$orphan_pid")" "$(proc_exe "$orphan_pid" || :)" "$(proc_parent "$orphan_pid")" >>"$logs/recovery.log"
     done
-    restore_native
-    if [ "$recovery_complete" -eq 1 ]; then remove_owned_lock; fi
-    remove_verified_elf_receipt
-    if [ -e "$lock" ] || [ -L "$lock" ]; then printf '%s\n' present >"$logs/launcher-lock-after.txt"; else printf '%s\n' absent >"$logs/launcher-lock-after.txt"; fi
-    printf '%s|%s|%s|%s\n' "$token" "$reason" "$recovery_complete" "$launcher_status" >"$logs/watchdog.done.pending"
-    mv "$logs/watchdog.done.pending" "$logs/watchdog.done"
-    [ "$recovery_complete" -eq 1 ]
+    if [ "$media_worker_drained" -eq 1 ]; then
+        restore_native
+        if [ "$recovery_complete" -eq 1 ]; then remove_owned_lock; fi
+        remove_verified_elf_receipt
+    fi
+    publish_cleanup_result
 }
 
 trap 'cleanup' 0

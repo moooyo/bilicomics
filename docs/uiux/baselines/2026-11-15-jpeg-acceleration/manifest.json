@@ -1,0 +1,251 @@
+{
+  "run_id": "bilicomics-native-media-20261115-01a1d11a-r3/media-ui-final",
+  "source_commit": "2da87ab512fded000174b7542767082a3a94e147",
+  "source_worktree_clean": false,
+  "source_fingerprint": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+  "source_manifest": "source-inputs.sha256",
+  "source_manifest_sha256": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+  "source_input_count": 514,
+  "application_version": "0.1.25",
+  "binary_sha256": "0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c",
+  "capture_host": "test-env",
+  "renderer": "Slint winit software renderer",
+  "scale_factor": 2,
+  "input": "Actual XTest pointer input for the six captured sessions; scripted policy cases are separate and excluded from screenshot acceptance.",
+  "date_in_user_timezone": "2026-11-15",
+  "timezone": "Asia/Shanghai",
+  "supplement_to": "../2026-11-14-v0.1.25",
+  "raw_pixel_processing": "None. Original PNG files and JSON sidecars are copied byte for byte from the final R3 outputs.",
+  "preview_processing": "None. This supplement contains no derived previews.",
+  "capture_stability": "Minimum 1.5-second settle, followed by three consecutive identical X11 samples.",
+  "capture_count": 6,
+  "profiles": {
+    "pw6": {
+      "portrait_pixels": [
+        1264,
+        1680
+      ],
+      "count": 3
+    },
+    "scribe": {
+      "portrait_pixels": [
+        1860,
+        2480
+      ],
+      "count": 3
+    }
+  },
+  "offline_demo_used": true,
+  "live_account_used": false,
+  "physical_kindle_used": false,
+  "firmware_emulator_used": false,
+  "native_driver_exercised": false,
+  "hardware_compatibility_claimed": false,
+  "visual_review_status": "reviewed",
+  "visual_review_record": "verification.json",
+  "original_capture_report": "capture-report.json",
+  "original_run_metadata": "capture-run.json",
+  "captures": [
+    {
+      "id": "10-account-reading",
+      "profile": "pw6",
+      "file": "raw/pw6/10-account-reading.png",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "02164895a75df2779ac32b50db444ef3d580913f8508c93060adb549a95cce0f",
+      "captured_at": "2026-11-15T14:05:24.637949+00:00",
+      "session": "account",
+      "logical_size": [
+        632,
+        840
+      ],
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.988
+      }
+    },
+    {
+      "id": "20-reader-settings",
+      "profile": "pw6",
+      "file": "raw/pw6/20-reader-settings.png",
+      "width": 1264,
+      "height": 1680,
+      "sha256": "792e43ff484bd88ba8e0779e30a56925cc699bb1b9bd1dbc71d36928f2e05c6f",
+      "captured_at": "2026-11-15T14:05:30.741610+00:00",
+      "session": "reader-portrait",
+      "logical_size": [
+        632,
+        840
+      ],
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.987
+      }
+    },
+    {
+      "id": "27-reader-settings-landscape",
+      "profile": "pw6",
+      "file": "raw/pw6/27-reader-settings-landscape.png",
+      "width": 1680,
+      "height": 1264,
+      "sha256": "84e41717eb256af42d939047e93a35008729007748356b44264db7da5050f8dd",
+      "captured_at": "2026-11-15T14:05:36.853044+00:00",
+      "session": "reader-landscape",
+      "logical_size": [
+        840,
+        632
+      ],
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 0.985
+      }
+    },
+    {
+      "id": "10-account-reading",
+      "profile": "scribe",
+      "file": "raw/scribe/10-account-reading.png",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "c48e0daf52f72ddb163e73e2903d0814b045c9d33cde6f9bbbed4721565ca6b4",
+      "captured_at": "2026-11-15T14:05:59.704590+00:00",
+      "session": "account",
+      "logical_size": [
+        930,
+        1240
+      ],
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.063
+      }
+    },
+    {
+      "id": "20-reader-settings",
+      "profile": "scribe",
+      "file": "raw/scribe/20-reader-settings.png",
+      "width": 1860,
+      "height": 2480,
+      "sha256": "1a6898915c1b3b339b5a37ee7f3b2b3387d54f8a89fc7be85ce3bfe2b6be55b6",
+      "captured_at": "2026-11-15T14:06:06.892370+00:00",
+      "session": "reader-portrait",
+      "logical_size": [
+        930,
+        1240
+      ],
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.065
+      }
+    },
+    {
+      "id": "27-reader-settings-landscape",
+      "profile": "scribe",
+      "file": "raw/scribe/27-reader-settings-landscape.png",
+      "width": 2480,
+      "height": 1860,
+      "sha256": "c7411827b397964628ba63462f5e965918e27b9e022df6c67f3942cee75bc777",
+      "captured_at": "2026-11-15T14:06:14.996309+00:00",
+      "session": "reader-landscape",
+      "logical_size": [
+        1240,
+        930
+      ],
+      "stability": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "sampling_seconds": 1.07
+      }
+    }
+  ],
+  "repository_files": [
+    {
+      "path": "capture-report.json",
+      "bytes": 147234,
+      "sha256": "0de9006ea93f38f7d99c2e3fa467534753c793b52ff7204d24cd0b62295fda30"
+    },
+    {
+      "path": "capture-run.json",
+      "bytes": 1441,
+      "sha256": "5ca5c2578685ed8a779f9fdb79278e0e20f95cd0725c4c93ad7bfccf10635e4a"
+    },
+    {
+      "path": "raw/pw6/10-account-reading.json",
+      "bytes": 3336,
+      "sha256": "b8484b86222ef57bdb9222ef56b5e4084128cdc2185aedcf5b02f6ef1a20cf4b"
+    },
+    {
+      "path": "raw/pw6/10-account-reading.png",
+      "bytes": 107002,
+      "sha256": "02164895a75df2779ac32b50db444ef3d580913f8508c93060adb549a95cce0f"
+    },
+    {
+      "path": "raw/pw6/20-reader-settings.json",
+      "bytes": 7266,
+      "sha256": "e5d941d9f7067ad89e1a0d40ffc6d52cec419536ca7b72c6ca4365d73b047b8e"
+    },
+    {
+      "path": "raw/pw6/20-reader-settings.png",
+      "bytes": 113434,
+      "sha256": "792e43ff484bd88ba8e0779e30a56925cc699bb1b9bd1dbc71d36928f2e05c6f"
+    },
+    {
+      "path": "raw/pw6/27-reader-settings-landscape.json",
+      "bytes": 7286,
+      "sha256": "440ccdd943c9c6addb97c4a9a63835980e8dee17ffbd654f0355d0d61caae24d"
+    },
+    {
+      "path": "raw/pw6/27-reader-settings-landscape.png",
+      "bytes": 108512,
+      "sha256": "84e41717eb256af42d939047e93a35008729007748356b44264db7da5050f8dd"
+    },
+    {
+      "path": "raw/scribe/10-account-reading.json",
+      "bytes": 3350,
+      "sha256": "ca37d9888f638d624ee3cbafb9d81329168d121ff0064a87e75a142ac780f07c"
+    },
+    {
+      "path": "raw/scribe/10-account-reading.png",
+      "bytes": 169614,
+      "sha256": "c48e0daf52f72ddb163e73e2903d0814b045c9d33cde6f9bbbed4721565ca6b4"
+    },
+    {
+      "path": "raw/scribe/20-reader-settings.json",
+      "bytes": 7263,
+      "sha256": "5b7caae0939cc41a8f7cd9a6bed2d2c84808fc0e9c271efab09739ea27f0edaf"
+    },
+    {
+      "path": "raw/scribe/20-reader-settings.png",
+      "bytes": 160335,
+      "sha256": "1a6898915c1b3b339b5a37ee7f3b2b3387d54f8a89fc7be85ce3bfe2b6be55b6"
+    },
+    {
+      "path": "raw/scribe/27-reader-settings-landscape.json",
+      "bytes": 7287,
+      "sha256": "7b84675bb2c8730ce08a105a604a9b804105aceba363d2cb52c34d8154ab3c0e"
+    },
+    {
+      "path": "raw/scribe/27-reader-settings-landscape.png",
+      "bytes": 184770,
+      "sha256": "c7411827b397964628ba63462f5e965918e27b9e022df6c67f3942cee75bc777"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5185,
+      "sha256": "acb9018e4932500ed1767fd916a9b7d6054dc2a62122d6aeb8aad9df07085345"
+    },
+    {
+      "path": "source-inputs.sha256",
+      "bytes": 55147,
+      "sha256": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55"
+    },
+    {
+      "path": "verification.json",
+      "bytes": 14476,
+      "sha256": "b5f99037d70e6647a33fadc1c6c59a01d26bd17aafef3452e27468bcacaf58db"
+    }
+  ]
+}

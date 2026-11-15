@@ -1,6 +1,17 @@
 # UI/UX baselines
 
-The current frozen implementation baseline is
+Use the reviewed [2026-11-16 persistent fast reading update](baselines/2026-11-16-fast-mode/README.md)
+for Normal/Fast default settings (`10`), per-comic reader settings (`20`, `27`),
+and quiet Fast pages (`14`, `25`). It preserves twenty native-resolution
+Paperwhite 6 and Scribe portrait/landscape captures, exact source/binary
+identities, preference recovery, and disabled periodic-clearing checks.
+
+Use the reviewed [2026-11-15 JPEG settings update](baselines/2026-11-15-jpeg-acceleration/README.md)
+as the earlier six-image JPEG-control record. Its captures remain immutable;
+the newer fast-mode supplement records the subsequently added settings.
+Other scenes retain the complete baseline below.
+
+The complete frozen implementation baseline is
 [2026-11-14 / v0.1.25](baselines/2026-11-14-v0.1.25/README.md).
 It contains 51 untouched application screenshots for Paperwhite 6 and Scribe,
 page indexes, overview sheets, four-fit comparisons, and an exported viewer.

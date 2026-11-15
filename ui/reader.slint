@@ -1,6 +1,6 @@
 import { Theme } from "theme.slint";
 import { Strings } from "strings.slint";
-import { ActionButton, IconButton, Icon, NavigationButton, StatusBar, DashedOutline } from "widgets.slint";
+import { ActionButton, IconButton, Icon, NavigationButton, StatusBar, DashedOutline, ToggleRow } from "widgets.slint";
 
 export struct ReaderThumbnail {
     page: int,
@@ -50,6 +50,9 @@ export global ReaderModel {
     in-out property <string> fit: "page";
     in-out property <string> direction: "ltr";
     in-out property <string> refresh-policy: "smart";
+    in-out property <string> refresh-mode: "normal";
+    in-out property <string> refresh-mode-note;
+    in-out property <bool> presented-fast-mode: false;
     in-out property <string> landscape-layout: "spread";
     in-out property <bool> landscape;
     in-out property <bool> menu;
@@ -67,6 +70,9 @@ export global ReaderModel {
     in-out property <bool> show-footer: true;
     in-out property <bool> dither: true;
     in-out property <string> dither-method: "software";
+    in-out property <bool> jpeg-acceleration: false;
+    in-out property <bool> jpeg-acceleration-available: false;
+    in-out property <string> jpeg-acceleration-note;
     in-out property <bool> cover-alone: true;
     in-out property <bool> next-locked: true;
     in-out property <bool> next-available: true;
@@ -165,9 +171,10 @@ component ReaderDashedBox inherits Rectangle {
 component ReaderChoice inherits Rectangle {
     in property <[ReaderOption]> options;
     in property <string> value;
+    in property <bool> enabled: true;
     callback picked(string);
     background: Theme.paper;
-    border-color: Theme.ink;
+    border-color: root.enabled ? Theme.ink : Theme.line;
     border-width: 2px;
     height: Theme.scribe ? 60px : 52px;
     for option[index] in root.options: Rectangle {
@@ -175,21 +182,25 @@ component ReaderChoice inherits Rectangle {
         y: 2px;
         width: (root.width - 4px) / max(1, root.options.length);
         height: root.height - 4px;
-        background: option.value == root.value || touch.pressed ? Theme.ink : Theme.paper;
+        background: root.enabled && (option.value == root.value || touch.pressed) ? Theme.ink : Theme.paper;
         accessible-role: button;
         accessible-label: option.label;
-        accessible-action-default => { root.picked(option.value); }
+        accessible-enabled: root.enabled;
+        accessible-checkable: true;
+        accessible-checked: option.value == root.value;
+        accessible-action-default => { if root.enabled { root.picked(option.value); } }
         ReaderText {
             x: 4px;
             width: parent.width - 8px;
             text: option.label;
-            color: option.value == root.value || touch.pressed ? Theme.paper : Theme.ink;
+            color: !root.enabled ? Theme.muted : option.value == root.value || touch.pressed ? Theme.paper : Theme.ink;
             font-weight: option.value == root.value ? 700 : 400;
             horizontal-alignment: center;
             overflow: elide;
         }
-        if index > 0: Rectangle { x: 0px; y: 0px; width: 2px; height: parent.height; background: Theme.ink; }
+        if index > 0: Rectangle { x: 0px; y: 0px; width: 2px; height: parent.height; background: root.enabled ? Theme.ink : Theme.line; }
         touch := TouchArea {
+            enabled: root.enabled;
             pointer-event(event) => {
                 if event.kind == PointerEventKind.down { Theme.refresh("press"); }
                 if event.kind == PointerEventKind.up { Theme.refresh("release"); }
@@ -203,16 +214,18 @@ component ReaderChoiceRow inherits Rectangle {
     in property <string> label;
     in property <[ReaderOption]> options;
     in property <string> value;
+    in property <bool> enabled: true;
     callback picked(string);
     height: Theme.scribe ? 60px : 52px;
     background: Theme.paper;
     property <length> label-width: Theme.scribe ? 96px : 76px;
-    ReaderText { x: 0px; y: 0px; width: root.label-width; height: parent.height; text: root.label; color: Theme.secondary; }
+    ReaderText { x: 0px; y: 0px; width: root.label-width; height: parent.height; text: root.label; color: root.enabled ? Theme.secondary : Theme.muted; }
     ReaderChoice {
         x: root.label-width + 12px;
         width: parent.width - self.x;
         options: root.options;
         value: root.value;
+        enabled: root.enabled;
         picked(value) => { root.picked(value); }
     }
 }
@@ -404,6 +417,7 @@ component ReaderSpreadPage inherits Rectangle {
         height: parent.height;
         source: root.picture;
         image-fit: contain;
+        image-rendering: ReaderModel.presented-fast-mode ? pixelated : smooth;
     }
 }
 
@@ -441,6 +455,7 @@ export component ReaderScreen inherits Rectangle {
         height: root.height;
         source: ReaderModel.page;
         image-fit: contain;
+        image-rendering: ReaderModel.presented-fast-mode ? pixelated : smooth;
     }
 
     if root.show-content && !root.spread && ReaderModel.mode == "panel": Image {
@@ -450,6 +465,7 @@ export component ReaderScreen inherits Rectangle {
         height: root.height;
         source: ReaderModel.page;
         image-fit: contain;
+        image-rendering: ReaderModel.presented-fast-mode ? pixelated : smooth;
     }
 
     if root.show-content && !root.spread && ReaderModel.mode == "strip": Rectangle {
@@ -458,7 +474,7 @@ export component ReaderScreen inherits Rectangle {
         width: root.width;
         height: root.height;
         clip: true;
-        Image { width: parent.width; height: parent.height; source: ReaderModel.page; image-fit: contain; }
+        Image { width: parent.width; height: parent.height; source: ReaderModel.page; image-fit: contain; image-rendering: ReaderModel.presented-fast-mode ? pixelated : smooth; }
     }
 
     if root.show-content && root.spread: Rectangle {
@@ -736,11 +752,12 @@ export component ReaderScreen inherits Rectangle {
             width: parent.width;
             height: display-note.y + display-note.preferred-height + 16px;
             background: Theme.paper;
-            property <length> options-height: root.wide-landscape ? 4 * (Theme.scribe ? 60px : 52px) + 36px : 5 * (Theme.scribe ? 60px : 52px) + 48px;
+            property <bool> two-columns: ReaderModel.landscape;
+            property <length> options-height: self.two-columns ? 5 * (Theme.scribe ? 60px : 52px) + 48px : 7 * (Theme.scribe ? 60px : 52px) + 72px;
             TouchArea { clicked => { } }
             Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
             ReaderSheetHeader { x: root.reader-edge; y: 2px; width: parent.width - 2 * root.reader-edge; title: Strings.read-settings-comic; close => { ReaderModel.sheet = ""; ReaderModel.menu = false; ReaderModel.action("menu", "close"); } }
-            if !root.wide-landscape: VerticalLayout {
+            if !display-sheet.two-columns: VerticalLayout {
                 x: root.reader-edge;
                 y: root.reader-bar + 14px;
                 width: parent.width - 2 * root.reader-edge;
@@ -749,10 +766,12 @@ export component ReaderScreen inherits Rectangle {
                 ReaderChoiceRow { label: Strings.read-mode; value: ReaderModel.mode; options: [{value: "page", label: Strings.read-single-page}, {value: "panel", label: Strings.read-panel}, {value: "strip", label: Strings.read-strip}]; picked(value) => { ReaderModel.mode = value; ReaderModel.action("setting", "mode:" + value); } }
                 ReaderChoiceRow { label: Strings.read-fit; value: ReaderModel.fit; options: [{value: "original", label: Strings.read-zoom-original}, {value: "page", label: Strings.read-zoom-page}, {value: "height", label: Strings.read-zoom-height}, {value: "width", label: Strings.read-zoom-width}]; picked(value) => { ReaderModel.fit = value; ReaderModel.action("setting", "fit:" + value); } }
                 ReaderChoiceRow { label: Strings.read-direction; value: ReaderModel.direction; options: [{value: "ltr", label: Strings.read-ltr}, {value: "rtl", label: Strings.read-rtl}]; picked(value) => { ReaderModel.direction = value; ReaderModel.action("setting", "direction:" + value); } }
-                ReaderChoiceRow { label: Strings.read-full-refresh; value: ReaderModel.refresh-policy; options: [{value: "smart", label: Strings.read-refresh-smart}, {value: "1", label: Strings.read-refresh-every}, {value: "6", label: Strings.read-refresh-six}, {value: "0", label: Strings.read-refresh-never}]; picked(value) => { ReaderModel.refresh-policy = value; ReaderModel.action("setting", "refresh-policy:" + value); } }
+                ReaderChoiceRow { label: Strings.refresh-mode-label; value: ReaderModel.refresh-mode; options: [{value: "normal", label: Strings.refresh-mode-normal}, {value: "fast", label: Strings.refresh-mode-fast}]; picked(value) => { ReaderModel.action("setting", "refresh-mode:" + value); } }
+                ReaderChoiceRow { label: Strings.read-full-refresh; value: ReaderModel.refresh-policy; enabled: ReaderModel.refresh-mode != "fast"; options: [{value: "smart", label: Strings.read-refresh-smart}, {value: "1", label: Strings.read-refresh-every}, {value: "6", label: Strings.read-refresh-six}, {value: "0", label: Strings.read-refresh-never}]; picked(value) => { ReaderModel.refresh-policy = value; ReaderModel.action("setting", "refresh-policy:" + value); } }
                 ReaderChoiceRow { label: Strings.read-dither; value: ReaderModel.dither ? ReaderModel.dither-method : "off"; options: [{value: "software", label: Strings.read-dither-software}, {value: "hardware", label: Strings.read-dither-hardware}, {value: "off", label: Strings.read-off}]; picked(value) => { ReaderModel.dither = value != "off"; if value == "off" { ReaderModel.action("setting", "dither:off"); } else { ReaderModel.dither-method = value; ReaderModel.action("setting", "dither-method:" + value); } } }
+                ToggleRow { label: Strings.media-jpeg-acceleration; label-color: Theme.secondary; checked: ReaderModel.jpeg-acceleration; enabled: ReaderModel.jpeg-acceleration-available; toggled(value) => { ReaderModel.action("setting", "jpeg-acceleration:" + (value ? "on" : "off")); } }
             }
-            if root.wide-landscape: HorizontalLayout {
+            if display-sheet.two-columns: HorizontalLayout {
                 x: root.reader-edge;
                 y: root.reader-bar + 14px;
                 width: parent.width - 2 * root.reader-edge;
@@ -765,17 +784,19 @@ export component ReaderScreen inherits Rectangle {
                     ReaderChoiceRow { label: Strings.read-fit; value: ReaderModel.fit; options: [{value: "original", label: Strings.read-zoom-original}, {value: "page", label: Strings.read-zoom-page}, {value: "height", label: Strings.read-zoom-height}, {value: "width", label: Strings.read-zoom-width}]; picked(value) => { ReaderModel.fit = value; ReaderModel.action("setting", "fit:" + value); } }
                     ReaderChoiceRow { label: Strings.read-direction; value: ReaderModel.direction; options: [{value: "ltr", label: Strings.read-ltr}, {value: "rtl", label: Strings.read-rtl}]; picked(value) => { ReaderModel.direction = value; ReaderModel.action("setting", "direction:" + value); } }
                     ReaderChoiceRow { label: Strings.read-landscape-layout; value: ReaderModel.landscape-layout; options: [{value: "spread", label: Strings.read-spread}, {value: "single", label: Strings.read-single-page}]; picked(value) => { ReaderModel.landscape-layout = value; ReaderModel.action("setting", "landscape-layout:" + value); } }
+                    ReaderChoiceRow { label: Strings.read-cover-page; value: ReaderModel.cover-alone ? "on" : "off"; options: [{value: "on", label: Strings.read-on}, {value: "off", label: Strings.read-off}]; picked(value) => { ReaderModel.cover-alone = value == "on"; ReaderModel.action("setting", "cover-alone:" + value); } }
                 }
                 VerticalLayout {
                     horizontal-stretch: 1;
                     spacing: 12px;
-                    ReaderChoiceRow { label: Strings.read-cover-page; value: ReaderModel.cover-alone ? "on" : "off"; options: [{value: "on", label: Strings.read-on}, {value: "off", label: Strings.read-off}]; picked(value) => { ReaderModel.cover-alone = value == "on"; ReaderModel.action("setting", "cover-alone:" + value); } }
-                    ReaderChoiceRow { label: Strings.read-full-refresh; value: ReaderModel.refresh-policy; options: [{value: "smart", label: Strings.read-refresh-smart}, {value: "1", label: Strings.read-refresh-every}, {value: "6", label: Strings.read-refresh-six}, {value: "0", label: Strings.read-refresh-never}]; picked(value) => { ReaderModel.refresh-policy = value; ReaderModel.action("setting", "refresh-policy:" + value); } }
+                    ReaderChoiceRow { label: Strings.refresh-mode-label; value: ReaderModel.refresh-mode; options: [{value: "normal", label: Strings.refresh-mode-normal}, {value: "fast", label: Strings.refresh-mode-fast}]; picked(value) => { ReaderModel.action("setting", "refresh-mode:" + value); } }
+                    ReaderChoiceRow { label: Strings.read-full-refresh; value: ReaderModel.refresh-policy; enabled: ReaderModel.refresh-mode != "fast"; options: [{value: "smart", label: Strings.read-refresh-smart}, {value: "1", label: Strings.read-refresh-every}, {value: "6", label: Strings.read-refresh-six}, {value: "0", label: Strings.read-refresh-never}]; picked(value) => { ReaderModel.refresh-policy = value; ReaderModel.action("setting", "refresh-policy:" + value); } }
                     ReaderChoiceRow { label: Strings.read-dither; value: ReaderModel.dither ? ReaderModel.dither-method : "off"; options: [{value: "software", label: Strings.read-dither-software}, {value: "hardware", label: Strings.read-dither-hardware}, {value: "off", label: Strings.read-off}]; picked(value) => { ReaderModel.dither = value != "off"; if value == "off" { ReaderModel.action("setting", "dither:off"); } else { ReaderModel.dither-method = value; ReaderModel.action("setting", "dither-method:" + value); } } }
+                    ToggleRow { label: Strings.media-jpeg-acceleration; label-color: Theme.secondary; checked: ReaderModel.jpeg-acceleration; enabled: ReaderModel.jpeg-acceleration-available; toggled(value) => { ReaderModel.action("setting", "jpeg-acceleration:" + (value ? "on" : "off")); } }
                     Rectangle { min-height: 0px; vertical-stretch: 1; }
                 }
             }
-            display-note := ReaderText { x: root.reader-edge; y: root.reader-bar + 26px + display-sheet.options-height; width: parent.width - 2 * root.reader-edge; height: self.preferred-height; text: (ReaderModel.refresh-policy == "smart" ? Strings.read-refresh-smart-note : Strings.read-refresh-fixed-note) + ReaderModel.dither-note; font-size: Theme.scribe ? 16px : 14px; color: Theme.secondary; wrap: word-wrap; vertical-alignment: top; }
+            display-note := ReaderText { x: root.reader-edge; y: root.reader-bar + 26px + display-sheet.options-height; width: parent.width - 2 * root.reader-edge; height: self.preferred-height; text: (ReaderModel.refresh-mode == "fast" ? ReaderModel.refresh-mode-note + "\n" + ReaderModel.dither-note : (ReaderModel.refresh-policy == "smart" ? Strings.read-refresh-smart-note : Strings.read-refresh-fixed-note) + ReaderModel.dither-note + "\n" + ReaderModel.refresh-mode-note) + "\n" + ReaderModel.jpeg-acceleration-note; font-size: Theme.scribe ? 16px : 14px; color: Theme.secondary; wrap: word-wrap; vertical-alignment: top; }
         }
 
         if ReaderModel.sheet == "toc": directory := Rectangle {

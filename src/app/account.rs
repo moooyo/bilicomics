@@ -137,10 +137,12 @@ pub(super) struct PreparedAccount {
     wallet_at: i64,
     journals: Vec<PurchaseIntent>,
     recharge: Option<RechargeIntent>,
+    demo_defaults_allowed: bool,
 }
 
 impl PreparedAccount {
     pub(super) fn load(store: &Store, account: &str, demo: Option<&DemoData>) -> Result<Self> {
+        let demo_defaults_allowed = demo.is_some() && store.preference::<Preferences>(account, "preferences")?.is_none();
         let (mut wallet, mut wallet_at) = match store.preference::<WalletSnapshot>(account, "wallet")? {
             Some(snapshot) => (Some(snapshot.value), snapshot.observed_at),
             None => (None, 0),
@@ -170,7 +172,7 @@ impl PreparedAccount {
             }));
             wallet_at = 0;
         }
-        Ok(Self { wallet, wallet_at, journals, recharge })
+        Ok(Self { wallet, wallet_at, journals, recharge, demo_defaults_allowed })
     }
 }
 
@@ -243,12 +245,13 @@ impl App {
     }
 
     pub(super) fn initialize_account_prepared(&mut self, prepared: PreparedAccount) -> Result<()> {
+        let demo_defaults_allowed = prepared.demo_defaults_allowed;
         self.account_ui = AccountState::default();
         self.account_ui.wallet = prepared.wallet;
         self.account_ui.wallet_at = prepared.wallet_at;
         self.account_ui.journals = prepared.journals;
         self.account_ui.recharge.journal = prepared.recharge;
-        if let Some(demo) = &self.demo {
+        if let Some(demo) = self.demo.as_ref().filter(|_| demo_defaults_allowed) {
             let defaults = &demo.fixture["account"]["defaults"];
             if let Some(value) = defaults["reading_mode"].as_str().filter(|value| ["page", "panel", "strip"].contains(value)) { self.preferences.mode = value.into(); }
             if let Some(value) = defaults["direction"].as_str().filter(|value| ["ltr", "rtl"].contains(value)) { self.preferences.direction = value.into(); }
@@ -295,7 +298,18 @@ impl App {
         account.set_mode(self.preferences.mode.clone().into());
         account.set_direction(self.preferences.direction.clone().into());
         account.set_every(self.preferences.every.clone().into());
+        let fast_refresh = self.preferences.refresh_mode == "fast";
+        account.set_refresh_mode(if fast_refresh { "fast" } else { "normal" }.into());
+        account.set_refresh_mode_note(i18n::text(if fast_refresh {
+            "refresh_mode_fast_note"
+        } else {
+            "refresh_mode_normal_note"
+        }).into());
         account.set_landscape(self.preferences.landscape.clone().into());
+        let media_availability = crate::native_media::availability();
+        account.set_jpeg_acceleration(self.preferences.jpeg_acceleration);
+        account.set_jpeg_acceleration_available(media_availability.available());
+        account.set_jpeg_acceleration_note(crate::native_media_ui::availability_note(media_availability).into());
         account.set_smart(if self.preferences.smart { "on" } else { "off" }.into());
         account.set_ahead(self.preferences.ahead as i32);
         account.set_concurrency(self.preferences.concurrency as i32);
@@ -373,11 +387,21 @@ impl App {
             "import-session" => self.import_account_session(value),
             "mode" if ["page", "panel", "strip"].contains(&value) => self.preferences.mode = value.into(),
             "direction" if ["ltr", "rtl"].contains(&value) => self.preferences.direction = value.into(),
-            "every" if ["smart", "0", "1", "6", "12"].contains(&value) => {
+            "every" if self.preferences.refresh_mode != "fast" && ["smart", "0", "1", "6", "12"].contains(&value) => {
                 self.preferences.every = value.into();
                 self.platform.set_reader_refresh_interval(match value { "0" => 0, "1" => 1, "12" => 12, _ => 6 })?;
             }
+            "refresh-mode" if ["normal", "fast"].contains(&value) => {
+                self.preferences.refresh_mode = value.into();
+                self.reader_refresh_mode_changed()?;
+            }
             "landscape" if ["spread", "single"].contains(&value) => self.preferences.landscape = value.into(),
+            "jpeg-acceleration" if ["on", "off"].contains(&value) => {
+                if value == "off" || crate::native_media::availability().available() {
+                    self.preferences.jpeg_acceleration = value == "on";
+                    self.reader_jpeg_acceleration_changed()?;
+                }
+            }
             "smart" if ["on", "off"].contains(&value) => {
                 if self.demo.is_some() { self.preferences.smart = value == "on"; }
                 else { self.toast("acct_manual_download_only"); }
@@ -2102,6 +2126,55 @@ pub(super) fn quote_selections(read: &QuoteRead) -> Vec<(String, u32, f64, f64, 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn demo_account_attachment_preserves_saved_preferences_and_seeds_only_a_fresh_store() -> Result<()> {
+        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
+        let directory = tempfile::tempdir()?;
+        let demo_root = directory.path().join("demo");
+        std::fs::create_dir_all(&demo_root)?;
+        let demo = Arc::new(crate::demo::load(&demo_root)?);
+        let fresh_interval = demo.fixture["account"]["defaults"]["refresh"].as_str()
+            .context("The fictional account must declare its initial refresh policy")?.to_owned();
+        for saved in [false, true] {
+            let data = directory.path().join(if saved { "saved" } else { "fresh" });
+            std::fs::create_dir_all(&data)?;
+            let client = BiliClient::offline(&data)?;
+            let mut app = super::super::test_support::app(&data, DeviceProfile::Paperwhite6,
+                client, runtime.handle().clone())?;
+            app.account = "design-demo".into();
+            app.options.demo = true;
+            app.options.offline = true;
+            app.demo = Some(demo.clone());
+            let expected = Preferences { every: "6".into(), refresh_mode: "fast".into(),
+                dither: false, dither_method: "hardware".into(), ..Default::default() };
+            if saved {
+                app.store.set_preference(&app.account, "preferences", &expected)?;
+                app.preferences = app.store.preference(&app.account, "preferences")?
+                    .context("The saved demonstration preferences must reload")?;
+            } else {
+                app.preferences.every = "12".into();
+            }
+            let prepared = PreparedAccount::load(&app.store, &app.account, app.demo.as_deref())?;
+            app.initialize_account_prepared(prepared)?;
+            if saved {
+                assert_eq!(app.preferences.every, expected.every);
+                assert_eq!(app.preferences.refresh_mode, expected.refresh_mode);
+                assert_eq!(app.preferences.dither, expected.dither);
+                assert_eq!(app.preferences.dither_method, expected.dither_method);
+                let durable: Preferences = app.store.preference(&app.account, "preferences")?
+                    .context("Account attachment must preserve the durable preference row")?;
+                assert_eq!(durable.every, expected.every);
+                assert_eq!(durable.refresh_mode, expected.refresh_mode);
+                assert_eq!(durable.dither, expected.dither);
+                assert_eq!(durable.dither_method, expected.dither_method);
+            } else {
+                assert_eq!(app.preferences.every, fresh_interval);
+                assert_eq!(app.preferences.refresh_mode, "normal");
+            }
+        }
+        Ok(())
+    }
 
     fn single_read() -> QuoteRead {
         let value = json!({"ep_id":"7","comic_id":"9","is_locked":true,

@@ -30,6 +30,10 @@ Startup presents the project name and a low-frequency activity indicator before 
 The [frozen UI/UX baseline](docs/uiux/README.md) preserves 51 native-resolution
 Paperwhite 6 and Scribe screenshots from version 0.1.25, with an offline viewer,
 scene indexes, and repeatable remote capture instructions for future iterations.
+The [JPEG settings update](docs/uiux/baselines/2026-11-15-jpeg-acceleration/README.md)
+adds six reviewed settings captures while preserving the original baseline.
+The [persistent fast reading update](docs/uiux/baselines/2026-11-16-fast-mode/README.md)
+adds twenty Normal/Fast settings and binary-page captures in both orientations.
 
 After building on the remote worker, use the actual Cargo target directory:
 
@@ -72,6 +76,8 @@ Normal execution uses the per-user `bilicomics` data directory; `--data-dir` ove
 | [Measured ARM resize cause](docs/PERFORMANCE_ROOT_CAUSE_20261110.md) | R48 CPU attribution, R49 component comparisons, bounded 0.1.21 implementation, and R51 App acceptance |
 | [KOReader technique adoption](docs/KOREADER_OPTIMIZATION_AUDIT_20261110.md) | Implemented, partial and unimplemented cache, grayscale, streaming and refresh mechanisms with upstream references |
 | [Hardware Y4 dithering](docs/HARDWARE_Y4_DITHERING.md) | Device-gated Gray8 processing, reader settings, presentation ordering, native flags, software fallback, and verification scope |
+| [Persistent fast reading](docs/FAST_READING_MODE.md) | Binary DU page policy, saved normal-mode preferences, grayscale controls, and presentation-bound refresh routing |
+| [JPEG hardware acceleration](docs/KINDLE_MEDIA_ACCELERATION.md) | Optional qualified JPEG decode/downscale, worker ownership, source proofs, software fallback, and independent Y4 policy |
 | [Streaming resize and prepared next page](docs/PERFORMANCE_STREAMING_PREFETCH_20261110.md) | Version 0.1.22 bounded row storage, verified next-page hits, source checks, resource lifetimes, and selected software/Scribe observations |
 | [Native presentation compatibility](docs/NATIVE_PRESENTATION_COMPATIBILITY.md) | Version 0.1.7 read-only display-mode observation, pixel compensation, ordered power events, and scoped verification |
 | [Wake continuity and settings](docs/WAKE_CONTINUITY_AND_SETTINGS.md) | Verified no-Home wake on the scoped Scribe, the SGID compatibility correction, and removal of the user inversion setting in 0.1.9 |

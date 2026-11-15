@@ -83,11 +83,23 @@ impl PendingRefresh {
             return;
         }
         if self.requests.len() == MAX_PENDING {
-            // A stalled producer must not grow an unbounded allocation. A full
-            // refresh conservatively includes all requests already accepted.
-            self.requests.clear();
-            self.requests.push(RefreshRequest::full());
-            self.overflowed = true;
+            if request.waveform == RefreshWaveform::Du
+                && !request.flashing
+                && request.area == RefreshArea::Dirty
+                && self.requests.iter().all(|pending| *pending == request)
+            {
+                // Identical bilevel requests share the next frame's dirty
+                // pixels. Keep the queue open for a later gray overlay or
+                // explicit full update with its original safety priority.
+                self.requests.clear();
+                self.requests.push(request);
+            } else {
+                // A stalled producer must not grow an unbounded allocation.
+                // Mixed requests retain the conservative complete refresh.
+                self.requests.clear();
+                self.requests.push(RefreshRequest::full());
+                self.overflowed = true;
+            }
         } else {
             self.requests.push(request);
         }
@@ -95,6 +107,22 @@ impl PendingRefresh {
 
     pub(crate) fn is_empty(&self) -> bool {
         self.requests.is_empty()
+    }
+
+    /// Structural eligibility only: the caller separately verifies binary
+    /// pixels, Y4 state, and lifecycle requirements before preserving DU.
+    pub(crate) fn is_nonflashing_du_repaint(&self) -> bool {
+        !self.requests.is_empty()
+            && self.requests.iter().all(|request| {
+                request.waveform == RefreshWaveform::Du
+                    && !request.flashing
+                    && matches!(request.area, RefreshArea::Dirty | RefreshArea::Full)
+            })
+    }
+
+    #[cfg(test)]
+    pub(crate) fn test_push(&mut self, request: RefreshRequest) {
+        self.push(request);
     }
 
     /// An explicit full update replaces the complete retained scene.
@@ -311,6 +339,59 @@ mod tests {
         pending
     }
 
+    fn du_dirty_request() -> RefreshRequest {
+        RefreshRequest {
+            waveform: RefreshWaveform::Du,
+            flashing: false,
+            area: RefreshArea::Dirty,
+        }
+    }
+
+    fn du_flood() -> PendingRefresh {
+        let mut pending = PendingRefresh::default();
+        for _ in 0..=MAX_PENDING {
+            pending.push(du_dirty_request());
+        }
+        pending
+    }
+
+    #[test]
+    fn nonflashing_du_repaint_requires_nonempty_dirty_or_full_requests() {
+        assert!(!PendingRefresh::default().is_nonflashing_du_repaint());
+        for areas in [
+            vec![RefreshArea::Dirty],
+            vec![RefreshArea::Full],
+            vec![RefreshArea::Dirty, RefreshArea::Full],
+            vec![RefreshArea::Full, RefreshArea::Dirty, RefreshArea::Full],
+        ] {
+            let mut pending = PendingRefresh::default();
+            for area in areas {
+                pending.test_push(RefreshRequest { area, ..du_dirty_request() });
+            }
+            assert!(pending.is_nonflashing_du_repaint());
+        }
+    }
+
+    #[test]
+    fn nonflashing_du_repaint_rejects_gray_flashing_manual_full_and_rect_requests() {
+        let exceptions = [
+            RefreshRequest::full(),
+            RefreshRequest { waveform: RefreshWaveform::Auto, ..du_dirty_request() },
+            RefreshRequest { waveform: RefreshWaveform::Gc16, ..du_dirty_request() },
+            RefreshRequest { waveform: RefreshWaveform::A2, ..du_dirty_request() },
+            RefreshRequest { flashing: true, ..du_dirty_request() },
+            RefreshRequest { flashing: true, area: RefreshArea::Full, ..du_dirty_request() },
+            RefreshRequest { area: RefreshArea::Rect(rect(0, 0, 1860, 2480)), ..du_dirty_request() },
+        ];
+        for exception in exceptions {
+            let mut pending = PendingRefresh::default();
+            pending.test_push(du_dirty_request());
+            pending.test_push(exception);
+            pending.test_push(RefreshRequest { area: RefreshArea::Full, ..du_dirty_request() });
+            assert!(!pending.is_nonflashing_du_repaint());
+        }
+    }
+
     #[test]
     fn dirty_and_rect_updates_do_not_replace_the_complete_scene() {
         let mut pending = PendingRefresh::default();
@@ -359,9 +440,9 @@ mod tests {
     }
 
     #[test]
-    fn queue_overflow_conservatively_requires_a_complete_frame() {
+    fn gray_queue_overflow_conservatively_requires_a_complete_frame() {
         let partial = RefreshRequest {
-            waveform: RefreshWaveform::Du, flashing: false, area: RefreshArea::Dirty,
+            waveform: RefreshWaveform::Auto, flashing: false, area: RefreshArea::Dirty,
         };
         let mut pending = PendingRefresh::default();
         for _ in 0..MAX_PENDING { pending.push(partial); }
@@ -372,6 +453,104 @@ mod tests {
         assert_eq!(pending.requests, vec![RefreshRequest::full()]);
         pending.push(partial);
         assert_eq!(pending.requests, vec![RefreshRequest::full()]);
+    }
+
+    #[test]
+    fn pure_du_flood_stays_bounded_without_promoting_the_waveform_or_area() {
+        let mut pending = du_flood();
+        assert_eq!(pending.requests, vec![du_dirty_request()]);
+        assert!(!pending.overflowed);
+        assert!(!pending.requires_complete_frame());
+        for _ in 0..MAX_PENDING * 4 {
+            pending.push(du_dirty_request());
+            assert!(pending.requests.len() <= MAX_PENDING);
+            assert!(!pending.overflowed);
+            assert!(!pending.requires_complete_frame());
+        }
+        let dirty = rect(8, 12, 100, 48);
+        assert_eq!(
+            resolve(pending, Some(dirty), 1860, 2480, 0),
+            Some(ResolvedRefresh { region: dirty, waveform: RefreshWaveform::Du, flashing: false })
+        );
+    }
+
+    #[test]
+    fn collapsed_du_requests_do_not_refresh_unchanged_pixels() {
+        assert!(resolve(du_flood(), None, 1860, 2480, 0).is_none());
+    }
+
+    #[test]
+    fn a_collapsed_du_queue_keeps_later_gray_overlay_requests() {
+        for waveform in [RefreshWaveform::Auto, RefreshWaveform::Gc16] {
+            let overlay = RefreshRequest {
+                waveform,
+                flashing: false,
+                area: RefreshArea::Rect(rect(20, 40, 200, 300)),
+            };
+            let mut pending = du_flood();
+            pending.push(overlay);
+            pending.push(du_dirty_request());
+            assert!(!pending.overflowed);
+            assert!(!pending.requires_complete_frame());
+            assert_eq!(pending.requests, vec![du_dirty_request(), overlay, du_dirty_request()]);
+            let resolved = resolve(pending, Some(rect(0, 0, 48, 48)), 1860, 2480, 0).unwrap();
+            assert_eq!(resolved.region, rect(0, 0, 220, 340));
+            assert_eq!(resolved.waveform, waveform);
+            assert!(!resolved.flashing);
+        }
+    }
+
+    #[test]
+    fn a_collapsed_du_queue_keeps_later_auto_dirty_requests() {
+        let mut pending = du_flood();
+        pending.push(RefreshRequest {
+            waveform: RefreshWaveform::Auto,
+            flashing: false,
+            area: RefreshArea::Dirty,
+        });
+        assert!(!pending.overflowed);
+        assert!(!pending.requires_complete_frame());
+        let result = resolve(pending, Some(rect(8, 12, 100, 48)), 1860, 2480, 0).unwrap();
+        assert_eq!(result.waveform, RefreshWaveform::Auto);
+        assert!(!result.flashing);
+    }
+
+    #[test]
+    fn a_collapsed_du_queue_keeps_manual_full_refresh_and_flash_strength() {
+        let mut pending = du_flood();
+        pending.push(RefreshRequest::full());
+        pending.push(du_dirty_request());
+        assert!(!pending.overflowed);
+        assert!(pending.requires_complete_frame());
+        let result = resolve(pending, Some(rect(8, 12, 100, 48)), 1860, 2480, 0).unwrap();
+        assert_eq!(result.region, rect(0, 0, 1860, 2480));
+        assert_eq!(result.waveform, RefreshWaveform::Gc16);
+        assert!(result.flashing);
+    }
+
+    #[test]
+    fn any_mixed_request_keeps_the_complete_overflow_fallback_at_every_position() {
+        let exceptions = [
+            RefreshRequest { waveform: RefreshWaveform::Auto, ..du_dirty_request() },
+            RefreshRequest { waveform: RefreshWaveform::Gc16, ..du_dirty_request() },
+            RefreshRequest { waveform: RefreshWaveform::A2, ..du_dirty_request() },
+            RefreshRequest { flashing: true, ..du_dirty_request() },
+            RefreshRequest { area: RefreshArea::Rect(rect(8, 12, 100, 48)), ..du_dirty_request() },
+            RefreshRequest { area: RefreshArea::Full, ..du_dirty_request() },
+        ];
+        for exception in exceptions {
+            for position in 0..=MAX_PENDING {
+                let mut pending = PendingRefresh::default();
+                for index in 0..=MAX_PENDING {
+                    pending.push(if index == position { exception } else { du_dirty_request() });
+                }
+                assert!(pending.overflowed);
+                assert!(pending.requires_complete_frame());
+                assert_eq!(pending.requests, vec![RefreshRequest::full()]);
+                pending.push(du_dirty_request());
+                assert_eq!(pending.requests, vec![RefreshRequest::full()]);
+            }
+        }
     }
 
     #[test]

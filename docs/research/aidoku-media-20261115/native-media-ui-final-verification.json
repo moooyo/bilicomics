@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "run_id": "media-ui-native-ea7f039d",
+  "app_sha256": "c9b7d25c178ba863929a6b4fb1e8f03f4d163353ada7622f7ad7c164d5cafa8a",
+  "worker_sha256": "6f45e6b977cc94238cf22a1885dbb7298c7834abfc072aacbc19b748b8b277e2",
+  "checks": [
+    {
+      "mode": "settings",
+      "hardware_available": true,
+      "enabled": true,
+      "route": "settings",
+      "worker": {
+        "attempts": 0,
+        "completed": 0,
+        "resized": 0,
+        "software_fallbacks": 0
+      },
+      "state_sha256": "d506048ac6bf5582904263373e4b8e17aee9a67e6d2d26a000c8d6a9d155d971"
+    },
+    {
+      "mode": "settings-restart",
+      "hardware_available": true,
+      "enabled": true,
+      "route": "settings",
+      "worker": {
+        "attempts": 0,
+        "completed": 0,
+        "resized": 0,
+        "software_fallbacks": 0
+      },
+      "state_sha256": "9f44c0271c640b88a932ca97737ac9e593a88e1a2d483eb646a43faf34867235"
+    },
+    {
+      "mode": "reader",
+      "hardware_available": true,
+      "enabled": true,
+      "route": "reader",
+      "worker": {
+        "attempts": 2,
+        "completed": 2,
+        "resized": 2,
+        "software_fallbacks": 0
+      },
+      "state_sha256": "e1bd09908144883faead0d5c4e016ed9bc69d1ac913d1c4e379e5f3a4e9f252d"
+    }
+  ],
+  "same_boot": true,
+  "native_restored": true,
+  "lighting_restored": true,
+  "staging_removed": true,
+  "lease_released": true,
+  "new_critical_kernel_lines": 0
+}

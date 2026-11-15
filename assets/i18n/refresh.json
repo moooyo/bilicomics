@@ -1,0 +1,9 @@
+{
+  "refresh_mode_label": "刷新模式",
+  "refresh_mode_normal": "常规",
+  "refresh_mode_fast": "快速（黑白）",
+  "refresh_mode_normal_note": "保留灰阶，按已选的全刷与抖动设置刷新。",
+  "refresh_mode_fast_note": "黑白翻页后保持画面，不自动补刷或周期全刷；可手动全刷清残影。菜单和弹窗仍用灰阶，抖动选择会保留。",
+  "refresh_mode_interval_disabled": "快速模式不自动全刷，已保留原设置。",
+  "refresh_mode_dither_saved_note": "快速模式使用黑白显示，返回常规后恢复已保存的抖动设置。"
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "source_project": "AidokuForKindle",
+  "source_base_commit": "a53b9716d64fe5521fac38431b24732c75cb8ff7",
+  "source_state": "Uncommitted 2026-11-15 candidate; the base commit alone does not reproduce these inputs.",
+  "handoff_declared_candidate_sha256": "e9f8d08b6599ef657ecb572d8c343b16050fa87d1fa35579c5e518c9d14108e8",
+  "license": "GPL-3.0-or-later",
+  "file_count": 9,
+  "files": [
+    {
+      "path": "Cargo.toml",
+      "bytes": 2047,
+      "sha256": "1901e4bb026480b3092a77044d7ecfac5be78dfb6be3a8474485ef012c8c6ef3"
+    },
+    {
+      "path": "docs/review/media-qualification-20261115/shutdown-contract-mock.c",
+      "bytes": 6172,
+      "sha256": "5394432a3e56f09e2199958b807ca069a6c2998bd3e85ac79141c1967672ce9c"
+    },
+    {
+      "path": "scripts/native-codec-bench.h",
+      "bytes": 1154,
+      "sha256": "b184e99a3899aa6b0c5b17add7f895e350ad802215533da1336ad35950b9417b"
+    },
+    {
+      "path": "scripts/native-codec-probe.c",
+      "bytes": 39946,
+      "sha256": "c3db241275529da4f613d853efc5fc3a41669aa69f58c612e2dcce20e36da10d"
+    },
+    {
+      "path": "src/bin/jpeg_worker.rs",
+      "bytes": 82,
+      "sha256": "b40f2afea0ed0a7bc773a9985e2cb543ce6d3fbbeb2b7350d0e68aec5260d23d"
+    },
+    {
+      "path": "src/native_media/codec.c",
+      "bytes": 321,
+      "sha256": "2009e61672212b11b681e56699f5e3c643ab7e5d2de4be11078bbca366fb57e1"
+    },
+    {
+      "path": "src/native_media/jpeg.rs",
+      "bytes": 16978,
+      "sha256": "10922b8ff6822d6fdb4252c360244c0a93905909c88ccb90872eda4c16b13adf"
+    },
+    {
+      "path": "src/native_media/mod.rs",
+      "bytes": 13910,
+      "sha256": "8c5bdaa5a832b192615ac60f13dde2b37bab19ed243e97c8d6feae93b934093a"
+    },
+    {
+      "path": "src/native_media/worker.rs",
+      "bytes": 9347,
+      "sha256": "a6e1dba40e5c3334af78c4816f099ffc4194f3b9488111198fd6ebbc67036952"
+    }
+  ],
+  "fingerprint_scope": "Read-only original source-file identities, not implementation execution or verification."
+}

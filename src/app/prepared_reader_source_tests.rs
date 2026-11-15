@@ -323,24 +323,30 @@ struct AccountFixture {
 
 impl AccountFixture {
     fn new() -> Result<Self> {
+        Self::with_encoded(index(), "png", |position| encoded_image(29 + position as u8 * 71))
+    }
+
+    fn with_encoded(index: ImageIndex, extension: &str, mut encoded_page: impl FnMut(usize) -> Result<Vec<u8>>)
+        -> Result<Self>
+    {
         let directory = tempfile::tempdir()?;
         let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
         let manager = DownloadManager::new(directory.path(), ACCOUNT.into(), EPOCH,
             Arc::new(NoAcquisition), runtime.handle().clone())?;
         let mut store = Store::open(manager.database_path())?;
-        let index = index();
         let task = DownloadRecord { id: "prepared-source-task".into(), comic_id: "prepared-source-comic".into(),
             episode_id: index.episode_id.clone(), revision: index.revision.clone(), generation: 1,
-            status: DownloadStatus::Running, total_pages: 2, created_at: 1, updated_at: 1, ..Default::default() };
+            status: DownloadStatus::Running, total_pages: index.images.len() as u32,
+            created_at: 1, updated_at: 1, ..Default::default() };
         store.save_index(ACCOUNT, &index)?;
         store.save_download(ACCOUNT, &task)?;
         let mut paths = Vec::new();
         for page in &index.images {
-            let encoded = encoded_image(29 + page.index as u8 * 71)?;
+            let encoded = encoded_page(page.index)?;
             let digest = hex_digest(&encoded);
             let receipt = PageReceipt { episode_id: index.episode_id.clone(), revision: index.revision.clone(),
-                page_id: page.id.clone(), page_index: page.index, file_name: format!("{digest}.png"), sha256: digest,
-                bytes: encoded.len() as u64, width: SOURCE_WIDTH, height: SOURCE_HEIGHT,
+                page_id: page.id.clone(), page_index: page.index, file_name: format!("{digest}.{extension}"), sha256: digest,
+                bytes: encoded.len() as u64, width: page.width, height: page.height,
                 verified_at: 1, ..Default::default() };
             store.begin_page_commit_generation(ACCOUNT, &task.id, task.generation, &receipt)?;
             let path = manager.pages_root().join(&receipt.file_name);
@@ -505,5 +511,51 @@ fn an_atomic_object_replacement_retries_a_prepared_proof_before_rejecting_change
     assert!(matches!(reuse_next_frame(&mut actual, next, &fixture.files, viewport(), (7, 9),
         &cancelled, None, None)?, PreparedOutcome::Missing(ref pages) if pages == &[1]));
     assert_core(&actual, &inputs.target);
+    Ok(())
+}
+
+#[test]
+fn native_entropy_proofs_preserve_receipt_source_dimensions_before_target_pixels() -> Result<()> {
+    let mut descriptor = index();
+    for page in &mut descriptor.images { page.width = 512; page.height = 640; }
+    let fixture = AccountFixture::with_encoded(descriptor, "jpg", |position| {
+        let source = image::GrayImage::from_pixel(512, 640, image::Luma([51 + position as u8 * 85]));
+        let mut bytes = Cursor::new(Vec::new());
+        image::DynamicImage::ImageLuma8(source).write_to(&mut bytes, image::ImageFormat::Jpeg)?;
+        Ok(bytes.into_inner())
+    })?;
+    let cancelled = AtomicBool::new(false);
+    let result = fixture.resolver().with_verified_page(&fixture.index.episode_id, &fixture.index.revision,
+        &fixture.index.images[1].id, &cancelled, |input| {
+            let proof = crate::image_integrity::validate_native_jpeg(input)
+                .expect("The fixture must pass complete entropy validation");
+            assert_eq!((proof.width(), proof.height()), (512, 640));
+            // The resolver authorizes an arbitrary prepared result separately
+            // from the sealed original geometry; no resized proof is invented.
+            Ok(Some((proof, image::GrayImage::new(256, 320))))
+        })?.context("The original-size proof must pass the receipt recheck")?;
+    assert_eq!(result.dimensions(), (256, 320));
+    let receipt = fixture.receipt()?.context("The qualified JPEG receipt must remain valid")?;
+    assert_eq!((receipt.width, receipt.height), (512, 640));
+    assert_eq!(receipt.decode_validation_version, crate::image_integrity::VALIDATION_VERSION);
+    Ok(())
+}
+
+#[test]
+fn a_prepared_frame_with_a_different_media_policy_is_not_reused_by_its_proof() -> Result<()> {
+    let fixture = DemoFixture::new()?;
+    let inputs = inputs(&fixture.index, &fixture.files, settings(0, 1.0, true))?;
+    let next = candidate(&inputs, &fixture.files)?;
+    let mut target = inputs.target.clone();
+    let mut changed = target.settings().clone();
+    changed.media_acceleration = crate::native_media::Acceleration::DecodeAndResize;
+    target.update_settings(changed)?;
+    assert!(!next.key.target.matches(&target));
+    let mut profile = ReaderPreparationProfile::default();
+    assert!(matches!(reuse_next_frame(&mut target, next, &fixture.files, viewport(), (7, 9),
+        &AtomicBool::new(false), Some(&mut profile), None)?, PreparedOutcome::Ready(_)));
+    assert_eq!(profile.unchanged_sources, 0);
+    assert_eq!(profile.rendered_frames, 1);
+    assert_eq!(target.settings().media_acceleration, crate::native_media::Acceleration::DecodeAndResize);
     Ok(())
 }

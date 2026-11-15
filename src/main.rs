@@ -727,7 +727,7 @@ fn run(arguments: Arguments) -> Result<()> {
                     record_performance_gate(&mut performance_gate, "prepare");
                     worker_started = true;
                     record_startup_stage(startup_trace.as_deref(), "workers_started", trace_moment(), None);
-                    start_startup_workers(&handle, options.clone(), startup_delay,
+                    start_startup_workers(&handle, options.clone(), tick_platform.is_kindle, startup_delay,
                         tick_cancelled.clone(), startup_sender.clone(), tick_wake.clone(),
                         startup_trace.is_some());
                     // Yield this bootstrap turn before consuming even a very fast result.
@@ -1064,6 +1064,7 @@ fn run(arguments: Arguments) -> Result<()> {
 fn start_startup_workers(
     handle: &tokio::runtime::Handle,
     options: AppOptions,
+    native: bool,
     delay_ms: u64,
     cancelled: Arc<AtomicBool>,
     sender: mpsc::Sender<StartupEvent>,
@@ -1116,6 +1117,8 @@ fn start_startup_workers(
             publish_startup(&state_sender, &state_wake,
                 StartupEvent::Stage("state_prepare_begin", trace_moment()))?;
         }
+        bilicomics::native_media::initialize(native);
+        if cancelled.load(Ordering::Acquire) { return Ok(()); }
         let prepared = App::prepare(options)?;
         if cancelled.load(Ordering::Acquire) { return Ok(()); }
         publish_startup(&state_sender, &state_wake, StartupEvent::State(prepared, trace_moment()))
@@ -1376,7 +1379,18 @@ fn ui_state(ui: &AppWindow) -> serde_json::Value {
     serde_json::json!({
         "route": ui.global::<ShellModel>().get_route().as_str(),
         "toast": ui.global::<ShellModel>().get_toast().as_str(),
-        "account": {"section": ui.global::<AccountModel>().get_section().as_str()},
+        "account": {
+            "section": ui.global::<AccountModel>().get_section().as_str(),
+            "refresh_mode": ui.global::<AccountModel>().get_refresh_mode().as_str(),
+            "refresh_mode_note": ui.global::<AccountModel>().get_refresh_mode_note().as_str(),
+            "media_acceleration": {
+                "requested": ui.global::<AccountModel>().get_jpeg_acceleration(),
+                "available": ui.global::<AccountModel>().get_jpeg_acceleration_available(),
+                "reason": bilicomics::native_media::availability().reason(),
+                "note": ui.global::<AccountModel>().get_jpeg_acceleration_note().as_str(),
+            },
+        },
+        "native_media": bilicomics::native_media::statistics(),
         "catalog": {
             "shelf_view": catalog.get_shelf_view().as_str(), "shelf_menu": catalog.get_shelf_menu_open(),
             "shelf_page": catalog.get_shelf_page(), "shelf_pages": catalog.get_shelf_pages(),
@@ -1400,6 +1414,12 @@ fn ui_state(ui: &AppWindow) -> serde_json::Value {
         },
         "reader": {
             "fit": reader.get_fit().as_str(),
+            "refresh_mode": reader.get_refresh_mode().as_str(),
+            "refresh_mode_note": reader.get_refresh_mode_note().as_str(),
+            "presented_fast_mode": reader.get_presented_fast_mode(),
+            "jpeg_acceleration": reader.get_jpeg_acceleration(),
+            "jpeg_acceleration_available": reader.get_jpeg_acceleration_available(),
+            "jpeg_acceleration_note": reader.get_jpeg_acceleration_note().as_str(),
             "chapter_page": reader.get_chapter_page(), "chapter_pages": reader.get_chapter_pages(),
             "chapter_filter": reader.get_chapter_filter().as_str(),
             "chapter_descending": reader.get_chapter_descending(),

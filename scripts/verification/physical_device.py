@@ -40,7 +40,7 @@ SAFE_LOGS = ("launcher.log", "application.log", "watchdog.log", "recovery.log", 
              "observer-group-proofs.tsv", "launcher-timing.tsv")
 EPDC_MODES = ("Y8", "Y8INV")
 INVERT_BYTES = bytes(255 - value for value in range(256))
-CONTENT_MODES = ("demo", "distinct_fixture")
+CONTENT_MODES = ("demo", "distinct_fixture", "media_fixture")
 READER_CACHE_COUNTS = frozenset(("source_cache_bytes", "source_cache_entries"))
 GUARD_FIELDS = frozenset(("offline_socket_guard", "schema_version", "mode", "process_id", "uid", "gid",
     "effective_uid", "effective_gid", "no_new_privs", "seccomp_mode", "installed", "checks_passed", "audit_arch",
@@ -111,17 +111,23 @@ def fixture_inputs(arguments):
     fields = ("fixture_directory", "expected_fixture_sha256", "socket_guard", "expected_guard_sha256")
     supplied = [getattr(arguments, field, None) for field in fields]
     if mode == "demo":
-        require(not any(value is not None for value in supplied), "Fixture or guard inputs require explicit distinct_fixture mode.")
+        require(not any(value is not None for value in supplied), "Fixture or guard inputs require an explicit receipt-fixture mode.")
         return None
     require(all(value is not None for value in supplied), "Distinct fixtures require a pinned fixture and ARM socket guard.")
     directory = arguments.fixture_directory
     require(directory.is_dir() and not directory.is_symlink(), "The fixture input must be an independent directory.")
-    from physical.distinct_reader_fixture import validate_fixture
-    report = validate_fixture(directory)
+    if mode == "media_fixture":
+        from native_media_physical_fixture import validate_fixture
+        report = validate_fixture(directory, arguments.expected_fixture_sha256)
+        expected_kind = "native_media_offline_guest_fixture"
+    else:
+        from physical.distinct_reader_fixture import validate_fixture
+        report = validate_fixture(directory)
+        expected_kind = "distinct_offline_guest_fixture"
     require(report.get("status") == "passed" and report.get("manifest_sha256") == arguments.expected_fixture_sha256,
             "The fixture manifest differs from the selected exact SHA-256.")
     manifest = report["manifest"]
-    require(manifest.get("kind") == "distinct_offline_guest_fixture" and manifest.get("account_key") == "guest",
+    require(manifest.get("kind") == expected_kind and manifest.get("account_key") == "guest",
             "Only the controlled guest fixture is accepted.")
     guard = arguments.socket_guard
     require(guard.is_file() and not guard.is_symlink(), "The socket guard must be a regular ARM input.")
@@ -140,6 +146,30 @@ def fixture_inputs(arguments):
         files[str(relative)] = (data, 0o600)
     return {"manifest": manifest, "manifest_sha256": report["manifest_sha256"], "files": files,
             "guard": guard_data, "guard_sha256": arguments.expected_guard_sha256}
+
+
+def media_fixture_actions(manifest, relative):
+    """Select only a bounded action plan already bound by the media validator."""
+    require(manifest.get("kind") == "native_media_offline_guest_fixture"
+            and isinstance(relative, str) and re.fullmatch(r"data/[a-z0-9][a-z0-9-]{0,62}\.json", relative),
+            "The media action plan must be a validated, single-level data JSON path.")
+    require(relative in manifest.get("action_files", []), "The selected media action plan is not declared.")
+    entries = [item for item in manifest.get("files", []) if item.get("path") == relative]
+    require(len(entries) == 1, "The selected media action plan must have one manifest identity.")
+    entry = entries[0]
+    require(type(entry.get("bytes")) is int and 0 < entry["bytes"] <= 128 * 1024
+            and re.fullmatch(r"[0-9a-f]{64}", str(entry.get("sha256", ""))) is not None,
+            "The media action plan exceeds its bound or lacks an exact digest.")
+    return {"path": relative, "sha256": entry["sha256"], "bytes": entry["bytes"]}
+
+
+def media_fixture_reader_snapshot(values, manifest, kind):
+    """Keep media-validator rejection within the checkpoint retry contract."""
+    from native_media_physical_fixture import reader_snapshot
+    try:
+        return reader_snapshot(values, manifest, kind)
+    except ValueError as error:
+        raise RuntimeError(str(error)) from error
 
 
 def fixture_reader_snapshot(values, manifest, kind):
@@ -296,13 +326,17 @@ def fixture_publication(values, snapshot, pid):
             "physical_panel_update_confirmed": False}
 
 
-def fixture_ready_hint(values, manifest, kind, before=None, expect="retained"):
+def fixture_ready_hint(values, manifest, kind, before=None, expect="retained", *, media=False):
     """An inexpensive wait hint; the full identity and pixel proof remain mandatory."""
     try:
         ready = next(value for value in reversed(values) if value.get("event") == "ready")
         pid = ready["process_id"]
         require(type(pid) is int and pid > 1, "Invalid fixture readiness PID.")
-        snapshot = fixture_reader_snapshot([value for value in values if value.get("process_id") == pid], manifest, kind)
+        selected = [value for value in values if value.get("process_id") == pid]
+        if media:
+            snapshot = media_fixture_reader_snapshot(selected, manifest, kind)
+        else:
+            snapshot = fixture_reader_snapshot(selected, manifest, kind)
         if before is not None:
             old, current = before["reader_state"], snapshot["reader_state"]
             require(before["native_process"]["pid"] == pid and all(old.get(key) == current.get(key) for key in IDENTITY_FIELDS),
@@ -939,10 +973,21 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
                 if entry.filename.startswith("notices/"):
                     staged[entry.filename] = (archive.read(entry), 0o644)
                 elif entry.filename.startswith("bilicomics/app/"):
-                    staged[entry.filename[len("bilicomics/"):]] = (archive.read(entry), 0o755 if entry.filename.endswith("/bilicomics") else 0o644)
+                    executable = entry.filename in ("bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker")
+                    staged[entry.filename[len("bilicomics/"):]] = (archive.read(entry), 0o755 if executable else 0o644)
             binary_data = archive.read("bilicomics/app/bilicomics")
             arm_elf(binary_data)
             require(sha256(binary_data) == self.args.expected_binary_sha256, "The packaged ARM binary digest differs.")
+            expected_worker = getattr(self.args, "expected_worker_sha256", None)
+            worker_data = archive.read("bilicomics/app/kindle-jpeg-worker") if "bilicomics/app/kindle-jpeg-worker" in names else None
+            if worker_data is not None:
+                require(expected_worker is not None, "A packaged JPEG worker requires its explicitly selected SHA-256.")
+                require(stat.S_IMODE(archive.getinfo("bilicomics/app/kindle-jpeg-worker").external_attr >> 16) == 0o755,
+                        "The packaged JPEG worker must retain mode 0755.")
+                arm_elf(worker_data)
+                require(sha256(worker_data) == expected_worker, "The packaged ARM JPEG worker digest differs.")
+            else:
+                require(expected_worker is None, "The selected JPEG worker is missing from the package.")
             repository_pairs = [line for line in archive.read("bilicomics/data/device-allowlist").decode().splitlines()
                                 if line.strip() and not line.lstrip().startswith("#")]
             require(not repository_pairs, "The package unexpectedly changes the repository acceptance allowlist.")
@@ -960,7 +1005,7 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         (self.output / ".run-token").chmod(0o600)
         staged["data/logs/run-token"] = ((token + "\n").encode(), 0o600)
         staged["data/logs/binary-name"] = ((binary_name + "\n").encode(), 0o600)
-        mode = "distinct_fixture" if fixture is not None else "demo"
+        mode = getattr(self.args, "content_mode", "demo") if fixture is not None else "demo"
         staged["data/logs/content-mode"] = ((mode + "\n").encode(), 0o600)
         if fixture is not None:
             require(not (set(staged) & set(fixture["files"])), "Fixture inputs collide with device control files.")
@@ -983,6 +1028,22 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         response = self.remote(shell_line("sha256sum", *(self.root + "/" + name for name in sorted(digests)))).stdout.decode()
         actual = {line.split(None, 1)[1].strip(): line.split(None, 1)[0] for line in response.splitlines()}
         require(all(actual.get(self.root + "/" + name) == digest for name, digest in digests.items()), "A deployed file digest differs.")
+        if worker_data is not None:
+            worker_path = shlex.quote(self.root + "/app/kindle-jpeg-worker")
+            executable_proof = self.remote(
+                "set -eu\n" +
+                "[ -f " + worker_path + " ] && [ ! -L " + worker_path + " ] && [ -x " + worker_path + " ] || exit 4\n" +
+                "[ \"$(readlink -f " + worker_path + ")\" = " + worker_path + " ] || exit 4\n" +
+                "[ \"$(sha256sum " + worker_path + " | awk '{ print $1 }')\" = " + shlex.quote(expected_worker) + " ] || exit 4\n" +
+                "printf 'worker %s\\n' \"$(stat -c '%a' " + worker_path + ")\"\n" +
+                "printf 'application %s\\n' \"$(stat -c '%a' " + shlex.quote(self.root + "/app/" + binary_name) + ")\"\n" +
+                "printf 'framebuffer_helper %s\\n' \"$(stat -c '%a' " + shlex.quote(self.root + "/app/physical-framebuffer") + ")\"\n")
+            mode_lines = executable_proof.stdout.decode("ascii").splitlines()
+            require(len(mode_lines) == 3 and all(re.fullmatch(r"(worker|application|framebuffer_helper) [0-7]{3,4}", line)
+                                                 for line in mode_lines), "The device executable-mode observation is malformed.")
+            observed_modes = dict(line.split(" ", 1) for line in mode_lines)
+            require(set(observed_modes) == {"worker", "application", "framebuffer_helper"},
+                    "The device executable-mode observation has missing or repeated roles.")
         geometry = json.loads(self.remote(shell_line(self.root + "/app/physical-framebuffer", "--info")).stdout)
         self.check_geometry(geometry)
         if fixture is not None:
@@ -1008,6 +1069,12 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
                            "binary_sha256": self.args.expected_binary_sha256, "package_sha256": file_hash(package),
                            "deployed_file_sha256": digests, "framebuffer": geometry, "content_mode": mode,
                            "runtime_pair_scope": "this supervised isolated run only; no repository support entry"})
+        if worker_data is not None:
+            self.state["jpeg_worker"] = {"sha256": expected_worker, "path": "app/kindle-jpeg-worker",
+                                         "staged_mode": "0755", "observed_device_mode": observed_modes["worker"],
+                                         "same_filesystem_mode_observations": observed_modes,
+                                         "executable_verified": True, "deployed_identity_verified": True,
+                                         "permission_scope": "Archive and tar retain 0755; device mount may map mode bits."}
         self.save()
         return {"phase": "deployed", "binary_sha256": self.state["binary_sha256"], "framebuffer": geometry}
 
@@ -1019,7 +1086,14 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
 
     def start(self):
         require(self.state.get("phase") == "deployed", "Each isolated physical run can be started only once.")
-        if self.state.get("content_mode", "demo") == "distinct_fixture":
+        content_mode = self.state.get("content_mode", "demo")
+        selected_actions = getattr(self.args, "fixture_actions", None)
+        if content_mode == "media_fixture":
+            action_plan = media_fixture_actions(self.state["fixture_manifest"], selected_actions)
+        else:
+            require(selected_actions is None, "Scripted fixture actions require explicit media_fixture mode.")
+            action_plan = None
+        if self.state.get("content_mode", "demo") in ("distinct_fixture", "media_fixture"):
             require(self.state.get("socket_guard", {}).get("passed") is True and self.args.screen == "reader"
                     and getattr(self.args, "performance_trace", False),
                     "A distinct fixture requires the approved socket guard, Reader route and performance evidence.")
@@ -1027,6 +1101,14 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         require(10 <= self.args.init_timeout <= 120 and self.args.init_timeout < self.args.session_timeout <= 600,
                 "The independent initialization and absolute session deadlines are invalid.")
         token = self.run_token()
+        if action_plan is not None:
+            self.write(self.logs + "/media-actions-path", (action_plan["path"] + "\n").encode())
+            self.write(self.logs + "/media-actions-sha256", (action_plan["sha256"] + "\n").encode())
+            self.write(self.logs + "/media-actions-bytes", (str(action_plan["bytes"]) + "\n").encode())
+            binding = "|".join((token, self.state["fixture_manifest_sha256"], action_plan["path"],
+                                action_plan["sha256"], str(action_plan["bytes"])))
+            self.write(self.logs + "/media-actions-approved", (binding + "\n").encode())
+            self.state["media_actions"] = action_plan
         for name, value in (("screen", self.args.screen), ("exit-after-ms", str(self.args.exit_after_ms))):
             self.write(self.logs + "/" + name, (value + "\n").encode())
         performance_trace = getattr(self.args, "performance_trace", False)
@@ -1070,7 +1152,8 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         pid, ticks, executable, parent, _ = fields
         require(pid.isdecimal() and int(pid) > 1 and ticks.isdecimal() and parent.isdecimal(), "basic.pid_format: Invalid native process identity.")
         require(executable == self.root + "/app/" + self.state["binary_name"], "basic.exe_path: The application executable is outside the isolated run.")
-        fixture_mode = self.state.get("content_mode", "demo") == "distinct_fixture"
+        content_mode = self.state.get("content_mode", "demo")
+        fixture_mode = content_mode in ("distinct_fixture", "media_fixture")
         script = native_identity_basic_script(pid, self.run_token(), fixture_mode)
         rows = native_identity_output(self.remote(script, check=False), "basic").decode().splitlines()
         require(len(rows) == 3, "basic.output_shape: The native process could not be fully identified.")
@@ -1093,7 +1176,12 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
             argument_bytes, portrait_bytes = tail.rsplit(b"\0\0", 1)
             arguments = [value.decode() for value in argument_bytes.split(b"\0")]
             expected = [executable, "--kindle", "--device", self.state["profile"], "--data-dir", self.root + "/data",
-                        "--performance-trace", self.logs + "/performance.jsonl", "--offline", "--screen", "reader",
+                        "--performance-trace", self.logs + "/performance.jsonl"]
+            if content_mode == "media_fixture":
+                action_plan = media_fixture_actions(self.state["fixture_manifest"], self.state.get("media_actions", {}).get("path"))
+                require(action_plan == self.state.get("media_actions"), "The approved media action identity changed.")
+                expected += ["--actions", self.root + "/" + action_plan["path"]]
+            expected += ["--offline", "--screen", "reader",
                         "--lifecycle-trace", self.logs + "/lifecycle.jsonl", "--exit-after-ms", str(self.state["exit_after_ms"])]
             require(arguments == expected, "extra.argv_binding: The fixture UI arguments differ from the approved offline guest launch.")
             status = dict(line.split(":", 1) for line in status_bytes.decode().splitlines() if ":" in line)
@@ -1111,7 +1199,7 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
             calibration = re.fullmatch(r"(U|D|FIXED):([0-3])", portrait)
             require(calibration is not None, "extra.portrait_output: The fixture lacks an owned portrait calibration.")
             record_direction = calibration.group(1)
-            identity.update({"content_mode": "distinct_fixture", "offline_guest_native_arguments_verified": True,
+            identity.update({"content_mode": content_mode, "offline_guest_native_arguments_verified": True,
                              "socket_guard_proof": proof, "live_seccomp_mode": 2,
                              "live_no_new_privs": int(reported_no_new_privs.strip()) if reported_no_new_privs is not None else None,
                              "live_no_new_privs_scope": "proc status field when exposed; guard proof independently records the pre-exec prctl value",
@@ -1130,8 +1218,12 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         if expected_identity is not None:
             require(identity == expected_identity, "The app identity changed at the framebuffer capture boundary.")
         values = [value for value in self.trace() if value.get("process_id") == identity["pid"]]
-        if self.state.get("content_mode", "demo") == "distinct_fixture":
-            snapshot = fixture_reader_snapshot(values, self.state["fixture_manifest"], kind)
+        content_mode = self.state.get("content_mode", "demo")
+        if content_mode in ("distinct_fixture", "media_fixture"):
+            if content_mode == "media_fixture":
+                snapshot = media_fixture_reader_snapshot(values, self.state["fixture_manifest"], kind)
+            else:
+                snapshot = fixture_reader_snapshot(values, self.state["fixture_manifest"], kind)
             performance = [json.loads(line) for line in self.read(self.logs + "/performance.jsonl").splitlines(keepends=True)
                            if line.endswith(b"\n") and line.strip()]
             require(not any(value.get("kind") == "diagnostic" and value.get("stage") == "trace_stopped" for value in performance),
@@ -1140,13 +1232,16 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
             require(epdc["mode"] in EPDC_MODES, "The fixture needs an explicit current native EPDC mode.")
             publication = (fixture_publication(performance, snapshot, identity["pid"]) if kind != "suspended"
                            else {"binding": "suspended-no-frame-capture", "marker_required": False})
+            if content_mode == "media_fixture":
+                publication["marker_required"] = False
             epdc.update({"profile": self.state["profile"], **self.lease_identity, "native_process": identity,
                          "preflight": self.state.get("native_epdc_mode_preflight"), "preflight_used_as_current_mode_fallback": False})
             return {"native_process": identity, "reader_state": snapshot["reader_state"], "latest_power": snapshot["latest_power"],
                     "trace_records": len(values), "requested_checkpoint": kind, "native_epdc_mode": epdc["mode"],
-                    "native_epdc_mode_evidence": epdc, "content_mode": "distinct_fixture",
+                    "native_epdc_mode_evidence": epdc, "content_mode": content_mode,
                     "fixture_manifest_sha256": self.state["fixture_manifest_sha256"], "fixture_publication": publication,
-                    "fixture_evidence_class": "controlled-offline-receipt-fixture"}
+                    "fixture_evidence_class": ("controlled-offline-media-receipt-fixture" if content_mode == "media_fixture"
+                                               else "controlled-offline-receipt-fixture")}
         require(any(value.get("event") == "ready" for value in values), "The application has not reached UI readiness.")
         ui = next((value for value in reversed(values) if value.get("event") == "ui-state"), None)
         require(ui and ui.get("demo") is True and ui.get("view_model_fixture_only") is False,
@@ -1207,14 +1302,16 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
                      "  case \"$current_state\" in T|t) ;; *) exit 4 ;; esac\n" + \
                      "done <" + shlex.quote(self.logs + "/native-baseline.tsv") + "\n"
             self.remote(script)
-            current = self.checkpoint_value("reader" if checkpoint.get("content_mode") == "distinct_fixture"
+            current = self.checkpoint_value("reader" if checkpoint.get("content_mode") in ("distinct_fixture", "media_fixture")
                                             or checkpoint.get("ui", {}).get("route") == "reader" else "ready",
                                             expected_identity=identity)
             return current
         before = display_gate()
         fixture_mode = checkpoint.get("content_mode") == "distinct_fixture"
+        media_mode = checkpoint.get("content_mode") == "media_fixture"
+        receipt_mode = fixture_mode or media_mode
         proof_fields = ("ui", "reader_state", "latest_power", "trace_records", "native_epdc_mode", "native_epdc_mode_evidence")
-        if fixture_mode:
+        if receipt_mode:
             proof_fields += ("fixture_publication", "fixture_manifest_sha256")
         if (fixture_mode and any(before.get(field) != checkpoint.get(field) for field in proof_fields)
                 and retryable_reader_capture_change(checkpoint, before)):
@@ -1222,7 +1319,7 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         require(all(before.get(field) == checkpoint.get(field) for field in proof_fields),
                 "The reader state changed after the checkpoint; the image would not match its saved anchor.")
         before_geometry = (json.loads(self.remote(shell_line(self.root + "/app/physical-framebuffer", "--info")).stdout)
-                           if fixture_mode else None)
+                           if receipt_mode else None)
         response = self.remote(shell_line(self.root + "/app/physical-framebuffer", "--capture"), timeout=30).stdout
         pending = None
         try:
@@ -1233,7 +1330,7 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         header, pixels = response.split(b"\n", 1)
         geometry = json.loads(header)
         self.check_geometry(geometry)
-        if fixture_mode:
+        if receipt_mode:
             after_geometry = json.loads(self.remote(shell_line(self.root + "/app/physical-framebuffer", "--info")).stdout)
             require(before_geometry == geometry == after_geometry,
                     "The fixture page, native frame or framebuffer geometry changed during capture.")
@@ -1243,7 +1340,7 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         if pending is not None:
             # Only discard valid in-memory bytes. Transport, geometry and
             # conversion failures remain fatal even during a reader request.
-            if fixture_mode:
+            if receipt_mode:
                 fixture_projection_binding(geometry, projection, checkpoint)
             raise pending
         change = None
@@ -1259,10 +1356,12 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
                     "The demo UI changed during capture; the framebuffer payload was discarded.")
             require(before.get("native_epdc_mode_evidence") == after.get("native_epdc_mode_evidence"),
                     "The explicit native EPDC snapshot changed during capture; the framebuffer payload was discarded.")
-            if fixture_mode:
+            if receipt_mode:
                 require(all(before.get(key) == after.get(key) for key in proof_fields),
                         "The fixture page, native frame or framebuffer geometry changed during capture.")
         raw_path = self.output / (name + ".framebuffer.raw")
+        if media_mode:
+            fixture_projection_binding(geometry, projection, checkpoint)
         with raw_path.open("xb") as stream:
             stream.write(pixels)
         raw_sha256 = file_hash(raw_path)
@@ -1300,6 +1399,10 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         if fixture_mode:
             record.update({"fixture_marker": marker, "content_mode": "distinct_fixture",
                            "fixture_evidence_class": "controlled-offline-receipt-fixture"})
+        elif media_mode:
+            record.update({"content_mode": "media_fixture", "synthetic_marker_oracle_used": False,
+                           "fixture_manifest_sha256": checkpoint["fixture_manifest_sha256"],
+                           "fixture_evidence_class": "controlled-offline-media-receipt-fixture"})
         json_write(self.output / (name + ".framebuffer.json"), record)
         return record
 
@@ -1307,7 +1410,8 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         require(self.state.get("phase") == "running", "A checkpoint requires this run's active independent watchdog.")
         require(re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", self.args.name) is not None, "Unsafe checkpoint name.")
         require(self.args.name not in self.state["checkpoints"], "Each checkpoint name must be new.")
-        fixture_mode = self.state.get("content_mode", "demo") == "distinct_fixture"
+        content_mode = self.state.get("content_mode", "demo")
+        fixture_mode = content_mode in ("distinct_fixture", "media_fixture")
         if fixture_mode:
             require(self.args.capture == (self.args.require != "suspended"),
                     "An awake fixture checkpoint requires its marker capture; suspended checkpoints forbid captures.")
@@ -1352,7 +1456,10 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
                 hints = self.trace()
                 before = self.state["checkpoints"].get(self.args.compare_to)
                 hint = (fixture_ready_hint(hints, self.state["fixture_manifest"], self.args.require, before, self.args.expect)
-                        if fixture_mode else checkpoint_ready_hint(hints, self.args.require, before, self.args.expect))
+                        if content_mode == "distinct_fixture" else
+                        fixture_ready_hint(hints, self.state["fixture_manifest"], self.args.require, before, self.args.expect,
+                                           media=True) if content_mode == "media_fixture" else
+                        checkpoint_ready_hint(hints, self.args.require, before, self.args.expect))
                 require(hint,
                         "The untrusted lifecycle hint has not reached the requested checkpoint.")
                 stage = "native_proof"
@@ -1587,6 +1694,8 @@ def arguments():
     deploy.add_argument("--package", type=Path, required=True)
     deploy.add_argument("--expected-package-sha256", type=digest_argument, required=True)
     deploy.add_argument("--expected-binary-sha256", type=digest_argument, required=True)
+    deploy.add_argument("--expected-worker-sha256", type=digest_argument,
+                        help="Required when the selected package contains kindle-jpeg-worker.")
     deploy.add_argument("--framebuffer-helper", type=Path, required=True)
     deploy.add_argument("--expected-helper-sha256", type=digest_argument, required=True)
     deploy.add_argument("--wrapper", type=Path, required=True)
@@ -1606,6 +1715,7 @@ def arguments():
     start.add_argument("--assisted", action="store_true")
     start.add_argument("--performance-trace", action="store_true",
                        help="Opt into bounded per-stage timing for this isolated application run.")
+    start.add_argument("--fixture-actions", help="For media_fixture only: an exact validated data/<name>.json plan.")
     checkpoint = commands.add_parser("checkpoint")
     checkpoint.add_argument("--name", required=True)
     checkpoint.add_argument("--require", choices=("ready", "reader", "suspended", "resumed"), default="ready")

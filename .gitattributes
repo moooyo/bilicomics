@@ -12,5 +12,16 @@
 # Preserve the exact pinned upstream reference bytes and checksum contract.
 /vendor/image-triangle-reference-0.25.10/** -text
 
+# Keep copied native-media source snapshots identical to their provenance hashes.
+/vendor/aidoku-native-media/upstream/** -text
+/vendor/aidoku-native-media/LICENSE-GPL-3.0-or-later -text
+
 # Preserve frozen screenshot and exported-viewer checksums on every platform.
 /docs/uiux/baselines/** -text
+
+# Preserve the exact frozen fast-reading verification records.
+/docs/verification/fast-reading-20261116/** -text
+
+# Preserve the original sanitized physical receipts and their bound report.
+/docs/physical/native-media-20261116/** -text
+/docs/KINDLE_MEDIA_ACCELERATION_PHYSICAL_20261116.md -text

@@ -1,0 +1,4629 @@
+{
+  "suite": "native_media_desktop_settings",
+  "passed": true,
+  "started_at": "2026-11-15T14:05:20.634420+00:00",
+  "source": {
+    "base_commit": "2da87ab512fded000174b7542767082a3a94e147",
+    "source_fingerprint": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+    "source_manifest_sha256": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+    "source_input_count": 514,
+    "worktree_clean_claimed": false
+  },
+  "binary_sha256": "0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c",
+  "harness_sha256": "47a5c1bc78497fb23c225a77530ec9a4ee841c2a28b36135a9c94fb909ce2664",
+  "harness_dependencies": {
+    "capture_uiux_baseline.py": "f6542826ba8341ec076a28676946d0fee4ffb6ec26784fcd6fde04de62688fc8",
+    "pointer_v2.py": "3a37e489a6cb62a7aa44a83366a760fe0bcf1b3b7dc7ec2ea7ec29501322f156",
+    "ui_refinement.py": "d7e69924f331ff13891e328e34fe14c4f949918d56b5af796801039c370f1b0a",
+    "harness_signals.py": "7f5b53950df38b5c83778afd03d5bd50d15a238391af48cd77f3f3f12add0de5"
+  },
+  "capture_host": "test-env",
+  "scale_factor": 2,
+  "input_protocol": {
+    "method": "XTest",
+    "motion_separate_flush_and_sync": true,
+    "pre_down_event_loop_slot_ms": 80,
+    "tap_hold_ms": 80,
+    "focus_or_raise": false,
+    "scope": "Headless input-delivery precondition; not a production application fix"
+  },
+  "visual_review_status": "pending",
+  "scope": "Desktop preference gates, persistence, anchor/Y4 invariants and untouched X11 captures",
+  "physical_device_used": false,
+  "native_driver_exercised": false,
+  "live_account_used": false,
+  "hardware_compatibility_claimed": false,
+  "sessions": [
+    {
+      "profile": "pw6",
+      "session": "account",
+      "landscape": false,
+      "offline": true,
+      "clicks": [
+        {
+          "name": "Open default reading settings",
+          "logical_point": [
+            316.0,
+            202
+          ],
+          "physical_point": [
+            632,
+            404
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 26
+        },
+        {
+          "name": "Attempt disabled JPEG acceleration",
+          "logical_point": [
+            578.0,
+            644.0
+          ],
+          "physical_point": [
+            1156,
+            1288
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 27
+        }
+      ],
+      "screenshots": [
+        {
+          "id": "10-account-reading",
+          "profile": "pw6",
+          "session": "account",
+          "captured_at": "2026-11-15T14:05:24.637949+00:00",
+          "file": "raw/pw6/10-account-reading.png",
+          "sha256": "02164895a75df2779ac32b50db444ef3d580913f8508c93060adb549a95cce0f",
+          "width": 1264,
+          "height": 1680,
+          "logical_size": [
+            632,
+            840
+          ],
+          "scale_factor": 2,
+          "binary_sha256": "0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c",
+          "process_id": 1963801,
+          "source": "Actual X11 application window",
+          "pixel_processing": "None; untouched X11 RGB pixels",
+          "stability": {
+            "minimum_settle_seconds": 1.5,
+            "identical_samples": 3,
+            "sampling_seconds": 0.988
+          },
+          "ui_record": {
+            "demo": true,
+            "elapsed_ms": 1332.871326,
+            "event": "ui-state",
+            "monotonic_ns": 493655462025282,
+            "native_epdc_mode": null,
+            "process_id": 1963801,
+            "state": {
+              "account": {
+                "media_acceleration": {
+                  "available": false,
+                  "note": "当前预览环境未启用 JPEG 硬件加速。",
+                  "reason": "platform",
+                  "requested": false
+                },
+                "section": "reading"
+              },
+              "catalog": {
+                "candidate_page": 0,
+                "candidate_pages": 1,
+                "candidates": [],
+                "composition": "",
+                "detail_id": "",
+                "download_selecting": false,
+                "episode_filter": "all",
+                "episode_page": 1,
+                "episode_pages": 1,
+                "keyboard": true,
+                "query": "",
+                "selection_count": 0,
+                "selection_size": "",
+                "shelf_menu": false,
+                "shelf_page": 1,
+                "shelf_pages": 1,
+                "shelf_view": "grid"
+              },
+              "downloads": {
+                "all_paused": false,
+                "can_read": false,
+                "has_active": false,
+                "items": [],
+                "selected_count": 0,
+                "selecting": false,
+                "sheet_id": "",
+                "sheet_open": false,
+                "status_summary": "",
+                "summary": "",
+                "task_primary_action": "",
+                "task_secondary_action": ""
+              },
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "reader": {
+                "chapter_capacity": 14,
+                "chapter_count": 0,
+                "chapter_descending": false,
+                "chapter_filter": "all",
+                "chapter_page": 1,
+                "chapter_pages": 1,
+                "chapter_rows": [],
+                "fit": "page",
+                "jpeg_acceleration": false,
+                "jpeg_acceleration_available": false,
+                "jpeg_acceleration_note": "",
+                "loading": false,
+                "menu": false,
+                "mode": "page",
+                "page": 1,
+                "panel": 1,
+                "sheet": "",
+                "strip_screen": 1,
+                "thumbnail_count": 0,
+                "thumbnails_loading": false,
+                "transition": false
+              },
+              "route": "account",
+              "toast": ""
+            },
+            "view_model_fixture_only": false
+          },
+          "reader_record": null,
+          "demo": true,
+          "live_account_used": false,
+          "physical_device_used": false,
+          "captured_source": {
+            "base_commit": "2da87ab512fded000174b7542767082a3a94e147",
+            "source_fingerprint": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_manifest_sha256": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_input_count": 514,
+            "worktree_clean_claimed": false
+          }
+        }
+      ],
+      "complete": true,
+      "passed": true,
+      "input_scope": "Actual XTest input only",
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--device",
+        "pw6",
+        "--screen",
+        "account",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-account/data",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-account/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-account/final.png",
+        "--exit-after-ms",
+        "240000",
+        "--offline"
+      ],
+      "process_id": 1963801,
+      "scale_factor": 2,
+      "ready_record": {
+        "elapsed_ms": 626.977839,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 493654756132615,
+        "native_epdc_mode": null,
+        "process_id": 1963801,
+        "reader_loading": false,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 0,
+          "cover_resident_count": 0,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 2,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": false,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": null,
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": null,
+        "route": "account"
+      },
+      "window": {
+        "id": "0x400003",
+        "x": 0,
+        "y": 0,
+        "width": 1264,
+        "height": 1680
+      },
+      "disabled_switch": {
+        "track": {
+          "left": 1096,
+          "right": 1216,
+          "top": 1257,
+          "bottom": 1320,
+          "point": [
+            578.0,
+            644.0
+          ],
+          "source": "Actual X11 pixels; rectangular switch border"
+        },
+        "no_new_ui_event_required": true,
+        "quiet_seconds": 0.65,
+        "body_pixels_unchanged": true,
+        "status_clock_excluded_from_comparison": true,
+        "preferences_unchanged": true,
+        "anchor_and_y4_unchanged": false,
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "final_metadata": {
+        "account_section": "reading",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          632,
+          840
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 1963801,
+        "profile": "pw6",
+        "reader": {
+          "comic_title": "",
+          "direction": "ltr",
+          "episode_title": "",
+          "fit": "page",
+          "loading": false,
+          "menu": false,
+          "mode": "page",
+          "page": 1,
+          "pages": 1,
+          "panel": 1,
+          "sheet": "",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "account",
+        "snapshot_size": [
+          1264,
+          1680
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "media_acceleration": {
+              "available": false,
+              "note": "当前预览环境未启用 JPEG 硬件加速。",
+              "reason": "platform",
+              "requested": false
+            },
+            "section": "reading"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 0,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "",
+            "loading": false,
+            "menu": false,
+            "mode": "page",
+            "page": 1,
+            "panel": 1,
+            "sheet": "",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "account",
+          "toast": ""
+        },
+        "window_size": [
+          1264,
+          1680
+        ]
+      },
+      "cleanup": {
+        "started": true,
+        "process_id": 1963801,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    },
+    {
+      "profile": "pw6",
+      "session": "reader-portrait",
+      "landscape": false,
+      "offline": true,
+      "clicks": [
+        {
+          "name": "Open reading controls",
+          "logical_point": [
+            316.0,
+            420.0
+          ],
+          "physical_point": [
+            632,
+            840
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 29
+        },
+        {
+          "name": "Open reading settings",
+          "logical_point": [
+            243.0,
+            802
+          ],
+          "physical_point": [
+            486,
+            1604
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 32
+        },
+        {
+          "name": "Attempt disabled JPEG acceleration",
+          "logical_point": [
+            578.0,
+            724.5
+          ],
+          "physical_point": [
+            1156,
+            1449
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 34
+        }
+      ],
+      "screenshots": [
+        {
+          "id": "20-reader-settings",
+          "profile": "pw6",
+          "session": "reader-portrait",
+          "captured_at": "2026-11-15T14:05:30.741610+00:00",
+          "file": "raw/pw6/20-reader-settings.png",
+          "sha256": "792e43ff484bd88ba8e0779e30a56925cc699bb1b9bd1dbc71d36928f2e05c6f",
+          "width": 1264,
+          "height": 1680,
+          "logical_size": [
+            632,
+            840
+          ],
+          "scale_factor": 2,
+          "binary_sha256": "0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c",
+          "process_id": 1963937,
+          "source": "Actual X11 application window",
+          "pixel_processing": "None; untouched X11 RGB pixels",
+          "stability": {
+            "minimum_settle_seconds": 1.5,
+            "identical_samples": 3,
+            "sampling_seconds": 0.987
+          },
+          "ui_record": {
+            "demo": true,
+            "elapsed_ms": 2005.6744210000002,
+            "event": "ui-state",
+            "monotonic_ns": 493661581463224,
+            "native_epdc_mode": null,
+            "process_id": 1963937,
+            "state": {
+              "account": {
+                "media_acceleration": {
+                  "available": false,
+                  "note": "",
+                  "reason": "platform",
+                  "requested": false
+                },
+                "section": "account"
+              },
+              "catalog": {
+                "candidate_page": 0,
+                "candidate_pages": 1,
+                "candidates": [],
+                "composition": "",
+                "detail_id": "",
+                "download_selecting": false,
+                "episode_filter": "all",
+                "episode_page": 1,
+                "episode_pages": 1,
+                "keyboard": true,
+                "query": "",
+                "selection_count": 0,
+                "selection_size": "",
+                "shelf_menu": false,
+                "shelf_page": 1,
+                "shelf_pages": 1,
+                "shelf_view": "grid"
+              },
+              "downloads": {
+                "all_paused": false,
+                "can_read": false,
+                "has_active": false,
+                "items": [],
+                "selected_count": 0,
+                "selecting": false,
+                "sheet_id": "",
+                "sheet_open": false,
+                "status_summary": "",
+                "summary": "",
+                "task_primary_action": "",
+                "task_secondary_action": ""
+              },
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "reader": {
+                "chapter_capacity": 10,
+                "chapter_count": 32,
+                "chapter_descending": false,
+                "chapter_filter": "all",
+                "chapter_page": 1,
+                "chapter_pages": 1,
+                "chapter_rows": [],
+                "fit": "page",
+                "jpeg_acceleration": false,
+                "jpeg_acceleration_available": false,
+                "jpeg_acceleration_note": "当前预览环境未启用 JPEG 硬件加速。",
+                "loading": false,
+                "menu": true,
+                "mode": "page",
+                "page": 18,
+                "panel": 1,
+                "sheet": "display",
+                "strip_screen": 1,
+                "thumbnail_count": 0,
+                "thumbnails_loading": false,
+                "transition": false
+              },
+              "route": "reader",
+              "toast": ""
+            },
+            "view_model_fixture_only": false
+          },
+          "reader_record": {
+            "elapsed_ms": 2005.9614319999998,
+            "event": "reader-ready",
+            "frame_size": [
+              632,
+              840
+            ],
+            "monotonic_ns": 493661581751725,
+            "native_epdc_mode": null,
+            "process_id": 1963937,
+            "reader_loading": false,
+            "reader_resources": {
+              "chapters_count": 0,
+              "cover_image_budget_bytes": 67108864,
+              "cover_resident_bytes": 940800,
+              "cover_resident_count": 1,
+              "media_availability": "platform",
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "overview_image_size": {
+                "height": 0,
+                "width": 0
+              },
+              "page_size": {
+                "height": 840,
+                "width": 632
+              },
+              "pending_job_keys": 0,
+              "prepared_frame_budget": 33554432,
+              "prepared_frame_bytes": 2325832,
+              "prepared_frame_state": "ready",
+              "processed_source_cache_budget": 16777216,
+              "processed_source_cache_bytes": 0,
+              "processed_source_cache_entries": 0,
+              "reader_active": true,
+              "reader_checkpoint": {
+                "completed_writes": 1,
+                "failed_attempts": 0,
+                "in_flight": false,
+                "pending": false,
+                "retries": 0
+              },
+              "reader_generation": 2,
+              "second_page_size": {
+                "height": 0,
+                "width": 0
+              },
+              "source_cache_budget": 33554432,
+              "source_cache_bytes": 8024000,
+              "source_cache_entries": 2,
+              "thumbnails_count": 0
+            },
+            "reader_state": {
+              "chapter_capacity": 14,
+              "chapter_descending": false,
+              "chapter_filter": "all",
+              "chapter_page": 1,
+              "chapter_pages": 1,
+              "chapters_count": 0,
+              "comic_id": "28601",
+              "core_mode": "page",
+              "cover_alone": true,
+              "crop_count": 1,
+              "crop_index": 0,
+              "demo_strip": false,
+              "direction": "ltr",
+              "dither": true,
+              "dither_method": "software",
+              "effective_spread": false,
+              "episode_id": "2860112",
+              "fit": "page",
+              "focus_height": 1.0,
+              "focus_width": 1.0,
+              "focus_x": 0.0,
+              "focus_y": 0.0,
+              "footer": true,
+              "frame_height": 840,
+              "frame_width": 632,
+              "hardware_dither": false,
+              "hardware_y4_available": false,
+              "hardware_y4_requested": false,
+              "jpeg_acceleration": false,
+              "landscape_layout": "spread",
+              "launch_preference": "resume",
+              "left_page_number": 18,
+              "media_acceleration": "off",
+              "media_availability": "platform",
+              "menu": true,
+              "mode": "page",
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+              "page_index": 17,
+              "page_number": 18,
+              "presented_fit": "page",
+              "presented_media_acceleration": "off",
+              "processed_source_cache_budget": 16777216,
+              "processed_source_cache_bytes": 0,
+              "processed_source_cache_entries": 0,
+              "reader_generation": 2,
+              "render_version": 1,
+              "rendering": false,
+              "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+              "right_page_number": 0,
+              "rotation": 0,
+              "route": "reader",
+              "second_frame_height": 0,
+              "second_frame_width": 0,
+              "sheet": "display",
+              "source_cache_budget": 33554432,
+              "source_cache_bytes": 8024000,
+              "source_cache_entries": 2,
+              "source_x": 0.0,
+              "source_y": 0.0,
+              "target_fit": "page",
+              "target_hardware_dither": false,
+              "target_media_acceleration": "off",
+              "thumbnail_version": 0,
+              "thumbnails_count": 0,
+              "thumbnails_loaded_count": 0,
+              "thumbnails_loading": false,
+              "thumbnails_rendering": false,
+              "transition": false,
+              "viewport_height": 840,
+              "viewport_width": 632,
+              "zoom_ratio": 1.0
+            },
+            "route": "reader"
+          },
+          "demo": true,
+          "live_account_used": false,
+          "physical_device_used": false,
+          "captured_source": {
+            "base_commit": "2da87ab512fded000174b7542767082a3a94e147",
+            "source_fingerprint": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_manifest_sha256": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_input_count": 514,
+            "worktree_clean_claimed": false
+          }
+        }
+      ],
+      "complete": true,
+      "passed": true,
+      "input_scope": "Actual XTest input only",
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--device",
+        "pw6",
+        "--screen",
+        "reader",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-reader-portrait/data",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-reader-portrait/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-reader-portrait/final.png",
+        "--exit-after-ms",
+        "240000",
+        "--offline"
+      ],
+      "process_id": 1963937,
+      "scale_factor": 2,
+      "ready_record": {
+        "elapsed_ms": 641.9717780000001,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 493660217761871,
+        "native_epdc_mode": null,
+        "process_id": 1963937,
+        "reader_loading": true,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 0,
+          "cover_resident_count": 0,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 3,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": true,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": 2,
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": {
+          "chapter_capacity": 14,
+          "chapter_descending": false,
+          "chapter_filter": "all",
+          "chapter_page": 1,
+          "chapter_pages": 1,
+          "chapters_count": 0,
+          "comic_id": "28601",
+          "core_mode": "page",
+          "cover_alone": true,
+          "crop_count": 1,
+          "crop_index": 0,
+          "demo_strip": false,
+          "direction": "ltr",
+          "dither": true,
+          "dither_method": "software",
+          "effective_spread": false,
+          "episode_id": "2860112",
+          "fit": "page",
+          "focus_height": 0.0,
+          "focus_width": 0.0,
+          "focus_x": 0.0,
+          "focus_y": 0.0,
+          "footer": true,
+          "frame_height": 0,
+          "frame_width": 0,
+          "hardware_dither": false,
+          "hardware_y4_available": false,
+          "hardware_y4_requested": false,
+          "jpeg_acceleration": false,
+          "landscape_layout": "spread",
+          "launch_preference": "resume",
+          "left_page_number": 0,
+          "media_acceleration": "off",
+          "media_availability": "platform",
+          "menu": false,
+          "mode": "page",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+          "page_index": 17,
+          "page_number": 18,
+          "presented_fit": "page",
+          "presented_media_acceleration": "off",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_generation": 2,
+          "render_version": 1,
+          "rendering": true,
+          "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+          "right_page_number": 0,
+          "rotation": 0,
+          "route": "reader",
+          "second_frame_height": 0,
+          "second_frame_width": 0,
+          "sheet": "",
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "target_fit": "page",
+          "target_hardware_dither": false,
+          "target_media_acceleration": "off",
+          "thumbnail_version": 0,
+          "thumbnails_count": 0,
+          "thumbnails_loaded_count": 0,
+          "thumbnails_loading": false,
+          "thumbnails_rendering": false,
+          "transition": false,
+          "viewport_height": 840,
+          "viewport_width": 632,
+          "zoom_ratio": 1.0
+        },
+        "route": "reader"
+      },
+      "window": {
+        "id": "0x400003",
+        "x": 0,
+        "y": 0,
+        "width": 1264,
+        "height": 1680
+      },
+      "reader_invariants": {
+        "anchor": {
+          "comic_id": "28601",
+          "episode_id": "2860112",
+          "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+          "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+          "page_index": 17,
+          "crop_index": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "zoom_ratio": 1.0,
+          "rotation": 0,
+          "core_mode": "page",
+          "fit": "page",
+          "direction": "ltr"
+        },
+        "y4": {
+          "dither": true,
+          "dither_method": "software",
+          "hardware_y4_available": false,
+          "hardware_dither": false,
+          "target_hardware_dither": false,
+          "hardware_y4_requested": false
+        }
+      },
+      "disabled_switch": {
+        "track": {
+          "left": 1096,
+          "right": 1216,
+          "top": 1418,
+          "bottom": 1481,
+          "point": [
+            578.0,
+            724.5
+          ],
+          "source": "Actual X11 pixels; rectangular switch border"
+        },
+        "no_new_ui_event_required": true,
+        "quiet_seconds": 0.65,
+        "body_pixels_unchanged": true,
+        "status_clock_excluded_from_comparison": true,
+        "preferences_unchanged": true,
+        "anchor_and_y4_unchanged": true,
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "final_metadata": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          632,
+          840
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 1963937,
+        "profile": "pw6",
+        "reader": {
+          "comic_title": "山海邮差",
+          "direction": "ltr",
+          "episode_title": "第12话 雨停以前",
+          "fit": "page",
+          "loading": false,
+          "menu": true,
+          "mode": "page",
+          "page": 18,
+          "pages": 45,
+          "panel": 1,
+          "sheet": "display",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "reader",
+        "snapshot_size": [
+          1264,
+          1680
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 10,
+            "chapter_count": 32,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "当前预览环境未启用 JPEG 硬件加速。",
+            "loading": false,
+            "menu": true,
+            "mode": "page",
+            "page": 18,
+            "panel": 1,
+            "sheet": "display",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "reader",
+          "toast": ""
+        },
+        "window_size": [
+          1264,
+          1680
+        ]
+      },
+      "cleanup": {
+        "started": true,
+        "process_id": 1963937,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    },
+    {
+      "profile": "pw6",
+      "session": "reader-landscape",
+      "landscape": true,
+      "offline": true,
+      "clicks": [
+        {
+          "name": "Open reading controls",
+          "logical_point": [
+            420.0,
+            316.0
+          ],
+          "physical_point": [
+            840,
+            632
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 30
+        },
+        {
+          "name": "Open reading settings",
+          "logical_point": [
+            321.0,
+            594
+          ],
+          "physical_point": [
+            642,
+            1188
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 32
+        },
+        {
+          "name": "Attempt disabled JPEG acceleration",
+          "logical_point": [
+            786.0,
+            536.5
+          ],
+          "physical_point": [
+            1572,
+            1073
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 34
+        }
+      ],
+      "screenshots": [
+        {
+          "id": "27-reader-settings-landscape",
+          "profile": "pw6",
+          "session": "reader-landscape",
+          "captured_at": "2026-11-15T14:05:36.853044+00:00",
+          "file": "raw/pw6/27-reader-settings-landscape.png",
+          "sha256": "84e41717eb256af42d939047e93a35008729007748356b44264db7da5050f8dd",
+          "width": 1680,
+          "height": 1264,
+          "logical_size": [
+            840,
+            632
+          ],
+          "scale_factor": 2,
+          "binary_sha256": "0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c",
+          "process_id": 1963973,
+          "source": "Actual X11 application window",
+          "pixel_processing": "None; untouched X11 RGB pixels",
+          "stability": {
+            "minimum_settle_seconds": 1.5,
+            "identical_samples": 3,
+            "sampling_seconds": 0.985
+          },
+          "ui_record": {
+            "demo": true,
+            "elapsed_ms": 1959.4247930000001,
+            "event": "ui-state",
+            "monotonic_ns": 493667695646304,
+            "native_epdc_mode": null,
+            "process_id": 1963973,
+            "state": {
+              "account": {
+                "media_acceleration": {
+                  "available": false,
+                  "note": "",
+                  "reason": "platform",
+                  "requested": false
+                },
+                "section": "account"
+              },
+              "catalog": {
+                "candidate_page": 0,
+                "candidate_pages": 1,
+                "candidates": [],
+                "composition": "",
+                "detail_id": "",
+                "download_selecting": false,
+                "episode_filter": "all",
+                "episode_page": 1,
+                "episode_pages": 1,
+                "keyboard": true,
+                "query": "",
+                "selection_count": 0,
+                "selection_size": "",
+                "shelf_menu": false,
+                "shelf_page": 1,
+                "shelf_pages": 1,
+                "shelf_view": "grid"
+              },
+              "downloads": {
+                "all_paused": false,
+                "can_read": false,
+                "has_active": false,
+                "items": [],
+                "selected_count": 0,
+                "selecting": false,
+                "sheet_id": "",
+                "sheet_open": false,
+                "status_summary": "",
+                "summary": "",
+                "task_primary_action": "",
+                "task_secondary_action": ""
+              },
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "reader": {
+                "chapter_capacity": 6,
+                "chapter_count": 32,
+                "chapter_descending": false,
+                "chapter_filter": "all",
+                "chapter_page": 1,
+                "chapter_pages": 1,
+                "chapter_rows": [],
+                "fit": "page",
+                "jpeg_acceleration": false,
+                "jpeg_acceleration_available": false,
+                "jpeg_acceleration_note": "当前预览环境未启用 JPEG 硬件加速。",
+                "loading": false,
+                "menu": true,
+                "mode": "page",
+                "page": 18,
+                "panel": 1,
+                "sheet": "display",
+                "strip_screen": 1,
+                "thumbnail_count": 0,
+                "thumbnails_loading": false,
+                "transition": false
+              },
+              "route": "reader",
+              "toast": ""
+            },
+            "view_model_fixture_only": false
+          },
+          "reader_record": {
+            "elapsed_ms": 1959.7428539999999,
+            "event": "reader-ready",
+            "frame_size": [
+              840,
+              632
+            ],
+            "monotonic_ns": 493667695965706,
+            "native_epdc_mode": null,
+            "process_id": 1963973,
+            "reader_loading": false,
+            "reader_resources": {
+              "chapters_count": 0,
+              "cover_image_budget_bytes": 67108864,
+              "cover_resident_bytes": 940800,
+              "cover_resident_count": 1,
+              "media_availability": "platform",
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "overview_image_size": {
+                "height": 0,
+                "width": 0
+              },
+              "page_size": {
+                "height": 632,
+                "width": 840
+              },
+              "pending_job_keys": 0,
+              "prepared_frame_budget": 33554432,
+              "prepared_frame_bytes": 2325832,
+              "prepared_frame_state": "ready",
+              "processed_source_cache_budget": 16777216,
+              "processed_source_cache_bytes": 0,
+              "processed_source_cache_entries": 0,
+              "reader_active": true,
+              "reader_checkpoint": {
+                "completed_writes": 1,
+                "failed_attempts": 0,
+                "in_flight": false,
+                "pending": false,
+                "retries": 0
+              },
+              "reader_generation": 2,
+              "second_page_size": {
+                "height": 0,
+                "width": 0
+              },
+              "source_cache_budget": 33554432,
+              "source_cache_bytes": 8024000,
+              "source_cache_entries": 2,
+              "thumbnails_count": 0
+            },
+            "reader_state": {
+              "chapter_capacity": 14,
+              "chapter_descending": false,
+              "chapter_filter": "all",
+              "chapter_page": 1,
+              "chapter_pages": 1,
+              "chapters_count": 0,
+              "comic_id": "28601",
+              "core_mode": "page",
+              "cover_alone": true,
+              "crop_count": 1,
+              "crop_index": 0,
+              "demo_strip": false,
+              "direction": "ltr",
+              "dither": true,
+              "dither_method": "software",
+              "effective_spread": false,
+              "episode_id": "2860112",
+              "fit": "page",
+              "focus_height": 1.0,
+              "focus_width": 1.0,
+              "focus_x": 0.0,
+              "focus_y": 0.0,
+              "footer": true,
+              "frame_height": 632,
+              "frame_width": 840,
+              "hardware_dither": false,
+              "hardware_y4_available": false,
+              "hardware_y4_requested": false,
+              "jpeg_acceleration": false,
+              "landscape_layout": "spread",
+              "launch_preference": "resume",
+              "left_page_number": 18,
+              "media_acceleration": "off",
+              "media_availability": "platform",
+              "menu": true,
+              "mode": "page",
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+              "page_index": 17,
+              "page_number": 18,
+              "presented_fit": "page",
+              "presented_media_acceleration": "off",
+              "processed_source_cache_budget": 16777216,
+              "processed_source_cache_bytes": 0,
+              "processed_source_cache_entries": 0,
+              "reader_generation": 2,
+              "render_version": 1,
+              "rendering": false,
+              "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+              "right_page_number": 0,
+              "rotation": 0,
+              "route": "reader",
+              "second_frame_height": 0,
+              "second_frame_width": 0,
+              "sheet": "display",
+              "source_cache_budget": 33554432,
+              "source_cache_bytes": 8024000,
+              "source_cache_entries": 2,
+              "source_x": 0.0,
+              "source_y": 0.0,
+              "target_fit": "page",
+              "target_hardware_dither": false,
+              "target_media_acceleration": "off",
+              "thumbnail_version": 0,
+              "thumbnails_count": 0,
+              "thumbnails_loaded_count": 0,
+              "thumbnails_loading": false,
+              "thumbnails_rendering": false,
+              "transition": false,
+              "viewport_height": 632,
+              "viewport_width": 840,
+              "zoom_ratio": 1.0
+            },
+            "route": "reader"
+          },
+          "demo": true,
+          "live_account_used": false,
+          "physical_device_used": false,
+          "captured_source": {
+            "base_commit": "2da87ab512fded000174b7542767082a3a94e147",
+            "source_fingerprint": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_manifest_sha256": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_input_count": 514,
+            "worktree_clean_claimed": false
+          }
+        }
+      ],
+      "complete": true,
+      "passed": true,
+      "input_scope": "Actual XTest input only",
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--device",
+        "pw6",
+        "--screen",
+        "reader",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-reader-landscape/data",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-reader-landscape/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-reader-landscape/final.png",
+        "--exit-after-ms",
+        "240000",
+        "--landscape",
+        "--offline"
+      ],
+      "process_id": 1963973,
+      "scale_factor": 2,
+      "ready_record": {
+        "elapsed_ms": 648.33883,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 493666384561501,
+        "native_epdc_mode": null,
+        "process_id": 1963973,
+        "reader_loading": true,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 0,
+          "cover_resident_count": 0,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 3,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": true,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": 2,
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": {
+          "chapter_capacity": 14,
+          "chapter_descending": false,
+          "chapter_filter": "all",
+          "chapter_page": 1,
+          "chapter_pages": 1,
+          "chapters_count": 0,
+          "comic_id": "28601",
+          "core_mode": "page",
+          "cover_alone": true,
+          "crop_count": 1,
+          "crop_index": 0,
+          "demo_strip": false,
+          "direction": "ltr",
+          "dither": true,
+          "dither_method": "software",
+          "effective_spread": false,
+          "episode_id": "2860112",
+          "fit": "page",
+          "focus_height": 0.0,
+          "focus_width": 0.0,
+          "focus_x": 0.0,
+          "focus_y": 0.0,
+          "footer": true,
+          "frame_height": 0,
+          "frame_width": 0,
+          "hardware_dither": false,
+          "hardware_y4_available": false,
+          "hardware_y4_requested": false,
+          "jpeg_acceleration": false,
+          "landscape_layout": "spread",
+          "launch_preference": "resume",
+          "left_page_number": 0,
+          "media_acceleration": "off",
+          "media_availability": "platform",
+          "menu": false,
+          "mode": "page",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+          "page_index": 17,
+          "page_number": 18,
+          "presented_fit": "page",
+          "presented_media_acceleration": "off",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_generation": 2,
+          "render_version": 1,
+          "rendering": true,
+          "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+          "right_page_number": 0,
+          "rotation": 0,
+          "route": "reader",
+          "second_frame_height": 0,
+          "second_frame_width": 0,
+          "sheet": "",
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "target_fit": "page",
+          "target_hardware_dither": false,
+          "target_media_acceleration": "off",
+          "thumbnail_version": 0,
+          "thumbnails_count": 0,
+          "thumbnails_loaded_count": 0,
+          "thumbnails_loading": false,
+          "thumbnails_rendering": false,
+          "transition": false,
+          "viewport_height": 632,
+          "viewport_width": 840,
+          "zoom_ratio": 1.0
+        },
+        "route": "reader"
+      },
+      "window": {
+        "id": "0x400003",
+        "x": 0,
+        "y": 0,
+        "width": 1680,
+        "height": 1264
+      },
+      "reader_invariants": {
+        "anchor": {
+          "comic_id": "28601",
+          "episode_id": "2860112",
+          "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+          "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+          "page_index": 17,
+          "crop_index": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "zoom_ratio": 1.0,
+          "rotation": 0,
+          "core_mode": "page",
+          "fit": "page",
+          "direction": "ltr"
+        },
+        "y4": {
+          "dither": true,
+          "dither_method": "software",
+          "hardware_y4_available": false,
+          "hardware_dither": false,
+          "target_hardware_dither": false,
+          "hardware_y4_requested": false
+        }
+      },
+      "disabled_switch": {
+        "track": {
+          "left": 1512,
+          "right": 1632,
+          "top": 1042,
+          "bottom": 1105,
+          "point": [
+            786.0,
+            536.5
+          ],
+          "source": "Actual X11 pixels; rectangular switch border"
+        },
+        "no_new_ui_event_required": true,
+        "quiet_seconds": 0.65,
+        "body_pixels_unchanged": true,
+        "status_clock_excluded_from_comparison": true,
+        "preferences_unchanged": true,
+        "anchor_and_y4_unchanged": true,
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "final_metadata": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": true,
+        "logical_size": [
+          840,
+          632
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 1963973,
+        "profile": "pw6",
+        "reader": {
+          "comic_title": "山海邮差",
+          "direction": "ltr",
+          "episode_title": "第12话 雨停以前",
+          "fit": "page",
+          "loading": false,
+          "menu": true,
+          "mode": "page",
+          "page": 18,
+          "pages": 45,
+          "panel": 1,
+          "sheet": "display",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "reader",
+        "snapshot_size": [
+          1680,
+          1264
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 6,
+            "chapter_count": 32,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "当前预览环境未启用 JPEG 硬件加速。",
+            "loading": false,
+            "menu": true,
+            "mode": "page",
+            "page": 18,
+            "panel": 1,
+            "sheet": "display",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "reader",
+          "toast": ""
+        },
+        "window_size": [
+          1680,
+          1264
+        ]
+      },
+      "cleanup": {
+        "started": true,
+        "process_id": 1963973,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    },
+    {
+      "profile": "scribe",
+      "session": "account",
+      "landscape": false,
+      "offline": true,
+      "clicks": [
+        {
+          "name": "Open default reading settings",
+          "logical_point": [
+            257,
+            354
+          ],
+          "physical_point": [
+            514,
+            708
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 26
+        },
+        {
+          "name": "Attempt disabled JPEG acceleration",
+          "logical_point": [
+            852.0,
+            906.5
+          ],
+          "physical_point": [
+            1704,
+            1813
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 27
+        }
+      ],
+      "screenshots": [
+        {
+          "id": "10-account-reading",
+          "profile": "scribe",
+          "session": "account",
+          "captured_at": "2026-11-15T14:05:59.704590+00:00",
+          "file": "raw/scribe/10-account-reading.png",
+          "sha256": "c48e0daf52f72ddb163e73e2903d0814b045c9d33cde6f9bbbed4721565ca6b4",
+          "width": 1860,
+          "height": 2480,
+          "logical_size": [
+            930,
+            1240
+          ],
+          "scale_factor": 2,
+          "binary_sha256": "0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c",
+          "process_id": 1964684,
+          "source": "Actual X11 application window",
+          "pixel_processing": "None; untouched X11 RGB pixels",
+          "stability": {
+            "minimum_settle_seconds": 1.5,
+            "identical_samples": 3,
+            "sampling_seconds": 1.063
+          },
+          "ui_record": {
+            "demo": true,
+            "elapsed_ms": 1439.8171479999999,
+            "event": "ui-state",
+            "monotonic_ns": 493690463896908,
+            "native_epdc_mode": null,
+            "process_id": 1964684,
+            "state": {
+              "account": {
+                "media_acceleration": {
+                  "available": false,
+                  "note": "当前预览环境未启用 JPEG 硬件加速。",
+                  "reason": "platform",
+                  "requested": false
+                },
+                "section": "reading"
+              },
+              "catalog": {
+                "candidate_page": 0,
+                "candidate_pages": 1,
+                "candidates": [],
+                "composition": "",
+                "detail_id": "",
+                "download_selecting": false,
+                "episode_filter": "all",
+                "episode_page": 1,
+                "episode_pages": 1,
+                "keyboard": true,
+                "query": "",
+                "selection_count": 0,
+                "selection_size": "",
+                "shelf_menu": false,
+                "shelf_page": 1,
+                "shelf_pages": 1,
+                "shelf_view": "grid"
+              },
+              "downloads": {
+                "all_paused": false,
+                "can_read": false,
+                "has_active": false,
+                "items": [],
+                "selected_count": 0,
+                "selecting": false,
+                "sheet_id": "",
+                "sheet_open": false,
+                "status_summary": "",
+                "summary": "",
+                "task_primary_action": "",
+                "task_secondary_action": ""
+              },
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "reader": {
+                "chapter_capacity": 14,
+                "chapter_count": 0,
+                "chapter_descending": false,
+                "chapter_filter": "all",
+                "chapter_page": 1,
+                "chapter_pages": 1,
+                "chapter_rows": [],
+                "fit": "page",
+                "jpeg_acceleration": false,
+                "jpeg_acceleration_available": false,
+                "jpeg_acceleration_note": "",
+                "loading": false,
+                "menu": false,
+                "mode": "page",
+                "page": 1,
+                "panel": 1,
+                "sheet": "",
+                "strip_screen": 1,
+                "thumbnail_count": 0,
+                "thumbnails_loading": false,
+                "transition": false
+              },
+              "route": "account",
+              "toast": ""
+            },
+            "view_model_fixture_only": false
+          },
+          "reader_record": null,
+          "demo": true,
+          "live_account_used": false,
+          "physical_device_used": false,
+          "captured_source": {
+            "base_commit": "2da87ab512fded000174b7542767082a3a94e147",
+            "source_fingerprint": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_manifest_sha256": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_input_count": 514,
+            "worktree_clean_claimed": false
+          }
+        }
+      ],
+      "complete": true,
+      "passed": true,
+      "input_scope": "Actual XTest input only",
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--device",
+        "scribe",
+        "--screen",
+        "account",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-account/data",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-account/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-account/final.png",
+        "--exit-after-ms",
+        "240000",
+        "--offline"
+      ],
+      "process_id": 1964684,
+      "scale_factor": 2,
+      "ready_record": {
+        "elapsed_ms": 723.21547,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 493689747296490,
+        "native_epdc_mode": null,
+        "process_id": 1964684,
+        "reader_loading": false,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 0,
+          "cover_resident_count": 0,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 2,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": false,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": null,
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": null,
+        "route": "account"
+      },
+      "window": {
+        "id": "0x400003",
+        "x": 0,
+        "y": 0,
+        "width": 1860,
+        "height": 2480
+      },
+      "disabled_switch": {
+        "track": {
+          "left": 1644,
+          "right": 1764,
+          "top": 1782,
+          "bottom": 1845,
+          "point": [
+            852.0,
+            906.5
+          ],
+          "source": "Actual X11 pixels; rectangular switch border"
+        },
+        "no_new_ui_event_required": true,
+        "quiet_seconds": 0.65,
+        "body_pixels_unchanged": true,
+        "status_clock_excluded_from_comparison": true,
+        "preferences_unchanged": true,
+        "anchor_and_y4_unchanged": false,
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "final_metadata": {
+        "account_section": "reading",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          930,
+          1240
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 1964684,
+        "profile": "scribe",
+        "reader": {
+          "comic_title": "",
+          "direction": "ltr",
+          "episode_title": "",
+          "fit": "page",
+          "loading": false,
+          "menu": false,
+          "mode": "page",
+          "page": 1,
+          "pages": 1,
+          "panel": 1,
+          "sheet": "",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "account",
+        "snapshot_size": [
+          1860,
+          2480
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "media_acceleration": {
+              "available": false,
+              "note": "当前预览环境未启用 JPEG 硬件加速。",
+              "reason": "platform",
+              "requested": false
+            },
+            "section": "reading"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 0,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "",
+            "loading": false,
+            "menu": false,
+            "mode": "page",
+            "page": 1,
+            "panel": 1,
+            "sheet": "",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "account",
+          "toast": ""
+        },
+        "window_size": [
+          1860,
+          2480
+        ]
+      },
+      "cleanup": {
+        "started": true,
+        "process_id": 1964684,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    },
+    {
+      "profile": "scribe",
+      "session": "reader-portrait",
+      "landscape": false,
+      "offline": true,
+      "clicks": [
+        {
+          "name": "Open reading controls",
+          "logical_point": [
+            465.0,
+            620.0
+          ],
+          "physical_point": [
+            930,
+            1240
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 29
+        },
+        {
+          "name": "Open reading settings",
+          "logical_point": [
+            360.75,
+            1198
+          ],
+          "physical_point": [
+            722,
+            2396
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 33
+        },
+        {
+          "name": "Attempt disabled JPEG acceleration",
+          "logical_point": [
+            852.0,
+            1134.5
+          ],
+          "physical_point": [
+            1704,
+            2269
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 35
+        }
+      ],
+      "screenshots": [
+        {
+          "id": "20-reader-settings",
+          "profile": "scribe",
+          "session": "reader-portrait",
+          "captured_at": "2026-11-15T14:06:06.892370+00:00",
+          "file": "raw/scribe/20-reader-settings.png",
+          "sha256": "1a6898915c1b3b339b5a37ee7f3b2b3387d54f8a89fc7be85ce3bfe2b6be55b6",
+          "width": 1860,
+          "height": 2480,
+          "logical_size": [
+            930,
+            1240
+          ],
+          "scale_factor": 2,
+          "binary_sha256": "0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c",
+          "process_id": 1964703,
+          "source": "Actual X11 application window",
+          "pixel_processing": "None; untouched X11 RGB pixels",
+          "stability": {
+            "minimum_settle_seconds": 1.5,
+            "identical_samples": 3,
+            "sampling_seconds": 1.065
+          },
+          "ui_record": {
+            "demo": true,
+            "elapsed_ms": 2616.615721,
+            "event": "ui-state",
+            "monotonic_ns": 493697643702998,
+            "native_epdc_mode": null,
+            "process_id": 1964703,
+            "state": {
+              "account": {
+                "media_acceleration": {
+                  "available": false,
+                  "note": "",
+                  "reason": "platform",
+                  "requested": false
+                },
+                "section": "account"
+              },
+              "catalog": {
+                "candidate_page": 0,
+                "candidate_pages": 1,
+                "candidates": [],
+                "composition": "",
+                "detail_id": "",
+                "download_selecting": false,
+                "episode_filter": "all",
+                "episode_page": 1,
+                "episode_pages": 1,
+                "keyboard": true,
+                "query": "",
+                "selection_count": 0,
+                "selection_size": "",
+                "shelf_menu": false,
+                "shelf_page": 1,
+                "shelf_pages": 1,
+                "shelf_view": "grid"
+              },
+              "downloads": {
+                "all_paused": false,
+                "can_read": false,
+                "has_active": false,
+                "items": [],
+                "selected_count": 0,
+                "selecting": false,
+                "sheet_id": "",
+                "sheet_open": false,
+                "status_summary": "",
+                "summary": "",
+                "task_primary_action": "",
+                "task_secondary_action": ""
+              },
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "reader": {
+                "chapter_capacity": 14,
+                "chapter_count": 32,
+                "chapter_descending": false,
+                "chapter_filter": "all",
+                "chapter_page": 1,
+                "chapter_pages": 1,
+                "chapter_rows": [],
+                "fit": "page",
+                "jpeg_acceleration": false,
+                "jpeg_acceleration_available": false,
+                "jpeg_acceleration_note": "当前预览环境未启用 JPEG 硬件加速。",
+                "loading": false,
+                "menu": true,
+                "mode": "page",
+                "page": 18,
+                "panel": 1,
+                "sheet": "display",
+                "strip_screen": 1,
+                "thumbnail_count": 0,
+                "thumbnails_loading": false,
+                "transition": false
+              },
+              "route": "reader",
+              "toast": ""
+            },
+            "view_model_fixture_only": false
+          },
+          "reader_record": {
+            "elapsed_ms": 2616.888324,
+            "event": "reader-ready",
+            "frame_size": [
+              930,
+              1240
+            ],
+            "monotonic_ns": 493697643977301,
+            "native_epdc_mode": null,
+            "process_id": 1964703,
+            "reader_loading": false,
+            "reader_resources": {
+              "chapters_count": 0,
+              "cover_image_budget_bytes": 67108864,
+              "cover_resident_bytes": 940800,
+              "cover_resident_count": 1,
+              "media_availability": "platform",
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "overview_image_size": {
+                "height": 0,
+                "width": 0
+              },
+              "page_size": {
+                "height": 1240,
+                "width": 930
+              },
+              "pending_job_keys": 0,
+              "prepared_frame_budget": 33554432,
+              "prepared_frame_bytes": 4815112,
+              "prepared_frame_state": "ready",
+              "processed_source_cache_budget": 16777216,
+              "processed_source_cache_bytes": 0,
+              "processed_source_cache_entries": 0,
+              "reader_active": true,
+              "reader_checkpoint": {
+                "completed_writes": 1,
+                "failed_attempts": 0,
+                "in_flight": false,
+                "pending": false,
+                "retries": 0
+              },
+              "reader_generation": 2,
+              "second_page_size": {
+                "height": 0,
+                "width": 0
+              },
+              "source_cache_budget": 33554432,
+              "source_cache_bytes": 8024000,
+              "source_cache_entries": 2,
+              "thumbnails_count": 0
+            },
+            "reader_state": {
+              "chapter_capacity": 14,
+              "chapter_descending": false,
+              "chapter_filter": "all",
+              "chapter_page": 1,
+              "chapter_pages": 1,
+              "chapters_count": 0,
+              "comic_id": "28601",
+              "core_mode": "page",
+              "cover_alone": true,
+              "crop_count": 1,
+              "crop_index": 0,
+              "demo_strip": false,
+              "direction": "ltr",
+              "dither": true,
+              "dither_method": "software",
+              "effective_spread": false,
+              "episode_id": "2860112",
+              "fit": "page",
+              "focus_height": 1.0,
+              "focus_width": 1.0,
+              "focus_x": 0.0,
+              "focus_y": 0.0,
+              "footer": true,
+              "frame_height": 1240,
+              "frame_width": 930,
+              "hardware_dither": false,
+              "hardware_y4_available": false,
+              "hardware_y4_requested": false,
+              "jpeg_acceleration": false,
+              "landscape_layout": "spread",
+              "launch_preference": "resume",
+              "left_page_number": 18,
+              "media_acceleration": "off",
+              "media_availability": "platform",
+              "menu": true,
+              "mode": "page",
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+              "page_index": 17,
+              "page_number": 18,
+              "presented_fit": "page",
+              "presented_media_acceleration": "off",
+              "processed_source_cache_budget": 16777216,
+              "processed_source_cache_bytes": 0,
+              "processed_source_cache_entries": 0,
+              "reader_generation": 2,
+              "render_version": 1,
+              "rendering": false,
+              "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+              "right_page_number": 0,
+              "rotation": 0,
+              "route": "reader",
+              "second_frame_height": 0,
+              "second_frame_width": 0,
+              "sheet": "display",
+              "source_cache_budget": 33554432,
+              "source_cache_bytes": 8024000,
+              "source_cache_entries": 2,
+              "source_x": 0.0,
+              "source_y": 0.0,
+              "target_fit": "page",
+              "target_hardware_dither": false,
+              "target_media_acceleration": "off",
+              "thumbnail_version": 0,
+              "thumbnails_count": 0,
+              "thumbnails_loaded_count": 0,
+              "thumbnails_loading": false,
+              "thumbnails_rendering": false,
+              "transition": false,
+              "viewport_height": 1240,
+              "viewport_width": 930,
+              "zoom_ratio": 1.0
+            },
+            "route": "reader"
+          },
+          "demo": true,
+          "live_account_used": false,
+          "physical_device_used": false,
+          "captured_source": {
+            "base_commit": "2da87ab512fded000174b7542767082a3a94e147",
+            "source_fingerprint": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_manifest_sha256": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_input_count": 514,
+            "worktree_clean_claimed": false
+          }
+        }
+      ],
+      "complete": true,
+      "passed": true,
+      "input_scope": "Actual XTest input only",
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--device",
+        "scribe",
+        "--screen",
+        "reader",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-reader-portrait/data",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-reader-portrait/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-reader-portrait/final.png",
+        "--exit-after-ms",
+        "240000",
+        "--offline"
+      ],
+      "process_id": 1964703,
+      "scale_factor": 2,
+      "ready_record": {
+        "elapsed_ms": 640.195052,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 493695667283739,
+        "native_epdc_mode": null,
+        "process_id": 1964703,
+        "reader_loading": true,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 0,
+          "cover_resident_count": 0,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 3,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": true,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": 2,
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": {
+          "chapter_capacity": 14,
+          "chapter_descending": false,
+          "chapter_filter": "all",
+          "chapter_page": 1,
+          "chapter_pages": 1,
+          "chapters_count": 0,
+          "comic_id": "28601",
+          "core_mode": "page",
+          "cover_alone": true,
+          "crop_count": 1,
+          "crop_index": 0,
+          "demo_strip": false,
+          "direction": "ltr",
+          "dither": true,
+          "dither_method": "software",
+          "effective_spread": false,
+          "episode_id": "2860112",
+          "fit": "page",
+          "focus_height": 0.0,
+          "focus_width": 0.0,
+          "focus_x": 0.0,
+          "focus_y": 0.0,
+          "footer": true,
+          "frame_height": 0,
+          "frame_width": 0,
+          "hardware_dither": false,
+          "hardware_y4_available": false,
+          "hardware_y4_requested": false,
+          "jpeg_acceleration": false,
+          "landscape_layout": "spread",
+          "launch_preference": "resume",
+          "left_page_number": 0,
+          "media_acceleration": "off",
+          "media_availability": "platform",
+          "menu": false,
+          "mode": "page",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+          "page_index": 17,
+          "page_number": 18,
+          "presented_fit": "page",
+          "presented_media_acceleration": "off",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_generation": 2,
+          "render_version": 1,
+          "rendering": true,
+          "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+          "right_page_number": 0,
+          "rotation": 0,
+          "route": "reader",
+          "second_frame_height": 0,
+          "second_frame_width": 0,
+          "sheet": "",
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "target_fit": "page",
+          "target_hardware_dither": false,
+          "target_media_acceleration": "off",
+          "thumbnail_version": 0,
+          "thumbnails_count": 0,
+          "thumbnails_loaded_count": 0,
+          "thumbnails_loading": false,
+          "thumbnails_rendering": false,
+          "transition": false,
+          "viewport_height": 1240,
+          "viewport_width": 930,
+          "zoom_ratio": 1.0
+        },
+        "route": "reader"
+      },
+      "window": {
+        "id": "0x400003",
+        "x": 0,
+        "y": 0,
+        "width": 1860,
+        "height": 2480
+      },
+      "reader_invariants": {
+        "anchor": {
+          "comic_id": "28601",
+          "episode_id": "2860112",
+          "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+          "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+          "page_index": 17,
+          "crop_index": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "zoom_ratio": 1.0,
+          "rotation": 0,
+          "core_mode": "page",
+          "fit": "page",
+          "direction": "ltr"
+        },
+        "y4": {
+          "dither": true,
+          "dither_method": "software",
+          "hardware_y4_available": false,
+          "hardware_dither": false,
+          "target_hardware_dither": false,
+          "hardware_y4_requested": false
+        }
+      },
+      "disabled_switch": {
+        "track": {
+          "left": 1644,
+          "right": 1764,
+          "top": 2238,
+          "bottom": 2301,
+          "point": [
+            852.0,
+            1134.5
+          ],
+          "source": "Actual X11 pixels; rectangular switch border"
+        },
+        "no_new_ui_event_required": true,
+        "quiet_seconds": 0.65,
+        "body_pixels_unchanged": true,
+        "status_clock_excluded_from_comparison": true,
+        "preferences_unchanged": true,
+        "anchor_and_y4_unchanged": true,
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "final_metadata": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          930,
+          1240
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 1964703,
+        "profile": "scribe",
+        "reader": {
+          "comic_title": "山海邮差",
+          "direction": "ltr",
+          "episode_title": "第12话 雨停以前",
+          "fit": "page",
+          "loading": false,
+          "menu": true,
+          "mode": "page",
+          "page": 18,
+          "pages": 45,
+          "panel": 1,
+          "sheet": "display",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "reader",
+        "snapshot_size": [
+          1860,
+          2480
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 32,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "当前预览环境未启用 JPEG 硬件加速。",
+            "loading": false,
+            "menu": true,
+            "mode": "page",
+            "page": 18,
+            "panel": 1,
+            "sheet": "display",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "reader",
+          "toast": ""
+        },
+        "window_size": [
+          1860,
+          2480
+        ]
+      },
+      "cleanup": {
+        "started": true,
+        "process_id": 1964703,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    },
+    {
+      "profile": "scribe",
+      "session": "reader-landscape",
+      "landscape": true,
+      "offline": true,
+      "clicks": [
+        {
+          "name": "Open reading controls",
+          "logical_point": [
+            620.0,
+            465.0
+          ],
+          "physical_point": [
+            1240,
+            930
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 29
+        },
+        {
+          "name": "Open reading settings",
+          "logical_point": [
+            477.0,
+            888
+          ],
+          "physical_point": [
+            954,
+            1776
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 32
+        },
+        {
+          "name": "Attempt disabled JPEG acceleration",
+          "logical_point": [
+            1162.0,
+            824.5
+          ],
+          "physical_point": [
+            2324,
+            1649
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 34
+        }
+      ],
+      "screenshots": [
+        {
+          "id": "27-reader-settings-landscape",
+          "profile": "scribe",
+          "session": "reader-landscape",
+          "captured_at": "2026-11-15T14:06:14.996309+00:00",
+          "file": "raw/scribe/27-reader-settings-landscape.png",
+          "sha256": "c7411827b397964628ba63462f5e965918e27b9e022df6c67f3942cee75bc777",
+          "width": 2480,
+          "height": 1860,
+          "logical_size": [
+            1240,
+            930
+          ],
+          "scale_factor": 2,
+          "binary_sha256": "0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c",
+          "process_id": 1964727,
+          "source": "Actual X11 application window",
+          "pixel_processing": "None; untouched X11 RGB pixels",
+          "stability": {
+            "minimum_settle_seconds": 1.5,
+            "identical_samples": 3,
+            "sampling_seconds": 1.07
+          },
+          "ui_record": {
+            "demo": true,
+            "elapsed_ms": 3091.2974950000003,
+            "event": "ui-state",
+            "monotonic_ns": 493705760974182,
+            "native_epdc_mode": null,
+            "process_id": 1964727,
+            "state": {
+              "account": {
+                "media_acceleration": {
+                  "available": false,
+                  "note": "",
+                  "reason": "platform",
+                  "requested": false
+                },
+                "section": "account"
+              },
+              "catalog": {
+                "candidate_page": 0,
+                "candidate_pages": 1,
+                "candidates": [],
+                "composition": "",
+                "detail_id": "",
+                "download_selecting": false,
+                "episode_filter": "all",
+                "episode_page": 1,
+                "episode_pages": 1,
+                "keyboard": true,
+                "query": "",
+                "selection_count": 0,
+                "selection_size": "",
+                "shelf_menu": false,
+                "shelf_page": 1,
+                "shelf_pages": 1,
+                "shelf_view": "grid"
+              },
+              "downloads": {
+                "all_paused": false,
+                "can_read": false,
+                "has_active": false,
+                "items": [],
+                "selected_count": 0,
+                "selecting": false,
+                "sheet_id": "",
+                "sheet_open": false,
+                "status_summary": "",
+                "summary": "",
+                "task_primary_action": "",
+                "task_secondary_action": ""
+              },
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "reader": {
+                "chapter_capacity": 9,
+                "chapter_count": 32,
+                "chapter_descending": false,
+                "chapter_filter": "all",
+                "chapter_page": 1,
+                "chapter_pages": 1,
+                "chapter_rows": [],
+                "fit": "page",
+                "jpeg_acceleration": false,
+                "jpeg_acceleration_available": false,
+                "jpeg_acceleration_note": "当前预览环境未启用 JPEG 硬件加速。",
+                "loading": false,
+                "menu": true,
+                "mode": "page",
+                "page": 18,
+                "panel": 1,
+                "sheet": "display",
+                "strip_screen": 1,
+                "thumbnail_count": 0,
+                "thumbnails_loading": false,
+                "transition": false
+              },
+              "route": "reader",
+              "toast": ""
+            },
+            "view_model_fixture_only": false
+          },
+          "reader_record": {
+            "elapsed_ms": 3091.563427,
+            "event": "reader-ready",
+            "frame_size": [
+              620,
+              930
+            ],
+            "monotonic_ns": 493705761241624,
+            "native_epdc_mode": null,
+            "process_id": 1964727,
+            "reader_loading": false,
+            "reader_resources": {
+              "chapters_count": 0,
+              "cover_image_budget_bytes": 67108864,
+              "cover_resident_bytes": 940800,
+              "cover_resident_count": 1,
+              "media_availability": "platform",
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "overview_image_size": {
+                "height": 0,
+                "width": 0
+              },
+              "page_size": {
+                "height": 930,
+                "width": 620
+              },
+              "pending_job_keys": 0,
+              "prepared_frame_budget": 33554432,
+              "prepared_frame_bytes": 0,
+              "prepared_frame_state": "empty",
+              "processed_source_cache_budget": 16777216,
+              "processed_source_cache_bytes": 0,
+              "processed_source_cache_entries": 0,
+              "reader_active": true,
+              "reader_checkpoint": {
+                "completed_writes": 1,
+                "failed_attempts": 0,
+                "in_flight": false,
+                "pending": false,
+                "retries": 0
+              },
+              "reader_generation": 2,
+              "second_page_size": {
+                "height": 930,
+                "width": 620
+              },
+              "source_cache_budget": 33554432,
+              "source_cache_bytes": 8024000,
+              "source_cache_entries": 2,
+              "thumbnails_count": 0
+            },
+            "reader_state": {
+              "chapter_capacity": 14,
+              "chapter_descending": false,
+              "chapter_filter": "all",
+              "chapter_page": 1,
+              "chapter_pages": 1,
+              "chapters_count": 0,
+              "comic_id": "28601",
+              "core_mode": "page",
+              "cover_alone": true,
+              "crop_count": 1,
+              "crop_index": 0,
+              "demo_strip": false,
+              "direction": "ltr",
+              "dither": true,
+              "dither_method": "software",
+              "effective_spread": true,
+              "episode_id": "2860112",
+              "fit": "page",
+              "focus_height": 1.0,
+              "focus_width": 1.0,
+              "focus_x": 0.0,
+              "focus_y": 0.0,
+              "footer": true,
+              "frame_height": 930,
+              "frame_width": 620,
+              "hardware_dither": false,
+              "hardware_y4_available": false,
+              "hardware_y4_requested": false,
+              "jpeg_acceleration": false,
+              "landscape_layout": "spread",
+              "launch_preference": "resume",
+              "left_page_number": 18,
+              "media_acceleration": "off",
+              "media_availability": "platform",
+              "menu": true,
+              "mode": "page",
+              "native_media": {
+                "attempts": 0,
+                "completed": 0,
+                "resized": 0,
+                "software_fallbacks": 0
+              },
+              "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+              "page_index": 17,
+              "page_number": 18,
+              "presented_fit": "page",
+              "presented_media_acceleration": "off",
+              "processed_source_cache_budget": 16777216,
+              "processed_source_cache_bytes": 0,
+              "processed_source_cache_entries": 0,
+              "reader_generation": 2,
+              "render_version": 1,
+              "rendering": false,
+              "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+              "right_page_number": 19,
+              "rotation": 0,
+              "route": "reader",
+              "second_frame_height": 930,
+              "second_frame_width": 620,
+              "sheet": "display",
+              "source_cache_budget": 33554432,
+              "source_cache_bytes": 8024000,
+              "source_cache_entries": 2,
+              "source_x": 0.0,
+              "source_y": 0.0,
+              "target_fit": "page",
+              "target_hardware_dither": false,
+              "target_media_acceleration": "off",
+              "thumbnail_version": 0,
+              "thumbnails_count": 0,
+              "thumbnails_loaded_count": 0,
+              "thumbnails_loading": false,
+              "thumbnails_rendering": false,
+              "transition": false,
+              "viewport_height": 930,
+              "viewport_width": 620,
+              "zoom_ratio": 1.0
+            },
+            "route": "reader"
+          },
+          "demo": true,
+          "live_account_used": false,
+          "physical_device_used": false,
+          "captured_source": {
+            "base_commit": "2da87ab512fded000174b7542767082a3a94e147",
+            "source_fingerprint": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_manifest_sha256": "f3e47bc467922a429c291cbd62f317aa912c4e14bdc8e60b85ba4ea369e99a55",
+            "source_input_count": 514,
+            "worktree_clean_claimed": false
+          }
+        }
+      ],
+      "complete": true,
+      "passed": true,
+      "input_scope": "Actual XTest input only",
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--device",
+        "scribe",
+        "--screen",
+        "reader",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-reader-landscape/data",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-reader-landscape/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-reader-landscape/final.png",
+        "--exit-after-ms",
+        "240000",
+        "--landscape",
+        "--offline"
+      ],
+      "process_id": 1964727,
+      "scale_factor": 2,
+      "ready_record": {
+        "elapsed_ms": 687.052858,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 493703356730735,
+        "native_epdc_mode": null,
+        "process_id": 1964727,
+        "reader_loading": true,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 0,
+          "cover_resident_count": 0,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 3,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": true,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": 2,
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": {
+          "chapter_capacity": 14,
+          "chapter_descending": false,
+          "chapter_filter": "all",
+          "chapter_page": 1,
+          "chapter_pages": 1,
+          "chapters_count": 0,
+          "comic_id": "28601",
+          "core_mode": "page",
+          "cover_alone": true,
+          "crop_count": 1,
+          "crop_index": 0,
+          "demo_strip": false,
+          "direction": "ltr",
+          "dither": true,
+          "dither_method": "software",
+          "effective_spread": true,
+          "episode_id": "2860112",
+          "fit": "page",
+          "focus_height": 0.0,
+          "focus_width": 0.0,
+          "focus_x": 0.0,
+          "focus_y": 0.0,
+          "footer": true,
+          "frame_height": 0,
+          "frame_width": 0,
+          "hardware_dither": false,
+          "hardware_y4_available": false,
+          "hardware_y4_requested": false,
+          "jpeg_acceleration": false,
+          "landscape_layout": "spread",
+          "launch_preference": "resume",
+          "left_page_number": 0,
+          "media_acceleration": "off",
+          "media_availability": "platform",
+          "menu": false,
+          "mode": "page",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+          "page_index": 17,
+          "page_number": 18,
+          "presented_fit": "page",
+          "presented_media_acceleration": "off",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_generation": 2,
+          "render_version": 1,
+          "rendering": true,
+          "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+          "right_page_number": 0,
+          "rotation": 0,
+          "route": "reader",
+          "second_frame_height": 0,
+          "second_frame_width": 0,
+          "sheet": "",
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "target_fit": "page",
+          "target_hardware_dither": false,
+          "target_media_acceleration": "off",
+          "thumbnail_version": 0,
+          "thumbnails_count": 0,
+          "thumbnails_loaded_count": 0,
+          "thumbnails_loading": false,
+          "thumbnails_rendering": false,
+          "transition": false,
+          "viewport_height": 930,
+          "viewport_width": 620,
+          "zoom_ratio": 1.0
+        },
+        "route": "reader"
+      },
+      "window": {
+        "id": "0x400003",
+        "x": 0,
+        "y": 0,
+        "width": 2480,
+        "height": 1860
+      },
+      "reader_invariants": {
+        "anchor": {
+          "comic_id": "28601",
+          "episode_id": "2860112",
+          "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+          "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+          "page_index": 17,
+          "crop_index": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "zoom_ratio": 1.0,
+          "rotation": 0,
+          "core_mode": "page",
+          "fit": "page",
+          "direction": "ltr"
+        },
+        "y4": {
+          "dither": true,
+          "dither_method": "software",
+          "hardware_y4_available": false,
+          "hardware_dither": false,
+          "target_hardware_dither": false,
+          "hardware_y4_requested": false
+        }
+      },
+      "disabled_switch": {
+        "track": {
+          "left": 2264,
+          "right": 2384,
+          "top": 1618,
+          "bottom": 1681,
+          "point": [
+            1162.0,
+            824.5
+          ],
+          "source": "Actual X11 pixels; rectangular switch border"
+        },
+        "no_new_ui_event_required": true,
+        "quiet_seconds": 0.65,
+        "body_pixels_unchanged": true,
+        "status_clock_excluded_from_comparison": true,
+        "preferences_unchanged": true,
+        "anchor_and_y4_unchanged": true,
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "final_metadata": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": true,
+        "logical_size": [
+          1240,
+          930
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 1964727,
+        "profile": "scribe",
+        "reader": {
+          "comic_title": "山海邮差",
+          "direction": "ltr",
+          "episode_title": "第12话 雨停以前",
+          "fit": "page",
+          "loading": false,
+          "menu": true,
+          "mode": "page",
+          "page": 18,
+          "pages": 45,
+          "panel": 1,
+          "sheet": "display",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "reader",
+        "snapshot_size": [
+          2480,
+          1860
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 9,
+            "chapter_count": 32,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "当前预览环境未启用 JPEG 硬件加速。",
+            "loading": false,
+            "menu": true,
+            "mode": "page",
+            "page": 18,
+            "panel": 1,
+            "sheet": "display",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "reader",
+          "toast": ""
+        },
+        "window_size": [
+          2480,
+          1860
+        ]
+      },
+      "cleanup": {
+        "started": true,
+        "process_id": 1964727,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    }
+  ],
+  "policy_cases": [
+    {
+      "profile": "pw6",
+      "session": "persisted-requested-on",
+      "landscape": false,
+      "offline": true,
+      "clicks": [
+        {
+          "name": "Open reading controls",
+          "logical_point": [
+            316.0,
+            420.0
+          ],
+          "physical_point": [
+            632,
+            840
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 29
+        },
+        {
+          "name": "Open reading settings",
+          "logical_point": [
+            243.0,
+            802
+          ],
+          "physical_point": [
+            486,
+            1604
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 32
+        }
+      ],
+      "screenshots": [],
+      "complete": true,
+      "passed": true,
+      "input_scope": "Prelaunch preference seed; ordinary restart",
+      "seed": {
+        "keys": [
+          "preferences",
+          "reader_preferences_28601"
+        ],
+        "requested": true,
+        "modified_before_application_start": true
+      },
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--device",
+        "pw6",
+        "--screen",
+        "reader",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-persisted-requested-on/data",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-persisted-requested-on/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/pw6-persisted-requested-on/final.png",
+        "--exit-after-ms",
+        "240000",
+        "--offline"
+      ],
+      "process_id": 1964306,
+      "scale_factor": 2,
+      "ready_record": {
+        "elapsed_ms": 619.500187,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 493672477289330,
+        "native_epdc_mode": null,
+        "process_id": 1964306,
+        "reader_loading": true,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 0,
+          "cover_resident_count": 0,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 3,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": true,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": 2,
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": {
+          "chapter_capacity": 14,
+          "chapter_descending": false,
+          "chapter_filter": "all",
+          "chapter_page": 1,
+          "chapter_pages": 1,
+          "chapters_count": 0,
+          "comic_id": "28601",
+          "core_mode": "page",
+          "cover_alone": true,
+          "crop_count": 1,
+          "crop_index": 0,
+          "demo_strip": false,
+          "direction": "ltr",
+          "dither": true,
+          "dither_method": "software",
+          "effective_spread": false,
+          "episode_id": "2860112",
+          "fit": "page",
+          "focus_height": 0.0,
+          "focus_width": 0.0,
+          "focus_x": 0.0,
+          "focus_y": 0.0,
+          "footer": true,
+          "frame_height": 0,
+          "frame_width": 0,
+          "hardware_dither": false,
+          "hardware_y4_available": false,
+          "hardware_y4_requested": false,
+          "jpeg_acceleration": true,
+          "landscape_layout": "spread",
+          "launch_preference": "resume",
+          "left_page_number": 0,
+          "media_acceleration": "off",
+          "media_availability": "platform",
+          "menu": false,
+          "mode": "page",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+          "page_index": 17,
+          "page_number": 18,
+          "presented_fit": "page",
+          "presented_media_acceleration": "off",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_generation": 2,
+          "render_version": 1,
+          "rendering": true,
+          "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+          "right_page_number": 0,
+          "rotation": 0,
+          "route": "reader",
+          "second_frame_height": 0,
+          "second_frame_width": 0,
+          "sheet": "",
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "target_fit": "page",
+          "target_hardware_dither": false,
+          "target_media_acceleration": "off",
+          "thumbnail_version": 0,
+          "thumbnails_count": 0,
+          "thumbnails_loaded_count": 0,
+          "thumbnails_loading": false,
+          "thumbnails_rendering": false,
+          "transition": false,
+          "viewport_height": 840,
+          "viewport_width": 632,
+          "zoom_ratio": 1.0
+        },
+        "route": "reader"
+      },
+      "window": {
+        "id": "0x400003",
+        "x": 0,
+        "y": 0,
+        "width": 1264,
+        "height": 1680
+      },
+      "observation": {
+        "requested": true,
+        "effective": "off",
+        "invariants": {
+          "anchor": {
+            "comic_id": "28601",
+            "episode_id": "2860112",
+            "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+            "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+            "page_index": 17,
+            "crop_index": 0,
+            "source_x": 0.0,
+            "source_y": 0.0,
+            "zoom_ratio": 1.0,
+            "rotation": 0,
+            "core_mode": "page",
+            "fit": "page",
+            "direction": "ltr"
+          },
+          "y4": {
+            "dither": true,
+            "dither_method": "software",
+            "hardware_y4_available": false,
+            "hardware_dither": false,
+            "target_hardware_dither": false,
+            "hardware_y4_requested": false
+          }
+        },
+        "capability": {
+          "requested": true,
+          "available": false,
+          "reason": "platform",
+          "note": "当前预览环境未启用 JPEG 硬件加速。"
+        },
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "final_metadata": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          632,
+          840
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 1964306,
+        "profile": "pw6",
+        "reader": {
+          "comic_title": "山海邮差",
+          "direction": "ltr",
+          "episode_title": "第12话 雨停以前",
+          "fit": "page",
+          "loading": false,
+          "menu": true,
+          "mode": "page",
+          "page": 18,
+          "pages": 45,
+          "panel": 1,
+          "sheet": "display",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "reader",
+        "snapshot_size": [
+          1264,
+          1680
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 10,
+            "chapter_count": 32,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "fit": "page",
+            "jpeg_acceleration": true,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "当前预览环境未启用 JPEG 硬件加速。",
+            "loading": false,
+            "menu": true,
+            "mode": "page",
+            "page": 18,
+            "panel": 1,
+            "sheet": "display",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "reader",
+          "toast": ""
+        },
+        "window_size": [
+          1264,
+          1680
+        ]
+      },
+      "requested_preserved_on_restart": true,
+      "anchor_and_y4_preserved_on_restart": true,
+      "cleanup": {
+        "started": true,
+        "process_id": 1964306,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    },
+    {
+      "profile": "pw6",
+      "route": "account",
+      "passed": true,
+      "input_scope": "Scripted intents; excluded from XTest capture acceptance",
+      "seed": {
+        "keys": [
+          "preferences",
+          "reader_preferences_28601"
+        ],
+        "requested": false,
+        "modified_before_application_start": true
+      },
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "pw6",
+        "--screen",
+        "account",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/pw6-account/data",
+        "--actions",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/pw6-account/actions.json",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/pw6-account/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/pw6-account/final.png",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "final_observation": {
+        "capability": {
+          "available": false,
+          "note": "当前预览环境未启用 JPEG 硬件加速。",
+          "reason": "platform",
+          "requested": false
+        },
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "capability_gate_rejected_on": true,
+      "persistent_preferences": {
+        "preferences": {
+          "mode": "page",
+          "fit": "page",
+          "direction": "ltr",
+          "every": "smart",
+          "landscape": "spread",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": false,
+          "footer": true,
+          "smart": true,
+          "ahead": 2,
+          "concurrency": 2,
+          "preload": 3,
+          "wifi": "auto",
+          "cache_limit": 512,
+          "launch": "resume",
+          "sleep_cover": true,
+          "flashui": true,
+          "orientation": "auto",
+          "onboarded": true,
+          "reader_guidance_seen": true
+        },
+        "reader_preferences_28601": {
+          "jpeg_acceleration": false
+        }
+      },
+      "cleanup": {
+        "started": true,
+        "process_id": 1964319,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    },
+    {
+      "profile": "pw6",
+      "route": "reader",
+      "passed": true,
+      "input_scope": "Scripted intents; excluded from XTest capture acceptance",
+      "seed": {
+        "keys": [
+          "preferences",
+          "reader_preferences_28601"
+        ],
+        "requested": false,
+        "modified_before_application_start": true
+      },
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "pw6",
+        "--screen",
+        "reader",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/pw6-reader/data",
+        "--actions",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/pw6-reader/actions.json",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/pw6-reader/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/pw6-reader/final.png",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "final_observation": {
+        "capability": {
+          "requested": false,
+          "available": false,
+          "reason": "platform",
+          "note": "当前预览环境未启用 JPEG 硬件加速。"
+        },
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "capability_gate_rejected_on": true,
+      "persistent_preferences": {
+        "preferences": {
+          "mode": "page",
+          "fit": "page",
+          "direction": "ltr",
+          "every": "smart",
+          "landscape": "spread",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": false,
+          "footer": true,
+          "smart": true,
+          "ahead": 2,
+          "concurrency": 2,
+          "preload": 3,
+          "wifi": "auto",
+          "cache_limit": 512,
+          "launch": "resume",
+          "sleep_cover": true,
+          "flashui": true,
+          "orientation": "auto",
+          "onboarded": true,
+          "reader_guidance_seen": true
+        },
+        "reader_preferences_28601": {
+          "jpeg_acceleration": false
+        }
+      },
+      "cleanup": {
+        "started": true,
+        "process_id": 1964618,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    },
+    {
+      "profile": "scribe",
+      "session": "persisted-requested-on",
+      "landscape": false,
+      "offline": true,
+      "clicks": [
+        {
+          "name": "Open reading controls",
+          "logical_point": [
+            465.0,
+            620.0
+          ],
+          "physical_point": [
+            930,
+            1240
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 29
+        },
+        {
+          "name": "Open reading settings",
+          "logical_point": [
+            360.75,
+            1198
+          ],
+          "physical_point": [
+            722,
+            2396
+          ],
+          "window_id": "0x400003",
+          "trace_records_before": 33
+        }
+      ],
+      "screenshots": [],
+      "complete": true,
+      "passed": true,
+      "input_scope": "Prelaunch preference seed; ordinary restart",
+      "seed": {
+        "keys": [
+          "preferences",
+          "reader_preferences_28601"
+        ],
+        "requested": true,
+        "modified_before_application_start": true
+      },
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--device",
+        "scribe",
+        "--screen",
+        "reader",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-persisted-requested-on/data",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-persisted-requested-on/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/sessions/scribe-persisted-requested-on/final.png",
+        "--exit-after-ms",
+        "240000",
+        "--offline"
+      ],
+      "process_id": 1964740,
+      "scale_factor": 2,
+      "ready_record": {
+        "elapsed_ms": 620.088589,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 493711432061667,
+        "native_epdc_mode": null,
+        "process_id": 1964740,
+        "reader_loading": true,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 0,
+          "cover_resident_count": 0,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 3,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": true,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": 2,
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": {
+          "chapter_capacity": 14,
+          "chapter_descending": false,
+          "chapter_filter": "all",
+          "chapter_page": 1,
+          "chapter_pages": 1,
+          "chapters_count": 0,
+          "comic_id": "28601",
+          "core_mode": "page",
+          "cover_alone": true,
+          "crop_count": 1,
+          "crop_index": 0,
+          "demo_strip": false,
+          "direction": "ltr",
+          "dither": true,
+          "dither_method": "software",
+          "effective_spread": false,
+          "episode_id": "2860112",
+          "fit": "page",
+          "focus_height": 0.0,
+          "focus_width": 0.0,
+          "focus_x": 0.0,
+          "focus_y": 0.0,
+          "footer": true,
+          "frame_height": 0,
+          "frame_width": 0,
+          "hardware_dither": false,
+          "hardware_y4_available": false,
+          "hardware_y4_requested": false,
+          "jpeg_acceleration": true,
+          "landscape_layout": "spread",
+          "launch_preference": "resume",
+          "left_page_number": 0,
+          "media_acceleration": "off",
+          "media_availability": "platform",
+          "menu": false,
+          "mode": "page",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+          "page_index": 17,
+          "page_number": 18,
+          "presented_fit": "page",
+          "presented_media_acceleration": "off",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_generation": 2,
+          "render_version": 1,
+          "rendering": true,
+          "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+          "right_page_number": 0,
+          "rotation": 0,
+          "route": "reader",
+          "second_frame_height": 0,
+          "second_frame_width": 0,
+          "sheet": "",
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "source_x": 0.0,
+          "source_y": 0.0,
+          "target_fit": "page",
+          "target_hardware_dither": false,
+          "target_media_acceleration": "off",
+          "thumbnail_version": 0,
+          "thumbnails_count": 0,
+          "thumbnails_loaded_count": 0,
+          "thumbnails_loading": false,
+          "thumbnails_rendering": false,
+          "transition": false,
+          "viewport_height": 1240,
+          "viewport_width": 930,
+          "zoom_ratio": 1.0
+        },
+        "route": "reader"
+      },
+      "window": {
+        "id": "0x400003",
+        "x": 0,
+        "y": 0,
+        "width": 1860,
+        "height": 2480
+      },
+      "observation": {
+        "requested": true,
+        "effective": "off",
+        "invariants": {
+          "anchor": {
+            "comic_id": "28601",
+            "episode_id": "2860112",
+            "revision": "demo-4bb0d34ce0decf1828c3cec6b347484539ac13133b2c56c0fae662d7f41c16ba",
+            "page_id": "91cfbcc7160b251dae51fe4a1a8588373998760aec0e0776a7b50119fbef4c7f",
+            "page_index": 17,
+            "crop_index": 0,
+            "source_x": 0.0,
+            "source_y": 0.0,
+            "zoom_ratio": 1.0,
+            "rotation": 0,
+            "core_mode": "page",
+            "fit": "page",
+            "direction": "ltr"
+          },
+          "y4": {
+            "dither": true,
+            "dither_method": "software",
+            "hardware_y4_available": false,
+            "hardware_dither": false,
+            "target_hardware_dither": false,
+            "hardware_y4_requested": false
+          }
+        },
+        "capability": {
+          "requested": true,
+          "available": false,
+          "reason": "platform",
+          "note": "当前预览环境未启用 JPEG 硬件加速。"
+        },
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "final_metadata": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          930,
+          1240
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 1964740,
+        "profile": "scribe",
+        "reader": {
+          "comic_title": "山海邮差",
+          "direction": "ltr",
+          "episode_title": "第12话 雨停以前",
+          "fit": "page",
+          "loading": false,
+          "menu": true,
+          "mode": "page",
+          "page": 18,
+          "pages": 45,
+          "panel": 1,
+          "sheet": "display",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "reader",
+        "snapshot_size": [
+          1860,
+          2480
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 32,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "fit": "page",
+            "jpeg_acceleration": true,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "当前预览环境未启用 JPEG 硬件加速。",
+            "loading": false,
+            "menu": true,
+            "mode": "page",
+            "page": 18,
+            "panel": 1,
+            "sheet": "display",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "reader",
+          "toast": ""
+        },
+        "window_size": [
+          1860,
+          2480
+        ]
+      },
+      "requested_preserved_on_restart": true,
+      "anchor_and_y4_preserved_on_restart": true,
+      "cleanup": {
+        "started": true,
+        "process_id": 1964740,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    },
+    {
+      "profile": "scribe",
+      "route": "account",
+      "passed": true,
+      "input_scope": "Scripted intents; excluded from XTest capture acceptance",
+      "seed": {
+        "keys": [
+          "preferences",
+          "reader_preferences_28601"
+        ],
+        "requested": false,
+        "modified_before_application_start": true
+      },
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "scribe",
+        "--screen",
+        "account",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/scribe-account/data",
+        "--actions",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/scribe-account/actions.json",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/scribe-account/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/scribe-account/final.png",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "final_observation": {
+        "capability": {
+          "available": false,
+          "note": "当前预览环境未启用 JPEG 硬件加速。",
+          "reason": "platform",
+          "requested": false
+        },
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "capability_gate_rejected_on": true,
+      "persistent_preferences": {
+        "preferences": {
+          "mode": "page",
+          "fit": "page",
+          "direction": "ltr",
+          "every": "smart",
+          "landscape": "spread",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": false,
+          "footer": true,
+          "smart": true,
+          "ahead": 2,
+          "concurrency": 2,
+          "preload": 3,
+          "wifi": "auto",
+          "cache_limit": 512,
+          "launch": "resume",
+          "sleep_cover": true,
+          "flashui": true,
+          "orientation": "auto",
+          "onboarded": true,
+          "reader_guidance_seen": true
+        },
+        "reader_preferences_28601": {
+          "jpeg_acceleration": false
+        }
+      },
+      "cleanup": {
+        "started": true,
+        "process_id": 1964753,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    },
+    {
+      "profile": "scribe",
+      "route": "reader",
+      "passed": true,
+      "input_scope": "Scripted intents; excluded from XTest capture acceptance",
+      "seed": {
+        "keys": [
+          "preferences",
+          "reader_preferences_28601"
+        ],
+        "requested": false,
+        "modified_before_application_start": true
+      },
+      "command": [
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/sealed/0656bb79039344b3b59fd4815ec3ed03125df5d0b69ba27ed99aa5d70dda4e5c/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "scribe",
+        "--screen",
+        "reader",
+        "--data-dir",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/scribe-reader/data",
+        "--actions",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/scribe-reader/actions.json",
+        "--lifecycle-trace",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/scribe-reader/lifecycle.jsonl",
+        "--capture",
+        "/root/bilicomics-native-media-20261115-01a1d11a-r3/evidence/media-ui-final/scripted-policy/scribe-reader/final.png",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "final_observation": {
+        "capability": {
+          "requested": false,
+          "available": false,
+          "reason": "platform",
+          "note": "当前预览环境未启用 JPEG 硬件加速。"
+        },
+        "statistics": {
+          "attempts": 0,
+          "completed": 0,
+          "resized": 0,
+          "software_fallbacks": 0
+        }
+      },
+      "capability_gate_rejected_on": true,
+      "persistent_preferences": {
+        "preferences": {
+          "mode": "page",
+          "fit": "page",
+          "direction": "ltr",
+          "every": "smart",
+          "landscape": "spread",
+          "cover_alone": true,
+          "dither": true,
+          "dither_method": "software",
+          "jpeg_acceleration": false,
+          "footer": true,
+          "smart": true,
+          "ahead": 2,
+          "concurrency": 2,
+          "preload": 3,
+          "wifi": "auto",
+          "cache_limit": 512,
+          "launch": "resume",
+          "sleep_cover": true,
+          "flashui": true,
+          "orientation": "auto",
+          "onboarded": true,
+          "reader_guidance_seen": true
+        },
+        "reader_preferences_28601": {
+          "jpeg_acceleration": false
+        }
+      },
+      "cleanup": {
+        "started": true,
+        "process_id": 1964764,
+        "group_termination_sent": false,
+        "return_code": 0,
+        "owned_group_remained_after_parent_reaped": false
+      }
+    }
+  ],
+  "errors": [],
+  "finished_at": "2026-11-15T14:06:37.089848+00:00",
+  "capture_count": 6
+}

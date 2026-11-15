@@ -158,6 +158,66 @@ export component ActionButton inherits Rectangle {
     }
 }
 
+export component ToggleRow inherits Rectangle {
+    in property <string> label;
+    in property <bool> checked: false;
+    in property <bool> enabled: true;
+    in property <color> label-color: Theme.ink;
+    callback toggled(bool);
+    height: Theme.scribe ? 60px : 52px;
+    background: root.enabled && touch.pressed ? Theme.fill : Theme.paper;
+    forward-focus: keyboard;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-enabled: root.enabled;
+    accessible-checkable: true;
+    accessible-checked: root.checked;
+    accessible-action-default => { if root.enabled { root.toggled(!root.checked); } }
+    Text {
+        x: 0px; y: 0px; width: max(0px, state.x - 12px); height: parent.height;
+        text: root.label; font-family: Theme.ui-font; font-size: Theme.scribe ? 20px : 17px;
+        color: root.enabled ? root.label-color : Theme.muted;
+        vertical-alignment: center; wrap: word-wrap;
+    }
+    state := Text {
+        x: track.x - 48px; y: 0px; width: 36px; height: parent.height;
+        text: root.checked ? Strings.read-on : Strings.read-off;
+        font-family: Theme.ui-font; font-size: Theme.scribe ? 18px : 16px;
+        color: root.enabled ? Theme.secondary : Theme.muted;
+        horizontal-alignment: right; vertical-alignment: center;
+    }
+    track := Rectangle {
+        x: root.width - self.width; y: (root.height - self.height) / 2;
+        width: 60px; height: 32px; border-width: 2px; border-radius: 0px;
+        border-color: root.enabled ? Theme.ink : Theme.line;
+        background: root.enabled && root.checked ? Theme.ink : Theme.paper;
+        Rectangle {
+            x: root.checked ? parent.width - self.width - 4px : 4px; y: 4px;
+            width: 24px; height: 24px; border-radius: 0px;
+            background: !root.enabled ? Theme.muted : root.checked ? Theme.paper : Theme.ink;
+        }
+    }
+    if keyboard.has-focus && root.enabled: Rectangle {
+        x: 0px; y: 0px; width: parent.width; height: parent.height;
+        border-width: 1px; border-color: Theme.ink; background: transparent;
+    }
+    touch := TouchArea {
+        enabled: root.enabled;
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down { Theme.refresh("press"); }
+            else if event.kind == PointerEventKind.up { Theme.refresh("release"); }
+        }
+        clicked => { root.toggled(!root.checked); }
+    }
+    keyboard := FocusScope {
+        x: 0px; width: 0px; enabled: root.enabled;
+        key-pressed(event) => {
+            if event.text == " " || event.text == "\n" { root.toggled(!root.checked); return accept; }
+            return reject;
+        }
+    }
+}
+
 export component IconButton inherits Rectangle {
     in property <string> icon;
     in property <string> text;
