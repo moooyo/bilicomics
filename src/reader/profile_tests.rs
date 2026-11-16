@@ -487,12 +487,21 @@ fn verify_full_frame_cancellable_production_paths() {
                 assert!(matches!(reader.raster_path, TestRasterPath::Current));
                 let cancelled = AtomicBool::new(false);
                 let mut profile = ReaderPreparationProfile::default();
+                // Every oracle variant must independently execute Triangle.
+                // A zero processed budget prevents a preceding variant from
+                // satisfying this one through a software intermediate hit.
+                let uncached = ReaderResources::new(0);
                 let actual = match variant {
-                    "current_default" => reader.render_validated_source(&source, viewport).unwrap(),
-                    "cancellable_unprofiled" => reader.render_validated_source_cancellable(&source, viewport,
-                        &cancelled, None).unwrap().expect("An unset real cancellation flag must return a complete frame"),
-                    "cancellable_profiled" => reader.render_validated_source_cancellable(&source, viewport,
-                        &cancelled, Some(&mut profile)).unwrap()
+                    "current_default" => reader.render_source_identity_cancellable_with_resources(
+                        &source.pixels, viewport, Some(source.proof.sha256()), Some(&source.proof), &uncached,
+                        &RenderCancellation::never(), None).unwrap().unwrap(),
+                    "cancellable_unprofiled" => reader.render_source_identity_cancellable_with_resources(
+                        &source.pixels, viewport, Some(source.proof.sha256()), Some(&source.proof), &uncached,
+                        &RenderCancellation::for_flag(&cancelled), None).unwrap()
+                        .expect("An unset real cancellation flag must return a complete frame"),
+                    "cancellable_profiled" => reader.render_source_identity_cancellable_with_resources(
+                        &source.pixels, viewport, Some(source.proof.sha256()), Some(&source.proof), &uncached,
+                        &RenderCancellation::for_flag(&cancelled), Some(&mut profile)).unwrap()
                         .expect("An unset real cancellation flag must return a complete profiled frame"),
                     _ => unreachable!(),
                 };

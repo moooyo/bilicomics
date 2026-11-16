@@ -14,7 +14,7 @@ use std::{
 
 use image::GrayImage;
 
-use super::{PROCESSED_SOURCE_VERSION, ProcessedSourceKey};
+use super::{CPU_RESIZE_VERSION, CpuResizeKey, PROCESSED_SOURCE_VERSION, ProcessedSourceKey};
 
 use crate::image_integrity::{
     MAX_ENCODED_BYTES, MAX_SOURCE_PIXELS, VALIDATION_VERSION, ValidatedImage,
@@ -158,13 +158,36 @@ fn valid_source(proof: &ValidatedImage, source: &GrayImage) -> bool {
         && u64::try_from(source.as_raw().len()).ok() == Some(pixels)
 }
 
+#[derive(Clone, Debug, PartialEq)]
+enum ProcessedCacheKey {
+    Native(ProcessedSourceKey),
+    CpuTriangle(CpuResizeKey),
+}
+
+impl ProcessedCacheKey {
+    fn proof(&self) -> &ValidatedImage {
+        match self {
+            Self::Native(key) => &key.proof,
+            Self::CpuTriangle(key) => &key.proof,
+        }
+    }
+
+    fn valid_source(&self, source: &GrayImage) -> bool {
+        match self {
+            Self::Native(key) => valid_processed_source(key, source),
+            Self::CpuTriangle(key) => valid_cpu_resized_source(key, source),
+        }
+    }
+}
+
 struct ProcessedEntry {
-    key: ProcessedSourceKey,
+    key: ProcessedCacheKey,
     source: Arc<GrayImage>,
     bytes: usize,
 }
 
-/// A separate bounded LRU; resized pixels never enter the canonical source cache.
+/// A separate bounded LRU with distinct native and CPU preparation identities.
+/// Resized pixels never enter the canonical source cache.
 struct ProcessedSourceCache {
     entries: VecDeque<ProcessedEntry>,
     retained_bytes: usize,
@@ -176,22 +199,22 @@ impl ProcessedSourceCache {
         Self { entries: VecDeque::new(), retained_bytes: 0, byte_budget }
     }
 
-    fn lookup(&mut self, key: &ProcessedSourceKey) -> Option<Arc<GrayImage>> {
-        let position = self.entries.iter().position(|entry| entry.key == *key)?;
+    fn lookup(&mut self, matches: impl Fn(&ProcessedCacheKey) -> bool) -> Option<Arc<GrayImage>> {
+        let position = self.entries.iter().position(|entry| matches(&entry.key))?;
         let entry = self.entries.remove(position)?;
         self.retained_bytes -= entry.bytes;
-        if !valid_processed_source(&entry.key, &entry.source) { return None; }
+        if !entry.key.valid_source(&entry.source) { return None; }
         let pixels = entry.source.clone();
         self.retained_bytes += entry.bytes;
         self.entries.push_back(entry);
         Some(pixels)
     }
 
-    fn insert(&mut self, key: ProcessedSourceKey, source: Arc<GrayImage>) -> bool {
+    fn insert(&mut self, key: ProcessedCacheKey, source: Arc<GrayImage>) -> bool {
         if let Some(position) = self.entries.iter().position(|entry| entry.key == key) {
             if let Some(entry) = self.entries.remove(position) { self.retained_bytes -= entry.bytes; }
         }
-        if !valid_processed_source(&key, &source) { return false; }
+        if !key.valid_source(&source) { return false; }
         let bytes = source.as_raw().capacity();
         if bytes > self.byte_budget { return false; }
         while bytes > self.byte_budget - self.retained_bytes
@@ -208,7 +231,7 @@ impl ProcessedSourceCache {
     fn remove_digest(&mut self, digest: &str) -> usize {
         let mut removed = 0;
         self.entries.retain(|entry| {
-            if entry.key.proof.sha256() == digest {
+            if entry.key.proof().sha256() == digest {
                 self.retained_bytes -= entry.bytes;
                 removed += 1;
                 false
@@ -239,6 +262,30 @@ fn valid_processed_source(key: &ProcessedSourceKey, source: &GrayImage) -> bool 
             (key.geometry.width, key.geometry.height))
         && source.dimensions() == (key.geometry.width, key.geometry.height)
         && u64::try_from(source.as_raw().len()).ok() == Some(pixels)
+}
+
+fn valid_cpu_resized_source(key: &CpuResizeKey, source: &GrayImage) -> bool {
+    let proof = &key.proof;
+    let preparation = key.preparation;
+    let source_pixels = u64::from(proof.width()) * u64::from(proof.height());
+    let target_pixels = u64::from(key.geometry.width) * u64::from(key.geometry.height);
+    key.version == CPU_RESIZE_VERSION
+        && proof.validation_version() == VALIDATION_VERSION
+        && proof.byte_len() > 0 && proof.byte_len() <= MAX_ENCODED_BYTES
+        && proof.width() > 0 && proof.height() > 0 && source_pixels <= MAX_SOURCE_PIXELS
+        && preparation.mode == super::DisplayMode::Page
+        && preparation.fit == super::FitMode::Page
+        && preparation.rotation == 0 && preparation.zoom_ratio == 1.0
+        && preparation.viewport.validate().is_ok()
+        && key.geometry.crop == super::SourceRect::whole(proof.width(), proof.height())
+        && key.geometry.sample.is_none()
+        && (key.geometry.width, key.geometry.height)
+            == (preparation.viewport.width, preparation.viewport.height)
+        && (key.geometry.width, key.geometry.height) != (proof.width(), proof.height())
+        && key.geometry == super::fit_geometry(key.geometry.crop, preparation.viewport,
+            super::FitMode::Page, 1.0, None)
+        && source.dimensions() == (key.geometry.width, key.geometry.height)
+        && u64::try_from(source.as_raw().len()).ok() == Some(target_pixels)
 }
 
 pub(crate) struct ReaderResources {
@@ -276,11 +323,22 @@ impl ReaderResources {
     }
 
     pub(super) fn processed_source(&self, key: &ProcessedSourceKey) -> Option<Arc<GrayImage>> {
-        self.lock_processed().lookup(key)
+        self.lock_processed().lookup(|entry| matches!(entry,
+            ProcessedCacheKey::Native(retained) if retained == key))
     }
 
     pub(super) fn insert_processed_source(&self, key: ProcessedSourceKey, source: Arc<GrayImage>) -> bool {
-        self.lock_processed().insert(key, source)
+        self.lock_processed().insert(ProcessedCacheKey::Native(key), source)
+    }
+
+    /// Retain only complete Triangle output before final-frame pixel processing.
+    pub(super) fn cpu_resized_source(&self, key: &CpuResizeKey) -> Option<Arc<GrayImage>> {
+        self.lock_processed().lookup(|entry| matches!(entry,
+            ProcessedCacheKey::CpuTriangle(retained) if retained == key))
+    }
+
+    pub(super) fn insert_cpu_resized_source(&self, key: CpuResizeKey, source: Arc<GrayImage>) -> bool {
+        self.lock_processed().insert(ProcessedCacheKey::CpuTriangle(key), source)
     }
 
     #[cfg(test)]
@@ -321,6 +379,7 @@ mod tests {
     use image::{DynamicImage, ImageFormat, Luma};
 
     use super::*;
+    use super::super::{CenteredSample, DisplayMode, FitMode, SourcePreparation, SourceRect, Viewport};
 
     fn encoded_source(width: u32, height: u32, tone: u8) -> Vec<u8> {
         let source = GrayImage::from_fn(width, height, |x, y| Luma([tone.wrapping_add((x + y) as u8)]));
@@ -338,6 +397,147 @@ mod tests {
 
     fn source(width: u32, height: u32, tone: u8) -> (ValidatedImage, Arc<GrayImage>) {
         decoded_source(&encoded_source(width, height, tone))
+    }
+
+    fn cpu_key(proof: &ValidatedImage, viewport: Viewport) -> CpuResizeKey {
+        let preparation = SourcePreparation { mode: DisplayMode::Page, fit: FitMode::Page,
+            rotation: 0, zoom_ratio: 1.0, viewport,
+            media_acceleration: crate::native_media::Acceleration::Off };
+        CpuResizeKey { proof: proof.clone(), preparation,
+            geometry: super::super::fit_geometry(SourceRect::whole(proof.width(), proof.height()),
+                viewport, FitMode::Page, 1.0, None), version: CPU_RESIZE_VERSION }
+    }
+
+    fn native_and_cpu_keys() -> (ProcessedSourceKey, CpuResizeKey, Arc<GrayImage>) {
+        let source = GrayImage::from_pixel(1920, 2560, Luma([102]));
+        let mut encoded = Cursor::new(Vec::new());
+        DynamicImage::ImageLuma8(source).write_to(&mut encoded, ImageFormat::Jpeg)
+            .expect("Encode a complete qualified synthetic JPEG");
+        let (proof, source) = decoded_source(&encoded.into_inner());
+        let mut cpu = cpu_key(&proof, Viewport::new(1860, 2480));
+        cpu.preparation.media_acceleration = crate::native_media::Acceleration::DecodeAndResize;
+        let native = ProcessedSourceKey { proof, preparation: cpu.preparation,
+            geometry: cpu.geometry, version: PROCESSED_SOURCE_VERSION };
+        (native, cpu, source)
+    }
+
+    #[test]
+    fn processed_namespaces_share_budget_without_cross_hits_and_invalidate_together() {
+        let (native, cpu, original) = native_and_cpu_keys();
+        let native_pixels = Arc::new(GrayImage::from_pixel(1860, 2480, Luma([51])));
+        let cpu_pixels = Arc::new(GrayImage::from_pixel(1860, 2480, Luma([119])));
+        let budget = native_pixels.as_raw().capacity() + cpu_pixels.as_raw().capacity();
+        let resources = ReaderResources::new(budget);
+        assert!(resources.insert_processed_source(native.clone(), native_pixels.clone()));
+        assert!(resources.cpu_resized_source(&cpu).is_none());
+        assert!(resources.insert_cpu_resized_source(cpu.clone(), cpu_pixels.clone()));
+        assert!(Arc::ptr_eq(&resources.processed_source(&native).unwrap(), &native_pixels));
+        assert!(Arc::ptr_eq(&resources.cpu_resized_source(&cpu).unwrap(), &cpu_pixels));
+        assert_eq!(resources.processed_cache_usage(), SourceCacheUsage {
+            entries: 2, retained_bytes: budget, byte_budget: budget });
+        assert!(resources.cached_source(&native.proof).is_none());
+
+        let mut other_policy = cpu.clone();
+        other_policy.preparation.media_acceleration = crate::native_media::Acceleration::Off;
+        assert!(resources.insert_cpu_resized_source(other_policy.clone(), cpu_pixels));
+        assert!(resources.processed_source(&native).is_none());
+        assert!(resources.cpu_resized_source(&cpu).is_some());
+        assert!(resources.cpu_resized_source(&other_policy).is_some());
+        assert_eq!(resources.processed_cache_usage().retained_bytes, budget);
+        assert!(resources.insert_processed_source(native.clone(), native_pixels));
+        assert!(resources.cpu_resized_source(&cpu).is_none());
+        assert!(resources.cpu_resized_source(&other_policy).is_some());
+        assert!(resources.insert_source(&native.proof, original));
+        assert_eq!(resources.remove_digest(native.proof.sha256()), 3);
+        assert!(resources.processed_source(&native).is_none());
+        assert!(resources.cpu_resized_source(&other_policy).is_none());
+        assert!(resources.cached_source(&native.proof).is_none());
+        assert_eq!(resources.processed_cache_usage().retained_bytes, 0);
+    }
+
+    #[test]
+    fn cpu_resizes_require_complete_proofs_and_the_exact_preparation_identity() {
+        let (first, _) = source(8, 8, 17);
+        let (second, _) = source(8, 8, 34);
+        let key = cpu_key(&first, Viewport::new(4, 4));
+        let pixels = Arc::new(GrayImage::from_pixel(4, 4, Luma([85])));
+        let resources = ReaderResources::new(1024);
+        assert!(resources.insert_cpu_resized_source(key.clone(), pixels.clone()));
+        assert!(Arc::ptr_eq(&resources.cpu_resized_source(&key).unwrap(), &pixels));
+        let mut other = key.clone();
+        other.proof = second;
+        assert!(resources.cpu_resized_source(&other).is_none());
+        other = key.clone();
+        other.preparation.media_acceleration = crate::native_media::Acceleration::DecodeAndResize;
+        assert!(resources.cpu_resized_source(&other).is_none());
+        other = key.clone();
+        other.version += 1;
+        assert!(resources.cpu_resized_source(&other).is_none());
+        assert!(!resources.insert_cpu_resized_source(other, pixels.clone()));
+        let native = ProcessedSourceKey { proof: first, preparation: key.preparation,
+            geometry: key.geometry, version: PROCESSED_SOURCE_VERSION };
+        assert!(!resources.insert_processed_source(native, pixels));
+        assert_eq!(resources.processed_cache_usage().entries, 1);
+    }
+
+    #[test]
+    fn cpu_cache_rejects_non_page_geometry_and_partial_outputs() {
+        let (proof, _) = source(8, 8, 17);
+        let key = cpu_key(&proof, Viewport::new(4, 4));
+        let pixels = Arc::new(GrayImage::from_pixel(4, 4, Luma([85])));
+        let invalid: &[fn(&mut CpuResizeKey)] = &[
+            |key| key.preparation.mode = DisplayMode::Panel,
+            |key| key.preparation.mode = DisplayMode::Strip,
+            |key| key.preparation.fit = FitMode::Original,
+            |key| key.preparation.fit = FitMode::Height,
+            |key| key.preparation.fit = FitMode::Width,
+            |key| key.preparation.rotation = 90,
+            |key| key.preparation.zoom_ratio = 2.0,
+            |key| key.preparation.zoom_ratio = f64::NAN,
+            |key| key.preparation.viewport.width = 0,
+            |key| key.preparation.viewport.scale_factor = f32::NAN,
+            |key| key.geometry.crop.x = 1,
+            |key| key.geometry.crop.width = 7,
+            |key| key.geometry.width = 3,
+            |key| key.geometry.height = 3,
+            |key| key.geometry.origin_x = 1.0,
+            |key| key.geometry.origin_y = 1.0,
+            |key| key.geometry.sample = Some(CenteredSample { bounds: key.geometry.crop,
+                center_x: 4.0, center_y: 4.0, scale: 0.5 }),
+        ];
+        for mutate in invalid {
+            let resources = ReaderResources::new(1024);
+            let mut invalid = key.clone();
+            mutate(&mut invalid);
+            assert!(!resources.insert_cpu_resized_source(invalid, pixels.clone()));
+            assert_eq!(resources.processed_cache_usage().entries, 0);
+        }
+        let resources = ReaderResources::new(1024);
+        assert!(!resources.insert_cpu_resized_source(key.clone(),
+            Arc::new(GrayImage::from_pixel(4, 3, Luma([85])))));
+        let extra_storage = Arc::new(GrayImage::from_raw(4, 4, vec![85; 17]).unwrap());
+        assert!(!resources.insert_cpu_resized_source(key, extra_storage));
+        assert!(!resources.insert_cpu_resized_source(cpu_key(&proof, Viewport::new(8, 8)),
+            Arc::new(GrayImage::from_pixel(8, 8, Luma([85])))));
+        assert_eq!(resources.processed_cache_usage().entries, 0);
+    }
+
+    #[test]
+    fn cpu_cache_counts_owned_capacity_and_preserves_zero_budget_behavior() {
+        let (proof, _) = source(8, 8, 17);
+        let key = cpu_key(&proof, Viewport::new(4, 4));
+        let mut allocation = Vec::with_capacity(80);
+        allocation.extend_from_slice(&[85; 16]);
+        let pixels = Arc::new(GrayImage::from_raw(4, 4, allocation).unwrap());
+        for budget in [0, 16] {
+            let resources = ReaderResources::new(budget);
+            assert!(!resources.insert_cpu_resized_source(key.clone(), pixels.clone()));
+            assert!(resources.cpu_resized_source(&key).is_none());
+            assert_eq!(resources.processed_cache_usage(), SourceCacheUsage {
+                entries: 0, retained_bytes: 0, byte_budget: budget });
+        }
+        assert_eq!(Arc::strong_count(&pixels), 1);
+        assert_eq!(pixels.as_raw().len(), 16);
     }
 
     #[test]

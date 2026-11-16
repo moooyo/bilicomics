@@ -46,6 +46,8 @@ mod media_acceleration_tests;
 mod fast_mode_tests;
 #[cfg(test)]
 mod spatial_render_tests;
+#[cfg(test)]
+mod cpu_resize_tests;
 mod triangle;
 
 pub const MAX_ENCODED_BYTES: u64 = crate::image_integrity::MAX_ENCODED_BYTES;
@@ -352,6 +354,9 @@ pub struct ReaderPreparationProfile {
     pub unchanged_sources: u32,
     pub native_sources: u32,
     pub processed_source_hits: u32,
+    /// Software Triangle intermediates reused before canvas and dithering.
+    pub cpu_resize_cache_hits: u32,
+    pub cpu_resize_cache_inserts: u32,
     pub layout_rebuilds: u32,
     pub rendered_frames: u32,
     pub resized_pixels: u64,
@@ -369,6 +374,8 @@ impl ReaderPreparationProfile {
         "integrity_validation may contain several separate spans per source. ",
         "Software JPEG decode includes strict entropy validation; native jpeg_admission avoids CPU IDCT. ",
         "Native timing uses native_decode_resize, not legacy software scalar counters. ",
+        "cpu_resize_cache_hits are software Gray8 intermediates, not native processed_source_hits. ",
+        "resized_pixels counts completed target rasters; an executed software resample requires a resize stage. ",
         "Missing stages were not attempted; partial counts retain unsuccessful work. ",
         "cpu_us is same-thread CPU time when available, otherwise null. ",
         "Legacy scalar microseconds preserve their original completion boundaries."
@@ -499,6 +506,31 @@ struct ProcessedSourceKey {
     preparation: SourcePreparation,
     geometry: FitGeometry,
     version: u32,
+}
+
+const CPU_RESIZE_VERSION: u32 = 1;
+
+/// A software-only, pre-dither intermediate. Native JPEG admission is separate.
+#[derive(Clone, Debug, PartialEq)]
+struct CpuResizeKey {
+    proof: ValidatedImage,
+    preparation: SourcePreparation,
+    geometry: FitGeometry,
+    version: u32,
+}
+
+impl CpuResizeKey {
+    fn for_frame(proof: &ValidatedImage, preparation: SourcePreparation, geometry: FitGeometry) -> Option<Self> {
+        if preparation.mode != DisplayMode::Page || preparation.fit != FitMode::Page
+            || preparation.rotation != 0 || preparation.zoom_ratio != 1.0
+            || preparation.viewport.validate().is_err()
+            || geometry.crop != SourceRect::whole(proof.width(), proof.height())
+            || geometry.sample.is_some()
+            || (geometry.width, geometry.height) != (preparation.viewport.width, preparation.viewport.height)
+            || (geometry.width, geometry.height) == (proof.width(), proof.height())
+        { return None; }
+        Some(Self { proof: proof.clone(), preparation, geometry, version: CPU_RESIZE_VERSION })
+    }
 }
 
 /// These pixels have target dimensions; the sealed proof retains source geometry.
@@ -916,13 +948,17 @@ impl ReaderCore {
     }
 
     pub(crate) fn render_validated_source(&mut self, source: &ValidatedGraySource, viewport: Viewport) -> Result<RenderedPage> {
-        self.render_source_identity(&source.pixels, viewport, Some(source.proof.sha256()), None)
+        Ok(self.render_source_identity_cancellable_with_resources(&source.pixels, viewport,
+            Some(source.proof.sha256()), Some(&source.proof), ReaderResources::shared(),
+            &RenderCancellation::never(), None)?.expect("An uncancelled reader render cannot return cancellation"))
     }
 
     pub(crate) fn render_validated_source_profiled(&mut self, source: &ValidatedGraySource, viewport: Viewport,
         profile: &mut ReaderPreparationProfile) -> Result<RenderedPage>
     {
-        self.render_source_identity(&source.pixels, viewport, Some(source.proof.sha256()), Some(profile))
+        Ok(self.render_source_identity_cancellable_with_resources(&source.pixels, viewport,
+            Some(source.proof.sha256()), Some(&source.proof), ReaderResources::shared(),
+            &RenderCancellation::never(), Some(profile))?.expect("An uncancelled reader render cannot return cancellation"))
     }
 
     /// Cancel obsolete pixel work without publishing a partial frame. This is
@@ -931,7 +967,8 @@ impl ReaderCore {
     pub(crate) fn render_validated_source_cancellable(&mut self, source: &ValidatedGraySource, viewport: Viewport,
         cancelled: &AtomicBool, profile: Option<&mut ReaderPreparationProfile>) -> Result<Option<RenderedPage>>
     {
-        self.render_source_identity_cancellable(&source.pixels, viewport, Some(source.proof.sha256()),
+        self.render_source_identity_cancellable_with_resources(&source.pixels, viewport,
+            Some(source.proof.sha256()), Some(&source.proof), ReaderResources::shared(),
             &RenderCancellation::for_flag(cancelled), profile)
     }
 
@@ -977,6 +1014,14 @@ impl ReaderCore {
     fn render_source_identity_cancellable(&mut self, source: &GrayImage, viewport: Viewport, identity: Option<&str>,
         cancellation: &RenderCancellation<'_>, mut profile: Option<&mut ReaderPreparationProfile>) -> Result<Option<RenderedPage>>
     {
+        self.render_source_identity_cancellable_with_resources(source, viewport, identity, None,
+            ReaderResources::shared(), cancellation, profile.as_deref_mut())
+    }
+
+    fn render_source_identity_cancellable_with_resources(&mut self, source: &GrayImage,
+        viewport: Viewport, identity: Option<&str>, proof: Option<&ValidatedImage>, resources: &ReaderResources,
+        cancellation: &RenderCancellation<'_>, mut profile: Option<&mut ReaderPreparationProfile>) -> Result<Option<RenderedPage>>
+    {
         if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
         let started = profile_start(&profile);
         let validated = (|| {
@@ -1007,6 +1052,29 @@ impl ReaderCore {
         let layout = layout_result?;
         let FitGeometry { crop, width: target_width, height: target_height, sample, .. } = layout.geometry;
         if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
+        // Reference raster paths must independently execute their resampler;
+        // sharing intermediates would conceal production/reference differences.
+        #[cfg(test)]
+        let cache_path_enabled = self.raster_path == TestRasterPath::Current;
+        #[cfg(not(test))]
+        let cache_path_enabled = true;
+        let cache_key = proof.filter(|proof| cache_path_enabled && identity == Some(proof.sha256())
+            && source.dimensions() == (proof.width(), proof.height()))
+            .and_then(|proof| CpuResizeKey::for_frame(proof, self.source_preparation(viewport), layout.geometry));
+        if let Some(key) = &cache_key {
+            let started = profile_start(&profile);
+            let cached = resources.cpu_resized_source(key);
+            profile_elapsed(&mut profile, started, "software_resize_cache_lookup", true, None);
+            if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
+            if let Some(cached) = cached {
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.cpu_resize_cache_hits = profile.cpu_resize_cache_hits.saturating_add(1);
+                }
+                let started = profile_start(&profile);
+                drop(grayscale);
+                return self.complete_rendered_frame(&cached, viewport, layout, cancellation, profile, started);
+            }
+        }
         let started = profile_start(&profile);
         let resized = if let Some(sample) = sample {
             resize_centered_sample(grayscale.as_ref(), sample, target_width, target_height, cancellation)
@@ -1017,6 +1085,16 @@ impl ReaderCore {
         profile_elapsed(&mut profile, started, "resize", completed,
             completed.then_some(|profile: &mut ReaderPreparationProfile| &mut profile.resize_us));
         let Some(resized) = resized else { return Ok(None); };
+        if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
+        let resized = Arc::new(resized);
+        if let Some(key) = cache_key {
+            let started = profile_start(&profile);
+            let retained = resources.insert_cpu_resized_source(key, resized.clone());
+            profile_elapsed(&mut profile, started, "software_resize_cache_insert", true, None);
+            if retained && let Some(profile) = profile.as_deref_mut() {
+                profile.cpu_resize_cache_inserts = profile.cpu_resize_cache_inserts.saturating_add(1);
+            }
+        }
         let started = profile_start(&profile);
         drop(grayscale);
         self.complete_rendered_frame(&resized, viewport, layout, cancellation, profile, started)
