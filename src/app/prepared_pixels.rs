@@ -8,8 +8,6 @@
 use anyhow::{Result, ensure};
 use slint::{Image, Rgba8Pixel, SharedPixelBuffer};
 
-const COPY_BLOCK_BYTES: usize = 64 * 1024;
-
 #[derive(Clone, Debug)]
 pub(super) struct PreparedPixels {
     pixels: SharedPixelBuffer<Rgba8Pixel>,
@@ -17,8 +15,9 @@ pub(super) struct PreparedPixels {
 
 impl PreparedPixels {
     /// Consume finalized RGBA without changing quantization, alpha, or Fast data.
-    /// Allocation/default initialization is bounded by the existing viewport
-    /// limit; copying checks cancellation inside unusually wide rows as well.
+    /// The one-pass Slint allocation/copy cannot be interrupted. The existing
+    /// 8 MP viewport limit bounds it to 32,000,000 RGBA bytes; cancellation is
+    /// checked before and after the copy, and cancelled payloads are discarded.
     pub(super) fn from_rgba_owned(
         rgba: Vec<u8>, width: u32, height: u32, mut cancelled: impl FnMut() -> bool,
     ) -> Result<Option<Self>> {
@@ -28,13 +27,7 @@ impl PreparedPixels {
             count <= crate::reader::MAX_VIEWPORT_PIXELS), "Invalid prepared pixel dimensions");
         let length = usize::try_from(count.unwrap().checked_mul(4).unwrap())?;
         ensure!(rgba.len() == length, "Prepared RGBA length does not match its dimensions");
-        let mut pixels = SharedPixelBuffer::<Rgba8Pixel>::new(width, height);
-        if cancelled() { return Ok(None); }
-        for (destination, source) in pixels.make_mut_bytes().chunks_mut(COPY_BLOCK_BYTES)
-            .zip(rgba.chunks(COPY_BLOCK_BYTES)) {
-            if cancelled() { return Ok(None); }
-            destination.copy_from_slice(source);
-        }
+        let pixels = SharedPixelBuffer::<Rgba8Pixel>::clone_from_slice(&rgba, width, height);
         if cancelled() { return Ok(None); }
         // The returned payload retains only the Slint allocation. In particular,
         // no ready frame or mailbox result can retain this original Vec too.
@@ -122,14 +115,14 @@ mod tests {
     }
 
     #[test]
-    fn a_wide_single_row_can_cancel_after_copying_a_block() {
+    fn a_wide_single_row_is_discarded_when_cancelled_after_the_bounded_copy() {
         let width = 65_537;
         let mut checks = 0;
         let outcome = PreparedPixels::from_rgba_owned(vec![255; width * 4], width as u32, 1, || {
             checks += 1;
-            checks >= 4
+            checks >= 2
         }).unwrap();
         assert!(outcome.is_none());
-        assert_eq!(checks, 4);
+        assert_eq!(checks, 2);
     }
 }
