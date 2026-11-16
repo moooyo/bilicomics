@@ -84,6 +84,39 @@ fn publish_candidate(app: &mut App, frame: NextFrame) {
     app.apply_next_frame(key, cancelled, None, Ok(Some(frame)));
 }
 
+struct QueuedPrediction {
+    cancelled: Arc<AtomicBool>,
+    callbacks: Arc<AtomicUsize>,
+    sequence: u64,
+}
+
+fn queue_candidate(app: &mut App, frame: NextFrame) -> Result<QueuedPrediction> {
+    let key = frame.key.clone();
+    let cancelled = Arc::new(AtomicBool::new(false));
+    let callback_flag = cancelled.clone();
+    let callbacks = Arc::new(AtomicUsize::new(0));
+    let applied = callbacks.clone();
+    let epoch = app.epoch;
+    let sequence = app.sequence.checked_add(1).context("The queued fixture sequence is exhausted")?;
+    let (ticket, delivery) = app.jobs.try_begin_with_delivery(epoch, sequence, "reader-prepare-next")?
+        .context("The isolated fixture must admit its actual speculative result")?;
+    app.sequence = sequence;
+    assert!(app.pending.insert("reader-prepare-next".into(), sequence).is_none());
+    app.reading.as_mut().unwrap().next_frame = NextFrameSlot::Preparing {
+        key: key.clone(), cancelled: cancelled.clone() };
+    // Publishing owns the real delivery permit inside the queued callback.
+    // Setup must not apply the prepared result or promote its slot directly.
+    assert!(ticket.publish(super::super::jobs::JobEvent { epoch, sequence, key: "reader-prepare-next".into(),
+        apply: Box::new(move |app| {
+            assert!(!app.jobs.speculative_delivery_available(), "The callback must retain its result permit");
+            applied.fetch_add(1, Ordering::SeqCst);
+            app.apply_next_frame(key, callback_flag, None, Ok(Some(frame)));
+        }) }, delivery));
+    assert_eq!(callbacks.load(Ordering::SeqCst), 0);
+    assert!(!app.jobs.speculative_delivery_available());
+    Ok(QueuedPrediction { cancelled, callbacks, sequence })
+}
+
 async fn finish_render(app: &mut App) -> Result<()> {
     tokio::time::timeout(Duration::from_secs(5), async {
         loop {
@@ -220,6 +253,109 @@ async fn a_real_next_navigation_consumes_the_slot_under_its_new_render_version()
     assert!(matches!(state.next_frame, NextFrameSlot::Empty));
     app.save_reading_position()?;
     assert_eq!(app.store.load_anchor(&app.account, "prepared-reader-comic")?.unwrap().page_index, 1);
+    Ok(())
+}
+
+#[tokio::test]
+async fn next_input_collects_a_completed_mailbox_prediction_before_changing_its_origin() -> Result<()> {
+    let _serial = crate::source::work::process_test_lock().lock().await;
+    let directory = tempfile::tempdir()?;
+    let (mut app, files) = app(directory.path()).await?;
+    readable(&mut app);
+    app.save_reading_position()?;
+    let frame = candidate(&app, &files)?;
+    let expected_anchor = frame.core.anchor(0);
+    let expected_metadata = frame.frame.metadata;
+    let expected_pixels = frame.frame.page.pixels.clone();
+    let QueuedPrediction { cancelled, callbacks, sequence } = queue_candidate(&mut app, frame)?;
+    let previous = app.reading.as_ref().unwrap().page.clone();
+    let previous_anchor = app.reading.as_ref().unwrap().displayed_anchor(0).unwrap().0;
+    let version = app.reading.as_ref().unwrap().version;
+    assert_eq!(app.pending.get("reader-prepare-next"), Some(&sequence));
+
+    // No tick runs between publication and the actual input handler. The
+    // normal foreground worker must still recheck the source before import.
+    app.reader_action("turn", "next")?;
+    assert_eq!(callbacks.load(Ordering::SeqCst), 1);
+    assert!(!cancelled.load(Ordering::Acquire));
+    assert!(!app.pending.contains_key("reader-prepare-next"));
+    assert!(app.jobs.speculative_delivery_available());
+    let state = app.reading.as_ref().unwrap();
+    assert!(matches!(state.next_frame, NextFrameSlot::Empty));
+    assert_eq!(state.version, version.wrapping_add(1));
+    assert_eq!(state.rendering_version, Some(state.version));
+    assert_eq!(state.page, previous);
+    assert_eq!(state.displayed_anchor(0).unwrap().0, previous_anchor);
+    assert_eq!(app.store.load_anchor(&app.account, "prepared-reader-comic")?.unwrap().page_index, 0);
+
+    finish_render(&mut app).await?;
+    let state = app.reading.as_ref().unwrap();
+    assert_eq!(state.presented_core.as_ref().unwrap().anchor(0), expected_anchor);
+    assert_eq!(state.metadata, expected_metadata);
+    assert_eq!(state.page.to_rgba8().unwrap().as_bytes().as_ptr(), expected_pixels.as_bytes().as_ptr());
+    assert_eq!(callbacks.load(Ordering::SeqCst), 1);
+    app.close_reader()?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn a_queued_prediction_still_rechecks_changed_png_bytes_before_reusing_pixels() -> Result<()> {
+    let _serial = crate::source::work::process_test_lock().lock().await;
+    let directory = tempfile::tempdir()?;
+    let (mut app, files) = app(directory.path()).await?;
+    readable(&mut app);
+    let frame = candidate(&app, &files)?;
+    let expected_anchor = frame.core.anchor(0);
+    // Keep this allocation alive so a new render cannot reuse its address.
+    let old_pixels = frame.frame.page.pixels.clone();
+    let queued = queue_candidate(&mut app, frame)?;
+    let ReaderFiles::Demo { paths, .. } = &files else { unreachable!() };
+    image::GrayImage::from_pixel(16, 24, image::Luma([238])).save(&paths[1])?;
+    let previous = app.reading.as_ref().unwrap().page.clone();
+    let previous_anchor = app.reading.as_ref().unwrap().displayed_anchor(0).unwrap().0;
+
+    app.reader_action("turn", "next")?;
+    assert_eq!(queued.callbacks.load(Ordering::SeqCst), 1);
+    assert_eq!(app.reading.as_ref().unwrap().page, previous);
+    assert_eq!(app.reading.as_ref().unwrap().displayed_anchor(0).unwrap().0, previous_anchor);
+    finish_render(&mut app).await?;
+    let state = app.reading.as_ref().unwrap();
+    let actual = state.page.to_rgba8().unwrap();
+    assert_eq!(state.presented_core.as_ref().unwrap().anchor(0), expected_anchor);
+    assert_ne!(actual.as_bytes().as_ptr(), old_pixels.as_bytes().as_ptr());
+    assert_ne!(actual.as_bytes(), old_pixels.as_bytes());
+    app.close_reader()?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn cancelled_or_stale_viewport_mailbox_predictions_are_not_collected_by_next_input() -> Result<()> {
+    let _serial = crate::source::work::process_test_lock().lock().await;
+    for guard in ["cancelled", "stale-viewport"] {
+        let directory = tempfile::tempdir()?;
+        let (mut app, files) = app(directory.path()).await?;
+        readable(&mut app);
+        let mut frame = candidate(&app, &files)?;
+        let expected_anchor = frame.core.anchor(0);
+        let old_pixels = frame.frame.page.pixels.clone();
+        if guard == "stale-viewport" { frame.key.viewport.width += 1; }
+        let queued = queue_candidate(&mut app, frame)?;
+        if guard == "cancelled" { queued.cancelled.store(true, Ordering::Release); }
+        let previous = app.reading.as_ref().unwrap().page.clone();
+        let previous_anchor = app.reading.as_ref().unwrap().displayed_anchor(0).unwrap().0;
+
+        app.reader_action("turn", "next")?;
+        assert_eq!(queued.callbacks.load(Ordering::SeqCst), 0, "Input collected a {guard} prediction");
+        assert!(queued.cancelled.load(Ordering::Acquire));
+        assert_eq!(app.reading.as_ref().unwrap().page, previous);
+        assert_eq!(app.reading.as_ref().unwrap().displayed_anchor(0).unwrap().0, previous_anchor);
+        finish_render(&mut app).await?;
+        let state = app.reading.as_ref().unwrap();
+        assert_eq!(state.presented_core.as_ref().unwrap().anchor(0), expected_anchor);
+        assert_ne!(state.page.to_rgba8().unwrap().as_bytes().as_ptr(), old_pixels.as_bytes().as_ptr(),
+            "The fallback reused a {guard} queued allocation");
+        app.close_reader()?;
+    }
     Ok(())
 }
 

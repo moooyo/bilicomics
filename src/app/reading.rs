@@ -1169,6 +1169,9 @@ impl App {
             return Ok(());
         }
         if action == "sheet" && !["", "toc", "display", "light"].contains(&value) { return Ok(()); }
+        if action == "turn" && value == "next" {
+            self.collect_completed_reader_prediction(trace);
+        }
         if self.reading.is_some() {
             self.defer_sleep_cover_for_reader_activity();
         }
@@ -1502,6 +1505,35 @@ impl App {
             Some(ReaderFiles::Demo { paths: demo.pages.get(&state.episode_id).cloned().unwrap_or_default(),
                 strip: demo.strip.clone(), strip_active: state.demo_strip })
         } else { state.page_resolver.clone().or_else(|| self.downloads.as_ref().map(|manager| manager.page_resolver())).map(ReaderFiles::Account) }
+    }
+
+    /// Accept an already queued prediction while its origin is still current.
+    /// Input can precede the event-loop wakeup that would normally deliver it.
+    /// This does not wait for a worker or publish pixels: the ordinary render
+    /// path still verifies the source before reusing a retained frame.
+    fn collect_completed_reader_prediction(&mut self, trace: Option<Operation>) {
+        if self.is_suspended() || self.route != "reader" || self.preferences.preload == 0 { return; }
+        let Some(state) = self.reading.as_ref() else { return; };
+        let NextFrameSlot::Preparing { key, cancelled } = &state.next_frame else { return; };
+        if cancelled.load(Ordering::Acquire)
+            || !state.episode().is_some_and(|episode| episode.readable_at(now())) { return; }
+        let Some(presented) = state.presented_core.as_ref() else { return; };
+        let viewport = self.reader_render_viewport(presented.settings());
+        if !key.origin_is_current(state, self.epoch, viewport, self.options.landscape) { return; }
+        let Some(sequence) = self.pending.get("reader-prepare-next").copied() else { return; };
+        let Some(event) = self.jobs.take_ready_speculative(self.epoch, sequence, "reader-prepare-next") else { return; };
+        // Taking a current envelope retires its mailbox token, exactly as tick
+        // does. The independent App pending/epoch guards remain authoritative.
+        if event.epoch == self.epoch && self.pending.get(&event.key) == Some(&event.sequence) {
+            self.pending.remove(&event.key);
+            self.view_dirty.job(&event.key);
+            (event.apply)(self);
+            if let Some(trace) = trace {
+                trace.record("prepared_frame_delivery_before_navigation", &serde_json::json!({
+                    "retained": self.reading.as_ref().is_some_and(|state| matches!(state.next_frame, NextFrameSlot::Ready(_))),
+                }));
+            }
+        }
     }
 
     fn retire_next_frame(&mut self) {

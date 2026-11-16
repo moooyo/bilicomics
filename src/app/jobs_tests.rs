@@ -181,6 +181,135 @@ fn speculative_delivery_stays_reserved_until_the_published_callback_is_consumed(
     assert_eq!(mailbox.inner.speculative_delivery.available_permits(), SPECULATIVE_DELIVERY_CAPACITY);
 }
 
+#[tokio::test]
+async fn targeted_speculative_take_preserves_regular_order_and_owns_delivery_until_drop() {
+    let mailbox = JobMailbox::new();
+    let notifications = Arc::new(AtomicUsize::new(0));
+    let notified = notifications.clone();
+    mailbox.set_wakeup(Arc::new(move || { notified.fetch_add(1, Ordering::SeqCst); }));
+    let before = mailbox.begin(1, 1, "regular-before", false).unwrap();
+    let permit = before.acquire_delivery().await.unwrap();
+    assert!(before.publish(event(1, 1, "regular-before"), permit));
+    let dropped = Arc::new(AtomicUsize::new(0));
+    let outside = Arc::new(AtomicBool::new(true));
+    let (ticket, permit) = mailbox.try_begin_with_delivery(1, 2, "reader").unwrap().unwrap();
+    let token = ticket.token.clone();
+    assert!(ticket.publish(probed_event(&mailbox, 2, &dropped, &outside), permit));
+    let after = mailbox.begin(1, 3, "cover-local:after", false).unwrap();
+    let permit = after.acquire_delivery().await.unwrap();
+    assert!(after.publish(event(1, 3, "cover-local:after"), permit));
+
+    let taken = mailbox.take_ready_speculative(1, 2, "reader").unwrap();
+    assert_eq!((taken.epoch, taken.sequence, taken.key.as_str()), (1, 2, "reader"));
+    assert!(token.invalidated.load(Ordering::Acquire));
+    assert!(!mailbox.is_current(1, 2, "reader"));
+    assert_eq!(mailbox.inner.lock().ready.iter().map(|queued| queued.event.sequence).collect::<Vec<_>>(), vec![1, 3]);
+    assert!(mailbox.inner.lock().wakeup_scheduled);
+    assert_eq!(notifications.load(Ordering::SeqCst), 1);
+    assert_eq!(dropped.load(Ordering::SeqCst), 0);
+    assert_eq!(mailbox.inner.delivery.available_permits(), DELIVERY_CAPACITY - 2);
+    assert_eq!(mailbox.inner.speculative_delivery.available_permits(), 0);
+    assert!(mailbox.try_begin_with_delivery(1, 4, "next-speculative").unwrap().is_none());
+    drop(taken);
+    assert_eq!(dropped.load(Ordering::SeqCst), 1);
+    assert!(outside.load(Ordering::SeqCst));
+    assert_eq!(mailbox.inner.speculative_delivery.available_permits(), SPECULATIVE_DELIVERY_CAPACITY);
+    let remaining = [mailbox.take().unwrap(), mailbox.take().unwrap()];
+    assert_eq!(remaining.iter().map(|event| event.sequence).collect::<Vec<_>>(), vec![1, 3]);
+    assert!(mailbox.inner.lock().latest.is_empty());
+    assert!(!mailbox.inner.lock().wakeup_scheduled);
+    drop(remaining);
+    assert_eq!(mailbox.inner.delivery.available_permits(), DELIVERY_CAPACITY);
+}
+
+#[tokio::test]
+async fn targeted_speculative_take_rejects_wrong_identity_unpublished_and_regular_results() {
+    let mailbox = JobMailbox::new();
+    let key = "reader-prepare-next";
+    let (ticket, permit) = mailbox.try_begin_with_delivery(7, 11, key).unwrap().unwrap();
+    assert!(mailbox.take_ready_speculative(7, 11, key).is_none());
+    assert!(ticket.is_current());
+    assert!(mailbox.inner.lock().ready.is_empty());
+    assert!(ticket.publish(event(7, 11, key), permit));
+    for (epoch, sequence, requested) in [(8, 11, key), (7, 12, key), (7, 11, "cover-sleep-prepare")] {
+        assert!(mailbox.take_ready_speculative(epoch, sequence, requested).is_none());
+        assert!(mailbox.is_current(7, 11, key));
+        assert_eq!(mailbox.inner.lock().ready.len(), 1);
+        assert_eq!(mailbox.inner.speculative_delivery.available_permits(), 0);
+    }
+    drop(mailbox.take_ready_speculative(7, 11, key).unwrap());
+
+    let regular = mailbox.begin(7, 12, key, false).unwrap();
+    let permit = regular.acquire_delivery().await.unwrap();
+    assert!(regular.publish(event(7, 12, key), permit));
+    assert!(mailbox.take_ready_speculative(7, 12, key).is_none());
+    assert!(mailbox.is_current(7, 12, key));
+    assert_eq!(mailbox.inner.lock().ready.len(), 1);
+    assert_eq!(mailbox.inner.delivery.available_permits(), DELIVERY_CAPACITY - 1);
+    assert_eq!(mailbox.inner.speculative_delivery.available_permits(), SPECULATIVE_DELIVERY_CAPACITY);
+    drop(mailbox.take().unwrap());
+    assert_eq!(mailbox.inner.delivery.available_permits(), DELIVERY_CAPACITY);
+    mailbox.close();
+    assert!(mailbox.take_ready_speculative(7, 12, key).is_none());
+}
+
+#[test]
+fn targeted_speculative_take_does_not_wait_for_busy_metadata() {
+    let mailbox = JobMailbox::new();
+    let notifications = Arc::new(AtomicUsize::new(0));
+    let notified = notifications.clone();
+    mailbox.set_wakeup(Arc::new(move || { notified.fetch_add(1, Ordering::SeqCst); }));
+    let key = "reader-prepare-next";
+    let (ticket, permit) = mailbox.try_begin_with_delivery(1, 1, key).unwrap().unwrap();
+    let token = ticket.token.clone();
+    assert!(ticket.publish(event(1, 1, key), permit));
+    let state = mailbox.inner.lock();
+    assert!(mailbox.take_ready_speculative(1, 1, key).is_none());
+    assert_eq!(state.ready.len(), 1);
+    assert_eq!(state.latest.len(), 1);
+    assert!(state.wakeup_scheduled);
+    assert!(!token.invalidated.load(Ordering::Acquire));
+    assert_eq!(mailbox.inner.speculative_delivery.available_permits(), 0);
+    drop(state);
+    let taken = mailbox.take_ready_speculative(1, 1, key).unwrap();
+    assert!(mailbox.inner.lock().latest.is_empty());
+    assert!(mailbox.inner.lock().ready.is_empty());
+    assert!(!mailbox.inner.lock().wakeup_scheduled);
+    assert_eq!(mailbox.inner.speculative_delivery.available_permits(), 0);
+    drop(taken);
+    assert_eq!(mailbox.inner.speculative_delivery.available_permits(), SPECULATIVE_DELIVERY_CAPACITY);
+    let (ticket, permit) = mailbox.try_begin_with_delivery(1, 2, key).unwrap().unwrap();
+    assert!(ticket.publish(event(1, 2, key), permit));
+    assert_eq!(notifications.load(Ordering::SeqCst), 2);
+    drop(mailbox.take_ready_speculative(1, 2, key).unwrap());
+}
+
+#[test]
+fn targeted_speculative_take_requires_the_latest_live_token_allocation() {
+    for replace_identity in [false, true] {
+        let mailbox = JobMailbox::new();
+        let key = "reader-prepare-next";
+        let (ticket, permit) = mailbox.try_begin_with_delivery(1, 1, key).unwrap().unwrap();
+        let token = ticket.token.clone();
+        assert!(ticket.publish(event(1, 1, key), permit));
+        if replace_identity {
+            // Equal numeric identities cannot authorize another token's payload.
+            let replacement = Arc::new(JobToken { epoch: 1, sequence: 1, key: key.into(),
+                durable: false, speculative: true, invalidated: AtomicBool::new(false), cancelled: Notify::new() });
+            mailbox.inner.lock().latest.insert(key.into(), replacement);
+        } else { token.invalidate(); }
+        assert!(mailbox.take_ready_speculative(1, 1, key).is_none());
+        let state = mailbox.inner.lock();
+        assert_eq!(state.ready.len(), 1);
+        assert_eq!(state.latest.len(), 1);
+        assert!(Arc::ptr_eq(&state.ready[0].token, &token));
+        assert_eq!(mailbox.inner.speculative_delivery.available_permits(), 0);
+        drop(state);
+        mailbox.clear();
+        assert_eq!(mailbox.inner.speculative_delivery.available_permits(), SPECULATIVE_DELIVERY_CAPACITY);
+    }
+}
+
 #[test]
 fn speculative_close_rejects_admission_and_releases_only_finished_delivery() {
     let mailbox = JobMailbox::new();

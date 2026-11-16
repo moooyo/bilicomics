@@ -219,6 +219,37 @@ impl JobMailbox {
         }
     }
 
+    /// Take only an already queued result from this exact speculative ticket.
+    /// A busy lock or identity miss leaves all metadata and result order intact.
+    /// As with take(), the callback retains its delivery permit until consumed.
+    pub(super) fn take_ready_speculative(&self, epoch: u64, sequence: u64, key: &str)
+        -> Option<JobEvent>
+    {
+        let (queued, retired) = {
+            let mut state = match self.inner.state.try_lock() {
+                Ok(state) => state,
+                Err(TryLockError::WouldBlock) => return None,
+                Err(TryLockError::Poisoned(error)) => error.into_inner(),
+            };
+            if state.closed { return None; }
+            let current = state.latest.get(key)?;
+            if !current.speculative || current.durable || current.epoch != epoch
+                || current.sequence != sequence || current.key != key
+                || current.invalidated.load(Ordering::Acquire) { return None; }
+            let position = state.ready.iter().position(|queued|
+                Arc::ptr_eq(&queued.token, current) && queued.event.epoch == epoch
+                    && queued.event.sequence == sequence && queued.event.key == key)?;
+            let queued = state.ready.remove(position)?;
+            let retired = state.latest.remove(key);
+            if state.ready.is_empty() { state.wakeup_scheduled = false; }
+            (queued, retired)
+        };
+        let QueuedEvent { token, event } = queued;
+        token.invalidate();
+        drop(retired);
+        Some(event)
+    }
+
     pub(super) fn invalidate(&self, key: &str) {
         let (previous, discarded) = {
             let mut state = self.inner.lock();
