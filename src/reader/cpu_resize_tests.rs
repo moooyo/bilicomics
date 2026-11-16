@@ -221,7 +221,9 @@ fn cancelled_canvas_retains_only_complete_gray_and_never_returns_a_frame_on_a_hi
     for warm in [false, true] {
         let cancelled = AtomicBool::new(false);
         let probe = |work, completed| {
-            if work == RenderWork::CanvasFill && completed > 0 { cancelled.store(true, Ordering::Release); }
+            // This small canvas fits in one fill block. Cancel during the
+            // subsequent row copy, after the complete resize was retained.
+            if work == RenderWork::CanvasGrayCopy && completed > 0 { cancelled.store(true, Ordering::Release); }
         };
         let mut profile = ReaderPreparationProfile::default();
         assert!(render(&mut reader, &source, viewport, &resources,
