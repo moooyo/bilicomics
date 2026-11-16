@@ -43,3 +43,6 @@
 
 # Preserve the completed-prediction delivery comparison and source inventory.
 /docs/verification/prefetch-delivery-20261116/** -text
+
+# Preserve the original physical framebuffer projections and numeric receipt.
+/docs/physical/prefetch-delivery-20261116/** -text

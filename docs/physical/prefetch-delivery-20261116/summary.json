@@ -1,0 +1,184 @@
+{
+  "status": "partial_physical_observation",
+  "run_id": "prefetch-20261116-r1-443abc8c",
+  "source_commit": "747aecc65d150f6588beec7dbf0fa4fd8be967e0",
+  "source_fingerprint": "40d126600b44ca4169db51db21e3779a21ae7ef26de20318f83b384e79b3a3c4",
+  "application_sha256": "bd4d51dcf60ebb32854cb00532e913f08ab5ca35f1dfa1cb60f6d87f4f6ffff6",
+  "package_sha256": "d19f7889ef3b9d1ac6fba26c1b18b25dc25b0d628be0350185d77abe013cec63",
+  "device": {
+    "profile": "scribe",
+    "observed_firmware": "5.19.5",
+    "visible": [
+      1860,
+      2480
+    ],
+    "virtual": [
+      1872,
+      4960
+    ],
+    "stride": 1872,
+    "bits_per_pixel": 8,
+    "raw_rotation": 3
+  },
+  "fixture": {
+    "kind": "distinct_offline_guest_fixture",
+    "synthetic_pages": 12,
+    "source_dimensions": [
+      1700,
+      2360
+    ],
+    "perf05_original_images_used": false,
+    "manifest_sha256": "0833086bd80c98cea3bdaf7cd4718d33487104b8716c561a63cce292eb462ec0"
+  },
+  "input": {
+    "scripted_app_actions": false,
+    "injected_touches": false,
+    "finger_sequence_confirmed_by_user": true,
+    "native_diagnostic_records": 16,
+    "diagnostic_limit_reached": true
+  },
+  "observed_turns": {
+    "normal": {
+      "forward": 5,
+      "back": 4,
+      "forward_hits": 3,
+      "back_hits": 0,
+      "forward_request_to_model_ms_range": [
+        27.366,
+        473.376
+      ],
+      "back_request_to_model_ms_range": [
+        482.624,
+        491.643
+      ]
+    },
+    "fast": {
+      "forward": 3,
+      "back": 4,
+      "forward_hits": 1,
+      "back_hits": 0,
+      "forward_hit_request_to_model_ms": [
+        26.541
+      ],
+      "forward_miss_request_to_model_ms": [
+        407.784,
+        437.041
+      ],
+      "back_request_to_model_ms_range": [
+        406.867,
+        463.908
+      ]
+    }
+  },
+  "early_delivery_marker_count": 0,
+  "targeted_queued_result_race_observed": false,
+  "ui_imports": {
+    "count": 18,
+    "copied_bytes_set": [
+      0
+    ]
+  },
+  "native_refresh": {
+    "fast_turn_frames": 7,
+    "fast_waveform": "du",
+    "fast_flashing": false,
+    "fast_all_accepted": true,
+    "normal_turn_frames": 9,
+    "normal_waveform": "auto",
+    "normal_flashing": false,
+    "normal_all_accepted": true,
+    "driver_completion_confirmed_for_turn_frames": false,
+    "optical_panel_completion_confirmed": false,
+    "native_jpeg_attempts": 0,
+    "accepted_fast_capture_luma_codes": [
+      0,
+      255
+    ]
+  },
+  "captures": [
+    {
+      "name": "initial",
+      "synthetic_page": 1,
+      "render_version": 1,
+      "refresh_mode": "normal",
+      "frame_size": [
+        1860,
+        2480
+      ],
+      "marker_bound": true,
+      "checkpoint_sha256": "ea89ba816560d34dadb3b08ab372e864b346ad513bb920fbdf5e351fd26e25c9",
+      "projection_png_sha256": "8613309e5c6a741f6a6f11c6f04cb4130bccabe83d752bf8c58bfe0c0f6a0448",
+      "physical_panel_update_confirmed": false
+    },
+    {
+      "name": "normal-rounds",
+      "synthetic_page": 2,
+      "render_version": 10,
+      "refresh_mode": "normal",
+      "frame_size": [
+        1860,
+        2480
+      ],
+      "marker_bound": true,
+      "checkpoint_sha256": "34acfabc8033589957354e7e65bca9dff7560a0a69d9c27119df657c99f0321b",
+      "projection_png_sha256": "aece057e6fa044398a02ba2baa69fb9b15a9f3745aca40f249337bfc4efe8e82",
+      "physical_panel_update_confirmed": false
+    },
+    {
+      "name": "fast-rounds",
+      "synthetic_page": 1,
+      "render_version": 18,
+      "refresh_mode": "fast",
+      "frame_size": [
+        1860,
+        2480
+      ],
+      "marker_bound": true,
+      "checkpoint_sha256": "8cf7ce9bb654acef49965f78b74cb8da83f550e4dda318e28f0d9b934ff1a59c",
+      "projection_png_sha256": "d6034b3d67090ea1e48913f2e6f091c913d30ccfadab3b5fa44a016d2f506f27",
+      "physical_panel_update_confirmed": false
+    }
+  ],
+  "idle": {
+    "last_fast_native_frame_to_trace_end_ms": 139537.293777,
+    "new_native_frames_in_that_interval": 0,
+    "last_capture_comparison_accepted": false,
+    "manual_full_clear_exercised": false
+  },
+  "batch": {
+    "status": "failed",
+    "finalization": "released",
+    "harness_returncode": 1,
+    "last_failed_checkpoint": "fast-idle",
+    "failure_diagnostic_sha256": "8c64a9e65ea9d3002fedda5c0bf14594d293978f03de1327a5f2357371a1f912",
+    "exit_after_ms": 570000,
+    "watchdog_absolute_timeout_seconds": 600,
+    "launcher_exit_status": "0",
+    "trace_records": 714,
+    "trace_complete": true
+  },
+  "restoration": {
+    "recovery_checks_passed": true,
+    "owned_process_identities_gone": 27,
+    "active_owned_transports": 0,
+    "native_restored_and_connections_closed": true,
+    "exact_owner_and_token_checked": true,
+    "lease_released": true,
+    "native_home_and_touch_confirmed_by_user": true
+  },
+  "private_evidence_hashes": {
+    "run": "f6b64413fc1a4c680bfeecf3f1b2bea9ad6bf43154846ef841cd9a652c3ed562",
+    "performance": "8d0c2b4866fb59dc9d4c251b3d7729038a301620140ad5c49dfece88253fa59f",
+    "lifecycle": "8f61f0477e0d1da6b490dbf82230e9b2117c1c1a4c5fd83d76256e83afd88bd3",
+    "batch": "03699ec969ea8d504ea3c584724447a2c0d44549f9b279a3289d18e212136f53",
+    "release": "7fc1ba41f1a64ca93c6de1d4c63ae61f503b408694c70d1cc2b5fbbbba882fe5",
+    "closure": "6671614a8099f69bcd9651a0db2b317ace1a0e94893535c859e16aa920b796d0"
+  },
+  "limits": [
+    "No physical before/after speedup comparison",
+    "The completed-result handoff branch was not observed on this device batch",
+    "Model-publication latency is not touch-to-visible latency",
+    "The failed idle checkpoint is not a passed retained-pixel comparison",
+    "Frame memory and accepted submissions do not establish optical grayscale or panel completion"
+  ]
+}

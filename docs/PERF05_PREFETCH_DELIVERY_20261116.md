@@ -157,3 +157,11 @@ timed sequence, so this is not a cold-disk measurement. This follow-up adds no
 ARM ABI runtime, physical-device, native SEND, panel-waveform, optical, or release-profile
 performance claim. Private images, databases, and raw account material remain
 outside the repository; only approved numeric/hash evidence may be retained.
+
+## Subsequent physical observation
+
+The [manual Scribe batch](PHYSICAL_PREFETCH_DELIVERY_20261116.md) records real
+finger input and accepted native framebuffer updates for this binary. It did
+not observe the early-delivery branch, and its final idle checkpoint failed at
+the bounded application exit. Its partial result and successful device recovery
+do not replace the scoped host comparison above.
