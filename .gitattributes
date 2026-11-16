@@ -37,3 +37,6 @@
 
 # Preserve the byte identities of the software-dithering verification records.
 /docs/verification/spatial-dither-20261116/** -text
+
+# Preserve the byte identities of the Perf05 source inventories and receipts.
+/docs/verification/perf05-20261116/** -text

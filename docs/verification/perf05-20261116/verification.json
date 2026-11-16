@@ -1,0 +1,152 @@
+{
+  "status": "passed",
+  "scope": "test_env_software_cross_build_and_static_package",
+  "source_commit": "79264b7a7b0b1dc5cdda92025e56afe3dbf064b9",
+  "source": {
+    "sha256": "2989f346437b5b447dd03aea4ad514bbe88dbcacde2d08ae99f78e94b4fbf9ab",
+    "input_count": 539
+  },
+  "pipeline": {
+    "sha256": "3005efb2a4da0430e3a18e6c1d243e6f4f7cd05f2b2dc8701d7eba813aea4019",
+    "input_count": 622
+  },
+  "physical_device_used": false,
+  "send_measured": false,
+  "live_account_used": false,
+  "firmware_emulator_used": false,
+  "visual_or_optical_acceptance_claimed": false,
+  "resources": {
+    "cargo_build_jobs": 6,
+    "rust_test_threads": 1,
+    "cargo_incremental": 0,
+    "configuration_evidence": "suite_resources_and_recorded_invocations",
+    "invocation_hashes": {
+      "library_followup": "cafd695313791e8bbb5b6f628af97ad5123111e46806b1ffef8acebfff9d7afd",
+      "kindle_retry": "d7d8989e34e8f4932abd71cb3b2f9aa8de328d6d879dcff9abb40eafb094e6c1"
+    }
+  },
+  "core": {
+    "status": "passed",
+    "library_tests": {
+      "passed": 850,
+      "failed": 0,
+      "ignored": 4
+    },
+    "stages": {
+      "cargo_check": {
+        "status": "passed",
+        "seconds": 39.037,
+        "log_sha256": "c6fa08549be1b4cf96a99d3bab593d45c7e5e428705363ae777728764dac9efd"
+      },
+      "cargo_lib_tests": {
+        "status": "passed",
+        "seconds": 311.797,
+        "log_sha256": "1e2923aa02e23d568a968c9fc4852fe9336f1993d0716b861969874d9a21f8af"
+      },
+      "cargo_desktop_build": {
+        "status": "passed",
+        "seconds": 38.098,
+        "log_sha256": "79e5d86f0d8d96cef9e5b93ade97723d1204b6f70a4311ed42016faccca488ca"
+      }
+    },
+    "summary_sha256": "9d8229d58c3005961ef46a336c1cb528e452d65af89a68b9f06110a62cb89e0b",
+    "build_timings_are_benchmarks": false
+  },
+  "kindle_feature_tests_on_host": {
+    "groups": {
+      "spatial": {
+        "passed": 27,
+        "failed": 0,
+        "ignored": 0,
+        "log_sha256": "99a357998afb4998aec793f790507ae443271f1c1bd05c375a8ae9a630037b20"
+      },
+      "refresh_scene": {
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0,
+        "log_sha256": "7f0ec893cebd7477977a35a324ba2c5f9c45a2a6974b232008e3673bb4345814"
+      }
+    },
+    "coverage_overlaps_core": true,
+    "receipt_sha256": "8cfe44bdc4a109ab3a4df602a59a9dcbabed80043382288333cec1691f86290a"
+  },
+  "package_fixtures": {
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "log_sha256": "b7daee1dd6b93b470651c1d1c37682587bf0709c0b1d5aeb367d88677fc6475e"
+  },
+  "build_and_package": {
+    "status": "passed",
+    "fresh_build_invocation": true,
+    "clean_rebuild_claimed": false,
+    "source_fingerprint": "2989f346437b5b447dd03aea4ad514bbe88dbcacde2d08ae99f78e94b4fbf9ab",
+    "stages": {
+      "arm_build_package": {
+        "status": "passed",
+        "seconds": 213.883,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "package": {
+        "status": "passed",
+        "seconds": 0.516,
+        "log_sha256": "46a65007122d76709bebfef1e0c2e3260ee245209fb9f5e8e6015720a5c621c3"
+      }
+    },
+    "arm_binary_executed": false,
+    "checks_passed": 15,
+    "exact_archive_entries": 39,
+    "readelf_hashes": {
+      "application": "0b8d533ae18be0bc2cfc7b332c4d9307488b67322950323e9ad567cca717b9f5",
+      "worker": "a86f904817d990007fb181fcc0b6e71d53f1300ec4caf27d0fdfcef5fefd54dd"
+    },
+    "build_log_sha256": "bb3d5732848d8f2b2360eb825cda327328d8ebced1dba9f361aa16ba8e3c6d7c",
+    "summary_sha256": "ea916f585003fef8980c32435d2ca109cdd15b2ca3993038892e889982ecc576",
+    "receipt_sha256": "44fba2543368094c135506c77e46971b3c5d2f6f6b8067f6a53e998346b55eb5",
+    "zip_manifest_sha256": "fa80c8dd73fd67e0cb7b08a9b647cce518889a7c39000b9eee333b43242353a0"
+  },
+  "artifacts": {
+    "desktop_binary": {
+      "sha256": "d350070ebc223eaf5c1ece38e7a6ed9b9f725080d2e70804315f0728c2a7993f",
+      "bytes": 241456128
+    },
+    "controlled_library_binary": {
+      "sha256": "2e66edaa8cf2fd62b66c45388efe28d91f0fc5a26711d700e5e47c50f72a8c87",
+      "bytes": 257974256
+    },
+    "binary": {
+      "sha256": "a44be36d60afa8f285260859ddd5b9d9f61bb0f985debdc243775980ae2f3f36",
+      "bytes": 67542744
+    },
+    "worker": {
+      "sha256": "e39d7a897f13ce53412f42040d124a106634322899df515b5bc2e96b781914cd",
+      "bytes": 426664
+    },
+    "archive": {
+      "sha256": "6ba4f155dce800e13f4bf21f171035aa9f22bda0a7e7abd74466b84347d2a8b3",
+      "bytes": 51456979
+    }
+  },
+  "phase_boundaries": {
+    "core_suite": "core_only",
+    "package_suite": "package_only",
+    "kindle_tests": "linux_host",
+    "arm_artifacts": "cross_compiled_static_only",
+    "other_suite_phases": "not_run"
+  },
+  "build_storage": {
+    "original_limit_bytes": 3221225472,
+    "final_limit_bytes": 4294967296,
+    "scope": "rebuildable_build_outputs",
+    "app_rss_limit_claimed": false,
+    "shared_host_exclusive": false,
+    "receipt_sha256": "8d75fe00bec75782899276d14f1e20469c1329408a496b082848d1a93a9daec6"
+  },
+  "earlier_attempt": {
+    "status": "build_storage_failure",
+    "reason": "no_space_left_on_device",
+    "log_sha256": "53c1b34d54791da63ef28551fc3bf13c0692d2e7ffe83e088629f652333c85a2",
+    "overwrites_final_result": false,
+    "code_or_test_assertion_failure_claimed": false
+  }
+}

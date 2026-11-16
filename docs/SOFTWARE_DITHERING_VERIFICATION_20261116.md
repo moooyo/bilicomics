@@ -119,3 +119,12 @@ No live account, acquired comic, upstream write, native video driver,
 firmware emulator, or physical Kindle was used by these checks. ARM binaries
 were built and inspected statically. Aidoku's Scribe timings and native pixel
 readback remain scoped to its separately recorded candidate.
+
+## Subsequent reader-priority verification
+
+The [Perf05 reader-priority update](PERF05_READER_PRIORITY_20261116.md) records
+later bounded single-copy worker preparation, shared-pixel attachment, idle
+cover admission, and separate private PNG host comparisons. Final candidate
+evidence is tracked there. It preserves the CPU/Fast pixel policies and does
+not change this report's candidate identities, immutable UI originals, or
+physical-device acceptance boundary.

@@ -1,0 +1,94 @@
+{
+  "status": "passed",
+  "scope": "actual_xtest_guest_desktop",
+  "n_runs_per_variant": 1,
+  "input": "Actual XTest window motion and button events",
+  "physical_window": [
+    1860,
+    2480
+  ],
+  "scale_factor": 2,
+  "refresh_mode": "fast",
+  "fit": "page",
+  "preload": 1,
+  "saved_dither_method": "bayer8",
+  "physical_device_used": false,
+  "native_panel_or_send_measured": false,
+  "sleep_cover_supported_in_this_group": false,
+  "cancellation_exercised_in_this_group": false,
+  "performance_improvement_asserted": false,
+  "anchor_equality_checked_privately": true,
+  "baseline_identity": {
+    "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+    "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e",
+    "source_commit": "217c4c0d11808d1412ca16a81f58c2b57e6c82d2",
+    "harness_sha256": "16005b0d10282aa6d810d3ae1fd24071358b03b44cf56ccff99a70e302a261c5",
+    "source_input_count": 536,
+    "runner_kind": "run-guest",
+    "build_profile": "dev-unoptimized"
+  },
+  "final_identity": {
+    "binary_sha256": "d350070ebc223eaf5c1ece38e7a6ed9b9f725080d2e70804315f0728c2a7993f",
+    "source_fingerprint": "2989f346437b5b447dd03aea4ad514bbe88dbcacde2d08ae99f78e94b4fbf9ab",
+    "source_commit": "79264b7a7b0b1dc5cdda92025e56afe3dbf064b9",
+    "harness_sha256": "16005b0d10282aa6d810d3ae1fd24071358b03b44cf56ccff99a70e302a261c5",
+    "source_input_count": 539,
+    "runner_kind": "run-guest",
+    "build_profile": "dev-unoptimized"
+  },
+  "fixture_manifest_sha256": "08fb52573619de045801e9bd3ae443f9e07d3a4f12e59babfb3690c7d091eff5",
+  "input_archive_sha256": "0e11719838c8da38388be9f3f389fa59ce671625bb033b1707842bce520cf076",
+  "reader_checkpoints": 10,
+  "rgb_matches": [
+    {
+      "name": "first_read",
+      "sha256": "6463eb7ea9a7dc718f4c374044d12eefae8faad4a202c912a4ad849651f9998b"
+    },
+    {
+      "name": "natural_next_2",
+      "sha256": "d6028b956ee6c926c0762d5bbe6c1675c3108c1cb1c2301ecdb3c7978b679392"
+    },
+    {
+      "name": "natural_next_3",
+      "sha256": "56ab6492dd2a1034acc74d6ea53089e591b98b9adbd653a7b2eb3428fd17efec"
+    },
+    {
+      "name": "natural_next_4",
+      "sha256": "4f5c16a36ab163b9a783305fe793e29ed98b5a0b2a24ca881352f9a3e6824297"
+    },
+    {
+      "name": "return_to_start",
+      "sha256": "6463eb7ea9a7dc718f4c374044d12eefae8faad4a202c912a4ad849651f9998b"
+    },
+    {
+      "name": "predicted_next",
+      "sha256": "d6028b956ee6c926c0762d5bbe6c1675c3108c1cb1c2301ecdb3c7978b679392"
+    },
+    {
+      "name": "repeat_back",
+      "sha256": "6463eb7ea9a7dc718f4c374044d12eefae8faad4a202c912a4ad849651f9998b"
+    },
+    {
+      "name": "repeat_next",
+      "sha256": "d6028b956ee6c926c0762d5bbe6c1675c3108c1cb1c2301ecdb3c7978b679392"
+    },
+    {
+      "name": "rapid_final",
+      "sha256": "3ad4f0718e681ea68febb79cdfbd7b9781afec4a799fc2a1a7c99b897d4627e8"
+    },
+    {
+      "name": "idle_retained",
+      "sha256": "3ad4f0718e681ea68febb79cdfbd7b9781afec4a799fc2a1a7c99b897d4627e8"
+    }
+  ],
+  "evidence_hashes": {
+    "baseline_report": "c467732314ad1ea6a50c0f25884530d1ba7e0bca24ad87fd696e6150d89b4d76",
+    "final_report": "e90f08e55f786ce4862dd4e8b82ad70ec0f8db68679634caba60912637f7d083",
+    "original_comparison": "b99bd41af37eb7282096fa6ab77f290cb7ec19ccbf343cdbbba3532c8b6d71b6"
+  },
+  "limits": [
+    "Single actual desktop process per variant; no repeated guest timing claim",
+    "Controlled-library cancellation and sleep-cover checks are separate groups",
+    "Only hashes and fixed configuration labels are exported; no PNG, source content or reading metadata"
+  ]
+}
