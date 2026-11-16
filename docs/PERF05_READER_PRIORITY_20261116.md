@@ -244,3 +244,7 @@ sleep-cover route remain covered by the controlled-library groups.
   native SEND, reflectance, or optical grayscale qualification. Existing immutable
   [software-dithering captures](SOFTWARE_DITHERING_VERIFICATION_20261116.md)
   retain their original identities and scope.
+
+The subsequent [completed-prediction delivery fix](PERF05_PREFETCH_DELIVERY_20261116.md)
+investigates and repairs the repeat-next regression using a new frozen candidate
+and fresh comparisons. The historical R4 measurements above remain unchanged.

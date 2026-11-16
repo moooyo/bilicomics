@@ -40,3 +40,6 @@
 
 # Preserve the byte identities of the Perf05 source inventories and receipts.
 /docs/verification/perf05-20261116/** -text
+
+# Preserve the completed-prediction delivery comparison and source inventory.
+/docs/verification/prefetch-delivery-20261116/** -text

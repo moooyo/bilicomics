@@ -76,7 +76,7 @@ Normal execution uses the per-user `bilicomics` data directory; `--data-dir` ove
 | [Startup and reader performance](docs/PERFORMANCE_IMPLEMENTATION_20261109.md) | Version 0.1.19 startup scheduling, pixel-equivalent reader resizing, page retention, durable progress, resource bounds, and scoped software/physical results |
 | [Startup and page-turn cost breakdown](docs/PERFORMANCE_COST_REVIEW_20261110.md) | R45 timing boundaries, root-cause and feasibility review, remaining reader/composition work, and a scoped traversal experiment |
 | [Performance diagnostics](docs/PERFORMANCE_DIAGNOSTICS.md) | Opt-in 0.1.20 stage tracing, operation correlation, clock boundaries and verification expectations |
-| [Perf05 reader priority](docs/PERF05_READER_PRIORITY_20261116.md) | Bounded worker-prepared shared pixels, reader-first cover admission, and scoped Perf05 evidence |
+| [Perf05 reader priority](docs/PERF05_READER_PRIORITY_20261116.md) | Bounded shared pixels and cover admission; [completed prediction delivery](docs/PERF05_PREFETCH_DELIVERY_20261116.md) resolves the measured repeat-next miss with fresh comparisons |
 | [Measured ARM resize cause](docs/PERFORMANCE_ROOT_CAUSE_20261110.md) | R48 CPU attribution, R49 component comparisons, bounded 0.1.21 implementation, and R51 App acceptance |
 | [KOReader technique adoption](docs/KOREADER_OPTIMIZATION_AUDIT_20261110.md) | Implemented, partial and unimplemented cache, grayscale, streaming and refresh mechanisms with upstream references |
 | [Hardware Y4 dithering](docs/HARDWARE_Y4_DITHERING.md) | Historical product settings, explicit low-level Gray8 research, native delivery flags, fallback, and scoped evidence |
