@@ -9,6 +9,12 @@
 *.png binary
 *.wasm binary
 
+# Keep original font notice bytes identical to their pinned provenance hashes.
+/assets/fonts/OFL.txt -text
+/assets/fonts/NotoSansCJK-LICENSE.txt -text
+/assets/fonts/NotoSerifCJK-LICENSE.txt -text
+/assets/fonts/NOTICES.txt -text
+
 # Preserve the exact pinned upstream reference bytes and checksum contract.
 /vendor/image-triangle-reference-0.25.10/** -text
 
