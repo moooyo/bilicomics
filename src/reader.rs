@@ -25,6 +25,8 @@ pub use crate::performance::{StageMap, StageTotals};
 
 mod resources;
 pub(crate) use resources::ReaderResources;
+mod spatial_dither;
+pub use spatial_dither::SpatialDither;
 
 #[cfg(test)]
 mod reuse_tests;
@@ -42,6 +44,8 @@ mod fit_tests;
 mod media_acceleration_tests;
 #[cfg(test)]
 mod fast_mode_tests;
+#[cfg(test)]
+mod spatial_render_tests;
 mod triangle;
 
 pub const MAX_ENCODED_BYTES: u64 = crate::image_integrity::MAX_ENCODED_BYTES;
@@ -78,6 +82,8 @@ pub enum ReaderError {
     InvalidSettings,
     #[error("image preparation failed: {0}")]
     Image(#[from] image::ImageError),
+    #[error("spatial dithering failed: {0}")]
+    SpatialDither(#[source] anyhow::Error),
     #[error("local image access failed: {0}")]
     Io(#[from] std::io::Error),
 }
@@ -147,6 +153,9 @@ pub struct ReaderSettings {
     pub dither: bool,
     /// Keep Gray8 pixels intact for the display backend's hardware Y4 path.
     pub hardware_dither: bool,
+    /// Product output uses one versioned CPU method on the final viewport.
+    /// None is reserved for the legacy Gray8/Y4 research path.
+    pub spatial_dither: Option<SpatialDither>,
     /// Keep a directly dithered binary page until a later frame replaces it.
     pub fast_mode: bool,
     /// Decode and downscale qualified JPEGs before the unchanged canvas stage.
@@ -166,6 +175,7 @@ impl Default for ReaderSettings {
             cover_alone: true,
             dither: true,
             hardware_dither: false,
+            spatial_dither: Some(SpatialDither::Bayer8),
             fast_mode: false,
             media_acceleration: crate::native_media::Acceleration::Off,
             footer: true,
@@ -177,7 +187,11 @@ impl Default for ReaderSettings {
 
 impl ReaderSettings {
     pub fn uses_hardware_dither(&self) -> bool {
-        !self.fast_mode && self.dither && self.hardware_dither
+        self.spatial_dither.is_none() && !self.fast_mode && self.dither && self.hardware_dither
+    }
+
+    pub fn effective_spatial_dither(&self) -> Option<SpatialDither> {
+        self.spatial_dither.map(|method| if self.dither { method } else { SpatialDither::Off })
     }
 
     pub fn validate(&self) -> Result<()> {
@@ -409,6 +423,8 @@ enum RenderWork {
     ResizeHorizontal,
     ResizeCopy,
     CanvasFill,
+    CanvasGrayCopy,
+    SpatialDither,
     CanvasPixels,
 }
 
@@ -1086,10 +1102,10 @@ impl ReaderCore {
         let left = (viewport.width - target_width) / 2;
         let top = (viewport.height - target_height) / 2;
         let painted = self.paint_canvas_cancellable(resized, viewport, left, top, cancellation);
-        let completed = painted.is_some();
+        let completed = matches!(&painted, Ok(Some(_)));
         profile_elapsed(&mut profile, started, "canvas", completed,
             completed.then_some(|profile: &mut ReaderPreparationProfile| &mut profile.canvas_us));
-        let Some((canvas, dark_pixels)) = painted else { return Ok(None); };
+        let Some((canvas, dark_pixels)) = painted? else { return Ok(None); };
         if let Some(profile) = profile.as_deref_mut() {
             profile.rendered_frames = profile.rendered_frames.saturating_add(1);
             profile.resized_pixels = profile.resized_pixels.saturating_add(u64::from(target_width) * u64::from(target_height));
@@ -1146,27 +1162,34 @@ impl ReaderCore {
         triangle::resize(source, crop, width, height)
     }
 
-    fn paint_canvas(&self, source: &GrayImage, viewport: Viewport, left: u32, top: u32) -> (Vec<u8>, u64) {
+    fn paint_canvas(&self, source: &GrayImage, viewport: Viewport, left: u32, top: u32) -> Result<(Vec<u8>, u64)> {
+        if !self.settings.fast_mode && let Some(method) = self.settings.effective_spatial_dither() {
+            return Ok(paint_spatial_canvas(source, viewport, left, top, method, &RenderCancellation::never())?
+                .expect("An uncancelled spatial canvas cannot return cancellation"));
+        }
         #[cfg(test)]
         if self.raster_path == TestRasterPath::Reference && !self.settings.uses_hardware_dither() && !self.settings.fast_mode {
-            return profile_tests::canvas_reference(source, viewport, left, top, self.settings.dither);
+            return Ok(profile_tests::canvas_reference(source, viewport, left, top, self.settings.dither));
         }
-        paint_quantized_canvas(source, viewport, left, top, self.settings.dither,
-            self.settings.uses_hardware_dither(), self.settings.fast_mode)
+        Ok(paint_quantized_canvas(source, viewport, left, top, self.settings.dither,
+            self.settings.uses_hardware_dither(), self.settings.fast_mode))
     }
 
     fn paint_canvas_cancellable(&self, source: &GrayImage, viewport: Viewport, left: u32, top: u32,
-        cancellation: &RenderCancellation<'_>) -> Option<(Vec<u8>, u64)>
+        cancellation: &RenderCancellation<'_>) -> Result<Option<(Vec<u8>, u64)>>
     {
-        if !cancellation.is_enabled() { return Some(self.paint_canvas(source, viewport, left, top)); }
+        if !self.settings.fast_mode && let Some(method) = self.settings.effective_spatial_dither() {
+            return paint_spatial_canvas(source, viewport, left, top, method, cancellation);
+        }
+        if !cancellation.is_enabled() { return self.paint_canvas(source, viewport, left, top).map(Some); }
         #[cfg(test)]
         if self.raster_path == TestRasterPath::Reference {
-            if cancellation.is_cancelled(RenderWork::Boundary, 0) { return None; }
-            let canvas = self.paint_canvas(source, viewport, left, top);
-            return (!cancellation.is_cancelled(RenderWork::Boundary, 0)).then_some(canvas);
+            if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
+            let canvas = self.paint_canvas(source, viewport, left, top)?;
+            return Ok((!cancellation.is_cancelled(RenderWork::Boundary, 0)).then_some(canvas));
         }
-        paint_quantized_canvas_cancellable(source, viewport, left, top, self.settings.dither,
-            self.settings.uses_hardware_dither(), self.settings.fast_mode, cancellation)
+        Ok(paint_quantized_canvas_cancellable(source, viewport, left, top, self.settings.dither,
+            self.settings.uses_hardware_dither(), self.settings.fast_mode, cancellation))
     }
 
     fn spread_base(&self) -> usize {
@@ -1792,6 +1815,59 @@ fn canvas_tone(value: u8, x: usize, y: usize, dither: bool, hardware_dither: boo
 }
 const RENDER_PIXEL_BLOCK: usize = 256;
 const RENDER_COPY_BLOCK_BYTES: usize = 64 * 1024;
+
+/// Quantize exactly once after placing final geometry in physical viewport
+/// coordinates. Shared source and resize-cache pixels remain immutable.
+fn paint_spatial_canvas(source: &GrayImage, viewport: Viewport, left: u32, top: u32,
+    method: SpatialDither, cancellation: &RenderCancellation<'_>) -> Result<Option<(Vec<u8>, u64)>>
+{
+    viewport.validate()?;
+    if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
+    if source.width() == 0 || source.height() == 0
+        || left.checked_add(source.width()).is_none_or(|right| right > viewport.width)
+        || top.checked_add(source.height()).is_none_or(|bottom| bottom > viewport.height)
+    { return Err(ReaderError::InvalidViewport); }
+    let width = viewport.width as usize;
+    let length = width * viewport.height as usize;
+    let mut gray = Vec::with_capacity(length);
+    while gray.len() < length {
+        if cancellation.is_cancelled(RenderWork::CanvasFill, gray.len()) { return Ok(None); }
+        gray.resize((gray.len() + RENDER_COPY_BLOCK_BYTES).min(length), 255);
+    }
+    let source_width = source.width() as usize;
+    let source_length = source_width * source.height() as usize;
+    let source_pixels = source.as_raw().get(..source_length).ok_or_else(||
+        ReaderError::SpatialDither(anyhow::anyhow!("The prepared grayscale source storage is incomplete")))?;
+    for (y, row) in source_pixels.chunks_exact(source_width).enumerate() {
+        let start = (top as usize + y) * width + left as usize;
+        for first in (0..source_width).step_by(RENDER_PIXEL_BLOCK) {
+            if cancellation.is_cancelled(RenderWork::CanvasGrayCopy, y * source_width + first) { return Ok(None); }
+            let end = (first + RENDER_PIXEL_BLOCK).min(source_width);
+            gray[start + first..start + end].copy_from_slice(&row[first..end]);
+        }
+    }
+    let mut gray = GrayImage::from_raw(viewport.width, viewport.height, gray)
+        .expect("A validated viewport owns exactly one grayscale byte per pixel");
+    let mut checks = 0usize;
+    let applied = spatial_dither::apply_with_cancel(&mut gray, method, || {
+        let cancelled = cancellation.is_cancelled(RenderWork::SpatialDither, checks);
+        checks = checks.saturating_add(1);
+        if cancelled { Err(anyhow::anyhow!("Reader spatial preparation was cancelled")) } else { Ok(()) }
+    });
+    if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
+    applied.map_err(ReaderError::SpatialDither)?;
+    let mut canvas = Vec::with_capacity(length * 4);
+    let mut dark = 0;
+    for (block, pixels) in gray.as_raw().chunks(RENDER_PIXEL_BLOCK).enumerate() {
+        if cancellation.is_cancelled(RenderWork::CanvasPixels, block * RENDER_PIXEL_BLOCK) { return Ok(None); }
+        for &tone in pixels {
+            dark += u64::from(tone <= 68);
+            canvas.extend_from_slice(&[tone, tone, tone, 255]);
+        }
+    }
+    if cancellation.is_cancelled(RenderWork::Boundary, 0) { return Ok(None); }
+    Ok(Some((canvas, dark)))
+}
 
 /// Paint complete, opaque RGBA rows without changing the crop-local Bayer phase.
 fn paint_quantized_canvas(source: &GrayImage, viewport: Viewport, left: u32, top: u32,

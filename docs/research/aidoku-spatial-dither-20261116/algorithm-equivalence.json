@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "method": "production_bayer8",
+      "prototype": "bayer8",
+      "raw_sha256": "efce4a7a5869c77dddce34bd7d7d086567d4685135e99803869b056a0f43e741",
+      "width": 1860,
+      "height": 2480,
+      "changed_pixels": 0
+    },
+    {
+      "method": "production_fs_q8",
+      "prototype": "fs_q8",
+      "raw_sha256": "13f26d2b7ec7af42c17a686359e9782d7ddb032d5c9d522e1c3ba53b4b419ea8",
+      "width": 1860,
+      "height": 2480,
+      "changed_pixels": 0
+    }
+  ],
+  "original_chart_sha256": "21ded69522eb01df3bdbd69839a1ca35c95d1d6025ed51429869ed0e6ea416ff",
+  "production_example_sha256": "274228c4a2b5fe3f6f44b90404d06df58758cc1380df7286bed59612707eeca7",
+  "library_tests_before_final_compact_layout": true,
+  "changes_after_library_tests": [
+    "ui/dither-controls.slint",
+    "ui/native-controls.slint",
+    "ui/settings-controls.slint"
+  ],
+  "final_layout_validation": "Final desktop/ARM builds, 28 desktop UI cases and 11 physical Scribe runs.",
+  "test_summaries": {
+    "kindle-tests": {
+      "log_sha256": "c4594640693930662448e76c86cd0bb07b983c1bcfa7729ff5fc2b3bb0965618"
+    },
+    "tests": {
+      "log_sha256": "85ed671e0e237d201196191aaf702dda71ce2b27ea8c1b070a3a332f1889eadd"
+    },
+    "bin-tests": {
+      "log_sha256": "7dd6dc20f27320e0b23178f4b715029fdbba7f2504d62c13459b728572ae8965"
+    }
+  }
+}

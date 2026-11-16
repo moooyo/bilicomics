@@ -1,0 +1,90 @@
+{
+  "automated_ui_passed": true,
+  "main_sessions": 8,
+  "captures": 28,
+  "settings_captures": 24,
+  "additional_fast_page_captures": 4,
+  "fast_regression_captures": 20,
+  "fast_regression_restart_cases": 8,
+  "restart_and_fast_cases": 8,
+  "visual_review": {
+    "accepted": true,
+    "date": "2026-11-16",
+    "timezone": "Asia/Shanghai",
+    "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e",
+    "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+    "scope": "Untouched desktop X11 profile PNGs, not physical Kindle or optical acceptance.",
+    "reviews": [
+      {
+        "reviewer": "media_reader_map",
+        "profile": "scribe",
+        "original_settings_pngs_inspected": 12,
+        "run": "R3",
+        "accepted": true,
+        "findings": "All twelve originals were individually viewed. All choices, selection states, explanations and Reader Done controls are clear; landscape Floyd fits completely. Account clipping is confined to the bounded scroll area. Final identical images reuse this review only after SHA-256 comparison."
+      },
+      {
+        "reviewer": "media_verification_map",
+        "profile": "pw6",
+        "original_settings_pngs_inspected": 12,
+        "run": "R3 with three R4 originals replacing the narrow landscape selection views",
+        "accepted": true,
+        "findings": "Nine unchanged final views reuse individually reviewed R3 originals. All three final R4 Reader landscape originals were individually viewed again: Off, Bayer8 and selected Floyd are complete, readable and unambiguous. The full Floyd-Steinberg name has no ellipsis, third line, or broken border. Done controls, notes and other rows remain clear."
+      },
+      {
+        "reviewer": "root",
+        "profile": "scribe",
+        "final_account_landscape_pngs_inspected": 3,
+        "run": "R4",
+        "accepted": true,
+        "findings": "The three final Account landscape captures differ in their bounded body scroll position. All three final originals were viewed directly: choices and explanations are complete, selection states are correct, and fixed header/footer/navigation remain clear."
+      },
+      {
+        "reviewer": "root",
+        "quiet_fast_pngs_inspected": 4,
+        "run": "R3, reused only after exact final-image identity comparison",
+        "accepted": true,
+        "findings": "Both profile orientations show complete, immersive binary comic pages without persistent chrome. Final PNGs match the individually viewed originals exactly. No panel, native waveform or optical result is inferred."
+      }
+    ],
+    "reviewed_capture_paths": [
+      "raw/pw6/10-account-cpu-off-portrait.png",
+      "raw/pw6/10-account-cpu-bayer8-portrait.png",
+      "raw/pw6/10-account-cpu-floyd-steinberg-portrait.png",
+      "raw/pw6/10-account-cpu-off-landscape.png",
+      "raw/pw6/10-account-cpu-bayer8-landscape.png",
+      "raw/pw6/10-account-cpu-floyd-steinberg-landscape.png",
+      "raw/pw6/20-reader-cpu-off-portrait.png",
+      "raw/pw6/20-reader-cpu-bayer8-portrait.png",
+      "raw/pw6/20-reader-cpu-floyd-steinberg-portrait.png",
+      "raw/pw6/20-reader-cpu-off-landscape.png",
+      "raw/pw6/20-reader-cpu-bayer8-landscape.png",
+      "raw/pw6/20-reader-cpu-floyd-steinberg-landscape.png",
+      "raw/scribe/10-account-cpu-off-portrait.png",
+      "raw/scribe/10-account-cpu-bayer8-portrait.png",
+      "raw/scribe/10-account-cpu-floyd-steinberg-portrait.png",
+      "raw/scribe/10-account-cpu-off-landscape.png",
+      "raw/scribe/10-account-cpu-bayer8-landscape.png",
+      "raw/scribe/10-account-cpu-floyd-steinberg-landscape.png",
+      "raw/scribe/20-reader-cpu-off-portrait.png",
+      "raw/scribe/20-reader-cpu-bayer8-portrait.png",
+      "raw/scribe/20-reader-cpu-floyd-steinberg-portrait.png",
+      "raw/scribe/20-reader-cpu-off-landscape.png",
+      "raw/scribe/20-reader-cpu-bayer8-landscape.png",
+      "raw/scribe/20-reader-cpu-floyd-steinberg-landscape.png",
+      "raw/pw6/14-reader-fast-portrait.png",
+      "raw/pw6/25-reader-fast-landscape.png",
+      "raw/scribe/14-reader-fast-portrait.png",
+      "raw/scribe/25-reader-fast-landscape.png"
+    ],
+    "physical_device_used": false,
+    "live_account_used": false,
+    "native_waveform_delivery_claimed": false
+  },
+  "visual_equivalence": "visual-equivalence.json",
+  "original_report_and_sidecars_preserved": true,
+  "physical_device_used": false,
+  "native_driver_exercised": false,
+  "hardware_waveform_proof": false,
+  "live_account_used": false
+}

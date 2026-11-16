@@ -5,6 +5,7 @@ mod disk;
 use std::{
     collections::{BTreeMap, BTreeSet},
     path::{Path, PathBuf},
+    sync::{Arc, atomic::{AtomicBool, Ordering}},
     time::{Duration, Instant, SystemTime},
 };
 
@@ -89,6 +90,23 @@ struct CoverEntry {
     failures: u8,
     used: u64,
     last_touch: Option<Instant>,
+    cancelled: Arc<AtomicBool>,
+}
+
+impl Drop for CoverEntry {
+    fn drop(&mut self) { self.cancelled.store(true, Ordering::Release); }
+}
+
+struct MaintenanceWork {
+    sequence: u64,
+    cancelled: Arc<AtomicBool>,
+    drained: Arc<AtomicBool>,
+    completion_received: bool,
+    needs_more: bool,
+}
+
+impl Drop for MaintenanceWork {
+    fn drop(&mut self) { self.cancelled.store(true, Ordering::Release); }
 }
 
 struct Observation {
@@ -110,13 +128,19 @@ pub(super) struct CoverState {
     next_retry: Option<Instant>,
     maintenance_pending: bool,
     maintenance_due: Option<Instant>,
+    maintenance_work: Option<MaintenanceWork>,
+    maintenance_touches: BTreeMap<String, SystemTime>,
 }
 
 impl CoverState {
     pub(super) fn clear(&mut self) {
         // Do not reuse tokens when an account is cleared and immediately signs in again.
         let generation = self.generation.wrapping_add(1);
-        *self = Self { generation, ..Self::default() };
+        let maintenance_work = self.maintenance_work.take();
+        if let Some(work) = &maintenance_work { work.cancelled.store(true, Ordering::Release); }
+        let maintenance_touches = std::mem::take(&mut self.maintenance_touches);
+        *self = Self { generation, maintenance_pending: maintenance_work.is_some(),
+            maintenance_work, maintenance_touches, ..Self::default() };
     }
 
     fn update_connectivity(&mut self, connectivity: Connectivity) -> bool {
@@ -161,6 +185,7 @@ impl CoverState {
                 token: CoverToken { account: account.to_owned(), id: id.to_owned(), url_hash,
                     generation: self.generation },
                 negative: None, pending: false, failures: 0, used: self.used, last_touch: None,
+                cancelled: Arc::new(AtomicBool::new(false)),
             });
         }
         let entry = self.entries.get_mut(id)?;
@@ -180,8 +205,29 @@ impl CoverState {
     fn begin(&mut self, token: &CoverToken) -> bool {
         let Some(entry) = self.entries.get_mut(&token.id).filter(|entry| &entry.token == token) else { return false; };
         if entry.pending || entry.negative.is_some() { return false; }
+        entry.cancelled = Arc::new(AtomicBool::new(false));
         entry.pending = true;
         true
+    }
+
+    fn cancellation(&self, token: &CoverToken) -> Option<Arc<AtomicBool>> {
+        self.entries.get(&token.id).filter(|entry| &entry.token == token)
+            .map(|entry| entry.cancelled.clone())
+    }
+
+    fn defer_pending_for_reader(&mut self, now: Instant) {
+        let tokens: Vec<_> = self.entries.values().filter(|entry| entry.pending)
+            .map(|entry| entry.token.clone()).collect();
+        for token in tokens {
+            if let Some(entry) = self.entries.get(&token.id) { entry.cancelled.store(true, Ordering::Release); }
+            self.failed(&token, NegativeReason::Deferred, now);
+            self.generation = self.generation.wrapping_add(1);
+            if let Some(entry) = self.entries.get_mut(&token.id) {
+                // A callback already removed from the mailbox still needs its
+                // own freshness fence after Reader activity invalidates jobs.
+                entry.token.generation = self.generation;
+            }
+        }
     }
 
     fn local_finished(&mut self, token: &CoverToken) {
@@ -257,6 +303,7 @@ impl CoverState {
     fn maintenance_request(&mut self, force: bool, now: Instant) -> Option<disk::MaintenanceRequest> {
         if self.maintenance_pending || !force && self.maintenance_due.is_some_and(|due| now < due) { return None; }
         self.maintenance_pending = true;
+        self.maintenance_touches = self.touches.clone();
         let protected = self.entries.values().filter(|entry| entry.pending)
             .map(|entry| format!("{}.png", entry.token.url_hash)).collect();
         Some(disk::MaintenanceRequest { touches: std::mem::take(&mut self.touches), protected })
@@ -264,11 +311,26 @@ impl CoverState {
 
     fn maintenance_finished(&mut self, needs_more: bool, now: Instant) {
         self.maintenance_pending = false;
+        self.maintenance_touches.clear();
         self.maintenance_due = Some(now + if needs_more { MAINTENANCE_NEXT_BATCH } else { MAINTENANCE_INTERVAL });
+    }
+
+    fn retry_maintenance_touches(&mut self) {
+        for (name, touched) in std::mem::take(&mut self.maintenance_touches) { self.queue_touch(&name, touched); }
     }
 }
 
 impl App {
+    pub(super) fn defer_ordinary_cover_work_for_reader_activity(&mut self) {
+        let keys: Vec<_> = self.pending.keys().filter(|key|
+            key.starts_with("cover-local:") || key.starts_with("cover:") || key.starts_with("cover-prepare:"))
+            .cloned().collect();
+        self.cover_state.defer_pending_for_reader(Instant::now());
+        self.cover_pending.clear();
+        for key in keys { self.invalidate(&key); }
+        if let Some(work) = &self.cover_state.maintenance_work { work.cancelled.store(true, Ordering::Release); }
+    }
+
     /// The caller marks cover-bearing views dirty after a retry deadline or connectivity change.
     pub(super) fn cover_retry_due(&mut self) -> bool {
         if self.is_suspended() { return false; }
@@ -303,6 +365,20 @@ impl App {
         Some(observation)
     }
 
+    /// Reuse an already resident, source-bound preview without observations,
+    /// disk access, LRU mutation, or starting a thumbnail job on a cache miss.
+    pub(super) fn cached_cover_preview(&self, comic: &Comic) -> Option<slint::Image> {
+        let expected = if let Some(demo) = &self.demo {
+            demo.covers.get(&comic.id)?.clone()
+        } else {
+            cached_cover_path(&self.data_dir, &comic.cover_url)
+        };
+        let known = self.cover_files.get(&comic.id)?;
+        if !same_cover_source(known, &expected, self.demo.is_some()) { return None; }
+        self.cover_images.get(&(self.account.clone(), comic.id.clone()))
+            .map(|cached| cached.image.clone())
+    }
+
     pub(super) fn cover_image(&mut self, comic: &Comic) -> slint::Image {
         let Some(observation) = self.observe_cover(comic) else { return slint::Image::default(); };
         let token = observation.token;
@@ -325,6 +401,10 @@ impl App {
             if self.demo.is_none() { self.cover_state.touch(&comic.id, &file_name, Instant::now()); }
             return image;
         }
+        if self.route == "reader" {
+            if !observation.blocked { self.cover_state.failed(&token, NegativeReason::Deferred, Instant::now()); }
+            return slint::Image::default();
+        }
         if self.is_suspended() || observation.blocked || !self.cover_state.begin(&token) {
             return slint::Image::default();
         }
@@ -333,12 +413,20 @@ impl App {
         let data_dir = self.data_dir.clone();
         let is_demo = self.demo.is_some();
         let comic = comic.clone();
+        let cancelled = self.cover_state.cancellation(&token).expect("The admitted cover entry exists");
         self.cover_background(&format!("cover-local:{}", comic.id), move || {
-            if is_demo { startup::decode_cover(&candidate) } else { disk::read_cover(&data_dir, &file_name) }
+            anyhow::ensure!(!cancelled.load(Ordering::Acquire), "Cover preparation cancelled");
+            let result = if is_demo { startup::decode_cover(&candidate) } else { disk::read_cover(&data_dir, &file_name) }?;
+            anyhow::ensure!(!cancelled.load(Ordering::Acquire), "Cover preparation cancelled");
+            Ok(result)
         }, move |app, result| {
             if !app.cover_state.current(&token) { return; }
             app.cover_state.local_finished(&token);
             app.cover_pending.remove(&comic.id);
+            if app.route == "reader" {
+                app.cover_state.failed(&token, NegativeReason::Deferred, Instant::now());
+                return;
+            }
             match result {
                 Ok(Some((rgba, width, height))) => app.remember_cover(comic.id, path, rgba, width, height),
                 Err(error) if error.downcast_ref::<super::jobs::CapacityError>().is_some() => {
@@ -391,7 +479,8 @@ impl App {
         let Some(observation) = self.observe_cover(&comic) else { return; };
         let token = observation.token;
         if observation.blocked { return; }
-        let unavailable = if self.demo.is_some() { Some(NegativeReason::DemoMissing) }
+        let unavailable = if self.route == "reader" { Some(NegativeReason::Deferred) }
+            else if self.demo.is_some() { Some(NegativeReason::DemoMissing) }
             else if self.options.offline { Some(NegativeReason::Offline) }
             else if comic.cover_url.trim().is_empty() { Some(NegativeReason::EmptyUrl) }
             else { None };
@@ -405,20 +494,44 @@ impl App {
         let client = self.client.clone();
         let id = comic.id;
         let url = comic.cover_url;
-        self.source_job(&format!("cover:{id}"), async move { client.download_cover(&url).await }, move |app, result| {
+        let cancelled = self.cover_state.cancellation(&token).expect("The admitted cover entry exists");
+        let source_cancelled = cancelled.clone();
+        self.source_job(&format!("cover:{id}"), async move {
+            if source_cancelled.load(Ordering::Acquire) {
+                return Err(crate::source::SourceError::new(crate::source::ErrorKind::Cancelled, "cover_cancelled"));
+            }
+            let candidate = client.download_cover_candidate(&url).await?;
+            if source_cancelled.load(Ordering::Acquire) {
+                return Err(crate::source::SourceError::new(crate::source::ErrorKind::Cancelled, "cover_cancelled"));
+            }
+            Ok(candidate)
+        }, move |app, result| {
             if !app.cover_state.current(&token) { return; }
+            if app.route == "reader" {
+                app.cover_pending.remove(&id);
+                app.cover_state.failed(&token, NegativeReason::Deferred, Instant::now());
+                return;
+            }
             match result {
-                Ok(image) => {
+                Ok(candidate) => {
                     let data_dir = app.data_dir.clone();
                     let file_name = format!("{}.png", token.url_hash);
                     let id_for_work = id.clone();
                     app.cover_background(&format!("cover-prepare:{id}"), move || {
+                        anyhow::ensure!(!cancelled.load(Ordering::Acquire), "Cover preparation cancelled");
+                        let image = candidate.verify_cancellable(&|| cancelled.load(Ordering::Acquire))?;
+                        anyhow::ensure!(!cancelled.load(Ordering::Acquire), "Cover preparation cancelled");
                         let (rgba, width, height) = startup::decode_cover_bytes(image.bytes)?;
+                        anyhow::ensure!(!cancelled.load(Ordering::Acquire), "Cover preparation cancelled");
                         let path = disk::publish_cover(&data_dir, &file_name, &rgba, width, height)?;
                         Ok((id_for_work, path, rgba, width, height))
                     }, move |app, result| {
                         if !app.cover_state.current(&token) { return; }
                         app.cover_pending.remove(&id);
+                        if app.route == "reader" {
+                            app.cover_state.failed(&token, NegativeReason::Deferred, Instant::now());
+                            return;
+                        }
                         match result {
                             Ok((id, path, rgba, width, height)) => {
                                 app.remember_cover(id, path, rgba, width, height);
@@ -427,6 +540,8 @@ impl App {
                             Err(error) => {
                                 if error.downcast_ref::<super::jobs::CapacityError>().is_some() {
                                     app.cover_state.failed(&token, NegativeReason::Deferred, Instant::now());
+                                } else if error.downcast_ref::<crate::source::SourceError>().is_some() {
+                                    app.cover_state.failed(&token, NegativeReason::Download, Instant::now());
                                 } else {
                                     app.cover_state.failed(&token, NegativeReason::Storage, Instant::now());
                                     app.toast("common_storage_error");
@@ -448,17 +563,26 @@ impl App {
 
     /// Called after startup and from the normal tick; all filesystem work stays in a worker.
     pub(super) fn schedule_cover_maintenance(&mut self, force: bool) {
-        if self.is_suspended() || self.demo.is_some() { return; }
+        self.reap_cover_maintenance();
+        if self.demo.is_some() || !self.optional_cover_work_allowed() { return; }
         let Some(request) = self.cover_state.maintenance_request(force, Instant::now()) else { return; };
         let data_dir = self.data_dir.clone();
-        let retry_touches = request.touches.clone();
-        self.background("cover-maintenance", move || disk::maintain(&data_dir, request), move |app, result| {
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let callback_cancelled = cancelled.clone();
+        let drained = Arc::new(AtomicBool::new(false));
+        let trace = crate::performance::Operation::new("cover_maintenance");
+        if let Some(trace) = trace {
+            trace.record("request", &serde_json::json!({"touches": request.touches.len(), "protected": request.protected.len()}));
+        }
+        let admitted = self.background_optional_with_memory("cover-maintenance", crate::source::work::METADATA_WORK_BYTES,
+            trace, cancelled.clone(), Some(drained.clone()), move || disk::maintain(&data_dir, request), move |app, result| {
+            let Some(work) = app.cover_state.maintenance_work.as_mut()
+                .filter(|work| Arc::ptr_eq(&work.cancelled, &callback_cancelled)) else { return; };
+            work.completion_received = true;
             let deferred = result.as_ref().err().is_some_and(|error| error.downcast_ref::<super::jobs::CapacityError>().is_some());
-            let needs_more = deferred || result.as_ref().is_ok_and(|result| result.needs_more);
-            if result.is_err() {
-                for (name, touched) in retry_touches { app.cover_state.queue_touch(&name, touched); }
-            }
-            app.cover_state.maintenance_finished(needs_more, Instant::now());
+            work.needs_more = deferred || result.as_ref().is_ok_and(|result| result.needs_more);
+            if callback_cancelled.load(Ordering::Acquire) { return; }
+            if result.is_err() { app.cover_state.retry_maintenance_touches(); }
             if let Ok(result) = result {
                 let removed: BTreeSet<_> = result.evicted.into_iter().collect();
                 let resident: BTreeSet<_> = app.cover_images.keys().map(|(_, id)| id.clone()).collect();
@@ -467,6 +591,29 @@ impl App {
                     .and_then(|name| name.to_str()).is_some_and(|name| removed.contains(name)));
             }
         });
+        if admitted {
+            self.cover_state.maintenance_work = Some(MaintenanceWork {
+                sequence: self.sequence, cancelled, drained, completion_received: false, needs_more: false,
+            });
+        } else {
+            self.cover_state.retry_maintenance_touches();
+            self.cover_state.maintenance_finished(true, Instant::now());
+        }
+    }
+
+    fn reap_cover_maintenance(&mut self) {
+        let Some(work) = &self.cover_state.maintenance_work else { return; };
+        let invalidated = !self.jobs.is_current(self.epoch, work.sequence, "cover-maintenance");
+        if invalidated && !work.completion_received { work.cancelled.store(true, Ordering::Release); }
+        if !work.drained.load(Ordering::Acquire)
+            || crate::source::work::speculative_in_flight_for(&work.cancelled)
+            || !(work.completion_received || work.cancelled.load(Ordering::Acquire) || invalidated) { return; }
+        let work = self.cover_state.maintenance_work.take().expect("The observed maintenance exists");
+        if self.pending.get("cover-maintenance") == Some(&work.sequence) { self.invalidate("cover-maintenance"); }
+        let cancelled = work.cancelled.load(Ordering::Acquire) || !work.completion_received;
+        if cancelled { self.cover_state.retry_maintenance_touches(); }
+        self.cover_state.maintenance_finished(cancelled || work.needs_more, Instant::now());
+        self.retry_reader_prefetch_after_optional_cover_drain();
     }
 }
 

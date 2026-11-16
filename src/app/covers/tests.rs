@@ -1,4 +1,5 @@
 use super::*;
+use anyhow::Context;
 
 fn offline() -> Connectivity {
     Connectivity { online: false, offline: true, demo: false }
@@ -212,6 +213,141 @@ fn maintenance_is_gated_and_flushes_bounded_touches_in_background_batches() {
     state.maintenance_finished(false, now);
     assert!(state.maintenance_request(false, now + MAINTENANCE_INTERVAL - Duration::from_millis(1)).is_none());
     assert!(state.maintenance_request(false, now + MAINTENANCE_INTERVAL).is_some());
+}
+
+#[test]
+fn reader_deferral_cancels_pending_covers_without_poisoning_a_future_retry() {
+    let mut state = CoverState::default();
+    let now = Instant::now();
+    let current = observe(&mut state, "1", "https://fixture.invalid/cover.png", online(), now);
+    assert!(state.begin(&current.token));
+    let cancellation = state.cancellation(&current.token).unwrap();
+    state.defer_pending_for_reader(now);
+    assert!(cancellation.load(Ordering::Acquire));
+    assert!(!state.current(&current.token), "A removed mailbox envelope still needs a stale-token fence");
+    assert!(!state.entries["1"].pending);
+    assert_eq!(state.entries["1"].failures, 0);
+    assert!(observe(&mut state, "1", "https://fixture.invalid/cover.png", online(), now).blocked);
+    let retry = observe(&mut state, "1", "https://fixture.invalid/cover.png", online(), now + MAINTENANCE_NEXT_BATCH);
+    assert!(!retry.blocked);
+    assert!(state.begin(&retry.token));
+    assert!(!state.cancellation(&retry.token).unwrap().load(Ordering::Acquire));
+}
+
+#[test]
+fn interrupted_maintenance_preserves_touches_and_its_bounded_retry() {
+    let mut state = CoverState::default();
+    let now = Instant::now();
+    let touched = SystemTime::now();
+    let newer = touched + Duration::from_secs(1);
+    let name = format!("{}.png", "a".repeat(64));
+    state.queue_touch(&name, touched);
+    let request = state.maintenance_request(false, now).unwrap();
+    assert_eq!(request.touches[&name], touched);
+    state.queue_touch(&name, newer);
+    state.retry_maintenance_touches();
+    state.maintenance_finished(true, now);
+    assert!(state.maintenance_request(false, now).is_none());
+    let retry = state.maintenance_request(false, now + MAINTENANCE_NEXT_BATCH).unwrap();
+    assert_eq!(retry.touches[&name], newer, "A cancelled old touch must not replace a newer observation");
+}
+
+#[test]
+fn clearing_cover_metadata_preserves_a_cancelled_maintenance_drain_marker() {
+    let mut state = CoverState::default();
+    let cancelled = Arc::new(AtomicBool::new(false));
+    let drained = Arc::new(AtomicBool::new(false));
+    state.maintenance_work = Some(MaintenanceWork { sequence: 7, cancelled: cancelled.clone(),
+        drained: drained.clone(), completion_received: false, needs_more: false });
+    state.maintenance_pending = true;
+    let name = format!("{}.png", "c".repeat(64));
+    state.maintenance_touches.insert(name.clone(), SystemTime::now());
+    state.clear();
+    assert!(cancelled.load(Ordering::Acquire));
+    assert!(!drained.load(Ordering::Acquire));
+    assert!(state.maintenance_pending && state.maintenance_work.is_some());
+    assert!(state.maintenance_touches.contains_key(&name));
+    assert!(state.maintenance_request(true, Instant::now()).is_none());
+}
+
+#[tokio::test]
+async fn maintenance_reap_waits_for_its_actual_speculative_owner_after_guard_drop() -> anyhow::Result<()> {
+    let _serial = crate::source::work::process_test_lock().lock().await;
+    let directory = tempfile::tempdir()?;
+    let mut app = super::super::test_support::app(directory.path(), crate::platform::DeviceProfile::Paperwhite6,
+        crate::source::BiliClient::offline(directory.path())?, tokio::runtime::Handle::current())?;
+    let cancelled = Arc::new(AtomicBool::new(false));
+    let lease = tokio::time::timeout(Duration::from_secs(8), async {
+        loop {
+            if let Some(lease) = crate::source::work::try_speculative(crate::source::work::METADATA_WORK_BYTES, cancelled.clone()) {
+                break lease;
+            }
+            tokio::task::yield_now().await;
+        }
+    }).await.context("The maintenance drain fixture did not obtain an idle slot")?;
+    cancelled.store(true, Ordering::Release);
+    app.cover_state.maintenance_pending = true;
+    app.cover_state.maintenance_work = Some(MaintenanceWork { sequence: app.sequence, cancelled: cancelled.clone(),
+        drained: Arc::new(AtomicBool::new(true)), completion_received: false, needs_more: false });
+    app.reap_cover_maintenance();
+    assert!(app.cover_state.maintenance_pending && app.cover_state.maintenance_work.is_some());
+    assert!(crate::source::work::speculative_in_flight_for(&cancelled));
+    drop(lease);
+    app.reap_cover_maintenance();
+    assert!(!app.cover_state.maintenance_pending && app.cover_state.maintenance_work.is_none());
+    assert!(!crate::source::work::speculative_in_flight_for(&cancelled));
+    Ok(())
+}
+
+#[tokio::test]
+async fn maintenance_resumes_after_reader_idle_without_requiring_sleep_cover() -> anyhow::Result<()> {
+    let _serial = crate::source::work::process_test_lock().lock().await;
+    let directory = tempfile::tempdir()?;
+    let mut app = super::super::test_support::app(directory.path(), crate::platform::DeviceProfile::Paperwhite6,
+        crate::source::BiliClient::offline(directory.path())?, tokio::runtime::Handle::current())?;
+    app.route = "reader".into();
+    app.preferences.sleep_cover = false;
+    let name = format!("{}.png", "b".repeat(64));
+    app.cover_state.queue_touch(&name, SystemTime::now());
+    app.defer_sleep_cover_for_reader_activity();
+    let sequence = app.sequence;
+    app.schedule_cover_maintenance(true);
+    assert_eq!(app.sequence, sequence);
+    assert!(!app.cover_state.maintenance_pending);
+    assert!(app.cover_state.touches.contains_key(&name));
+    app.clear_sleep_screen();
+    assert!(!app.optional_cover_work_allowed(), "Clearing a sleep candidate cannot clear Reader idle admission");
+    app.sleep_screen.elapse_reader_idle_for_test();
+    let wakeup = Arc::new(tokio::sync::Notify::new());
+    let notify = wakeup.clone();
+    app.jobs.set_wakeup(Arc::new(move || notify.notify_one()));
+    tokio::time::timeout(Duration::from_secs(8), async {
+        loop {
+            app.schedule_cover_maintenance(true);
+            if app.cover_state.maintenance_work.is_none() {
+                tokio::task::yield_now().await;
+                continue;
+            }
+            let event = loop {
+                if let Some(event) = app.jobs.take() { break event; }
+                wakeup.notified().await;
+            };
+            anyhow::ensure!(event.key == "cover-maintenance", "Unexpected cover-maintenance fixture event");
+            app.pending.remove(&event.key);
+            (event.apply)(&mut app);
+            let cancelled = app.cover_state.maintenance_work.as_ref().unwrap().cancelled.load(Ordering::Acquire);
+            app.reap_cover_maintenance();
+            anyhow::ensure!(!app.cover_state.maintenance_pending && app.cover_state.maintenance_work.is_none(),
+                "Completed maintenance retained its pending worker");
+            if cancelled { continue; }
+            anyhow::ensure!(app.cover_state.touches.is_empty() && app.cover_state.maintenance_touches.is_empty(),
+                "Successful idle maintenance did not consume its preserved touches");
+            break;
+        }
+        Ok::<(), anyhow::Error>(())
+    }).await.context("Cover maintenance did not resume after Reader idle")??;
+    assert!(app.sequence > sequence);
+    Ok(())
 }
 
 #[test]

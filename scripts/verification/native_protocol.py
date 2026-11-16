@@ -30,9 +30,12 @@ def sha256(path):
 
 
 def build_input_manifest(source):
-    paths = [path for group in ("src", "ui", "assets", "vendor", "tests")
+    paths = [path for group in ("src", "ui", "assets", "vendor", "tests",
+                               "docs/research/aidoku-spatial-dither-20261116")
              for path in (source / group).rglob("*") if path.is_file()]
     paths += [source / name for name in ("Cargo.toml", "Cargo.lock", "build.rs")]
+    paths += [source / name for name in ("scripts/native-codec-probe.c", "scripts/native-codec-bench.h")
+              if (source / name).is_file()]
     configuration = source / ".cargo/config.toml"
     if configuration.is_file():
         paths.append(configuration)

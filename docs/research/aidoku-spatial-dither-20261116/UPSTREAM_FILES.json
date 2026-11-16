@@ -1,0 +1,63 @@
+{
+  "source_repository": "AidokuForKindle",
+  "source_base_commit": "a53b9716d64fe5521fac38431b24732c75cb8ff7",
+  "source_snapshot_sha256": "25df24627f3db1dc3a334b1af6f30246744e3fda9a679191e15711f43c4fde97",
+  "qualification": "Physical Scribe application snapshots; algorithm outputs also match the earlier qualified prototypes.",
+  "files": [
+    {
+      "path": "algorithm-equivalence.json",
+      "bytes": 1347,
+      "sha256": "e84f363bd86f85e7109f0c50dc1e1c71a67d9489e3d0384997f1ba13f708caab"
+    },
+    {
+      "path": "expected-bayer8.png",
+      "bytes": 53296,
+      "sha256": "cd2fb81827fb8e25a322128e63e069a06c64289b079354075c185d245b6e322c"
+    },
+    {
+      "path": "expected-floyd-steinberg-q8.png",
+      "bytes": 455435,
+      "sha256": "aa2b01a3553ca595d05d2ba4bad43cbfcd456de81198edd9e992b6663db3ac84"
+    },
+    {
+      "path": "expected-off.png",
+      "bytes": 10793,
+      "sha256": "54f99ac2d2be1b8fd19fdf1b2b4d812053c80ccc036c2d0032bd798788bf8305"
+    },
+    {
+      "path": "host-prototype-timings.json",
+      "bytes": 1479,
+      "sha256": "e0eae27281c3b442ff00378df98d04451da426c56cc32676a69b4585ab21f45e"
+    },
+    {
+      "path": "input-gray8.png",
+      "bytes": 11258,
+      "sha256": "21ded69522eb01df3bdbd69839a1ca35c95d1d6025ed51429869ed0e6ea416ff"
+    },
+    {
+      "path": "native-results.json",
+      "bytes": 5437,
+      "sha256": "cc51ff860cdf1f67131d482c1145925a766f32cbd1572446b7a2fc00e5566ff8"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 55634,
+      "sha256": "df780db30cab7f1b075943b24f436fb07dcf02694d8979acdce2061ea649ce0f"
+    },
+    {
+      "path": "spatial_dither.rs",
+      "bytes": 7576,
+      "sha256": "182a692d45510bc862bbd6ff3780301600eba892559ac7f3893630e69fd27495"
+    },
+    {
+      "path": "scribe-cpu-timings.json",
+      "bytes": 1568,
+      "sha256": "936499fec3c62cceb3ea921f09b2332c61a8cb334795b89a0567778ea6479f2e"
+    },
+    {
+      "path": "LICENSE.AIDOKU",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    }
+  ]
+}

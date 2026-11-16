@@ -428,7 +428,7 @@ fn pixel_fixture(directory: &Path, source: &image::GrayImage, viewport: Viewport
 
 fn ink_bounds(raster: &Raster) -> Option<(u32, u32, u32, u32)> {
     let (mut left, mut top, mut right, mut bottom) = (raster.width, raster.height, 0, 0);
-    for (position, pixel) in raster.rgba.chunks_exact(4).enumerate() {
+    for (position, pixel) in raster.pixels.as_bytes().chunks_exact(4).enumerate() {
         // The threshold isolates the black marker from interpolation fringes.
         if pixel[0] >= 128 { continue; }
         let x = position as u32 % raster.width;
@@ -461,7 +461,7 @@ fn assert_stored_fit_pixels(source: &image::GrayImage, viewport: Viewport, fit: 
         assert!((actual - expected).abs() < 0.000_001, "The visible source window is not centered for {fit}: {actual} != {expected}");
     }
     assert_eq!(prepared.core.crop_count(), 1, "A discrete fit must not restore overflow-region navigation");
-    let expected_pixels = frame.page.rgba.clone();
+    let expected_pixels = frame.page.pixels.as_bytes().to_vec();
     let expected_metadata = frame.metadata;
     assert_eq!(displayed_anchor(&app), before, "Pending pixels cannot replace the current source anchor");
     assert!(sink.plans().is_empty());

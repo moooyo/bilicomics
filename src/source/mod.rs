@@ -21,6 +21,7 @@ mod cookie_tests;
 mod work_integration_tests;
 
 pub use client::BiliClient;
+pub(crate) use images::UntrustedCoverCandidate;
 pub use auth::{QrLoginChallenge, QrLoginState, RenewalInfo};
 pub use session::{AccountIdentity, AuthSession, SessionFile};
 pub use types::*;

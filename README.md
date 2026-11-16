@@ -34,6 +34,9 @@ The [JPEG settings update](docs/uiux/baselines/2026-11-15-jpeg-acceleration/READ
 adds six reviewed settings captures while preserving the original baseline.
 The [persistent fast reading update](docs/uiux/baselines/2026-11-16-fast-mode/README.md)
 adds twenty Normal/Fast settings and binary-page captures in both orientations.
+The [software grayscale settings update](docs/uiux/baselines/2026-11-16-spatial-dither/README.md)
+preserves the current Off/Bayer8/Floyd-Steinberg controls and physical-resolution
+Fast pages in twenty-eight original captures.
 
 After building on the remote worker, use the actual Cargo target directory:
 
@@ -75,7 +78,8 @@ Normal execution uses the per-user `bilicomics` data directory; `--data-dir` ove
 | [Performance diagnostics](docs/PERFORMANCE_DIAGNOSTICS.md) | Opt-in 0.1.20 stage tracing, operation correlation, clock boundaries and verification expectations |
 | [Measured ARM resize cause](docs/PERFORMANCE_ROOT_CAUSE_20261110.md) | R48 CPU attribution, R49 component comparisons, bounded 0.1.21 implementation, and R51 App acceptance |
 | [KOReader technique adoption](docs/KOREADER_OPTIMIZATION_AUDIT_20261110.md) | Implemented, partial and unimplemented cache, grayscale, streaming and refresh mechanisms with upstream references |
-| [Hardware Y4 dithering](docs/HARDWARE_Y4_DITHERING.md) | Device-gated Gray8 processing, reader settings, presentation ordering, native flags, software fallback, and verification scope |
+| [Hardware Y4 dithering](docs/HARDWARE_Y4_DITHERING.md) | Historical product settings, explicit low-level Gray8 research, native delivery flags, fallback, and scoped evidence |
+| [Software grayscale dithering](docs/SOFTWARE_DITHERING.md) | Mutually exclusive Off/Bayer8/Q8 Floyd-Steinberg choices, physical-resolution processing, migration, and versioned frame identities |
 | [Persistent fast reading](docs/FAST_READING_MODE.md) | Binary DU page policy, saved normal-mode preferences, grayscale controls, and presentation-bound refresh routing |
 | [JPEG hardware acceleration](docs/KINDLE_MEDIA_ACCELERATION.md) | Optional qualified JPEG decode/downscale, worker ownership, source proofs, software fallback, and independent Y4 policy |
 | [Streaming resize and prepared next page](docs/PERFORMANCE_STREAMING_PREFETCH_20261110.md) | Version 0.1.22 bounded row storage, verified next-page hits, source checks, resource lifetimes, and selected software/Scribe observations |

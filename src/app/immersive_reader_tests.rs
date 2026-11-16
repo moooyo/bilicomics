@@ -153,7 +153,7 @@ fn panel_width_fit_keeps_the_complete_source_centered_in_the_canvas() -> Result<
         (58, 84), &AtomicBool::new(false))?
         else { anyhow::bail!("A complete synthetic panel must render"); };
     assert_eq!((frame.page.width, frame.page.height), (320, 240));
-    let canvas = image::RgbaImage::from_raw(frame.page.width, frame.page.height, frame.page.rgba)
+    let canvas = image::RgbaImage::from_raw(frame.page.width, frame.page.height, frame.page.pixels.as_bytes().to_vec())
         .context("Read the complete centered panel canvas")?;
     assert_eq!(canvas.get_pixel(0, 80)[0], 17);
     assert_eq!(canvas.get_pixel(319, 80)[0], 68);
@@ -168,7 +168,7 @@ fn panel_width_fit_keeps_the_complete_source_centered_in_the_canvas() -> Result<
     assert_eq!((anchor.source_x, anchor.source_y), (0.0, 0.0));
     let overview = frame.overview.context("Retain the complete source overview")?;
     assert_eq!((overview.width, overview.height), (58, 84));
-    assert!(overview.rgba.chunks_exact(4).any(|pixel| pixel[0] != 255));
+    assert!(overview.pixels.as_bytes().chunks_exact(4).any(|pixel| pixel[0] != 255));
     Ok(())
 }
 
@@ -271,12 +271,12 @@ fn fullscreen_spread_slots_preserve_cover_blanks_direction_and_selected_source()
                 let raster = leaves[slot].context("Keep the occupied spread slot")?;
                 assert_eq!((raster.width, raster.height), (viewport.width, viewport.height));
                 let center = ((raster.height / 2 * raster.width + raster.width / 2) * 4) as usize;
-                assert_eq!(raster.rgba[center], tones[source]);
+                assert_eq!(raster.pixels.as_bytes()[center], tones[source]);
             } else {
                 assert_eq!(numbers[slot], if page == 0 { 0 } else { 5 });
                 if let Some(blank) = leaves[slot] {
                     assert_eq!((blank.width, blank.height), (1, 1));
-                    assert_eq!(blank.rgba, [255; 4]);
+                    assert_eq!(blank.pixels.as_bytes(), [255; 4]);
                 }
             }
         }
@@ -328,7 +328,7 @@ fn thumbnail_readiness_updates_keep_model_identity_and_never_reset_existing_rows
     assert!(bound == refreshed);
 
     let mut ready = rows.clone();
-    ready[1].picture = raster_image(Raster { rgba: vec![17, 17, 17, 255], width: 1, height: 1 });
+    ready[1].picture = raster_image(rgba_raster(vec![17, 17, 17, 255], 1, 1));
     ready[1].label = "Current page 2".into();
     ready[1].cached = true;
     sync_reader_rows(&model, &ready, same_reader_thumbnail);
@@ -339,7 +339,7 @@ fn thumbnail_readiness_updates_keep_model_identity_and_never_reset_existing_rows
     sync_reader_rows(&model, &ready, same_reader_thumbnail);
     assert!(notifications.borrow().is_empty());
 
-    ready[1].picture = raster_image(Raster { rgba: vec![68, 68, 68, 255], width: 1, height: 1 });
+    ready[1].picture = raster_image(rgba_raster(vec![68, 68, 68, 255], 1, 1));
     sync_reader_rows(&model, &ready, same_reader_thumbnail);
     assert_eq!(notifications.borrow().as_slice(), &[ReaderRowChange::Changed(1)]);
     assert_eq!(model.row_data(1), Some(ready[1].clone()));

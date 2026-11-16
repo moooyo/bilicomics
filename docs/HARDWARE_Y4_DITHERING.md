@@ -1,6 +1,13 @@
 # Hardware Y4 dithering
 
-Current scoped result: R68 on Kindle Scribe 2022 / firmware 5.19.5 verifies an
+The 2026-11-16 [software dithering settings](SOFTWARE_DITHERING.md) supersede
+the original product selector described below. Off, Bayer8, and Q8
+Floyd-Steinberg are CPU choices and never request Y4. Legacy enabled
+software/hardware preferences migrate to Bayer8; disabled preferences remain
+disabled. Low-level Gray8/Y4 delivery and its historical evidence remain
+available for explicit research, with their original qualification boundaries.
+
+Historical scoped result: R68 on Kindle Scribe 2022 / firmware 5.19.5 verifies an
 accepted GC16 update carrying hardware Y4, no software fallback, and a live-bound
 framebuffer ramp containing all 256 input luminance values. Native services and
 owned processes were restored before exact lease release. This is driver/input

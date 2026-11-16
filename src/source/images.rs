@@ -12,6 +12,22 @@ const MAX_IMAGE_BYTES: usize = crate::image_integrity::MAX_ENCODED_BYTES as usiz
 const MAX_ENCRYPTED_BYTES: usize = 16 * 1024 * 1024;
 const MAX_COVER_BYTES: usize = 2 * 1024 * 1024;
 
+/// A bounded network response, never a proof and never eligible for caching.
+/// Only consuming full inspection can expose its bytes as a VerifiedImage.
+pub(crate) struct UntrustedCoverCandidate {
+    bytes: Vec<u8>,
+}
+
+impl UntrustedCoverCandidate {
+    pub(crate) fn encoded_len(&self) -> usize { self.bytes.len() }
+
+    /// The caller already owns compute admission; this pure validator must not
+    /// enqueue nested work or turn an optional response into a regular waiter.
+    pub(crate) fn verify_cancellable(self, is_cancelled: &dyn Fn() -> bool) -> Result<VerifiedImage> {
+        inspect_image_cancellable(self.bytes, Some(4_000_000), is_cancelled)
+    }
+}
+
 impl BiliClient {
     pub async fn image_index(&self, episode_id: &str) -> Result<ImageIndex> {
         let data = self.post("comic.v1.Comic", "GetImageIndex", json!({"ep_id":numeric_id(episode_id)?,"m2":self.m2()}),
@@ -117,14 +133,22 @@ impl BiliClient {
     }
 
     pub async fn download_cover(&self, url: &str) -> Result<VerifiedImage> {
+        let candidate = self.download_cover_candidate(url).await?;
+        super::work::run_blocking(super::work::COVER_WORK_BYTES, move |cancel| {
+            candidate.verify_cancellable(&|| cancel.is_cancelled())
+        }).await.map_err(|error| super::work::source_error(error, "cover_inspection_worker_failed"))?
+    }
+
+    /// Optional callers inspect this untrusted response only after nonqueued
+    /// compute admission. Ordinary cover downloads retain their regular path.
+    pub(crate) async fn download_cover_candidate(&self, url: &str) -> Result<UntrustedCoverCandidate> {
         let url = normalize_image_url(url)?;
         let response = self.send(HttpRequest { method: "GET".into(), url,
             headers: vec![("referer".into(),format!("{MANGA_ORIGIN}/")), ("user-agent".into(),USER_AGENT.into())],
             body: Vec::new(), max_bytes: MAX_COVER_BYTES }).await?;
         check_status(&response)?;
-        super::work::run_blocking(super::work::COVER_WORK_BYTES, move |cancel| {
-            inspect_image_cancellable(response.body, Some(4_000_000), &|| cancel.is_cancelled())
-        }).await.map_err(|error| super::work::source_error(error, "cover_inspection_worker_failed"))?
+        if response.body.len() > MAX_COVER_BYTES { return Err(SourceError::protocol("cover_size_limit")); }
+        Ok(UntrustedCoverCandidate { bytes: response.body })
     }
 
     /// Writes only a verified image; durable cache indexing remains the application's responsibility.
@@ -232,5 +256,21 @@ mod tests {
         assert!(inspect_image(repeated_header, None).is_err());
         assert!(inspect_image(bytes[..bytes.len()-1].to_vec(), None).is_err());
         assert!(inspect_image(bytes, Some(5)).is_err());
+    }
+
+    #[test]
+    fn an_untrusted_cover_candidate_requires_complete_cancellable_inspection() {
+        let mut output = Cursor::new(Vec::new());
+        image::DynamicImage::new_luma8(2, 3).write_to(&mut output, ImageFormat::Png).unwrap();
+        let bytes = output.into_inner();
+        let candidate = UntrustedCoverCandidate { bytes: bytes.clone() };
+        assert_eq!(candidate.encoded_len(), bytes.len());
+        let verified = candidate.verify_cancellable(&|| false).unwrap();
+        assert_eq!((verified.width, verified.height, verified.verification), (2, 3, "decoded_v1"));
+        let mut damaged = bytes.clone();
+        damaged[16] ^= 1;
+        assert!(UntrustedCoverCandidate { bytes: damaged }.verify_cancellable(&|| false).is_err());
+        let cancelled = UntrustedCoverCandidate { bytes }.verify_cancellable(&|| true).unwrap_err();
+        assert_eq!(cancelled.kind, ErrorKind::Cancelled);
     }
 }

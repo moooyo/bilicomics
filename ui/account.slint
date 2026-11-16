@@ -36,6 +36,9 @@ export global AccountModel {
     in-out property <string> every: "smart";
     in-out property <string> refresh-mode: "normal";
     in-out property <string> refresh-mode-note;
+    in-out property <bool> dither: true;
+    in-out property <string> dither-method: "bayer8";
+    in-out property <string> dither-note;
     in-out property <string> landscape: "spread";
     in-out property <bool> jpeg-acceleration: false;
     in-out property <bool> jpeg-acceleration-available: false;
@@ -99,6 +102,7 @@ component ChoiceGroup inherits Rectangle {
     in property <string> selected;
     in property <bool> enabled: true;
     in property <bool> compact: false;
+    in property <bool> wrap-label: false;
     callback chosen(string);
     height: root.compact ? (Theme.scribe ? 60px : 52px) : (Theme.scribe ? 103px : 86px);
     property <length> compact-label-width: Theme.scribe ? 142px : 108px;
@@ -117,7 +121,7 @@ component ChoiceGroup inherits Rectangle {
             accessible-checked: root.selected == option.id;
             accessible-action-default => { if root.enabled { root.chosen(option.id); } }
             if index > 0: Rectangle { x: 0px; y: 0px; width: 2px; height: parent.height; background: root.enabled ? Theme.ink : Theme.line; }
-            Text { x: 0px; y: 0px; width: parent.width; height: parent.height; text: option.label; font-family: Theme.ui-font; font-size: Theme.scribe ? 19px : 16px; font-weight: root.selected == option.id ? 700 : 400; horizontal-alignment: center; vertical-alignment: center; color: !root.enabled ? Theme.muted : root.selected == option.id || touch.pressed ? Theme.paper : Theme.ink; }
+            Text { x: 2px; y: 0px; width: parent.width - 4px; height: parent.height; text: option.label; font-family: Theme.ui-font; font-size: Theme.scribe ? 19px : 16px; font-weight: root.selected == option.id ? 700 : 400; horizontal-alignment: center; vertical-alignment: center; wrap: root.wrap-label ? word-wrap : no-wrap; color: !root.enabled ? Theme.muted : root.selected == option.id || touch.pressed ? Theme.paper : Theme.ink; }
             touch := TouchArea { x: 0px; y: 0px; width: parent.width; height: parent.height; enabled: root.enabled; clicked => { root.chosen(option.id); } pointer-event(e) => { if e.kind == PointerEventKind.down { Theme.refresh("press"); } else if e.kind == PointerEventKind.up { Theme.refresh("release"); } } }
         }
     }
@@ -287,6 +291,21 @@ export component AccountScreen inherits Rectangle {
         }
         if AccountModel.section == "reading": ChoiceGroup { title: Strings.acct-direction; hint: Strings.acct-per-comic; selected: AccountModel.direction; options: [{id: "ltr", label: Strings.acct-ltr}, {id: "rtl", label: Strings.acct-rtl}]; chosen(value) => { AccountModel.action("direction", value); } }
         if AccountModel.section == "reading": ChoiceGroup { title: Strings.acct-full-refresh; hint: AccountModel.refresh-mode == "fast" ? Strings.refresh-mode-interval-disabled : Strings.acct-refresh-hint; selected: AccountModel.every; enabled: AccountModel.refresh-mode != "fast"; options: [{id: "smart", label: Strings.acct-smart}, {id: "1", label: Strings.acct-every-page}, {id: "6", label: Strings.acct-every-six}, {id: "0", label: Strings.acct-never}]; chosen(value) => { AccountModel.action("every", value); } }
+        if AccountModel.section == "reading": VerticalLayout {
+            spacing: 4px; alignment: start;
+            ChoiceGroup {
+                width: parent.width; wrap-label: true; vertical-stretch: 0;
+                height: Theme.scribe ? 103px : 86px;
+                title: Strings.read-dither; selected: AccountModel.dither ? AccountModel.dither-method : "off";
+                options: [{id: "off", label: Strings.spatial-dither-off}, {id: "bayer8", label: Strings.spatial-dither-bayer8}, {id: "floyd_steinberg", label: Strings.spatial-dither-floyd}];
+                chosen(value) => { AccountModel.action("dither-method", value); }
+            }
+            Text {
+                width: parent.width; height: self.preferred-height; vertical-stretch: 0;
+                text: AccountModel.dither-note; font-family: Theme.ui-font;
+                font-size: Theme.scribe ? 16px : 14px; color: Theme.secondary; wrap: word-wrap;
+            }
+        }
         if AccountModel.section == "reading": ChoiceGroup { title: Strings.acct-landscape; selected: AccountModel.landscape; options: [{id: "spread", label: Strings.acct-spread}, {id: "single", label: Strings.acct-single}]; chosen(value) => { AccountModel.action("landscape", value); } }
         if AccountModel.section == "reading": Rectangle {
             height: media-toggle.height + media-note.preferred-height + 4px;

@@ -34,3 +34,17 @@ per-file SHA-256 records and BiliComics changes are retained in
 overall project license. Aidoku performance and physical-device results do
 not establish BiliComics acceptance; image processing and Y4 display behavior
 retain independent qualification boundaries.
+
+## Aidoku spatial grayscale dithering
+
+The versioned Bayer8 and Q8 Floyd-Steinberg implementation in
+`src/reader/spatial_dither.rs` is adapted under GPL-3.0-or-later from the
+operator's AidokuForKindle candidate recorded on 2026-11-16. The original
+module, complete license, input/expected PNGs, per-file hashes, and scoped
+research evidence are retained unchanged in
+`docs/research/aidoku-spatial-dither-20261116/`. The declared complete upstream
+candidate fingerprint is
+`25df24627f3db1dc3a334b1af6f30246744e3fda9a679191e15711f43c4fde97`;
+its base commit alone does not reproduce those uncommitted inputs. BiliComics
+adapts cancellation and final-viewport integration independently. Aidoku's
+Scribe results do not establish BiliComics hardware or optical acceptance.

@@ -19,6 +19,7 @@ mkdir -p "$STAGING/notices/backend" "$STAGING/notices/fonts" "$STAGING/notices/p
 mkdir -p "$STAGING/notices/jpeg"
 mkdir -p "$STAGING/notices/image-triangle"
 mkdir -p "$STAGING/notices/aidoku-native-media"
+mkdir -p "$STAGING/notices/spatial-dither"
 cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/bilicomics" "$STAGING/bilicomics/app/bilicomics"
 cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/kindle-jpeg-worker" "$STAGING/bilicomics/app/kindle-jpeg-worker"
 cp packaging/kindle/launch.sh "$STAGING/bilicomics/launch.sh"
@@ -43,6 +44,10 @@ cp vendor/image-triangle-reference-0.25.10/LICENSE-MIT vendor/image-triangle-ref
     vendor/image-triangle-reference-0.25.10/README.md vendor/image-triangle-reference-0.25.10/SHA256SUMS "$STAGING/notices/image-triangle/"
 cp vendor/aidoku-native-media/LICENSE-GPL-3.0-or-later vendor/aidoku-native-media/README.md \
     vendor/aidoku-native-media/UPSTREAM_FILES.json "$STAGING/notices/aidoku-native-media/"
+# Retain original source/license records without staging research images or code.
+cp docs/research/aidoku-spatial-dither-20261116/LICENSE.AIDOKU \
+    docs/research/aidoku-spatial-dither-20261116/README.md \
+    docs/research/aidoku-spatial-dither-20261116/UPSTREAM_FILES.json "$STAGING/notices/spatial-dither/"
 chmod 755 "$STAGING/bilicomics/app/bilicomics" "$STAGING/bilicomics/app/kindle-jpeg-worker" "$STAGING/bilicomics/launch.sh"
 python3 - "$STAGING" "$ROOT/app/artifacts/verification/bilicomics-kindle-$VERSION-dev.zip" <<'PY'
 import hashlib
@@ -71,6 +76,8 @@ allowed = [
     "notices/image-triangle/README.md", "notices/image-triangle/SHA256SUMS",
     "notices/aidoku-native-media/LICENSE-GPL-3.0-or-later", "notices/aidoku-native-media/README.md",
     "notices/aidoku-native-media/UPSTREAM_FILES.json",
+    "notices/spatial-dither/LICENSE.AIDOKU", "notices/spatial-dither/README.md",
+    "notices/spatial-dither/UPSTREAM_FILES.json",
 ]
 with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
     for relative in sorted(allowed):

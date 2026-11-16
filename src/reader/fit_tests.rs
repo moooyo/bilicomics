@@ -12,12 +12,18 @@ fn index(width: u32, height: u32) -> ImageIndex {
 }
 
 fn settings(fit: FitMode) -> ReaderSettings {
-    ReaderSettings { fit, landscape_spread: false, dither: true,
-        hardware_dither: true, ..Default::default() }
+    ReaderSettings { fit, landscape_spread: false, dither: true, ..Default::default() }
 }
 
 fn reader(source: &GrayImage, fit: FitMode) -> ReaderCore {
     ReaderCore::new(index(source.width(), source.height()), settings(fit)).unwrap()
+}
+
+fn raw_reader(source: &GrayImage, fit: FitMode) -> ReaderCore {
+    // These few sampling oracles inspect pre-quantization interpolation values.
+    ReaderCore::new(index(source.width(), source.height()), ReaderSettings {
+        spatial_dither: None, hardware_dither: true, ..settings(fit)
+    }).unwrap()
 }
 
 fn quadrants(width: u32, height: u32) -> GrayImage {
@@ -109,7 +115,7 @@ fn unit_fits_match_independent_geometry_and_centered_pattern_at_two_viewports() 
 fn original_keeps_small_sources_pixel_exact_without_enlarging_them() {
     let source = GrayImage::from_fn(73, 47, |x, y| Luma([((x * 7 + y * 13) % 256) as u8]));
     let viewport = Viewport::new(200, 160);
-    let frame = reader(&source, FitMode::Original).render_source(&source, viewport).unwrap();
+    let frame = raw_reader(&source, FitMode::Original).render_source(&source, viewport).unwrap();
     assert_eq!(frame.crop, SourceRect::whole(73, 47));
     let left = (200 - 73) / 2;
     let top = (160 - 47) / 2;
@@ -178,16 +184,16 @@ fn short_width_and_narrow_height_fits_are_centered_on_the_other_axis() {
 #[test]
 fn fractional_upscale_crops_sample_the_true_center_at_bounded_output_size() {
     let wide = GrayImage::from_fn(4, 2, |x, _| Luma([if x < 2 { 17 } else { 238 }]));
-    let mut core = reader(&wide, FitMode::Height);
+    let mut core = raw_reader(&wide, FitMode::Height);
     let frame = core.render_source(&wide, Viewport::new(3, 8)).unwrap();
     for y in 0..8 { assert_eq!([pixel(&frame, 0, y), pixel(&frame, 1, y), pixel(&frame, 2, y)], [72, 128, 183]); }
     assert_eq!(frame.crop, SourceRect { x: 1, y: 0, width: 2, height: 2 });
     assert!((core.anchor(0).source_x - 0.40625).abs() < 1e-12);
     let tall = GrayImage::from_fn(2, 4, |_, y| Luma([if y < 2 { 17 } else { 238 }]));
-    let frame = reader(&tall, FitMode::Width).render_source(&tall, Viewport::new(8, 3)).unwrap();
+    let frame = raw_reader(&tall, FitMode::Width).render_source(&tall, Viewport::new(8, 3)).unwrap();
     for x in 0..8 { assert_eq!([pixel(&frame, x, 0), pixel(&frame, x, 1), pixel(&frame, x, 2)], [72, 128, 183]); }
     let extreme = GrayImage::from_fn(5000, 1, |x, _| Luma([if x < 2500 { 17 } else { 238 }]));
-    let mut core = reader(&extreme, FitMode::Height);
+    let mut core = raw_reader(&extreme, FitMode::Height);
     let mut profile = ReaderPreparationProfile::default();
     let frame = core.render_source_identity(&extreme, Viewport::new(9, 4000), None, Some(&mut profile)).unwrap();
     assert_eq!(frame.rgba.len(), 9 * 4000 * 4);

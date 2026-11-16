@@ -226,6 +226,29 @@ pub(crate) fn try_speculative(memory_cost: u64, cancelled: Arc<AtomicBool>) -> O
     shared_budget().try_speculative(memory_cost, cancelled)
 }
 
+/// A result's drop guard can run during worker cleanup. Observe the exact
+/// owner until its compute permits and then its speculative slot are returned.
+/// This reads admission metadata without reserving or releasing any capacity.
+pub(crate) fn speculative_in_flight_for(cancelled: &Arc<AtomicBool>) -> bool {
+    let state = lock_admission(&shared_budget().admission);
+    state.speculative.as_ref().and_then(|(_, owner)| owner.upgrade())
+        .is_some_and(|owner| Arc::ptr_eq(&owner, cancelled))
+}
+
+/// A cheap readiness observation for an already-waiting Reader prediction.
+/// It does not reserve capacity, enqueue work, or cancel another prediction.
+pub(crate) fn speculative_admission_idle() -> bool {
+    let budget = shared_budget();
+    let state = match budget.admission.try_lock() {
+        Ok(state) => state,
+        Err(TryLockError::Poisoned(error)) => error.into_inner(),
+        Err(TryLockError::WouldBlock) => return false,
+    };
+    state.regular_waiters == 0 && state.speculative.is_none()
+        && budget.cpu.available_permits() == budget.cpu_slots
+        && budget.memory.available_permits() == budget.memory_units as usize
+}
+
 /// Keep the speculative lease inside actual blocking work. The callback also
 /// runs on cancellation so it can return its result-delivery envelope; it must
 /// check the shared cancellation before starting or retaining expensive work.

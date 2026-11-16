@@ -6,6 +6,9 @@ use crate::{
 use image::ImageEncoder;
 use std::{fs, sync::atomic::AtomicUsize};
 
+#[path = "resource_tests.rs"]
+mod resource_tests;
+
 const COVER_URL: &str = "https://i0.hdslb.com/synthetic-sleep-cover.png";
 
 fn png(width: u32, height: u32, rgba: &[u8]) -> Result<Vec<u8>> {
@@ -18,6 +21,12 @@ fn png(width: u32, height: u32, rgba: &[u8]) -> Result<Vec<u8>> {
 fn dimensions(image: &slint::Image) -> (u32, u32) {
     let size = image.size();
     (size.width, size.height)
+}
+
+fn prepared_cover(width: u32, height: u32, gray: u8) -> PreparedCover {
+    let mut pixels = slint::SharedPixelBuffer::<slint::Rgb8Pixel>::new(width, height);
+    pixels.make_mut_slice().fill(slint::Rgb8Pixel { r: gray, g: gray, b: gray });
+    PreparedCover { luma: vec![gray; (width * height) as usize], pixels, width, height }
 }
 
 fn comic() -> Comic {
@@ -90,6 +99,39 @@ fn apply_job(app: &mut App, key: &str) -> Result<()> {
         && app.pending.get(key) == Some(&event.sequence), "The expected current sleep-cover job must complete");
     app.pending.remove(key);
     (event.apply)(app);
+    app.reap_sleep_cover_preparation();
+    Ok(())
+}
+
+fn drive_local_phase_after_idle(app: &mut App) -> Result<()> {
+    let deadline = Instant::now() + Duration::from_secs(10);
+    loop {
+        anyhow::ensure!(Instant::now() < deadline, "The local cover phase never obtained idle admission");
+        app.sleep_screen.idle_not_before = Some(Instant::now());
+        app.sleep_screen.retry_at = Some(Instant::now());
+        app.retry_next_frame_after_delivery();
+        app.prepare_sleep_screen();
+        if !app.pending.contains_key(LOCAL_JOB) { std::thread::yield_now(); continue; }
+        let token = app.sleep_screen.preparation.as_ref().unwrap().token.clone();
+        apply_job(app, LOCAL_JOB)?;
+        if !token.is_cancelled() { return Ok(()); }
+        // Concurrent foreground fixtures may cancel before a worker begins.
+        // Advance only this fixture's synthetic idle/backoff clocks and retry.
+    }
+}
+
+fn drive_source_refill_after_idle(app: &mut App) -> Result<()> {
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !app.sleep_screen.full_resolution {
+        anyhow::ensure!(Instant::now() < deadline, "The current cover could not refill after Reader idle");
+        app.sleep_screen.idle_not_before = Some(Instant::now());
+        app.sleep_screen.retry_at = Some(Instant::now());
+        app.retry_next_frame_after_delivery();
+        app.prepare_sleep_screen();
+        let key = [SOURCE_JOB, PREPARE_JOB].into_iter().find(|key| app.pending.contains_key(*key));
+        if let Some(key) = key { apply_job(app, key)?; }
+        else { std::thread::yield_now(); }
+    }
     Ok(())
 }
 
@@ -145,6 +187,98 @@ fn transparency_uses_white_paper_and_prepared_pixels_are_four_bit_grayscale() ->
     let prepared = decode_cover(png(7, 1, &rgba)?)?;
     assert_eq!(prepared.luma, [255, 0, 255, 119, 51, 187, 17]);
     assert!(prepared.luma.iter().all(|gray| gray % 17 == 0));
+    assert_eq!(prepared.pixels.as_bytes(), prepared.luma.iter()
+        .flat_map(|gray| [*gray; 3]).collect::<Vec<_>>());
+    Ok(())
+}
+
+#[test]
+fn worker_rgb_preparation_observes_cancellation_at_bounded_pixel_chunks() -> Result<()> {
+    let checks = std::cell::Cell::new(0_u32);
+    let encoded = png(1536, 16, &[68, 68, 68, 255].repeat(1536 * 16))?;
+    let result = decode_cover_cancellable(encoded, &|| {
+        checks.set(checks.get() + 1);
+        anyhow::ensure!(checks.get() < 5, "Controlled sleep-cover cancellation");
+        Ok(())
+    }, None);
+    assert!(result.is_err());
+    assert_eq!(checks.get(), 5, "Conversion must check between bounded chunks before preparing the whole RGB payload");
+    Ok(())
+}
+
+#[test]
+fn reader_activity_keeps_ready_memory_and_backoff_while_extending_idle() -> Result<()> {
+    let runtime = runtime()?;
+    let directory = tempfile::tempdir()?;
+    let mut app = reader_app(directory.path(), runtime.handle().clone())?;
+    app.sleep_screen.identity = Some(CoverIdentity::new(&app.account, app.epoch, &comic()).unwrap());
+    app.install_sleep_cover(prepared_cover(16, 24, 68));
+    let retry_at = Instant::now() + Duration::from_secs(60);
+    app.sleep_screen.retry_at = Some(retry_at);
+    app.sleep_screen.failures = 3;
+    let generation = app.sleep_screen.generation;
+    let before = Instant::now();
+    app.defer_sleep_cover_for_reader_activity();
+    let first_idle = app.sleep_screen.idle_not_before.unwrap();
+    assert!(first_idle >= before + READER_IDLE_DELAY);
+    app.defer_sleep_cover_for_reader_activity();
+    assert!(app.sleep_screen.idle_not_before.unwrap() >= first_idle);
+    assert_eq!(app.sleep_screen.generation, generation + 2);
+    assert_eq!(app.sleep_screen.retry_at, Some(retry_at));
+    assert_eq!(app.sleep_screen.failures, 3);
+    assert!(app.sleep_screen.full_resolution);
+    assert_eq!(dimensions(app.sleep_screen.cover.as_ref().unwrap()), (16, 24));
+    let snapshot = app.sleep_cover_resource_snapshot();
+    assert_eq!(snapshot["ready"], true);
+    assert_eq!(snapshot["full"], true);
+    assert_eq!((snapshot["width"].as_u64(), snapshot["height"].as_u64()), (Some(16), Some(24)));
+    assert!(snapshot["idle_remaining_ms"].as_u64().unwrap() > 0);
+    Ok(())
+}
+
+#[test]
+fn idle_defers_cover_misses_and_survives_identity_reset_even_with_sleep_cover_disabled() -> Result<()> {
+    let runtime = runtime()?;
+    let directory = tempfile::tempdir()?;
+    let mut app = reader_app(directory.path(), runtime.handle().clone())?;
+    let transport = connect_fixture(&mut app)?;
+    let sequence = app.sequence;
+    for _ in 0..4 { app.prepare_sleep_screen(); }
+    assert_eq!(app.sequence, sequence, "A fallback thumbnail miss must not spawn an ordinary cover job");
+    assert!(app.pending.is_empty());
+    assert_eq!(transport.requests.load(Ordering::SeqCst), 0);
+    let deadline = app.sleep_screen.idle_not_before.unwrap();
+    app.preferences.sleep_cover = false;
+    app.prepare_sleep_screen();
+    assert!(app.sleep_screen.idle_not_before.unwrap() >= deadline);
+    assert!(!app.optional_cover_work_allowed(), "Maintenance must honor Reader idle independently of the sleep preference");
+    app.schedule_cover_maintenance(true);
+    assert_eq!(app.sequence, sequence);
+    assert!(!app.pending.contains_key("cover-maintenance"));
+    Ok(())
+}
+
+#[test]
+fn resident_preview_is_source_bound_and_reader_cover_misses_create_no_regular_jobs() -> Result<()> {
+    let runtime = runtime()?;
+    let directory = tempfile::tempdir()?;
+    let mut app = reader_app(directory.path(), runtime.handle().clone())?;
+    connect_fixture(&mut app)?;
+    seed_thumbnail(&mut app);
+    assert_eq!(dimensions(&app.cached_cover_preview(&comic()).unwrap()), (8, 12));
+    let mut replacement = comic();
+    replacement.cover_url.push_str("?source=replaced");
+    assert!(app.cached_cover_preview(&replacement).is_none());
+    let sequence = app.sequence;
+    let preview = app.cover_image(&comic());
+    assert_eq!(dimensions(&preview), (8, 12));
+    let missing = Comic { id: "missing-cover".into(), cover_url: COVER_URL.into(), ..Default::default() };
+    assert_eq!(dimensions(&app.cover_image(&missing)), (0, 0));
+    app.request_cover(missing.clone(), covers::cached_cover_path(&app.data_dir, &missing.cover_url));
+    assert_eq!(app.sequence, sequence);
+    assert!(app.pending.is_empty());
+    assert!(app.cover_pending.is_empty());
+    assert_eq!(dimensions(&app.cached_cover_preview(&comic()).unwrap()), (8, 12));
     Ok(())
 }
 
@@ -199,7 +333,7 @@ fn leaving_reader_does_not_select_residual_reading_metadata() -> Result<()> {
     let mut app = reader_app(directory.path(), runtime.handle().clone())?;
     let identity = CoverIdentity::new(&app.account, app.epoch, &comic()).unwrap();
     app.sleep_screen.identity = Some(identity.clone());
-    app.install_sleep_cover(PreparedCover { luma: vec![68; 4], width: 2, height: 2 });
+    app.install_sleep_cover(prepared_cover(2, 2, 68));
     app.route = "account".into();
     assert!(app.reading.is_some(), "Retain residual Reader state to exercise route selection");
     assert!(app.current_sleep_comic().is_none());
@@ -214,6 +348,7 @@ fn leaving_reader_does_not_select_residual_reading_metadata() -> Result<()> {
 #[test]
 fn corrupt_local_derivative_can_refill_from_the_current_source_while_awake() -> Result<()> {
     let runtime = runtime()?;
+    let _serial = runtime.block_on(source::work::process_test_lock().lock());
     let directory = tempfile::tempdir()?;
     let mut app = reader_app(directory.path(), runtime.handle().clone())?;
     let transport = connect_fixture(&mut app)?;
@@ -222,16 +357,14 @@ fn corrupt_local_derivative_can_refill_from_the_current_source_while_awake() -> 
     fs::create_dir(directory.path().join("covers"))?;
     fs::write(directory.path().join("covers").join(&identity.file_name), b"corrupt derivative")?;
     app.prepare_sleep_screen();
-    apply_job(&mut app, LOCAL_JOB)?;
+    assert!(app.pending.is_empty(), "A new candidate must wait for Reader idle");
+    drive_local_phase_after_idle(&mut app)?;
     assert!(app.sleep_screen.local_checked);
     assert!(app.sleep_screen.retry_at.is_some());
     assert_eq!(transport.requests.load(Ordering::SeqCst), 0);
     assert_eq!(dimensions(app.sleep_screen.cover.as_ref().unwrap()), (8, 12));
-    app.sleep_screen.retry_at = Some(Instant::now());
-    app.prepare_sleep_screen();
-    apply_job(&mut app, SOURCE_JOB)?;
-    apply_job(&mut app, PREPARE_JOB)?;
-    assert_eq!(transport.requests.load(Ordering::SeqCst), 1);
+    drive_source_refill_after_idle(&mut app)?;
+    assert!(transport.requests.load(Ordering::SeqCst) >= 1);
     assert!(app.sleep_screen.full_resolution);
     assert_eq!(dimensions(app.sleep_screen.cover.as_ref().unwrap()), (16, 24));
     let cached = covers::read_sleep_cover(directory.path(), &identity.file_name)?.unwrap();
@@ -279,9 +412,9 @@ fn prepared_memory_is_shown_after_the_sleep_gate_without_storage_or_new_jobs() -
         let transport = connect_fixture(&mut app)?;
         app.ui = ui.as_weak();
         app.sleep_screen.identity = Some(CoverIdentity::new(&app.account, app.epoch, &comic()).unwrap());
-        app.install_sleep_cover(PreparedCover { luma: vec![68; 16 * 24], width: 16, height: 24 });
+        app.install_sleep_cover(prepared_cover(16, 24, 68));
         app.prepare_sleep_screen();
-        ui.global::<ReaderModel>().set_page(cover_image(PreparedCover { luma: vec![136; 4], width: 2, height: 2 }));
+        ui.global::<ReaderModel>().set_page(cover_image(prepared_cover(2, 2, 136)));
         covers::publish_sleep_cover(directory.path(), &app.sleep_screen.identity.as_ref().unwrap().file_name,
             &[68; 4], 2, 2)?;
         fs::remove_dir_all(directory.path().join("covers"))?;
@@ -321,7 +454,7 @@ fn stale_cover_uses_current_text_and_non_reader_routes_use_neutral_presentation(
         app.ui = ui.as_weak();
         app.sleep_screen.identity = Some(CoverIdentity::new("another-account", app.epoch, &comic()).unwrap());
         app.sleep_screen.title = "Stale title".into();
-        app.install_sleep_cover(PreparedCover { luma: vec![68; 4], width: 2, height: 2 });
+        app.install_sleep_cover(prepared_cover(2, 2, 68));
         app.show_sleep_screen()?;
         let model = ui.global::<SleepScreenModel>();
         assert!(!model.get_has_cover());
@@ -343,7 +476,7 @@ fn system_preference_and_logout_clear_the_prepared_candidate_and_its_jobs() -> R
     let directory = tempfile::tempdir()?;
     let mut app = reader_app(directory.path(), runtime.handle().clone())?;
     app.sleep_screen.identity = Some(CoverIdentity::new(&app.account, app.epoch, &comic()).unwrap());
-    app.install_sleep_cover(PreparedCover { luma: vec![68; 4], width: 2, height: 2 });
+    app.install_sleep_cover(prepared_cover(2, 2, 68));
     let mut tickets = Vec::new();
     for key in [LOCAL_JOB, SOURCE_JOB, PREPARE_JOB] {
         let (_, _, ticket) = app.begin_job(key, false)?;
@@ -356,7 +489,7 @@ fn system_preference_and_logout_clear_the_prepared_candidate_and_its_jobs() -> R
     assert!(app.pending.is_empty());
     app.preferences.sleep_cover = true;
     app.sleep_screen.identity = Some(CoverIdentity::new(&app.account, app.epoch, &comic()).unwrap());
-    app.install_sleep_cover(PreparedCover { luma: vec![68; 4], width: 2, height: 2 });
+    app.install_sleep_cover(prepared_cover(2, 2, 68));
     let epoch = app.epoch;
     app.demo = None;
     app.logout()?;

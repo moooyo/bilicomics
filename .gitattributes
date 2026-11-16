@@ -25,3 +25,9 @@
 # Preserve the original sanitized physical receipts and their bound report.
 /docs/physical/native-media-20261116/** -text
 /docs/KINDLE_MEDIA_ACCELERATION_PHYSICAL_20261116.md -text
+
+# Keep the supplied spatial-dither reference, fixtures, and license byte-exact.
+/docs/research/aidoku-spatial-dither-20261116/** -text
+
+# Preserve the byte identities of the software-dithering verification records.
+/docs/verification/spatial-dither-20261116/** -text

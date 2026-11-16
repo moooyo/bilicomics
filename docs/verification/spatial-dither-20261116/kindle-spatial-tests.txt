@@ -1,0 +1,92 @@
+warning: the `macro_use` attribute cannot be used on crates
+   --> vendor/zune-jpeg/src/lib.rs:166:4
+    |
+166 | #![macro_use]
+    |    ^^^^^^^^^
+    |
+    = help: the `macro_use` attribute can be applied to extern crates and modules
+    = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+    = note: `#[warn(unused_attributes)]` (part of `#[warn(unused)]`) on by default
+
+warning: `zune-jpeg` (lib) generated 1 warning (run `cargo fix --lib -p zune-jpeg` to apply 1 suggestion)
+   Compiling bilicomics v0.1.25 (/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/app)
+warning: use of deprecated method `std::sync::atomic::Atomic::<usize>::fetch_update`: renamed to `try_update` for consistency
+  --> vendor/slint-backend-kindle/src/command.rs:66:24
+   |
+66 |         self.in_flight.fetch_update(Ordering::AcqRel, Ordering::Acquire, |current| {
+   |                        ^^^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+help: replace the use of the deprecated method
+   |
+66 -         self.in_flight.fetch_update(Ordering::AcqRel, Ordering::Acquire, |current| {
+66 +         self.in_flight.try_update(Ordering::AcqRel, Ordering::Acquire, |current| {
+   |
+
+warning: `slint-backend-kindle` (lib) generated 1 warning (run `cargo fix --lib -p slint-backend-kindle` to apply 1 suggestion)
+warning: bilicomics@0.1.25: warning: Component is neither used nor exported
+warning: bilicomics@0.1.25:    --> /root/bilicomics-spatial-dither-20261116-01a1d11a-r4/app/ui/reader.slint:136:1
+warning: bilicomics@0.1.25:     |
+warning: bilicomics@0.1.25: 136 | / component ReaderDashedBox inherits Rectangle {
+warning: bilicomics@0.1.25: 137 | |     in property <color> stroke-color: Theme.muted;
+warning: bilicomics@0.1.25: 138 | |     in property <length> stroke: 1.5px;
+warning: bilicomics@0.1.25: 139 | |     property <int> horizontal-count: ceil(root.width / 10px);
+warning: bilicomics@0.1.25: ...   |
+warning: bilicomics@0.1.25: 170 | | }
+warning: bilicomics@0.1.25:     | |_^
+warning: use of deprecated method `std::sync::atomic::Atomic::<u64>::fetch_update`: renamed to `try_update` for consistency
+   --> src/performance.rs:243:35
+    |
+243 |         match sink.next_operation.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+    |                                   ^^^^^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+help: replace the use of the deprecated method
+    |
+243 -         match sink.next_operation.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+243 +         match sink.next_operation.try_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+    |
+
+warning: function `publish_cover` is never used
+   --> src/app/startup.rs:452:15
+    |
+452 | pub(super) fn publish_cover(temporary: &Path, target: &Path) -> Result<()> {
+    |               ^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `bilicomics` (lib test) generated 2 warnings (run `cargo fix --lib -p bilicomics --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized] target(s) in 47.97s
+     Running unittests src/lib.rs (/root/bilicomics-native-media-20261115-01a1d11a-r1/target/debug/deps/bilicomics-16f1e542f61fe665)
+
+running 27 tests
+test app::reading::spatial_dither_tests::a_complete_old_physical_viewport_cannot_publish_the_new_algorithm ... ok
+test app::reading::spatial_dither_tests::a_late_old_algorithm_result_cannot_replace_the_pending_or_published_selection ... ok
+test app::reading::spatial_dither_tests::account_choices_persist_defaults_without_rewriting_a_closed_comic_override ... ok
+test app::reading::spatial_dither_tests::disabled_legacy_preferences_stay_off_after_app_store_restart ... ok
+test app::reading::spatial_dither_tests::fast_remembers_cpu_choices_without_gray_settlement_and_keeps_manual_full ... ok
+test app::reading::spatial_dither_tests::final_identity_contains_the_effective_method_and_both_algorithm_versions ... ok
+test app::reading::spatial_dither_tests::legacy_global_and_comic_records_migrate_to_bayer_without_enabling_off ... ok
+test app::reading::spatial_dither_tests::normal_algorithm_changes_retain_the_presented_frame_until_matching_pixels_arrive ... ok
+test app::reading::spatial_dither_tests::prepared_pixels_never_cross_methods_or_final_versions_but_gray8_preparation_is_shared ... ok
+test app::reading::spatial_dither_tests::three_choices_round_trip_both_preferences_and_off_restores_the_last_method ... ok
+test reader::spatial_dither::tests::bayer_keeps_the_frozen_xy_orientation_and_odd_width_phase ... ok
+test reader::spatial_dither::tests::cancellation_rejects_work_at_entry_inside_wide_rows_and_after_processing ... ok
+test reader::spatial_dither::tests::every_method_matches_the_frozen_full_resolution_oracle_pixel_for_pixel ... ok
+test reader::spatial_dither::tests::floyd_handles_single_columns_small_boundaries_and_serpentine_odd_rows ... ok
+test reader::spatial_dither::tests::native_levels_tail_storage_metadata_and_empty_images_remain_intact ... ok
+test reader::spatial_dither::tests::off_has_exactly_sixteen_uniform_nearest_level_bands ... ok
+test reader::spatial_dither::tests::q8_stencil_preserves_signed_remainders ... ok
+test reader::spatial_dither::tests::spatial_methods_resolve_all_256_tones_using_only_native_codes ... ok
+test reader::spatial_dither::tests::storage_and_cache_identity_use_explicit_versions_and_default_to_bayer8 ... ok
+test reader::spatial_render_tests::bayer_phase_and_diffusion_row_parity_use_viewport_coordinates_including_white_margins ... ok
+test reader::spatial_render_tests::default_selection_is_cpu_bayer8_and_disabled_selection_is_nearest_level ... ok
+test reader::spatial_render_tests::disabled_dithering_overrides_every_saved_method_without_a_second_quantizer ... ok
+test reader::spatial_render_tests::every_spatial_canvas_phase_cancels_without_returning_a_partial_frame ... ok
+test reader::spatial_render_tests::fast_binary_frames_bypass_every_grayscale_spatial_method ... ok
+test reader::spatial_render_tests::full_resolution_reader_outputs_match_all_three_unchanged_handoff_fixtures ... ok
+test reader::spatial_render_tests::quantization_follows_geometry_rotation_crop_and_zoom_on_the_complete_viewport ... ok
+test reader::spatial_render_tests::spatial_changes_share_gray8_source_and_preparation_but_not_final_settings_identity ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 816 filtered out; finished in 8.00s
+

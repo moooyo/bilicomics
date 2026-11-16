@@ -314,7 +314,7 @@ def quiet_reader_state(case, mode):
             "The quiet Reader is not in its actual content refresh scene")
     require(assert_ui(case, mode)["state"]["reader"]["presented_fast_mode"] is (mode == "fast"),
             "The quiet UI image uses a different presented-frame mode")
-    width, height = case.logical_size
+    width, height = case.window["width"], case.window["height"]
     slots = 2 if state["effective_spread"] else 1
     require(state["frame_width"] * slots == width and state["frame_height"] == height,
             "The loaded primary frame does not cover its complete logical viewport")

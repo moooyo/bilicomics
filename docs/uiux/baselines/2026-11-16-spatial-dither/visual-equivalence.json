@@ -1,0 +1,493 @@
+{
+  "passed": true,
+  "images": 28,
+  "byte_identical": 22,
+  "final_originals_reviewed_directly": [
+    "raw/pw6/20-reader-cpu-bayer8-landscape.png",
+    "raw/pw6/20-reader-cpu-floyd-steinberg-landscape.png",
+    "raw/pw6/20-reader-cpu-off-landscape.png",
+    "raw/scribe/10-account-cpu-bayer8-landscape.png",
+    "raw/scribe/10-account-cpu-floyd-steinberg-landscape.png",
+    "raw/scribe/10-account-cpu-off-landscape.png"
+  ],
+  "unexpected_differences": [],
+  "pairs": [
+    {
+      "file": "raw/pw6/10-account-cpu-bayer8-landscape.png",
+      "reviewed": {
+        "sha256": "915b200cd9b15fb57fae887943cefd99b6cd9af787e0e6d1a33c99612fb032e6",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "915b200cd9b15fb57fae887943cefd99b6cd9af787e0e6d1a33c99612fb032e6",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/pw6/10-account-cpu-bayer8-portrait.png",
+      "reviewed": {
+        "sha256": "ac0494287da58041ddd74c01e199936796dd4cdb2bba032a494e69ab1178a62e",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "ac0494287da58041ddd74c01e199936796dd4cdb2bba032a494e69ab1178a62e",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/pw6/10-account-cpu-floyd-steinberg-landscape.png",
+      "reviewed": {
+        "sha256": "6f2660530673da5cb1652b0b4ae5a7aaaa4d14a11b43a1368aabff41e380e651",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "6f2660530673da5cb1652b0b4ae5a7aaaa4d14a11b43a1368aabff41e380e651",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/pw6/10-account-cpu-floyd-steinberg-portrait.png",
+      "reviewed": {
+        "sha256": "dca55dc2a34903b7d6ef51e24ae0e9a014f18b0a303442b01ec0e73ce7552345",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "dca55dc2a34903b7d6ef51e24ae0e9a014f18b0a303442b01ec0e73ce7552345",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/pw6/10-account-cpu-off-landscape.png",
+      "reviewed": {
+        "sha256": "d65a94c3db93ceeb8a8bbae69e67528bc38bc5997523ed421f834127bb9fdf09",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "d65a94c3db93ceeb8a8bbae69e67528bc38bc5997523ed421f834127bb9fdf09",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/pw6/10-account-cpu-off-portrait.png",
+      "reviewed": {
+        "sha256": "5c458f270c286a0597a0c7449ae9fc80e0d04bc1d426dc458c739e17daec45f9",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "5c458f270c286a0597a0c7449ae9fc80e0d04bc1d426dc458c739e17daec45f9",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/pw6/14-reader-fast-portrait.png",
+      "reviewed": {
+        "sha256": "0530e0dcea183b648c54f5f69e6abe3079b71b9544f24022fd0e1b3a7b0a27a8",
+        "run": "fast-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "0530e0dcea183b648c54f5f69e6abe3079b71b9544f24022fd0e1b3a7b0a27a8",
+        "run": "fast-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/pw6/20-reader-cpu-bayer8-landscape.png",
+      "reviewed": {
+        "sha256": "0e75ff55e6e54d6095901b0d143298842f533b889b0b56e7ee047e494ef1e43c",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "83c2a9031fd21dfffce8501c01065c2e7943ff734a143418369d67af9f76ffbd",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": false,
+      "final_original_reviewed_directly": true
+    },
+    {
+      "file": "raw/pw6/20-reader-cpu-bayer8-portrait.png",
+      "reviewed": {
+        "sha256": "320336aaa54efef6e3b6fb94c30fe4fca15f760c18fe19b77d252f9bef98ad6f",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "320336aaa54efef6e3b6fb94c30fe4fca15f760c18fe19b77d252f9bef98ad6f",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/pw6/20-reader-cpu-floyd-steinberg-landscape.png",
+      "reviewed": {
+        "sha256": "7534a655bb77faf8dc6c972188988d51c7a84bf211e9d783acc840b5c02d8a92",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "31cdad06001fa1d7ea0fe4a6f286c25afbf2f294a7738e43e141d857e54bb229",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": false,
+      "final_original_reviewed_directly": true
+    },
+    {
+      "file": "raw/pw6/20-reader-cpu-floyd-steinberg-portrait.png",
+      "reviewed": {
+        "sha256": "45fdd87be8909bd5121049485df6a090d8189bd0524cfed29bc164c0789606e8",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "45fdd87be8909bd5121049485df6a090d8189bd0524cfed29bc164c0789606e8",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/pw6/20-reader-cpu-off-landscape.png",
+      "reviewed": {
+        "sha256": "3a56075e16493960063286a8f447f32d87a9df3fb1f7f43d3565cc00536c15a5",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "395180ee53142733328bb65420d87dff882990e3b1c227dd96ade886efe074bc",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": false,
+      "final_original_reviewed_directly": true
+    },
+    {
+      "file": "raw/pw6/20-reader-cpu-off-portrait.png",
+      "reviewed": {
+        "sha256": "716324ecd77ca953d3c6d5ac9e48c459f44a71e7a0119447bf795e6eeadc29f9",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "716324ecd77ca953d3c6d5ac9e48c459f44a71e7a0119447bf795e6eeadc29f9",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/pw6/25-reader-fast-landscape.png",
+      "reviewed": {
+        "sha256": "12bb6dc4f1d5c5a7f0f95f0c59848059b5aab2a4e065493912499321545af381",
+        "run": "fast-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "12bb6dc4f1d5c5a7f0f95f0c59848059b5aab2a4e065493912499321545af381",
+        "run": "fast-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/scribe/10-account-cpu-bayer8-landscape.png",
+      "reviewed": {
+        "sha256": "c355d50cb3b3744bd5608ae4a25b573f882e03ff792926e0a4f2c695a7ff1ddb",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "a169434c19d4465fe0eb1da4eda557d429a132013beb99166ee21b5f16443bd5",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": false,
+      "final_original_reviewed_directly": true
+    },
+    {
+      "file": "raw/scribe/10-account-cpu-bayer8-portrait.png",
+      "reviewed": {
+        "sha256": "deac91a5718958b2fc58d3a57b91ccd3960a104b9ffd0c37b92dad25072def9e",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "deac91a5718958b2fc58d3a57b91ccd3960a104b9ffd0c37b92dad25072def9e",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/scribe/10-account-cpu-floyd-steinberg-landscape.png",
+      "reviewed": {
+        "sha256": "506899d4648422d161c6305d8ffd2ffec778e4de75bf0b76690df3b72c70f4e1",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "6b03be0977bb2c99b706f3086127baa5e6d586ba24ae60317e795679ea63e79d",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": false,
+      "final_original_reviewed_directly": true
+    },
+    {
+      "file": "raw/scribe/10-account-cpu-floyd-steinberg-portrait.png",
+      "reviewed": {
+        "sha256": "a5bdfc73affb6a0ab9513a5028dc9821a60aa7faa948bbd39f1a9417b4294a7f",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "a5bdfc73affb6a0ab9513a5028dc9821a60aa7faa948bbd39f1a9417b4294a7f",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/scribe/10-account-cpu-off-landscape.png",
+      "reviewed": {
+        "sha256": "564a0fa4d3b41be24fcdf63200bf0d591848d6fd0c4a03c2ed26eccc21a61fc8",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "6962a42e27285d72f80b8ee303db324227808fcf81b9edb42e8050bc0f139ed7",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": false,
+      "final_original_reviewed_directly": true
+    },
+    {
+      "file": "raw/scribe/10-account-cpu-off-portrait.png",
+      "reviewed": {
+        "sha256": "b9ba3da89b530bdaa9f0c4286a085551a630ae55caa8c32b41908915e8d33346",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "b9ba3da89b530bdaa9f0c4286a085551a630ae55caa8c32b41908915e8d33346",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/scribe/14-reader-fast-portrait.png",
+      "reviewed": {
+        "sha256": "0c62ea54e1cf84aba057f4f152d07336c5077e9c6af169e745248bf08747e2c9",
+        "run": "fast-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "0c62ea54e1cf84aba057f4f152d07336c5077e9c6af169e745248bf08747e2c9",
+        "run": "fast-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/scribe/20-reader-cpu-bayer8-landscape.png",
+      "reviewed": {
+        "sha256": "5668a76d814cff101e9ce19acc702dfae8d6f25eaf7cab3ebe4a987e53076fcc",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "5668a76d814cff101e9ce19acc702dfae8d6f25eaf7cab3ebe4a987e53076fcc",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/scribe/20-reader-cpu-bayer8-portrait.png",
+      "reviewed": {
+        "sha256": "212fa2a80ca2736b53b0f03815c69f28ee767cb3b8618ea944921185e9726b1a",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "212fa2a80ca2736b53b0f03815c69f28ee767cb3b8618ea944921185e9726b1a",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/scribe/20-reader-cpu-floyd-steinberg-landscape.png",
+      "reviewed": {
+        "sha256": "5e6c0ebc6319b20e5dd15ea19743fa85a06384426ed14baaa2de563dc06e26a4",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "5e6c0ebc6319b20e5dd15ea19743fa85a06384426ed14baaa2de563dc06e26a4",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/scribe/20-reader-cpu-floyd-steinberg-portrait.png",
+      "reviewed": {
+        "sha256": "fa18b954fc8b38992dff558d112a69cf1c3146c879a90586e8b817d3ad633443",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "fa18b954fc8b38992dff558d112a69cf1c3146c879a90586e8b817d3ad633443",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/scribe/20-reader-cpu-off-landscape.png",
+      "reviewed": {
+        "sha256": "6497a9bf4e11c8be8d32975a0f7b2ec7dcac0e83bd77d8d87feae56a401f0be2",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "6497a9bf4e11c8be8d32975a0f7b2ec7dcac0e83bd77d8d87feae56a401f0be2",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/scribe/20-reader-cpu-off-portrait.png",
+      "reviewed": {
+        "sha256": "32c05d2e20ca8b6b1585b42a5552070ca8296a1db5f897bc69a3e95757de6bac",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "32c05d2e20ca8b6b1585b42a5552070ca8296a1db5f897bc69a3e95757de6bac",
+        "run": "spatial-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    },
+    {
+      "file": "raw/scribe/25-reader-fast-landscape.png",
+      "reviewed": {
+        "sha256": "8e997d7f0f6034daeebd7c07e53d231e2de0e1d5e7d6cc5a34aa1e51051f1a23",
+        "run": "fast-ui-r1",
+        "binary_sha256": "d5cae5e0b3d414d348e42758e272418b227d25ec576f60f19c9861e0d14bec3a",
+        "source_fingerprint": "09a364d8da0d0b876d83ba0e5918c58813c93ad33bd2c5cecc8a94c68acf8b5c"
+      },
+      "final": {
+        "sha256": "8e997d7f0f6034daeebd7c07e53d231e2de0e1d5e7d6cc5a34aa1e51051f1a23",
+        "run": "fast-ui-r1",
+        "binary_sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7",
+        "source_fingerprint": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+      },
+      "byte_identical": true,
+      "final_original_reviewed_directly": false
+    }
+  ],
+  "physical_device_used": false
+}

@@ -319,7 +319,10 @@ fn measure_reader_stage_candidates() {
     for (input_index, path) in paths.iter().enumerate() {
         for viewport in [Viewport::new(1860, 2480), Viewport::new(930, 1240)] {
             let resources = ReaderResources::new(resources::DEFAULT_SOURCE_CACHE_BYTES);
-            let mut reader = ReaderCore::new(index(0, 0), ReaderSettings { landscape_spread: false, ..Default::default() }).unwrap();
+            // This opt-in historical probe measures the original canvas oracle.
+            let mut reader = ReaderCore::new(index(0, 0), ReaderSettings {
+                spatial_dither: None, landscape_spread: false, ..Default::default()
+            }).unwrap();
             let mut samples = Vec::new();
             let mut reference_frame = None;
             let mut reference_anchor = None;
@@ -462,7 +465,8 @@ fn verify_full_frame_cancellable_production_paths() {
                 90, 1.0, true, true, Some([0.35, 0.42])),
         ].into_iter().enumerate() {
             let settings = ReaderSettings { mode, fit, rotation, zoom_ratio, dither,
-                landscape_spread: false, ..Default::default() };
+                // Keep the explicitly selected legacy full-frame oracle intact.
+                spatial_dither: None, landscape_spread: false, ..Default::default() };
             let mut initial = ReaderCore::new(index(source.proof.width(), source.proof.height()), settings.clone()).unwrap();
             initial.raster_path = TestRasterPath::Current;
             if explicit_panel {

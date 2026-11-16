@@ -1,10 +1,17 @@
 # UI/UX baselines
 
+Use the reviewed [2026-11-16 software grayscale settings update](baselines/2026-11-16-spatial-dither/README.md)
+for the current Off/Bayer8/Floyd-Steinberg defaults and per-comic settings.
+It preserves twenty-four original settings captures plus four quiet Fast pages
+at the updated physical raster resolution, with exact source/executable
+identities and independent automated/human review records.
+
 Use the reviewed [2026-11-16 persistent fast reading update](baselines/2026-11-16-fast-mode/README.md)
-for Normal/Fast default settings (`10`), per-comic reader settings (`20`, `27`),
-and quiet Fast pages (`14`, `25`). It preserves twenty native-resolution
+as the earlier Normal/Fast implementation record. It preserves twenty native-resolution
 Paperwhite 6 and Scribe portrait/landscape captures, exact source/binary
-identities, preference recovery, and disabled periodic-clearing checks.
+identities, preference recovery, and disabled periodic-clearing checks. Its
+images remain immutable; the software settings update records current controls
+and actual physical-resolution Fast pages.
 
 Use the reviewed [2026-11-15 JPEG settings update](baselines/2026-11-15-jpeg-acceleration/README.md)
 as the earlier six-image JPEG-control record. Its captures remain immutable;

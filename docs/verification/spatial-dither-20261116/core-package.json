@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "started_at": "2026-11-15T23:27:58.340797+00:00",
+  "workspace": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4",
+  "app_root": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/app",
+  "output": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/evidence/core-package",
+  "runner": {
+    "path": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/app/scripts/verification/run_suite.py",
+    "bytes": 25493,
+    "sha256": "1a548163e88c82f456f1786670fe5af93f39ac9b1bb92c70596d499713e1d579"
+  },
+  "host": {
+    "hostname": "test-env",
+    "system": "Linux",
+    "machine": "x86_64"
+  },
+  "resources": {
+    "cargo_build_jobs": "2",
+    "rust_test_threads": "1",
+    "stage_commands_serial": true,
+    "default_capture_workers": 1
+  },
+  "source_inputs": {
+    "path": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/evidence/core-package/source-inputs.sha256",
+    "bytes": 57735,
+    "sha256": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+  },
+  "pipeline_inputs": {
+    "path": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/evidence/core-package/pipeline-inputs.sha256",
+    "bytes": 66637,
+    "sha256": "7714c3b17d770a2ef062aed04b0061750d29bf3617b34309903b59a8a49819ff"
+  },
+  "binary_input_provenance": {
+    "kind": "built_in_this_run",
+    "build_source_manifest": {
+      "path": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/evidence/core-package/source-inputs.sha256",
+      "bytes": 57735,
+      "sha256": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+    }
+  },
+  "selected_phases": [
+    "core",
+    "package"
+  ],
+  "phases": {
+    "core": {
+      "status": "passed",
+      "seconds": 163.851,
+      "checks": [
+        {
+          "name": "cargo-check",
+          "arguments": [
+            "cargo",
+            "check",
+            "--locked",
+            "--offline"
+          ],
+          "exit_code": 0,
+          "seconds": 22.501,
+          "log": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/evidence/core-package/logs/cargo-check.log",
+          "log_sha256": "7f065af698eea4e307045c55fcbe451422670e265ff07113d6a81fe9e91807ed"
+        },
+        {
+          "name": "cargo-lib-tests",
+          "arguments": [
+            "cargo",
+            "test",
+            "--locked",
+            "--offline",
+            "--lib"
+          ],
+          "exit_code": 0,
+          "seconds": 104.467,
+          "log": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/evidence/core-package/logs/cargo-lib-tests.log",
+          "log_sha256": "52bb20a705dca8326d79634a5deca76ebea7acd15e1db74d6942a78a5fc21fde"
+        },
+        {
+          "name": "cargo-desktop-build",
+          "arguments": [
+            "cargo",
+            "build",
+            "--locked",
+            "--offline",
+            "--bin",
+            "bilicomics"
+          ],
+          "exit_code": 0,
+          "seconds": 36.465,
+          "log": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/evidence/core-package/logs/cargo-desktop-build.log",
+          "log_sha256": "3f7d566a19f8670d2cfa719e502998025ebfcef69be36f061128b60af71e1e51"
+        }
+      ],
+      "test_summary": {
+        "passed": 825,
+        "failed": 0,
+        "ignored": 3
+      },
+      "scope": "Application library tests and desktop build"
+    },
+    "defaults": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "pointer": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "reader": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "guest": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "startup": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "lifecycle": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "launcher": {
+      "status": "not_run",
+      "reason": "Phase was not selected"
+    },
+    "package": {
+      "status": "passed",
+      "seconds": 201.424,
+      "checks": [
+        {
+          "name": "arm-build-package",
+          "arguments": [
+            "sh",
+            "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/app/scripts/build-kindle.sh",
+            "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4"
+          ],
+          "exit_code": 0,
+          "seconds": 200.804,
+          "log": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/evidence/core-package/logs/arm-build-package.log",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "package",
+          "arguments": [
+            "/usr/bin/python3",
+            "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/app/scripts/verification/verify_package.py",
+            "--archive",
+            "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.zip",
+            "--binary",
+            "/root/bilicomics-native-media-20261115-01a1d11a-r1/target/armv7-unknown-linux-musleabihf/release/bilicomics",
+            "--app-root",
+            "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/app",
+            "--output",
+            "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/evidence/core-package/package.json",
+            "--expected-binary-sha256",
+            "137910b4e9f142c53eb031817aaa3c72a2dfe7abfc637885e8db5e591d55908f"
+          ],
+          "exit_code": 0,
+          "seconds": 0.516,
+          "log": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/evidence/core-package/logs/package.log",
+          "log_sha256": "82cd57f736c023b863f88a92438869699deb782bbf96a5de6024d47a78efdacd"
+        }
+      ],
+      "archive": {
+        "path": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.zip",
+        "bytes": 51424831,
+        "sha256": "129baabec1744890e67404e56624fb80fd7fe68a94f09bbc0c04290871ac5d76"
+      },
+      "arm_binary": {
+        "path": "/root/bilicomics-native-media-20261115-01a1d11a-r1/target/armv7-unknown-linux-musleabihf/release/bilicomics",
+        "bytes": 67433616,
+        "sha256": "137910b4e9f142c53eb031817aaa3c72a2dfe7abfc637885e8db5e591d55908f"
+      },
+      "build_executed_in_this_run": true,
+      "physical_device_verified": false
+    }
+  },
+  "automated_status": "passed",
+  "visual_acceptance": "not_claimed",
+  "physical_device_connected": false,
+  "firmware_emulator_run": false,
+  "live_account_used": false,
+  "remote_transactions_performed": false,
+  "limits": [
+    "Captured pixels and automatic state assertions do not establish human visual acceptance.",
+    "Controlled OS fixtures do not establish native firmware or physical panel behavior.",
+    "No physical Kindle connection, real credentials, or account content is used by this runner."
+  ],
+  "desktop_binary": {
+    "path": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/sealed/26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7/bilicomics",
+    "bytes": 241262776,
+    "sha256": "26da326e5417ca40811eedc31bf9678c6c804d7a695ca6efd91a6220a1a095f7"
+  },
+  "inputs_unchanged_during_run": true,
+  "desktop_binary_unchanged_during_run": true,
+  "evidence_portability": {
+    "regular_files_and_directories_only": true,
+    "special_files_rejected": [],
+    "manifest": "/root/bilicomics-spatial-dither-20261116-01a1d11a-r4/evidence/core-package/evidence-manifest.json",
+    "policy": "Each harness must remove its own FIFOs and other special files before Windows evidence retrieval"
+  },
+  "finished_at": "2026-11-15T23:34:03.842845+00:00"
+}

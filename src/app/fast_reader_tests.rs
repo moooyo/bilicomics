@@ -35,7 +35,7 @@ fn source() -> image::GrayImage {
     image::GrayImage::from_fn(64, 96, |x, y| image::Luma([((x * 11 + y * 7) % 256) as u8]))
 }
 
-fn fixture(directory: &Path, handle: tokio::runtime::Handle, fast: bool, hardware: bool)
+fn fixture(directory: &Path, handle: tokio::runtime::Handle, fast: bool, raw_research: bool)
     -> Result<(App, Arc<RecordedRefreshes>)>
 {
     let mut app = super::super::test_support::app(directory, DeviceProfile::Paperwhite5,
@@ -45,12 +45,18 @@ fn fixture(directory: &Path, handle: tokio::runtime::Handle, fast: bool, hardwar
     app.preferences.preload = 0;
     app.preferences.every = "6".into();
     app.preferences.refresh_mode = if fast { "fast" } else { "normal" }.into();
-    app.preferences.dither_method = if hardware { "hardware" } else { "software" }.into();
+    app.preferences.dither_method = "bayer8".into();
     app.platform.set_dithering_sink(Arc::new(HardwareDither(AtomicBool::new(false))))?;
     let refreshes = Arc::new(RecordedRefreshes::default());
     app.platform.set_refresh_sink(refreshes.clone())?;
     let saved = SavedReaderPreferences::from(&app.preferences);
     let mut settings = reader_settings_for_display(&saved, false, (930, 1240), true);
+    if raw_research {
+        // Only a retained-frame handoff regression needs the internal raw path.
+        // Stored product choices always remain versioned CPU algorithms.
+        settings.spatial_dither = None;
+        settings.hardware_dither = true;
+    }
     settings.landscape_spread = false;
     settings.rotation = 180;
     settings.zoom_ratio = 1.5;
@@ -128,14 +134,16 @@ fn refresh_mode_defaults_and_round_trips_without_losing_normal_preferences() -> 
     assert_eq!(restored.refresh_mode, "fast");
     assert_eq!(restored.every, "6");
     assert!(!restored.dither);
-    assert_eq!(restored.dither_method, "hardware");
+    assert_eq!(restored.dither_method, "bayer8");
+    assert_eq!(settings.spatial_dither, Some(SpatialDither::Off));
+    assert!(!settings.hardware_dither);
     let directory = tempfile::tempdir()?;
     let store = crate::store::Store::open(directory.path().join("state.sqlite3"))?;
     store.set_preference("fixture", "reader_preferences_book", &restored)?;
     let actual: SavedReaderPreferences = store.preference("fixture", "reader_preferences_book")?.unwrap();
     assert_eq!(actual.refresh_mode, "fast");
     assert_eq!(actual.every, "6");
-    assert_eq!(actual.dither_method, "hardware");
+    assert_eq!(actual.dither_method, "bayer8");
     Ok(())
 }
 
@@ -161,7 +169,7 @@ async fn mode_switch_waits_for_matching_pixels_before_changing_y4_and_du_scene()
     assert!(!state.presented_core.as_ref().unwrap().settings().fast_mode);
     assert!(!before_key.origin.matches(state.core.as_ref().unwrap()));
     assert_eq!(app.platform.reader_refresh_scene(), ReaderRefreshScene::Normal);
-    assert!(app.platform.reader_hardware_y4_requested());
+    assert!(app.platform.reader_hardware_y4_requested(), "The explicit retained Gray8 research frame still needs Y4");
     refreshes.take();
     let binary = import_target(&mut app)?;
     assert!(binary.chunks_exact(4).all(|pixel| matches!(pixel[0], 0 | 255)));
@@ -176,38 +184,48 @@ async fn mode_switch_waits_for_matching_pixels_before_changing_y4_and_du_scene()
     let gray = import_target(&mut app)?;
     assert!(gray.chunks_exact(4).any(|pixel| !matches!(pixel[0], 0 | 255)));
     assert_eq!(app.platform.reader_refresh_scene(), ReaderRefreshScene::Normal);
-    assert!(app.platform.reader_hardware_y4_requested());
+    assert!(!app.platform.reader_hardware_y4_requested(), "Normal product output is CPU-quantized, not raw Y4 input");
     assert!(refreshes.take().iter().any(|plan| plan.kind == RefreshKind::Full));
     let state = app.reading.as_ref().unwrap();
     let settings = state.core.as_ref().unwrap().settings();
+    assert_eq!(settings.spatial_dither, Some(SpatialDither::Bayer8));
+    assert!(!settings.hardware_dither);
     assert_eq!((settings.rotation, settings.zoom_ratio), (180, 1.5));
     assert_eq!(state.displayed_anchor(0).unwrap().0, anchor);
     assert_eq!(state.saved.every, "6");
     assert!(state.saved.dither);
-    assert_eq!(state.saved.dither_method, "hardware");
+    assert_eq!(state.saved.dither_method, "bayer8");
     Ok(())
 }
 
 #[tokio::test]
 async fn fast_overrides_saved_dithering_and_rejects_period_edits() -> Result<()> {
     let directory = tempfile::tempdir()?;
-    let (mut app, _) = fixture(directory.path(), tokio::runtime::Handle::current(), true, true)?;
+    let (mut app, _) = fixture(directory.path(), tokio::runtime::Handle::current(), true, false)?;
     let version = app.reading.as_ref().unwrap().version;
     app.change_reader_setting("refresh-policy:1")?;
     assert_eq!(app.reading.as_ref().unwrap().version, version);
     assert_eq!(app.preferences.every, "6");
     assert_eq!(app.reading.as_ref().unwrap().saved.every, "6");
-    app.change_reader_setting("dither:off")?;
+    app.change_reader_setting("dither-method:floyd_steinberg")?;
+    assert!(import_target(&mut app)?.chunks_exact(4).all(|p| matches!(p[0], 0 | 255)));
+    assert_eq!(app.reading.as_ref().unwrap().saved.dither_method, "floyd_steinberg");
+    app.change_reader_setting("dither-method:off")?;
     assert!(import_target(&mut app)?.chunks_exact(4).all(|p| matches!(p[0], 0 | 255)));
     assert!(!app.reading.as_ref().unwrap().saved.dither);
-    assert_eq!(app.reading.as_ref().unwrap().saved.dither_method, "hardware");
-    app.change_reader_setting("dither-method:hardware")?;
+    assert_eq!(app.reading.as_ref().unwrap().saved.dither_method, "floyd_steinberg");
+    assert_eq!(app.reading.as_ref().unwrap().core.as_ref().unwrap().settings().spatial_dither, Some(SpatialDither::Off));
+    app.change_reader_setting("dither-method:floyd_steinberg")?;
     assert!(import_target(&mut app)?.chunks_exact(4).all(|p| matches!(p[0], 0 | 255)));
     assert!(app.reading.as_ref().unwrap().saved.dither);
     assert!(!app.platform.reader_hardware_y4_requested());
     app.change_reader_setting("refresh-mode:normal")?;
-    import_target(&mut app)?;
-    assert!(app.platform.reader_hardware_y4_requested());
+    let normal = import_target(&mut app)?;
+    assert!(normal.chunks_exact(4).any(|p| !matches!(p[0], 0 | 255)));
+    assert_eq!(app.reading.as_ref().unwrap().core.as_ref().unwrap().settings().spatial_dither,
+        Some(SpatialDither::FloydSteinberg));
+    assert_eq!(app.reading.as_ref().unwrap().saved.dither_method, "floyd_steinberg");
+    assert!(!app.platform.reader_hardware_y4_requested());
     assert_eq!(app.reading.as_ref().unwrap().saved.every, "6");
     Ok(())
 }
@@ -216,7 +234,7 @@ async fn fast_overrides_saved_dithering_and_rejects_period_edits() -> Result<()>
 async fn actual_gray_overlays_never_use_the_binary_content_scene() -> Result<()> {
     for case in ["menu", "sheet", "guidance", "error", "expired", "feedback", "missing", "network", "toast", "transition", "sleep", "outside"] {
         let directory = tempfile::tempdir()?;
-        let (mut app, refreshes) = fixture(directory.path(), tokio::runtime::Handle::current(), true, true)?;
+        let (mut app, refreshes) = fixture(directory.path(), tokio::runtime::Handle::current(), true, false)?;
         match case {
             "menu" => app.reading.as_mut().unwrap().menu = true,
             "sheet" => app.reading.as_mut().unwrap().sheet = "display".into(),
@@ -257,7 +275,7 @@ async fn actual_gray_overlays_never_use_the_binary_content_scene() -> Result<()>
 #[tokio::test]
 async fn overlays_return_to_du_and_retained_feedback_waits_for_actual_visibility() -> Result<()> {
     let directory = tempfile::tempdir()?;
-    let (mut app, refreshes) = fixture(directory.path(), tokio::runtime::Handle::current(), true, true)?;
+    let (mut app, refreshes) = fixture(directory.path(), tokio::runtime::Handle::current(), true, false)?;
     let page = app.reading.as_ref().unwrap().page.clone();
     let state = app.reading.as_mut().unwrap();
     state.loading = true;
@@ -322,7 +340,7 @@ async fn a_normal_prepared_frame_cannot_short_circuit_a_fast_target() -> Result<
     let key = NextFrameKey { epoch: 1, generation: 1, origin_version: 1,
         origin: FrameInput::new(&origin), target: FrameInput::new(&target), viewport: Viewport::new(64, 96), landscape: false };
     let next = prepare_next_frame(target.clone(), key, &files, &AtomicBool::new(false), None)?.unwrap();
-    assert!(next.frame.page.rgba.chunks_exact(4).any(|p| !matches!(p[0], 0 | 255)));
+    assert!(next.frame.page.pixels.as_bytes().chunks_exact(4).any(|p| !matches!(p[0], 0 | 255)));
     let preparation = target.source_preparation(Viewport::new(64, 96));
     let mut settings = target.settings().clone();
     settings.fast_mode = true;
@@ -332,7 +350,7 @@ async fn a_normal_prepared_frame_cannot_short_circuit_a_fast_target() -> Result<
     let outcome = reuse_next_frame(&mut target, next, &files, Viewport::new(64, 96), (1, 1),
         &AtomicBool::new(false), Some(&mut profile), None)?;
     let PreparedOutcome::Ready(frame) = outcome else { anyhow::bail!("A complete source must render"); };
-    assert!(frame.page.rgba.chunks_exact(4).all(|p| matches!(p[0], 0 | 255)));
+    assert!(frame.page.pixels.as_bytes().chunks_exact(4).all(|p| matches!(p[0], 0 | 255)));
     assert!(target.settings().fast_mode);
     assert_eq!(profile.unchanged_sources, 0);
     assert_eq!(profile.rendered_frames, 1);
@@ -342,7 +360,7 @@ async fn a_normal_prepared_frame_cannot_short_circuit_a_fast_target() -> Result<
 #[tokio::test]
 async fn ordinary_default_changes_preserve_existing_per_comic_overrides() -> Result<()> {
     let directory = tempfile::tempdir()?;
-    let (mut app, _) = fixture(directory.path(), tokio::runtime::Handle::current(), false, true)?;
+    let (mut app, _) = fixture(directory.path(), tokio::runtime::Handle::current(), false, false)?;
     let saved = app.reading.as_ref().unwrap().saved.clone();
     app.store.set_preference(&app.account, "reader_preferences_fast-reader-comic", &saved)?;
     app.reading = None;
@@ -352,7 +370,7 @@ async fn ordinary_default_changes_preserve_existing_per_comic_overrides() -> Res
     let actual: SavedReaderPreferences = app.store.preference(&app.account, "reader_preferences_fast-reader-comic")?.unwrap();
     assert_eq!(actual.refresh_mode, "normal");
     assert_eq!(actual.every, "6");
-    assert_eq!(actual.dither_method, "hardware");
+    assert_eq!(actual.dither_method, "bayer8");
     let global: Preferences = app.store.preference(&app.account, "preferences")?.unwrap();
     assert_eq!(global.refresh_mode, "fast");
     Ok(())

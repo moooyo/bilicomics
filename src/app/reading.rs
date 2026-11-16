@@ -8,9 +8,14 @@ use std::{
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use slint::{ComponentHandle, Model, ModelRc, SharedPixelBuffer, Rgba8Pixel, VecModel};
+use slint::{ComponentHandle, Model, ModelRc, VecModel};
 
-use super::{App, Preferences, display_order, hex_digest, now, tr};
+#[path = "prepared_pixels.rs"]
+mod prepared_pixels;
+use prepared_pixels::PreparedPixels;
+
+use super::{App, Preferences, deserialize_dither_method, display_order, hex_digest,
+    normalized_dither_method, now, selected_spatial_dither, spatial_dither_note, tr};
 use crate::{
     demo::DemoData,
     domain::{ComicDetail, Episode, EpisodeAccess, ImageIndex, PageDescriptor, ReadingAnchor},
@@ -18,7 +23,8 @@ use crate::{
     i18n,
     performance::{Operation, Span},
     platform::{ReaderRefreshScene, RefreshKind, RefreshPlan, RefreshReason, RefreshRect},
-    reader::{DisplayMode, FitMode, NormalizedRect, PageDirection, ReaderCore, ReaderMove, ReaderSettings, RenderedPage, Viewport},
+    reader::{DisplayMode, FitMode, NormalizedRect, PageDirection, ReaderCore, ReaderMove, ReaderSettings,
+        RenderedPage, SpatialDither, Viewport},
     source::ErrorKind,
     store::{DownloadRecord, DownloadStatus},
     ui::{AppWindow, AuthModel, ReaderChapter, ReaderModel, ReaderThumbnail, ShellModel},
@@ -26,6 +32,7 @@ use crate::{
 
 const MAX_QUEUED_INTENTS: usize = 32;
 const NEXT_FRAME_BYTES: u64 = 32 * 1024 * 1024;
+const READER_RASTER_VERSION: u32 = 2;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
@@ -38,6 +45,7 @@ struct SavedReaderPreferences {
     landscape: String,
     cover_alone: bool,
     dither: bool,
+    #[serde(deserialize_with = "deserialize_dither_method")]
     dither_method: String,
     jpeg_acceleration: bool,
     footer: bool,
@@ -51,7 +59,7 @@ impl From<&Preferences> for SavedReaderPreferences {
     fn from(value: &Preferences) -> Self {
         Self { mode: value.mode.clone(), fit: value.fit.clone(), direction: value.direction.clone(),
             every: value.every.clone(), refresh_mode: value.refresh_mode.clone(), landscape: value.landscape.clone(), cover_alone: value.cover_alone,
-            dither: value.dither, dither_method: value.dither_method.clone(),
+            dither: value.dither, dither_method: normalized_dither_method(&value.dither_method).into(),
             jpeg_acceleration: value.jpeg_acceleration, footer: value.footer }
     }
 }
@@ -100,6 +108,9 @@ pub(super) struct ReadingState {
     version: u64,
     rendering: bool,
     rendering_version: Option<u64>,
+    requested_viewport: Option<Viewport>,
+    rendering_viewport: Option<Viewport>,
+    presented_viewport: Option<Viewport>,
     render_again: bool,
     render_after_sleep: bool,
     render_started: Option<Instant>,
@@ -108,6 +119,9 @@ pub(super) struct ReadingState {
     render_cancelled: Arc<AtomicBool>,
     next_frame: NextFrameSlot,
     next_frame_retry_pending: bool,
+    next_frame_waiting_for_idle: bool,
+    cover_activity_version: u64,
+    cover_presented_version: u64,
     queued: VecDeque<(String, String, Option<Operation>)>,
     performance_request: Option<Operation>,
     performance_presented: Option<Operation>,
@@ -161,10 +175,12 @@ impl ReadingState {
         Self { comic_id, episode_id, detail: None, original_index: None, pending_index: None,
             core: None, presented_core: None, presented_strip: false,
             saved, generation, version: 1, rendering: false, rendering_version: None,
+            requested_viewport: None, rendering_viewport: None, presented_viewport: None,
             render_again: false, render_after_sleep: false,
             render_started: None, missing_pages: Vec::new(),
             cancelled: Arc::new(AtomicBool::new(false)), render_cancelled: Arc::new(AtomicBool::new(false)),
             next_frame: NextFrameSlot::Empty, next_frame_retry_pending: false,
+            next_frame_waiting_for_idle: false, cover_activity_version: 0, cover_presented_version: 0,
             queued: VecDeque::new(), performance_request: None,
             performance_presented: None, performance_model_id: None,
             page: slint::Image::default(), second_page: slint::Image::default(), overview: slint::Image::default(),
@@ -220,9 +236,10 @@ impl ReadingState {
         Some(core.settings())
     }
 
-    fn thumbnail_dithering(&self) -> (bool, bool) {
-        self.displayed_dither_settings().map_or((self.saved.dither, false),
-            |settings| (settings.dither, settings.uses_hardware_dither()))
+    fn thumbnail_dithering(&self) -> (bool, bool, Option<SpatialDither>) {
+        self.displayed_dither_settings().map_or((self.saved.dither, false,
+            Some(selected_spatial_dither(self.saved.dither, &self.saved.dither_method))),
+            |settings| (settings.dither, settings.uses_hardware_dither(), settings.spatial_dither))
     }
 
     fn preparation_feedback_due(&self) -> bool {
@@ -284,7 +301,9 @@ struct FrameMetadata {
 }
 
 #[derive(Clone)]
-struct Raster { rgba: Vec<u8>, width: u32, height: u32 }
+struct Raster { pixels: PreparedPixels, width: u32, height: u32 }
+
+struct RawRaster { rgba: Vec<u8>, width: u32, height: u32 }
 
 fn reader_trace_geometry(core: &ReaderCore) -> serde_json::Value {
     serde_json::json!({
@@ -298,7 +317,7 @@ fn reader_trace_geometry(core: &ReaderCore) -> serde_json::Value {
 fn reader_trace_raster(raster: &Raster) -> serde_json::Value {
     serde_json::json!({
         "width": raster.width, "height": raster.height,
-        "rgba_sha256": hex_digest(&raster.rgba),
+        "rgba_sha256": hex_digest(raster.pixels.as_bytes()),
     })
 }
 
@@ -346,6 +365,33 @@ struct PreparedFrame {
     dark_fraction: f32,
 }
 
+impl PreparedFrame {
+    fn pixel_bytes(&self) -> u64 {
+        // Missing slots repeat the first allocation only for deduplicated counting.
+        prepared_pixels::unique_pixel_bytes(&[&self.page.pixels,
+            self.second.as_ref().map_or(&self.page.pixels, |raster| &raster.pixels),
+            self.overview.as_ref().map_or(&self.page.pixels, |raster| &raster.pixels)])
+    }
+}
+
+struct RawFrame {
+    page: RawRaster,
+    second: Option<RawRaster>,
+    overview: Option<RawRaster>,
+    metadata: FrameMetadata,
+    dark_fraction: f32,
+}
+
+impl RawFrame {
+    fn pixel_capacity(&self) -> u64 {
+        (self.page.rgba.capacity() as u64)
+            .saturating_add(self.second.as_ref().map_or(0, |raster| raster.rgba.capacity() as u64))
+            .saturating_add(self.overview.as_ref().map_or(0, |raster| raster.rgba.capacity() as u64))
+    }
+}
+
+enum RawOutcome { Ready(RawFrame), Missing(Vec<usize>), Cancelled }
+
 enum PreparedOutcome { Ready(PreparedFrame), Missing(Vec<usize>), Cancelled, Failed }
 struct PreparedReader { core: ReaderCore, outcome: PreparedOutcome }
 
@@ -357,17 +403,22 @@ struct FrameInput {
     crop_index: usize,
     crop_count: usize,
     settings: ReaderSettings,
+    raster_version: u32,
+    dither_identity: &'static str,
 }
 
 impl FrameInput {
     fn new(core: &ReaderCore) -> Self {
         Self { anchor: core.anchor(0), crop_index: core.crop_index(),
-            crop_count: core.crop_count(), settings: core.settings().clone() }
+            crop_count: core.crop_count(), settings: core.settings().clone(),
+            raster_version: READER_RASTER_VERSION, dither_identity: reader_dither_identity(core.settings()) }
     }
 
     fn matches(&self, core: &ReaderCore) -> bool {
         self.anchor == core.anchor(0) && self.crop_index == core.crop_index()
             && self.crop_count == core.crop_count() && self.settings == *core.settings()
+            && self.raster_version == READER_RASTER_VERSION
+            && self.dither_identity == reader_dither_identity(core.settings())
     }
 
     fn allocated_bytes(&self) -> u64 {
@@ -436,14 +487,20 @@ struct NextFrame {
 
 impl NextFrame {
     fn retained_bytes(&self) -> u64 {
-        let pixels = self.frame.page.rgba.capacity()
-            .saturating_add(self.frame.second.as_ref().map_or(0, |frame| frame.rgba.capacity()))
-            .saturating_add(self.frame.overview.as_ref().map_or(0, |frame| frame.rgba.capacity()));
-        (std::mem::size_of::<Self>() as u64).saturating_add(pixels as u64)
-            .saturating_add(self.key.allocated_bytes())
-            .saturating_add(self.core.retained_preparation_metadata_bytes())
-            .saturating_add(self.proof.sha256.capacity() as u64)
+        self.metadata_bytes().saturating_add(self.frame.pixel_bytes())
     }
+
+    fn metadata_bytes(&self) -> u64 {
+        next_frame_metadata_bytes(&self.key, &self.core, &self.proof)
+    }
+}
+
+fn next_frame_metadata_bytes(key: &NextFrameKey, core: &ReaderCore,
+    proof: &crate::image_integrity::ValidatedImage) -> u64
+{
+    (std::mem::size_of::<NextFrame>() as u64).saturating_add(key.allocated_bytes())
+        .saturating_add(core.retained_preparation_metadata_bytes())
+        .saturating_add(proof.sha256.capacity() as u64)
 }
 
 enum NextFrameSlot {
@@ -569,11 +626,53 @@ struct ThumbnailPlan {
     size: (u32, u32),
     dither: bool,
     hardware_dither: bool,
+    spatial_dither: Option<SpatialDither>,
+    raster_version: u32,
 }
 
 impl App {
     pub(super) fn active_reader_identity(&self) -> Option<(&str, &str)> {
         self.reading.as_ref().map(|state| (state.comic_id.as_str(), state.episode_id.as_str()))
+    }
+
+    pub(super) fn reader_blocks_optional_cover_work(&self) -> bool {
+        self.reading.as_ref().is_some_and(|state| state.loading || state.rendering || state.render_again
+            || state.render_after_sleep || !state.queued.is_empty()
+            || matches!(state.next_frame, NextFrameSlot::Preparing { .. }) || state.thumbnails_rendering
+            || state.next_frame_retry_pending || state.next_frame_waiting_for_idle)
+    }
+
+    fn reader_render_viewport(&self, settings: &ReaderSettings) -> Viewport {
+        if let Some(ui) = self.ui.upgrade() {
+            let size = ui.window().size();
+            let scale = ui.window().scale_factor();
+            if size.width > 0 && size.height > 0 && scale.is_finite() && scale > 0.0 {
+                let columns = if self.options.landscape && settings.landscape_spread
+                    && settings.mode == DisplayMode::Page && settings.fit == FitMode::Page { 2.0 } else { 1.0 };
+                return Viewport { width: (size.width as f32 / columns).round().max(1.0) as u32,
+                    height: size.height, scale_factor: scale };
+            }
+        }
+        reader_viewport(self.platform.logical_viewport_size(), self.options.landscape,
+            settings, self.platform.scale_factor())
+    }
+
+    pub(super) fn reconcile_reader_viewport(&mut self) -> Result<()> {
+        if self.route != "reader" || self.is_suspended() || self.sleep_screen.active { return Ok(()); }
+        let Some(viewport) = self.reading.as_ref().and_then(|state| state.core.as_ref())
+            .map(|core| self.reader_render_viewport(core.settings())) else { return Ok(()); };
+        let changed = self.reading.as_ref().is_some_and(|state|
+            state.requested_viewport.is_some_and(|requested| requested != viewport));
+        if !changed { return Ok(()); }
+        if let Some(state) = self.reading.as_mut() {
+            state.requested_viewport = Some(viewport);
+            state.version = state.version.wrapping_add(1);
+            state.next_frame.cancel();
+            state.error = None;
+            state.render_again = true;
+        }
+        self.view_dirty.mark(super::View::Reader);
+        self.request_reader_render()
     }
 
     fn presented_reader_refresh_scene(&self) -> ReaderRefreshScene {
@@ -621,7 +720,8 @@ impl App {
         let thumbnails_changed = self.route == "reader" && self.reading.as_ref().is_some_and(|state| {
             let expected = state.thumbnail_dithering();
             state.sheet == "grid" && state.thumbnail_plan.as_ref()
-                .is_some_and(|plan| (plan.dither, plan.hardware_dither) != expected)
+                .is_some_and(|plan| (plan.dither, plan.hardware_dither, plan.spatial_dither) != expected
+                    || plan.raster_version != READER_RASTER_VERSION)
         });
         if thumbnails_changed {
             if let Err(error) = self.request_reader_thumbnails() {
@@ -639,10 +739,14 @@ impl App {
         let media_available = crate::native_media::availability().available();
         let changed = if let Some(state) = self.reading.as_mut() {
             let hardware_dither = reader_hardware_dither(&state.saved, available);
+            let spatial_dither = Some(selected_spatial_dither(state.saved.dither, &state.saved.dither_method));
             let media_acceleration = reader_media_acceleration(&state.saved, media_available);
             if let Some(core) = state.core.as_mut().filter(|core|
-                core.settings().hardware_dither != hardware_dither || core.settings().media_acceleration != media_acceleration) {
+                core.settings().hardware_dither != hardware_dither || core.settings().spatial_dither != spatial_dither
+                    || core.settings().dither != state.saved.dither || core.settings().media_acceleration != media_acceleration) {
                 let mut settings = core.settings().clone();
+                settings.dither = state.saved.dither;
+                settings.spatial_dither = spatial_dither;
                 settings.hardware_dither = hardware_dither;
                 settings.media_acceleration = media_acceleration;
                 core.update_settings(settings)?;
@@ -699,6 +803,7 @@ impl App {
     }
 
     pub(super) fn open_episode(&mut self, comic_id: &str, episode_id: &str) -> Result<()> {
+        self.defer_sleep_cover_for_reader_activity();
         let Some(detail) = self.reader_cached_detail(comic_id)? else {
             return self.request_reader_detail(comic_id, Some(episode_id));
         };
@@ -1064,6 +1169,9 @@ impl App {
             return Ok(());
         }
         if action == "sheet" && !["", "toc", "display", "light"].contains(&value) { return Ok(()); }
+        if self.reading.is_some() {
+            self.defer_sleep_cover_for_reader_activity();
+        }
         if action == "episode" && self.reading.as_ref().is_some_and(|state| state.episode_id == value) {
             if let Some(state) = self.reading.as_mut() { state.menu = false; state.sheet.clear(); }
             self.reader_overlay_refresh(false);
@@ -1283,9 +1391,10 @@ impl App {
             "landscape-layout" if ["spread", "single"].contains(&value) => { state.saved.landscape = value.into(); self.preferences.landscape = value.into(); }
             "cover-alone" if ["on", "off"].contains(&value) => { state.saved.cover_alone = value == "on"; self.preferences.cover_alone = value == "on"; }
             "dither" if ["on", "off"].contains(&value) => { state.saved.dither = value == "on"; self.preferences.dither = value == "on"; }
-            "dither-method" if ["software", "hardware"].contains(&value) => {
-                state.saved.dither_method = value.into(); self.preferences.dither_method = value.into();
-                state.saved.dither = true; self.preferences.dither = true;
+            "dither-method" if ["off", "bayer8", "floyd_steinberg"].contains(&value) => {
+                let method = if value == "off" { normalized_dither_method(&state.saved.dither_method) } else { value };
+                state.saved.dither_method = method.into(); self.preferences.dither_method = method.into();
+                state.saved.dither = value != "off"; self.preferences.dither = value != "off";
             }
             "jpeg-acceleration" if ["on", "off"].contains(&value) => {
                 state.saved.jpeg_acceleration = value == "on";
@@ -1307,6 +1416,7 @@ impl App {
             if let Some(core) = state.core.as_mut() {
                 let mut settings = core.settings().clone();
                 settings.dither = saved.dither;
+                settings.spatial_dither = Some(selected_spatial_dither(saved.dither, &saved.dither_method));
                 settings.fast_mode = normalized_refresh_mode(&saved.refresh_mode) == "fast";
                 settings.hardware_dither = reader_hardware_dither(&saved, hardware_y4_available);
                 settings.media_acceleration = reader_media_acceleration(&saved, media_available);
@@ -1399,20 +1509,36 @@ impl App {
             state.next_frame.cancel();
             state.next_frame = NextFrameSlot::Empty;
             state.next_frame_retry_pending = false;
+            state.next_frame_waiting_for_idle = false;
         }
         self.invalidate("reader-prepare-next");
     }
 
-    /// Consume one deferred opportunity after mailbox callbacks release their
-    /// delivery permits. Busy or changed state does not schedule another retry.
+    /// Consume deferred work only after actual computation and result capacity
+    /// are idle. Waiting observes metadata without admission attempts or timers.
     pub(super) fn retry_next_frame_after_delivery(&mut self) {
+        if self.is_suspended() || self.route != "reader" || self.preferences.preload == 0 { return; }
+        if !crate::source::work::speculative_admission_idle() || !self.jobs.speculative_delivery_available() { return; }
         let retry = self.reading.as_mut()
-            .is_some_and(|state| std::mem::take(&mut state.next_frame_retry_pending));
+            .is_some_and(|state| {
+                let retry = state.next_frame_retry_pending || state.next_frame_waiting_for_idle;
+                state.next_frame_retry_pending = false;
+                state.next_frame_waiting_for_idle = false;
+                retry
+            });
         if retry { self.request_next_frame(); }
     }
 
+    /// Optional work reports a real drain; the ordinary next UI tick retries
+    /// only after both computation and the result lane are actually available.
+    pub(super) fn retry_reader_prefetch_after_optional_cover_drain(&mut self) {
+        if self.route == "reader" && self.preferences.preload > 0 {
+            if let Some(state) = self.reading.as_mut() { state.next_frame_retry_pending = true; }
+        }
+    }
+
     /// Honor the existing preload preference without moving the live reader.
-    /// Re-enabling offers one immediate attempt; busy work remains a normal miss.
+    /// Re-enabling offers one immediate attempt and retries after real idle.
     pub(super) fn reader_preload_changed(&mut self) {
         if self.preferences.preload == 0 { self.retire_next_frame(); }
         else { self.request_next_frame(); }
@@ -1465,13 +1591,43 @@ impl App {
         self.request_reader_render()
     }
 
+    pub(super) fn reader_dither_preferences_changed(&mut self) -> Result<()> {
+        let Some(state) = self.reading.as_mut() else { return Ok(()); };
+        let method = normalized_dither_method(&self.preferences.dither_method);
+        if state.saved.dither == self.preferences.dither && state.saved.dither_method == method {
+            return Ok(());
+        }
+        state.saved.dither = self.preferences.dither;
+        state.saved.dither_method = method.into();
+        let saved = state.saved.clone();
+        let comic = state.comic_id.clone();
+        if let Some(core) = state.core.as_mut() {
+            let mut settings = core.settings().clone();
+            settings.dither = saved.dither;
+            settings.spatial_dither = Some(selected_spatial_dither(saved.dither, &saved.dither_method));
+            settings.hardware_dither = false;
+            core.update_settings(settings)?;
+        }
+        state.next_frame.cancel();
+        state.version = state.version.wrapping_add(1);
+        state.error = None;
+        if self.store.set_preference(&self.account, &format!("reader_preferences_{comic}"), &saved).is_err() {
+            self.toast("common_storage_error");
+        }
+        self.view_dirty.mark(super::View::Reader);
+        self.request_reader_render()
+    }
+
     fn request_next_frame(&mut self) {
+        if let Some(state) = self.reading.as_mut() {
+            state.next_frame_retry_pending = false;
+            state.next_frame_waiting_for_idle = false;
+        }
         if self.preferences.preload == 0 { self.retire_next_frame(); return; }
         if self.is_suspended() || self.route != "reader" { return; }
         let Some(state) = self.reading.as_ref() else { return; };
         let Some(presented) = state.presented_core.as_ref() else { return; };
-        let viewport = reader_viewport(self.platform.logical_viewport_size(), self.options.landscape,
-            presented.settings(), self.platform.scale_factor());
+        let viewport = self.reader_render_viewport(presented.settings());
         let valid_slot = match &state.next_frame {
             NextFrameSlot::Empty => true,
             NextFrameSlot::Preparing { key, .. } =>
@@ -1523,6 +1679,7 @@ impl App {
                 let measured = trace.map(|_| Span::start());
                 let result = prepare_next_frame(core, worker_key, &files, &worker_cancelled, profile.as_mut());
                 if let Some(trace) = trace {
+                    record_pixel_prepare(trace, profile.as_ref(), result.as_ref().ok().and_then(|frame| frame.as_ref()).map(|next| &next.frame));
                     trace.record("next_frame_preparation", &serde_json::json!({
                         "ready": result.as_ref().is_ok_and(Option::is_some),
                         "cancelled": worker_cancelled.load(Ordering::Acquire),
@@ -1533,7 +1690,10 @@ impl App {
                 result
             }, move |app, result| app.apply_next_frame(apply_key, apply_cancelled, trace, result));
         if !admitted {
-            if let Some(state) = self.reading.as_mut() { state.next_frame = NextFrameSlot::Empty; }
+            if let Some(state) = self.reading.as_mut() {
+                state.next_frame = NextFrameSlot::Empty;
+                state.next_frame_waiting_for_idle = true;
+            }
             if let Some(trace) = trace { trace.mark("next_frame_admission_skipped"); }
         }
     }
@@ -1545,14 +1705,13 @@ impl App {
         if !matches!(&state.next_frame, NextFrameSlot::Preparing { key: active, cancelled: token }
             if active == &key && Arc::ptr_eq(token, &cancelled)) { return; }
         let current = state.presented_core.as_ref().is_some_and(|presented| {
-            let viewport = reader_viewport(self.platform.logical_viewport_size(), self.options.landscape,
-                presented.settings(), self.platform.scale_factor());
+            let viewport = self.reader_render_viewport(presented.settings());
             key.origin_is_current(state, self.epoch, viewport, self.options.landscape)
         }) && !self.is_suspended() && self.route == "reader" && self.preferences.preload > 0
             && !cancelled.load(Ordering::Acquire)
             && state.episode().is_some_and(|episode| episode.readable_at(now()));
         let retry = cancelled.load(Ordering::Acquire) && self.epoch == key.epoch
-            && state.generation == key.generation && state.version != key.origin_version;
+            && state.generation == key.generation;
         let Some(state) = self.reading.as_mut() else { return; };
         state.next_frame = NextFrameSlot::Empty;
         match result {
@@ -1580,6 +1739,14 @@ impl App {
     fn request_reader_render_traced(&mut self, requested_trace: Option<Operation>) -> Result<()> {
         if self.preferences.preload == 0 { self.retire_next_frame(); }
         if self.is_suspended() || self.route != "reader" { return Ok(()); }
+        let new_activity = self.reading.as_ref().is_some_and(|state| state.cover_activity_version != state.version);
+        if new_activity {
+            self.defer_sleep_cover_for_reader_activity();
+            if let Some(state) = self.reading.as_mut() { state.cover_activity_version = state.version; }
+        }
+        let requested_viewport = self.reading.as_ref().and_then(|state| state.core.as_ref())
+            .map(|core| self.reader_render_viewport(core.settings()));
+        if let Some(state) = self.reading.as_mut() { state.requested_viewport = requested_viewport; }
         if let Some(state) = self.reading.as_mut() {
             if matches!(state.next_frame, NextFrameSlot::Preparing { .. }) { state.next_frame.cancel(); }
         }
@@ -1654,7 +1821,7 @@ impl App {
         let version = state.version;
         let synthetic_content_fingerprints = self.demo.is_some();
         let cancelled = Arc::new(AtomicBool::new(false));
-        let viewport = reader_viewport(self.platform.logical_viewport_size(), self.options.landscape, core.settings(), self.platform.scale_factor());
+        let viewport = self.reader_render_viewport(core.settings());
         let overview_size = if self.is_scribe() { (88, 125) } else { (58, 84) };
         let matches_next = self.preferences.preload > 0 && matches!(&state.next_frame, NextFrameSlot::Ready(frame)
             if frame.key.target_is_current(state, self.epoch, viewport, self.options.landscape));
@@ -1665,6 +1832,7 @@ impl App {
         if let Some(state) = self.reading.as_mut() {
             state.render_cancelled = cancelled.clone();
             state.rendering = true; state.rendering_version = Some(version);
+            state.rendering_viewport = Some(viewport);
             state.render_again = false; state.loading = true;
             state.render_started = Some(Instant::now()); state.error = None; state.missing_pages.clear();
             state.performance_request = None;
@@ -1683,6 +1851,9 @@ impl App {
                 } else { prepare_reader_frame(&mut core, &files, viewport, overview_size, &cancelled) };
             let elapsed = measured.map(Span::finish);
             if let Some(trace) = trace {
+                record_pixel_prepare(trace, profile.as_ref(), match &prepared {
+                    Ok(PreparedOutcome::Ready(frame)) => Some(frame), _ => None,
+                });
                 let outcome = match &prepared {
                     Ok(PreparedOutcome::Ready(_)) => "ready",
                     Ok(PreparedOutcome::Missing(_)) => "missing",
@@ -1723,11 +1894,27 @@ impl App {
                 if let Some(trace) = trace { trace.mark("reader_render_retired"); }
                 return;
             }
-            let current = app.reading.as_ref().is_some_and(|state| state.version == version);
+            let current_viewport = app.reading.as_ref().and_then(|state| state.core.as_ref())
+                .map(|core| app.reader_render_viewport(core.settings()));
+            let rendered_viewport = app.reading.as_ref().and_then(|state| state.rendering_viewport);
+            let viewport_stale = match (rendered_viewport, current_viewport) {
+                (Some(rendered), Some(current)) => rendered != current,
+                // Headless controller fixtures may import a deliberate small
+                // raster without a Window. Production jobs always bind size.
+                (None, _) => app.ui.upgrade().is_some(),
+                _ => true,
+            };
+            let current = !viewport_stale && app.reading.as_ref().is_some_and(|state| state.version == version);
             let retry_missing = app.reading.as_ref().is_some_and(|state| state.render_again);
             if let Some(state) = app.reading.as_mut() {
                 state.rendering = false;
                 state.rendering_version = None;
+                state.rendering_viewport = None;
+                if viewport_stale && state.version == version {
+                    state.version = state.version.wrapping_add(1);
+                    state.requested_viewport = current_viewport;
+                    state.next_frame.cancel();
+                }
             }
             if !current {
                 if let Some(trace) = trace { trace.mark("reader_result_superseded"); }
@@ -1741,19 +1928,19 @@ impl App {
             }
             match result {
                 Ok(prepared) => {
-                    let geometry_changed = app.reading.as_ref()
-                        .and_then(|state| state.presented_core.as_ref())
-                        .is_some_and(|presented| presented.settings().fit != prepared.core.settings().fit
-                            || presented.settings().zoom_ratio != prepared.core.settings().zoom_ratio);
+                    let geometry_changed = app.reading.as_ref().is_some_and(|state|
+                        state.presented_core.as_ref().is_some_and(|presented|
+                            presented.settings().fit != prepared.core.settings().fit
+                                || presented.settings().zoom_ratio != prepared.core.settings().zoom_ratio)
+                        || state.presented_viewport.zip(rendered_viewport).is_some_and(|(before, next)| before != next));
                     if !matches!(&prepared.outcome, PreparedOutcome::Cancelled) {
                         if let Some(state) = app.reading.as_mut() { state.core = Some(prepared.core); }
                     }
                     match prepared.outcome {
                         PreparedOutcome::Ready(frame) => {
                             let dark = frame.dark_fraction;
-                            let copied_bytes = trace.map(|_| frame.page.rgba.len()
-                                + frame.second.as_ref().map_or(0, |frame| frame.rgba.len())
-                                + frame.overview.as_ref().map_or(0, |frame| frame.rgba.len()));
+                            let pixel_payload_bytes = trace.map(|_| frame.pixel_bytes());
+                            let shared_handles = 1 + usize::from(frame.second.is_some()) + usize::from(frame.overview.is_some());
                             let measured = trace.map(|_| Span::start());
                             if let Some(state) = app.reading.as_mut() {
                                 state.page = raster_image(frame.page);
@@ -1761,6 +1948,7 @@ impl App {
                                 state.overview = frame.overview.map(raster_image).unwrap_or_default();
                                 state.metadata = frame.metadata;
                                 state.presented_core = state.core.clone();
+                                state.presented_viewport = rendered_viewport;
                                 state.presented_strip = state.demo_strip;
                                 state.missing_pages.clear();
                                 state.render_again = false;
@@ -1771,8 +1959,16 @@ impl App {
                             app.sync_presented_reader_dithering();
                             if let (Some(trace), Some(measured)) = (trace, measured) {
                                 trace.record("ui_image_import", &serde_json::json!({
-                                    "elapsed": measured.finish(), "copied_bytes": copied_bytes,
+                                    "elapsed": measured.finish(), "copied_bytes": 0,
+                                    "pixel_payload_bytes": pixel_payload_bytes,
+                                    "shared_handles": shared_handles, "worker_prepared": true,
                                 }));
+                            }
+                            let newly_presented = app.reading.as_ref()
+                                .is_some_and(|state| state.cover_presented_version != version);
+                            if newly_presented {
+                                app.defer_sleep_cover_for_reader_activity();
+                                if let Some(state) = app.reading.as_mut() { state.cover_presented_version = version; }
                             }
                             if app.queue_reading_position().is_err() { app.toast("common_storage_error"); }
                             app.reader_turn_refresh(dark, false, geometry_changed);
@@ -1919,12 +2115,21 @@ impl App {
             else { state.core.as_ref().map_or(0, ReaderCore::page_index) };
         // A pending preference must not put raw thumbnails beside a retained
         // software page, or software thumbnails beside an active raw page.
-        let (dither, hardware_dither) = state.thumbnail_dithering();
+        let (dither, hardware_dither, spatial_dither) = state.thumbnail_dithering();
         let demo_uncached = self.demo.is_some() && !self.options.offline;
         let columns = if self.is_scribe() { 5 } else { 4 };
         let mut logical = self.platform.logical_viewport_size();
         if self.options.landscape { logical = (logical.1, logical.0); }
-        let scale = self.platform.scale_factor();
+        let mut scale = self.platform.scale_factor();
+        if let Some(ui) = self.ui.upgrade() {
+            let size = ui.window().size();
+            let actual_scale = ui.window().scale_factor();
+            if size.width > 0 && size.height > 0 && actual_scale.is_finite() && actual_scale > 0.0 {
+                logical = ((size.width as f32 / actual_scale).round() as u32,
+                    (size.height as f32 / actual_scale).round() as u32);
+                scale = actual_scale;
+            }
+        }
         let edge = if self.is_scribe() { 48 } else { 24 };
         let width = logical.0.saturating_sub(2 * edge + (columns - 1) * 14) / columns;
         let caption = if self.is_scribe() { 24 } else { 22 };
@@ -1934,7 +2139,8 @@ impl App {
             .max(48).min(if self.is_scribe() { 180 } else { 118 });
         let size = (((width.saturating_sub(8)) as f32 * scale).round() as u32,
             (thumb_height.saturating_sub(8) as f32 * scale).round() as u32);
-        let plan = ThumbnailPlan { revision: index.revision.clone(), start, end, size, dither, hardware_dither };
+        let plan = ThumbnailPlan { revision: index.revision.clone(), start, end, size, dither,
+            hardware_dither, spatial_dither, raster_version: READER_RASTER_VERSION };
         let replace = state.thumbnail_plan.as_ref() != Some(&plan);
         if replace {
             self.cancel_reader_thumbnails();
@@ -1977,7 +2183,7 @@ impl App {
             let mut result = Vec::new();
             let mut prepared = BTreeMap::<String, Arc<Raster>>::new();
             if cancelled.load(Ordering::Acquire) { return Ok(result); }
-            let mut core = ReaderCore::new(index.clone(), ReaderSettings { dither, hardware_dither,
+            let mut core = ReaderCore::new(index.clone(), ReaderSettings { dither, hardware_dither, spatial_dither,
                 landscape_spread: false, ..Default::default() })?;
             for position in requested {
                 if cancelled.load(Ordering::Acquire) { break; }
@@ -2006,7 +2212,9 @@ impl App {
                         let Some(frame) = core.render_validated_source_cancellable(&source,
                             Viewport::new(size.0, size.1), &cancelled, None)? else { break; };
                         if cancelled.load(Ordering::Acquire) { break; }
-                        let raster = Arc::new(Raster { rgba: frame.rgba, width: frame.width, height: frame.height });
+                        drop(source);
+                        let Some(raster) = prepare_raster(raw_raster(frame), &cancelled)? else { break; };
+                        let raster = Arc::new(raster);
                         prepared.insert(proof.sha256().to_owned(), raster.clone());
                         raster
                     };
@@ -2321,6 +2529,8 @@ impl App {
             "refresh_mode_fast_note"
         } else { "refresh_mode_normal_note" }).into());
         view.set_presented_fast_mode(state.displayed_dither_settings().is_some_and(|settings| settings.fast_mode));
+        view.set_presented_cpu_dither(state.displayed_dither_settings().is_some_and(|settings|
+            !settings.fast_mode && settings.spatial_dither.is_some()));
         view.set_landscape_layout(state.saved.landscape.clone().into());
         view.set_landscape(self.options.landscape);
         view.set_spread_active(core.is_some_and(ReaderCore::is_spread));
@@ -2465,6 +2675,7 @@ impl App {
         state.demo_strip = state.presented_strip;
         state.rendering = false;
         state.rendering_version = None;
+        state.rendering_viewport = None;
         state.render_again = false;
         state.render_after_sleep |= reflow;
         state.render_started = None;
@@ -2541,8 +2752,7 @@ impl App {
         let anchor = core.anchor(0);
         let frame = state.page.size();
         let second = state.second_page.size();
-        let viewport = reader_viewport(self.platform.logical_viewport_size(), self.options.landscape,
-            core.settings(), self.platform.scale_factor());
+        let viewport = state.presented_viewport.unwrap_or_else(|| self.reader_render_viewport(core.settings()));
         let mut snapshot = serde_json::json!({
             "comic_id": state.comic_id, "episode_id": state.episode_id,
             "reader_generation": state.generation, "route": self.route,
@@ -2576,6 +2786,15 @@ impl App {
             "hardware_y4_requested": self.platform.reader_hardware_y4_requested(),
             "footer": state.saved.footer
         });
+        let processing = serde_json::json!({
+            "saved_spatial_dither": selected_spatial_dither(state.saved.dither, &state.saved.dither_method).cache_key(),
+            "presented_dither_algorithm": reader_dither_identity(core.settings()),
+            "target_dither_algorithm": state.core.as_ref().map(|core| reader_dither_identity(core.settings())),
+            "presented_cpu_dither": !core.settings().fast_mode && core.settings().spatial_dither.is_some(),
+            "raster_version": READER_RASTER_VERSION,
+            "viewport_scale_factor": viewport.scale_factor,
+        });
+        snapshot.as_object_mut()?.extend(processing.as_object()?.clone());
         let presentation = serde_json::json!({
             "demo_strip": state.demo_strip, "transition": core.is_transition(),
             "menu": state.menu, "sheet": state.sheet,
@@ -2652,12 +2871,9 @@ fn reader_settings(saved: &SavedReaderPreferences, landscape: bool, logical: (u3
         direction: if saved.direction == "rtl" { PageDirection::RightToLeft } else { PageDirection::LeftToRight },
         landscape_spread: landscape && logical.1 >= 1100 && saved.landscape == "spread", cover_alone: saved.cover_alone,
         dither: saved.dither, fast_mode: normalized_refresh_mode(&saved.refresh_mode) == "fast",
+        spatial_dither: Some(selected_spatial_dither(saved.dither, &saved.dither_method)),
         footer: saved.footer, ..Default::default()
     }
-}
-
-fn normalized_dither_method(method: &str) -> &'static str {
-    if method == "hardware" { "hardware" } else { "software" }
 }
 
 fn normalized_refresh_mode(mode: &str) -> &'static str {
@@ -2678,9 +2894,18 @@ fn reader_global_overlay_visible(ui_visible: Option<bool>, network_pending: bool
     ui_visible.unwrap_or(network_pending) || toast_pending
 }
 
-fn reader_hardware_dither(saved: &SavedReaderPreferences, available: bool) -> bool {
-    normalized_refresh_mode(&saved.refresh_mode) != "fast"
-        && saved.dither && normalized_dither_method(&saved.dither_method) == "hardware" && available
+fn reader_hardware_dither(_saved: &SavedReaderPreferences, _available: bool) -> bool {
+    // Product settings select mutually exclusive CPU algorithms. Raw Gray8/Y4
+    // remains an explicit low-level research path, never a stored UI choice.
+    false
+}
+
+fn reader_dither_identity(settings: &ReaderSettings) -> &'static str {
+    if settings.fast_mode { "binary_bayer4_v1" }
+    else if let Some(method) = settings.spatial_dither {
+        if settings.dither { method.cache_key() } else { SpatialDither::Off.cache_key() }
+    } else if settings.uses_hardware_dither() { "raw_gray8_y4_v1" }
+    else if settings.dither { "legacy_bayer4_v1" } else { "off" }
 }
 
 fn reader_media_acceleration(saved: &SavedReaderPreferences, available: bool) -> crate::native_media::Acceleration {
@@ -2692,30 +2917,25 @@ fn reader_settings_for_display(saved: &SavedReaderPreferences, landscape: bool,
     logical: (u32, u32), hardware_y4_available: bool) -> ReaderSettings
 {
     let mut settings = reader_settings(saved, landscape, logical);
+    settings.spatial_dither = Some(selected_spatial_dither(saved.dither, &saved.dither_method));
     settings.hardware_dither = reader_hardware_dither(saved, hardware_y4_available);
     settings.media_acceleration = reader_media_acceleration(saved, crate::native_media::availability().available());
     settings
 }
 
 fn reader_dither_note(saved: &SavedReaderPreferences, displayed: Option<&ReaderSettings>,
-    hardware_y4_available: bool) -> String
+    _hardware_y4_available: bool) -> String
 {
-    let expected = (saved.dither, reader_hardware_dither(saved, hardware_y4_available));
-    let actual = displayed.map_or(expected, |settings| (settings.dither, settings.uses_hardware_dither()));
+    let expected = selected_spatial_dither(saved.dither, &saved.dither_method);
+    let actual = displayed.and_then(|settings| settings.spatial_dither.map(|method|
+        if settings.dither { method } else { SpatialDither::Off })).unwrap_or(expected);
     let expected_fast = normalized_refresh_mode(&saved.refresh_mode) == "fast";
     let actual_fast = displayed.map_or(expected_fast, |settings| settings.fast_mode);
-    if actual_fast {
-        let mut note = i18n::text("refresh_mode_dither_saved_note");
-        if actual_fast != expected_fast { note.push_str(&i18n::text("read_dither_pending_note")); }
-        return note;
+    let mut note = if actual_fast { i18n::text("spatial_dither_fast_saved_note") }
+        else { spatial_dither_note(actual) };
+    if actual != expected || actual_fast != expected_fast {
+        note.push_str(&i18n::text("spatial_dither_pending_note"));
     }
-    let key = if !actual.0 { "read_dither_off_note" }
-        else if actual.1 && hardware_y4_available { "read_dither_hardware_note" }
-        else if normalized_dither_method(&saved.dither_method) == "hardware" && !hardware_y4_available {
-            "read_dither_fallback_note"
-        } else { "read_dither_software_note" };
-    let mut note = i18n::text(key);
-    if actual != expected || actual_fast != expected_fast { note.push_str(&i18n::text("read_dither_pending_note")); }
     note
 }
 
@@ -2789,6 +3009,14 @@ fn prepare_reader_frame_profiled(core: &mut ReaderCore, files: &ReaderFiles, vie
     overview_size: (u32, u32), cancelled: &AtomicBool,
     mut profile: Option<&mut crate::reader::ReaderPreparationProfile>,
 ) -> Result<PreparedOutcome> {
+    let raw = prepare_reader_raw_frame(core, files, viewport, overview_size, cancelled, profile.as_deref_mut())?;
+    prepare_raw_outcome(raw, cancelled, profile)
+}
+
+fn prepare_reader_raw_frame(core: &mut ReaderCore, files: &ReaderFiles, viewport: Viewport,
+    overview_size: (u32, u32), cancelled: &AtomicBool,
+    mut profile: Option<&mut crate::reader::ReaderPreparationProfile>,
+) -> Result<RawOutcome> {
     let index = core.index();
     let primary_index = core.page_index();
     let spread = core.is_spread();
@@ -2797,14 +3025,14 @@ fn prepare_reader_frame_profiled(core: &mut ReaderCore, files: &ReaderFiles, vie
     let mut sources = Vec::new();
     let mut missing = Vec::new();
     for position in pair.into_iter().flatten() {
-        if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+        if cancelled.load(Ordering::Acquire) { return Ok(RawOutcome::Cancelled); }
         let source = files.prepared_source_profiled(&index, position, None, preparation, cancelled, profile.as_deref_mut());
-        if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+        if cancelled.load(Ordering::Acquire) { return Ok(RawOutcome::Cancelled); }
         if let Some(Some(source)) = source? { sources.push((position, source)); }
         else { missing.push(position); }
     }
-    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
-    if !missing.is_empty() { return Ok(PreparedOutcome::Missing(missing)); }
+    if cancelled.load(Ordering::Acquire) { return Ok(RawOutcome::Cancelled); }
+    if !missing.is_empty() { return Ok(RawOutcome::Missing(missing)); }
     render_reader_sources(core, sources, viewport, overview_size, cancelled, profile)
 }
 
@@ -2812,24 +3040,24 @@ fn render_reader_sources(core: &mut ReaderCore,
     sources: Vec<(usize, crate::reader::PreparedGraySource)>, viewport: Viewport,
     overview_size: (u32, u32), cancelled: &AtomicBool,
     mut profile: Option<&mut crate::reader::ReaderPreparationProfile>,
-) -> Result<PreparedOutcome> {
+) -> Result<RawOutcome> {
     let index = core.index().clone();
     let primary_index = core.page_index();
     let spread = core.is_spread();
     let pair = if spread { core.spread_indices() } else { [Some(primary_index), None] };
     let source = &sources.iter().find(|(position, _)| *position == primary_index).or_else(|| sources.first())
         .context("The visible page has no verified source")?.1;
-    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+    if cancelled.load(Ordering::Acquire) { return Ok(RawOutcome::Cancelled); }
     let Some(rendered) = core.render_prepared_source_cancellable(&source, viewport, cancelled,
-        profile.as_deref_mut())? else { return Ok(PreparedOutcome::Cancelled); };
-    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+        profile.as_deref_mut())? else { return Ok(RawOutcome::Cancelled); };
+    if cancelled.load(Ordering::Acquire) { return Ok(RawOutcome::Cancelled); }
     let mut metadata = FrameMetadata { overlap: rendered.overlap_from_previous, ratio: rendered.crop.width as f32 / rendered.crop.height.max(1) as f32,
         focus_x: rendered.crop.x as f32 / rendered.source_width.max(1) as f32,
         focus_y: rendered.crop.y as f32 / rendered.source_height.max(1) as f32,
         focus_width: rendered.crop.width as f32 / rendered.source_width.max(1) as f32,
         focus_height: rendered.crop.height as f32 / rendered.source_height.max(1) as f32, ..Default::default() };
     let dark_fraction = rendered.dark_fraction;
-    let mut primary = Some(rendered_raster(rendered));
+    let mut primary = Some(raw_raster(rendered));
     let mut second = None;
     let mut page = None;
     if spread {
@@ -2837,16 +3065,16 @@ fn render_reader_sources(core: &mut ReaderCore,
             let raster = if let Some(position) = position {
                 if position == primary_index { primary.take() }
                 else {
-                    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+                    if cancelled.load(Ordering::Acquire) { return Ok(RawOutcome::Cancelled); }
                     let leaf_source = &sources.iter().find(|(index, _)| *index == position)
                         .context("A spread leaf is unavailable")?.1;
                     let mut leaf = ReaderCore::new(index.clone(), core.settings().clone())?;
                     leaf.set_landscape(false);
                     leaf.set_page(position)?;
-                    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+                    if cancelled.load(Ordering::Acquire) { return Ok(RawOutcome::Cancelled); }
                     let Some(rendered) = leaf.render_prepared_source_cancellable(leaf_source, viewport, cancelled,
-                        profile.as_deref_mut())? else { return Ok(PreparedOutcome::Cancelled); };
-                    Some(rendered_raster(rendered))
+                        profile.as_deref_mut())? else { return Ok(RawOutcome::Cancelled); };
+                    Some(raw_raster(rendered))
                 }
             } else { None };
             let number = position.map_or_else(|| if primary_index == 0 { 0 } else { index.images.len() as i32 + 1 }, |position| position as i32 + 1);
@@ -2855,19 +3083,19 @@ fn render_reader_sources(core: &mut ReaderCore,
         }
     } else { page = primary.take(); metadata.left_page = primary_index as i32 + 1; }
     let overview = if core.settings().mode == DisplayMode::Panel {
-        if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+        if cancelled.load(Ordering::Acquire) { return Ok(RawOutcome::Cancelled); }
         let mut overview = ReaderCore::new(index, ReaderSettings { dither: core.settings().dither,
             hardware_dither: core.settings().hardware_dither, ..Default::default() })?;
         overview.set_page(primary_index)?;
         let size = Viewport::new(overview_size.0, overview_size.1);
         let Some(rendered) = overview.render_prepared_source_cancellable(&source, size, cancelled,
-            profile.as_deref_mut())? else { return Ok(PreparedOutcome::Cancelled); };
-        Some(rendered_raster(rendered))
+            profile.as_deref_mut())? else { return Ok(RawOutcome::Cancelled); };
+        Some(raw_raster(rendered))
     } else { None };
-    if cancelled.load(Ordering::Acquire) { return Ok(PreparedOutcome::Cancelled); }
+    if cancelled.load(Ordering::Acquire) { return Ok(RawOutcome::Cancelled); }
     // An empty physical spread leaf still occupies its own source-independent slot.
-    let page = page.unwrap_or_else(|| Raster { rgba: vec![255; 4], width: 1, height: 1 });
-    Ok(PreparedOutcome::Ready(PreparedFrame { page, second, overview, metadata, dark_fraction }))
+    let page = page.unwrap_or_else(|| RawRaster { rgba: vec![255; 4], width: 1, height: 1 });
+    Ok(RawOutcome::Ready(RawFrame { page, second, overview, metadata, dark_fraction }))
 }
 
 fn prepare_next_frame(mut core: ReaderCore, key: NextFrameKey, files: &ReaderFiles,
@@ -2883,8 +3111,17 @@ fn prepare_next_frame(mut core: ReaderCore, key: NextFrameKey, files: &ReaderFil
     let Some(Some(source)) = source else { return Ok(None); };
     let proof = source.proof().clone();
     let outcome = render_reader_sources(&mut core, vec![(position, source)], key.viewport,
-        (1, 1), cancelled, profile)?;
+        (1, 1), cancelled, profile.as_deref_mut())?;
     if cancelled.load(Ordering::Acquire) { return Ok(None); }
+    if let RawOutcome::Ready(frame) = &outcome {
+        // Check the previous Vec-capacity bound before allocating shared pixels.
+        // At conversion only one raster has both its old and new storage alive.
+        let raw_extra = std::mem::size_of::<RawFrame>().saturating_sub(std::mem::size_of::<PreparedFrame>()) as u64;
+        let retained = next_frame_metadata_bytes(&key, &core, &proof)
+            .saturating_add(raw_extra).saturating_add(frame.pixel_capacity());
+        if retained > NEXT_FRAME_BYTES { return Ok(None); }
+    }
+    let outcome = prepare_raw_outcome(outcome, cancelled, profile)?;
     let PreparedOutcome::Ready(frame) = outcome else { return Ok(None); };
     let candidate = NextFrame { key, core, frame, proof, preparation };
     if candidate.retained_bytes() > NEXT_FRAME_BYTES { return Ok(None); }
@@ -2918,8 +3155,9 @@ fn reuse_next_frame(core: &mut ReaderCore, next: NextFrame, files: &ReaderFiles,
             // Drop old pixels before the fallback allocates a replacement.
             drop(next);
             let position = core.page_index();
-            render_reader_sources(core, vec![(position, source)], viewport,
-                overview_size, cancelled, profile)
+            let raw = render_reader_sources(core, vec![(position, source)], viewport,
+                overview_size, cancelled, profile.as_deref_mut())?;
+            prepare_raw_outcome(raw, cancelled, profile)
         }
         None => {
             if let Some(trace) = trace { trace.mark("prepared_frame_source_missing"); }
@@ -2928,16 +3166,75 @@ fn reuse_next_frame(core: &mut ReaderCore, next: NextFrame, files: &ReaderFiles,
     }
 }
 
+fn raw_raster(rendered: RenderedPage) -> RawRaster {
+    RawRaster { rgba: rendered.rgba, width: rendered.width, height: rendered.height }
+}
+
+fn prepare_raster(raw: RawRaster, cancelled: &AtomicBool) -> Result<Option<Raster>> {
+    let Some(pixels) = PreparedPixels::from_rgba_owned(raw.rgba, raw.width, raw.height,
+        || cancelled.load(Ordering::Acquire))? else { return Ok(None); };
+    Ok(Some(Raster { width: pixels.width(), height: pixels.height(), pixels }))
+}
+
+fn prepare_raw_frame(raw: RawFrame, cancelled: &AtomicBool) -> Result<Option<PreparedFrame>> {
+    let RawFrame { page, second, overview, metadata, dark_fraction } = raw;
+    let mut prepared: [Option<Raster>; 3] = [None, None, None];
+    for (destination, source) in prepared.iter_mut().zip([Some(page), second, overview]) {
+        if let Some(raw) = source {
+            let Some(raster) = prepare_raster(raw, cancelled)? else { return Ok(None); };
+            *destination = Some(raster);
+        }
+    }
+    if cancelled.load(Ordering::Acquire) { return Ok(None); }
+    let [page, second, overview] = prepared;
+    Ok(Some(PreparedFrame { page: page.context("A prepared frame needs its primary raster")?,
+        second, overview, metadata, dark_fraction }))
+}
+
+fn prepare_raw_outcome(raw: RawOutcome, cancelled: &AtomicBool,
+    mut profile: Option<&mut crate::reader::ReaderPreparationProfile>) -> Result<PreparedOutcome>
+{
+    let frame = match raw {
+        RawOutcome::Ready(frame) => frame,
+        RawOutcome::Missing(pages) => return Ok(PreparedOutcome::Missing(pages)),
+        RawOutcome::Cancelled => return Ok(PreparedOutcome::Cancelled),
+    };
+    let started = profile.as_ref().map(|_| Span::start());
+    let result = prepare_raw_frame(frame, cancelled);
+    if let (Some(profile), Some(started)) = (profile.as_deref_mut(), started) {
+        profile.stages.entry("worker_pixel_prepare").or_default()
+            .record(started.finish(), matches!(&result, Ok(Some(_))));
+    }
+    Ok(match result? { Some(frame) => PreparedOutcome::Ready(frame), None => PreparedOutcome::Cancelled })
+}
+
+fn record_pixel_prepare(trace: Operation, profile: Option<&crate::reader::ReaderPreparationProfile>, frame: Option<&PreparedFrame>) {
+    let stage = profile.and_then(|profile| profile.stages.get("worker_pixel_prepare"));
+    let pixel_bytes = frame.map_or(0, PreparedFrame::pixel_bytes);
+    trace.record("worker_pixel_prepare", &serde_json::json!({
+        "attempted": stage.is_some(), "stage": stage,
+        "completed_copy_bytes": if stage.is_some_and(|stage| stage.completed > 0) { pixel_bytes } else { 0 },
+        "retained_pixel_bytes": pixel_bytes, "format": "shared_rgba8",
+        "ready_frame_reused": frame.is_some() && stage.is_none(),
+    }));
+}
+
+#[cfg(test)]
 fn rendered_raster(rendered: RenderedPage) -> Raster {
-    Raster { rgba: rendered.rgba, width: rendered.width, height: rendered.height }
+    prepare_raster(raw_raster(rendered), &AtomicBool::new(false)).unwrap().unwrap()
+}
+
+#[cfg(test)]
+fn rgba_raster(rgba: Vec<u8>, width: u32, height: u32) -> Raster {
+    prepare_raster(RawRaster { rgba, width, height }, &AtomicBool::new(false)).unwrap().unwrap()
 }
 
 fn raster_image(raster: Raster) -> slint::Image {
-    raster_image_ref(&raster)
+    raster.pixels.into_image()
 }
 
 fn raster_image_ref(raster: &Raster) -> slint::Image {
-    slint::Image::from_rgba8(SharedPixelBuffer::<Rgba8Pixel>::clone_from_slice(&raster.rgba, raster.width, raster.height))
+    raster.pixels.image()
 }
 
 #[cfg(test)]
@@ -2967,6 +3264,10 @@ mod media_acceleration_tests;
 #[cfg(test)]
 #[path = "fast_reader_tests.rs"]
 mod fast_reader_tests;
+
+#[cfg(test)]
+#[path = "spatial_dither_tests.rs"]
+mod spatial_dither_tests;
 
 #[cfg(test)]
 #[path = "reader_directory_tests.rs"]

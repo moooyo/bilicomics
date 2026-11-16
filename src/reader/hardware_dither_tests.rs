@@ -16,7 +16,8 @@ fn hardware_handoff_preserves_every_gray8_value_in_both_canvas_paths() {
     let viewport = Viewport::new(256, 8);
     let expected = source.as_raw().iter().flat_map(|&gray| [gray, gray, gray, 255]).collect::<Vec<_>>();
     let mut core = ReaderCore::new(index(256, 8), ReaderSettings {
-        hardware_dither: true, landscape_spread: false, ..Default::default()
+        // The raw Gray8 handoff is an explicit research-only configuration.
+        spatial_dither: None, hardware_dither: true, landscape_spread: false, ..Default::default()
     }).unwrap();
     let frame = core.render_source(&source, viewport).unwrap();
     assert_eq!(frame.rgba, expected);
@@ -51,7 +52,7 @@ fn switching_the_output_path_preserves_the_active_page_crop_rotation_and_zoom() 
     let viewport = Viewport::new(128, 160);
     let mut core = ReaderCore::new(index(160, 240), ReaderSettings {
         fit: FitMode::Width, rotation: 90, zoom_ratio: 1.5,
-        landscape_spread: false, ..Default::default()
+        spatial_dither: None, landscape_spread: false, ..Default::default()
     }).unwrap();
     core.set_page(1).unwrap();
     let before = core.render_source(&source, viewport).unwrap();
@@ -78,7 +79,7 @@ fn cancelling_raw_canvas_work_never_publishes_a_partial_frame() {
     };
     let cancellation = RenderCancellation::with_probe(&cancelled, &probe);
     let mut core = ReaderCore::new(index(361, 517), ReaderSettings {
-        hardware_dither: true, landscape_spread: false, ..Default::default()
+        spatial_dither: None, hardware_dither: true, landscape_spread: false, ..Default::default()
     }).unwrap();
     let mut profile = ReaderPreparationProfile::default();
     let result = core.render_source_identity_cancellable(&source, Viewport::new(400, 600),

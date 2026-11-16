@@ -305,6 +305,13 @@ impl App {
         } else {
             "refresh_mode_normal_note"
         }).into());
+        account.set_dither(self.preferences.dither);
+        account.set_dither_method(normalized_dither_method(&self.preferences.dither_method).into());
+        let algorithm = selected_spatial_dither(self.preferences.dither, &self.preferences.dither_method);
+        let note = if fast_refresh {
+            format!("{} {}", i18n::text("spatial_dither_fast_saved_note"), spatial_dither_note(algorithm))
+        } else { spatial_dither_note(algorithm) };
+        account.set_dither_note(note.into());
         account.set_landscape(self.preferences.landscape.clone().into());
         let media_availability = crate::native_media::availability();
         account.set_jpeg_acceleration(self.preferences.jpeg_acceleration);
@@ -394,6 +401,12 @@ impl App {
             "refresh-mode" if ["normal", "fast"].contains(&value) => {
                 self.preferences.refresh_mode = value.into();
                 self.reader_refresh_mode_changed()?;
+            }
+            "dither-method" if ["off", "bayer8", "floyd_steinberg"].contains(&value) => {
+                if value != "off" { self.preferences.dither_method = value.into(); }
+                else { self.preferences.dither_method = normalized_dither_method(&self.preferences.dither_method).into(); }
+                self.preferences.dither = value != "off";
+                self.reader_dither_preferences_changed()?;
             }
             "landscape" if ["spread", "single"].contains(&value) => self.preferences.landscape = value.into(),
             "jpeg-acceleration" if ["on", "off"].contains(&value) => {
@@ -2147,7 +2160,7 @@ mod tests {
             app.options.offline = true;
             app.demo = Some(demo.clone());
             let expected = Preferences { every: "6".into(), refresh_mode: "fast".into(),
-                dither: false, dither_method: "hardware".into(), ..Default::default() };
+                dither: false, dither_method: "floyd_steinberg".into(), ..Default::default() };
             if saved {
                 app.store.set_preference(&app.account, "preferences", &expected)?;
                 app.preferences = app.store.preference(&app.account, "preferences")?

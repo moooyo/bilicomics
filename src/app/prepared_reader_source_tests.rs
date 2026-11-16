@@ -89,7 +89,7 @@ fn ready(outcome: PreparedOutcome) -> Result<PreparedFrame> {
 
 fn assert_raster(actual: &Raster, expected: &Raster) {
     assert_eq!((actual.width, actual.height), (expected.width, expected.height));
-    assert_eq!(actual.rgba, expected.rgba);
+    assert_eq!(actual.pixels.as_bytes(), expected.pixels.as_bytes());
 }
 
 fn assert_optional_raster(actual: &Option<Raster>, expected: &Option<Raster>) {
@@ -128,11 +128,32 @@ fn assert_single_stage(profile: &ReaderPreparationProfile, stage: &str) {
 }
 
 #[test]
+fn ordinary_and_predicted_workers_finalize_shared_pixels_before_delivery() -> Result<()> {
+    let fixture = DemoFixture::new()?;
+    let inputs = inputs(&fixture.index, &fixture.files, settings(0, 1.0, true))?;
+    let mut ordinary = inputs.target.clone();
+    let mut ordinary_profile = ReaderPreparationProfile::default();
+    let expected = ready(prepare_reader_frame_profiled(&mut ordinary, &fixture.files,
+        viewport(), (7, 9), &AtomicBool::new(false), Some(&mut ordinary_profile))?)?;
+    assert_single_stage(&ordinary_profile, "worker_pixel_prepare");
+    assert_eq!(expected.pixel_bytes(), u64::from(viewport().width) * u64::from(viewport().height) * 4);
+
+    let mut prediction_profile = ReaderPreparationProfile::default();
+    let next = prepare_next_frame(inputs.target, inputs.key, &fixture.files,
+        &AtomicBool::new(false), Some(&mut prediction_profile))?
+        .context("The complete local source must prepare a shared frame")?;
+    assert_single_stage(&prediction_profile, "worker_pixel_prepare");
+    assert_frame(&next.frame, &expected);
+    assert_core(&next.core, &ordinary);
+    Ok(())
+}
+
+#[test]
 fn a_prepared_frame_hit_hashes_current_bytes_without_resizing_or_copying_its_raster() -> Result<()> {
     let fixture = DemoFixture::new()?;
     let inputs = inputs(&fixture.index, &fixture.files, settings(0, 1.0, true))?;
     let next = candidate(&inputs, &fixture.files)?;
-    let pixels = next.frame.page.rgba.as_ptr();
+    let pixels = next.frame.page.pixels.as_bytes().as_ptr();
     let origin = inputs.origin.anchor(0);
     let mut ordinary = inputs.target.clone();
     let expected = ready(prepare_reader_frame(&mut ordinary, &fixture.files, viewport(), (7, 9),
@@ -149,7 +170,8 @@ fn a_prepared_frame_hit_hashes_current_bytes_without_resizing_or_copying_its_ras
     assert_single_stage(&profile, "source_read");
     assert_single_stage(&profile, "source_hash");
     assert!(!profile.stages.contains_key("resize"));
-    assert_eq!(frame.page.rgba.as_ptr(), pixels);
+    assert!(!profile.stages.contains_key("worker_pixel_prepare"));
+    assert_eq!(frame.page.pixels.as_bytes().as_ptr(), pixels);
     assert_frame(&frame, &expected);
     assert_core(&actual, &ordinary);
     assert_eq!(inputs.origin.anchor(0), origin);
@@ -161,7 +183,7 @@ fn changed_local_pixels_fall_back_once_and_match_the_complete_ordinary_result() 
     let fixture = DemoFixture::new()?;
     let inputs = inputs(&fixture.index, &fixture.files, settings(180, 1.5, true))?;
     let next = candidate(&inputs, &fixture.files)?;
-    let previous = next.frame.page.rgba.clone();
+    let previous = next.frame.page.pixels.as_bytes().to_vec();
     fs::write(&fixture.paths[1], encoded_image(201)?)?;
     let mut actual = inputs.target.clone();
     let mut profile = ReaderPreparationProfile::default();
@@ -175,7 +197,8 @@ fn changed_local_pixels_fall_back_once_and_match_the_complete_ordinary_result() 
     assert_single_stage(&profile, "source_read");
     assert_single_stage(&profile, "source_hash");
     assert_single_stage(&profile, "resize");
-    assert_ne!(frame.page.rgba, previous);
+    assert_single_stage(&profile, "worker_pixel_prepare");
+    assert_ne!(frame.page.pixels.as_bytes(), previous.as_slice());
     let mut ordinary = inputs.target.clone();
     let expected = ready(prepare_reader_frame(&mut ordinary, &fixture.files, viewport(), (7, 9),
         &AtomicBool::new(false))?)?;

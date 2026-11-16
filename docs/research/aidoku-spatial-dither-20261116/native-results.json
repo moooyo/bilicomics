@@ -1,0 +1,244 @@
+{
+  "scope": "Physical Scribe application snapshots and accepted native refresh requests. No optical or new post-MDP measurement.",
+  "reader": [
+    {
+      "case": "reader-bayer8",
+      "method": "bayer8",
+      "changed_pixels": 0,
+      "width": 1860,
+      "height": 2480,
+      "raw_sha256": "efce4a7a5869c77dddce34bd7d7d086567d4685135e99803869b056a0f43e741",
+      "y4_requested": false,
+      "y4_effective": false,
+      "hardware_y4_available": true,
+      "next_frame_hits": 1
+    },
+    {
+      "case": "reader-floyd",
+      "method": "floyd_steinberg",
+      "changed_pixels": 0,
+      "width": 1860,
+      "height": 2480,
+      "raw_sha256": "13f26d2b7ec7af42c17a686359e9782d7ddb032d5c9d522e1c3ba53b4b419ea8",
+      "y4_requested": false,
+      "y4_effective": false,
+      "hardware_y4_available": true,
+      "next_frame_hits": 1
+    },
+    {
+      "case": "reader-off",
+      "method": "off",
+      "changed_pixels": 0,
+      "width": 1860,
+      "height": 2480,
+      "raw_sha256": "e6edf52b38cdb845328ad582c65a16c0f29f7bfdd35b37825bf3506cb0e0fa27",
+      "y4_requested": false,
+      "y4_effective": false,
+      "hardware_y4_available": true,
+      "next_frame_hits": 1
+    },
+    {
+      "case": "reader-floyd-cold",
+      "method": "floyd_steinberg",
+      "changed_pixels": 0,
+      "width": 1860,
+      "height": 2480,
+      "raw_sha256": "13f26d2b7ec7af42c17a686359e9782d7ddb032d5c9d522e1c3ba53b4b419ea8",
+      "y4_requested": false,
+      "y4_effective": false,
+      "hardware_y4_available": true,
+      "next_frame_hits": 0
+    }
+  ],
+  "settings": [
+    {
+      "case": "settings-bayer8",
+      "enabled": true,
+      "saved_method": "bayer8",
+      "passed": true
+    },
+    {
+      "case": "settings-floyd",
+      "enabled": true,
+      "saved_method": "floyd_steinberg",
+      "passed": true
+    },
+    {
+      "case": "settings-off",
+      "enabled": false,
+      "saved_method": "floyd_steinberg",
+      "passed": true
+    },
+    {
+      "case": "settings-off-restart",
+      "enabled": false,
+      "saved_method": "floyd_steinberg",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "selected_button_changed_pixels": 0,
+  "button_traces": {
+    "button-held": [
+      {
+        "marker": 9,
+        "waveform": 257,
+        "mode": 0,
+        "flags": "0x0",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      },
+      {
+        "marker": 10,
+        "waveform": 257,
+        "mode": 0,
+        "flags": "0x0",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      }
+    ],
+    "button-released": [
+      {
+        "marker": 9,
+        "waveform": 257,
+        "mode": 0,
+        "flags": "0x0",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      },
+      {
+        "marker": 10,
+        "waveform": 257,
+        "mode": 0,
+        "flags": "0x0",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      }
+    ],
+    "settings-floyd": [
+      {
+        "marker": 9,
+        "waveform": 257,
+        "mode": 0,
+        "flags": "0x0",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      },
+      {
+        "marker": 10,
+        "waveform": 257,
+        "mode": 0,
+        "flags": "0x0",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      },
+      {
+        "marker": 11,
+        "waveform": 257,
+        "mode": 0,
+        "flags": "0x0",
+        "region": "720,1226,1060,112",
+        "swipe": "0,0"
+      },
+      {
+        "marker": 12,
+        "waveform": 257,
+        "mode": 0,
+        "flags": "0x0",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      }
+    ]
+  },
+  "fast": {
+    "final_page": 8,
+    "saved_refresh_interval": 1,
+    "page_updates": [
+      {
+        "marker": 20,
+        "waveform": 1,
+        "mode": 0,
+        "flags": "0x2",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      },
+      {
+        "marker": 21,
+        "waveform": 1,
+        "mode": 0,
+        "flags": "0x2",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      },
+      {
+        "marker": 22,
+        "waveform": 1,
+        "mode": 0,
+        "flags": "0x2",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      },
+      {
+        "marker": 23,
+        "waveform": 1,
+        "mode": 0,
+        "flags": "0x2",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      },
+      {
+        "marker": 24,
+        "waveform": 1,
+        "mode": 0,
+        "flags": "0x2",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      },
+      {
+        "marker": 25,
+        "waveform": 1,
+        "mode": 0,
+        "flags": "0x2",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      },
+      {
+        "marker": 26,
+        "waveform": 1,
+        "mode": 0,
+        "flags": "0x2",
+        "region": "0,0,1860,2480",
+        "swipe": "0,0"
+      }
+    ],
+    "automatic_updates_after_last_turn": 0,
+    "scheduled_idle_after_last_input_ms": 9200,
+    "next_frame_hits": 7
+  },
+  "settings_preview": [
+    {
+      "case": "settings-bayer8",
+      "changed_pixels": 0,
+      "width": 1056,
+      "height": 108
+    },
+    {
+      "case": "settings-floyd",
+      "changed_pixels": 0,
+      "width": 1056,
+      "height": 108
+    },
+    {
+      "case": "settings-off",
+      "changed_pixels": 0,
+      "width": 1056,
+      "height": 108
+    },
+    {
+      "case": "settings-off-restart",
+      "changed_pixels": 0,
+      "width": 1056,
+      "height": 108
+    }
+  ]
+}

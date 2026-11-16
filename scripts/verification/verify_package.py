@@ -52,9 +52,15 @@ ALLOWED_FILES = {
     "notices/aidoku-native-media/LICENSE-GPL-3.0-or-later",
     "notices/aidoku-native-media/README.md",
     "notices/aidoku-native-media/UPSTREAM_FILES.json",
+    "notices/spatial-dither/LICENSE.AIDOKU",
+    "notices/spatial-dither/README.md",
+    "notices/spatial-dither/UPSTREAM_FILES.json",
 }
 EXECUTABLE_FILES = {"bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker", "bilicomics/launch.sh"}
 FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
+SPATIAL_DITHER_NOTICES = ("LICENSE.AIDOKU", "README.md", "UPSTREAM_FILES.json")
+SPATIAL_DITHER_PREFIX = "notices/spatial-dither/"
+SPATIAL_DITHER_REFERENCE = "docs/research/aidoku-spatial-dither-20261116"
 
 
 def sha256(path):
@@ -72,6 +78,30 @@ def require(condition, message):
 
 def record(report, name, **details):
     report["checks"].append({"name": name, "status": "passed", **details})
+
+
+def check_spatial_dither_notices(archive, app_root, report):
+    """Retain frozen license/provenance bytes without distributing research assets."""
+    expected = {SPATIAL_DITHER_PREFIX + name for name in SPATIAL_DITHER_NOTICES}
+    actual = {name for name in archive.namelist() if name.startswith(SPATIAL_DITHER_PREFIX)}
+    require(actual == expected, "The spatial-dither notice group is incomplete or contains research inputs")
+    reference = app_root / SPATIAL_DITHER_REFERENCE
+    contents = {}
+    for name in SPATIAL_DITHER_NOTICES:
+        content = archive.read(SPATIAL_DITHER_PREFIX + name)
+        require(content == (reference / name).read_bytes(),
+                f"A retained spatial-dither notice differs from the frozen source: {name}")
+        contents[name] = content
+    upstream = json.loads(contents["UPSTREAM_FILES.json"])
+    licenses = [item for item in upstream.get("files", []) if item.get("path") == "LICENSE.AIDOKU"]
+    require(len(licenses) == 1 and licenses[0].get("bytes") == len(contents["LICENSE.AIDOKU"])
+            and licenses[0].get("sha256") == hashlib.sha256(contents["LICENSE.AIDOKU"]).hexdigest(),
+            "The spatial-dither license differs from its retained source manifest")
+    record(report, "spatial_dither_notice_provenance", retained_files=list(SPATIAL_DITHER_NOTICES),
+           source_repository=upstream.get("source_repository"),
+           source_snapshot_sha256=upstream.get("source_snapshot_sha256"),
+           reference_images_bundled=False,
+           scope="Original source/license provenance only; reference-project verification is separate")
 
 
 def check_package(args, report):
@@ -153,6 +183,7 @@ def check_package(args, report):
                 and hashlib.sha256(embedded_worker).hexdigest() == worker_digest,
                 "The packaged JPEG worker differs from the selected ARM binary")
         record(report, "packaged_jpeg_worker_matches_selected_binary")
+        check_spatial_dither_notices(archive, app_root, report)
         accepted = [line for line in archive.read("bilicomics/data/device-allowlist").decode("utf-8").splitlines()
                     if line.strip() and not line.lstrip().startswith("#")]
         require(not accepted, "The development archive unexpectedly accepts a device/firmware combination")

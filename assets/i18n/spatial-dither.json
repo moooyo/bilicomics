@@ -1,0 +1,10 @@
+{
+  "spatial_dither_off": "关闭",
+  "spatial_dither_bayer8": "8×8 Bayer",
+  "spatial_dither_floyd": "高精度\nFloyd–Steinberg",
+  "spatial_dither_off_note": "关闭空间抖动，直接量化为 16 级灰阶。",
+  "spatial_dither_bayer8_note": "8×8 Bayer：规则纹理，图像准备开销较低。",
+  "spatial_dither_floyd_note": "高精度 Floyd–Steinberg：误差扩散，灰阶分布更细腻；图像准备更耗 CPU。",
+  "spatial_dither_fast_saved_note": "快速模式保持黑白显示；此处选择会保存，回到常规时生效。",
+  "spatial_dither_pending_note": "正在应用抖动设置，当前画面会保留到新图像准备完成。"
+}

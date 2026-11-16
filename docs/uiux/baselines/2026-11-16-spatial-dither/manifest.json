@@ -1,0 +1,327 @@
+{
+  "baseline_id": "2026-11-16-spatial-dither",
+  "capture_count": 28,
+  "self_checksum_excluded": true,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 6203,
+      "sha256": "297c863d9dbf39ae4c7bd7f85cda9c0b28c134ae5cab0c513e72e2afd800dc48"
+    },
+    {
+      "path": "capture-report.json",
+      "bytes": 1654478,
+      "sha256": "09ba9dc99194143a90c098daa0534fe51d090219d0bcc129b3564bde4ef128fe"
+    },
+    {
+      "path": "capture-run.json",
+      "bytes": 1668,
+      "sha256": "cc686b01da2105e9ec6ac8f438233fc7094b78a37f458b84ebe67b487643ccbe"
+    },
+    {
+      "path": "fast-regression-report.json",
+      "bytes": 1107699,
+      "sha256": "f56fb17115f18d131b8fb9f1ca2da530054f7c15c68b4d79f6fc17021e616fc1"
+    },
+    {
+      "path": "fast-regression-run.json",
+      "bytes": 1649,
+      "sha256": "cb08bb4b4b2893b6423d3846fe7602be59f9d976934f1745891e18616361dfec"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-bayer8-landscape.json",
+      "bytes": 4019,
+      "sha256": "dea6bb2bf07dc3a78d9b1141b94c36a11243faf32ea68e8a6c256309126b4241"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-bayer8-landscape.png",
+      "bytes": 92427,
+      "sha256": "915b200cd9b15fb57fae887943cefd99b6cd9af787e0e6d1a33c99612fb032e6"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-bayer8-portrait.json",
+      "bytes": 4015,
+      "sha256": "dbe0969682efbf0d39aa2e179f23c4ca99e7c635e7a1b672c0c8fbdb519976e8"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-bayer8-portrait.png",
+      "bytes": 136630,
+      "sha256": "ac0494287da58041ddd74c01e199936796dd4cdb2bba032a494e69ab1178a62e"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-floyd-steinberg-landscape.json",
+      "bytes": 4085,
+      "sha256": "f2284105670d9cdddc88ffc23ab3bda200085d72e6900d1b951a3e18bcaf0a50"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-floyd-steinberg-landscape.png",
+      "bytes": 97296,
+      "sha256": "6f2660530673da5cb1652b0b4ae5a7aaaa4d14a11b43a1368aabff41e380e651"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-floyd-steinberg-portrait.json",
+      "bytes": 4082,
+      "sha256": "886cc94483bc9d2d3c3485b6dce315aa87c72e938c56bfdd68d76348b1fe1489"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-floyd-steinberg-portrait.png",
+      "bytes": 141494,
+      "sha256": "dca55dc2a34903b7d6ef51e24ae0e9a014f18b0a303442b01ec0e73ce7552345"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-off-landscape.json",
+      "bytes": 4010,
+      "sha256": "fc804770722d320c9bada508d62da80c69ea13d49058e78e4395a8b8e28ba301"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-off-landscape.png",
+      "bytes": 90935,
+      "sha256": "d65a94c3db93ceeb8a8bbae69e67528bc38bc5997523ed421f834127bb9fdf09"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-off-portrait.json",
+      "bytes": 4007,
+      "sha256": "ee8edd1759708d3928674a3cb57ada3c80e9f5d44f84a5094f8d0979d4fe35f8"
+    },
+    {
+      "path": "raw/pw6/10-account-cpu-off-portrait.png",
+      "bytes": 135203,
+      "sha256": "5c458f270c286a0597a0c7449ae9fc80e0d04bc1d426dc458c739e17daec45f9"
+    },
+    {
+      "path": "raw/pw6/14-reader-fast-portrait.json",
+      "bytes": 8469,
+      "sha256": "4510a6014db83beb3101518ac4ba7370fe7230e6c56bdcaf0cd0953e7cf21b43"
+    },
+    {
+      "path": "raw/pw6/14-reader-fast-portrait.png",
+      "bytes": 64634,
+      "sha256": "0530e0dcea183b648c54f5f69e6abe3079b71b9544f24022fd0e1b3a7b0a27a8"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-bayer8-landscape.json",
+      "bytes": 8369,
+      "sha256": "91573b6b0f73178b47cb16eba24a8956565223886a07e46e931d5d2c6a458f7e"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-bayer8-landscape.png",
+      "bytes": 141799,
+      "sha256": "83c2a9031fd21dfffce8501c01065c2e7943ff734a143418369d67af9f76ffbd"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-bayer8-portrait.json",
+      "bytes": 8373,
+      "sha256": "99aa11faa1a601d5978ba1d0f3ecea5df407162e872f4c7ddceb7ef028be924d"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-bayer8-portrait.png",
+      "bytes": 139668,
+      "sha256": "320336aaa54efef6e3b6fb94c30fe4fca15f760c18fe19b77d252f9bef98ad6f"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-floyd-steinberg-landscape.json",
+      "bytes": 8486,
+      "sha256": "098fb9ee67d7d8e8f8a58b2b6b596581a4d7c7b1d359cef72449bbd0771570cf"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-floyd-steinberg-landscape.png",
+      "bytes": 147502,
+      "sha256": "31cdad06001fa1d7ea0fe4a6f286c25afbf2f294a7738e43e141d857e54bb229"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-floyd-steinberg-portrait.json",
+      "bytes": 8478,
+      "sha256": "01c9a9728bc8007fe2e53771e37e73cc31f74a27ab8899448aec86440a443c70"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-floyd-steinberg-portrait.png",
+      "bytes": 145626,
+      "sha256": "45fdd87be8909bd5121049485df6a090d8189bd0524cfed29bc164c0789606e8"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-off-landscape.json",
+      "bytes": 8341,
+      "sha256": "62db1b15c091508070e511917059bf7ba0179065b9f0707b404df874804dc1a7"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-off-landscape.png",
+      "bytes": 139203,
+      "sha256": "395180ee53142733328bb65420d87dff882990e3b1c227dd96ade886efe074bc"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-off-portrait.json",
+      "bytes": 8346,
+      "sha256": "2d9cc6c5b757cf178a135ae39aaac078bd395e17d6e2dcbf226259181205ddf2"
+    },
+    {
+      "path": "raw/pw6/20-reader-cpu-off-portrait.png",
+      "bytes": 136851,
+      "sha256": "716324ecd77ca953d3c6d5ac9e48c459f44a71e7a0119447bf795e6eeadc29f9"
+    },
+    {
+      "path": "raw/pw6/25-reader-fast-landscape.json",
+      "bytes": 8471,
+      "sha256": "6dc6f4e1f812d97459312c7378e10a928b2757841935b3eeb1801151a7d61f5c"
+    },
+    {
+      "path": "raw/pw6/25-reader-fast-landscape.png",
+      "bytes": 59598,
+      "sha256": "12bb6dc4f1d5c5a7f0f95f0c59848059b5aab2a4e065493912499321545af381"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-bayer8-landscape.json",
+      "bytes": 4026,
+      "sha256": "ed53bbe746f84237a18056fdc025950118e13b61bbe6a71796c82695983b4472"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-bayer8-landscape.png",
+      "bytes": 146830,
+      "sha256": "a169434c19d4465fe0eb1da4eda557d429a132013beb99166ee21b5f16443bd5"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-bayer8-portrait.json",
+      "bytes": 4021,
+      "sha256": "17fcd8db651b930227f56012ff80004bef2da0c82f7c5354d3995d56b00decc0"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-bayer8-portrait.png",
+      "bytes": 206865,
+      "sha256": "deac91a5718958b2fc58d3a57b91ccd3960a104b9ffd0c37b92dad25072def9e"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-floyd-steinberg-landscape.json",
+      "bytes": 4097,
+      "sha256": "ebd6ff3155e03ea4d5f1b984d101c25e47ed78a47ae11df19e652ab70bbd95a9"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-floyd-steinberg-landscape.png",
+      "bytes": 152854,
+      "sha256": "6b03be0977bb2c99b706f3086127baa5e6d586ba24ae60317e795679ea63e79d"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-floyd-steinberg-portrait.json",
+      "bytes": 4089,
+      "sha256": "4e185872795f7b9dbb177a2d66d6068871edca7462e9859be3df3585a5f7faac"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-floyd-steinberg-portrait.png",
+      "bytes": 212827,
+      "sha256": "a5bdfc73affb6a0ab9513a5028dc9821a60aa7faa948bbd39f1a9417b4294a7f"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-off-landscape.json",
+      "bytes": 4024,
+      "sha256": "8478766f85f859abea63c725830baf739ec9f911b89d48a1a0077a1de8c557ef"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-off-landscape.png",
+      "bytes": 145598,
+      "sha256": "6962a42e27285d72f80b8ee303db324227808fcf81b9edb42e8050bc0f139ed7"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-off-portrait.json",
+      "bytes": 4020,
+      "sha256": "c5c65466adf6274523a6b38b9e6e2be3d98dc8f423007c0a9ed1c7e48e604326"
+    },
+    {
+      "path": "raw/scribe/10-account-cpu-off-portrait.png",
+      "bytes": 205701,
+      "sha256": "b9ba3da89b530bdaa9f0c4286a085551a630ae55caa8c32b41908915e8d33346"
+    },
+    {
+      "path": "raw/scribe/14-reader-fast-portrait.json",
+      "bytes": 8489,
+      "sha256": "fabe17187a3e752075aa515c1581f5c25c6cf0cc19caf19d8f1bcee1ccba1027"
+    },
+    {
+      "path": "raw/scribe/14-reader-fast-portrait.png",
+      "bytes": 117739,
+      "sha256": "0c62ea54e1cf84aba057f4f152d07336c5077e9c6af169e745248bf08747e2c9"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-bayer8-landscape.json",
+      "bytes": 8384,
+      "sha256": "b361a281ff50af69da6609f9a85ff2ca14eb4fcf7e17a6ecb903bf31efef8e5f"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-bayer8-landscape.png",
+      "bytes": 195987,
+      "sha256": "5668a76d814cff101e9ce19acc702dfae8d6f25eaf7cab3ebe4a987e53076fcc"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-bayer8-portrait.json",
+      "bytes": 8380,
+      "sha256": "e026a1ed159be16746568df1bd3d781fabf875749892e77992214296089891ea"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-bayer8-portrait.png",
+      "bytes": 185195,
+      "sha256": "212fa2a80ca2736b53b0f03815c69f28ee767cb3b8618ea944921185e9726b1a"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-floyd-steinberg-landscape.json",
+      "bytes": 8501,
+      "sha256": "fa2d2f2d1efb3996f35703b1b0724100fb315606ff3b50470cb049444a926e3f"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-floyd-steinberg-landscape.png",
+      "bytes": 206078,
+      "sha256": "5e6c0ebc6319b20e5dd15ea19743fa85a06384426ed14baaa2de563dc06e26a4"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-floyd-steinberg-portrait.json",
+      "bytes": 8485,
+      "sha256": "4e7a8b4e5dd5ecaf3766a1fb721e4fb8c57e5e3762f49780bae1039db24d4961"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-floyd-steinberg-portrait.png",
+      "bytes": 196003,
+      "sha256": "fa18b954fc8b38992dff558d112a69cf1c3146c879a90586e8b817d3ad633443"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-off-landscape.json",
+      "bytes": 8357,
+      "sha256": "1f602fd43bae151171c91540a61c00a6456fc3e573dc81f3706a28330be90895"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-off-landscape.png",
+      "bytes": 191111,
+      "sha256": "6497a9bf4e11c8be8d32975a0f7b2ec7dcac0e83bd77d8d87feae56a401f0be2"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-off-portrait.json",
+      "bytes": 8346,
+      "sha256": "d51cf2f7c471a77f9bcca9a76120b92d3020160702db202df33745bc83a576f5"
+    },
+    {
+      "path": "raw/scribe/20-reader-cpu-off-portrait.png",
+      "bytes": 181844,
+      "sha256": "32c05d2e20ca8b6b1585b42a5552070ca8296a1db5f897bc69a3e95757de6bac"
+    },
+    {
+      "path": "raw/scribe/25-reader-fast-landscape.json",
+      "bytes": 8490,
+      "sha256": "ca98c7d392b32ca9536ea18c15f8ae87e84e299590a48f5d4c11840970fbe60f"
+    },
+    {
+      "path": "raw/scribe/25-reader-fast-landscape.png",
+      "bytes": 142219,
+      "sha256": "8e997d7f0f6034daeebd7c07e53d231e2de0e1d5e7d6cc5a34aa1e51051f1a23"
+    },
+    {
+      "path": "source-inputs.sha256",
+      "bytes": 57735,
+      "sha256": "eec20168873c42ef11a8c220e923795b3d74d9ba465730e9fd7a9cfaf8f67c8e"
+    },
+    {
+      "path": "verification.json",
+      "bytes": 4547,
+      "sha256": "a3f580ef6301334da280a78830fc312dddd2d2098a2f1c7d1da149094a0726b4"
+    },
+    {
+      "path": "visual-equivalence.json",
+      "bytes": 23568,
+      "sha256": "30d289e94fc2e4d0d02a4b3d869495127f9fa9dd0055dafe2ff676a045a262e6"
+    }
+  ]
+}

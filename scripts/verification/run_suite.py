@@ -24,7 +24,8 @@ import uuid
 
 
 PHASES = ("core", "defaults", "pointer", "reader", "guest", "startup", "lifecycle", "launcher", "package")
-SOURCE_TREES = ("assets", "src", "ui", "vendor", "tests")
+SOURCE_TREES = ("assets", "src", "ui", "vendor", "tests",
+                "docs/research/aidoku-spatial-dither-20261116")
 ROOT_INPUTS = ("Cargo.toml", "Cargo.lock", "build.rs", ".cargo/config.toml",
                "scripts/native-codec-probe.c", "scripts/native-codec-bench.h")
 PIPELINE_TREES = ("scripts", "packaging")

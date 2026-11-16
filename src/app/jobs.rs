@@ -192,6 +192,12 @@ impl JobMailbox {
             _durable_lease: None, published: false }, delivery)))
     }
 
+    /// Observe the optional result lane without acquiring or queueing a slot.
+    pub(super) fn speculative_delivery_available(&self) -> bool {
+        !self.inner.speculative_delivery.is_closed()
+            && self.inner.speculative_delivery.available_permits() > 0
+    }
+
     /// Retire the latest key before handing its result to the UI.
     /// The delivery slot stays inside the returned callback until apply or drop.
     pub(super) fn take(&self) -> Option<JobEvent> {

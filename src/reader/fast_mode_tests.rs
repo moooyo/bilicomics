@@ -82,7 +82,8 @@ fn fast_defaults_off_and_suppresses_hardware_without_overwriting_saved_choices()
     assert!(!legacy.dither && legacy.hardware_dither);
     for dither in [false, true] {
         for hardware_dither in [false, true] {
-            let normal = ReaderSettings { dither, hardware_dither, ..Default::default() };
+            // Raw Y4 compatibility is retained only through the explicit None path.
+            let normal = ReaderSettings { spatial_dither: None, dither, hardware_dither, ..Default::default() };
             let fast = ReaderSettings { fast_mode: true, ..normal.clone() };
             assert_eq!(normal.uses_hardware_dither(), dither && hardware_dither);
             assert!(!fast.uses_hardware_dither());

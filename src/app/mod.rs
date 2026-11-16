@@ -9,6 +9,9 @@ mod lifecycle_maintenance;
 mod reading;
 mod reader_checkpoint;
 mod sleep_screen;
+
+#[cfg(test)]
+mod perf05_benchmark;
 mod startup;
 mod views;
 #[cfg(test)]
@@ -71,6 +74,7 @@ pub(super) struct Preferences {
     pub landscape: String,
     pub cover_alone: bool,
     pub dither: bool,
+    #[serde(deserialize_with = "deserialize_dither_method")]
     pub dither_method: String,
     pub jpeg_acceleration: bool,
     pub footer: bool,
@@ -93,13 +97,41 @@ impl Default for Preferences {
         Self {
             mode: "page".into(), fit: "page".into(), direction: "ltr".into(),
             every: "smart".into(), refresh_mode: "normal".into(), landscape: "spread".into(), cover_alone: true,
-            dither: true, dither_method: "software".into(), jpeg_acceleration: false,
+            dither: true, dither_method: "bayer8".into(), jpeg_acceleration: false,
             footer: true, smart: true, ahead: 2, concurrency: 2,
             preload: 3, wifi: "auto".into(), cache_limit: 512, launch: "resume".into(),
             sleep_cover: true, flashui: true, orientation: "auto".into(),
             onboarded: false, reader_guidance_seen: false,
         }
     }
+}
+
+fn normalized_dither_method(method: &str) -> &'static str {
+    match method {
+        "floyd_steinberg" | "floyd_steinberg_q8_v1" => "floyd_steinberg",
+        _ => "bayer8",
+    }
+}
+
+fn deserialize_dither_method<'de, D>(deserializer: D) -> std::result::Result<String, D::Error>
+where D: serde::Deserializer<'de> {
+    Ok(normalized_dither_method(&String::deserialize(deserializer)?).to_owned())
+}
+
+fn selected_spatial_dither(enabled: bool, method: &str) -> crate::reader::SpatialDither {
+    use crate::reader::SpatialDither;
+    if !enabled { SpatialDither::Off }
+    else if normalized_dither_method(method) == "floyd_steinberg" { SpatialDither::FloydSteinberg }
+    else { SpatialDither::Bayer8 }
+}
+
+fn spatial_dither_note(algorithm: crate::reader::SpatialDither) -> String {
+    use crate::reader::SpatialDither;
+    i18n::text(match algorithm {
+        SpatialDither::Off => "spatial_dither_off_note",
+        SpatialDither::Bayer8 => "spatial_dither_bayer8_note",
+        SpatialDither::FloydSteinberg => "spatial_dither_floyd_note",
+    })
 }
 
 #[cfg(test)]
@@ -236,6 +268,7 @@ impl App {
             self.advance_startup()?;
             return Ok(());
         }
+        self.reconcile_reader_viewport()?;
         self.reconcile_reader_dithering()?;
         self.tick_reader_checkpoints();
         self.maintain_catalog_cache();
@@ -501,6 +534,29 @@ impl App {
     where T: Send + 'static, F: FnOnce() -> Result<T> + Send + 'static,
         A: FnOnce(&mut Self, Result<T>) + Send + 'static,
     {
+        self.background_optional_with_memory(key, source::work::HEAVY_WORK_BYTES,
+            trace, cancelled, None, work, apply)
+    }
+
+    /// Sleep-cover work shares the nonqueued prediction lane without raising
+    /// its existing cover reservation or interrupting an admitted next frame.
+    fn background_optional_cover<T, F, A>(&mut self, key: &str,
+        trace: Option<crate::performance::Operation>, cancelled: Arc<AtomicBool>,
+        drained: Arc<AtomicBool>, work: F, apply: A) -> bool
+    where T: Send + 'static, F: FnOnce() -> Result<T> + Send + 'static,
+        A: FnOnce(&mut Self, Result<T>) + Send + 'static,
+    {
+        self.background_optional_with_memory(key, source::work::COVER_WORK_BYTES,
+            trace, cancelled, Some(drained), work, apply)
+    }
+
+    fn background_optional_with_memory<T, F, A>(&mut self, key: &str, memory_cost: u64,
+        trace: Option<crate::performance::Operation>, cancelled: Arc<AtomicBool>,
+        drained: Option<Arc<AtomicBool>>, work: F, apply: A) -> bool
+    where T: Send + 'static, F: FnOnce() -> Result<T> + Send + 'static,
+        A: FnOnce(&mut Self, Result<T>) + Send + 'static,
+    {
+        let drain = drained.map(MarkJobDrainedOnDrop);
         let busy = || {
             if let Some(trace) = trace { trace.mark("speculative_busy"); }
             false
@@ -509,12 +565,12 @@ impl App {
             return busy();
         }
         let Some(sequence) = self.sequence.checked_add(1) else { return busy(); };
-        let memory_cost = source::work::HEAVY_WORK_BYTES;
         let Some(lease) = source::work::try_speculative(memory_cost, cancelled) else { return busy(); };
         // The compute-state lock is already released. Mailbox admission takes
         // only its own short lock; failure drops the whole speculative lease.
-        // The separate lane holds one prepared frame, which the reader bounds
-        // to 32 MiB before returning it. Publishing moves that same allocation.
+        // The separate lane holds one bounded optional result. Reader frames
+        // are capped at 32 MiB; sleep-cover RGB plus luma is below 13 MiB.
+        // Publishing moves those same allocations.
         let (ticket, delivery) = match self.jobs.try_begin_with_delivery(self.epoch, sequence, key) {
             Ok(Some(admission)) => admission,
             Ok(None) | Err(_) => { drop(lease); return busy(); }
@@ -539,7 +595,7 @@ impl App {
                 let result = if cancel.is_cancelled() {
                     Err(anyhow::anyhow!("Speculative application work cancelled"))
                 } else { result };
-                (delivery, result)
+                (delivery, result, drain)
             });
             let outcome = tokio::select! {
                 biased;
@@ -549,17 +605,20 @@ impl App {
                 },
                 result = computation => result,
             };
-            let (delivery, result) = match outcome {
+            let (delivery, result, drain) = match outcome {
                 Ok(result) => result,
                 Err(error) => {
                     let Some(delivery) = ticket.acquire_delivery().await else { return; };
-                    (delivery, Err(anyhow::anyhow!("Speculative application worker unavailable: {error}")))
+                    (delivery, Err(anyhow::anyhow!("Speculative application worker unavailable: {error}")), None)
                 }
             };
             if let Some(trace) = trace {
                 trace.record("speculative_result", &serde_json::json!({"ok": u8::from(result.is_ok())}));
             }
             ticket.publish(JobEvent { epoch, sequence, key, apply: Box::new(move |app| {
+                // This guard follows the real worker and its result envelope,
+                // even if a stale ticket or an account transition discards it.
+                let _drain = drain;
                 if let Some(trace) = trace { trace.mark("speculative_ui_apply_begin"); }
                 apply(app, result);
                 if let Some(trace) = trace { trace.mark("speculative_ui_apply_end"); }
@@ -796,6 +855,7 @@ impl App {
         snapshot["cover_resident_bytes"] = self.cover_images.values().map(|cover| cover.bytes).sum::<usize>().into();
         snapshot["cover_image_budget_bytes"] = COVER_IMAGE_BUDGET.into();
         snapshot["pending_job_keys"] = self.pending.len().into();
+        snapshot["sleep_cover"] = self.sleep_cover_resource_snapshot();
         snapshot
     }
 
@@ -823,6 +883,12 @@ impl Drop for App {
         self.retire_reader_checkpoints();
         self.jobs.close();
     }
+}
+
+struct MarkJobDrainedOnDrop(Arc<AtomicBool>);
+
+impl Drop for MarkJobDrainedOnDrop {
+    fn drop(&mut self) { self.0.store(true, Ordering::Release); }
 }
 
 struct AbortJobOnDrop(tokio::task::AbortHandle);

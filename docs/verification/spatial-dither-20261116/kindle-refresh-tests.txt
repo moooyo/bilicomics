@@ -1,0 +1,71 @@
+warning: the `macro_use` attribute cannot be used on crates
+   --> vendor/zune-jpeg/src/lib.rs:166:4
+    |
+166 | #![macro_use]
+    |    ^^^^^^^^^
+    |
+    = help: the `macro_use` attribute can be applied to extern crates and modules
+    = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+    = note: `#[warn(unused_attributes)]` (part of `#[warn(unused)]`) on by default
+
+warning: `zune-jpeg` (lib) generated 1 warning (run `cargo fix --lib -p zune-jpeg` to apply 1 suggestion)
+warning: use of deprecated method `std::sync::atomic::Atomic::<usize>::fetch_update`: renamed to `try_update` for consistency
+  --> vendor/slint-backend-kindle/src/command.rs:66:24
+   |
+66 |         self.in_flight.fetch_update(Ordering::AcqRel, Ordering::Acquire, |current| {
+   |                        ^^^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+help: replace the use of the deprecated method
+   |
+66 -         self.in_flight.fetch_update(Ordering::AcqRel, Ordering::Acquire, |current| {
+66 +         self.in_flight.try_update(Ordering::AcqRel, Ordering::Acquire, |current| {
+   |
+
+warning: bilicomics@0.1.25: warning: Component is neither used nor exported
+warning: bilicomics@0.1.25:    --> /root/bilicomics-spatial-dither-20261116-01a1d11a-r4/app/ui/reader.slint:136:1
+warning: bilicomics@0.1.25:     |
+warning: bilicomics@0.1.25: 136 | / component ReaderDashedBox inherits Rectangle {
+warning: bilicomics@0.1.25: 137 | |     in property <color> stroke-color: Theme.muted;
+warning: bilicomics@0.1.25: 138 | |     in property <length> stroke: 1.5px;
+warning: bilicomics@0.1.25: 139 | |     property <int> horizontal-count: ceil(root.width / 10px);
+warning: bilicomics@0.1.25: ...   |
+warning: bilicomics@0.1.25: 170 | | }
+warning: bilicomics@0.1.25:     | |_^
+warning: `slint-backend-kindle` (lib) generated 1 warning (run `cargo fix --lib -p slint-backend-kindle` to apply 1 suggestion)
+warning: use of deprecated method `std::sync::atomic::Atomic::<u64>::fetch_update`: renamed to `try_update` for consistency
+   --> src/performance.rs:243:35
+    |
+243 |         match sink.next_operation.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+    |                                   ^^^^^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+help: replace the use of the deprecated method
+    |
+243 -         match sink.next_operation.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+243 +         match sink.next_operation.try_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+    |
+
+warning: function `publish_cover` is never used
+   --> src/app/startup.rs:452:15
+    |
+452 | pub(super) fn publish_cover(temporary: &Path, target: &Path) -> Result<()> {
+    |               ^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `bilicomics` (lib test) generated 2 warnings (run `cargo fix --lib -p bilicomics --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized] target(s) in 0.15s
+     Running unittests src/lib.rs (/root/bilicomics-native-media-20261115-01a1d11a-r1/target/debug/deps/bilicomics-16f1e542f61fe665)
+
+running 7 tests
+test platform::refresh_scene_tests::a_late_complete_binary_replacement_cannot_force_du_over_gray_controls ... ok
+test platform::refresh_scene_tests::binary_reader_plans_map_to_du_while_overlay_and_manual_clear_keep_gray_waveforms ... ok
+test platform::refresh_scene_tests::continuous_fast_content_never_uses_or_resets_periodic_refresh_budgets ... ok
+test platform::refresh_scene_tests::fast_content_ignores_every_periodic_page_interval_and_keeps_progress_throttling ... ok
+test platform::refresh_scene_tests::fast_content_maps_automatic_and_direct_ui_updates_but_preserves_manual_full ... ok
+test platform::refresh_scene_tests::gray_overlay_upgrades_late_fast_feedback_and_normal_scene_keeps_its_policy ... ok
+test platform::refresh_scene_tests::the_visible_scene_is_one_independent_atomic_choice ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 836 filtered out; finished in 0.00s
+

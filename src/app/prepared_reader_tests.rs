@@ -196,6 +196,7 @@ async fn a_real_next_navigation_consumes_the_slot_under_its_new_render_version()
     let frame = candidate(&app, &files)?;
     let expected_anchor = frame.core.anchor(0);
     let expected_metadata = frame.frame.metadata;
+    let expected_pixels = frame.frame.page.pixels.clone();
     publish_candidate(&mut app, frame);
     // Keep this test focused on the consumed frame rather than a second prediction.
     app.reading.as_mut().unwrap().detail = None;
@@ -214,6 +215,7 @@ async fn a_real_next_navigation_consumes_the_slot_under_its_new_render_version()
     let state = app.reading.as_ref().unwrap();
     assert_eq!(state.presented_core.as_ref().unwrap().anchor(0), expected_anchor);
     assert_eq!(state.metadata, expected_metadata);
+    assert_eq!(state.page.to_rgba8().unwrap().as_bytes().as_ptr(), expected_pixels.as_bytes().as_ptr());
     assert_eq!(state.performance_presented.map(Operation::id), Some(91));
     assert!(matches!(state.next_frame, NextFrameSlot::Empty));
     app.save_reading_position()?;
@@ -310,9 +312,12 @@ async fn footer_changes_and_settled_sleep_revoke_only_the_speculative_frame() ->
     let token = app.reading.as_ref().unwrap().render_cancelled.clone();
     let anchor = app.reading.as_ref().unwrap().displayed_anchor(0).unwrap().0;
     let page = app.reading.as_ref().unwrap().page.clone();
+    app.reading.as_mut().unwrap().next_frame_retry_pending = true;
+    app.reading.as_mut().unwrap().next_frame_waiting_for_idle = true;
     app.suspend()?;
     let state = app.reading.as_ref().unwrap();
     assert!(matches!(state.next_frame, NextFrameSlot::Empty));
+    assert!(!state.next_frame_retry_pending && !state.next_frame_waiting_for_idle);
     assert_eq!(state.version, version);
     assert!(!token.load(Ordering::Acquire));
     assert_eq!(state.page, page);
@@ -413,19 +418,22 @@ async fn obsolete_epoch_or_expired_access_cannot_install_or_consume_prepared_pix
 }
 
 #[tokio::test]
-async fn capacity_accounting_rejects_spare_rgba_allocation_and_releases_slots() -> Result<()> {
+async fn shared_payload_accounting_counts_aliases_once_and_rejects_distinct_oversized_frames() -> Result<()> {
     let directory = tempfile::tempdir()?;
     let (mut app, files) = app(directory.path()).await?;
     readable(&mut app);
     let mut frame = candidate(&app, &files)?;
-    frame.frame.page.rgba = Vec::with_capacity(NEXT_FRAME_BYTES as usize + 1);
-    frame.frame.page.rgba.extend_from_slice(&[0, 0, 0, 255]);
+    let large = rgba_raster(vec![255; 1860 * 2480 * 4], 1860, 2480);
+    frame.frame.page = large.clone();
+    frame.frame.second = Some(large);
+    assert!(frame.retained_bytes() < NEXT_FRAME_BYTES, "Two handles must count their one allocation once");
+    frame.frame.second = Some(rgba_raster(vec![255; 1860 * 2480 * 4], 1860, 2480));
     assert!(frame.retained_bytes() > NEXT_FRAME_BYTES);
     publish_candidate(&mut app, frame);
     assert!(matches!(app.reading.as_ref().unwrap().next_frame, NextFrameSlot::Empty));
     for _ in 0..8 {
         let frame = candidate(&app, &files)?;
-        assert!(frame.retained_bytes() > frame.frame.page.rgba.len() as u64);
+        assert!(frame.retained_bytes() > frame.frame.page.pixels.byte_len() as u64);
         publish_candidate(&mut app, frame);
         assert!(matches!(app.reading.as_ref().unwrap().next_frame, NextFrameSlot::Ready(_)));
         app.reading.as_mut().unwrap().next_frame.cancel();
@@ -509,13 +517,11 @@ async fn preload_off_releases_ready_pixels_and_reenable_offers_a_new_prediction(
     assert_eq!(state.metadata, expected_metadata);
     assert!(matches!(state.next_frame, NextFrameSlot::Empty));
     let version = state.version;
-    // Busy is a legitimate result in production. Only this fixture repeats the
-    // existing setting intent if another parallel test owns the process slots.
+    // One setting intent must survive busy admission through the idle marker.
+    // Repeating the intent here would conceal a lost deferred opportunity.
+    app.account_action("preload", "3")?;
     tokio::time::timeout(Duration::from_secs(10), async {
         loop {
-            if matches!(app.reading.as_ref().unwrap().next_frame, NextFrameSlot::Empty) {
-                app.account_action("preload", "3")?;
-            }
             app.tick()?;
             let state = app.reading.as_ref().unwrap();
             assert_eq!((state.generation, state.version), (generation, version));
@@ -567,10 +573,13 @@ async fn preload_off_retires_a_preparing_ticket_without_releasing_its_worker_lea
     let generation = state.generation;
     let version = state.version;
     let anchor = state.displayed_anchor(0).unwrap().0;
+    app.reading.as_mut().unwrap().next_frame_retry_pending = true;
+    app.reading.as_mut().unwrap().next_frame_waiting_for_idle = true;
     app.account_action("preload", "0")?;
     let state = app.reading.as_ref().unwrap();
     assert!(cancelled.load(Ordering::Acquire));
     assert!(matches!(state.next_frame, NextFrameSlot::Empty));
+    assert!(!state.next_frame_retry_pending && !state.next_frame_waiting_for_idle);
     assert_eq!((state.generation, state.version), (generation, version));
     assert_eq!(state.displayed_anchor(0).unwrap().0, anchor);
     assert!(!app.pending.contains_key("reader-prepare-next"));
@@ -675,6 +684,166 @@ async fn late_cancelled_prediction_retries_after_delivery_and_prepares_the_new_n
     for _ in 0..8 { app.tick()?; tokio::task::yield_now().await; }
     assert_eq!(app.sequence, sequence, "A completed deferred opportunity must not keep scheduling work");
     app.close_reader()?;
+    assert_eq!(app.reader_resource_snapshot()["prepared_frame_bytes"], 0);
+    Ok(())
+}
+
+#[tokio::test]
+async fn one_prediction_request_waits_for_the_actual_optional_delivery_lane_without_spinning() -> Result<()> {
+    let _serial = crate::source::work::process_test_lock().lock().await;
+    let directory = tempfile::tempdir()?;
+    let (mut app, _) = app(directory.path()).await?;
+    readable(&mut app);
+    let held_key = "prepared-reader-held-delivery";
+    app.sequence = app.sequence.checked_add(1).context("The fixture sequence is exhausted")?;
+    let (ticket, delivery) = app.jobs.try_begin_with_delivery(app.epoch, app.sequence, held_key)?
+        .context("The isolated fixture must reserve its actual optional delivery lane")?;
+    let sequence = app.sequence;
+    let state = app.reading.as_ref().unwrap();
+    let generation = state.generation;
+    let version = state.version;
+    let anchor = state.displayed_anchor(0).unwrap().0;
+    let page = state.page.clone();
+
+    app.request_next_frame();
+    let state = app.reading.as_ref().unwrap();
+    assert!(matches!(state.next_frame, NextFrameSlot::Empty));
+    assert!(state.next_frame_waiting_for_idle && !state.next_frame_retry_pending);
+    assert!(!app.pending.contains_key("reader-prepare-next"));
+    assert!(app.reader_blocks_optional_cover_work());
+    for _ in 0..8 { app.tick()?; tokio::task::yield_now().await; }
+    assert_eq!(app.sequence, sequence, "A retained optional result must not cause repeated admission attempts");
+    assert!(app.reading.as_ref().unwrap().next_frame_waiting_for_idle);
+
+    app.invalidate(held_key);
+    drop(ticket);
+    drop(delivery);
+    tokio::time::timeout(Duration::from_secs(10), async {
+        loop {
+            app.tick()?;
+            let state = app.reading.as_ref().context("The waiting reader disappeared")?;
+            assert_eq!((state.generation, state.version), (generation, version));
+            assert_eq!(state.displayed_anchor(0).unwrap().0, anchor);
+            assert_eq!(state.page, page);
+            if let NextFrameSlot::Ready(frame) = &state.next_frame {
+                assert_eq!(frame.key.target.anchor.page_index, 1);
+                assert!(!state.next_frame_waiting_for_idle && !state.next_frame_retry_pending);
+                return Ok::<(), anyhow::Error>(());
+            }
+            tokio::task::yield_now().await;
+        }
+    }).await.context("The original request did not resume after its delivery lane became idle")??;
+    app.close_reader()?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn regular_work_cancels_the_same_version_prediction_and_retries_only_after_idle() -> Result<()> {
+    let _serial = crate::source::work::process_test_lock().lock().await;
+    let directory = tempfile::tempdir()?;
+    let (mut app, files) = app(directory.path()).await?;
+    readable(&mut app);
+    let DeferredPrediction { cancelled, release, exits, callbacks } = defer_prediction(&mut app, &files).await?;
+    let state = app.reading.as_ref().unwrap();
+    let generation = state.generation;
+    let version = state.version;
+    let anchor = state.displayed_anchor(0).unwrap().0;
+    let page = state.page.clone();
+    let (started, did_start) = tokio::sync::oneshot::channel();
+    let (release_regular, released_regular) = tokio::sync::oneshot::channel();
+    let regular_callbacks = Arc::new(AtomicUsize::new(0));
+    let regular_applied = regular_callbacks.clone();
+    app.background("reader-render-idle-fixture", move || {
+        started.send(()).map_err(|_| anyhow::anyhow!("The regular admission receiver closed"))?;
+        released_regular.blocking_recv().context("The regular worker was not released")?;
+        Ok(())
+    }, move |_, result| {
+        assert!(result.is_ok());
+        regular_applied.fetch_add(1, Ordering::SeqCst);
+    });
+    tokio::time::timeout(Duration::from_secs(10), did_start).await
+        .context("The regular worker did not acquire its real reservation")?
+        .context("The regular worker failed before its admission boundary")?;
+    assert!(cancelled.load(Ordering::Acquire), "Ordinary admission must preempt speculative work");
+    assert_eq!(app.reading.as_ref().unwrap().version, version);
+
+    release.send(()).map_err(|_| anyhow::anyhow!("The same-version prediction exited early"))?;
+    tokio::time::timeout(Duration::from_secs(5), async {
+        while callbacks.load(Ordering::SeqCst) == 0 {
+            app.tick()?;
+            tokio::task::yield_now().await;
+        }
+        Ok::<(), anyhow::Error>(())
+    }).await.context("The cancelled same-version prediction did not deliver its result")??;
+    assert_eq!(exits.load(Ordering::SeqCst), 1);
+    let state = app.reading.as_ref().unwrap();
+    assert!(matches!(state.next_frame, NextFrameSlot::Empty));
+    assert!(state.next_frame_retry_pending);
+    assert!(app.reader_blocks_optional_cover_work());
+    let sequence = app.sequence;
+    for _ in 0..8 { app.tick()?; tokio::task::yield_now().await; }
+    assert_eq!(app.sequence, sequence, "Busy ticks must observe capacity without retrying admission");
+    assert_eq!(regular_callbacks.load(Ordering::SeqCst), 0);
+
+    release_regular.send(()).map_err(|_| anyhow::anyhow!("The regular worker exited early"))?;
+    tokio::time::timeout(Duration::from_secs(10), async {
+        loop {
+            app.tick()?;
+            let state = app.reading.as_ref().context("The same-version reader disappeared")?;
+            assert_eq!((state.generation, state.version), (generation, version));
+            assert_eq!(state.displayed_anchor(0).unwrap().0, anchor);
+            assert_eq!(state.page, page);
+            assert!(state.error.is_none());
+            if let NextFrameSlot::Ready(frame) = &state.next_frame {
+                assert_eq!(frame.key.origin_version, version);
+                assert_eq!(frame.key.origin.anchor, anchor);
+                assert_eq!(frame.key.target.anchor.page_index, 1);
+                assert!(!state.next_frame_retry_pending && !state.next_frame_waiting_for_idle);
+                if regular_callbacks.load(Ordering::SeqCst) == 1 { return Ok::<(), anyhow::Error>(()); }
+            }
+            tokio::task::yield_now().await;
+        }
+    }).await.context("Idle capacity did not restore the same-version prediction")??;
+    assert_eq!(callbacks.load(Ordering::SeqCst), 1);
+    app.close_reader()?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn leaving_the_reader_retires_deferred_intents_and_the_actual_prediction_ticket() -> Result<()> {
+    let _serial = crate::source::work::process_test_lock().lock().await;
+    let directory = tempfile::tempdir()?;
+    let (mut app, files) = app(directory.path()).await?;
+    let DeferredPrediction { cancelled, release, exits, callbacks } = defer_prediction(&mut app, &files).await?;
+    let state = app.reading.as_mut().unwrap();
+    state.next_frame_retry_pending = true;
+    state.next_frame_waiting_for_idle = true;
+    app.navigate("account");
+    assert_eq!(app.route, "account");
+    assert!(app.reading.is_none());
+    assert!(cancelled.load(Ordering::Acquire));
+    assert!(!app.pending.contains_key("reader-prepare-next"));
+    assert!(!app.reader_blocks_optional_cover_work());
+    let sequence = app.sequence;
+    app.retry_next_frame_after_delivery();
+    app.retry_reader_prefetch_after_optional_cover_drain();
+    assert_eq!(app.sequence, sequence);
+    assert!(app.reading.is_none());
+    assert_eq!(exits.load(Ordering::SeqCst), 0);
+    release.send(()).map_err(|_| anyhow::anyhow!("The retired prediction exited early"))?;
+    tokio::time::timeout(Duration::from_secs(5), async {
+        loop {
+            app.tick()?;
+            if exits.load(Ordering::SeqCst) == 1
+                && !crate::source::work::speculative_in_flight_for(&cancelled)
+                && app.jobs.speculative_delivery_available() { return Ok::<(), anyhow::Error>(()); }
+            tokio::task::yield_now().await;
+        }
+    }).await.context("The retired prediction did not release its actual reservations")??;
+    app.tick()?;
+    assert!(app.reading.is_none());
+    assert_eq!(callbacks.load(Ordering::SeqCst), 0);
+    assert!(!app.pending.contains_key("reader-prepare-next"));
     assert_eq!(app.reader_resource_snapshot()["prepared_frame_bytes"], 0);
     Ok(())
 }
