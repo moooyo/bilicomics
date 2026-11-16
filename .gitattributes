@@ -46,3 +46,7 @@
 
 # Preserve the original physical framebuffer projections and numeric receipt.
 /docs/physical/prefetch-delivery-20261116/** -text
+
+# Preserve software-resize source inventories and physical capture identities.
+/docs/verification/cpu-resize-cache-20261116/** -text
+/docs/physical/cpu-resize-cache-20261116/** -text

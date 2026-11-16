@@ -77,3 +77,10 @@ and touch afterward.
 The 714-row performance trace remains private. This report does not establish
 optical quality, driver completion, or new device qualification. Raw logs,
 tokens, and private transport paths are excluded from the retained summary.
+
+## Subsequent software-resize cache
+
+The [CPU resize-cache report](CPU_RESIZE_CACHE_20261116.md) records the later
+candidate tested with the same untouched fixture. Its completed captures,
+avoided-resize profiles, and separate manual timing observations do not change
+this earlier batch's partial status or supply a fixed-cadence comparison.

@@ -1,0 +1,849 @@
+{
+  "status": "completed_recovered_released",
+  "source_commit": "c49d711c67941d762d984c34df008348f27410c8",
+  "host_source_fingerprint": "d73bc945a92f2c9db8f4fe6a28b8d4dd1efe46a3e9cf2d5cf55bcb1c29ca7989",
+  "host_source_input_count": 540,
+  "observed_device_executable_sha256": "d58ae1860a2726f5663b104d9bf48ae39a89af73bc72426b93a8a9b17b142742",
+  "selected_package_sha256": "2f5aa506a5e366a65372ef05384d5260d709b1eccaeb7e54b7039fbe3d4ee00d",
+  "source_binding_scope": "Host preparation/build receipts bind selected package and observed executable hash; no on-device source audit",
+  "raw_receipt_sha256": {
+    "performance": "c2360796e6babf15d10276ce0696287edf38423cc10f60d04464dd76849b0e75",
+    "lifecycle": "2b233bcc7e00de1af2ae2f27410f87e263bac1c836227a94f3970d161fce8682",
+    "preparation": "9a3df3abc7f98b5e054f4321ad28c323b50aa469ab77c6facdeb79ad94c9edee",
+    "software_package": "c0c2e131b44813ffd8f1b57a225a7bc5d6b40fae86d61c242377dc68a5e294e2",
+    "batch": "1db990459c6f3a2a21c6a6055f0dba12e410b1cf78e4caf63c04f22a3672bc03",
+    "release": "1592ac5db2b67ecf401c6dad0d51af646b0112ebca04a687dfc9ebcbd6ca9fcc"
+  },
+  "navigation": [
+    {
+      "operation_id": 13,
+      "navigation": true,
+      "mode": "fast",
+      "source_page_from": 1,
+      "source_page_to": 2,
+      "request_to_model_us": 205595,
+      "prepared_frame_hit": true,
+      "cpu_resize_cache_hits": 0,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        0,
+        0,
+        0
+      ],
+      "shared_pixels_acp": [
+        0,
+        0,
+        0
+      ],
+      "legacy_completed_target_pixels": 0,
+      "output_bytes": 0,
+      "fresh_source_checks_acp": {
+        "receipt_lookup": [
+          1,
+          1,
+          0
+        ],
+        "source_read": [
+          1,
+          1,
+          0
+        ],
+        "source_hash": [
+          1,
+          1,
+          0
+        ],
+        "receipt_recheck": [
+          1,
+          1,
+          0
+        ]
+      },
+      "native_processed_source_hits": 0,
+      "ui_copied_bytes": 0,
+      "raw_lines": {
+        "navigation": 230,
+        "preparation": 241,
+        "model": 251,
+        "native_frame": 252
+      },
+      "native": {
+        "render_sequence": 20,
+        "refresh_waveform": "du",
+        "refresh_flashing": false,
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false
+      }
+    },
+    {
+      "operation_id": 15,
+      "navigation": true,
+      "mode": "fast",
+      "source_page_from": 2,
+      "source_page_to": 1,
+      "request_to_model_us": 140075,
+      "prepared_frame_hit": false,
+      "cpu_resize_cache_hits": 1,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "legacy_completed_target_pixels": 4612800,
+      "output_bytes": 18451200,
+      "fresh_source_checks_acp": {
+        "receipt_lookup": [
+          1,
+          1,
+          0
+        ],
+        "source_read": [
+          1,
+          1,
+          0
+        ],
+        "source_hash": [
+          1,
+          1,
+          0
+        ],
+        "receipt_recheck": [
+          1,
+          1,
+          0
+        ]
+      },
+      "native_processed_source_hits": 0,
+      "ui_copied_bytes": 0,
+      "raw_lines": {
+        "navigation": 260,
+        "preparation": 271,
+        "model": 279,
+        "native_frame": 285
+      },
+      "native": {
+        "render_sequence": 22,
+        "refresh_waveform": "du",
+        "refresh_flashing": false,
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false
+      }
+    },
+    {
+      "operation_id": 17,
+      "navigation": true,
+      "mode": "fast",
+      "source_page_from": 1,
+      "source_page_to": 2,
+      "request_to_model_us": 30619,
+      "prepared_frame_hit": true,
+      "cpu_resize_cache_hits": 0,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        0,
+        0,
+        0
+      ],
+      "shared_pixels_acp": [
+        0,
+        0,
+        0
+      ],
+      "legacy_completed_target_pixels": 0,
+      "output_bytes": 0,
+      "fresh_source_checks_acp": {
+        "receipt_lookup": [
+          1,
+          1,
+          0
+        ],
+        "source_read": [
+          1,
+          1,
+          0
+        ],
+        "source_hash": [
+          1,
+          1,
+          0
+        ],
+        "receipt_recheck": [
+          1,
+          1,
+          0
+        ]
+      },
+      "native_processed_source_hits": 0,
+      "ui_copied_bytes": 0,
+      "raw_lines": {
+        "navigation": 289,
+        "preparation": 301,
+        "model": 310,
+        "native_frame": 315
+      },
+      "native": {
+        "render_sequence": 24,
+        "refresh_waveform": "du",
+        "refresh_flashing": false,
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false
+      }
+    },
+    {
+      "operation_id": 19,
+      "navigation": true,
+      "mode": "fast",
+      "source_page_from": 2,
+      "source_page_to": 1,
+      "request_to_model_us": 134015,
+      "prepared_frame_hit": false,
+      "cpu_resize_cache_hits": 1,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "legacy_completed_target_pixels": 4612800,
+      "output_bytes": 18451200,
+      "fresh_source_checks_acp": {
+        "receipt_lookup": [
+          1,
+          1,
+          0
+        ],
+        "source_read": [
+          1,
+          1,
+          0
+        ],
+        "source_hash": [
+          1,
+          1,
+          0
+        ],
+        "receipt_recheck": [
+          1,
+          1,
+          0
+        ]
+      },
+      "native_processed_source_hits": 0,
+      "ui_copied_bytes": 0,
+      "raw_lines": {
+        "navigation": 319,
+        "preparation": 330,
+        "model": 339,
+        "native_frame": 344
+      },
+      "native": {
+        "render_sequence": 26,
+        "refresh_waveform": "du",
+        "refresh_flashing": false,
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false
+      }
+    },
+    {
+      "operation_id": 21,
+      "navigation": true,
+      "mode": "fast",
+      "source_page_from": 1,
+      "source_page_to": 2,
+      "request_to_model_us": 21885,
+      "prepared_frame_hit": true,
+      "cpu_resize_cache_hits": 0,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        0,
+        0,
+        0
+      ],
+      "shared_pixels_acp": [
+        0,
+        0,
+        0
+      ],
+      "legacy_completed_target_pixels": 0,
+      "output_bytes": 0,
+      "fresh_source_checks_acp": {
+        "receipt_lookup": [
+          1,
+          1,
+          0
+        ],
+        "source_read": [
+          1,
+          1,
+          0
+        ],
+        "source_hash": [
+          1,
+          1,
+          0
+        ],
+        "receipt_recheck": [
+          1,
+          1,
+          0
+        ]
+      },
+      "native_processed_source_hits": 0,
+      "ui_copied_bytes": 0,
+      "raw_lines": {
+        "navigation": 348,
+        "preparation": 360,
+        "model": 368,
+        "native_frame": 374
+      },
+      "native": {
+        "render_sequence": 28,
+        "refresh_waveform": "du",
+        "refresh_flashing": false,
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false
+      }
+    },
+    {
+      "operation_id": 23,
+      "navigation": true,
+      "mode": "fast",
+      "source_page_from": 2,
+      "source_page_to": 1,
+      "request_to_model_us": 135739,
+      "prepared_frame_hit": false,
+      "cpu_resize_cache_hits": 1,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "legacy_completed_target_pixels": 4612800,
+      "output_bytes": 18451200,
+      "fresh_source_checks_acp": {
+        "receipt_lookup": [
+          1,
+          1,
+          0
+        ],
+        "source_read": [
+          1,
+          1,
+          0
+        ],
+        "source_hash": [
+          1,
+          1,
+          0
+        ],
+        "receipt_recheck": [
+          1,
+          1,
+          0
+        ]
+      },
+      "native_processed_source_hits": 0,
+      "ui_copied_bytes": 0,
+      "raw_lines": {
+        "navigation": 378,
+        "preparation": 389,
+        "model": 398,
+        "native_frame": 403
+      },
+      "native": {
+        "render_sequence": 30,
+        "refresh_waveform": "du",
+        "refresh_flashing": false,
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false
+      }
+    },
+    {
+      "operation_id": 25,
+      "navigation": true,
+      "mode": "fast",
+      "source_page_from": 1,
+      "source_page_to": 2,
+      "request_to_model_us": 34031,
+      "prepared_frame_hit": true,
+      "cpu_resize_cache_hits": 0,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        0,
+        0,
+        0
+      ],
+      "shared_pixels_acp": [
+        0,
+        0,
+        0
+      ],
+      "legacy_completed_target_pixels": 0,
+      "output_bytes": 0,
+      "fresh_source_checks_acp": {
+        "receipt_lookup": [
+          1,
+          1,
+          0
+        ],
+        "source_read": [
+          1,
+          1,
+          0
+        ],
+        "source_hash": [
+          1,
+          1,
+          0
+        ],
+        "receipt_recheck": [
+          1,
+          1,
+          0
+        ]
+      },
+      "native_processed_source_hits": 0,
+      "ui_copied_bytes": 0,
+      "raw_lines": {
+        "navigation": 407,
+        "preparation": 419,
+        "model": 428,
+        "native_frame": 433
+      },
+      "native": {
+        "render_sequence": 32,
+        "refresh_waveform": "du",
+        "refresh_flashing": false,
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false
+      }
+    }
+  ],
+  "mode_change": [
+    {
+      "operation_id": 11,
+      "navigation": false,
+      "mode": "fast",
+      "source_page_from": 1,
+      "source_page_to": 1,
+      "request_to_model_us": 224572,
+      "prepared_frame_hit": false,
+      "cpu_resize_cache_hits": 1,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "legacy_completed_target_pixels": 4612800,
+      "output_bytes": 18451200,
+      "fresh_source_checks_acp": {
+        "receipt_lookup": [
+          1,
+          1,
+          0
+        ],
+        "source_read": [
+          1,
+          1,
+          0
+        ],
+        "source_hash": [
+          1,
+          1,
+          0
+        ],
+        "receipt_recheck": [
+          1,
+          1,
+          0
+        ]
+      },
+      "native_processed_source_hits": 0,
+      "ui_copied_bytes": 0,
+      "raw_lines": {
+        "navigation": null,
+        "preparation": 210,
+        "model": 220,
+        "native_frame": 225
+      },
+      "native": {
+        "render_sequence": 17,
+        "refresh_waveform": "auto",
+        "refresh_flashing": false,
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "driver_completion_observed": false,
+        "panel_completion_observed": false
+      }
+    }
+  ],
+  "predictions": [
+    {
+      "line": 175,
+      "operation_id": 7,
+      "cpu_resize_cache_hits": 0,
+      "resize_acp": [
+        1,
+        1,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "output_bytes": 18451200,
+      "native_processed_source_hits": 0
+    },
+    {
+      "line": 222,
+      "operation_id": 12,
+      "cpu_resize_cache_hits": 1,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "output_bytes": 18451200,
+      "native_processed_source_hits": 0
+    },
+    {
+      "line": 254,
+      "operation_id": 14,
+      "cpu_resize_cache_hits": 0,
+      "resize_acp": [
+        1,
+        1,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "output_bytes": 18451200,
+      "native_processed_source_hits": 0
+    },
+    {
+      "line": 282,
+      "operation_id": 16,
+      "cpu_resize_cache_hits": 1,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "output_bytes": 18451200,
+      "native_processed_source_hits": 0
+    },
+    {
+      "line": 312,
+      "operation_id": 18,
+      "cpu_resize_cache_hits": 1,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "output_bytes": 18451200,
+      "native_processed_source_hits": 0
+    },
+    {
+      "line": 341,
+      "operation_id": 20,
+      "cpu_resize_cache_hits": 1,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "output_bytes": 18451200,
+      "native_processed_source_hits": 0
+    },
+    {
+      "line": 371,
+      "operation_id": 22,
+      "cpu_resize_cache_hits": 1,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "output_bytes": 18451200,
+      "native_processed_source_hits": 0
+    },
+    {
+      "line": 400,
+      "operation_id": 24,
+      "cpu_resize_cache_hits": 1,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "output_bytes": 18451200,
+      "native_processed_source_hits": 0
+    },
+    {
+      "line": 430,
+      "operation_id": 26,
+      "cpu_resize_cache_hits": 1,
+      "resize_acp": [
+        0,
+        0,
+        0
+      ],
+      "canvas_acp": [
+        1,
+        1,
+        0
+      ],
+      "shared_pixels_acp": [
+        1,
+        1,
+        0
+      ],
+      "output_bytes": 18451200,
+      "native_processed_source_hits": 0
+    }
+  ],
+  "captures": {
+    "initial": {
+      "checkpoint_sha256": "96d6d8d5a271ef7bbc0105bdb56464035f65f1cd3c2ab5a859fe2029af810985",
+      "synthetic_page": 1,
+      "version": 1,
+      "marker_verified": true,
+      "memory_png_sha256": "8613309e5c6a741f6a6f11c6f04cb4130bccabe83d752bf8c58bfe0c0f6a0448",
+      "raw_framebuffer_sha256": "8ab0b1de13efbd29ba5c186098015e2917945f300bc38d612d0135b65172ac3b",
+      "projection_png_sha256": "8613309e5c6a741f6a6f11c6f04cb4130bccabe83d752bf8c58bfe0c0f6a0448",
+      "source_cache_bytes": 8024000,
+      "processed_source_cache_bytes": 9225600
+    },
+    "fast-rounds": {
+      "checkpoint_sha256": "5455af6d848e461bcb6bcfa08ac4485cd2df807539c69209bef2c329ec855a49",
+      "synthetic_page": 2,
+      "version": 9,
+      "marker_verified": true,
+      "memory_png_sha256": "024ffba0d516e61275e6e6259a9dfeaddc9b0b3a4da301328758104f2165fc11",
+      "raw_framebuffer_sha256": "6fdd9e0baba08e5f4a7abe8d5ed60bdfd479979007a155d0d4cccae8800a7fe1",
+      "projection_png_sha256": "024ffba0d516e61275e6e6259a9dfeaddc9b0b3a4da301328758104f2165fc11",
+      "source_cache_bytes": 12036000,
+      "processed_source_cache_bytes": 13838400
+    },
+    "fast-idle": {
+      "checkpoint_sha256": "c10ee76f56eb5929a49adaf737e630227acc314658fed569a79d87d1f8049f62",
+      "synthetic_page": 2,
+      "version": 9,
+      "marker_verified": true,
+      "memory_png_sha256": "024ffba0d516e61275e6e6259a9dfeaddc9b0b3a4da301328758104f2165fc11",
+      "raw_framebuffer_sha256": "6fdd9e0baba08e5f4a7abe8d5ed60bdfd479979007a155d0d4cccae8800a7fe1",
+      "projection_png_sha256": "024ffba0d516e61275e6e6259a9dfeaddc9b0b3a4da301328758104f2165fc11",
+      "source_cache_bytes": 12036000,
+      "processed_source_cache_bytes": 13838400
+    },
+    "manual-clear": {
+      "checkpoint_sha256": "23dc9236f11bb92803605941bec6176f78c7d1cbe8522de1347190446cd1b238",
+      "synthetic_page": 2,
+      "version": 9,
+      "marker_verified": true,
+      "memory_png_sha256": "024ffba0d516e61275e6e6259a9dfeaddc9b0b3a4da301328758104f2165fc11",
+      "raw_framebuffer_sha256": "6fdd9e0baba08e5f4a7abe8d5ed60bdfd479979007a155d0d4cccae8800a7fe1",
+      "projection_png_sha256": "024ffba0d516e61275e6e6259a9dfeaddc9b0b3a4da301328758104f2165fc11",
+      "source_cache_bytes": 12036000,
+      "processed_source_cache_bytes": 13838400
+    }
+  },
+  "idle_retained_comparison_passed": true,
+  "manual_clear_retained_comparison_passed": true,
+  "manual_full": {
+    "line": 446,
+    "render_sequence": 35,
+    "refresh_waveform": "gc16",
+    "refresh_flashing": true,
+    "refresh_accepted": true,
+    "refresh_errno": null,
+    "driver_completion_observed": true,
+    "panel_completion_observed": false
+  },
+  "recovery": {
+    "operator_stop_exit": 143,
+    "completed": true,
+    "native_checks_passed": true,
+    "identities_gone": 31,
+    "transports_closed": true,
+    "exact_lease_released": true
+  },
+  "operator_observation": {
+    "reported_less_pausing": true,
+    "native_home_and_touch_confirmed_restored": true,
+    "scope": "Human confirmation; separate from software/driver timings"
+  },
+  "before_fast_observation": {
+    "forward": {
+      "actual_count": 3,
+      "prepared_hits": 1,
+      "request_model_us_min": 26540,
+      "request_model_us_max": 437040
+    },
+    "back": {
+      "actual_count": 4,
+      "prepared_hits": 0,
+      "request_model_us_min": 406867,
+      "request_model_us_max": 463907
+    }
+  },
+  "controlled_ab_claimed": false,
+  "source_cache_budget_bytes": 33554432,
+  "shared_processed_cache_budget_bytes": 16777216,
+  "rss_measured": false,
+  "panel_completion_observed": false,
+  "optical_page_turn_latency_measured": false,
+  "limits": [
+    "One physical session per variant with different navigation and warm-history timing; not fixed-cadence or randomized A/B.",
+    "Initial forward 205.595ms is retained; request-to-model is neither touch-to-visible nor panel completion.",
+    "Prepared whole-frame hits and CPU resize-cache hits are separate; legacy target-pixel counts do not measure actual resize work.",
+    "CPU hits skip actual resize while preserving fresh read/hash/receipt checks and final canvas/shared-RGBA preparation.",
+    "Cache residency increases within retained-byte budgets; no unchanged-RSS claim.",
+    "Framebuffer memory and EPDC projection are not panel photographs or optical completion.",
+    "Input uses operator finger cooperation; no harness-injected input is claimed. Private tokens, paths, raw logs, database and anchors are excluded."
+  ]
+}
