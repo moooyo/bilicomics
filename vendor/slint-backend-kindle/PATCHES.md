@@ -687,3 +687,22 @@ GC16. Policy and recording-sink fixtures exercise scene transitions, late gray
 overlays, complete binary buffers, all strong-refresh exclusions, and manual
 clearing. This implementation was written independently for this backend;
 execution and device acceptance remain separate verification scopes.
+
+## Verified sysfs discovery hints and descriptor handoff
+
+The input discovery optimization is adapted from AidokuForKindle commit
+`4ce1fd156a7a4a75ca2fda5f4324991d6b02ce92`. A bounded, complete sysfs roster
+narrows evdev candidates using names or absolute-axis capabilities. Every hint
+is bound to the character node's major/minor, filesystem, and inode. Opened
+descriptors retain their original ioctl validation, and the complete roster is
+checked again before accepting the fast path. Missing, malformed, incomplete,
+changed, or unsuccessful hints fall back to descriptor discovery. Multiple
+portrait sources remain ambiguous. No event index or pose is cached.
+
+Touch discovery transfers its validated descriptor into the existing grab,
+state-query, and synchronization sequence rather than closing and reopening it.
+The legacy symlink fallback remains available. Native calibration, startup
+observation, live orientation, sleep, ownership, and input-generation checks
+retain their original boundaries. Source snapshots, licensing, and exact
+reference revisions are retained in
+`docs/research/aidoku-startup-20261117/`; physical acceptance is separate.

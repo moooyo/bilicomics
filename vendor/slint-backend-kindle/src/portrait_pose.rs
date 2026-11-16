@@ -12,16 +12,14 @@
 //! observations confirmed value 15 with native U and value 16 with native D.
 
 use std::{
-    fs::{File, OpenOptions},
+    fs::File,
     io,
     mem::size_of,
-    os::{
-        fd::AsRawFd,
-        unix::fs::{FileTypeExt, OpenOptionsExt},
-    },
+    os::{fd::AsRawFd, unix::fs::FileTypeExt},
 };
 
 use crate::NativePortraitOrientation;
+use crate::input_discovery::{EventSnapshot, MetadataKind, open_event};
 
 const MAX_EVENT_INDEX: usize = 31;
 const EV_KEY: u8 = 1;
@@ -178,14 +176,46 @@ pub(crate) fn query_native_portrait_value(fd: libc::c_int) -> io::Result<i32> {
 /// Retain the unique recognized sensor and its validated name, without a grab.
 /// Its event queue is untouched; an observer must discard stale events itself.
 pub(crate) fn open_native_portrait_sensor() -> io::Result<Option<(File, [u8; NAME_BYTES])>> {
+    if let Some(snapshot) = EventSnapshot::capture(MetadataKind::Name, MAX_EVENT_INDEX) {
+        let mut found = None;
+        let mut current = true;
+        for candidate in snapshot
+            .entries()
+            .filter(|entry| entry.name().is_some_and(known_portrait_sensor_name))
+        {
+            let file = match candidate.open_checked() {
+                Ok(Some(file)) => file,
+                _ => {
+                    current = false;
+                    break;
+                }
+            };
+            let name = match inspect_sensor(&file) {
+                Ok(Some(name)) => name,
+                _ => {
+                    current = false;
+                    break;
+                }
+            };
+            let end = name
+                .iter()
+                .position(|byte| *byte == 0)
+                .unwrap_or(name.len());
+            if candidate.name() != Some(&name[..end]) {
+                current = false;
+                break;
+            }
+            record_unique_sensor(&mut found, (file, name))?;
+        }
+        if current && found.is_some() && snapshot.is_current() {
+            return Ok(found);
+        }
+        // Retire every tentative descriptor before the authoritative fallback.
+    }
     let mut found = None;
     for index in 0..=MAX_EVENT_INDEX {
         let path = format!("/dev/input/event{index}");
-        let file = match OpenOptions::new()
-            .read(true)
-            .custom_flags(libc::O_NONBLOCK | libc::O_CLOEXEC | libc::O_NOFOLLOW)
-            .open(&path)
-        {
+        let file = match open_event(index) {
             Ok(file) => file,
             Err(error) if error.kind() == io::ErrorKind::NotFound => continue,
             Err(error) => return Err(error),

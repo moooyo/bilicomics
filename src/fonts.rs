@@ -1,23 +1,52 @@
-use std::{io::Read, sync::{Arc, atomic::{AtomicBool, Ordering}}};
+//! Incremental registration of build-expanded, immutable bundled fonts.
 
-use anyhow::{Context, Result, bail, ensure};
-use flate2::read::GzDecoder;
+use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
+
+use anyhow::{Context, Result, ensure};
 use slint::{ComponentHandle, fontique_010::fontique};
 
 use crate::ui::{AppWindow, Theme};
 
-const MAX_FONT_BYTES: u64 = 64 * 1024 * 1024;
-const FONT_FACE_COUNT: usize = 5;
 pub const STARTUP_FONT_FAMILY: &str = "BiliComics Startup";
+
+struct BundledFont {
+    encoded_bytes: usize,
+    bytes: &'static [u8],
+}
+
+static BUNDLED_FONTS: &[BundledFont] = &[
+    BundledFont {
+        encoded_bytes: include_bytes!("../assets/fonts/NotoSansSC-Regular.otf.gz").len(),
+        bytes: include_bytes!(concat!(env!("OUT_DIR"), "/fonts/NotoSansSC-Regular.otf")),
+    },
+    BundledFont {
+        encoded_bytes: include_bytes!("../assets/fonts/NotoSansSC-Medium.otf.gz").len(),
+        bytes: include_bytes!(concat!(env!("OUT_DIR"), "/fonts/NotoSansSC-Medium.otf")),
+    },
+    BundledFont {
+        encoded_bytes: include_bytes!("../assets/fonts/NotoSansSC-Bold.otf.gz").len(),
+        bytes: include_bytes!(concat!(env!("OUT_DIR"), "/fonts/NotoSansSC-Bold.otf")),
+    },
+    BundledFont {
+        encoded_bytes: include_bytes!("../assets/fonts/NotoSerifSC-Regular.otf.gz").len(),
+        bytes: include_bytes!(concat!(env!("OUT_DIR"), "/fonts/NotoSerifSC-Regular.otf")),
+    },
+    BundledFont {
+        encoded_bytes: include_bytes!("../assets/fonts/NotoSerifSC-Bold.otf.gz").len(),
+        bytes: include_bytes!(concat!(env!("OUT_DIR"), "/fonts/NotoSerifSC-Bold.otf")),
+    },
+];
+
+type FontBytes = Arc<dyn AsRef<[u8]> + Send + Sync>;
 
 pub struct PreparedFont {
     index: usize,
-    bytes: Arc<Vec<u8>>,
+    bytes: FontBytes,
 }
 
 #[derive(Default)]
 pub struct Fonts {
-    faces: Vec<Arc<Vec<u8>>>,
+    faces: Vec<FontBytes>,
     registered: usize,
     sans_family: Option<String>,
     serif_family: Option<String>,
@@ -30,7 +59,7 @@ impl Fonts {
     }
 
     pub fn register_bootstrap(ui: &AppWindow) -> Result<()> {
-        let family = register_family(Arc::new(Self::bootstrap_bytes().to_vec()))?;
+        let family = register_family(Arc::new(Self::bootstrap_bytes()))?;
         ensure!(family == STARTUP_FONT_FAMILY, "The startup font family does not match its provenance");
         ui.global::<Theme>().set_ui_font(family.clone().into());
         ui.global::<Theme>().set_serif_font(family.into());
@@ -44,51 +73,34 @@ impl Fonts {
         Ok(fonts)
     }
 
-    /// Deliver each immutable face as soon as its decompression is complete.
-    /// Registration may overlap later decompression without changing UI families.
+    /// Share static ELF-backed faces without runtime expansion or full copies.
+    /// Registration remains ordered and leaves UI families unchanged until finish.
     pub fn prepare_faces(cancelled: &AtomicBool, mut deliver: impl FnMut(PreparedFont) -> Result<()>) -> Result<()> {
-        let compressed: &[&[u8]] = &[
-            include_bytes!("../assets/fonts/NotoSansSC-Regular.otf.gz"),
-            include_bytes!("../assets/fonts/NotoSansSC-Medium.otf.gz"),
-            include_bytes!("../assets/fonts/NotoSansSC-Bold.otf.gz"),
-            include_bytes!("../assets/fonts/NotoSerifSC-Regular.otf.gz"),
-            include_bytes!("../assets/fonts/NotoSerifSC-Bold.otf.gz"),
-        ];
-        for (index, bytes) in compressed.iter().enumerate() {
+        for (index, font) in BUNDLED_FONTS.iter().enumerate() {
             if cancelled.load(Ordering::Acquire) { return Ok(()); }
             let span = crate::performance::enabled().then(crate::performance::Span::start);
-            let prepared = (|| -> Result<Vec<u8>> {
-                let mut decoded = Vec::new();
-                GzDecoder::new(*bytes)
-                    .take(MAX_FONT_BYTES + 1)
-                    .read_to_end(&mut decoded)
-                    .context("Read bundled font")?;
-                if decoded.len() as u64 > MAX_FONT_BYTES {
-                    bail!("The bundled font exceeds the font size limit");
-                }
-                Ok(decoded)
-            })();
+            let bytes: FontBytes = Arc::new(font.bytes);
             if let Some(span) = span {
                 let sample = span.finish();
                 // Delivery and event-loop notification are outside this span.
                 crate::performance::startup("font-face-prepare", &serde_json::json!({
                     "face_index": index,
-                    "encoded_bytes": bytes.len(),
-                    "decoded_bytes": prepared.as_ref().ok().map(Vec::len),
+                    "encoded_bytes": font.encoded_bytes,
+                    "decoded_bytes": font.bytes.len(),
+                    "storage": "static-embedded",
                     "wall_us": sample.wall_us,
                     "cpu_us": sample.cpu_us,
-                    "outcome": if prepared.is_ok() { "prepared" } else { "failed" },
+                    "outcome": "prepared",
                 }));
             }
-            let decoded = prepared?;
             if cancelled.load(Ordering::Acquire) { return Ok(()); }
-            deliver(PreparedFont { index, bytes: Arc::new(decoded) })?;
+            deliver(PreparedFont { index, bytes })?;
         }
         Ok(())
     }
 
     pub fn accept(&mut self, face: PreparedFont) -> Result<()> {
-        ensure!(face.index == self.faces.len() && face.index < FONT_FACE_COUNT,
+        ensure!(face.index == self.faces.len() && face.index < BUNDLED_FONTS.len(),
             "Bundled font faces arrived out of order");
         self.faces.push(face.bytes);
         Ok(())
@@ -103,23 +115,23 @@ impl Fonts {
     }
 
     pub fn default_bytes(&self) -> &[u8] {
-        self.faces[0].as_slice()
+        self.faces[0].as_ref().as_ref()
     }
 
     /// Register at most one face on the UI thread, then yield to the event loop.
     /// A true result means all faces have been registered.
     pub fn register_next(&mut self) -> Result<bool> {
-        let Some(bytes) = self.faces.get(self.registered) else { return Ok(self.registered == FONT_FACE_COUNT); };
+        let Some(bytes) = self.faces.get(self.registered) else { return Ok(self.registered == BUNDLED_FONTS.len()); };
         let family = register_family(bytes.clone())?;
         if self.registered == 0 { self.sans_family = Some(family.clone()); }
         if self.registered == 3 { self.serif_family = Some(family); }
         self.registered += 1;
-        Ok(self.registered == FONT_FACE_COUNT)
+        Ok(self.registered == BUNDLED_FONTS.len())
     }
 
     /// Switch business UI families only after every requested face is available.
     pub fn finish(&self, ui: &AppWindow) -> Result<()> {
-        ensure!(self.registered == FONT_FACE_COUNT, "Bundled font registration is not complete");
+        ensure!(self.registered == BUNDLED_FONTS.len(), "Bundled font registration is not complete");
         ui.global::<Theme>().set_ui_font(self.sans_family.as_ref().context("Missing Sans font")?.clone().into());
         ui.global::<Theme>().set_serif_font(self.serif_family.as_ref().context("Missing Serif font")?.clone().into());
         Ok(())
@@ -144,7 +156,7 @@ impl Fonts {
     }
 }
 
-fn register_family(bytes: Arc<Vec<u8>>) -> Result<String> {
+fn register_family(bytes: FontBytes) -> Result<String> {
     let mut collection = slint::fontique_010::shared_collection();
     let families = collection.register_fonts(fontique::Blob::new(bytes), None);
     families.first().and_then(|(id, _)| collection.family_name(*id))
@@ -176,10 +188,70 @@ mod tests {
     }
 
     #[test]
-    fn cancellation_before_work_does_not_decode_or_deliver_any_face() {
+    fn cancellation_before_work_does_not_deliver_any_face() {
         let cancelled = AtomicBool::new(true);
         let mut deliveries = 0;
         Fonts::prepare_faces(&cancelled, |_| { deliveries += 1; Ok(()) }).unwrap();
         assert_eq!(deliveries, 0);
+    }
+
+    #[test]
+    fn cancellation_after_delivery_stops_remaining_faces() {
+        let cancelled = AtomicBool::new(false);
+        let mut deliveries = 0;
+        Fonts::prepare_faces(&cancelled, |_| {
+            deliveries += 1;
+            cancelled.store(true, Ordering::Release);
+            Ok(())
+        }).unwrap();
+        assert_eq!(deliveries, 1);
+    }
+
+    #[test]
+    fn failed_delivery_stops_remaining_faces() {
+        let mut deliveries = 0;
+        let result = Fonts::prepare_faces(&AtomicBool::new(false), |_| {
+            deliveries += 1;
+            anyhow::bail!("Rejected font delivery")
+        });
+        assert!(result.is_err());
+        assert_eq!(deliveries, 1);
+    }
+
+    #[test]
+    fn expanded_faces_match_the_canonical_gzip_sources() {
+        use flate2::read::GzDecoder;
+        use std::io::Read;
+
+        let canonical: &[&[u8]] = &[
+            include_bytes!("../assets/fonts/NotoSansSC-Regular.otf.gz"),
+            include_bytes!("../assets/fonts/NotoSansSC-Medium.otf.gz"),
+            include_bytes!("../assets/fonts/NotoSansSC-Bold.otf.gz"),
+            include_bytes!("../assets/fonts/NotoSerifSC-Regular.otf.gz"),
+            include_bytes!("../assets/fonts/NotoSerifSC-Bold.otf.gz"),
+        ];
+        assert_eq!(canonical.len(), BUNDLED_FONTS.len());
+        for (index, (font, compressed)) in BUNDLED_FONTS.iter().zip(canonical).enumerate() {
+            let mut original = Vec::new();
+            GzDecoder::new(*compressed).take(64 * 1024 * 1024 + 1)
+                .read_to_end(&mut original).unwrap();
+            assert!(original.len() <= 64 * 1024 * 1024);
+            assert_eq!(font.encoded_bytes, compressed.len());
+            assert!(font.bytes == original.as_slice(), "Expanded font bytes changed at index {index}");
+        }
+    }
+
+    #[test]
+    fn prepared_faces_share_the_embedded_payloads() {
+        let mut deliveries = 0;
+        Fonts::prepare_faces(&AtomicBool::new(false), |face| {
+            let bytes = face.bytes.as_ref().as_ref();
+            let embedded = BUNDLED_FONTS[face.index].bytes;
+            assert_eq!(bytes.as_ptr(), embedded.as_ptr());
+            assert_eq!(bytes.len(), embedded.len());
+            deliveries += 1;
+            Ok(())
+        }).unwrap();
+        assert_eq!(deliveries, BUNDLED_FONTS.len());
     }
 }

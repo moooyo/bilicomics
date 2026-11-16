@@ -48,3 +48,20 @@ candidate fingerprint is
 its base commit alone does not reproduce those uncommitted inputs. BiliComics
 adapts cancellation and final-viewport integration independently. Aidoku's
 Scribe results do not establish BiliComics hardware or optical acceptance.
+
+## Aidoku startup preparation and input discovery
+
+The startup font preparation, attachment scheduling, bounded launcher polling,
+and verified sysfs input discovery adaptations are derived under
+GPL-3.0-or-later from AidokuForKindle commits
+`6660e32a5035a61705b942635fc41c7a16f749f7`,
+`e141d4479ae6440e2ba3f7b93d8f0e616458055f`, and
+`4ce1fd156a7a4a75ca2fda5f4324991d6b02ce92`. The complete original license,
+nine unchanged selected-source snapshots, per-file hashes, and adaptation
+scope are retained in `docs/research/aidoku-startup-20261117/`. The original
+backend notices remain in its vendor directory. BiliComics retains its own
+font payloads, application identities, lifecycle and recovery behavior, and
+independent verification scope. Existing first-scene refresh and process-read
+mechanisms are distinguished from the newly adopted changes. Aidoku timings
+do not establish BiliComics performance or hardware acceptance. This notice
+does not select an overall project license or declare a published release.

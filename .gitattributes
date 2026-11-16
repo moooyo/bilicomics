@@ -50,3 +50,6 @@
 # Preserve software-resize source inventories and physical capture identities.
 /docs/verification/cpu-resize-cache-20261116/** -text
 /docs/physical/cpu-resize-cache-20261116/** -text
+
+# Retain the exact adopted startup sources and original license notices.
+/docs/research/aidoku-startup-20261117/** -text

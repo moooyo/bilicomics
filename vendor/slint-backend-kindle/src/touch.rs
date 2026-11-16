@@ -2,8 +2,11 @@ use slint::LogicalPosition;
 use slint::platform::software_renderer::MinimalSoftwareWindow;
 use slint::platform::{PointerEventButton, WindowEvent};
 use std::io::Write;
-use std::os::fd::{AsRawFd, FromRawFd, IntoRawFd, OwnedFd};
+use std::os::fd::{AsRawFd, IntoRawFd, OwnedFd};
+use std::os::unix::fs::OpenOptionsExt;
 use std::sync::atomic::{AtomicU8, AtomicU32, Ordering};
+
+use crate::input_discovery::{EventSnapshot, MetadataKind};
 
 const MAX_INPUT_DIAGNOSTIC_RECORDS: u8 = 16;
 static INPUT_DIAGNOSTIC_RECORDS: AtomicU8 = AtomicU8::new(0);
@@ -246,26 +249,16 @@ pub(crate) struct TouchInput {
 
 impl TouchInput {
     pub(crate) fn open(screen_width: u32, screen_height: u32) -> std::io::Result<Self> {
-        let path = Self::find_touch_device().ok_or_else(|| {
+        let file = Self::find_touch_device().ok_or_else(|| {
             std::io::Error::new(
                 std::io::ErrorKind::NotFound,
                 "no touch input device found (looked for ABS_MT_POSITION_X in /dev/input/event*)",
             )
         })?;
-        let c_path = std::ffi::CString::new(path).unwrap();
-        let fd = unsafe {
-            libc::open(
-                c_path.as_ptr(),
-                libc::O_RDONLY | libc::O_NONBLOCK | libc::O_CLOEXEC,
-            )
-        };
-        if fd < 0 {
-            return Err(std::io::Error::last_os_error());
-        }
-
-        // SAFETY: open succeeded and fd has one owner. Closing the lease also
-        // releases EVIOCGRAB if a later state query fails before construction.
-        let lease = unsafe { OwnedFd::from_raw_fd(fd) };
+        // Retain the checked descriptor. Closing its lease also releases the
+        // grab if a state query fails before TouchInput takes ownership.
+        let lease: OwnedFd = file.into();
+        let fd = lease.as_raw_fd();
         // Exclusively grab the device so X/framework doesn't consume our events.
         let ret = unsafe { libc::ioctl(lease.as_raw_fd(), EVIOCGRAB as _, 1 as libc::c_int) };
         if ret < 0 {
@@ -354,20 +347,25 @@ impl TouchInput {
     }
 
     fn supports_axis(fd: libc::c_int, axis: u16) -> std::io::Result<bool> {
-        let mut bits = [0u8; 8];
         let index = axis as usize;
-        if index >= bits.len() * 8 {
+        if index >= 64 {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 "touch axis exceeds the queried capability bitmap",
             ));
         }
+        let bits = Self::query_absolute_axes(fd)?;
+        Ok(bits & (1u64 << axis) != 0)
+    }
+
+    fn query_absolute_axes(fd: libc::c_int) -> std::io::Result<u64> {
+        let mut bits = [0u8; 8];
         // SAFETY: bits has the eight bytes encoded by this ioctl request.
         let result = unsafe { libc::ioctl(fd, eviocgbit_abs() as _, bits.as_mut_ptr()) };
         if result < 0 {
             Err(std::io::Error::last_os_error())
         } else {
-            Ok(bits[index / 8] & (1 << (index % 8)) != 0)
+            Ok(u64::from_le_bytes(bits))
         }
     }
 
@@ -384,19 +382,53 @@ impl TouchInput {
         }
     }
 
-    /// Scan /dev/input/event* for a device that reports ABS_MT_POSITION_X (0x35).
-    fn find_touch_device() -> Option<String> {
-        for n in 0..10 {
-            let path = format!("/dev/input/event{n}");
-            let c_path = std::ffi::CString::new(path.as_str()).unwrap();
-            let fd = unsafe { libc::open(c_path.as_ptr(), libc::O_RDONLY | libc::O_NONBLOCK) };
-            if fd < 0 {
-                continue;
+    /// Discover a checked owner without closing and reopening the selected node.
+    fn find_touch_device() -> Option<std::fs::File> {
+        if let Some(snapshot) = EventSnapshot::capture(MetadataKind::AbsoluteAxes, 9) {
+            let mut found = None;
+            let mut current = true;
+            for candidate in snapshot.entries().filter(|entry| {
+                entry
+                    .axes()
+                    .is_some_and(|axes| axes & (1u64 << TOUCH_POSITION_X) != 0)
+            }) {
+                let file = match candidate.open_checked() {
+                    Ok(Some(file)) => file,
+                    _ => {
+                        current = false;
+                        break;
+                    }
+                };
+                let axes = match Self::query_absolute_axes(file.as_raw_fd()) {
+                    Ok(axes) => axes,
+                    Err(_) => {
+                        current = false;
+                        break;
+                    }
+                };
+                if candidate.axes() != Some(axes) {
+                    current = false;
+                    break;
+                }
+                found = Some(file);
+                break;
             }
-            let supported = Self::supports_axis(fd, TOUCH_POSITION_X).unwrap_or(false);
-            unsafe { libc::close(fd) };
+            if current && found.is_some() && snapshot.is_current() {
+                return found;
+            }
+        }
+        for n in 0..10 {
+            // Preserve the legacy fallback's handling of linked event nodes.
+            let Ok(file) = std::fs::OpenOptions::new()
+                .read(true)
+                .custom_flags(libc::O_NONBLOCK | libc::O_CLOEXEC)
+                .open(format!("/dev/input/event{n}"))
+            else {
+                continue;
+            };
+            let supported = Self::supports_axis(file.as_raw_fd(), TOUCH_POSITION_X).unwrap_or(false);
             if supported {
-                return Some(path);
+                return Some(file);
             }
         }
         None

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "source_repository": "AidokuForKindle",
+  "source_repository_url": "https://github.com/moooyo/aidokuForKindle",
+  "source_commits": [
+    "6660e32a5035a61705b942635fc41c7a16f749f7",
+    "e141d4479ae6440e2ba3f7b93d8f0e616458055f",
+    "4ce1fd156a7a4a75ca2fda5f4324991d6b02ce92"
+  ],
+  "license": "GPL-3.0-or-later",
+  "scope": "Selected unchanged implementation source snapshots and the original license; no device evidence or account data.",
+  "files": [
+    {
+      "path": "LICENSE.AIDOKU",
+      "source_path": "LICENSE",
+      "source_commit": "4ce1fd156a7a4a75ca2fda5f4324991d6b02ce92",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "upstream/4ce1fd1/vendor/slint-backend-kindle/src/input_discovery.rs",
+      "source_path": "vendor/slint-backend-kindle/src/input_discovery.rs",
+      "source_commit": "4ce1fd156a7a4a75ca2fda5f4324991d6b02ce92",
+      "bytes": 16721,
+      "sha256": "16a737308a68fc8b136badedb9e2778f4cfe5a2ba93c3b25e5c5da983b7e9737"
+    },
+    {
+      "path": "upstream/4ce1fd1/vendor/slint-backend-kindle/src/lib.rs",
+      "source_path": "vendor/slint-backend-kindle/src/lib.rs",
+      "source_commit": "4ce1fd156a7a4a75ca2fda5f4324991d6b02ce92",
+      "bytes": 13032,
+      "sha256": "1b1019db0ee1ba8f1797d8dce52f38a8818a6ce2ac4fec7c359edcec3165a94c"
+    },
+    {
+      "path": "upstream/4ce1fd1/vendor/slint-backend-kindle/src/portrait_pose.rs",
+      "source_path": "vendor/slint-backend-kindle/src/portrait_pose.rs",
+      "source_commit": "4ce1fd156a7a4a75ca2fda5f4324991d6b02ce92",
+      "bytes": 16543,
+      "sha256": "709d394b54ab9dfbb5481c87c10e377627456a53aaa8f9702639854eda2277d5"
+    },
+    {
+      "path": "upstream/4ce1fd1/vendor/slint-backend-kindle/src/touch.rs",
+      "source_path": "vendor/slint-backend-kindle/src/touch.rs",
+      "source_commit": "4ce1fd156a7a4a75ca2fda5f4324991d6b02ce92",
+      "bytes": 52942,
+      "sha256": "4176103c455ba077740eaafdb9a5c9a483ed03e06fcc4f3aae934ac85223d7fe"
+    },
+    {
+      "path": "upstream/6660e32/packaging/kindle/launch.sh",
+      "source_path": "packaging/kindle/launch.sh",
+      "source_commit": "6660e32a5035a61705b942635fc41c7a16f749f7",
+      "bytes": 42373,
+      "sha256": "02b20bc6c1f10f0afff5fc4c9802288ee43ac72f1647024bc316dc13b8c3a2c0"
+    },
+    {
+      "path": "upstream/6660e32/src/app/startup.rs",
+      "source_path": "src/app/startup.rs",
+      "source_commit": "6660e32a5035a61705b942635fc41c7a16f749f7",
+      "bytes": 9298,
+      "sha256": "5673af4ec09c504bbe00fef5aa4b71a042779209bd170552d94e63cb3285d83c"
+    },
+    {
+      "path": "upstream/e141d44/build.rs",
+      "source_path": "build.rs",
+      "source_commit": "e141d4479ae6440e2ba3f7b93d8f0e616458055f",
+      "bytes": 4472,
+      "sha256": "2309caa33917ce3b1fcfc36fa8020bc7c19bc6702c0597c3c6d6611a6ee96955"
+    },
+    {
+      "path": "upstream/e141d44/src/bootstrap_fonts.rs",
+      "source_path": "src/bootstrap_fonts.rs",
+      "source_commit": "e141d4479ae6440e2ba3f7b93d8f0e616458055f",
+      "bytes": 7959,
+      "sha256": "1b4759f21e4bd40a35b3a5016fc631236852e381003259749a20d1b039f90e10"
+    },
+    {
+      "path": "upstream/e141d44/src/bootstrap_startup.rs",
+      "source_path": "src/bootstrap_startup.rs",
+      "source_commit": "e141d4479ae6440e2ba3f7b93d8f0e616458055f",
+      "bytes": 15049,
+      "sha256": "2ff4e2b359786da84a349870f436849cfe15a54ba2308ba16d839bf6a56df1b3"
+    }
+  ]
+}

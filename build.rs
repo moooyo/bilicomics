@@ -1,7 +1,35 @@
-use std::{collections::BTreeMap, env, fs, path::PathBuf};
+use std::{collections::BTreeMap, env, fs, io::Read, path::PathBuf};
 
 #[path = "src/source/native_build.rs"]
 mod native_build;
+
+const MAX_BUNDLED_FONT_BYTES: u64 = 64 * 1024 * 1024;
+const BUNDLED_FONT_FILES: &[&str] = &[
+    "NotoSansSC-Regular.otf",
+    "NotoSansSC-Medium.otf",
+    "NotoSansSC-Bold.otf",
+    "NotoSerifSC-Regular.otf",
+    "NotoSerifSC-Bold.otf",
+];
+
+fn prepare_bundled_fonts(output: &std::path::Path) {
+    let directory = output.join("fonts");
+    fs::create_dir_all(&directory).expect("Create generated font directory");
+    for name in BUNDLED_FONT_FILES {
+        let input = format!("assets/fonts/{name}.gz");
+        println!("cargo:rerun-if-changed={input}");
+        let compressed = fs::File::open(&input).expect("Open a bundled font source");
+        let mut bytes = Vec::new();
+        flate2::read::GzDecoder::new(compressed)
+            .take(MAX_BUNDLED_FONT_BYTES + 1)
+            .read_to_end(&mut bytes)
+            .expect("Expand a bundled font at build time");
+        assert!(bytes.len() as u64 <= MAX_BUNDLED_FONT_BYTES,
+            "The bundled font exceeds the font size limit: {name}");
+        write_if_changed(&directory.join(name), &bytes)
+            .expect("Write a generated font payload");
+    }
+}
 
 fn main() {
     native_build::build();
@@ -21,6 +49,7 @@ fn main() {
     println!("cargo:rerun-if-changed=assets/i18n");
     println!("cargo:rerun-if-changed=assets/design-tokens.json");
     let output = PathBuf::from(env::var_os("OUT_DIR").expect("Cargo output directory"));
+    prepare_bundled_fonts(&output);
     let mut paths: Vec<_> = fs::read_dir("assets/i18n")
         .expect("Read translation directory")
         .map(|entry| entry.expect("Read translation entry").path())

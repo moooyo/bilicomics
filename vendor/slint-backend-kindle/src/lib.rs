@@ -22,6 +22,7 @@ mod command;
 mod dithering;
 mod framebuffer;
 mod frame_render;
+mod input_discovery;
 mod lifecycle;
 mod performance;
 mod platform;

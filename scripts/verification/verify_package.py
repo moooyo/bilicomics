@@ -55,12 +55,40 @@ ALLOWED_FILES = {
     "notices/spatial-dither/LICENSE.AIDOKU",
     "notices/spatial-dither/README.md",
     "notices/spatial-dither/UPSTREAM_FILES.json",
+    "notices/aidoku-startup/LICENSE.AIDOKU",
+    "notices/aidoku-startup/README.md",
+    "notices/aidoku-startup/UPSTREAM_FILES.json",
 }
 EXECUTABLE_FILES = {"bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker", "bilicomics/launch.sh"}
 FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 SPATIAL_DITHER_NOTICES = ("LICENSE.AIDOKU", "README.md", "UPSTREAM_FILES.json")
 SPATIAL_DITHER_PREFIX = "notices/spatial-dither/"
 SPATIAL_DITHER_REFERENCE = "docs/research/aidoku-spatial-dither-20261116"
+STARTUP_NOTICES = ("LICENSE.AIDOKU", "README.md", "UPSTREAM_FILES.json")
+STARTUP_PREFIX = "notices/aidoku-startup/"
+STARTUP_REFERENCE = "docs/research/aidoku-startup-20261117"
+STARTUP_COMMITS = (
+    "6660e32a5035a61705b942635fc41c7a16f749f7",
+    "e141d4479ae6440e2ba3f7b93d8f0e616458055f",
+    "4ce1fd156a7a4a75ca2fda5f4324991d6b02ce92",
+)
+STARTUP_SOURCES = {
+    "upstream/6660e32/packaging/kindle/launch.sh": (STARTUP_COMMITS[0], "packaging/kindle/launch.sh"),
+    "upstream/6660e32/src/app/startup.rs": (STARTUP_COMMITS[0], "src/app/startup.rs"),
+    "upstream/e141d44/build.rs": (STARTUP_COMMITS[1], "build.rs"),
+    "upstream/e141d44/src/bootstrap_fonts.rs": (STARTUP_COMMITS[1], "src/bootstrap_fonts.rs"),
+    "upstream/e141d44/src/bootstrap_startup.rs": (STARTUP_COMMITS[1], "src/bootstrap_startup.rs"),
+    "upstream/4ce1fd1/vendor/slint-backend-kindle/src/input_discovery.rs":
+        (STARTUP_COMMITS[2], "vendor/slint-backend-kindle/src/input_discovery.rs"),
+    "upstream/4ce1fd1/vendor/slint-backend-kindle/src/lib.rs":
+        (STARTUP_COMMITS[2], "vendor/slint-backend-kindle/src/lib.rs"),
+    "upstream/4ce1fd1/vendor/slint-backend-kindle/src/portrait_pose.rs":
+        (STARTUP_COMMITS[2], "vendor/slint-backend-kindle/src/portrait_pose.rs"),
+    "upstream/4ce1fd1/vendor/slint-backend-kindle/src/touch.rs":
+        (STARTUP_COMMITS[2], "vendor/slint-backend-kindle/src/touch.rs"),
+    "LICENSE.AIDOKU": (STARTUP_COMMITS[2], "LICENSE"),
+}
+STARTUP_LICENSE_SHA256 = "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
 
 
 def sha256(path):
@@ -102,6 +130,49 @@ def check_spatial_dither_notices(archive, app_root, report):
            source_snapshot_sha256=upstream.get("source_snapshot_sha256"),
            reference_images_bundled=False,
            scope="Original source/license provenance only; reference-project verification is separate")
+
+
+def check_startup_notices(archive, app_root, report):
+    """Bind retained startup notices to the pinned, selected upstream sources."""
+    expected = {STARTUP_PREFIX + name for name in STARTUP_NOTICES}
+    actual = {name for name in archive.namelist() if name.startswith(STARTUP_PREFIX)}
+    require(actual == expected, "The startup notice group is incomplete or contains source inputs")
+    reference = app_root / STARTUP_REFERENCE
+    contents = {}
+    for name in STARTUP_NOTICES:
+        content = archive.read(STARTUP_PREFIX + name)
+        require(content == (reference / name).read_bytes(),
+                f"A retained startup notice differs from the frozen source: {name}")
+        contents[name] = content
+    upstream = json.loads(contents["UPSTREAM_FILES.json"])
+    require(upstream.get("source_repository") == "AidokuForKindle"
+            and upstream.get("source_commits") == list(STARTUP_COMMITS)
+            and upstream.get("license") == "GPL-3.0-or-later",
+            "The startup provenance differs from the pinned source identities")
+    files = upstream.get("files")
+    require(isinstance(files, list) and len(files) == len(STARTUP_SOURCES)
+            and all(isinstance(item, dict) and isinstance(item.get("path"), str) for item in files),
+            "The startup source manifest is incomplete or malformed")
+    paths = [item["path"] for item in files]
+    require(len(set(paths)) == len(paths) and set(paths) == set(STARTUP_SOURCES),
+            "The startup source manifest has duplicate, missing, or unexpected paths")
+    for item in files:
+        relative = item["path"]
+        commit, source_path = STARTUP_SOURCES[relative]
+        require(item.get("source_commit") == commit and item.get("source_path") == source_path,
+                f"A startup source identity differs from its pinned input: {relative}")
+        path = reference / relative
+        require(path.is_file() and not path.is_symlink(), f"A retained startup source is unavailable: {relative}")
+        path.resolve().relative_to(reference.resolve())
+        data = path.read_bytes()
+        require(item.get("bytes") == len(data) and item.get("sha256") == hashlib.sha256(data).hexdigest(),
+                f"A retained startup source differs from its manifest: {relative}")
+    require(hashlib.sha256(contents["LICENSE.AIDOKU"]).hexdigest() == STARTUP_LICENSE_SHA256,
+            "The startup license differs from the original GPLv3 text")
+    record(report, "startup_implementation_notice_provenance", retained_files=list(STARTUP_NOTICES),
+           source_repository=upstream["source_repository"], source_commits=list(STARTUP_COMMITS),
+           source_snapshots=len(STARTUP_SOURCES) - 1, source_code_bundled=False,
+           scope="Selected original sources and license only; independent BiliComics verification required")
 
 
 def check_package(args, report):
@@ -184,6 +255,7 @@ def check_package(args, report):
                 "The packaged JPEG worker differs from the selected ARM binary")
         record(report, "packaged_jpeg_worker_matches_selected_binary")
         check_spatial_dither_notices(archive, app_root, report)
+        check_startup_notices(archive, app_root, report)
         accepted = [line for line in archive.read("bilicomics/data/device-allowlist").decode("utf-8").splitlines()
                     if line.strip() and not line.lstrip().startswith("#")]
         require(not accepted, "The development archive unexpectedly accepts a device/firmware combination")

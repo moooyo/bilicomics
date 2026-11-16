@@ -25,7 +25,7 @@ pub struct PreparedApp {
     resume_comic: Option<String>,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub(super) enum AttachStage {
     Covers,
     Catalog,
@@ -235,9 +235,20 @@ impl App {
 
     pub fn is_starting(&self) -> bool { self.startup_stage.is_some() }
 
-    /// Advance one bounded attachment phase, keeping all UI mutation on this thread.
-    /// The caller hides the startup screen only after this returns true.
+    /// Coalesce cheap stages while keeping UI mutation on this thread.
+    /// Check the budget between stages; a slow or blocked stage yields immediately.
     pub fn advance_startup(&mut self) -> Result<bool> {
+        let started = Instant::now();
+        loop {
+            let previous = self.startup_stage;
+            if self.advance_startup_stage()? { return Ok(true); }
+            if self.startup_stage == previous || started.elapsed() >= Duration::from_millis(4) {
+                return Ok(false);
+            }
+        }
+    }
+
+    fn advance_startup_stage(&mut self) -> Result<bool> {
         if self.is_suspended() { return Ok(false); }
         let Some(stage) = self.startup_stage else { return Ok(true); };
         let stage_name = match stage {
@@ -510,6 +521,43 @@ mod tests {
         let mut encoded = Cursor::new(Vec::new());
         image::DynamicImage::ImageRgba8(source).write_to(&mut encoded, image::ImageFormat::Png)?;
         assert!(decode_cover_bytes(encoded.into_inner()).is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn a_partial_cover_batch_yields_before_consuming_the_remaining_attachment() -> Result<()> {
+        let directory = tempfile::tempdir()?;
+        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
+        let client = BiliClient::new(None, directory.path())?;
+        let mut app = super::super::test_support::app(directory.path(), DeviceProfile::Paperwhite5,
+            client, runtime.handle().clone())?;
+        app.startup_stage = Some(AttachStage::Covers);
+        for (id, width, height) in [("first", 1024, 1024), ("remaining", 1, 1)] {
+            app.startup_covers.push_back(PreparedCover {
+                comic_id: id.into(), path: directory.path().join(format!("{id}.png")),
+                rgba: vec![255; width as usize * height as usize * 4], width, height,
+            });
+        }
+        assert!(!app.advance_startup()?);
+        assert!(matches!(app.startup_stage, Some(AttachStage::Covers)));
+        assert_eq!(app.startup_covers.len(), 1);
+        assert_eq!(app.startup_covers[0].comic_id, "remaining");
+        assert_eq!(app.cover_images.len(), 1);
+        Ok(())
+    }
+
+    #[test]
+    fn suspension_keeps_attachment_pending_without_consuming_prepared_resources() -> Result<()> {
+        let directory = tempfile::tempdir()?;
+        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
+        let client = BiliClient::new(None, directory.path())?;
+        let mut app = super::super::test_support::app(directory.path(), DeviceProfile::Paperwhite5,
+            client, runtime.handle().clone())?;
+        app.startup_stage = Some(AttachStage::Account);
+        app.begin_suspend_intent_gate();
+        assert!(!app.advance_startup()?);
+        assert!(matches!(app.startup_stage, Some(AttachStage::Account)));
+        assert!(app.is_suspended());
         Ok(())
     }
 }

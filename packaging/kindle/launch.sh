@@ -150,6 +150,7 @@ read_process() {
     case "$1" in *[!0-9]*|'') return 1 ;; esac
     IFS= read -r process_stat <"/proc/$1/stat" || return 1
     [ "${process_stat%% *}" = "$1" ] || return 1
+    # comm can contain spaces and parentheses; fields follow its final ).
     process_tail=${process_stat##*) }
     [ "$process_tail" != "$process_stat" ] || return 1
     set -- $process_tail
@@ -415,12 +416,12 @@ stop_native_read() {
         # Before setsid completes the gated wrapper has not started an IPC.
         kill -KILL "$NATIVE_READ_PID" 2>/dev/null || :
     fi
-    native_read_reap=10
+    native_read_reap=50
     while native_read_is_owned && [ "$native_read_reap" -gt 0 ]; do
         case "$PROCESS_STATE" in
             Z|X) break ;;
         esac
-        usleep 100000
+        usleep 20000
         native_read_reap=$((native_read_reap - 1))
     done
     if [ -n "$NATIVE_READ_PID" ]; then
@@ -490,7 +491,8 @@ native_read_command() {
     ' sh "$LOCK_DIR/native-read-done" "$LOCK_DIR/native-read-go" "$NATIVE_READ_SEQUENCE" "$LAUNCH_TOKEN" "$LOCK_DIR/native-read-command" "$@" >"$LOCK_DIR/native-read-output" 2>/dev/null 3>&- 4>&- 5>&- 6>&- &
     NATIVE_READ_PID=$!
     NATIVE_READ_BIRTH=''
-    native_read_checks=20
+    # Preserve the two-second sleep budget while observing completion sooner.
+    native_read_checks=100
     native_read_status=1
     native_read_released=0
     while [ "$native_read_checks" -gt 0 ]; do
@@ -520,7 +522,7 @@ native_read_command() {
             fi
         fi
         native_read_checks=$((native_read_checks - 1))
-        usleep 100000
+        usleep 20000
     done
     stop_native_read
     if [ "$NATIVE_READ_REAPED" -eq 1 ]; then
@@ -900,13 +902,20 @@ pause_window_manager() {
                 *[!0-9]*|'') continue ;;
             esac
             # A previously stopped process must remain stopped after exit.
-            case "$(sed -n 's/^State:[[:space:]]*//p' "/proc/$wm_pid/status" 2>/dev/null || :)" in
+            if read_process "$wm_pid" 2>/dev/null; then
+                wm_state=$PROCESS_STATE
+                wm_birth=$PROCESS_BIRTH
+            else
+                # Preserve status-based handling if a comm is not one line.
+                wm_state=$(sed -n 's/^State:[[:space:]]*//p' "/proc/$wm_pid/status" 2>/dev/null || :)
+                wm_birth=$(process_birth "$wm_pid" 2>/dev/null || :)
+            fi
+            case "$wm_state" in
                 T*|t*|'') continue ;;
             esac
-            wm_birth=$(process_birth "$wm_pid" 2>/dev/null || :)
             if kill -STOP "$wm_pid" 2>/dev/null; then
                 PAUSED_WM_PIDS="$PAUSED_WM_PIDS $wm_pid"
-                if [ -n "$wm_birth" ] && [ "$(process_birth "$wm_pid" 2>/dev/null || :)" = "$wm_birth" ]; then
+                if [ -n "$wm_birth" ] && read_process "$wm_pid" 2>/dev/null && [ "$PROCESS_BIRTH" = "$wm_birth" ]; then
                     PAUSED_WM_IDENTITIES="$PAUSED_WM_IDENTITIES $wm_pid:$wm_birth"
                 fi
                 launch_trace awesome_paused
@@ -1063,7 +1072,8 @@ start_observer() {
     observe_power &
     EVENT_SOURCE_PID=$!
     EVENT_SOURCE_BIRTH=''
-    observer_checks=20
+    # Preserve the two-second sleep budget while admitting ownership sooner.
+    observer_checks=100
     while [ "$observer_checks" -gt 0 ]; do
         if [ -z "$EVENT_SOURCE_BIRTH" ] && read_process "$EVENT_SOURCE_PID" 2>/dev/null && [ "$PROCESS_PARENT" = "$$" ]; then
             EVENT_SOURCE_BIRTH=$PROCESS_BIRTH
@@ -1076,7 +1086,7 @@ start_observer() {
             return 0
         fi
         observer_checks=$((observer_checks - 1))
-        usleep 100000
+        usleep 20000
     done
     fail 'Power event observer ownership could not be established.'
 }

@@ -27,6 +27,11 @@ import sys
 import time
 
 env = os.environ
+if "TEST_FAKE_COMM" in env:
+    import ctypes
+    name = env["TEST_FAKE_COMM"].encode("ascii")
+    if ctypes.CDLL(None).prctl(15, ctypes.c_char_p(name), 0, 0, 0) != 0:
+        raise RuntimeError("Set the fixture process name")
 
 def portrait_metadata_fixture():
     # This controlled observation is shared by the compatibility primitive and
@@ -976,6 +981,47 @@ class LauncherLifecycleTests(unittest.TestCase):
         status, _, _ = self.run_launcher()
         self.assertEqual(status, 7)
         self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+
+    def test_process_names_with_spaces_and_parentheses_preserve_owned_lifecycle(self):
+        name = "bili) (x)"
+        self.env.update(TEST_HOLD="1", TEST_OUTPUT_CAPABILITY="framebuffer8", TEST_FAKE_COMM=name)
+        manager = subprocess.Popen([
+            sys.executable, "-c",
+            "import ctypes, sys, time; "
+            "result = ctypes.CDLL(None).prctl(15, ctypes.c_char_p(sys.argv[1].encode('ascii')), 0, 0, 0); "
+            "assert result == 0; time.sleep(60)",
+            name,
+        ])
+        self.addCleanup(self.stop_fixture_process, manager)
+        self.wait_until(lambda: Path(f"/proc/{manager.pid}/comm").read_text().strip() == name)
+        self.script(self.bin / "pidof", f"printf '%s\\n' '{manager.pid}'")
+
+        def drive(_):
+            self.ready()
+            original = self.state()
+            self.assertEqual(Path(f"/proc/{original['pid']}/comm").read_text().strip(), name)
+            self.wait_until(lambda: self.process_state(manager.pid).startswith("T"))
+            self.suspend()
+            self.assertFalse(self.process_state(manager.pid).startswith("T"))
+            self.resume()
+            self.wait_until(lambda: self.process_state(manager.pid).startswith("T"))
+            for key in ("pid", "comic", "episode", "revision", "page", "route"):
+                self.assertEqual(self.state()[key], original[key])
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 0, error)
+        self.assertEqual(len(self.starts()), 1)
+        self.assertFalse(self.process_state(manager.pid).startswith("T"))
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_native_capture_keeps_the_existing_two_second_budget(self):
+        self.env["TEST_NATIVE_CAPTURE_DELAY"] = "1.1"
+        status, _, error = self.run_launcher()
+        self.assertEqual(status, 0, error)
+        self.assertEqual(len(self.starts()), 1)
+        self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+        self.assertFalse((self.root / "lock").exists())
 
     def test_oversized_production_logs_rotate_once_and_keep_one_backup(self):
         logs = self.home / "data" / "logs"

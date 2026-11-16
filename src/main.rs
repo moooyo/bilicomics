@@ -355,6 +355,9 @@ fn run(arguments: Arguments) -> Result<()> {
     }
     let platform = Arc::new(Platform::new(arguments.device, arguments.kindle)?);
     let framebuffer_portrait = platform.uses_calibrated_framebuffer_portrait();
+    if arguments.kindle {
+        bilicomics::performance::startup("backend_install_begin", &());
+    }
 
     // Install once with a tiny real font, before starting any worker or signal reader.
     #[cfg(all(feature = "kindle", target_os = "linux"))]
@@ -363,6 +366,9 @@ fn run(arguments: Arguments) -> Result<()> {
     } else {
         None
     };
+    if arguments.kindle {
+        bilicomics::performance::startup("backend_installed", &());
+    }
     #[cfg(all(feature = "kindle", target_os = "linux"))]
     if bilicomics::performance::enabled() {
         if let Some(backend) = native_backend.as_ref() {
@@ -426,6 +432,7 @@ fn run(arguments: Arguments) -> Result<()> {
         bail!("The desktop backend is disabled in this executable");
     }
     let ui = AppWindow::new().context("Create the startup window")?;
+    bilicomics::performance::startup("window_constructed", &());
     platform::configure_window(ui.window(), &platform)?;
     let (mut width, mut height) = arguments.device.logical_size();
     if arguments.landscape {
@@ -437,6 +444,7 @@ fn run(arguments: Arguments) -> Result<()> {
     ui.global::<ShellModel>().set_demo(arguments.demo);
     ui.global::<ShellModel>().set_booting(true);
     Fonts::register_bootstrap(&ui)?;
+    bilicomics::performance::startup("bootstrap_font_registered", &());
     let wake = RuntimeWake::new(ui.as_weak());
     if !arguments.kindle {
         ui.window()
@@ -696,13 +704,6 @@ fn run(arguments: Arguments) -> Result<()> {
                     }
                     return;
                 }
-                if last_animation.elapsed() >= Duration::from_millis(400) {
-                    frame = (frame + 1) % 4;
-                    shell.set_startup_frame(frame);
-                    last_animation = Instant::now();
-                    // Only the changed black-and-white indicator is dirty.
-                    let _ = tick_platform.request_refresh(RefreshReason::Press);
-                }
                 if let Some(path) = startup_capture.as_deref() {
                     if captured_startup == 0 || captured_startup == 1 && frame != 0 {
                         let output = startup_frame_path(path, captured_startup);
@@ -720,6 +721,7 @@ fn run(arguments: Arguments) -> Result<()> {
                     }
                 }
                 if !worker_started {
+                    update_startup_activity(&ui, &tick_platform, &mut frame, &mut last_animation);
                     if rendering_notifier && !first_rendered.load(Ordering::Acquire) {
                         record_performance_gate(&mut performance_gate, "first_scene");
                         return;
@@ -796,7 +798,6 @@ fn run(arguments: Arguments) -> Result<()> {
                                         shell.set_startup_error(true);
                                         failed_at = Some(Instant::now());
                                     }
-                                    shell.set_startup_phase("state".into());
                                 }
                             }
                             Err(error) => {
@@ -807,13 +808,14 @@ fn run(arguments: Arguments) -> Result<()> {
                                 failed_at = Some(Instant::now());
                             }
                         }
-                        if failed_at.is_none() {
-                            startup_continue.schedule();
-                        }
+                    }
+                    if failed_at.is_some() { return; }
+                    if !fonts_registered {
+                        update_startup_activity(&ui, &tick_platform, &mut frame, &mut last_animation);
+                        if fonts.can_register_next() { startup_continue.schedule(); }
+                        // A pending prepared face will notify this driver.
                         return;
                     }
-                    // The next decompressed face will notify this driver.
-                    return;
                 }
                 if tick_control.application.borrow().is_none() {
                     record_performance_gate(&mut performance_gate, "state");
@@ -841,6 +843,9 @@ fn run(arguments: Arguments) -> Result<()> {
                                     failed_at = Some(Instant::now());
                                 }
                             }
+                        } else {
+                            shell.set_startup_phase("state".into());
+                            update_startup_activity(&ui, &tick_platform, &mut frame, &mut last_animation);
                         }
                     }
                     return;
@@ -1059,6 +1064,16 @@ fn run(arguments: Arguments) -> Result<()> {
         bail!("{}", failures.borrow().join("\n"));
     }
     Ok(())
+}
+
+/// Keep feedback during resource waits without adding display work to attachment.
+fn update_startup_activity(ui: &AppWindow, platform: &Platform, frame: &mut i32, last: &mut Instant) {
+    if last.elapsed() < Duration::from_millis(400) { return; }
+    *frame = (*frame + 1) % 4;
+    ui.global::<ShellModel>().set_startup_frame(*frame);
+    *last = Instant::now();
+    let _ = platform.request_refresh(RefreshReason::Press);
+    bilicomics::performance::startup("startup_activity_pulse", &());
 }
 
 fn start_startup_workers(
