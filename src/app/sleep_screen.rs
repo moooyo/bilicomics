@@ -65,6 +65,11 @@ struct PreparedCover {
     height: u32,
 }
 
+enum PreparedLocalCover {
+    Full(PreparedCover),
+    Thumbnail(PreparedCover),
+}
+
 #[derive(Clone)]
 struct PreparationToken {
     generation: u64,
@@ -308,6 +313,9 @@ impl App {
         let callback_token = token.clone();
         let data_dir = self.data_dir.clone();
         let file_name = identity.file_name.clone();
+        let thumbnail_name = (self.demo.is_none() && self.sleep_screen.cover.is_none()
+            && !comic.cover_url.trim().is_empty())
+            .then(|| format!("{}.png", hex_digest(comic.cover_url.as_bytes())));
         let admitted = self.background_optional_cover(LOCAL_JOB, token.trace,
             token.cancelled.clone(), token.drained.clone(), move || {
             worker_token.check()?;
@@ -318,11 +326,41 @@ impl App {
                     "encoded_bytes": encoded.as_ref().map_or(0, Vec::len)}));
             }
             worker_token.check()?;
-            encoded.map(|encoded| decode_cover_cancellable(encoded, &|| worker_token.check(), worker_token.trace)).transpose()
+            if let Some(encoded) = encoded {
+                return decode_cover_cancellable(encoded, &|| worker_token.check(), worker_token.trace)
+                    .map(|prepared| Some(PreparedLocalCover::Full(prepared)));
+            }
+            // A cold offline resume may only have the ordinary URL-scoped
+            // thumbnail. Read it here without restarting the regular cover
+            // pipeline, and keep it distinct from a full sleep derivative.
+            let Some(thumbnail_name) = thumbnail_name else { return Ok(None); };
+            let measured = worker_token.trace.map(|_| crate::performance::Span::start());
+            let encoded = covers::read_sleep_cover(&data_dir, &thumbnail_name)?;
+            if let (Some(trace), Some(measured)) = (worker_token.trace, measured) {
+                trace.record("thumbnail_read", &serde_json::json!({"timing": measured.finish(),
+                    "encoded_bytes": encoded.as_ref().map_or(0, Vec::len)}));
+            }
+            worker_token.check()?;
+            let Some(encoded) = encoded else { return Ok(None); };
+            let measured = worker_token.trace.map(|_| crate::performance::Span::start());
+            let checked = crate::image_integrity::validate_image_cancellable(&encoded, Some(480 * 640),
+                &|| worker_token.is_cancelled())?.context("Sleep thumbnail validation cancelled")?;
+            anyhow::ensure!(checked.width() <= 480 && checked.height() <= 640,
+                "Cached sleep thumbnail exceeds its prepared pixel budget");
+            if let (Some(trace), Some(measured)) = (worker_token.trace, measured) {
+                trace.record("thumbnail_verify", &measured.finish());
+            }
+            worker_token.check()?;
+            decode_cover_cancellable(encoded, &|| worker_token.check(), worker_token.trace)
+                .map(|prepared| Some(PreparedLocalCover::Thumbnail(prepared)))
         }, move |app, result| {
             if !app.complete_sleep_cover_preparation(&identity, &callback_token) { return; }
             match result {
-                Ok(Some(prepared)) => app.install_sleep_cover(prepared),
+                Ok(Some(PreparedLocalCover::Full(prepared))) => app.install_sleep_cover(prepared),
+                Ok(Some(PreparedLocalCover::Thumbnail(prepared))) => {
+                    app.sleep_screen.local_checked = true;
+                    if app.sleep_screen.cover.is_none() { app.sleep_screen.cover = Some(cover_image(prepared)); }
+                }
                 Ok(None) => app.sleep_screen.local_checked = true,
                 Err(error) => {
                     let capacity = error.downcast_ref::<jobs::CapacityError>().is_some();

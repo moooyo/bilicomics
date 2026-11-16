@@ -346,6 +346,50 @@ fn leaving_reader_does_not_select_residual_reading_metadata() -> Result<()> {
 }
 
 #[test]
+fn a_cold_offline_reader_uses_its_disk_thumbnail_then_refills_the_full_cover_online() -> Result<()> {
+    let runtime = runtime()?;
+    let _serial = runtime.block_on(source::work::process_test_lock().lock());
+    let directory = tempfile::tempdir()?;
+    let mut app = reader_app(directory.path(), runtime.handle().clone())?;
+    let transport = connect_fixture(&mut app)?;
+    app.options.offline = true;
+    assert!(app.cover_images.is_empty() && app.cover_files.is_empty());
+    let identity = CoverIdentity::new(&app.account, app.epoch, &comic()).unwrap();
+    let thumbnail_path = covers::cached_cover_path(directory.path(), COVER_URL);
+    let thumbnail = png(8, 12, &[102, 102, 102, 255].repeat(8 * 12))?;
+    fs::create_dir(directory.path().join("covers"))?;
+    fs::write(&thumbnail_path, &thumbnail)?;
+    assert!(!directory.path().join("covers").join(&identity.file_name).exists());
+    let sequence = app.sequence;
+    app.prepare_sleep_screen();
+    assert_eq!(app.sequence, sequence, "A disk thumbnail still waits for idle optional admission");
+    drive_local_phase_after_idle(&mut app)?;
+    assert!(app.sleep_screen.local_checked);
+    assert!(!app.sleep_screen.full_resolution && !app.sleep_screen.pending);
+    assert_eq!(dimensions(app.sleep_screen.cover.as_ref().unwrap()), (8, 12));
+    assert_eq!(app.sleep_cover_resource_snapshot()["full"], false);
+    assert!(app.cover_images.is_empty() && app.cover_files.is_empty(),
+        "Offline fallback must not restart the ordinary cover pipeline");
+    assert_eq!(transport.requests.load(Ordering::SeqCst), 0);
+    assert!(!directory.path().join("covers").join(&identity.file_name).exists());
+    let sequence = app.sequence;
+    for _ in 0..3 {
+        app.retry_next_frame_after_delivery();
+        app.prepare_sleep_screen();
+    }
+    assert_eq!(app.sequence, sequence, "A ready offline thumbnail must not be redecoded every tick");
+    assert_eq!(transport.requests.load(Ordering::SeqCst), 0);
+    app.options.offline = false;
+    drive_source_refill_after_idle(&mut app)?;
+    assert!(app.sleep_screen.full_resolution);
+    assert_eq!(dimensions(app.sleep_screen.cover.as_ref().unwrap()), (16, 24));
+    assert!(transport.requests.load(Ordering::SeqCst) >= 1);
+    assert!(covers::read_sleep_cover(directory.path(), &identity.file_name)?.is_some());
+    assert_eq!(fs::read(thumbnail_path)?, thumbnail);
+    Ok(())
+}
+
+#[test]
 fn corrupt_local_derivative_can_refill_from_the_current_source_while_awake() -> Result<()> {
     let runtime = runtime()?;
     let _serial = runtime.block_on(source::work::process_test_lock().lock());
@@ -383,7 +427,14 @@ fn a_delayed_source_result_cannot_replace_the_new_account_epoch_candidate() -> R
     let identity = CoverIdentity::new(&app.account, app.epoch, &comic()).unwrap();
     app.sleep_screen.identity = Some(identity.clone());
     app.sleep_screen.can_fetch = true;
+    // Start after the local probe and Reader idle admission. The delayed
+    // result below is a held envelope, not a bypass of foreground priority.
+    app.sleep_screen.local_checked = true;
+    app.sleep_screen.elapse_reader_idle_for_test();
+    app.retry_next_frame_after_delivery();
+    assert!(app.sleep_cover_can_start(), "The source fixture must first pass idle admission");
     app.request_sleep_cover(identity.clone(), COVER_URL.into());
+    assert!(app.pending.contains_key(SOURCE_JOB), "The admitted source fixture must reserve its job before waiting");
     let event = super::super::test_support::next_job(&app, Duration::from_secs(10))?;
     assert_eq!(event.key, SOURCE_JOB);
     app.pending.remove(SOURCE_JOB);
