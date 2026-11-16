@@ -1,0 +1,25 @@
+{"case_id": "candidate-pw6-normal", "passed": true, "profile": "pw6", "scenario": "normal"}
+{"case_id": "baseline-pw6-failure", "passed": true, "profile": "pw6", "scenario": "failure"}
+{"case_id": "candidate-pw6-failure", "passed": true, "profile": "pw6", "scenario": "failure"}
+{"case_id": "baseline-scribe-normal", "passed": true, "profile": "scribe", "scenario": "normal"}
+Traceback (most recent call last):
+  File "/root/bilicomics-startup-20261117-01a1d11a/tools/desktop_verify-r1.py", line 574, in <module>
+    main(selected)
+    ~~~~^^^^^^^^^^
+  File "/root/bilicomics-startup-20261117-01a1d11a/tools/desktop_verify-r1.py", line 531, in main
+    report["cases"].append(future.result())
+                           ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/bilicomics-startup-20261117-01a1d11a/tools/desktop_verify-r1.py", line 517, in run_case
+    cleanup = close_case_group(wrapper, config)
+  File "/root/bilicomics-startup-20261117-01a1d11a/tools/desktop_verify-r1.py", line 313, in close_case_group
+    remaining = owned_group_members(group, nonce)
+  File "/root/bilicomics-startup-20261117-01a1d11a/tools/desktop_verify-r1.py", line 276, in owned_group_members
+    raise AssertionError("A member of the private case group lacks its ownership marker")
+AssertionError: A member of the private case group lacks its ownership marker

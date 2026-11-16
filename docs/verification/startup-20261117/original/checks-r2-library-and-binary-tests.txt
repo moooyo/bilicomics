@@ -1,0 +1,1014 @@
+warning: the `macro_use` attribute cannot be used on crates
+   --> vendor/zune-jpeg/src/lib.rs:166:4
+    |
+166 | #![macro_use]
+    |    ^^^^^^^^^
+    |
+    = help: the `macro_use` attribute can be applied to extern crates and modules
+    = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+    = note: `#[warn(unused_attributes)]` (part of `#[warn(unused)]`) on by default
+
+warning: `zune-jpeg` (lib) generated 1 warning (run `cargo fix --lib -p zune-jpeg` to apply 1 suggestion)
+   Compiling bilicomics v0.1.25 (/root/bilicomics-startup-20261117-01a1d11a/candidate/app)
+warning: bilicomics@0.1.25: warning: Component is neither used nor exported
+warning: bilicomics@0.1.25:    --> /root/bilicomics-startup-20261117-01a1d11a/candidate/app/ui/reader.slint:136:1
+warning: bilicomics@0.1.25:     |
+warning: bilicomics@0.1.25: 136 | / component ReaderDashedBox inherits Rectangle {
+warning: bilicomics@0.1.25: 137 | |     in property <color> stroke-color: Theme.muted;
+warning: bilicomics@0.1.25: 138 | |     in property <length> stroke: 1.5px;
+warning: bilicomics@0.1.25: 139 | |     property <int> horizontal-count: ceil(root.width / 10px);
+warning: bilicomics@0.1.25: ...   |
+warning: bilicomics@0.1.25: 170 | | }
+warning: bilicomics@0.1.25:     | |_^
+warning: unused import: `Context`
+ --> src/app/catalog.rs:7:14
+  |
+7 | use anyhow::{Context, Result};
+  |              ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: use of deprecated method `std::sync::atomic::Atomic::<u64>::fetch_update`: renamed to `try_update` for consistency
+   --> src/performance.rs:243:35
+    |
+243 |         match sink.next_operation.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+    |                                   ^^^^^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+help: replace the use of the deprecated method
+    |
+243 -         match sink.next_operation.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+243 +         match sink.next_operation.try_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+    |
+
+warning: function `publish_cover` is never used
+   --> src/app/startup.rs:463:15
+    |
+463 | pub(super) fn publish_cover(temporary: &Path, target: &Path) -> Result<()> {
+    |               ^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `new` is never used
+   --> src/image_integrity.rs:105:19
+    |
+104 | impl HashedImage {
+    | ---------------- associated function in this implementation
+105 |     pub(crate) fn new(encoded: Vec<u8>) -> Result<Self, IntegrityError> {
+    |                   ^^^
+
+warning: function `decode_image_with_reuse` is never used
+   --> src/image_integrity.rs:260:15
+    |
+260 | pub(crate) fn decode_image_with_reuse<T>(encoded: &[u8], max_pixels: Option<u64>,
+    |               ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `decode_hashed_image_with_reuse_cancellable` is never used
+   --> src/image_integrity.rs:278:15
+    |
+278 | pub(crate) fn decode_hashed_image_with_reuse_cancellable<T>(input: &HashedImage, max_pixels: Option<u64>,
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `decode_fresh` is never used
+   --> src/image_integrity.rs:353:4
+    |
+353 | fn decode_fresh(encoded: &[u8], max_pixels: Option<u64>, digest: String, byte_len: u64)
+    |    ^^^^^^^^^^^^
+
+warning: methods `render_source_identity` and `render_source_identity_cancellable` are never used
+    --> src/reader.rs:1007:8
+     |
+ 624 | impl ReaderCore {
+     | --------------- methods in this implementation
+...
+1007 |     fn render_source_identity(&mut self, source: &GrayImage, viewport: Viewport, identity: Option<&str>,
+     |        ^^^^^^^^^^^^^^^^^^^^^^
+...
+1014 |     fn render_source_identity_cancellable(&mut self, source: &GrayImage, viewport: Viewport, identity: Option<&str>,
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `decode_source_bytes` is never used
+    --> src/reader.rs:1522:4
+     |
+1522 | fn decode_source_bytes(encoded: &[u8], resources: &ReaderResources, previous: Option<&ValidatedImage>)
+     |    ^^^^^^^^^^^^^^^^^^^
+
+warning: function `apply` is never used
+  --> src/reader/spatial_dither.rs:93:8
+   |
+93 | pub fn apply(image: &mut GrayImage, method: SpatialDither) -> Result<()> {
+   |        ^^^^^
+
+warning: `bilicomics` (lib) generated 10 warnings (run `cargo fix --lib -p bilicomics` to apply 2 suggestions)
+warning: method `set_native_portrait_direction` is never used
+   --> src/main.rs:187:8
+    |
+131 | impl DisplayPower {
+    | ----------------- method in this implementation
+...
+187 |     fn set_native_portrait_direction(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `bilicomics` (bin "bilicomics" test) generated 1 warning
+warning: `bilicomics` (lib test) generated 2 warnings (2 duplicates)
+    Finished `test` profile [unoptimized] target(s) in 1m 04s
+     Running unittests src/lib.rs (/root/bilicomics-startup-20261117-01a1d11a/target/debug/deps/bilicomics-c7f1a1d6c24b94bc)
+
+running 878 tests
+test app::account::resource_tests::full_durable_admission_leaves_purchase_and_recharge_unsubmitted_without_new_journals ... ok
+test app::account::resource_tests::headless_wallet_labels_follow_current_account_state_without_a_slint_projection ... ok
+test app::account::tests::a_wallet_refresh_cannot_splice_a_new_balance_into_an_old_quote ... ok
+test app::account::tests::account_preparation_moves_recovered_plain_data_from_a_worker ... ok
+test app::account::tests::concurrent_stale_views_can_reserve_only_one_dispatch_intent ... ok
+test app::account::tests::demo_account_attachment_preserves_saved_preferences_and_seeds_only_a_fresh_store ... ok
+test app::account::tests::design_preview_retains_all_three_prices_and_coupon_cost_without_live_proof ... ok
+test app::account::tests::entitlement_observation_without_server_ack_keeps_the_transaction_unknown ... ok
+test app::account::tests::observed_purchase_and_recharge_results_survive_storage_failure_and_local_retry ... ok
+test app::account::tests::ordinal_offer_requires_complete_catalog_proof_and_preserves_a_zero_limit ... ok
+test app::account::tests::quote_fingerprint_ignores_fetch_time_but_binds_balance_and_assets ... ok
+test app::account::tests::stale_account_snapshot_cannot_downgrade_a_persisted_acknowledgement ... ok
+test app::auth::resource_tests::completed_network_job_keeps_epoch_approval_after_pending_reclamation_and_rejects_stale_proof ... ok
+test app::catalog::catalog_recheck_tests::deferred_cache_maintenance_retries_from_tick_with_the_latest_active_detail_pin ... ok
+test app::catalog::catalog_recheck_tests::repeated_incremental_refreshes_do_not_postpone_overdue_full_content_validation ... ok
+test app::catalog::catalog_recheck_tests::scoped_invalidation_during_a_full_pass_preserves_the_need_to_recheck_known_chapters ... ok
+test app::catalog::catalog_recheck_tests::unknown_offline_inventory_allows_real_detail_and_cover_entries_to_read_local_pages ... ok
+test app::catalog::integrity_tests::malformed_directories_cannot_replace_the_complete_cached_catalog ... ok
+test app::catalog::integrity_tests::six_hundred_chapter_choices_survive_pages_filters_and_account_return_until_confirmation ... ok
+test app::catalog::snapshot_tests::auth_return_restores_only_selected_ids_readable_in_the_new_detail ... ok
+test app::catalog::snapshot_tests::comic_id_shortcuts_do_not_capture_ordinary_mc_prefixed_search_terms ... ok
+test app::catalog::snapshot_tests::equal_length_file_corruption_cannot_keep_a_comic_available_offline ... ok
+test app::catalog::snapshot_tests::incremental_inventory_publishes_only_a_completely_checked_chapter ... ok
+test app::catalog::snapshot_tests::invalidated_completed_inventory_cannot_publish_stale_offline_availability ... ok
+test app::catalog::snapshot_tests::offline_catalog_upgrades_legacy_receipts_after_a_complete_decode ... ok
+test app::catalog::snapshot_tests::page_change_invalidates_completion_before_a_background_rescan ... ok
+test app::catalog::snapshot_tests::prepared_local_snapshot_does_not_promote_partial_receipts_to_offline_completion ... ok
+test app::catalog::snapshot_tests::reading_inventory_is_bound_to_the_actual_scanned_revision ... ok
+test app::catalog::snapshot_tests::retired_inventory_job_does_not_leave_the_retained_catalog_permanently_loading ... ok
+test app::catalog::snapshot_tests::startup_attaches_unknown_inventory_without_reading_or_upgrading_cached_pages ... ok
+test app::catalog::snapshot_tests::unsupported_legacy_animation_preserves_originals_without_blocking_other_catalog_entries ... ok
+test app::covers::disk::tests::batch_touch_updates_disk_time_and_changes_the_lru_victim ... ok
+test app::covers::disk::tests::byte_quota_is_independent_of_the_object_count_limit ... ok
+test app::covers::disk::tests::count_pressure_converges_through_bounded_eviction_batches ... ok
+test app::covers::disk::tests::cover_directory_symlink_is_rejected_without_changing_its_target ... ok
+test app::covers::disk::tests::dropping_one_temporary_guard_does_not_remove_another_guard ... ok
+test app::covers::disk::tests::failed_temporary_publication_preserves_a_symlink_and_cleans_only_its_source ... ok
+test app::covers::disk::tests::maintenance_does_not_visit_demo_pages_retained_pins_or_unknown_objects ... ok
+test app::covers::disk::tests::malformed_temporary_names_are_preserved_even_if_a_process_is_dead ... ok
+test app::covers::disk::tests::managed_hardlink_cannot_read_publish_touch_or_evict_an_external_page ... ok
+test app::covers::disk::tests::managed_leaf_symlink_is_not_read_replaced_or_followed_by_gc ... ok
+test app::covers::disk::tests::missing_managed_cover_is_a_cache_miss ... ok
+test app::covers::disk::tests::pinned_directory_operations_ignore_a_replaced_cover_path ... ok
+test app::covers::disk::tests::protected_cover_is_not_an_eviction_candidate ... ok
+test app::covers::disk::tests::publishes_and_decodes_a_real_png_without_exposing_temporary_objects ... ok
+test app::covers::disk::tests::raw_cover_reads_enforce_the_existing_encoded_byte_limit ... ok
+test app::covers::disk::tests::rejects_traversal_and_noncanonical_names_before_read_or_publish ... ok
+test app::covers::disk::tests::sleep_and_thumbnail_covers_share_the_same_byte_and_object_quotas ... ok
+test app::covers::disk::tests::sleep_cover_preserves_full_grayscale_geometry_in_the_managed_cache ... ok
+test app::covers::disk::tests::sleep_cover_rejects_invalid_geometry_and_pixel_lengths_before_creating_files ... ok
+test app::covers::disk::tests::temporary_cleanup_requires_a_definitively_dead_creator ... ok
+test app::covers::disk::tests::temporary_creation_collision_preserves_the_existing_file ... ok
+test app::covers::disk::tests::temporary_guard_does_not_delete_a_replacement_with_the_same_name ... ok
+test app::covers::tests::a_connection_event_releases_a_stationary_views_negative_cache_immediately ... ok
+test app::covers::tests::a_published_object_releases_negative_entries_sharing_its_full_url ... ok
+test app::covers::tests::bounded_metadata_never_evicts_an_inflight_entry_to_admit_more_work ... ok
+test app::covers::tests::clearing_cover_metadata_preserves_a_cancelled_maintenance_drain_marker ... ok
+test app::covers::tests::connectivity_update_does_not_discard_an_inflight_success_token ... ok
+test app::covers::tests::empty_url_negative_state_is_invalidated_by_a_full_url_change ... ok
+test app::covers::tests::interrupted_maintenance_preserves_touches_and_its_bounded_retry ... ok
+test app::covers::tests::maintenance_is_gated_and_flushes_bounded_touches_in_background_batches ... ok
+test app::covers::tests::maintenance_reap_waits_for_its_actual_speculative_owner_after_guard_drop ... ok
+test app::covers::tests::maintenance_resumes_after_reader_idle_without_requiring_sleep_cover ... ok
+test app::covers::tests::metadata_and_touch_records_are_bounded_and_keep_recently_used_entries ... ok
+test app::covers::tests::offline_missing_cover_suppresses_repeated_frames_and_allows_a_later_local_probe ... ok
+test app::covers::tests::query_parameters_remain_part_of_the_cover_identity ... ok
+test app::covers::tests::reader_deferral_cancels_pending_covers_without_poisoning_a_future_retry ... ok
+test app::covers::tests::reconnect_and_account_change_release_negative_state_without_reusing_old_tokens ... ok
+test app::covers::tests::relative_and_published_absolute_paths_preserve_the_same_managed_source_identity ... ok
+test app::covers::tests::retry_deadline_wakes_a_stationary_view_without_waiting_for_maintenance ... ok
+test app::covers::tests::scheduler_capacity_deferral_is_short_and_does_not_inflate_failure_backoff ... ok
+test app::covers::tests::successful_local_publication_recovers_a_missing_offline_cover_immediately ... ok
+test app::covers::tests::transient_failures_have_a_bounded_backoff_and_can_recover ... ok
+test app::download_ui::lifecycle_tests::all_paused_downloads_keep_a_visible_resume_control ... ok
+test app::download_ui::lifecycle_tests::borrowed_manager_pause_requires_reconciled_generation_before_resume ... ok
+test app::download_ui::lifecycle_tests::deferred_sleep_intent_does_not_match_another_episode_or_changed_scope ... ok
+test app::download_ui::lifecycle_tests::failed_pending_control_preserves_itself_and_later_intents_for_retry ... ok
+test app::download_ui::lifecycle_tests::queued_priority_changes_order_without_moving_ahead_of_failures_or_running_rows ... ok
+test app::download_ui::lifecycle_tests::retained_deferred_requests_refresh_the_index_while_reader_requests_keep_their_revision ... ok
+test app::download_ui::lifecycle_tests::selection_capacity_counts_a_shared_object_only_when_all_owners_are_selected ... ok
+test app::download_ui::lifecycle_tests::sleep_resume_is_bound_to_account_epoch_and_current_reader_identity ... ok
+test app::download_ui::lifecycle_tests::sleep_snapshot_excludes_existing_user_pauses_failures_cancellations_and_completion ... ok
+test app::download_ui::maintenance_tests::a_foreground_checkpoint_winning_before_background_commit_does_not_pause_twice ... ok
+test app::download_ui::maintenance_tests::background_paused_rows_receive_controller_confirmation_before_auto_resume ... ok
+test app::feedback_tests::keyboard_and_release_intents_do_not_consume_list_refresh_budget ... ok
+test app::jobs::tests::bounded_consumer_batches_rearm_results_without_waiting_for_a_timer ... ok
+test app::jobs::tests::cancellation_is_terminal_and_wakes_every_registered_waiter ... ok
+test app::jobs::tests::cancellation_removes_an_ordinary_delivery_waiter_without_taking_a_slot ... ok
+test app::jobs::tests::clear_does_not_release_a_durable_worker_or_its_execution_slot ... ok
+test app::jobs::tests::durable_delivery_waits_through_ui_clear_before_executing ... ok
+test app::jobs::tests::eight_delivery_slots_bound_work_and_queued_results_until_ui_consumption ... ok
+test app::jobs::tests::independent_delivery_lanes_preserve_regular_result_order_at_capacity ... ok
+test app::jobs::tests::installing_a_wakeup_delivers_an_already_queued_result_outside_the_lock ... ok
+test app::jobs::tests::poisoned_metadata_does_not_panic_or_reset_capacity_on_cleanup ... ok
+test app::jobs::tests::publication_rejects_a_permit_from_the_other_delivery_lane ... ok
+test app::jobs::tests::publishing_notifies_outside_the_lock_and_stale_or_closed_work_stays_silent ... ok
+test app::jobs::tests::ready_bursts_schedule_one_wakeup_until_the_queue_is_consumed ... ok
+test app::jobs::tests::regular_keys_are_bounded_and_replacement_does_not_consume_a_new_key ... ok
+test app::jobs::tests::repeated_queued_replacement_coalesces_without_generation_tombstones ... ok
+test app::jobs::tests::replacement_clear_and_stale_publish_drop_payloads_outside_the_mutex ... ok
+test app::jobs::tests::replacing_a_queued_result_reuses_its_pending_wakeup ... ok
+test app::jobs::tests::replacing_closing_and_rejecting_wakeup_callbacks_release_them_outside_the_mutex ... ok
+test app::jobs::tests::shutdown_wakes_waiters_and_keeps_durable_leases_until_worker_drop ... ok
+test app::jobs::tests::speculative_busy_metadata_lock_does_not_wait_or_register_a_key ... ok
+test app::jobs::tests::speculative_close_rejects_admission_and_releases_only_finished_delivery ... ok
+test app::jobs::tests::speculative_delivery_is_independent_of_all_regular_slots ... ok
+test app::jobs::tests::speculative_delivery_preserves_the_last_regular_slot ... ok
+test app::jobs::tests::speculative_delivery_stays_reserved_until_the_published_callback_is_consumed ... ok
+test app::jobs::tests::speculative_duplicate_preserves_the_ready_callback_and_its_wakeup ... ok
+test app::jobs::tests::speculative_invalidation_and_clear_keep_actual_delivery_reserved ... ok
+test app::jobs::tests::speculative_key_neither_consumes_nor_bypasses_regular_capacity ... ok
+test app::jobs::tests::speculative_key_stays_exclusive_while_recovering_lost_delivery ... ok
+test app::jobs::tests::stale_completion_and_ticket_drop_cannot_retire_a_new_generation ... ok
+test app::jobs::tests::taking_a_result_reclaims_its_key_but_keeps_delivery_until_consumed ... ok
+test app::jobs::tests::targeted_speculative_take_does_not_wait_for_busy_metadata ... ok
+test app::jobs::tests::targeted_speculative_take_preserves_regular_order_and_owns_delivery_until_drop ... ok
+test app::jobs::tests::targeted_speculative_take_rejects_wrong_identity_unpublished_and_regular_results ... ok
+test app::jobs::tests::targeted_speculative_take_requires_the_latest_live_token_allocation ... ok
+test app::lifecycle::checkpoint::tests::a_disarmed_timer_keeps_the_current_attempt_valid_until_resume_revokes_it ... ok
+test app::lifecycle::checkpoint::tests::an_idle_installed_controller_does_not_create_periodic_checkpoint_work ... ok
+test app::lifecycle::checkpoint::tests::completion_preserves_new_receipt_work_that_arrived_during_an_anchor_retry ... ok
+test app::lifecycle::checkpoint::tests::unchanged_pending_work_keeps_one_deadline_revision ... ok
+test app::lifecycle::retry_tests::a_boundary_checkpoint_bypasses_the_sleep_retry_deadline_and_retains_the_live_anchor ... ok
+test app::lifecycle::retry_tests::a_clean_sleep_and_durable_unknown_transaction_do_no_periodic_writes ... ok
+test app::lifecycle::retry_tests::a_failed_boundary_still_attempts_receipts_and_the_final_checkpoint ... ok
+test app::lifecycle::retry_tests::a_late_observed_receipt_reopens_only_local_receipt_persistence ... ok
+test app::lifecycle::retry_tests::a_new_receipt_does_not_wait_for_an_unrelated_long_metadata_retry ... ok
+test app::lifecycle::retry_tests::real_sqlite_failures_keep_only_failed_work_and_stop_after_recovery ... ok
+test app::lifecycle::retry_tests::repeated_pending_notifications_do_not_bypass_a_failed_receipt_backoff ... ok
+test app::lifecycle::retry_tests::repeated_storage_errors_back_off_from_one_second_to_the_thirty_second_cap ... ok
+test app::lifecycle::retry_tests::retry_time_is_measured_after_the_attempt_and_historical_failure_is_not_pending_work ... ok
+test app::lifecycle_maintenance::tests::a_changed_plan_waits_for_the_previous_checkpoint_to_finish ... ok
+test app::lifecycle_maintenance::tests::a_due_revision_runs_once_and_a_new_revision_can_reschedule ... ok
+test app::lifecycle_maintenance::tests::an_idle_scheduler_has_no_timer_and_receipt_signals_coalesce ... ok
+test app::lifecycle_maintenance::tests::cancellation_is_checked_before_posting_an_application_callback ... ok
+test app::lifecycle_maintenance::tests::cancelled_or_disarmed_plans_do_not_run_checkpoint_work ... ok
+test app::lifecycle_maintenance::tests::completed_sleep_cycles_do_not_accumulate_guard_history ... ok
+test app::lifecycle_maintenance::tests::driver_scope_allocation_fails_instead_of_wrapping_or_reusing ... ok
+test app::lifecycle_maintenance::tests::dropping_a_callback_waiter_keeps_the_single_slot_with_the_real_callback ... ok
+test app::lifecycle_maintenance::tests::dropping_a_driver_cancels_an_active_guard_even_after_disarming_its_timer ... ok
+test app::lifecycle_maintenance::tests::rejected_control_dispatch_closes_the_bridge ... ok
+test app::lifecycle_maintenance::tests::shutdown_rejects_waiters_and_drops_queued_actions_without_applying_them ... ok
+test app::perf05_benchmark::perf05_controlled_host ... ignored, Requires the original private Perf05 archive and an isolated remote measurement process
+test app::preference_tests::retired_inversion_preference_does_not_affect_loading_or_persistence ... ok
+test app::reader_checkpoint::tests::a_panicked_worker_releases_its_finished_slot_and_keeps_a_retryable_snapshot ... ok
+test app::reader_checkpoint::tests::a_real_write_failure_keeps_the_latest_snapshot_and_retries_with_backoff ... ok
+test app::reader_checkpoint::tests::a_worker_actually_waiting_on_sqlite_cannot_replace_the_new_boundary_anchor ... ok
+test app::reader_checkpoint::tests::an_old_success_completion_does_not_clear_a_new_failed_boundary_snapshot ... ok
+test app::reader_checkpoint::tests::failed_boundary_state_remains_available_after_the_reader_is_gone ... ok
+test app::reader_checkpoint::tests::rapid_positions_coalesce_behind_one_actual_worker ... ok
+test app::reader_checkpoint::tests::retirement_keeps_the_actual_worker_slot_until_its_closure_returns ... ok
+test app::reader_checkpoint::tests::strip_checkpoints_use_the_original_episode_preference_key ... ok
+test app::reader_checkpoint::tests::unflushed_scope_changes_preserve_the_old_account_episode_and_position ... ok
+test app::reading::discrete_fit_tests::a_pending_fit_retains_the_old_frame_until_one_full_geometry_presentation ... ok
+test app::reading::discrete_fit_tests::a_superseded_fit_never_publishes_an_intermediate_frame_or_geometry_refresh ... ok
+test app::reading::discrete_fit_tests::ordinary_page_turns_keep_partial_refresh_when_geometry_and_policy_are_unchanged ... ok
+test app::reading::discrete_fit_tests::repeating_a_named_fit_preserves_its_matching_in_flight_render ... ok
+test app::reading::discrete_fit_tests::reselecting_a_fit_with_a_custom_multiplier_still_resets_it_and_refreshes_when_ready ... ok
+test app::reading::discrete_fit_tests::reselecting_page_fit_does_not_cancel_prepared_next_page_work ... ok
+test app::reading::discrete_fit_tests::returning_to_the_presented_fit_supersedes_the_middle_fit_without_a_geometry_flash ... ok
+test app::reading::discrete_fit_tests::sleeping_with_a_pending_fit_refreshes_geometry_only_after_resumed_pixels_are_ready ... ok
+test app::reading::discrete_fit_tests::stored_fits_import_large_tall_pixels_without_original_overflow_and_with_centered_width_crop ... ok
+test app::reading::discrete_fit_tests::stored_fits_import_small_wide_pixels_with_native_original_and_stretched_page_geometry ... ok
+test app::reading::fast_reader_tests::a_normal_prepared_frame_cannot_short_circuit_a_fast_target ... ok
+test app::reading::fast_reader_tests::actual_gray_overlays_never_use_the_binary_content_scene ... ok
+test app::reading::fast_reader_tests::fast_overrides_saved_dithering_and_rejects_period_edits ... ok
+test app::reading::fast_reader_tests::fast_turns_and_idle_never_restore_grayscale_or_periodic_full_clearing ... ok
+test app::reading::fast_reader_tests::mode_switch_waits_for_matching_pixels_before_changing_y4_and_du_scene ... ok
+test app::reading::fast_reader_tests::ordinary_default_changes_preserve_existing_per_comic_overrides ... ok
+test app::reading::fast_reader_tests::overlays_return_to_du_and_retained_feedback_waits_for_actual_visibility ... ok
+test app::reading::fast_reader_tests::refresh_mode_defaults_and_round_trips_without_losing_normal_preferences ... ok
+test app::reading::fast_reader_tests::visible_global_overlays_outlive_expired_intents_and_toast_publication_is_pre_routed ... ok
+test app::reading::hardware_dither_tests::a_pending_cpu_setting_does_not_change_the_sleep_retained_raw_frame ... ok
+test app::reading::hardware_dither_tests::capability_loss_leaves_cpu_pixels_version_and_prefetch_unchanged ... ok
+test app::reading::hardware_dither_tests::cpu_preferences_round_trip_and_unknown_methods_fall_back_to_bayer8 ... ok
+test app::reading::hardware_dither_tests::idle_episode_expiry_hides_the_raw_page_in_the_same_tick_that_releases_y4 ... ok
+test app::reading::hardware_dither_tests::leaving_the_reader_or_clearing_its_account_releases_the_processing_intent ... ok
+test app::reading::hardware_dither_tests::legacy_preferences_migrate_to_bayer8_and_keep_explicit_disable ... ok
+test app::reading::hardware_dither_tests::method_changes_follow_imported_pixels_and_preserve_raw_handoff_and_anchor ... ok
+test app::reading::hardware_dither_tests::prepared_keys_and_thumbnail_derivatives_separate_cpu_methods_and_raster_versions ... ok
+test app::reading::hardware_dither_tests::raw_research_preserves_gray8_and_product_disable_keeps_sixteen_tones ... ok
+test app::reading::hardware_dither_tests::sleep_overlay_handoff_restores_raw_processing_before_the_application_resumes ... ok
+test app::reading::immersive_reader_tests::all_profile_single_viewports_use_the_complete_window ... ok
+test app::reading::immersive_reader_tests::chapter_markers_update_existing_rows_without_replacing_the_model ... ok
+test app::reading::immersive_reader_tests::full_window_regions_and_anchors_survive_legacy_footer_changes ... ok
+test app::reading::immersive_reader_tests::fullscreen_spread_slots_preserve_cover_blanks_direction_and_selected_source ... ok
+test app::reading::immersive_reader_tests::native_window_geometry_reaches_every_available_pixel ... ok
+test app::reading::immersive_reader_tests::page_fit_stretches_the_complete_source_to_both_edges_and_keeps_all_four_corners ... ok
+test app::reading::immersive_reader_tests::panel_width_fit_keeps_the_complete_source_centered_in_the_canvas ... ok
+test app::reading::immersive_reader_tests::spreads_keep_full_height_and_half_width_only_on_eligible_landscape_canvases ... ok
+test app::reading::immersive_reader_tests::thumbnail_readiness_updates_keep_model_identity_and_never_reset_existing_rows ... ok
+test app::reading::media_acceleration_tests::jpeg_preferences_default_off_round_trip_and_gate_persisted_requests ... ok
+test app::reading::media_acceleration_tests::policy_changes_cancel_preparation_and_preserve_the_presented_frame_and_anchor ... ok
+test app::reading::media_acceleration_tests::unavailable_on_is_rejected_at_the_command_boundary ... ok
+test app::reading::prepared_pixels::tests::a_wide_single_row_is_discarded_when_cancelled_after_the_bounded_copy ... ok
+test app::reading::prepared_pixels::tests::malformed_payloads_and_pre_cancelled_work_are_never_published ... ok
+test app::reading::prepared_pixels::tests::payload_accounting_counts_live_clones_once_and_equal_distinct_buffers_twice ... ok
+test app::reading::prepared_pixels::tests::shared_pixels_are_send_sync_and_preserve_every_rgba_component ... ok
+test app::reading::prepared_pixels::tests::ui_images_and_shared_clones_keep_the_worker_allocation ... ok
+test app::reading::prepared_reader_source_tests::a_missing_prepared_source_never_returns_the_old_pixels ... ok
+test app::reading::prepared_reader_source_tests::a_prepared_frame_hit_hashes_current_bytes_without_resizing_or_copying_its_raster ... ok
+test app::reading::prepared_reader_source_tests::a_prepared_frame_with_a_different_media_policy_is_not_reused_by_its_proof ... ok
+test app::reading::prepared_reader_source_tests::a_prepared_proof_cannot_outlive_receipt_removal_inside_the_recheck_boundary ... ok
+test app::reading::prepared_reader_source_tests::absent_or_corrupt_local_sources_do_not_create_a_candidate ... ok
+test app::reading::prepared_reader_source_tests::account_hits_recheck_current_receipts_and_objects_without_writing_or_resizing ... ok
+test app::reading::prepared_reader_source_tests::all_rotations_match_input_keys_separately_from_rendered_anchor_and_full_pixels ... ok
+test app::reading::prepared_reader_source_tests::an_atomic_object_replacement_retries_a_prepared_proof_before_rejecting_changed_bytes ... ok
+test app::reading::prepared_reader_source_tests::changed_local_pixels_fall_back_once_and_match_the_complete_ordinary_result ... ok
+test app::reading::prepared_reader_source_tests::native_entropy_proofs_preserve_receipt_source_dimensions_before_target_pixels ... ok
+test app::reading::prepared_reader_source_tests::ordinary_and_predicted_workers_finalize_shared_pixels_before_delivery ... ok
+test app::reading::prepared_reader_source_tests::pre_cancelled_preparation_and_consumption_do_no_source_work ... ok
+test app::reading::prepared_reader_source_tests::removed_account_receipts_do_not_gain_authority_from_prepared_pixels ... ok
+test app::reading::prepared_reader_source_tests::same_length_account_corruption_invalidates_the_receipt_instead_of_showing_cached_pixels ... ok
+test app::reading::prepared_reader_source_tests::same_length_corruption_cannot_reuse_a_prepared_demo_frame ... ok
+test app::reading::prepared_reader_tests::a_cancelled_prediction_keeps_its_real_worker_lease_until_exit_and_never_promotes ... ok
+test app::reading::prepared_reader_tests::a_predicted_source_notification_retires_the_slot_without_invalidating_visible_work ... ok
+test app::reading::prepared_reader_tests::a_queued_prediction_still_rechecks_changed_png_bytes_before_reusing_pixels ... ok
+test app::reading::prepared_reader_tests::a_real_next_navigation_consumes_the_slot_under_its_new_render_version ... ok
+test app::reading::prepared_reader_tests::cancelled_or_stale_viewport_mailbox_predictions_are_not_collected_by_next_input ... ok
+test app::reading::prepared_reader_tests::disabled_preloading_rejects_late_predictions_and_foreground_candidates ... ok
+test app::reading::prepared_reader_tests::footer_changes_and_settled_sleep_revoke_only_the_speculative_frame ... ok
+test app::reading::prepared_reader_tests::late_cancelled_prediction_retries_after_delivery_and_prepares_the_new_next_page ... ok
+test app::reading::prepared_reader_tests::leaving_the_reader_retires_deferred_intents_and_the_actual_prediction_ticket ... ok
+test app::reading::prepared_reader_tests::next_frame_keys_reject_rapid_reverse_epoch_generation_viewport_and_settings_changes ... ok
+test app::reading::prepared_reader_tests::next_input_collects_a_completed_mailbox_prediction_before_changing_its_origin ... ok
+test app::reading::prepared_reader_tests::obsolete_epoch_or_expired_access_cannot_install_or_consume_prepared_pixels ... ok
+test app::reading::prepared_reader_tests::one_prediction_request_waits_for_the_actual_optional_delivery_lane_without_spinning ... ok
+test app::reading::prepared_reader_tests::prediction_admission_skips_unsupported_or_unsettled_reader_positions ... ok
+test app::reading::prepared_reader_tests::prediction_metadata_accounting_includes_reserved_panel_capacity ... ok
+test app::reading::prepared_reader_tests::preload_off_releases_ready_pixels_and_reenable_offers_a_new_prediction ... ok
+test app::reading::prepared_reader_tests::preload_off_retires_a_preparing_ticket_without_releasing_its_worker_lease_early ... ok
+test app::reading::prepared_reader_tests::prepared_completion_keeps_the_live_frame_model_and_checkpoint_unchanged ... ok
+test app::reading::prepared_reader_tests::regular_work_cancels_the_same_version_prediction_and_retries_only_after_idle ... ok
+test app::reading::prepared_reader_tests::shared_payload_accounting_counts_aliases_once_and_rejects_distinct_oversized_frames ... ok
+test app::reading::prepared_reader_tests::sleep_cancels_speculation_without_revoking_an_initial_reader_render ... ok
+test app::reading::prepared_reader_tests::sleep_discards_a_completed_prediction_waiting_in_the_mailbox ... ok
+test app::reading::reader_directory_tests::all_named_fits_persist_and_reload_without_changing_the_source_page_or_rotation ... ok
+test app::reading::reader_directory_tests::choosing_the_current_chapter_only_closes_the_directory_and_keeps_the_live_frame ... ok
+test app::reading::reader_directory_tests::complete_directory_pagination_reaches_every_chapter_once_and_clamps_at_its_edges ... ok
+test app::reading::reader_directory_tests::directory_capacity_matches_both_portraits_and_stays_bounded_after_resize ... ok
+test app::reading::reader_directory_tests::directory_filters_sorting_and_locate_keep_access_and_local_evidence_distinct ... ok
+test app::reading::reader_directory_tests::new_named_fits_survive_sleep_reconciliation_at_the_presented_source_page ... ok
+test app::reading::reader_directory_tests::opening_the_complete_directory_locates_the_current_chapter_on_each_profile ... ok
+test app::reading::reader_directory_tests::retired_grid_and_unknown_sheet_intents_never_create_thumbnail_work ... ok
+test app::reading::reader_performance_tests::a_failed_close_releases_the_reader_and_retries_only_its_lightweight_checkpoint ... ok
+test app::reading::reader_performance_tests::a_pending_target_does_not_replace_the_displayed_frame_or_checkpoint ... ok
+test app::reading::reader_performance_tests::a_prepared_navigation_finishing_during_sleep_cannot_replace_the_retained_frame ... ok
+test app::reading::reader_performance_tests::a_prepared_result_cannot_repopulate_a_closed_reader ... ok
+test app::reading::reader_performance_tests::a_settled_frame_keeps_its_render_generation_across_sleep ... ok
+test app::reading::reader_performance_tests::a_visible_page_notification_does_not_revoke_an_in_flight_render ... ok
+test app::reading::reader_performance_tests::adjacent_and_unrelated_downloads_are_not_visible_dependencies ... ok
+test app::reading::reader_performance_tests::an_initial_frame_finishing_during_sleep_is_installed_after_resume ... ok
+test app::reading::reader_performance_tests::an_old_epoch_result_cannot_replace_a_new_epochs_presented_frame ... ok
+test app::reading::reader_performance_tests::an_unrendered_initial_target_has_no_new_durable_position ... ok
+test app::reading::reader_performance_tests::panel_and_strip_checkpoints_keep_the_last_presented_crop ... ok
+test app::reading::reader_performance_tests::pending_navigation_cannot_advance_a_sleep_checkpoint ... ok
+test app::reading::reader_performance_tests::resume_reflows_the_retained_page_with_pending_manual_settings ... ok
+test app::reading::reader_performance_tests::superseded_page_targets_wait_for_the_real_worker_then_render_only_the_latest_page ... ok
+test app::reading::reader_performance_tests::terminal_download_events_require_the_current_acquisition_owner ... ok
+test app::reading::spatial_dither_tests::a_complete_old_physical_viewport_cannot_publish_the_new_algorithm ... ok
+test app::reading::spatial_dither_tests::a_late_old_algorithm_result_cannot_replace_the_pending_or_published_selection ... ok
+test app::reading::spatial_dither_tests::account_choices_persist_defaults_without_rewriting_a_closed_comic_override ... ok
+test app::reading::spatial_dither_tests::disabled_legacy_preferences_stay_off_after_app_store_restart ... ok
+test app::reading::spatial_dither_tests::fast_remembers_cpu_choices_without_gray_settlement_and_keeps_manual_full ... ok
+test app::reading::spatial_dither_tests::final_identity_contains_the_effective_method_and_both_algorithm_versions ... ok
+test app::reading::spatial_dither_tests::legacy_global_and_comic_records_migrate_to_bayer_without_enabling_off ... ok
+test app::reading::spatial_dither_tests::normal_algorithm_changes_retain_the_presented_frame_until_matching_pixels_arrive ... ok
+test app::reading::spatial_dither_tests::prepared_pixels_never_cross_methods_or_final_versions_but_gray8_preparation_is_shared ... ok
+test app::reading::spatial_dither_tests::three_choices_round_trip_both_preferences_and_off_restores_the_last_method ... ok
+test app::reading::tests::current_missing_leaf_uses_only_its_owned_acquisition_failure ... ok
+test app::reading::tests::historical_retained_reader_revision_and_task_generations_cannot_mask_new_pages ... ok
+test app::reading::tests::newly_missing_pages_can_start_a_new_window_without_blindly_replaying_old_failure ... ok
+test app::reading::tests::readable_access_and_unknown_prices_do_not_fabricate_ownership ... ok
+test app::reading::tests::spread_requires_an_eligible_large_landscape_canvas ... ok
+test app::resource_job_tests::a_panicking_source_future_delivers_one_typed_error_and_clears_its_pending_key ... ok
+test app::resource_job_tests::callback_requeue_preserves_the_new_pending_generation_until_its_own_result ... ok
+test app::resource_job_tests::cancelling_background_waiting_does_not_release_the_running_workers_delivery_slot ... ok
+test app::resource_job_tests::durable_source_finishes_local_persistence_after_account_clear_without_applying_old_ui ... ok
+test app::resource_job_tests::full_regular_admission_preserves_the_download_manager_for_recover_and_remove ... ok
+test app::resource_job_tests::protected_backend_persists_without_waiting_for_paused_ui_delivery ... ok
+test app::shutdown_resource_tests::a_failed_preference_write_does_not_leave_job_admission_open ... ok
+test app::sleep_screen::tests::a_cold_offline_reader_uses_its_disk_thumbnail_then_refills_the_full_cover_online ... ok
+test app::sleep_screen::tests::a_delayed_source_result_cannot_replace_the_new_account_epoch_candidate ... ok
+test app::sleep_screen::tests::complete_covers_keep_their_aspect_ratio_in_both_orientations ... ok
+test app::sleep_screen::tests::corrupt_local_derivative_can_refill_from_the_current_source_while_awake ... ok
+test app::sleep_screen::tests::encoded_and_decoded_source_budgets_are_enforced ... ok
+test app::sleep_screen::tests::identities_separate_accounts_comics_sources_and_live_epochs ... ok
+test app::sleep_screen::tests::idle_defers_cover_misses_and_survives_identity_reset_even_with_sleep_cover_disabled ... ok
+test app::sleep_screen::tests::kindle_sleep_cover_actions_persist_explicit_choices_across_account_initialization ... ok
+test app::sleep_screen::tests::leaving_reader_does_not_select_residual_reading_metadata ... ok
+test app::sleep_screen::tests::prepared_memory_is_shown_after_the_sleep_gate_without_storage_or_new_jobs ... ok
+test app::sleep_screen::tests::prepared_metadata_is_bounded_by_unicode_scalars ... ok
+test app::sleep_screen::tests::reader_activity_keeps_ready_memory_and_backoff_while_extending_idle ... ok
+test app::sleep_screen::tests::resident_preview_is_source_bound_and_reader_cover_misses_create_no_regular_jobs ... ok
+test app::sleep_screen::tests::resource_tests::a_completed_worker_remains_pending_until_its_result_envelope_is_drained ... ok
+test app::sleep_screen::tests::resource_tests::a_network_candidate_cannot_preempt_prediction_or_disappear_on_busy_prepare ... ok
+test app::sleep_screen::tests::resource_tests::an_early_guard_drop_cannot_retire_a_still_owned_speculative_slot ... ok
+test app::sleep_screen::tests::resource_tests::cancellation_and_ui_invalidation_keep_the_real_worker_and_delivery_reserved ... ok
+test app::sleep_screen::tests::resource_tests::reader_entry_discards_an_already_taken_ordinary_cover_response_and_keeps_preview ... ok
+test app::sleep_screen::tests::stale_cover_uses_current_text_and_non_reader_routes_use_neutral_presentation ... ok
+test app::sleep_screen::tests::system_preference_and_logout_clear_the_prepared_candidate_and_its_jobs ... ok
+test app::sleep_screen::tests::transient_retry_is_bounded_and_capacity_deferral_does_not_inflate_it ... ok
+test app::sleep_screen::tests::transparency_uses_white_paper_and_prepared_pixels_are_four_bit_grayscale ... ok
+test app::sleep_screen::tests::worker_rgb_preparation_observes_cancellation_at_bounded_pixel_chunks ... ok
+test app::speculative_job_tests::a_foreground_worker_keeps_the_eighth_delivery_slot_while_cancelling_prediction ... ok
+test app::speculative_job_tests::an_existing_prediction_generation_is_never_replaced_on_busy_admission ... ok
+test app::speculative_job_tests::full_ordinary_capacity_keeps_one_independent_prediction_lane ... ok
+test app::speculative_job_tests::invalidation_retires_the_ui_marker_but_keeps_the_worker_and_prediction_lane ... ok
+test app::speculative_job_tests::network_waiting_does_not_prevent_an_idle_prediction_from_completing ... ok
+test app::speculative_job_tests::successful_failed_and_panicking_predictions_each_apply_and_retire_their_pending_key ... ok
+test app::startup::session_tests::an_isolated_import_client_cannot_replace_or_clear_the_production_session ... ok
+test app::startup::session_tests::prepared_production_session_updates_and_logout_survive_restart ... ok
+test app::startup::tests::a_partial_cover_batch_yields_before_consuming_the_remaining_attachment ... ok
+test app::startup::tests::cached_cover_decoding_rejects_oversized_header_geometry ... ok
+test app::startup::tests::preparation_can_cross_the_worker_boundary_and_preserves_demo_isolation ... ok
+test app::startup::tests::suspension_keeps_attachment_pending_without_consuming_prepared_resources ... ok
+test app::views::tests::hidden_invalidations_wait_for_their_route ... ok
+test app::views::tests::reader_results_do_not_rebuild_hidden_catalogs ... ok
+test cache::tests::cache_does_not_follow_object_symlinks ... ok
+test cache::tests::corrupt_same_size_object_is_not_returned ... ok
+test cache::tests::failed_replacement_preserves_previous_entry ... ok
+test cache::tests::keys_cannot_escape_cache_directory ... ok
+test cache::tests::lru_eviction_respects_accesses_and_pins ... ok
+test cache::tests::permission_fallback_requires_fat_and_an_unsupported_mode_error ... ok
+test cache::tests::restart_removes_orphans_and_missing_index_entries ... ok
+test cache::tests::thumbnails_fit_reserved_geometry_and_use_only_sixteen_gray_levels ... ok
+test demo::tests::a_fixture_directory_link_cannot_write_into_another_directory ... ok
+test demo::tests::another_known_current_episode_is_readable_without_inventing_unknown_catalogs ... ok
+test demo::tests::bundled_design_data_keeps_episode_identity_geometry_and_isolation ... ok
+test demo::tests::fixture_paths_reject_absolute_names_and_traversal ... ok
+test demo::tests::materialized_corruption_is_replaced_without_changing_page_identity ... ok
+test downloads::batch_scheduler_tests::a_cancelled_async_worker_keeps_capacity_charged_until_its_blocking_worker_exits ... ok
+test downloads::batch_scheduler_tests::cancellation_transport_pause_and_account_change_stop_preparation_before_cdn_or_commit ... ok
+test downloads::batch_scheduler_tests::forty_five_missing_pages_use_three_batches_and_publish_each_commit ... ok
+test downloads::batch_scheduler_tests::later_batches_recheck_pages_committed_by_another_owner_while_waiting ... ok
+test downloads::batch_scheduler_tests::metadata_and_images_share_capacity_across_chapters_and_reader_prefetch ... ok
+test downloads::batch_scheduler_tests::page_admission_respects_explicit_priority_fifo_and_the_reader_burst_bound ... ok
+test downloads::batch_scheduler_tests::prepared_batches_handoff_page_tickets_without_changing_priority_fifo_or_reader_fairness ... ok
+test downloads::batch_scheduler_tests::selection_deduplicates_cached_pages_and_repairs_only_corrupt_receipts ... ok
+test downloads::bili_source::tests::account_replacement_during_token_refresh_cannot_publish_a_new_grant ... ok
+test downloads::bili_source::tests::cancelling_token_refresh_does_not_allow_another_refresh_without_progress ... ok
+test downloads::bili_source::tests::failed_age_refresh_is_shared_by_concurrent_callers_without_reissuing_tokens ... ok
+test downloads::bili_source::tests::fresh_access_rejects_revocation_expiry_and_unknown_grants_before_a_successful_short_index ... ok
+test downloads::bili_source::tests::fresh_access_requires_the_confirmed_current_account_before_any_catalog_request ... ok
+test downloads::bili_source::tests::fresh_readable_grants_allow_the_entire_returned_index ... ok
+test downloads::bili_source::tests::image_http_403_neither_refreshes_tokens_nor_retries_the_image ... ok
+test downloads::bili_source::tests::image_index_and_single_page_compatibility_use_the_existing_source_contract ... ok
+test downloads::bili_source::tests::invalid_batch_positions_and_missing_paths_fail_before_token_or_cdn_traffic ... ok
+test downloads::bili_source::tests::legitimate_cookie_publication_does_not_invalidate_an_account_grant ... ok
+test downloads::bili_source::tests::logout_during_an_image_request_discards_the_in_flight_page ... ok
+test downloads::bili_source::tests::malformed_token_responses_never_start_image_downloads ... ok
+test downloads::bili_source::tests::one_token_request_preserves_an_arbitrary_missing_page_subset_and_original_mapping ... ok
+test downloads::bili_source::tests::overlapping_batches_keep_their_own_p256_keys_when_image_requests_interleave ... ok
+test downloads::bili_source::tests::progressing_slow_downloads_can_refresh_each_remaining_page_with_a_finite_bound ... ok
+test downloads::bili_source::tests::queued_age_refresh_is_coalesced_and_excludes_successfully_returned_pages ... ok
+test downloads::bili_source::tests::refreshing_a_grant_preserves_an_older_in_flight_image_key ... ok
+test downloads::bili_source::tests::reordered_tokens_with_different_page_geometry_are_rejected ... ok
+test downloads::bili_source::tests::repeated_age_without_progress_is_blocked_until_an_in_flight_page_completes ... ok
+test downloads::bili_source::tests::stale_logout_and_account_switch_reject_old_grants_before_cdn_traffic ... ok
+test downloads::completeness_tests::a_running_retained_prefix_expands_to_a_whole_chapter_but_reader_subsets_remain_partial ... ok
+test downloads::completeness_tests::complete_chapter_requires_the_last_manifest_page_and_its_pixels ... ok
+test downloads::completeness_tests::disk_hash_damage_does_not_authorize_replacing_a_legacy_content_identity ... ok
+test downloads::completeness_tests::explicit_fresh_acquisition_keeps_the_old_checkpoint_and_downloads_the_new_complete_revision ... ok
+test downloads::completeness_tests::fresh_permission_failures_never_complete_from_cache_and_remain_fresh_after_retry_and_recovery ... ok
+test downloads::completeness_tests::invalid_legacy_encoding_can_replace_only_its_untrusted_historical_digest ... ok
+test downloads::completeness_tests::last_page_failure_stays_incomplete_and_retry_fetches_only_the_missing_tail ... ok
+test downloads::completeness_tests::reopening_a_completed_chapter_repairs_only_a_missing_or_truncated_final_page ... ok
+test downloads::completeness_tests::valid_legacy_pending_journals_are_reproven_and_committed_without_acquisition ... ok
+test downloads::completeness_tests::valid_legacy_receipts_gain_decode_proofs_without_any_acquisition ... ok
+test downloads::local_source::tests::a_concurrent_retain_survives_legacy_source_promotion ... ok
+test downloads::local_source::tests::a_pre_cancelled_profiled_receipt_read_does_not_attempt_work_or_change_storage ... ok
+test downloads::local_source::tests::a_same_identity_atomic_repair_cannot_be_invalidated_by_the_old_bad_file ... ok
+test downloads::local_source::tests::a_wrong_failure_proof_does_not_invalidate_the_real_page ... ok
+test downloads::local_source::tests::a_wrong_preparation_proof_does_not_invalidate_the_real_page ... ok
+test downloads::local_source::tests::an_exact_corrupt_legacy_encoding_releases_only_its_unproved_identity ... ok
+test downloads::local_source::tests::cached_pixels_do_not_hide_same_path_corruption_or_release_historical_identity ... ok
+test downloads::local_source::tests::cancellation_after_decode_does_not_promote_or_invalidate_a_legacy_receipt ... ok
+test downloads::local_source::tests::cancellation_before_read_leaves_receipts_and_history_unchanged ... ok
+test downloads::local_source::tests::continuous_atomic_replacement_is_bounded_and_never_drops_the_receipt ... ok
+test downloads::local_source::tests::one_receipt_read_hashes_once_and_a_current_proof_does_not_write_again ... ok
+test downloads::local_source::tests::receipt_profiling_preserves_the_proof_frame_and_single_hash_per_read ... ok
+test downloads::local_source::tests::receipt_removal_during_preparation_cannot_be_resurrected_by_a_proof ... ok
+test downloads::preservation_tests::a_legal_legacy_image_above_the_new_pixel_budget_keeps_its_original_and_receipt ... ok
+test downloads::preservation_tests::a_legal_unsupported_legacy_animation_keeps_its_original_and_receipt ... ok
+test downloads::preservation_tests::an_unavailable_pending_journal_survives_recovery_after_its_task_becomes_ineligible ... ok
+test downloads::tests::changed_source_revision_does_not_replace_an_existing_checkpoint ... ok
+test downloads::tests::closing_reader_cancels_only_its_prefetch_owner ... ok
+test downloads::tests::interruption_resume_keeps_verified_pages_and_private_descriptors ... ok
+test downloads::tests::manager_return_synchronizes_reader_lease_without_reviving_closed_prefetch ... ok
+test downloads::tests::prioritized_retained_slots_preserve_inflight_fifo_reader_and_durable_state ... ok
+test downloads::tests::recovery_gc_keeps_receipts_journals_unknown_names_and_symlinks ... ok
+test downloads::tests::transport_pause_handle_stays_latched_while_manager_is_borrowed ... ok
+test fonts::tests::a_partial_delivery_is_not_a_complete_registration ... ok
+test fonts::tests::an_out_of_order_or_repeated_face_is_rejected_without_replacing_prior_bytes ... ok
+test fonts::tests::cancellation_after_delivery_stops_remaining_faces ... ok
+test fonts::tests::cancellation_before_work_does_not_deliver_any_face ... ok
+test fonts::tests::expanded_faces_match_the_canonical_gzip_sources ... ok
+test fonts::tests::failed_delivery_stops_remaining_faces ... ok
+test fonts::tests::prepared_faces_share_the_embedded_payloads ... ok
+test image_integrity::cancellation_tests::already_cancelled_malformed_input_is_not_reported_as_corruption ... ok
+test image_integrity::cancellation_tests::an_already_cancelled_owned_input_never_reaches_lookup_or_codec ... ok
+test image_integrity::cancellation_tests::an_uncancelled_hook_preserves_validation_policy ... ok
+test image_integrity::cancellation_tests::cancellation_after_hashing_skips_codec_allocation_and_does_not_create_a_failure_proof ... ok
+test image_integrity::cancellation_tests::cancellation_from_owned_input_lookup_precedes_policy_and_codec_work ... ok
+test image_integrity::tests::a_complete_progressive_jpeg_decodes_both_dc_and_ac_scans ... ok
+test image_integrity::tests::a_complete_static_gif_is_supported_and_decodes_its_single_frame ... ok
+test image_integrity::tests::a_different_sealed_proof_cannot_replace_owned_encoded_input ... ok
+test image_integrity::tests::a_jpeg_with_dnl_height_is_unsupported_without_corruption_evidence ... ok
+test image_integrity::tests::a_progressive_jpeg_cannot_replace_missing_ac_entropy_with_the_end_marker ... ok
+test image_integrity::tests::a_progressive_jpeg_cannot_replace_missing_dc_entropy_with_the_next_scan_marker ... ok
+test image_integrity::tests::a_single_sequential_component_with_nonunit_sampling_is_unsupported_without_evidence ... ok
+test image_integrity::tests::a_static_gif_with_complete_blocks_and_trailer_but_short_lzw_data_is_corrupt ... ok
+test image_integrity::tests::a_stricter_cover_pixel_limit_is_applied_after_a_successful_page_validation ... ok
+test image_integrity::tests::a_successful_exact_byte_memo_hit_does_not_decode_the_same_image_again ... ok
+test image_integrity::tests::a_twelve_bit_extended_jpeg_is_unsupported_without_corruption_evidence ... ok
+test image_integrity::tests::a_valid_multi_frame_gif_is_explicitly_unsupported ... ok
+test image_integrity::tests::all_one_jpeg_huffman_codes_cannot_reinterpret_alignment_padding_as_blocks ... ok
+test image_integrity::tests::an_oversized_decoded_buffer_is_rejected_before_the_invalid_pixel_body ... ok
+test image_integrity::tests::complete_png_jpeg_and_webp_payloads_return_their_verified_identity ... ok
+test image_integrity::tests::complete_sequential_jpeg_blocks_decode_to_the_declared_pixels ... ok
+test image_integrity::tests::corrupt_encoding_failures_are_examined_again_instead_of_entering_the_success_memo ... ok
+test image_integrity::tests::corrupt_owned_input_cannot_reuse_a_valid_proof_or_cache_a_failure ... ok
+test image_integrity::tests::jpeg_marker_fill_is_accepted_but_extra_scan_or_terminal_bytes_are_not ... ok
+test image_integrity::tests::jpeg_restart_intervals_require_ordered_markers_between_complete_mcus ... ok
+test image_integrity::tests::jpeg_with_only_partial_entropy_and_a_replaced_eoi_is_corrupt ... ok
+test image_integrity::tests::jpeg_with_sof_and_eoi_but_without_entropy_data_is_corrupt ... ok
+test image_integrity::tests::malformed_baseline_scan_tails_are_corrupt_and_bind_evidence_to_the_examined_bytes ... ok
+test image_integrity::tests::missing_container_tails_are_rejected_for_all_supported_formats ... ok
+test image_integrity::tests::native_header_validation_checks_deferred_component_semantics_without_idct ... ok
+test image_integrity::tests::one_png_zlib_stream_may_cross_multiple_idat_chunks ... ok
+test image_integrity::tests::oversized_source_header_is_rejected_before_its_invalid_body_is_decoded ... ok
+test image_integrity::tests::owned_encoded_identity_is_hashed_once_across_decode_and_pixel_reuse ... ok
+test image_integrity::tests::owned_input_reuse_still_enforces_a_stricter_pixel_policy ... ok
+test image_integrity::tests::png_rejects_an_additional_idat_payload_after_the_complete_zlib_stream ... ok
+test image_integrity::tests::png_with_a_complete_zlib_stream_but_missing_scanlines_is_corrupt ... ok
+test image_integrity::tests::png_with_a_wrong_adler_checksum_and_recomputed_chunk_crcs_is_corrupt ... ok
+test image_integrity::tests::png_with_all_scanlines_but_without_the_adler_checksum_is_corrupt ... ok
+test image_integrity::tests::png_with_valid_chunks_and_checksums_but_invalid_deflate_is_corrupt ... ok
+test image_integrity::tests::repeated_full_sequential_scans_hit_the_capability_guard_without_corruption_evidence ... ok
+test image_integrity::tests::reusable_pixels_do_not_bypass_identity_policy_or_complete_validation ... ok
+test image_integrity::tests::sealed_pixel_reuse_rehashes_current_bytes_and_avoids_another_decode ... ok
+test image_integrity::tests::separate_sequential_scans_reset_restart_count_but_remain_unsupported ... ok
+test image_integrity::tests::separate_sequential_scans_with_subsampled_color_are_unsupported_without_evidence ... ok
+test image_integrity::tests::sequential_jpeg_padding_cannot_supply_a_missing_declared_block ... ok
+test image_integrity::tests::successful_validation_memo_is_bounded_and_evicts_the_least_recently_used_proof ... ok
+test image_integrity::tests::webp_with_a_valid_riff_length_and_vp8l_header_but_no_image_body_is_corrupt ... ok
+test input::tests::backspace_removes_composition_before_committed_unicode ... ok
+test input::tests::bundled_dictionary_is_substantive_and_candidates_are_not_a_mock_table ... ok
+test input::tests::choosing_a_candidate_preserves_a_continuous_unconverted_suffix ... ok
+test input::tests::device_candidate_pages_are_reachable_without_committing_or_submitting ... ok
+test input::tests::english_numeric_and_caps_keys_have_real_effects ... ok
+test input::tests::incomplete_syllables_produce_completion_candidates_and_can_page ... ok
+test input::tests::submission_commits_candidates_and_retains_unknown_spelling ... ok
+test input::tests::switching_language_or_leaving_composition_keeps_the_typed_spelling ... ok
+test native_media::admission_tests::complete_color_jpegs_use_software_without_a_worker_attempt ... ok
+test native_media::admission_tests::information_requires_complete_entropy_without_decoding_pixels ... ok
+test native_media::admission_tests::production_geometry_only_admits_the_two_complete_measured_pairs ... ok
+test native_media::admission_tests::retired_firmware_wire_value_is_reserved_and_acceleration_defaults_off ... ok
+test native_media::admission_tests::unqualified_complete_gray_pairs_keep_metadata_but_never_start_a_worker ... ok
+test native_media::jpeg::tests::entropy_alignment_bits_must_all_be_one ... ok
+test native_media::jpeg::tests::entropy_damage_is_rejected_even_when_headers_and_eoi_remain ... ok
+test native_media::jpeg::tests::malformed_metadata_and_conflicting_gray_adobe_tags_use_software ... ok
+test native_media::jpeg::tests::real_baseline_entropy_is_complete_including_edge_blocks ... ok
+test native_media::jpeg::tests::terminal_eoi_rejects_zero_and_nonzero_source_trailing_bytes ... ok
+test native_media::jpeg::tests::truncated_and_non_jpeg_inputs_never_reach_the_worker ... ok
+test native_media::jpeg::tests::unsupported_markers_and_excessive_segments_never_widen_software_admission ... ok
+test native_media::tests::caller_deadline_preserves_and_reaps_the_independent_worker ... ok
+test native_media::tests::worker_protocol_rejects_malformed_responses_and_abnormal_exit ... ok
+test native_media_ui::tests::every_capability_has_a_localized_explanation ... ok
+test native_presentation::portrait_writer::tests::failed_portrait_publication_retains_pending_evidence_without_a_named_unlink ... ok
+test native_presentation::portrait_writer::tests::portrait_publication_never_opens_or_replaces_unowned_pending_or_target_leaves ... ok
+test native_presentation::portrait_writer::tests::portrait_publication_rejects_directory_replacement_and_invalid_typed_payloads ... ok
+test native_presentation::portrait_writer::tests::portrait_publication_rejects_wrong_launch_reader_permission_and_process_ancestry ... ok
+test native_presentation::portrait_writer::tests::read_permission_precedes_mode_publication_and_creates_no_sidecars ... ok
+test native_presentation::portrait_writer::tests::read_permission_rechecks_launch_sources_ancestry_birth_and_executable ... ok
+test native_presentation::portrait_writer::tests::read_permission_rejects_revocation_unsafe_markers_and_replaced_directory ... ok
+test native_presentation::portrait_writer::tests::resume_portrait_publication_preserves_checkpoint_error_ram_continuation ... ok
+test native_presentation::portrait_writer::tests::resume_portrait_publication_requires_current_suspend_bridge_and_capability ... ok
+test native_presentation::portrait_writer::tests::resumed_read_permission_requires_suspend_release_but_not_the_future_mode_record ... ok
+test native_presentation::portrait_writer::tests::startup_portrait_publication_is_private_exclusive_and_does_not_change_epdc ... ok
+test native_presentation::tests::capability_publication_is_private_atomic_and_bound_before_pid_publication ... ok
+test native_presentation::tests::capability_publication_never_replaces_or_removes_an_existing_pending_marker ... ok
+test native_presentation::tests::capability_publication_rejects_changed_ownership_and_foreign_existing_records ... ok
+test native_presentation::tests::capability_publication_rejects_unsafe_targets_and_cleans_only_its_failed_pending_write ... ok
+test native_presentation::tests::framebuffer_requests_reject_stale_capabilities_and_require_exact_new_record_framing ... ok
+test native_presentation::tests::framebuffer_resume_rechecks_current_request_and_private_capability ... ok
+test native_presentation::tests::framebuffer_resume_requires_current_capability_and_never_uses_the_startup_mode ... ok
+test native_presentation::tests::legacy_epdc_records_cannot_substitute_for_a_protected_portrait_calibration ... ok
+test native_presentation::tests::missing_unknown_stale_and_ambiguous_records_fail_closed ... ok
+test native_presentation::tests::mode_reads_reject_changed_context_and_broken_ancestry ... ok
+test native_presentation::tests::pinned_directory_rejects_replacement_and_public_directory_permissions ... ok
+test native_presentation::tests::portrait_calibration_never_assumes_an_absolute_device_rotation_mapping ... ok
+test native_presentation::tests::portrait_kernel_observation_rechecks_ownership_records_and_request_before_returning ... ok
+test native_presentation::tests::portrait_records_require_exact_new_framing_and_canonical_values ... ok
+test native_presentation::tests::portrait_resume_rejects_landscape_unknown_and_fixed_direction_changes ... ok
+test native_presentation::tests::portrait_resume_requires_active_sequence_current_application_and_output_capability ... ok
+test native_presentation::tests::portrait_sidecars_use_the_same_private_no_follow_record_boundary ... ok
+test native_presentation::tests::private_records_reject_symlinks_hardlinks_fifos_and_public_permissions ... ok
+test native_presentation::tests::resume_requires_the_current_dispatch_sequence_and_current_application ... ok
+test native_presentation::tests::startup_accepts_known_modes_and_proves_early_application_ancestry ... ok
+test native_presentation::tests::startup_portrait_matches_the_pre_takeover_pair_before_any_native_io ... ok
+test performance::tests::a_partial_write_rolls_back_before_terminal_append_or_reports_unknown_integrity ... ok
+test performance::tests::a_serializer_can_emit_a_nested_record_without_holding_the_sink_lock ... ok
+test performance::tests::an_oversized_stream_stops_serializing_at_the_record_bound ... ok
+test performance::tests::byte_limit_keeps_whole_json_lines_and_one_terminal_record ... ok
+test performance::tests::concurrent_configuration_creates_only_the_winning_file ... ok
+test performance::tests::disabled_and_finished_sinks_skip_serialization_and_operation_ids ... ok
+test performance::tests::existing_outputs_are_preserved_and_successful_output_is_private ... ok
+test performance::tests::finish_completes_an_already_started_stop_without_replacing_its_reason ... ok
+test performance::tests::serialization_failure_discards_partial_data_and_private_error_text ... ok
+test performance::tests::stage_totals_keep_missing_cpu_unknown_and_distinguish_partial_attempts ... ok
+test performance::tests::stamp_cpu_delta_requires_the_same_known_thread_and_nondecreasing_clock ... ok
+test platform::dithering_tests::a_desktop_profile_never_claims_hardware_dithering ... ok
+test platform::dithering_tests::attaching_a_sink_does_not_change_the_retained_frame_format ... ok
+test platform::dithering_tests::native_capability_loss_preserves_the_displayed_frames_fallback_intent ... ok
+test platform::native_capture::tests::a_getter_error_is_preserved_without_retry_or_a_later_read ... ok
+test platform::native_capture::tests::an_expired_or_exhausted_total_deadline_never_admits_another_read ... ok
+test platform::native_capture::tests::capture_preserves_the_original_sampling_order_and_one_deadline ... ok
+test platform::native_capture::tests::command_records_reject_controls_trailing_garbage_unknown_values_and_overflow ... ok
+test platform::native_capture::tests::context_failure_precedes_all_native_io_and_withdrawal_stops_the_transaction ... ok
+test platform::native_capture::tests::fixed_devices_skip_holding_but_repeat_metadata_and_active_checks ... ok
+test platform::native_capture::tests::metadata_and_normalized_holding_must_remain_consistent ... ok
+test platform::native_capture::tests::only_the_reviewed_scribe_profile_normalizes_lateral_values ... ok
+test platform::native_capture::tests::printable_non_active_power_is_distinct_from_malformed_power ... ok
+test platform::profile::tests::design_units_have_the_same_physical_scale_on_every_profile ... ok
+test platform::profile::tests::unknown_profiles_are_not_silently_assumed_compatible ... ok
+test platform::refresh::tests::closing_an_overlay_keeps_its_original_rectangle ... ok
+test platform::refresh::tests::disabling_periodic_reader_refresh_does_not_disable_image_refresh ... ok
+test platform::refresh::tests::keyboard_feedback_does_not_spend_or_reset_the_content_refresh_budget ... ok
+test platform::refresh::tests::progress_is_rate_limited_without_delaying_other_interactions ... ok
+test platform::refresh::tests::reader_geometry_replacement_is_full_and_restarts_the_reader_budget ... ok
+test platform::refresh::tests::six_content_partials_are_followed_by_a_full_refresh ... ok
+test platform::refresh_scene_tests::a_late_complete_binary_replacement_cannot_force_du_over_gray_controls ... ok
+test platform::refresh_scene_tests::continuous_fast_content_never_uses_or_resets_periodic_refresh_budgets ... ok
+test platform::refresh_scene_tests::fast_content_ignores_every_periodic_page_interval_and_keeps_progress_throttling ... ok
+test platform::refresh_scene_tests::fast_content_maps_automatic_and_direct_ui_updates_but_preserves_manual_full ... ok
+test platform::refresh_scene_tests::gray_overlay_upgrades_late_fast_feedback_and_normal_scene_keeps_its_policy ... ok
+test platform::refresh_scene_tests::the_visible_scene_is_one_independent_atomic_choice ... ok
+test platform::tests::an_initial_deferred_failure_is_retained_for_the_application ... ok
+test platform::tests::battery_readings_keep_valid_endpoints_and_reject_invalid_values ... ok
+test platform::tests::cancellation_before_worker_start_skips_the_initial_device_command ... ok
+test platform::tests::deferred_creation_and_drop_do_not_wait_for_a_blocked_device_command ... ok
+test platform::tests::framebuffer_portrait_mapping_requires_the_observed_native_pair ... ok
+test platform::tests::native_viewport_is_separate_from_the_desktop_design_geometry ... ok
+test platform::tests::the_synchronous_api_still_returns_initial_device_failures_directly ... ok
+test power_events::tests::a_deferred_cover_never_acknowledges_until_display_release_and_checkpoint_completion ... ok
+test power_events::tests::a_request_replaced_during_the_callback_cannot_publish_cover_or_checkpoint_acknowledgement ... ok
+test power_events::tests::cover_intent_and_ready_records_are_bound_to_the_complete_current_request ... ok
+test power_events::tests::deferred_requests_fence_older_sequences_and_never_retry_a_replaced_intent ... ok
+test power_events::tests::duplicate_power_events_acknowledge_without_repeating_checkpoint_work ... ok
+test power_events::tests::lifecycle_markers_do_not_follow_symlinks ... ok
+test power_events::tests::lifecycle_requests_reject_stale_contexts_and_unrecognized_actions ... ok
+test power_events::tests::missing_resume_snapshot_is_not_acknowledged_and_can_be_reconciled ... ok
+test power_events::tests::native_power_relay_bounds_unterminated_input_before_allocating_another_record ... ok
+test power_events::tests::native_power_relay_frames_split_and_bulk_input_as_atomic_short_records ... ok
+test power_events::tests::native_power_relay_never_retries_a_partial_output_write ... ok
+test power_events::tests::native_power_relay_rejects_unknown_binary_and_incomplete_records ... ok
+test power_events::tests::native_power_relay_retries_only_interrupted_reads_and_writes ... ok
+test power_events::tests::resume_snapshot_is_available_inside_the_detached_callback_and_not_reused_for_duplicates ... ok
+test reader::cancellation_tests::cancelling_a_canvas_fill_block_does_not_return_or_complete_a_frame ... ok
+test reader::cancellation_tests::cancelling_a_canvas_pixel_block_does_not_return_or_complete_a_frame ... ok
+test reader::cancellation_tests::cancelling_a_horizontal_resize_block_does_not_return_or_complete_a_frame ... ok
+test reader::cancellation_tests::cancelling_a_large_exact_copy_never_returns_a_partially_copied_image ... ok
+test reader::cancellation_tests::cancelling_a_vertical_resize_block_does_not_return_or_complete_a_frame ... ok
+test reader::cancellation_tests::cancelling_long_weight_generation_records_partial_resize_work ... ok
+test reader::cancellation_tests::the_public_default_render_api_still_returns_a_complete_uncancelled_frame ... ok
+test reader::cancellation_tests::uncancelled_empty_exact_copy_and_cropped_resize_preserve_reference_metadata ... ok
+test reader::cancellation_tests::uncancelled_long_vertical_and_horizontal_weights_match_both_reference_paths ... ok
+test reader::cancellation_tests::uncancelled_preparation_matches_reference_and_normal_frame_geometry_and_anchors ... ok
+test reader::cpu_resize_tests::cancellation_inside_resize_never_inserts_partial_gray_pixels ... ok
+test reader::cpu_resize_tests::cancelled_canvas_retains_only_complete_gray_and_never_returns_a_frame_on_a_hit ... ok
+test reader::cpu_resize_tests::cold_and_warm_sealed_resize_preserve_exact_frame_and_anchor ... ok
+test reader::cpu_resize_tests::current_content_proof_viewport_and_media_policy_separate_resize_entries ... ok
+test reader::cpu_resize_tests::output_algorithms_share_only_the_undithered_resize ... ok
+test reader::cpu_resize_tests::raw_identity_rotated_zoomed_cropped_and_identity_size_paths_do_not_use_the_cache ... ok
+test reader::cpu_resize_tests::zero_and_subentry_budgets_keep_rendering_without_retention ... ok
+test reader::fast_mode_tests::a_pre_cancelled_fast_render_does_not_prepare_or_return_a_frame ... ok
+test reader::fast_mode_tests::both_canvas_paths_keep_binary_pixels_local_phase_white_margins_and_exact_dark_counts ... ok
+test reader::fast_mode_tests::cancellation_after_binary_canvas_work_cannot_publish_partial_pixels ... ok
+test reader::fast_mode_tests::every_original_gray_and_bayer_phase_has_direct_binary_and_unchanged_normal_math ... ok
+test reader::fast_mode_tests::fast_defaults_off_and_suppresses_hardware_without_overwriting_saved_choices ... ok
+test reader::fast_mode_tests::four_fits_rotation_zoom_and_active_source_anchor_survive_fast_round_trips ... ok
+test reader::fast_mode_tests::normal_fast_normal_reuses_the_original_gray8_proof_pixels_and_cache_allocation ... ok
+test reader::fast_mode_tests::source_preparation_identity_is_shared_before_the_output_mode_is_applied ... ok
+test reader::fit_tests::all_four_fit_keys_round_trip_without_changing_persistence_names ... ok
+test reader::fit_tests::explicit_nonunit_pan_restores_its_visible_source_origin_after_rotation ... ok
+test reader::fit_tests::fractional_upscale_crops_sample_the_true_center_at_bounded_output_size ... ok
+test reader::fit_tests::fractional_upscale_sampling_obeys_worker_cancellation_without_partial_frames ... ok
+test reader::fit_tests::height_and_width_show_the_central_source_area_instead_of_the_first_segment ... ok
+test reader::fit_tests::internal_zoom_still_changes_pixels_without_adding_reading_regions ... ok
+test reader::fit_tests::manual_rotations_keep_the_identifiable_pattern_and_unit_preset_geometry ... ok
+test reader::fit_tests::normal_reference_and_cancellable_rendering_agree_on_new_fit_pixels ... ok
+test reader::fit_tests::original_keeps_small_sources_pixel_exact_without_enlarging_them ... ok
+test reader::fit_tests::original_reduces_large_sources_to_the_viewport_without_cropping_or_extra_steps ... ok
+test reader::fit_tests::page_stretch_of_extreme_aspects_never_needs_an_enlarged_intermediate_matrix ... ok
+test reader::fit_tests::page_stretches_the_complete_source_across_both_viewport_axes ... ok
+test reader::fit_tests::short_width_and_narrow_height_fits_are_centered_on_the_other_axis ... ok
+test reader::fit_tests::strip_and_panel_region_planning_remain_separate_from_fit_presets ... ok
+test reader::fit_tests::unit_fit_anchors_restore_the_same_page_rotation_and_pixels ... ok
+test reader::fit_tests::unit_fits_match_independent_geometry_and_centered_pattern_at_two_viewports ... ok
+test reader::fit_tests::unit_presets_never_add_page_steps_or_move_the_center_for_reading_direction ... ok
+test reader::hardware_dither_tests::cancelling_raw_canvas_work_never_publishes_a_partial_frame ... ok
+test reader::hardware_dither_tests::disabling_dither_keeps_sixteen_levels_even_with_a_stale_hardware_field ... ok
+test reader::hardware_dither_tests::hardware_handoff_preserves_every_gray8_value_in_both_canvas_paths ... ok
+test reader::hardware_dither_tests::switching_the_output_path_preserves_the_active_page_crop_rotation_and_zoom ... ok
+test reader::media_acceleration_tests::color_jpeg_keeps_software_proof_grayscale_and_canonical_cache_without_native_submission ... ok
+test reader::media_acceleration_tests::crops_zoom_rotations_modes_and_upscales_never_create_native_plans ... ok
+test reader::media_acceleration_tests::entropy_only_proofs_keep_source_dimensions_and_reject_missing_blocks ... ok
+test reader::media_acceleration_tests::native_frames_share_software_layout_canvas_y4_and_original_source_anchors ... ok
+test reader::media_acceleration_tests::native_output_bounds_and_cancelled_results_never_enter_a_processed_cache ... ok
+test reader::media_acceleration_tests::native_plans_reuse_the_exact_four_fit_geometries ... ok
+test reader::media_acceleration_tests::native_proofs_require_the_same_one_bit_entropy_alignment_as_software ... ok
+test reader::media_acceleration_tests::native_proofs_retain_strict_terminal_header_and_segment_budget_policy ... ok
+test reader::media_acceleration_tests::processed_pixels_are_separate_bounded_and_keyed_by_policy_geometry_and_content ... ok
+test reader::media_acceleration_tests::unmeasured_gray_tuples_keep_software_proofs_and_never_reach_the_decoder ... ok
+test reader::media_acceleration_tests::unsupported_formats_and_cancellation_make_no_native_decode_calls ... ok
+test reader::preparation_profile_tests::a_failed_pixel_decode_reports_partial_work_after_complete_container_validation ... ok
+test reader::preparation_profile_tests::a_failed_source_read_is_partial_and_does_not_invent_later_stages ... ok
+test reader::preparation_profile_tests::a_failed_strip_layout_keeps_source_success_and_does_not_invent_raster_work ... ok
+test reader::preparation_profile_tests::a_pre_cancelled_owned_input_leaves_the_profile_unattempted ... ok
+test reader::preparation_profile_tests::one_profile_accumulates_complete_frame_stages_without_repeating_source_work ... ok
+test reader::preparation_profile_tests::profiling_hashes_a_path_once_and_never_rehashes_an_owned_input ... ok
+test reader::preparation_profile_tests::profiling_keeps_pixel_cache_hits_distinct_from_unchanged_sources ... ok
+test reader::preparation_profile_tests::stage_profiling_preserves_sealed_source_complete_pixels_and_reading_anchor ... ok
+test reader::profile_tests::candidate_resize_and_canvas_match_reference_pixels_at_all_bayer_phases ... ok
+test reader::profile_tests::hashed_source_profiling_preserves_unchanged_and_cancelled_outcomes_without_rehashing ... ok
+test reader::profile_tests::measure_reader_stage_candidates ... ignored, Run only in the designated remote environment with explicit fictional fixture inputs
+test reader::profile_tests::optional_timing_preserves_complete_frames_and_reading_anchors ... ok
+test reader::profile_tests::profiling_cannot_reuse_a_cached_source_after_current_bytes_are_corrupted ... ok
+test reader::profile_tests::single_channel_triangle_matches_random_crops_and_extreme_aspect_ratios ... ok
+test reader::profile_tests::single_channel_triangle_matches_small_exhaustive_geometry_and_all_gray_values ... ok
+test reader::profile_tests::single_channel_triangle_preserves_empty_and_same_size_reference_behavior ... ok
+test reader::profile_tests::single_channel_triangle_preserves_nondefault_crop_color_metadata ... ok
+test reader::profile_tests::verify_full_frame_cancellable_production_paths ... ignored, Run only in the designated remote environment with two frozen fictional PNG inputs
+test reader::resources::tests::a_zero_cache_budget_does_not_retain_sources ... ok
+test reader::resources::tests::cache_eviction_tracks_byte_capacity_and_actual_access_order ... ok
+test reader::resources::tests::clearing_counts_only_cache_ownership_while_in_flight_arcs_remain_valid ... ok
+test reader::resources::tests::cpu_cache_counts_owned_capacity_and_preserves_zero_budget_behavior ... ok
+test reader::resources::tests::cpu_cache_rejects_non_page_geometry_and_partial_outputs ... ok
+test reader::resources::tests::cpu_resizes_require_complete_proofs_and_the_exact_preparation_identity ... ok
+test reader::resources::tests::duplicate_replacement_and_invalid_geometry_cannot_inflate_the_cache ... ok
+test reader::resources::tests::identical_pixels_with_different_encoded_content_require_distinct_proofs ... ok
+test reader::resources::tests::oversized_allocations_bypass_retention_without_discarding_the_caller_source ... ok
+test reader::resources::tests::processed_namespaces_share_budget_without_cross_hits_and_invalidate_together ... ok
+test reader::reuse_tests::a_reuse_callback_cannot_substitute_another_sealed_encoded_identity ... ok
+test reader::reuse_tests::a_source_larger_than_the_cache_budget_is_decoded_without_retaining_it ... ok
+test reader::reuse_tests::an_exact_reuse_hit_still_enforces_the_current_pixel_policy ... ok
+test reader::reuse_tests::cached_paths_still_reject_truncated_and_corrupt_current_encodings ... ok
+test reader::reuse_tests::repeated_paths_reuse_current_bytes_and_same_geometry_replacements_render_new_pixels ... ok
+test reader::reuse_tests::reusable_sources_preserve_mode_regions_and_centered_page_fit_anchors ... ok
+test reader::reuse_tests::rotating_a_reusable_source_does_not_mutate_cached_pixels_or_source_geometry ... ok
+test reader::reuse_tests::same_geometry_source_replacements_reflow_gutters_around_the_retained_source_anchor ... ok
+test reader::reuse_tests::same_geometry_source_replacements_refresh_pixels_without_reflowing_centered_page_fits ... ok
+test reader::spatial_dither::tests::bayer_keeps_the_frozen_xy_orientation_and_odd_width_phase ... ok
+test reader::spatial_dither::tests::cancellation_rejects_work_at_entry_inside_wide_rows_and_after_processing ... ok
+test reader::spatial_dither::tests::every_method_matches_the_frozen_full_resolution_oracle_pixel_for_pixel ... ok
+test reader::spatial_dither::tests::floyd_handles_single_columns_small_boundaries_and_serpentine_odd_rows ... ok
+test reader::spatial_dither::tests::native_levels_tail_storage_metadata_and_empty_images_remain_intact ... ok
+test reader::spatial_dither::tests::off_has_exactly_sixteen_uniform_nearest_level_bands ... ok
+test reader::spatial_dither::tests::q8_stencil_preserves_signed_remainders ... ok
+test reader::spatial_dither::tests::spatial_methods_resolve_all_256_tones_using_only_native_codes ... ok
+test reader::spatial_dither::tests::storage_and_cache_identity_use_explicit_versions_and_default_to_bayer8 ... ok
+test reader::spatial_render_tests::bayer_phase_and_diffusion_row_parity_use_viewport_coordinates_including_white_margins ... ok
+test reader::spatial_render_tests::default_selection_is_cpu_bayer8_and_disabled_selection_is_nearest_level ... ok
+test reader::spatial_render_tests::disabled_dithering_overrides_every_saved_method_without_a_second_quantizer ... ok
+test reader::spatial_render_tests::every_spatial_canvas_phase_cancels_without_returning_a_partial_frame ... ok
+test reader::spatial_render_tests::fast_binary_frames_bypass_every_grayscale_spatial_method ... ok
+test reader::spatial_render_tests::full_resolution_reader_outputs_match_all_three_unchanged_handoff_fixtures ... ok
+test reader::spatial_render_tests::quantization_follows_geometry_rotation_crop_and_zoom_on_the_complete_viewport ... ok
+test reader::spatial_render_tests::spatial_changes_share_gray8_source_and_preparation_but_not_final_settings_identity ... ok
+test reader::tests::a_coverless_spread_restores_the_selected_source_leaf_in_both_directions ... ok
+test reader::tests::a_long_narrow_source_is_not_rejected_by_a_thumbnail_edge_limit ... ok
+test reader::tests::a_restored_strip_transition_returns_to_the_final_viewport_without_a_cached_layout ... ok
+test reader::tests::a_tall_panel_overlaps_but_a_visible_gutter_does_not ... ok
+test reader::tests::cover_spreads_follow_source_order_in_both_directions ... ok
+test reader::tests::end_transition_is_reversible_and_never_opens_another_episode ... ok
+test reader::tests::explicit_fixture_panels_remain_separate_from_recognition ... ok
+test reader::tests::pan_within_an_overlapping_strip_keeps_the_current_region ... ok
+test reader::tests::panel_heuristic_respects_a_full_width_and_column_gutter ... ok
+test reader::tests::quantization_only_emits_sixteen_panel_tones ... ok
+test reader::tests::returning_to_start_clears_a_finished_strip_position_and_restores_the_first_view ... ok
+test reader::tests::returning_to_the_last_page_uses_its_first_panel_or_centered_single_page ... ok
+test reader::tests::seeking_back_after_a_strip_transition_keeps_the_selected_viewport ... ok
+test reader::tests::stale_revision_cannot_restore_an_old_page_position ... ok
+test reader::tests::transparent_pixels_are_composited_over_paper_before_grayscale ... ok
+test reader::tests::width_fit_has_one_centered_source_view_and_does_not_skip_pages_as_a_spread ... ok
+test reader::triangle::streaming_tests::a_naturally_oversized_plan_keeps_exact_pixels_and_the_matrix_fallback ... ok
+test reader::triangle::streaming_tests::cancellation_at_the_streamed_output_boundary_returns_no_image ... ok
+test reader::triangle::streaming_tests::cancellation_inside_long_vertical_accumulation_returns_no_image ... ok
+test reader::triangle::streaming_tests::cancelling_plan_construction_allocates_no_vertical_pixel_buffer ... ok
+test reader::triangle::streaming_tests::plan_and_row_reservation_failures_keep_the_complete_matrix_fallback ... ok
+test reader::triangle::streaming_tests::planned_horizontal_cancellation_precedes_the_next_vertical_row ... ok
+test reader::triangle::streaming_tests::reused_row_storage_preserves_global_vertical_and_horizontal_pixel_counters ... ok
+test reader::triangle::streaming_tests::streaming_and_matrix_paths_match_clamped_crops_and_empty_origins ... ok
+test reader::triangle::streaming_tests::successful_plans_allocate_one_actual_f32_row_independent_of_target_height ... ok
+test reader::triangle::tests::already_cancelled_plan_does_not_degrade_to_budget_fallback ... ok
+test reader::triangle::tests::cancellation_during_plan_counting_returns_no_image ... ok
+test reader::triangle::tests::cancellation_during_plan_filling_returns_no_image ... ok
+test reader::triangle::tests::cancellation_during_row_or_fallback_pixels_never_returns_a_partial_image ... ok
+test reader::triangle::tests::cancellation_inside_long_row_or_fallback_accumulation_returns_no_image ... ok
+test reader::triangle::tests::cancellation_inside_planned_coefficient_generation_returns_no_image ... ok
+test reader::triangle::tests::cancellation_inside_planned_coefficient_normalization_returns_no_image ... ok
+test reader::triangle::tests::disabled_cancellation_uses_default_path_without_checkpoint_calls ... ok
+test reader::triangle::tests::exact_rounding_matches_halfway_neighbors_and_u8_edges ... ok
+test reader::triangle::tests::exact_rounding_preserves_special_values_and_exponent_boundaries ... ok
+test reader::triangle::tests::exhaustive_rounding_core_matches_the_original_float_conversion ... ignored, Run explicitly in release mode on the designated remote worker
+test reader::triangle::tests::huge_plan_requests_fall_back_without_requiring_huge_pixel_buffers ... ok
+test reader::triangle::tests::plan_budget_accounts_for_both_actual_vector_capacities ... ok
+test reader::triangle::tests::planned_fallback_and_uncancelled_paths_match_extreme_ratios_and_copy_cases ... ok
+test reader::triangle::tests::planned_fallback_and_uncancelled_paths_match_random_crops_and_metadata ... ok
+test source::assets::tests::a_replaced_file_with_the_same_length_and_bytes_is_revalidated_by_identity ... ok
+test source::assets::tests::a_symlink_is_not_accepted_as_a_warm_asset_path ... ok
+test source::assets::tests::cancelled_asset_loading_does_not_read_or_hash_before_its_first_allocation ... ok
+test source::assets::tests::changed_or_missing_assets_invalidate_without_changing_in_flight_bytes_or_negative_caching ... ok
+test source::assets::tests::warm_asset_uses_one_read_and_hash_and_keeps_one_immutable_snapshot ... ok
+test source::auth::tests::a_new_qr_login_can_recover_after_published_session_storage_uncertainty ... ok
+test source::auth::tests::a_prepared_confirmation_cannot_overwrite_a_later_cookie_update ... ok
+test source::auth::tests::a_prepared_refresh_cannot_overwrite_a_later_cookie_update ... ok
+test source::auth::tests::a_stale_authentication_rejection_cannot_invalidate_replacement_credentials ... ok
+test source::auth::tests::an_unknown_confirmation_response_keeps_the_attempt_blocked ... ok
+test source::auth::tests::an_unsent_attempt_clears_only_its_marker_and_preserves_concurrent_cookie_updates ... ok
+test source::auth::tests::authentication_and_identity_rejections_cannot_publish_response_cookies_or_prevent_invalidation ... ok
+test source::auth::tests::authentication_error_cookie_rotations_are_available_to_the_next_request ... ok
+test source::auth::tests::authentication_rejects_required_cookies_outside_the_destination_before_dispatch ... ok
+test source::auth::tests::cancellation_discards_a_poll_response_that_was_already_in_flight ... ok
+test source::auth::tests::cancellation_rejects_an_old_key_before_any_poll_request ... ok
+test source::auth::tests::challenge_parser_accepts_only_the_bounded_token_element ... ok
+test source::auth::tests::check_session_invalidates_a_rejection_after_its_own_intermediate_commits ... ok
+test source::auth::tests::confirmation_cookie_failures_keep_the_completed_attempt_blocked ... ok
+test source::auth::tests::confirmation_revalidation_cannot_install_another_account ... ok
+test source::auth::tests::confirmed_login_initializes_the_site_and_returns_an_inactive_candidate ... ok
+test source::auth::tests::device_initialization_preserves_host_only_scope_and_expiry ... ok
+test source::auth::tests::fixed_correspondence_vector_matches_reviewed_official_wasm ... ok
+test source::auth::tests::identity_and_correspondence_get_requests_do_not_require_passport_only_csrf ... ok
+test source::auth::tests::passport_requests_use_matching_cookie_and_csrf_without_manga_only_values ... ok
+test source::auth::tests::pending_status_is_read_from_the_nested_code ... ok
+test source::auth::tests::qr_generation_and_polling_remain_anonymous_with_an_active_account ... ok
+test source::auth::tests::qr_secrets_are_redacted_from_debug_output ... ok
+test source::auth::tests::queued_renewal_operations_reject_account_and_credential_replacement_after_the_lock ... ok
+test source::auth::tests::refresh_false_follows_only_its_own_cookie_info_commit_without_requesting_confirmation ... ok
+test source::auth::tests::renewal_applies_challenge_and_confirmation_cookies_before_subsequent_requests ... ok
+test source::auth::tests::renewal_error_cookie_rotations_keep_the_attempt_blocked_without_resubmission ... ok
+test source::auth::tests::renewal_stage_getters_distinguish_pending_confirmation_from_uncertainty ... ok
+test source::auth::tests::successful_confirmation_cannot_be_replayed_before_the_candidate_is_activated ... ok
+test source::auth::tests::unbound_renewal_futures_capture_credentials_before_their_first_poll ... ok
+test source::cookie_tests::a_late_authentication_rejection_cannot_delete_rotated_credentials ... ok
+test source::cookie_tests::a_late_response_cannot_overwrite_a_cookie_rotated_by_another_response ... ok
+test source::cookie_tests::authenticated_business_requests_require_a_session_cookie_for_the_destination ... ok
+test source::cookie_tests::business_reads_and_writes_send_the_exact_allowed_cookie_set ... ok
+test source::cookie_tests::cleared_session_sync_failure_cannot_be_undone_by_an_in_flight_response ... ok
+test source::cookie_tests::concurrent_disjoint_cookie_responses_merge_before_persistence ... ok
+test source::cookie_tests::current_business_authentication_rejections_clear_memory_and_persistence ... ok
+test source::cookie_tests::encrypted_mutation_decode_failures_remain_transmitted_unknown_outcomes ... ok
+test source::cookie_tests::failed_cookie_persistence_keeps_the_saved_session_and_does_not_replay_a_mutation ... ok
+test source::cookie_tests::guest_category_requests_and_cover_downloads_exclude_account_credentials ... ok
+test source::cookie_tests::late_cookie_responses_cannot_restore_replaced_or_logged_out_credentials ... ok
+test source::cookie_tests::ordinary_cookie_rotation_is_used_by_a_reconstructed_client ... ok
+test source::cookie_tests::published_cookie_sync_failure_hides_the_session_until_an_explicit_login ... ok
+test source::cookie_tests::rejected_http_and_business_responses_still_persist_response_cookies ... ok
+test source::cookie_tests::request_headers_and_signing_ignore_cookies_scoped_to_other_hosts ... ok
+test source::crypto::native::asset_input_tests::borrowed_module_and_path_inputs_have_matching_isolated_failure_cleanup ... ok
+test source::crypto::native::asset_input_tests::bytes_input_rejects_invalid_lengths_before_reading_and_clears_the_output ... ok
+test source::crypto::tests::encrypted_images_match_official_golden_for_all_versions_and_counter_widths ... ok
+test source::crypto::tests::image_decryption_rejects_modified_gcm_and_malformed_parameters ... ok
+test source::crypto::tests::native_p256_produces_fresh_uncompressed_public_points ... ok
+test source::crypto::tests::response_decoder_matches_independent_official_wasm_golden ... ok
+test source::crypto::tests::response_decoder_rejects_malformed_padding_utf8_and_json ... ok
+test source::crypto::tests::signing_rejects_embedded_nul_before_native_module_loading ... ok
+test source::images::tests::an_untrusted_cover_candidate_requires_complete_cancellable_inspection ... ok
+test source::images::tests::png_crc_and_complete_container_are_checked_before_cache_publication ... ok
+test source::images::tests::signed_image_url_is_not_reserialized_or_sent_to_an_unrelated_origin ... ok
+test source::normalize::tests::cached_extra_removes_nested_acquisition_and_account_material ... ok
+test source::normalize::tests::entitlement_does_not_promote_ambiguous_or_expired_rights ... ok
+test source::normalize::tests::explicit_entitlement_modes_keep_unparsed_expiry_guards_before_fallbacks ... ok
+test source::normalize::tests::explicit_free_pay_mode_keeps_precedence_over_the_temporary_fallback ... ok
+test source::normalize::tests::temporary_fallback_keeps_explicit_unparsed_expiry_unreadable ... ok
+test source::normalize::tests::temporary_fallback_preserves_known_expiry_and_absent_expiry_behavior ... ok
+test source::payments::tests::changed_recharge_terms_prevent_order_creation ... ok
+test source::payments::tests::purchase_coupon_payload_never_defaults_a_missing_price_to_zero ... ok
+test source::payments::tests::purchase_definitive_rejection_stays_distinct_from_unknown ... ok
+test source::payments::tests::purchase_payload_retains_fractional_and_explicit_remaining_scopes ... ok
+test source::payments::tests::purchase_unknown_response_is_not_replayed_or_treated_as_success ... ok
+test source::payments::tests::quote_checks_response_identity_and_preserves_absence_and_zero ... ok
+test source::payments::tests::quote_scopes_preserve_wire_meaning_and_omit_chapter_ordinals ... ok
+test source::payments::tests::recharge_amounts_use_exact_cents_and_bounded_official_denominations ... ok
+test source::payments::tests::recharge_configuration_binds_terms_without_binding_retrieval_time ... ok
+test source::payments::tests::recharge_creation_rechecks_configuration_and_transmits_integer_cents_once ... ok
+test source::payments::tests::recharge_history_preserves_identity_and_does_not_infer_cash_units ... ok
+test source::payments::tests::recharge_lexer_preserves_large_identifiers_and_rejects_duplicate_or_rounded_shapes ... ok
+test source::payments::tests::stale_or_unverified_payment_accounts_cannot_reach_transport ... ok
+test source::payments::tests::uncertain_recharge_retains_only_an_exact_known_reconciliation_identity ... ok
+test source::session::tests::a_session_fifo_is_rejected_before_reading ... ok
+test source::session::tests::a_session_symlink_is_rejected_without_reading_its_target ... ok
+test source::session::tests::browser_json_and_netscape_preserve_cookie_scope ... ok
+test source::session::tests::conflicting_imports_and_identity_are_rejected ... ok
+test source::session::tests::copying_and_merging_cookies_preserves_metadata_and_newer_parallel_values ... ok
+test source::session::tests::credential_scope_and_lifetime_changes_advance_the_generation_once ... ok
+test source::session::tests::different_domain_response_conflicts_leave_all_cookies_unchanged ... ok
+test source::session::tests::directory_sync_failure_is_shared_only_by_clones_after_publication ... ok
+test source::session::tests::domains_and_xsrf_do_not_leak_to_other_origins ... ok
+test source::session::tests::expired_imports_are_omitted_and_invalid_lifetimes_are_rejected ... ok
+test source::session::tests::host_only_browser_and_netscape_cookies_remain_on_the_exact_host ... ok
+test source::session::tests::imported_fractional_expiry_controls_headers_devices_and_account_identity ... ok
+test source::session::tests::imports_known_cookies_without_trusting_an_account_identifier ... ok
+test source::session::tests::legacy_session_files_migrate_explicit_scope_and_save_the_current_schema ... ok
+test source::session::tests::malformed_persisted_metadata_is_rejected_before_expiry_can_hide_it ... ok
+test source::session::tests::merging_core_changes_advances_once_and_keeps_parallel_deletions ... ok
+test source::session::tests::omitted_response_paths_use_the_request_directory_before_root_path_filtering ... ok
+test source::session::tests::only_known_fat_permission_mode_failures_are_admitted ... ok
+test source::session::tests::pending_cleanup_failure_after_session_removal_has_an_uncertain_clear_code ... ok
+test source::session::tests::private_file_replacement_preserves_the_saved_session_on_rejection ... ok
+test source::session::tests::raw_imports_have_explicit_legacy_scope_and_json_nonroot_paths_are_ignored ... ok
+test source::session::tests::repeated_cookie_fields_preserve_expires_and_apply_transactionally ... ok
+test source::session::tests::response_deletion_matches_domain_but_not_the_host_only_flag ... ok
+test source::session::tests::response_expiry_applies_to_every_cookie_and_max_age_takes_precedence ... ok
+test source::tests::an_account_bound_clone_rejects_queued_and_in_flight_acquisition_after_a_switch ... ok
+test source::tests::an_account_switch_cancels_a_prepared_batch_before_any_cdn_request ... ok
+test source::tests::catalog_serialization_and_noncredential_cookie_updates_use_the_real_client ... ok
+test source::tests::category_metadata_remains_anonymous_even_with_an_active_session ... ok
+test source::tests::offline_client_blocks_read_write_and_protocol_paths_without_creating_assets ... ok
+test source::tests::ordered_index_tokens_and_plain_image_flag_complete_without_cookie_leakage ... ok
+test source::work::tests::accidentally_blocking_on_nested_work_returns_an_error_instead_of_deadlocking ... ok
+test source::work::tests::an_oversized_job_is_rejected_without_calling_the_worker ... ok
+test source::work::tests::cancelled_work_already_in_the_blocking_queue_skips_its_allocation_callback ... ok
+test source::work::tests::cancelling_a_budget_waiter_never_queues_its_work_or_leaks_a_permit ... ok
+test source::work::tests::cancelling_the_awaiter_keeps_both_reservations_in_the_running_closure ... ok
+test source::work::tests::dropping_a_speculative_future_or_marker_keeps_the_actual_worker_exclusive ... ok
+test source::work::tests::foreground_work_uses_the_other_slot_and_cancels_the_original_speculative_flag ... ok
+test source::work::tests::independent_producers_use_the_same_process_gate ... ok
+test source::work::tests::planned_memory_can_limit_parallel_work_below_the_cpu_slot_count ... ok
+test source::work::tests::speculative_admission_cannot_pass_a_regular_waiter_before_it_resumes ... ok
+test source::work::tests::speculative_admission_rejects_a_busy_metadata_lock_and_cancelled_work_immediately ... ok
+test source::work::tests::speculative_admission_requires_every_cpu_slot_to_be_idle ... ok
+test source::work::tests::speculative_memory_failure_never_retains_a_cpu_slot_or_partial_reservation ... ok
+test source::work::tests::speculative_panic_and_error_release_the_actual_worker_reservations ... ok
+test source::work_integration_tests::cancelling_a_cdn_wait_drops_the_network_future_without_waiting_for_its_timeout ... ok
+test source::work_integration_tests::old_and_new_account_clients_share_running_sign_capacity_after_awaiter_cancellation ... ok
+test store::catalog_cache_tests::cache_cleanup_rolls_back_all_metadata_when_storage_rejects_a_delete ... ok
+test store::catalog_cache_tests::detail_retention_preserves_complete_active_chapter_lists ... ok
+test store::catalog_cache_tests::evicted_comic_ids_exclude_active_results_and_all_durable_owners ... ok
+test store::catalog_cache_tests::legacy_cache_cleanup_is_bounded_and_keeps_noncache_namespaces ... ok
+test store::catalog_cache_tests::optional_cache_maintenance_never_waits_for_a_writer_and_restores_connection_policy ... ok
+test store::catalog_cache_tests::replacing_an_active_query_reclaims_its_old_excess_without_truncating_the_current_query ... ok
+test store::catalog_cache_tests::transient_scopes_are_bounded_even_when_a_favorite_appears_in_every_search ... ok
+test store::integrity_tests::a_legacy_proof_upgrade_preserves_a_concurrent_retain_and_survives_reopen ... ok
+test store::integrity_tests::a_legacy_replay_of_trusted_bytes_cannot_downgrade_the_historical_proof ... ok
+test store::integrity_tests::a_pending_source_refresh_is_durable_and_cannot_complete_from_its_old_cache ... ok
+test store::integrity_tests::a_proof_upgrade_cannot_resurrect_an_invalidated_receipt ... ok
+test store::integrity_tests::caller_supplied_versions_cannot_replace_an_opaque_decode_proof ... ok
+test store::integrity_tests::completion_requires_explicit_confirmation_of_every_strict_retained_page ... ok
+test store::integrity_tests::concurrent_opens_migrate_each_legacy_schema_only_once ... ok
+test store::integrity_tests::different_or_missing_disk_bytes_do_not_revoke_legacy_or_strict_content_history ... ok
+test store::integrity_tests::exact_legacy_bad_encoding_can_be_replaced_after_its_untrusted_identity_is_revoked ... ok
+test store::integrity_tests::only_a_checked_refresh_can_bind_a_new_revision_and_old_revision_content_remains_intact ... ok
+test store::integrity_tests::schema_one_and_two_receipts_migrate_as_unproven_images ... ok
+test store::integrity_tests::the_same_revision_cannot_shrink_or_change_any_page_descriptor ... ok
+test store::resource_tests::deferred_state_controls_replace_old_terminal_intents_instead_of_reusing_them ... ok
+test store::resource_tests::global_download_activity_counts_retained_comic_groups_and_accounts ... ok
+test store::resource_tests::invalid_or_failed_outbox_writes_preserve_the_replayable_terminal_intent ... ok
+test store::resource_tests::missing_aggregate_history_rolls_back_the_new_page_but_preserves_its_publication_journal ... ok
+test store::resource_tests::partial_sql_progress_survives_journal_recovery_replay_and_invalidation ... ok
+test store::resource_tests::reader_metadata_gc_preserves_live_retained_and_unresolved_shared_content ... ok
+test store::resource_tests::schema_three_resource_migration_preserves_content_and_installs_bounded_outbox_indexes ... ok
+test store::resource_tests::sql_progress_counts_matching_pages_once_even_when_their_image_bytes_repeat ... ok
+test store::resource_tests::stale_retries_and_acknowledgements_cannot_clear_a_new_terminal_meaning ... ok
+test store::resource_tests::terminal_intents_survive_the_state_to_outbox_gap_and_replay_through_bounded_seek_pages ... ok
+test store::resource_tests::terminal_outbox_replacement_acknowledgement_and_generation_are_account_scoped ... ok
+test store::sleep_checkpoint_tests::a_failed_batch_rolls_back_its_anchor_before_any_pause_is_committed ... ok
+test store::sleep_checkpoint_tests::active_pause_scan_is_account_scoped_and_remains_bounded_as_rows_leave_the_scan ... ok
+test store::sleep_checkpoint_tests::pause_checkpoints_use_exact_task_generation_and_preserve_newer_user_control ... ok
+test store::sleep_checkpoint_tests::resume_revocation_while_begin_waits_for_sqlite_lock_prevents_the_late_commit ... ok
+test store::sleep_checkpoint_tests::revoked_sleep_snapshots_never_replace_a_new_live_anchor_or_preferences ... ok
+test store::tests::a_page_commit_updates_receipt_task_and_journal_together ... ok
+test store::tests::a_paused_generation_rejects_a_page_that_finished_late ... ok
+test store::tests::account_namespaces_do_not_share_metadata_or_private_transport_state ... ok
+test store::tests::invalidation_preserves_the_historical_content_identity ... ok
+test store::tests::pending_tasks_bind_the_indexed_revision_once ... ok
+test store::tests::source_anchor_survives_restart_without_using_a_screen_percentage ... ok
+
+test result: ok. 874 passed; 0 failed; 4 ignored; 0 measured; 0 filtered out; finished in 70.27s
+
+     Running unittests src/main.rs (/root/bilicomics-startup-20261117-01a1d11a/target/debug/deps/bilicomics-f8231e8f2737a762)
+
+running 8 tests
+test runtime_wakeup::tests::a_concurrent_burst_owns_one_notification_until_dispatch ... ok
+test runtime_wakeup::tests::dispatch_releases_capacity_before_accepting_a_following_result ... ok
+test runtime_wakeup::tests::shutdown_rejects_pending_and_future_wakeups ... ok
+test sleep_cover_runtime::tests::a_cover_must_yield_then_observe_its_own_completion_before_checkpoint_work ... ok
+test sleep_cover_runtime::tests::a_new_request_never_accepts_the_old_token ... ok
+test sleep_cover_runtime::tests::timeout_missing_intent_and_renderer_errors_return_without_cover_success ... ok
+test trace_tests::absent_or_malformed_checkpoint_fields_do_not_produce_a_trace_payload ... ok
+test trace_tests::checkpoint_trace_excludes_identity_and_error_payloads ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

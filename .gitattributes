@@ -53,3 +53,7 @@
 
 # Retain the exact adopted startup sources and original license notices.
 /docs/research/aidoku-startup-20261117/** -text
+
+# Preserve the source-bound startup checks, timing samples, and projections.
+/docs/verification/startup-20261117/** -text
+/docs/physical/startup-20261117/** -text

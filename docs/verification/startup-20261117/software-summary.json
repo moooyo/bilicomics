@@ -1,0 +1,152 @@
+{
+  "common_release_profile": {
+    "codegen-units": 1,
+    "lto": "thin",
+    "strip": true
+  },
+  "compiler_profile": "compiler-profile.json",
+  "environment": {
+    "CARGO_BUILD_JOBS": "6",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_INCREMENTAL": "false",
+    "CARGO_PROFILE_TEST_INCREMENTAL": "false",
+    "RUST_TEST_THREADS": "1"
+  },
+  "excluded_material": [
+    "ELF and ZIP bytes",
+    "databases",
+    "credentials",
+    "private transport",
+    "account content",
+    "physical-run output"
+  ],
+  "final_attempt": {
+    "backend": {
+      "failed": 0,
+      "ignored": 0,
+      "passed": 236
+    },
+    "desktop_binaries": {
+      "baseline": "4285b97673f646b259962e4c01b04d130f01eb536f3924d5f90fd81634e910bf",
+      "candidate": "f9a6225638a24b1cb5f6031af6022905dc7b1325a5b37af616a261b234b9dd6c"
+    },
+    "library": {
+      "failed": 0,
+      "ignored": 4,
+      "passed": 874,
+      "status": "ok"
+    },
+    "main_binary": {
+      "failed": 0,
+      "ignored": 0,
+      "passed": 8,
+      "status": "ok"
+    },
+    "package_regression_tests_total": 16,
+    "passed": true,
+    "python_suites": {
+      "launcher": 129,
+      "native-media-package": 3,
+      "spatial-package": 5,
+      "startup-package": 8
+    },
+    "record": "original/checks-r2-summary.json",
+    "steps": [
+      {
+        "label": "library-and-binary-tests",
+        "log_sha256": "f09988543a028f5f75bb5083862db1d3f30f7e66f23e7a21128c64d9e9ae982f",
+        "returncode": 0,
+        "seconds": 135.976
+      },
+      {
+        "label": "backend",
+        "log_sha256": "476a3b0469b4399daea5db28cddcdad2844da2b4a1027b2cc9acd730976886f6",
+        "returncode": 0,
+        "seconds": 15.769
+      },
+      {
+        "label": "desktop-build",
+        "log_sha256": "6e8863c0ead9e1b39b7fe07a82802f0f0187caa36409a8bf077174c44a966700",
+        "returncode": 0,
+        "seconds": 1.778
+      },
+      {
+        "label": "arm-build",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "returncode": 0,
+        "seconds": 217.898
+      },
+      {
+        "label": "candidate-package",
+        "log_sha256": "270daaacbdefa830bfe737d83b787b562cbf041163e69b41d5b99bba58d0bbff",
+        "returncode": 0,
+        "seconds": 1.017
+      }
+    ]
+  },
+  "initial_attempt": {
+    "environment_correction": "The second runner explicitly sets umask 077; the first runner did not set it",
+    "failure_scope": "Eight lifecycle fixtures; later steps stopped after the library failure",
+    "library": {
+      "failed": 8,
+      "ignored": 4,
+      "passed": 866,
+      "status": "FAILED"
+    },
+    "observed_error": "The lifecycle directory must be owned and private",
+    "passed": false,
+    "production_source_changed_to_correct_environment": false,
+    "record": "original/checks-r1-summary.json"
+  },
+  "physical_device_used_by_this_software_verification": false,
+  "release_override_used": false,
+  "schema_version": 1,
+  "scope": "Stored remote software verification only; no physical, optical, live-account, or startup-speed acceptance",
+  "sources": {
+    "baseline": {
+      "archive_sha256": "49d81e892558e4b3fd18ecc3a1faf56e7917aa57c2f23e3baac12f6f1ff646ad",
+      "commit": "06ad90b02edb28db43abeed3031932a91dc2f8df",
+      "compiled_input_files": 540,
+      "compiled_inputs_sha256": "e9eafe504fcd206aa46dcb257f60329d6d49be146d69915aedd8b031b36833a4"
+    },
+    "candidate": {
+      "archive_sha256": "9a45f57fa072fd1da28cb565430d58c990148151fb204ea9157a4ceea0cf5255",
+      "commit": "585e571b422e9586f1e53a417cbaf330a9ec473f",
+      "compiled_input_files": 542,
+      "compiled_inputs_sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28"
+    }
+  },
+  "sources_unchanged_between_attempts": true,
+  "static_packages": {
+    "baseline": {
+      "archive_entries": 39,
+      "checker": "baseline-package.json",
+      "checks": 15,
+      "identities": {
+        "archive_bytes": 51460102,
+        "archive_sha256": "80daa02cb838e8d70a1444f4b563df56d5bca7e6d28f6ffd08cc6c799d95f913",
+        "binary_bytes": 67552216,
+        "binary_sha256": "ef3f7c352ff39e08ca14a5f040ada158b3c4d895650c451e2bfb99fb9f46261b",
+        "worker_bytes": 426664,
+        "worker_sha256": "e39d7a897f13ce53412f42040d124a106634322899df515b5bc2e96b781914cd"
+      },
+      "passed": true
+    },
+    "candidate": {
+      "archive_entries": 42,
+      "checker": "candidate-package.json",
+      "checks": 16,
+      "identities": {
+        "archive_bytes": 51481930,
+        "archive_sha256": "6669b93445c2bc6cfd729d014ea2c3d156f40f307cfb233ae5ca09e7c39fc985",
+        "binary_bytes": 74269368,
+        "binary_sha256": "f5f958b219b8faef1776ba14f50b9d483f628f792ad43503fa46cf0d7879714f",
+        "worker_bytes": 426672,
+        "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+      },
+      "passed": true
+    }
+  },
+  "tests_or_builds_executed_by_exporter": false,
+  "verification_host": "test-env"
+}

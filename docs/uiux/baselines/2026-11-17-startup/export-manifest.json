@@ -1,0 +1,858 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-11-16T17:04:35.019619+00:00",
+  "scope": "Allowlist export of saved evidence only; application and tests were not run",
+  "source_result_sha256": "d326d46304a29d985f5794858ae6f82ebe72781ef234774229d9a8e47bbc05d0",
+  "runner_sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+  "main_png_count": 28,
+  "settling_png_count": 12,
+  "physical_device_used": false,
+  "live_account_used": false,
+  "visual_review": "pending",
+  "excluded": [
+    "Application data",
+    "Generated demo assets",
+    "SQLite databases",
+    "Private case configuration and ownership nonces",
+    "Executable and source archives"
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 5727,
+      "sha256": "e1958f4a9f952507f050de5578594c08b4425bf3313afd99d761b71d9a0084fb",
+      "role": "Evidence narrative; human visual review pending",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/tools/startup-ui-readme-r2.md",
+      "byte_preserved": true
+    },
+    {
+      "path": "capture-index.json",
+      "bytes": 24883,
+      "sha256": "135b22fb09aa07d9b57ad9f0e5a62bbe2f052c9743264a07321f8b3dbe9e5366",
+      "role": "Original capture locations and identities",
+      "original": null,
+      "byte_preserved": false,
+      "derivation": "Metadata projection only; original receipts are retained separately"
+    },
+    {
+      "path": "evidence/cases/baseline-pw6-failure/outer-cleanup.json",
+      "bytes": 149,
+      "sha256": "f4b96b0ad08ae4f100344dbaecc84099e6dba99e2b7b822ec159ced7480798f0",
+      "role": "Original private process group closure",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/outer-cleanup.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/baseline-pw6-failure/outer-process.json",
+      "bytes": 268,
+      "sha256": "1f36ea23b56ec870e21cf9fc066cb03c26b1008fff03fc7508c185b6d64b3716",
+      "role": "Original outer process identity",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/outer-process.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/baseline-pw6-failure/result.json",
+      "bytes": 7789,
+      "sha256": "e2731ea37d20c87759cee7203f139729e7d9f81aaa7b15b378583aab81d00178",
+      "role": "Original application case result",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/result.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/baseline-pw6-normal/outer-cleanup.json",
+      "bytes": 148,
+      "sha256": "4877f83eb818a3851207b8db1810f3e2b02593eb66f052ec5b1b4012d53a3755",
+      "role": "Original private process group closure",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/outer-cleanup.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/baseline-pw6-normal/outer-process.json",
+      "bytes": 268,
+      "sha256": "761ac653c8eb8d30a6445dcdf6ff925341ec22cdb3a317112d2ebdb5044650e3",
+      "role": "Original outer process identity",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/outer-process.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/baseline-pw6-normal/result.json",
+      "bytes": 10797,
+      "sha256": "670a0fee58bc690253862ae082023f867f0612d04e7ab2413db78092a15ef23a",
+      "role": "Original application case result",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/result.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/baseline-scribe-failure/outer-cleanup.json",
+      "bytes": 152,
+      "sha256": "80e300ddbf6da3355062e876b835090c9c715b36035c70ae3e50a0165e7f96de",
+      "role": "Original private process group closure",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/outer-cleanup.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/baseline-scribe-failure/outer-process.json",
+      "bytes": 435,
+      "sha256": "5b3bb7d51b9ef32985a6be2855df9d152a438d3cf317a78b9197043dd6017873",
+      "role": "Original outer process identity",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/outer-process.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/baseline-scribe-failure/result.json",
+      "bytes": 7819,
+      "sha256": "42deeaaf895132e37fa44d543819cbd7848053d86763bd65fc989d9baeaa015c",
+      "role": "Original application case result",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/result.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/baseline-scribe-normal/outer-cleanup.json",
+      "bytes": 151,
+      "sha256": "a5f72a99d6197bcfc420f861f165a2663c16043161859c8fd027fdec706417d9",
+      "role": "Original private process group closure",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/outer-cleanup.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/baseline-scribe-normal/outer-process.json",
+      "bytes": 268,
+      "sha256": "9e0d7910c35b5c0fa3d749fb70ac578233572bf745bfc186002aa022ba3ac29e",
+      "role": "Original outer process identity",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/outer-process.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/baseline-scribe-normal/result.json",
+      "bytes": 10830,
+      "sha256": "c4470e46effb7780ef09a6f22785352afb0a3ac6c362176b3bb6ed7cbca9d0d9",
+      "role": "Original application case result",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/result.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-pw6-failure/outer-cleanup.json",
+      "bytes": 150,
+      "sha256": "b27598b315c9296b36d6868a51369b032ca7f10b7479faf49702e71f85429df3",
+      "role": "Original private process group closure",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/outer-cleanup.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-pw6-failure/outer-process.json",
+      "bytes": 435,
+      "sha256": "d21d3b197759ce0f3f575ca54d57d7d3d86f611f623210bc0f7dc15a29dca75f",
+      "role": "Original outer process identity",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/outer-process.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-pw6-failure/result.json",
+      "bytes": 7796,
+      "sha256": "e1e02c05666694a9bc91572cc39a3e3fe1aa16b64e8120e3355be606baa0e7dd",
+      "role": "Original application case result",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/result.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-pw6-normal/outer-cleanup.json",
+      "bytes": 149,
+      "sha256": "c099f8f985be7f3689bda355aae125b4d8b7eb63be236745ebcf025ff287b65f",
+      "role": "Original private process group closure",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/outer-cleanup.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-pw6-normal/outer-process.json",
+      "bytes": 268,
+      "sha256": "4aa21b83130cc97e82c4d7d31e8e95e2c008be60d65b94c5ce12c6b15eaaf8b8",
+      "role": "Original outer process identity",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/outer-process.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-pw6-normal/result.json",
+      "bytes": 10804,
+      "sha256": "585cea98c628891c0f91d66bab7d733ec8b062e5ec2d782d49c672dcf055250b",
+      "role": "Original application case result",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/result.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-scribe-failure/outer-cleanup.json",
+      "bytes": 153,
+      "sha256": "8e69250fab07db209441bab7d0c523350ccab309e761ad34774b9c997d09ecde",
+      "role": "Original private process group closure",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/outer-cleanup.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-scribe-failure/outer-process.json",
+      "bytes": 268,
+      "sha256": "070c4130586370b2d0236fdba56b142aa36c6ecee04478edb3602150fba6fa0f",
+      "role": "Original outer process identity",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/outer-process.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-scribe-failure/result.json",
+      "bytes": 7826,
+      "sha256": "b9d000b985d706d3163e187aad182f16f0353fefa7dcd3a99c9fd6292c9bb440",
+      "role": "Original application case result",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/result.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-scribe-normal/outer-cleanup.json",
+      "bytes": 152,
+      "sha256": "c9877caa1c8d613dfb7b8c0f6fd8fec1d9873bb812d05409a610f9a0ac3594b0",
+      "role": "Original private process group closure",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/outer-cleanup.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-scribe-normal/outer-process.json",
+      "bytes": 435,
+      "sha256": "1d5d57666e2d1b302e70cbde5040a826ff80c81a033f4a25b7bfd6fd69e9e207",
+      "role": "Original outer process identity",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/outer-process.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/cases/candidate-scribe-normal/result.json",
+      "bytes": 10836,
+      "sha256": "8401c11fe02b5b1e0bf167daf83781b096ef10a25820e1fa178b192705e277d9",
+      "role": "Original application case result",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/result.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/desktop-r1/failure.json",
+      "bytes": 6940,
+      "sha256": "3636289bd396e0b7538b304b0a796d4c08d358a9f149b7bb0b2317088fb37060",
+      "role": "Original runner failure receipt",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r1/failure.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/desktop-r1/run.log",
+      "bytes": 1700,
+      "sha256": "5786addfa6bac78763dd08cfaa75bfe95c8b008fdf52e915e7b9985500073fe6",
+      "role": "Original failed runner output",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/reports/desktop-r1.log",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/desktop-r2-results.json",
+      "bytes": 97286,
+      "sha256": "d326d46304a29d985f5794858ae6f82ebe72781ef234774229d9a8e47bbc05d0",
+      "role": "Original successful aggregate result",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/results.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/source/baseline-source-inputs.sha256",
+      "bytes": 58124,
+      "sha256": "e9eafe504fcd206aa46dcb257f60329d6d49be146d69915aedd8b031b36833a4",
+      "role": "Original production source inventory",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/baseline-source-inputs.sha256",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/source/candidate-source-inputs.sha256",
+      "bytes": 58330,
+      "sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "role": "Original production source inventory",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/candidate-source-inputs.sha256",
+      "byte_preserved": true
+    },
+    {
+      "path": "evidence/source/selected-inputs.json",
+      "bytes": 1473,
+      "sha256": "2baa617aca88fa8c3f7897a255996fd1dbc9a97c6de8655f7d2641c05075c38d",
+      "role": "Original selected software identities",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/tools/desktop-inputs-r1.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "harness/desktop_verify-r1.py",
+      "bytes": 30958,
+      "sha256": "c85e205404baf5626e503dd038cc0bb9216278a874e8ad5f22d5b59deb17df61",
+      "role": "Original failed runner",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/tools/desktop_verify-r1.py",
+      "byte_preserved": true
+    },
+    {
+      "path": "harness/desktop_verify-r2.py",
+      "bytes": 32946,
+      "sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+      "role": "Original successful runner",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/tools/desktop_verify-r2.py",
+      "byte_preserved": true
+    },
+    {
+      "path": "harness/export_evidence.py",
+      "bytes": 12647,
+      "sha256": "c68b32739bb11a040f97d3d93ed68605635a705448fe046d439b7c7d111257d9",
+      "role": "Artifact-only allowlist exporter",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/tools/export-desktop-ui-r2.py",
+      "byte_preserved": true
+    },
+    {
+      "path": "harness/pointer_v2.py",
+      "bytes": 28048,
+      "sha256": "6f38298f400a89682b67ac5e2201a75f5960b903be332b8262111c2d50ad2404",
+      "role": "Original X11 capture dependency",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/candidate/app/scripts/verification/pointer_v2.py",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/failure/final.json",
+      "bytes": 3259,
+      "sha256": "799880d90b5731450d07823c7103e09fca767aa8c98a8b7e7ac35107c0b9ff09",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/final.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/failure/final.png",
+      "bytes": 80942,
+      "sha256": "003291f392fd4597eacd12316938956e3a867878e76b0c758e324e770475c48a",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/final.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/failure/startup-0.json",
+      "bytes": 264,
+      "sha256": "abd88870f53819b0ce2683d5566df13216f026362461c3bd4e80bfd7c5906e46",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/startup-0.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/failure/startup-0.png",
+      "bytes": 64326,
+      "sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/startup-0.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/failure/startup-1.json",
+      "bytes": 263,
+      "sha256": "b59e2a7c22dcba967a317bcc5d0ec9cb9a162b27e9ebdb84f61a8a52e23f0832",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/startup-1.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/failure/startup-1.png",
+      "bytes": 64326,
+      "sha256": "a40ed437b2c1c2626afac32528bdcc73e3c0730611e6cea326367ce816bec51f",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/startup-1.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/normal/final-x11.json",
+      "bytes": 1919,
+      "sha256": "e2813c46f8e8d37c0554ff93253ebb161740ce65b10166e47c201ea3ea6e727e",
+      "role": "Projected metadata for the original stable X11 PNG",
+      "original": null,
+      "byte_preserved": false,
+      "derivation": "Metadata projection only; original receipts are retained separately"
+    },
+    {
+      "path": "raw/pw6/baseline/normal/final-x11.png",
+      "bytes": 118379,
+      "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+      "role": "Original stable actual X11 main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/final-x11.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/normal/final.json",
+      "bytes": 3258,
+      "sha256": "a31033a233d604a331becdaf2234713db4115f46294eb74db110720fc96d0aa4",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/final.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/normal/final.png",
+      "bytes": 207606,
+      "sha256": "801bcd846c751d03f3cafdbe9a1f5db9b6382835f50453e07471c3d24cd3fe20",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/final.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/normal/settle/000.png",
+      "bytes": 118379,
+      "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/settle/000.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/normal/settle/001.png",
+      "bytes": 118379,
+      "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/settle/001.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/normal/settle/002.png",
+      "bytes": 118379,
+      "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/settle/002.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/normal/startup-0.json",
+      "bytes": 264,
+      "sha256": "5091d8c1b3b16d580e1421ccc03fe226c5afb82dadbbf187cdae308b9eb39f66",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/startup-0.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/normal/startup-0.png",
+      "bytes": 64326,
+      "sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/startup-0.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/normal/startup-1.json",
+      "bytes": 263,
+      "sha256": "cf6d0935443748c7b72b858ea9dc7086696abb8fe432c1c3ee64ed41796f60a3",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/startup-1.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/baseline/normal/startup-1.png",
+      "bytes": 64326,
+      "sha256": "a40ed437b2c1c2626afac32528bdcc73e3c0730611e6cea326367ce816bec51f",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/startup-1.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/failure/final.json",
+      "bytes": 3259,
+      "sha256": "a8dd2990363710f43812db29265f1adedeae4e32770e8f2cdb477693024a13a9",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/final.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/failure/final.png",
+      "bytes": 80942,
+      "sha256": "003291f392fd4597eacd12316938956e3a867878e76b0c758e324e770475c48a",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/final.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/failure/startup-0.json",
+      "bytes": 264,
+      "sha256": "1ce99a192cd205a5f139abbd8560f891fa87ec797591deebf7c0ae8dfb43edc9",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/startup-0.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/failure/startup-0.png",
+      "bytes": 64326,
+      "sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/startup-0.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/failure/startup-1.json",
+      "bytes": 263,
+      "sha256": "71ad89e9621ef31432e382ad210896174a35f638d90400c11fcdcf868f3198dd",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/startup-1.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/failure/startup-1.png",
+      "bytes": 68431,
+      "sha256": "911c92f8822557b40999daee4677b2d78fccd1534766a302b921be65dc42abaa",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/startup-1.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/normal/final-x11.json",
+      "bytes": 1921,
+      "sha256": "daf9c5f62c0cfe33f64353c2bbb89eb0898ba1455cebab9d5b211e229b82e091",
+      "role": "Projected metadata for the original stable X11 PNG",
+      "original": null,
+      "byte_preserved": false,
+      "derivation": "Metadata projection only; original receipts are retained separately"
+    },
+    {
+      "path": "raw/pw6/candidate/normal/final-x11.png",
+      "bytes": 118379,
+      "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+      "role": "Original stable actual X11 main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/final-x11.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/normal/final.json",
+      "bytes": 3258,
+      "sha256": "386167d0533db9032f47fe043022718a652a3201f404bf1f30da77b31ef29b77",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/final.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/normal/final.png",
+      "bytes": 207606,
+      "sha256": "801bcd846c751d03f3cafdbe9a1f5db9b6382835f50453e07471c3d24cd3fe20",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/final.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/normal/settle/000.png",
+      "bytes": 118379,
+      "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/settle/000.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/normal/settle/001.png",
+      "bytes": 118379,
+      "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/settle/001.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/normal/settle/002.png",
+      "bytes": 118379,
+      "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/settle/002.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/normal/startup-0.json",
+      "bytes": 264,
+      "sha256": "57fdf32fc3b22f7d86227f9d96798f8ba66e1020d9d2e7d84d4ec074cd28d44b",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/startup-0.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/normal/startup-0.png",
+      "bytes": 64326,
+      "sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/startup-0.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/normal/startup-1.json",
+      "bytes": 263,
+      "sha256": "60fd85633a42894104ea98b5620ad4469b6e98edf475295a3143c1f9bf1f8139",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/startup-1.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/pw6/candidate/normal/startup-1.png",
+      "bytes": 68431,
+      "sha256": "911c92f8822557b40999daee4677b2d78fccd1534766a302b921be65dc42abaa",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/startup-1.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/failure/final.json",
+      "bytes": 3263,
+      "sha256": "24cbefa4256fb14303a88f619c6246b000e542485f7672e4b558e290c34931d7",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/final.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/failure/final.png",
+      "bytes": 136144,
+      "sha256": "c17b3072ab8a6e9601576edad8c2c95f2b669bf73c77bb86f2236a8a47e6ac23",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/final.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/failure/startup-0.json",
+      "bytes": 264,
+      "sha256": "943e2830e85311b9005879676899b47e5f097991fef532bae6272af698541ac8",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/startup-0.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/failure/startup-0.png",
+      "bytes": 116561,
+      "sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/startup-0.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/failure/startup-1.json",
+      "bytes": 263,
+      "sha256": "2040bed5a881c9d630ed3ded67588cdc73eeae2fefe94ce10c7e9ff6ca45b3be",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/startup-1.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/failure/startup-1.png",
+      "bytes": 116561,
+      "sha256": "6a7b78ccf00ef32045801428e96f8c87eb6d23dcf0735bbf9762702145e7037d",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/startup-1.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/normal/final-x11.json",
+      "bytes": 1928,
+      "sha256": "31c747d025493a19dccd4139b1824c1a53884a5d530cc5b04db3500ff8c3dbd9",
+      "role": "Projected metadata for the original stable X11 PNG",
+      "original": null,
+      "byte_preserved": false,
+      "derivation": "Metadata projection only; original receipts are retained separately"
+    },
+    {
+      "path": "raw/scribe/baseline/normal/final-x11.png",
+      "bytes": 249384,
+      "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+      "role": "Original stable actual X11 main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/final-x11.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/normal/final.json",
+      "bytes": 3262,
+      "sha256": "c38154309b21d23ae210bdbaecae0b3339016284d54b134189421bb8eed9a146",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/final.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/normal/final.png",
+      "bytes": 453889,
+      "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/final.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/normal/settle/000.png",
+      "bytes": 249384,
+      "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/settle/000.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/normal/settle/001.png",
+      "bytes": 249384,
+      "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/settle/001.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/normal/settle/002.png",
+      "bytes": 249384,
+      "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/settle/002.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/normal/startup-0.json",
+      "bytes": 264,
+      "sha256": "727ff3ec43cc3f562c744e549aa471a12ce6754c17928b03436ae5e451fcab77",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/startup-0.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/normal/startup-0.png",
+      "bytes": 116561,
+      "sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/startup-0.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/normal/startup-1.json",
+      "bytes": 263,
+      "sha256": "349632bd452cff44c2b96bf000599f3d9380c2030e7a971992a5f1923b7c55f2",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/startup-1.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/baseline/normal/startup-1.png",
+      "bytes": 116561,
+      "sha256": "6a7b78ccf00ef32045801428e96f8c87eb6d23dcf0735bbf9762702145e7037d",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/startup-1.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/failure/final.json",
+      "bytes": 3263,
+      "sha256": "d464c8518d80544cdbfc4250c1afe0d60e1d703fc3f12fea2a3fd4c9b10ec67d",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/final.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/failure/final.png",
+      "bytes": 136144,
+      "sha256": "c17b3072ab8a6e9601576edad8c2c95f2b669bf73c77bb86f2236a8a47e6ac23",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/final.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/failure/startup-0.json",
+      "bytes": 264,
+      "sha256": "a90ec51d30363d0a2ea8d113b0990816b3cd260541716ff4a1290663dc45ba25",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/startup-0.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/failure/startup-0.png",
+      "bytes": 116561,
+      "sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/startup-0.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/failure/startup-1.json",
+      "bytes": 263,
+      "sha256": "2d240a1a08abb08f9f091f5d22a8745b9ddf4337a2589afb42d481672684f8fc",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/startup-1.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/failure/startup-1.png",
+      "bytes": 116561,
+      "sha256": "6a7b78ccf00ef32045801428e96f8c87eb6d23dcf0735bbf9762702145e7037d",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/startup-1.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/normal/final-x11.json",
+      "bytes": 1931,
+      "sha256": "75db119aaf334930dfbda78ee1c6c8ac7ab64faa9a7e7fa91dd6ede8e4a9a6d3",
+      "role": "Projected metadata for the original stable X11 PNG",
+      "original": null,
+      "byte_preserved": false,
+      "derivation": "Metadata projection only; original receipts are retained separately"
+    },
+    {
+      "path": "raw/scribe/candidate/normal/final-x11.png",
+      "bytes": 249384,
+      "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+      "role": "Original stable actual X11 main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/final-x11.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/normal/final.json",
+      "bytes": 3262,
+      "sha256": "dddbf432460bbbc2052fb04a81c9546815ca3d2b32a3d24588564dcb0e1dac0b",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/final.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/normal/final.png",
+      "bytes": 453889,
+      "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/final.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/normal/settle/000.png",
+      "bytes": 249384,
+      "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/settle/000.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/normal/settle/001.png",
+      "bytes": 249384,
+      "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/settle/001.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/normal/settle/002.png",
+      "bytes": 249384,
+      "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+      "role": "Original X11 settling PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/settle/002.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/normal/startup-0.json",
+      "bytes": 264,
+      "sha256": "4c93d23f39575719c65674031f142f1efa56db7801b65d9118baa09d72780e4d",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/startup-0.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/normal/startup-0.png",
+      "bytes": 116561,
+      "sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/startup-0.png",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/normal/startup-1.json",
+      "bytes": 263,
+      "sha256": "7d663b1ba529f664a9823ceb1ddd6a89b143b2572e820dbbf9c67a1cac6ac658",
+      "role": "Original Rust/Slint JSON sidecar",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/startup-1.json",
+      "byte_preserved": true
+    },
+    {
+      "path": "raw/scribe/candidate/normal/startup-1.png",
+      "bytes": 116561,
+      "sha256": "6a7b78ccf00ef32045801428e96f8c87eb6d23dcf0735bbf9762702145e7037d",
+      "role": "Original Rust/Slint main PNG",
+      "original": "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/startup-1.png",
+      "byte_preserved": true
+    }
+  ]
+}

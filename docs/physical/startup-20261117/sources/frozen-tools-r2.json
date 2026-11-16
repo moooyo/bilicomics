@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "revision": 2,
+  "scope": "host-only frozen startup measurement tooling; no Kindle access or lease",
+  "files": {
+    "startup_ab.py": {
+      "sha256": "8f553daa52018bf8579ed42fade3c4ceaa84b8400057b51cdbe98e66ef1ca29e",
+      "bytes": 49325
+    },
+    "native_recovery_fragment.sh": {
+      "sha256": "f00898ef25b8fd56364a56b3924d6535262c2e302091265f51f24b7f48262d26",
+      "bytes": 16739
+    },
+    "startup-clock.c": {
+      "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c",
+      "bytes": 6922
+    },
+    "analyze_startup_ab.py": {
+      "sha256": "a5b7e9e9a5d5bc94796e7f8f34d06f11142de14fd562abaa117c16dcde112d10",
+      "bytes": 35228
+    },
+    "test_startup_batch.py": {
+      "sha256": "98ae80561a20d1d13ced340e2eaf6c8b5fd3ee42040223c6f9feee1fc66e02b5",
+      "bytes": 24393
+    },
+    "test_startup_analysis.py": {
+      "sha256": "649222fe889aac76f8968a788be979e12bd05e917a0242831490f7344f6a9b49",
+      "bytes": 23619
+    },
+    "MEASUREMENT_PLAN.md": {
+      "sha256": "6feab0aea92adf82590867e25651a6a9a3cb26292fb36e245ac2d9e138120be7",
+      "bytes": 8706
+    },
+    "config.example.json": {
+      "sha256": "3230b0f863cb5d1d8b2ac271a88e643941b3c1ee225fdf41bdfe66f7ef8c0a5e",
+      "bytes": 3279
+    },
+    "startup-clock-arm": {
+      "sha256": "89efa9773505c770f2794be7ab53a7524742346e77500405788d589198f22a1f",
+      "bytes": 971284
+    },
+    "startup-clock-host": {
+      "sha256": "c97ff96cf9f3d1f46018e114eb1203c23ce8a4dac06edd7c61c8684ae11c9afb",
+      "bytes": 16848
+    },
+    "batch-tests-final-r2.log": {
+      "sha256": "5ba2d01792f6e54658e329a67310f697aa99a66edd5415af1f6acf4f57171e6e",
+      "bytes": 3573
+    },
+    "analysis-tests-settled.log": {
+      "sha256": "05acb2868c9e4a358d995dcbbd9d537359c038a7534caeb38afe57a9d8f717b6",
+      "bytes": 3669
+    }
+  },
+  "production_launcher_anchors": {
+    "baseline": {
+      "source_sha256": "917c48ac3838681975834e11023a71579d985df5c38538fa708e1069a754d111",
+      "instrumented_sha256": "9ad172a76c0be4efac0e8853b18c409ffc775a1254eacc37e9f20751a8646816",
+      "shell_syntax": true
+    },
+    "candidate": {
+      "source_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "instrumented_sha256": "ab107215320e1e80a10c91c02f60ed57ac6d14328c2e5866f97d0766776380c7",
+      "shell_syntax": true
+    }
+  },
+  "supervisor_sha256": "065bea753d34de0a04e07b28fbf206ee2eba19fe4cc02a28a85735d89af23334",
+  "host_tests": {
+    "batch": 23,
+    "analysis_and_clock": 26,
+    "total": 49,
+    "failures": 0
+  }
+}

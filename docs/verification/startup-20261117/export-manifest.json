@@ -1,0 +1,217 @@
+{
+  "export_scope": "Allowlisted existing software evidence; no tests, builds, applications, or device operations executed",
+  "exporter_sha256": "7e2a84dce74120e7436dbd872b032248003ee1d3459029c63e9002c741a722c5",
+  "files": [
+    {
+      "bytes": 3778,
+      "origin": "Derived only from the allowlisted stored software evidence",
+      "path": "README.md",
+      "sha256": "c222d0f383e9f79874669646092dc42b5706654127a7678a8c9a796d89ce995b",
+      "transformation": "English scope and results description"
+    },
+    {
+      "bytes": 13310,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/baseline-package.json",
+      "path": "baseline-package.json",
+      "sha256": "9c79e2ef951b684f57bbbe0978308efd3604b7fe5822a9ed6416e87755e62f0b",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 58124,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r2/baseline-source-inputs.sha256",
+      "path": "baseline-source-inputs.sha256",
+      "sha256": "e9eafe504fcd206aa46dcb257f60329d6d49be146d69915aedd8b031b36833a4",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 14612,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r2/candidate-package.json",
+      "path": "candidate-package.json",
+      "sha256": "2f7f4b6ffb75bea4827c56d30db370b04a609ff0dad3243605a3f3d7986d198a",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 58330,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r2/candidate-source-inputs.sha256",
+      "path": "candidate-source-inputs.sha256",
+      "sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 742,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/physical-inputs-r1/compiler-profile.json",
+      "path": "compiler-profile.json",
+      "sha256": "3c0653b868be7e1ff7bad053b10a16924d8fbc4a05fea4dff047a6548890739e",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 232,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/reports/compiler.txt",
+      "path": "compiler.txt",
+      "sha256": "db19261270b0428d1cffd44795917261238eab88402716d4f372b5b1c1350a6d",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 4930,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r2/backend/summary.json",
+      "path": "original/backend-summary.json",
+      "sha256": "c286f488b0bb24b00cf369f23e843dfbaf7b31b6538c9c5e95455ce5b83bafc3",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 25284,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r2/backend/logs/tests.log",
+      "path": "original/backend-tests.txt",
+      "sha256": "c2aa26dcc5522b298a360a7438c665bf2bd41a1a0997632f269debd34f50dc69",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 17047,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/baseline/app/artifacts/verification/kindle-build.log",
+      "path": "original/baseline-arm-build.txt",
+      "sha256": "6dc846716463b4d931db71e5c99c75baeef022a2970c22033a4507cdb0d0f7aa",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 19490,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/reports/baseline-desktop-build.log",
+      "path": "original/baseline-desktop-build.txt",
+      "sha256": "04cf925077e510e482fb66592673a48fef92750434b776f0e09dd43a387b8312",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 124,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/baseline-package.log",
+      "path": "original/baseline-package-log.txt",
+      "sha256": "1121511cd1b8216e42bd09b5d5d7ee0151d6cb249b635f41bf781317f1527d1f",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2523,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/baseline-package.readelf.txt",
+      "path": "original/baseline-readelf.txt",
+      "sha256": "8736c9f3dfe326939f177aa9eb26d4e2f4139cc62cc6a6f8caf3980f01c7b2f4",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2548,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/baseline-package.worker.readelf.txt",
+      "path": "original/baseline-worker-readelf.txt",
+      "sha256": "2785a8d74a9150d9098bca10869d99602010fda3060ef524e58a6ad9db4798a2",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 6388,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/candidate/app/artifacts/verification/kindle-build.log",
+      "path": "original/candidate-arm-build.txt",
+      "sha256": "e6730d3873e038f6adfcf11ac41438c46775909c8e1886a35ea224e259b7fa2b",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 5069,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r2/desktop-build.log",
+      "path": "original/candidate-desktop-build.txt",
+      "sha256": "6e8863c0ead9e1b39b7fe07a82802f0f0187caa36409a8bf077174c44a966700",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 125,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r2/candidate-package.log",
+      "path": "original/candidate-package-log.txt",
+      "sha256": "270daaacbdefa830bfe737d83b787b562cbf041163e69b41d5b99bba58d0bbff",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2526,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r2/candidate-package.readelf.txt",
+      "path": "original/candidate-readelf.txt",
+      "sha256": "1b9df08f5d370580758775d5835374039532a336b17bfedb0bd456134bbd2816",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2551,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r2/candidate-package.worker.readelf.txt",
+      "path": "original/candidate-worker-readelf.txt",
+      "sha256": "b3491180b3142cf2daea98e40437ce36c169c0cde9d12f170a29a19a29571df2",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 104274,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/library-and-binary-tests.log",
+      "path": "original/checks-r1-library-and-binary-tests.txt",
+      "sha256": "891573a391c35cdd838cbc50a6ac8b52d5d201a07aac094783fbdc74f330de3b",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 3307,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/summary.json",
+      "path": "original/checks-r1-summary.json",
+      "sha256": "c9166360005c5189a2708493880336d58fac31f4db8a7f2142245dd0327d3c6c",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 100825,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r2/library-and-binary-tests.log",
+      "path": "original/checks-r2-library-and-binary-tests.txt",
+      "sha256": "f09988543a028f5f75bb5083862db1d3f30f7e66f23e7a21128c64d9e9ae982f",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 4887,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/checks-r2/summary.json",
+      "path": "original/checks-r2-summary.json",
+      "sha256": "0c1f29d57fc8eb970313452deab9a0acb282e565e208a8dd911dc52a49911881",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 22113,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/reports/launcher-tests.log",
+      "path": "original/launcher-tests.txt",
+      "sha256": "8075a1de0acd6bc92f4da637dc13c6e3f0a99a36bf339dfa8d784232f92e4a0f",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 554,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/reports/native-media-package-tests.log",
+      "path": "original/native-media-package-tests.txt",
+      "sha256": "19e3449d275790bd35ef9b8605a776a6398a6607ed4ae0dee96e32428f0c4ffa",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 6290,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/verify_remote.py",
+      "path": "original/runner-r1.py.txt",
+      "sha256": "dc1a49dc0d567e70803aac12272bc56c4c87ae1bb9525de186dc90fb91ca0e34",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 6735,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/verify_remote_r2.py",
+      "path": "original/runner-r2.py.txt",
+      "sha256": "10df84d6fa25ef12b42183542561ca1d04dc84b4e6805c8772a747717384f638",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 920,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/reports/spatial-package-tests.log",
+      "path": "original/spatial-package-tests.txt",
+      "sha256": "317b10e4ee2c750aa0af1db8bf89c3af869b723e58120e8156c3aecf597fb824",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 1346,
+      "origin": "/root/bilicomics-startup-20261117-01a1d11a/reports/startup-package-tests.log",
+      "path": "original/startup-package-tests.txt",
+      "sha256": "4ec3e560acaee8b462b233ba11056aa17356b0c4f676eecd6abeee8791a2f530",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 4966,
+      "origin": "Derived only from the allowlisted stored software evidence",
+      "path": "software-summary.json",
+      "sha256": "766310c4263adabe8117d09e0891044aab89a7d12b7ffa106ab3c736b45b1f13",
+      "transformation": "source-bound aggregation"
+    }
+  ],
+  "schema_version": 1
+}

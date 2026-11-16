@@ -1,0 +1,67 @@
+{
+  "owner_thread": "01a1d11a-1833-7703-aa40-167b49276737",
+  "profile": "scribe",
+  "firmware": "5.19.5",
+  "fixture_scope": "isolated-demo-offline",
+  "fixture_data": "/root/REPLACE-WITH-SEALED-DEMO-DATA",
+  "fixture_fingerprint": "REPLACE-WITH-CANONICAL-FIXTURE-SHA256",
+  "startup_clock": "/root/bilicomics-startup-20261117-01a1d11a/measurement-tools/startup-clock-arm",
+  "startup_clock_sha256": "REPLACE-WITH-FINAL-CLOCK-SHA256",
+  "physical_framebuffer": "/root/bilicomics-physical-cpu-resize-cache-20261116-r1-8935e128/tools/physical-framebuffer",
+  "physical_framebuffer_sha256": "b3af31796b1013f8e0b4ee66d364b32e2cf4fbd12c7ac68678bd08bea4e097cd",
+  "guarded_transport": "/root/bilicomics-physical-cpu-resize-cache-20261116-r1-8935e128/tools/guarded-device-ssh.py",
+  "lease_utility": "/root/bilicomics-startup-20261117-01a1d11a/candidate/app/scripts/verification/device_lease.py",
+  "transport_template": "/root/bilicomics-physical-cpu-resize-cache-20261116-r1-8935e128/private/transport.json",
+  "preserve_paths": [
+    "/mnt/us/bilicomics/app/bilicomics",
+    "/mnt/us/bilicomics/app/kindle-jpeg-worker",
+    "/mnt/us/bilicomics/launch.sh",
+    "/mnt/us/bilicomics/data/state.sqlite3",
+    "/mnt/us/bilicomics/data/device-profile",
+    "/mnt/us/bilicomics/data/device-allowlist",
+    "/mnt/us/documents/bilicomics.sh",
+    "/mnt/us/documents/BiliComics.sh"
+  ],
+  "variants": {
+    "baseline": {
+      "package": "/root/bilicomics-startup-20261117-01a1d11a/baseline/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.zip",
+      "package_sha256": "REPLACE-WITH-BASELINE-PACKAGE-SHA256",
+      "source_commit": "06ad90b02edb28db43abeed3031932a91dc2f8df",
+      "source_fingerprint": "REPLACE-WITH-BASELINE-SOURCE-SHA256",
+      "compiler_fingerprint": "REPLACE-WITH-COMMON-COMPILER-AND-FLAGS-SHA256",
+      "binary_sha256": "REPLACE-WITH-BASELINE-BINARY-SHA256",
+      "worker_sha256": "REPLACE-WITH-BASELINE-WORKER-SHA256",
+      "launcher_sha256": "REPLACE-WITH-BASELINE-LAUNCHER-SHA256",
+      "build_configuration": {
+        "target": "armv7-unknown-linux-musleabihf",
+        "features": ["kindle"],
+        "default_features": false,
+        "profile": "release",
+        "lto": "thin",
+        "codegen_units": 1,
+        "strip": true,
+        "compiler": "REPLACE-WITH-RUSTC-VERBOSE-IDENTITY"
+      }
+    },
+    "candidate": {
+      "package": "/root/bilicomics-startup-20261117-01a1d11a/candidate/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.zip",
+      "package_sha256": "REPLACE-WITH-CANDIDATE-PACKAGE-SHA256",
+      "source_commit": "REPLACE-WITH-CANDIDATE-COMMIT",
+      "source_fingerprint": "REPLACE-WITH-CANDIDATE-SOURCE-SHA256",
+      "compiler_fingerprint": "REPLACE-WITH-COMMON-COMPILER-AND-FLAGS-SHA256",
+      "binary_sha256": "REPLACE-WITH-CANDIDATE-BINARY-SHA256",
+      "worker_sha256": "REPLACE-WITH-CANDIDATE-WORKER-SHA256",
+      "launcher_sha256": "REPLACE-WITH-CANDIDATE-LAUNCHER-SHA256",
+      "build_configuration": {
+        "target": "armv7-unknown-linux-musleabihf",
+        "features": ["kindle"],
+        "default_features": false,
+        "profile": "release",
+        "lto": "thin",
+        "codegen_units": 1,
+        "strip": true,
+        "compiler": "REPLACE-WITH-RUSTC-VERBOSE-IDENTITY"
+      }
+    }
+  }
+}

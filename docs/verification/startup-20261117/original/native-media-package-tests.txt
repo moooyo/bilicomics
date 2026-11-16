@@ -1,0 +1,8 @@
+test_missing_worker_is_rejected_by_the_exact_manifest (__main__.NativeMediaPackageTests.test_missing_worker_is_rejected_by_the_exact_manifest) ... ok
+test_replaced_worker_with_a_recomputed_manifest_is_rejected (__main__.NativeMediaPackageTests.test_replaced_worker_with_a_recomputed_manifest_is_rejected) ... ok
+test_worker_without_execute_permission_is_rejected (__main__.NativeMediaPackageTests.test_worker_without_execute_permission_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.009s
+
+OK

@@ -1,0 +1,22 @@
+{
+  "baseline": {
+    "binary": "/root/bilicomics-startup-20261117-01a1d11a/baseline/desktop/bilicomics",
+    "binary_sha256": "4285b97673f646b259962e4c01b04d130f01eb536f3924d5f90fd81634e910bf",
+    "source_root": "/root/bilicomics-startup-20261117-01a1d11a/baseline/app",
+    "source_commit": "06ad90b02edb28db43abeed3031932a91dc2f8df",
+    "source_manifest": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/baseline-source-inputs.sha256",
+    "source_manifest_sha256": "e9eafe504fcd206aa46dcb257f60329d6d49be146d69915aedd8b031b36833a4",
+    "source_archive": "/root/bilicomics-startup-20261117-01a1d11a/baseline/source.tar",
+    "source_archive_sha256": "49d81e892558e4b3fd18ecc3a1faf56e7917aa57c2f23e3baac12f6f1ff646ad"
+  },
+  "candidate": {
+    "binary": "/root/bilicomics-startup-20261117-01a1d11a/candidate/desktop/bilicomics",
+    "binary_sha256": "f9a6225638a24b1cb5f6031af6022905dc7b1325a5b37af616a261b234b9dd6c",
+    "source_root": "/root/bilicomics-startup-20261117-01a1d11a/candidate/app",
+    "source_commit": "585e571b422e9586f1e53a417cbaf330a9ec473f",
+    "source_manifest": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/candidate-source-inputs.sha256",
+    "source_manifest_sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+    "source_archive": "/root/bilicomics-startup-20261117-01a1d11a/candidate/source.tar",
+    "source_archive_sha256": "9a45f57fa072fd1da28cb565430d58c990148151fb204ea9157a4ceea0cf5255"
+  }
+}

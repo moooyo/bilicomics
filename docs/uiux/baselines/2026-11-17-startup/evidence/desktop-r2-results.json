@@ -1,0 +1,3013 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "created_at": "2026-11-16T16:54:21.222104+00:00",
+  "scope": "Real Rust/Slint offline demo desktop startup and raw RGB comparison",
+  "physical_device_used": false,
+  "live_account_used": false,
+  "input_injected": false,
+  "startup_performance_benchmark": false,
+  "scale_factor": 2,
+  "controlled_state_worker_delay_ms": 1800,
+  "harness_sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+  "selection_sha256": "2baa617aca88fa8c3f7897a255996fd1dbc9a97c6de8655f7d2641c05075c38d",
+  "inputs": {
+    "baseline": {
+      "binary": "/root/bilicomics-startup-20261117-01a1d11a/baseline/desktop/bilicomics",
+      "binary_sha256": "4285b97673f646b259962e4c01b04d130f01eb536f3924d5f90fd81634e910bf",
+      "source_root": "/root/bilicomics-startup-20261117-01a1d11a/baseline/app",
+      "source_commit": "06ad90b02edb28db43abeed3031932a91dc2f8df",
+      "source_manifest": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/baseline-source-inputs.sha256",
+      "source_manifest_sha256": "e9eafe504fcd206aa46dcb257f60329d6d49be146d69915aedd8b031b36833a4",
+      "source_archive": "/root/bilicomics-startup-20261117-01a1d11a/baseline/source.tar",
+      "source_archive_sha256": "49d81e892558e4b3fd18ecc3a1faf56e7917aa57c2f23e3baac12f6f1ff646ad"
+    },
+    "candidate": {
+      "binary": "/root/bilicomics-startup-20261117-01a1d11a/candidate/desktop/bilicomics",
+      "binary_sha256": "f9a6225638a24b1cb5f6031af6022905dc7b1325a5b37af616a261b234b9dd6c",
+      "source_root": "/root/bilicomics-startup-20261117-01a1d11a/candidate/app",
+      "source_commit": "585e571b422e9586f1e53a417cbaf330a9ec473f",
+      "source_manifest": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/candidate-source-inputs.sha256",
+      "source_manifest_sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "source_archive": "/root/bilicomics-startup-20261117-01a1d11a/candidate/source.tar",
+      "source_archive_sha256": "9a45f57fa072fd1da28cb565430d58c990148151fb204ea9157a4ceea0cf5255"
+    }
+  },
+  "source_verification": {
+    "baseline": {
+      "files": 540,
+      "required_inputs": {
+        "src/main.rs": "6fb0869cbee170497863dad68fec29af2c7e31687ba6fde54316db818d1a1f5a",
+        "src/fonts.rs": "0779f0e542338ffbadd6525e2a894d48b50935fb5baeaa829f9d46b51ca3f3e7",
+        "src/app/startup.rs": "cf4b919c0d8977c882398c97c3c620309f02834107e1fd5fc137e5c961e28b4a",
+        "ui/app.slint": "acbe004ca19c6b2dac45e88075d8b698849e6f52b763eeb84a05088a43b062e2",
+        "ui/startup.slint": "ba1ee050d906568b73aa12325e3fa888820673ae2d9639096fdaf25d59904d70",
+        "assets/i18n/startup.json": "075631aa6791ce8379c610ecd09bd40161572f901bc95d10c4cb7f0435e42bec",
+        "assets/fonts/StartupSansSC.otf": "f2cc29530d646f9c18d06047d58dc062e890756b376dbab7635472ecbadcefd9",
+        "assets/fonts/startup-manifest.json": "17bd56f5598b69cefcba1bad496082e9b5ecb37c722b72a54b543de54022f337"
+      }
+    },
+    "candidate": {
+      "files": 542,
+      "required_inputs": {
+        "src/main.rs": "c7142e2a278bc3710ffa193e96b5c854c2550ae98985539a9ef7be7f79d0c9ac",
+        "src/fonts.rs": "64d8b38574ae23cc328f93cce456857deb7892dc89b5ff1a6244af032c76e43b",
+        "src/app/startup.rs": "1d7a8b3c8690838f641216a06b5b078f961b1fba3b059870aa7bcc7bcb67b7ee",
+        "ui/app.slint": "acbe004ca19c6b2dac45e88075d8b698849e6f52b763eeb84a05088a43b062e2",
+        "ui/startup.slint": "ba1ee050d906568b73aa12325e3fa888820673ae2d9639096fdaf25d59904d70",
+        "assets/i18n/startup.json": "075631aa6791ce8379c610ecd09bd40161572f901bc95d10c4cb7f0435e42bec",
+        "assets/fonts/StartupSansSC.otf": "f2cc29530d646f9c18d06047d58dc062e890756b376dbab7635472ecbadcefd9",
+        "assets/fonts/startup-manifest.json": "17bd56f5598b69cefcba1bad496082e9b5ecb37c722b72a54b543de54022f337"
+      }
+    }
+  },
+  "bootstrap_font_coverage": {
+    "baseline": {
+      "family": "BiliComics Startup",
+      "font_sha256": "f2cc29530d646f9c18d06047d58dc062e890756b376dbab7635472ecbadcefd9",
+      "required_codepoints": 52,
+      "missing_codepoints": [],
+      "empty_required_outlines": [],
+      "localization_keys": [
+        "startup_app_name",
+        "startup_error_body",
+        "startup_error_title",
+        "startup_exit",
+        "startup_loading",
+        "startup_phase_attach",
+        "startup_phase_fonts",
+        "startup_phase_state",
+        "startup_suspended"
+      ],
+      "text_and_clipping_visual_review": "pending"
+    },
+    "candidate": {
+      "family": "BiliComics Startup",
+      "font_sha256": "f2cc29530d646f9c18d06047d58dc062e890756b376dbab7635472ecbadcefd9",
+      "required_codepoints": 52,
+      "missing_codepoints": [],
+      "empty_required_outlines": [],
+      "localization_keys": [
+        "startup_app_name",
+        "startup_error_body",
+        "startup_error_title",
+        "startup_exit",
+        "startup_loading",
+        "startup_phase_attach",
+        "startup_phase_fonts",
+        "startup_phase_state",
+        "startup_suspended"
+      ],
+      "text_and_clipping_visual_review": "pending"
+    }
+  },
+  "capture_dependency": {
+    "path": "/root/bilicomics-startup-20261117-01a1d11a/candidate/app/scripts/verification/pointer_v2.py",
+    "sha256": "6f38298f400a89682b67ac5e2201a75f5960b903be332b8262111c2d50ad2404"
+  },
+  "cases": [
+    {
+      "case_id": "baseline-pw6-failure",
+      "variant": "baseline",
+      "profile": "pw6",
+      "scenario": "failure",
+      "passed": true,
+      "input_injected": false,
+      "physical_device_used": false,
+      "live_account_used": false,
+      "binary_sha256": "4285b97673f646b259962e4c01b04d130f01eb536f3924d5f90fd81634e910bf",
+      "source_commit": "06ad90b02edb28db43abeed3031932a91dc2f8df",
+      "harness_sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+      "source_manifest_sha256": "e9eafe504fcd206aa46dcb257f60329d6d49be146d69915aedd8b031b36833a4",
+      "source_archive_sha256": "49d81e892558e4b3fd18ecc3a1faf56e7917aa57c2f23e3baac12f6f1ff646ad",
+      "case_manifest_sha256": "94a8a3fa042b90e65640f3dfdf4a225e1069ebb43d6f97a7af14639ade51e933",
+      "command": [
+        "unshare",
+        "--net",
+        "--",
+        "/root/bilicomics-startup-20261117-01a1d11a/baseline/desktop/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "pw6",
+        "--screen",
+        "shelf",
+        "--data-dir",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/data",
+        "--startup-delay-ms",
+        "1800",
+        "--capture-startup",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/startup.png",
+        "--capture",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/final.png",
+        "--lifecycle-trace",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-failure/lifecycle.jsonl",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "network_isolation": "Fresh unshare --net namespace plus --demo --offline",
+      "exit_code": 1,
+      "application_pid": 2545288,
+      "first_frame": {
+        "animation_frame": 0,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545288,
+        "suspended": false,
+        "worker_started": false
+      },
+      "activity_frame": {
+        "animation_frame": 1,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545288,
+        "suspended": false,
+        "worker_started": true
+      },
+      "final_state": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          632,
+          840
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545288,
+        "profile": "pw6",
+        "reader": {
+          "comic_title": "",
+          "direction": "ltr",
+          "episode_title": "",
+          "fit": "page",
+          "loading": false,
+          "menu": false,
+          "mode": "page",
+          "page": 1,
+          "pages": 1,
+          "panel": 1,
+          "sheet": "",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "startup",
+        "snapshot_size": [
+          1264,
+          1680
+        ],
+        "startup": {
+          "booting": true,
+          "error": true,
+          "frame": 1,
+          "phase": "state"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 0,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "",
+            "loading": false,
+            "menu": false,
+            "mode": "page",
+            "page": 1,
+            "panel": 1,
+            "presented_cpu_dither": false,
+            "presented_fast_mode": false,
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "sheet": "",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "welcome",
+          "toast": ""
+        },
+        "window_size": [
+          1264,
+          1680
+        ]
+      },
+      "startup_text_regions": {
+        "title": {
+          "ink_pixels": 5656,
+          "box": [
+            192,
+            540,
+            1072,
+            652
+          ]
+        },
+        "loading": {
+          "ink_pixels": 2754,
+          "box": [
+            192,
+            700,
+            1072,
+            780
+          ]
+        },
+        "phase": {
+          "ink_pixels": 2741,
+          "box": [
+            192,
+            804,
+            1072,
+            900
+          ]
+        }
+      },
+      "indicator_pixels_changed": true,
+      "stable_x11": null,
+      "images": {
+        "startup-0.png": {
+          "file": "startup-0.png",
+          "sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "ad314342b63e30a8200e2223382b232cb1fb30935371c3ea2e0700d5046939d2",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "startup-1.png": {
+          "file": "startup-1.png",
+          "sha256": "a40ed437b2c1c2626afac32528bdcc73e3c0730611e6cea326367ce816bec51f",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "a2a2c389d56d1a5c3d16fc2f899c74f47b21d3b5cdfbe156882cc60c29231c91",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final.png": {
+          "file": "final.png",
+          "sha256": "003291f392fd4597eacd12316938956e3a867878e76b0c758e324e770475c48a",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "e276df35d22005fe180691b89455eef7d3ed80b26e3c7c8a90d12a70ffdb590e",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        }
+      },
+      "ready_record": null,
+      "visual_review": {
+        "status": "pending",
+        "checks": [
+          "All Chinese startup and error text is legible and unclipped",
+          "The final shelf is complete and has the expected typography and covers"
+        ]
+      },
+      "elapsed_seconds_including_controlled_delay": 3.414011,
+      "outer_cleanup": {
+        "group": 2545242,
+        "case_id": "baseline-pw6-failure",
+        "initial_members": [],
+        "signalled": [],
+        "remaining_members": [],
+        "passed": true
+      }
+    },
+    {
+      "case_id": "baseline-pw6-normal",
+      "variant": "baseline",
+      "profile": "pw6",
+      "scenario": "normal",
+      "passed": true,
+      "input_injected": false,
+      "physical_device_used": false,
+      "live_account_used": false,
+      "binary_sha256": "4285b97673f646b259962e4c01b04d130f01eb536f3924d5f90fd81634e910bf",
+      "source_commit": "06ad90b02edb28db43abeed3031932a91dc2f8df",
+      "harness_sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+      "source_manifest_sha256": "e9eafe504fcd206aa46dcb257f60329d6d49be146d69915aedd8b031b36833a4",
+      "source_archive_sha256": "49d81e892558e4b3fd18ecc3a1faf56e7917aa57c2f23e3baac12f6f1ff646ad",
+      "case_manifest_sha256": "f32a88392c7ab639c2ad2f3cc98a0fc15e1ad96470d61f7e0ee847aee94b062c",
+      "command": [
+        "unshare",
+        "--net",
+        "--",
+        "/root/bilicomics-startup-20261117-01a1d11a/baseline/desktop/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "pw6",
+        "--screen",
+        "shelf",
+        "--data-dir",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/data",
+        "--startup-delay-ms",
+        "1800",
+        "--capture-startup",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/startup.png",
+        "--capture",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/final.png",
+        "--lifecycle-trace",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-pw6-normal/lifecycle.jsonl",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "network_isolation": "Fresh unshare --net namespace plus --demo --offline",
+      "exit_code": 0,
+      "application_pid": 2544420,
+      "first_frame": {
+        "animation_frame": 0,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2544420,
+        "suspended": false,
+        "worker_started": false
+      },
+      "activity_frame": {
+        "animation_frame": 1,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2544420,
+        "suspended": false,
+        "worker_started": true
+      },
+      "final_state": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          632,
+          840
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2544420,
+        "profile": "pw6",
+        "reader": {
+          "comic_title": "",
+          "direction": "ltr",
+          "episode_title": "",
+          "fit": "page",
+          "loading": false,
+          "menu": false,
+          "mode": "page",
+          "page": 1,
+          "pages": 1,
+          "panel": 1,
+          "sheet": "",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "shelf",
+        "snapshot_size": [
+          1264,
+          1680
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 2,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 0,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "",
+            "loading": false,
+            "menu": false,
+            "mode": "page",
+            "page": 1,
+            "panel": 1,
+            "presented_cpu_dither": false,
+            "presented_fast_mode": false,
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "sheet": "",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "shelf",
+          "toast": ""
+        },
+        "window_size": [
+          1264,
+          1680
+        ]
+      },
+      "startup_text_regions": {
+        "title": {
+          "ink_pixels": 5656,
+          "box": [
+            192,
+            540,
+            1072,
+            652
+          ]
+        },
+        "loading": {
+          "ink_pixels": 2754,
+          "box": [
+            192,
+            700,
+            1072,
+            780
+          ]
+        },
+        "phase": {
+          "ink_pixels": 2741,
+          "box": [
+            192,
+            804,
+            1072,
+            900
+          ]
+        }
+      },
+      "indicator_pixels_changed": true,
+      "stable_x11": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "window": {
+          "id": "0x400003",
+          "x": 0,
+          "y": 0,
+          "width": 1264,
+          "height": 1680
+        },
+        "samples": [
+          {
+            "file": "settle/000.png",
+            "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+            "seconds_after_ready_observed": 1.529777
+          },
+          {
+            "file": "settle/001.png",
+            "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+            "seconds_after_ready_observed": 1.906927
+          },
+          {
+            "file": "settle/002.png",
+            "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+            "seconds_after_ready_observed": 2.284636
+          }
+        ]
+      },
+      "images": {
+        "startup-0.png": {
+          "file": "startup-0.png",
+          "sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "ad314342b63e30a8200e2223382b232cb1fb30935371c3ea2e0700d5046939d2",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "startup-1.png": {
+          "file": "startup-1.png",
+          "sha256": "a40ed437b2c1c2626afac32528bdcc73e3c0730611e6cea326367ce816bec51f",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "a2a2c389d56d1a5c3d16fc2f899c74f47b21d3b5cdfbe156882cc60c29231c91",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final.png": {
+          "file": "final.png",
+          "sha256": "801bcd846c751d03f3cafdbe9a1f5db9b6382835f50453e07471c3d24cd3fe20",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "7f5da7cbbf71454b02623d3a998e40ead4d520e5e26de4fa043e2b566c744fc4",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final-x11.png": {
+          "file": "final-x11.png",
+          "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "7f5da7cbbf71454b02623d3a998e40ead4d520e5e26de4fa043e2b566c744fc4",
+          "source": "Actual X11 application window",
+          "pixel_processing": "None; original PNG retained unchanged"
+        }
+      },
+      "ready_record": {
+        "elapsed_ms": 2528.24933,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 590199330114671,
+        "native_epdc_mode": null,
+        "process_id": 2544420,
+        "reader_loading": false,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 3820800,
+          "cover_resident_count": 7,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 2,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": false,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": null,
+          "reader_refresh_scene": "normal",
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "sleep_cover": {
+            "candidate_bytes": 0,
+            "draining": false,
+            "full": false,
+            "generation": 0,
+            "height": null,
+            "idle_remaining_ms": null,
+            "pending": false,
+            "phase": null,
+            "ready": false,
+            "retry_remaining_ms": null,
+            "width": null
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": null,
+        "route": "shelf"
+      },
+      "visual_review": {
+        "status": "pending",
+        "checks": [
+          "All Chinese startup and error text is legible and unclipped",
+          "The final shelf is complete and has the expected typography and covers"
+        ]
+      },
+      "elapsed_seconds_including_controlled_delay": 9.337017,
+      "outer_cleanup": {
+        "group": 2544160,
+        "case_id": "baseline-pw6-normal",
+        "initial_members": [],
+        "signalled": [],
+        "remaining_members": [],
+        "passed": true
+      }
+    },
+    {
+      "case_id": "baseline-scribe-failure",
+      "variant": "baseline",
+      "profile": "scribe",
+      "scenario": "failure",
+      "passed": true,
+      "input_injected": false,
+      "physical_device_used": false,
+      "live_account_used": false,
+      "binary_sha256": "4285b97673f646b259962e4c01b04d130f01eb536f3924d5f90fd81634e910bf",
+      "source_commit": "06ad90b02edb28db43abeed3031932a91dc2f8df",
+      "harness_sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+      "source_manifest_sha256": "e9eafe504fcd206aa46dcb257f60329d6d49be146d69915aedd8b031b36833a4",
+      "source_archive_sha256": "49d81e892558e4b3fd18ecc3a1faf56e7917aa57c2f23e3baac12f6f1ff646ad",
+      "case_manifest_sha256": "dbd427e65366afe277fc834d337c3605f6af1d899b91f94670d81336df401ff6",
+      "command": [
+        "unshare",
+        "--net",
+        "--",
+        "/root/bilicomics-startup-20261117-01a1d11a/baseline/desktop/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "scribe",
+        "--screen",
+        "shelf",
+        "--data-dir",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/data",
+        "--startup-delay-ms",
+        "1800",
+        "--capture-startup",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/startup.png",
+        "--capture",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/final.png",
+        "--lifecycle-trace",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-failure/lifecycle.jsonl",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "network_isolation": "Fresh unshare --net namespace plus --demo --offline",
+      "exit_code": 1,
+      "application_pid": 2546402,
+      "first_frame": {
+        "animation_frame": 0,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2546402,
+        "suspended": false,
+        "worker_started": false
+      },
+      "activity_frame": {
+        "animation_frame": 1,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2546402,
+        "suspended": false,
+        "worker_started": true
+      },
+      "final_state": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          930,
+          1240
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2546402,
+        "profile": "scribe",
+        "reader": {
+          "comic_title": "",
+          "direction": "ltr",
+          "episode_title": "",
+          "fit": "page",
+          "loading": false,
+          "menu": false,
+          "mode": "page",
+          "page": 1,
+          "pages": 1,
+          "panel": 1,
+          "sheet": "",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "startup",
+        "snapshot_size": [
+          1860,
+          2480
+        ],
+        "startup": {
+          "booting": true,
+          "error": true,
+          "frame": 1,
+          "phase": "state"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 0,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "",
+            "loading": false,
+            "menu": false,
+            "mode": "page",
+            "page": 1,
+            "panel": 1,
+            "presented_cpu_dither": false,
+            "presented_fast_mode": false,
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "sheet": "",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "welcome",
+          "toast": ""
+        },
+        "window_size": [
+          1860,
+          2480
+        ]
+      },
+      "startup_text_regions": {
+        "title": {
+          "ink_pixels": 7578,
+          "box": [
+            490,
+            940,
+            1370,
+            1052
+          ]
+        },
+        "loading": {
+          "ink_pixels": 3663,
+          "box": [
+            490,
+            1100,
+            1370,
+            1180
+          ]
+        },
+        "phase": {
+          "ink_pixels": 3585,
+          "box": [
+            490,
+            1204,
+            1370,
+            1300
+          ]
+        }
+      },
+      "indicator_pixels_changed": true,
+      "stable_x11": null,
+      "images": {
+        "startup-0.png": {
+          "file": "startup-0.png",
+          "sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "090fe007de74fc7185dd9e11ee6fe5cde5d6b31e6a3132069b0e1ee5db100640",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "startup-1.png": {
+          "file": "startup-1.png",
+          "sha256": "6a7b78ccf00ef32045801428e96f8c87eb6d23dcf0735bbf9762702145e7037d",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "e1a276bb7c2bb113659662cdfc7b37cbfecef800a83d0ed89ae7e3b3f2b83366",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final.png": {
+          "file": "final.png",
+          "sha256": "c17b3072ab8a6e9601576edad8c2c95f2b669bf73c77bb86f2236a8a47e6ac23",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "1035b36b13077953db1af98cf0fb7279511895a65691c017d36fc20285d51cf2",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        }
+      },
+      "ready_record": null,
+      "visual_review": {
+        "status": "pending",
+        "checks": [
+          "All Chinese startup and error text is legible and unclipped",
+          "The final shelf is complete and has the expected typography and covers"
+        ]
+      },
+      "elapsed_seconds_including_controlled_delay": 4.258342,
+      "outer_cleanup": {
+        "group": 2546386,
+        "case_id": "baseline-scribe-failure",
+        "initial_members": [],
+        "signalled": [],
+        "remaining_members": [],
+        "passed": true
+      }
+    },
+    {
+      "case_id": "baseline-scribe-normal",
+      "variant": "baseline",
+      "profile": "scribe",
+      "scenario": "normal",
+      "passed": true,
+      "input_injected": false,
+      "physical_device_used": false,
+      "live_account_used": false,
+      "binary_sha256": "4285b97673f646b259962e4c01b04d130f01eb536f3924d5f90fd81634e910bf",
+      "source_commit": "06ad90b02edb28db43abeed3031932a91dc2f8df",
+      "harness_sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+      "source_manifest_sha256": "e9eafe504fcd206aa46dcb257f60329d6d49be146d69915aedd8b031b36833a4",
+      "source_archive_sha256": "49d81e892558e4b3fd18ecc3a1faf56e7917aa57c2f23e3baac12f6f1ff646ad",
+      "case_manifest_sha256": "9334063ace01676aa82b9c478b91ad1a73ab152474070b62390132c2d2bcf1ec",
+      "command": [
+        "unshare",
+        "--net",
+        "--",
+        "/root/bilicomics-startup-20261117-01a1d11a/baseline/desktop/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "scribe",
+        "--screen",
+        "shelf",
+        "--data-dir",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/data",
+        "--startup-delay-ms",
+        "1800",
+        "--capture-startup",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/startup.png",
+        "--capture",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/final.png",
+        "--lifecycle-trace",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/baseline-scribe-normal/lifecycle.jsonl",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "network_isolation": "Fresh unshare --net namespace plus --demo --offline",
+      "exit_code": 0,
+      "application_pid": 2545596,
+      "first_frame": {
+        "animation_frame": 0,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545596,
+        "suspended": false,
+        "worker_started": false
+      },
+      "activity_frame": {
+        "animation_frame": 1,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545596,
+        "suspended": false,
+        "worker_started": true
+      },
+      "final_state": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          930,
+          1240
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545596,
+        "profile": "scribe",
+        "reader": {
+          "comic_title": "",
+          "direction": "ltr",
+          "episode_title": "",
+          "fit": "page",
+          "loading": false,
+          "menu": false,
+          "mode": "page",
+          "page": 1,
+          "pages": 1,
+          "panel": 1,
+          "sheet": "",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "shelf",
+        "snapshot_size": [
+          1860,
+          2480
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 2,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 0,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "",
+            "loading": false,
+            "menu": false,
+            "mode": "page",
+            "page": 1,
+            "panel": 1,
+            "presented_cpu_dither": false,
+            "presented_fast_mode": false,
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "sheet": "",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "shelf",
+          "toast": ""
+        },
+        "window_size": [
+          1860,
+          2480
+        ]
+      },
+      "startup_text_regions": {
+        "title": {
+          "ink_pixels": 7578,
+          "box": [
+            490,
+            940,
+            1370,
+            1052
+          ]
+        },
+        "loading": {
+          "ink_pixels": 3663,
+          "box": [
+            490,
+            1100,
+            1370,
+            1180
+          ]
+        },
+        "phase": {
+          "ink_pixels": 3585,
+          "box": [
+            490,
+            1204,
+            1370,
+            1300
+          ]
+        }
+      },
+      "indicator_pixels_changed": true,
+      "stable_x11": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "window": {
+          "id": "0x400003",
+          "x": 0,
+          "y": 0,
+          "width": 1860,
+          "height": 2480
+        },
+        "samples": [
+          {
+            "file": "settle/000.png",
+            "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+            "seconds_after_ready_observed": 1.587705
+          },
+          {
+            "file": "settle/001.png",
+            "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+            "seconds_after_ready_observed": 2.010141
+          },
+          {
+            "file": "settle/002.png",
+            "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+            "seconds_after_ready_observed": 2.422649
+          }
+        ]
+      },
+      "images": {
+        "startup-0.png": {
+          "file": "startup-0.png",
+          "sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "090fe007de74fc7185dd9e11ee6fe5cde5d6b31e6a3132069b0e1ee5db100640",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "startup-1.png": {
+          "file": "startup-1.png",
+          "sha256": "6a7b78ccf00ef32045801428e96f8c87eb6d23dcf0735bbf9762702145e7037d",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "e1a276bb7c2bb113659662cdfc7b37cbfecef800a83d0ed89ae7e3b3f2b83366",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final.png": {
+          "file": "final.png",
+          "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final-x11.png": {
+          "file": "final-x11.png",
+          "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "source": "Actual X11 application window",
+          "pixel_processing": "None; original PNG retained unchanged"
+        }
+      },
+      "ready_record": {
+        "elapsed_ms": 2792.954971,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 590210821863642,
+        "native_epdc_mode": null,
+        "process_id": 2545596,
+        "reader_loading": false,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 5740800,
+          "cover_resident_count": 11,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 2,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": false,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": null,
+          "reader_refresh_scene": "normal",
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "sleep_cover": {
+            "candidate_bytes": 0,
+            "draining": false,
+            "full": false,
+            "generation": 0,
+            "height": null,
+            "idle_remaining_ms": null,
+            "pending": false,
+            "phase": null,
+            "ready": false,
+            "retry_remaining_ms": null,
+            "width": null
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": null,
+        "route": "shelf"
+      },
+      "visual_review": {
+        "status": "pending",
+        "checks": [
+          "All Chinese startup and error text is legible and unclipped",
+          "The final shelf is complete and has the expected typography and covers"
+        ]
+      },
+      "elapsed_seconds_including_controlled_delay": 10.604409,
+      "outer_cleanup": {
+        "group": 2545580,
+        "case_id": "baseline-scribe-normal",
+        "initial_members": [],
+        "signalled": [],
+        "remaining_members": [],
+        "passed": true
+      }
+    },
+    {
+      "case_id": "candidate-pw6-failure",
+      "variant": "candidate",
+      "profile": "pw6",
+      "scenario": "failure",
+      "passed": true,
+      "input_injected": false,
+      "physical_device_used": false,
+      "live_account_used": false,
+      "binary_sha256": "f9a6225638a24b1cb5f6031af6022905dc7b1325a5b37af616a261b234b9dd6c",
+      "source_commit": "585e571b422e9586f1e53a417cbaf330a9ec473f",
+      "harness_sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+      "source_manifest_sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "source_archive_sha256": "9a45f57fa072fd1da28cb565430d58c990148151fb204ea9157a4ceea0cf5255",
+      "case_manifest_sha256": "9c544fd14bf450f5238d2e351cc3af084d6382d5db756eb3eb4568f0dadac0d2",
+      "command": [
+        "unshare",
+        "--net",
+        "--",
+        "/root/bilicomics-startup-20261117-01a1d11a/candidate/desktop/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "pw6",
+        "--screen",
+        "shelf",
+        "--data-dir",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/data",
+        "--startup-delay-ms",
+        "1800",
+        "--capture-startup",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/startup.png",
+        "--capture",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/final.png",
+        "--lifecycle-trace",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-failure/lifecycle.jsonl",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "network_isolation": "Fresh unshare --net namespace plus --demo --offline",
+      "exit_code": 1,
+      "application_pid": 2545363,
+      "first_frame": {
+        "animation_frame": 0,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545363,
+        "suspended": false,
+        "worker_started": false
+      },
+      "activity_frame": {
+        "animation_frame": 1,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "state",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545363,
+        "suspended": false,
+        "worker_started": true
+      },
+      "final_state": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          632,
+          840
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545363,
+        "profile": "pw6",
+        "reader": {
+          "comic_title": "",
+          "direction": "ltr",
+          "episode_title": "",
+          "fit": "page",
+          "loading": false,
+          "menu": false,
+          "mode": "page",
+          "page": 1,
+          "pages": 1,
+          "panel": 1,
+          "sheet": "",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "startup",
+        "snapshot_size": [
+          1264,
+          1680
+        ],
+        "startup": {
+          "booting": true,
+          "error": true,
+          "frame": 1,
+          "phase": "state"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 0,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "",
+            "loading": false,
+            "menu": false,
+            "mode": "page",
+            "page": 1,
+            "panel": 1,
+            "presented_cpu_dither": false,
+            "presented_fast_mode": false,
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "sheet": "",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "welcome",
+          "toast": ""
+        },
+        "window_size": [
+          1264,
+          1680
+        ]
+      },
+      "startup_text_regions": {
+        "title": {
+          "ink_pixels": 5656,
+          "box": [
+            192,
+            540,
+            1072,
+            652
+          ]
+        },
+        "loading": {
+          "ink_pixels": 2754,
+          "box": [
+            192,
+            700,
+            1072,
+            780
+          ]
+        },
+        "phase": {
+          "ink_pixels": 2741,
+          "box": [
+            192,
+            804,
+            1072,
+            900
+          ]
+        }
+      },
+      "indicator_pixels_changed": true,
+      "stable_x11": null,
+      "images": {
+        "startup-0.png": {
+          "file": "startup-0.png",
+          "sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "ad314342b63e30a8200e2223382b232cb1fb30935371c3ea2e0700d5046939d2",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "startup-1.png": {
+          "file": "startup-1.png",
+          "sha256": "911c92f8822557b40999daee4677b2d78fccd1534766a302b921be65dc42abaa",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "0e9274581d2c147905ba80c245f9c5878319a4acf5d840569f421a76c534763d",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final.png": {
+          "file": "final.png",
+          "sha256": "003291f392fd4597eacd12316938956e3a867878e76b0c758e324e770475c48a",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "e276df35d22005fe180691b89455eef7d3ed80b26e3c7c8a90d12a70ffdb590e",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        }
+      },
+      "ready_record": null,
+      "visual_review": {
+        "status": "pending",
+        "checks": [
+          "All Chinese startup and error text is legible and unclipped",
+          "The final shelf is complete and has the expected typography and covers"
+        ]
+      },
+      "elapsed_seconds_including_controlled_delay": 3.337243,
+      "outer_cleanup": {
+        "group": 2545347,
+        "case_id": "candidate-pw6-failure",
+        "initial_members": [],
+        "signalled": [],
+        "remaining_members": [],
+        "passed": true
+      }
+    },
+    {
+      "case_id": "candidate-pw6-normal",
+      "variant": "candidate",
+      "profile": "pw6",
+      "scenario": "normal",
+      "passed": true,
+      "input_injected": false,
+      "physical_device_used": false,
+      "live_account_used": false,
+      "binary_sha256": "f9a6225638a24b1cb5f6031af6022905dc7b1325a5b37af616a261b234b9dd6c",
+      "source_commit": "585e571b422e9586f1e53a417cbaf330a9ec473f",
+      "harness_sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+      "source_manifest_sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "source_archive_sha256": "9a45f57fa072fd1da28cb565430d58c990148151fb204ea9157a4ceea0cf5255",
+      "case_manifest_sha256": "7437793498582066294da99f38816d10637ec65e5ae5b7436146a422585ebf09",
+      "command": [
+        "unshare",
+        "--net",
+        "--",
+        "/root/bilicomics-startup-20261117-01a1d11a/candidate/desktop/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "pw6",
+        "--screen",
+        "shelf",
+        "--data-dir",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/data",
+        "--startup-delay-ms",
+        "1800",
+        "--capture-startup",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/startup.png",
+        "--capture",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/final.png",
+        "--lifecycle-trace",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-pw6-normal/lifecycle.jsonl",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "network_isolation": "Fresh unshare --net namespace plus --demo --offline",
+      "exit_code": 0,
+      "application_pid": 2544314,
+      "first_frame": {
+        "animation_frame": 0,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2544314,
+        "suspended": false,
+        "worker_started": false
+      },
+      "activity_frame": {
+        "animation_frame": 1,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "state",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2544314,
+        "suspended": false,
+        "worker_started": true
+      },
+      "final_state": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          632,
+          840
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2544314,
+        "profile": "pw6",
+        "reader": {
+          "comic_title": "",
+          "direction": "ltr",
+          "episode_title": "",
+          "fit": "page",
+          "loading": false,
+          "menu": false,
+          "mode": "page",
+          "page": 1,
+          "pages": 1,
+          "panel": 1,
+          "sheet": "",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "shelf",
+        "snapshot_size": [
+          1264,
+          1680
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 2,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 0,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "",
+            "loading": false,
+            "menu": false,
+            "mode": "page",
+            "page": 1,
+            "panel": 1,
+            "presented_cpu_dither": false,
+            "presented_fast_mode": false,
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "sheet": "",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "shelf",
+          "toast": ""
+        },
+        "window_size": [
+          1264,
+          1680
+        ]
+      },
+      "startup_text_regions": {
+        "title": {
+          "ink_pixels": 5656,
+          "box": [
+            192,
+            540,
+            1072,
+            652
+          ]
+        },
+        "loading": {
+          "ink_pixels": 2754,
+          "box": [
+            192,
+            700,
+            1072,
+            780
+          ]
+        },
+        "phase": {
+          "ink_pixels": 2741,
+          "box": [
+            192,
+            804,
+            1072,
+            900
+          ]
+        }
+      },
+      "indicator_pixels_changed": true,
+      "stable_x11": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "window": {
+          "id": "0x400003",
+          "x": 0,
+          "y": 0,
+          "width": 1264,
+          "height": 1680
+        },
+        "samples": [
+          {
+            "file": "settle/000.png",
+            "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+            "seconds_after_ready_observed": 1.53539
+          },
+          {
+            "file": "settle/001.png",
+            "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+            "seconds_after_ready_observed": 1.914992
+          },
+          {
+            "file": "settle/002.png",
+            "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+            "seconds_after_ready_observed": 2.306581
+          }
+        ]
+      },
+      "images": {
+        "startup-0.png": {
+          "file": "startup-0.png",
+          "sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "ad314342b63e30a8200e2223382b232cb1fb30935371c3ea2e0700d5046939d2",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "startup-1.png": {
+          "file": "startup-1.png",
+          "sha256": "911c92f8822557b40999daee4677b2d78fccd1534766a302b921be65dc42abaa",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "0e9274581d2c147905ba80c245f9c5878319a4acf5d840569f421a76c534763d",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final.png": {
+          "file": "final.png",
+          "sha256": "801bcd846c751d03f3cafdbe9a1f5db9b6382835f50453e07471c3d24cd3fe20",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "7f5da7cbbf71454b02623d3a998e40ead4d520e5e26de4fa043e2b566c744fc4",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final-x11.png": {
+          "file": "final-x11.png",
+          "sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+          "size": [
+            1264,
+            1680
+          ],
+          "rgb_sha256": "7f5da7cbbf71454b02623d3a998e40ead4d520e5e26de4fa043e2b566c744fc4",
+          "source": "Actual X11 application window",
+          "pixel_processing": "None; original PNG retained unchanged"
+        }
+      },
+      "ready_record": {
+        "elapsed_ms": 2545.816888,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 590197366228088,
+        "native_epdc_mode": null,
+        "process_id": 2544314,
+        "reader_loading": false,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 3820800,
+          "cover_resident_count": 7,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 2,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": false,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": null,
+          "reader_refresh_scene": "normal",
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "sleep_cover": {
+            "candidate_bytes": 0,
+            "draining": false,
+            "full": false,
+            "generation": 0,
+            "height": null,
+            "idle_remaining_ms": null,
+            "pending": false,
+            "phase": null,
+            "ready": false,
+            "retry_remaining_ms": null,
+            "width": null
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": null,
+        "route": "shelf"
+      },
+      "visual_review": {
+        "status": "pending",
+        "checks": [
+          "All Chinese startup and error text is legible and unclipped",
+          "The final shelf is complete and has the expected typography and covers"
+        ]
+      },
+      "elapsed_seconds_including_controlled_delay": 9.336197,
+      "outer_cleanup": {
+        "group": 2544162,
+        "case_id": "candidate-pw6-normal",
+        "initial_members": [],
+        "signalled": [],
+        "remaining_members": [],
+        "passed": true
+      }
+    },
+    {
+      "case_id": "candidate-scribe-failure",
+      "variant": "candidate",
+      "profile": "scribe",
+      "scenario": "failure",
+      "passed": true,
+      "input_injected": false,
+      "physical_device_used": false,
+      "live_account_used": false,
+      "binary_sha256": "f9a6225638a24b1cb5f6031af6022905dc7b1325a5b37af616a261b234b9dd6c",
+      "source_commit": "585e571b422e9586f1e53a417cbaf330a9ec473f",
+      "harness_sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+      "source_manifest_sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "source_archive_sha256": "9a45f57fa072fd1da28cb565430d58c990148151fb204ea9157a4ceea0cf5255",
+      "case_manifest_sha256": "e8439ea8c9353b19a2632501955fa6a7decb6ec90479d7543a0c5f75cecf9b55",
+      "command": [
+        "unshare",
+        "--net",
+        "--",
+        "/root/bilicomics-startup-20261117-01a1d11a/candidate/desktop/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "scribe",
+        "--screen",
+        "shelf",
+        "--data-dir",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/data",
+        "--startup-delay-ms",
+        "1800",
+        "--capture-startup",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/startup.png",
+        "--capture",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/final.png",
+        "--lifecycle-trace",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-failure/lifecycle.jsonl",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "network_isolation": "Fresh unshare --net namespace plus --demo --offline",
+      "exit_code": 1,
+      "application_pid": 2546698,
+      "first_frame": {
+        "animation_frame": 0,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2546698,
+        "suspended": false,
+        "worker_started": false
+      },
+      "activity_frame": {
+        "animation_frame": 1,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2546698,
+        "suspended": false,
+        "worker_started": true
+      },
+      "final_state": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          930,
+          1240
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2546698,
+        "profile": "scribe",
+        "reader": {
+          "comic_title": "",
+          "direction": "ltr",
+          "episode_title": "",
+          "fit": "page",
+          "loading": false,
+          "menu": false,
+          "mode": "page",
+          "page": 1,
+          "pages": 1,
+          "panel": 1,
+          "sheet": "",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "startup",
+        "snapshot_size": [
+          1860,
+          2480
+        ],
+        "startup": {
+          "booting": true,
+          "error": true,
+          "frame": 1,
+          "phase": "state"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 1,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 0,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "",
+            "loading": false,
+            "menu": false,
+            "mode": "page",
+            "page": 1,
+            "panel": 1,
+            "presented_cpu_dither": false,
+            "presented_fast_mode": false,
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "sheet": "",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "welcome",
+          "toast": ""
+        },
+        "window_size": [
+          1860,
+          2480
+        ]
+      },
+      "startup_text_regions": {
+        "title": {
+          "ink_pixels": 7578,
+          "box": [
+            490,
+            940,
+            1370,
+            1052
+          ]
+        },
+        "loading": {
+          "ink_pixels": 3663,
+          "box": [
+            490,
+            1100,
+            1370,
+            1180
+          ]
+        },
+        "phase": {
+          "ink_pixels": 3585,
+          "box": [
+            490,
+            1204,
+            1370,
+            1300
+          ]
+        }
+      },
+      "indicator_pixels_changed": true,
+      "stable_x11": null,
+      "images": {
+        "startup-0.png": {
+          "file": "startup-0.png",
+          "sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "090fe007de74fc7185dd9e11ee6fe5cde5d6b31e6a3132069b0e1ee5db100640",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "startup-1.png": {
+          "file": "startup-1.png",
+          "sha256": "6a7b78ccf00ef32045801428e96f8c87eb6d23dcf0735bbf9762702145e7037d",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "e1a276bb7c2bb113659662cdfc7b37cbfecef800a83d0ed89ae7e3b3f2b83366",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final.png": {
+          "file": "final.png",
+          "sha256": "c17b3072ab8a6e9601576edad8c2c95f2b669bf73c77bb86f2236a8a47e6ac23",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "1035b36b13077953db1af98cf0fb7279511895a65691c017d36fc20285d51cf2",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        }
+      },
+      "ready_record": null,
+      "visual_review": {
+        "status": "pending",
+        "checks": [
+          "All Chinese startup and error text is legible and unclipped",
+          "The final shelf is complete and has the expected typography and covers"
+        ]
+      },
+      "elapsed_seconds_including_controlled_delay": 4.164437,
+      "outer_cleanup": {
+        "group": 2546600,
+        "case_id": "candidate-scribe-failure",
+        "initial_members": [],
+        "signalled": [],
+        "remaining_members": [],
+        "passed": true
+      }
+    },
+    {
+      "case_id": "candidate-scribe-normal",
+      "variant": "candidate",
+      "profile": "scribe",
+      "scenario": "normal",
+      "passed": true,
+      "input_injected": false,
+      "physical_device_used": false,
+      "live_account_used": false,
+      "binary_sha256": "f9a6225638a24b1cb5f6031af6022905dc7b1325a5b37af616a261b234b9dd6c",
+      "source_commit": "585e571b422e9586f1e53a417cbaf330a9ec473f",
+      "harness_sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+      "source_manifest_sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "source_archive_sha256": "9a45f57fa072fd1da28cb565430d58c990148151fb204ea9157a4ceea0cf5255",
+      "case_manifest_sha256": "ac427a0717db0e8afae9a8100c0eb396c69521a7eea93d9c9b328aa36f392b4b",
+      "command": [
+        "unshare",
+        "--net",
+        "--",
+        "/root/bilicomics-startup-20261117-01a1d11a/candidate/desktop/bilicomics",
+        "--demo",
+        "--offline",
+        "--device",
+        "scribe",
+        "--screen",
+        "shelf",
+        "--data-dir",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/data",
+        "--startup-delay-ms",
+        "1800",
+        "--capture-startup",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/startup.png",
+        "--capture",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/final.png",
+        "--lifecycle-trace",
+        "/root/bilicomics-startup-20261117-01a1d11a/desktop-r2/candidate-scribe-normal/lifecycle.jsonl",
+        "--exit-after-ms",
+        "6000"
+      ],
+      "network_isolation": "Fresh unshare --net namespace plus --demo --offline",
+      "exit_code": 0,
+      "application_pid": 2545794,
+      "first_frame": {
+        "animation_frame": 0,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545794,
+        "suspended": false,
+        "worker_started": false
+      },
+      "activity_frame": {
+        "animation_frame": 1,
+        "booting": true,
+        "error": false,
+        "native_epdc_mode": null,
+        "phase": "fonts",
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545794,
+        "suspended": false,
+        "worker_started": true
+      },
+      "final_state": {
+        "account_section": "account",
+        "auth_step": 1,
+        "backend": "desktop-software",
+        "catalog": {
+          "composition": "",
+          "keyboard": true,
+          "query": "",
+          "selection_count": 0,
+          "shelf_view": "grid"
+        },
+        "demo": true,
+        "download_selection": false,
+        "landscape": false,
+        "logical_size": [
+          930,
+          1240
+        ],
+        "native_epdc_mode": null,
+        "network_prompt": false,
+        "offline": true,
+        "offline_requested": true,
+        "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+        "process_id": 2545794,
+        "profile": "scribe",
+        "reader": {
+          "comic_title": "",
+          "direction": "ltr",
+          "episode_title": "",
+          "fit": "page",
+          "loading": false,
+          "menu": false,
+          "mode": "page",
+          "page": 1,
+          "pages": 1,
+          "panel": 1,
+          "sheet": "",
+          "strip_screen": 1,
+          "thumbnail_count": 0,
+          "thumbnails_loading": false,
+          "transition": false
+        },
+        "route": "shelf",
+        "snapshot_size": [
+          1860,
+          2480
+        ],
+        "startup": {
+          "booting": false,
+          "error": false,
+          "frame": 1,
+          "phase": "attach"
+        },
+        "suspended": false,
+        "ui": {
+          "account": {
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "media_acceleration": {
+              "available": false,
+              "note": "",
+              "reason": "platform",
+              "requested": false
+            },
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "section": "account"
+          },
+          "catalog": {
+            "candidate_page": 0,
+            "candidate_pages": 1,
+            "candidates": [],
+            "composition": "",
+            "detail_id": "",
+            "download_selecting": false,
+            "episode_filter": "all",
+            "episode_page": 1,
+            "episode_pages": 1,
+            "keyboard": true,
+            "query": "",
+            "selection_count": 0,
+            "selection_size": "",
+            "shelf_menu": false,
+            "shelf_page": 1,
+            "shelf_pages": 2,
+            "shelf_view": "grid"
+          },
+          "downloads": {
+            "all_paused": false,
+            "can_read": false,
+            "has_active": false,
+            "items": [],
+            "selected_count": 0,
+            "selecting": false,
+            "sheet_id": "",
+            "sheet_open": false,
+            "status_summary": "",
+            "summary": "",
+            "task_primary_action": "",
+            "task_secondary_action": ""
+          },
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "reader": {
+            "chapter_capacity": 14,
+            "chapter_count": 0,
+            "chapter_descending": false,
+            "chapter_filter": "all",
+            "chapter_page": 1,
+            "chapter_pages": 1,
+            "chapter_rows": [],
+            "dither": true,
+            "dither_method": "bayer8",
+            "dither_note": "",
+            "fit": "page",
+            "jpeg_acceleration": false,
+            "jpeg_acceleration_available": false,
+            "jpeg_acceleration_note": "",
+            "loading": false,
+            "menu": false,
+            "mode": "page",
+            "page": 1,
+            "panel": 1,
+            "presented_cpu_dither": false,
+            "presented_fast_mode": false,
+            "refresh_mode": "normal",
+            "refresh_mode_note": "",
+            "sheet": "",
+            "strip_screen": 1,
+            "thumbnail_count": 0,
+            "thumbnails_loading": false,
+            "transition": false
+          },
+          "route": "shelf",
+          "toast": ""
+        },
+        "window_size": [
+          1860,
+          2480
+        ]
+      },
+      "startup_text_regions": {
+        "title": {
+          "ink_pixels": 7578,
+          "box": [
+            490,
+            940,
+            1370,
+            1052
+          ]
+        },
+        "loading": {
+          "ink_pixels": 3663,
+          "box": [
+            490,
+            1100,
+            1370,
+            1180
+          ]
+        },
+        "phase": {
+          "ink_pixels": 3585,
+          "box": [
+            490,
+            1204,
+            1370,
+            1300
+          ]
+        }
+      },
+      "indicator_pixels_changed": true,
+      "stable_x11": {
+        "minimum_settle_seconds": 1.5,
+        "identical_samples": 3,
+        "window": {
+          "id": "0x400003",
+          "x": 0,
+          "y": 0,
+          "width": 1860,
+          "height": 2480
+        },
+        "samples": [
+          {
+            "file": "settle/000.png",
+            "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+            "seconds_after_ready_observed": 1.618627
+          },
+          {
+            "file": "settle/001.png",
+            "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+            "seconds_after_ready_observed": 2.041113
+          },
+          {
+            "file": "settle/002.png",
+            "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+            "seconds_after_ready_observed": 2.544577
+          }
+        ]
+      },
+      "images": {
+        "startup-0.png": {
+          "file": "startup-0.png",
+          "sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "090fe007de74fc7185dd9e11ee6fe5cde5d6b31e6a3132069b0e1ee5db100640",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "startup-1.png": {
+          "file": "startup-1.png",
+          "sha256": "6a7b78ccf00ef32045801428e96f8c87eb6d23dcf0735bbf9762702145e7037d",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "e1a276bb7c2bb113659662cdfc7b37cbfecef800a83d0ed89ae7e3b3f2b83366",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final.png": {
+          "file": "final.png",
+          "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "source": "Real Rust/Slint window.take_snapshot",
+          "pixel_processing": "None; original PNG retained unchanged"
+        },
+        "final-x11.png": {
+          "file": "final-x11.png",
+          "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+          "size": [
+            1860,
+            2480
+          ],
+          "rgb_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "source": "Actual X11 application window",
+          "pixel_processing": "None; original PNG retained unchanged"
+        }
+      },
+      "ready_record": {
+        "elapsed_ms": 2808.219587,
+        "event": "ready",
+        "frame_size": [
+          0,
+          0
+        ],
+        "monotonic_ns": 590212814847310,
+        "native_epdc_mode": null,
+        "process_id": 2545794,
+        "reader_loading": false,
+        "reader_resources": {
+          "chapters_count": 0,
+          "cover_image_budget_bytes": 67108864,
+          "cover_resident_bytes": 5740800,
+          "cover_resident_count": 11,
+          "media_availability": "platform",
+          "native_media": {
+            "attempts": 0,
+            "completed": 0,
+            "resized": 0,
+            "software_fallbacks": 0
+          },
+          "overview_image_size": {
+            "height": 0,
+            "width": 0
+          },
+          "page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "pending_job_keys": 2,
+          "prepared_frame_budget": 33554432,
+          "prepared_frame_bytes": 0,
+          "prepared_frame_state": "empty",
+          "processed_source_cache_budget": 16777216,
+          "processed_source_cache_bytes": 0,
+          "processed_source_cache_entries": 0,
+          "reader_active": false,
+          "reader_checkpoint": {
+            "completed_writes": 0,
+            "failed_attempts": 0,
+            "in_flight": false,
+            "pending": false,
+            "retries": 0
+          },
+          "reader_generation": null,
+          "reader_refresh_scene": "normal",
+          "second_page_size": {
+            "height": 0,
+            "width": 0
+          },
+          "sleep_cover": {
+            "candidate_bytes": 0,
+            "draining": false,
+            "full": false,
+            "generation": 0,
+            "height": null,
+            "idle_remaining_ms": null,
+            "pending": false,
+            "phase": null,
+            "ready": false,
+            "retry_remaining_ms": null,
+            "width": null
+          },
+          "source_cache_budget": 33554432,
+          "source_cache_bytes": 0,
+          "source_cache_entries": 0,
+          "thumbnails_count": 0
+        },
+        "reader_state": null,
+        "route": "shelf"
+      },
+      "visual_review": {
+        "status": "pending",
+        "checks": [
+          "All Chinese startup and error text is legible and unclipped",
+          "The final shelf is complete and has the expected typography and covers"
+        ]
+      },
+      "elapsed_seconds_including_controlled_delay": 10.57905,
+      "outer_cleanup": {
+        "group": 2545672,
+        "case_id": "candidate-scribe-normal",
+        "initial_members": [],
+        "signalled": [],
+        "remaining_members": [],
+        "passed": true
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "left": "baseline-pw6-normal/startup-0.png",
+      "right": "candidate-pw6-normal/startup-0.png",
+      "reason": "pw6: initial startup before workers",
+      "pixel_exact": true,
+      "left_sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+      "right_sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+      "compared_pixels": 2123520,
+      "difference_bbox": null
+    },
+    {
+      "left": "baseline-pw6-failure/startup-0.png",
+      "right": "candidate-pw6-failure/startup-0.png",
+      "reason": "pw6: initial failure-case startup before workers",
+      "pixel_exact": true,
+      "left_sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+      "right_sha256": "a7b9184a5fe4c369929bf0e2f0e3d918ba43179486c33a5b868b586cbdab0264",
+      "compared_pixels": 2123520,
+      "difference_bbox": null
+    },
+    {
+      "left": "baseline-pw6-normal/final.png",
+      "right": "candidate-pw6-normal/final.png",
+      "reason": "pw6: final shelf Slint snapshot",
+      "pixel_exact": true,
+      "left_sha256": "801bcd846c751d03f3cafdbe9a1f5db9b6382835f50453e07471c3d24cd3fe20",
+      "right_sha256": "801bcd846c751d03f3cafdbe9a1f5db9b6382835f50453e07471c3d24cd3fe20",
+      "compared_pixels": 2123520,
+      "difference_bbox": null
+    },
+    {
+      "left": "baseline-pw6-normal/final-x11.png",
+      "right": "candidate-pw6-normal/final-x11.png",
+      "reason": "pw6: stable actual X11 shelf",
+      "pixel_exact": true,
+      "left_sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+      "right_sha256": "cd41f55862c02675cec6816f6c5a0af4ad697d486ef501165e1f879fdc0e1020",
+      "compared_pixels": 2123520,
+      "difference_bbox": null
+    },
+    {
+      "left": "baseline-pw6-failure/final.png",
+      "right": "candidate-pw6-failure/final.png",
+      "reason": "pw6: retained error view",
+      "pixel_exact": true,
+      "left_sha256": "003291f392fd4597eacd12316938956e3a867878e76b0c758e324e770475c48a",
+      "right_sha256": "003291f392fd4597eacd12316938956e3a867878e76b0c758e324e770475c48a",
+      "compared_pixels": 2123520,
+      "difference_bbox": null
+    },
+    {
+      "left": "baseline-scribe-normal/startup-0.png",
+      "right": "candidate-scribe-normal/startup-0.png",
+      "reason": "scribe: initial startup before workers",
+      "pixel_exact": true,
+      "left_sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+      "right_sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+      "compared_pixels": 4612800,
+      "difference_bbox": null
+    },
+    {
+      "left": "baseline-scribe-failure/startup-0.png",
+      "right": "candidate-scribe-failure/startup-0.png",
+      "reason": "scribe: initial failure-case startup before workers",
+      "pixel_exact": true,
+      "left_sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+      "right_sha256": "3b5e007eac0e4a5a30b77920cb3f8497fbfe61e55650345a5929cf3c101b4d1d",
+      "compared_pixels": 4612800,
+      "difference_bbox": null
+    },
+    {
+      "left": "baseline-scribe-normal/final.png",
+      "right": "candidate-scribe-normal/final.png",
+      "reason": "scribe: final shelf Slint snapshot",
+      "pixel_exact": true,
+      "left_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "right_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "compared_pixels": 4612800,
+      "difference_bbox": null
+    },
+    {
+      "left": "baseline-scribe-normal/final-x11.png",
+      "right": "candidate-scribe-normal/final-x11.png",
+      "reason": "scribe: stable actual X11 shelf",
+      "pixel_exact": true,
+      "left_sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+      "right_sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+      "compared_pixels": 4612800,
+      "difference_bbox": null
+    },
+    {
+      "left": "baseline-scribe-failure/final.png",
+      "right": "candidate-scribe-failure/final.png",
+      "reason": "scribe: retained error view",
+      "pixel_exact": true,
+      "left_sha256": "c17b3072ab8a6e9601576edad8c2c95f2b669bf73c77bb86f2236a8a47e6ac23",
+      "right_sha256": "c17b3072ab8a6e9601576edad8c2c95f2b669bf73c77bb86f2236a8a47e6ac23",
+      "compared_pixels": 4612800,
+      "difference_bbox": null
+    }
+  ],
+  "limitations": [
+    "No native driver, waveform, SEND, or panel completion was measured",
+    "Controlled-delay desktop durations are not physical startup performance",
+    "Character outlines and pixel identity do not replace visual clipping review"
+  ],
+  "visual_review": {
+    "status": "pending",
+    "original_pngs_retained": true
+  }
+}

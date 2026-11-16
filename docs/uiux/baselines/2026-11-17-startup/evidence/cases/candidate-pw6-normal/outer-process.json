@@ -1,0 +1,17 @@
+{
+  "pid": 2544162,
+  "state": "R",
+  "group": 2544162,
+  "birth": 59019457,
+  "observations": [
+    {
+      "identity": {
+        "pid": 2544162,
+        "state": "R",
+        "group": 2544162,
+        "birth": 59019457
+      },
+      "marker_seen": true
+    }
+  ]
+}

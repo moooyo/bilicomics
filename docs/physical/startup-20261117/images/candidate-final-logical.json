@@ -1,0 +1,15 @@
+{
+  "source_tag": "candidate-05",
+  "evidence_kind": "Original logical Slint PNG copied byte for byte",
+  "optical_capture": false,
+  "physical_framebuffer_capture": false,
+  "semantics": "Logical Slint snapshot before framebuffer compensation",
+  "source_png_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+  "png_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+  "rgb_pixels_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+  "width": 1860,
+  "height": 2480,
+  "pixel_processing": "None; original PNG bytes retained",
+  "source_commit": "585e571b422e9586f1e53a417cbaf330a9ec473f",
+  "binary_sha256": "f5f958b219b8faef1776ba14f50b9d483f628f792ad43503fa46cf0d7879714f"
+}

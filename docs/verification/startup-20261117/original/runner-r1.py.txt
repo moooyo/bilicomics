@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""Run the frozen startup candidate checks only on the designated Linux worker."""
+
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import time
+
+ROOT = Path('/root/bilicomics-startup-20261117-01a1d11a')
+CANDIDATE = '585e571b422e9586f1e53a417cbaf330a9ec473f'
+BASELINE = '06ad90b02edb28db43abeed3031932a91dc2f8df'
+
+
+def digest(path):
+    value = hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b''):
+            value.update(block)
+    return value.hexdigest()
+
+
+def main():
+    if sys.platform != 'linux' or not ROOT.is_dir():
+        raise RuntimeError('Run only in the selected isolated test-env workspace')
+    output = ROOT / 'checks-r1'
+    output.mkdir(mode=0o700)
+    environment = dict(os.environ, CARGO_BUILD_JOBS='6', CARGO_INCREMENTAL='0',
+                       RUST_TEST_THREADS='1', CARGO_NET_OFFLINE='true',
+                       CARGO_PROFILE_DEV_INCREMENTAL='false',
+                       CARGO_PROFILE_TEST_INCREMENTAL='false',
+                       CARGO_TARGET_DIR=str(ROOT / 'target'))
+    environment['PATH'] = '/root/.cargo/bin:' + environment.get('PATH', '')
+    report = {'passed': False, 'physical_device_used': False,
+              'runner_sha256': digest(__file__), 'steps': [], 'sources': {},
+              'environment': {key: environment[key] for key in (
+                  'CARGO_BUILD_JOBS', 'CARGO_INCREMENTAL', 'RUST_TEST_THREADS',
+                  'CARGO_PROFILE_DEV_INCREMENTAL', 'CARGO_PROFILE_TEST_INCREMENTAL')},
+              'profile': {'release_lto': 'thin', 'release_codegen_units': 1,
+                          'release_strip': True, 'release_override_used': False}}
+    manifests = {}
+    for variant, commit in [('baseline', BASELINE), ('candidate', CANDIDATE)]:
+        source = ROOT / variant / 'app'
+        spec = importlib.util.spec_from_file_location('inputs_' + variant,
+            source / 'scripts/verification/native_protocol.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        manifests[variant] = (module.build_input_manifest, source,
+                              module.build_input_manifest(source))
+        manifest_path = output / (variant + '-source-inputs.sha256')
+        manifest_path.write_text(manifests[variant][2])
+        report['sources'][variant] = {'commit': commit,
+            'archive_sha256': digest(ROOT / variant / 'source.tar'),
+            'compiled_inputs_sha256': digest(manifest_path),
+            'compiled_input_files': len(manifests[variant][2].splitlines())}
+
+    def run(label, command, source, timeout):
+        entry = {'label': label, 'command': [str(item) for item in command]}
+        report['steps'].append(entry)
+        print('Running ' + label, flush=True)
+        started = time.monotonic()
+        with (output / (label + '.log')).open('w') as stream:
+            result = subprocess.run(command, cwd=source, env=environment,
+                                    stdout=stream, stderr=subprocess.STDOUT,
+                                    timeout=timeout, check=False)
+        entry.update(returncode=result.returncode, seconds=round(time.monotonic() - started, 3),
+                     log_sha256=digest(output / (label + '.log')))
+        if result.returncode:
+            raise RuntimeError(label + ' failed: inspect its saved log')
+        print('Passed ' + label, flush=True)
+
+    def verify_package(variant):
+        source = ROOT / variant / 'app'
+        stage = ROOT / variant / 'kindle-package/bilicomics/app'
+        archive = source / 'artifacts/verification/bilicomics-kindle-0.1.25-dev.zip'
+        app, worker = stage / 'bilicomics', stage / 'kindle-jpeg-worker'
+        selected = {'app_sha256': digest(app), 'worker_sha256': digest(worker),
+                    'archive_sha256': digest(archive)}
+        report.setdefault('packages', {})[variant] = selected
+        run(variant + '-package', [sys.executable, source / 'scripts/verification/verify_package.py',
+            '--archive', archive, '--binary', app, '--worker', worker, '--app-root', source,
+            '--output', output / (variant + '-package.json'),
+            '--expected-binary-sha256', selected['app_sha256'],
+            '--expected-worker-sha256', selected['worker_sha256'],
+            '--expected-archive-sha256', selected['archive_sha256']], source, 60)
+
+    try:
+        baseline_bin = ROOT / 'baseline/desktop/bilicomics'
+        baseline_bin.parent.mkdir()
+        shutil.copyfile(ROOT / 'target/debug/bilicomics', baseline_bin)
+        baseline_bin.chmod(0o500)
+        report['baseline_desktop_sha256'] = digest(baseline_bin)
+        verify_package('baseline')
+        source = ROOT / 'candidate/app'
+        run('library-and-binary-tests', ['cargo', 'test', '--locked', '--offline', '--lib', '--bins'],
+            source, 1200)
+        run('backend', [sys.executable, source / 'scripts/verification/backend.py',
+            '--source-root', source, '--target-dir', ROOT / 'target',
+            '--output-dir', output / 'backend', '--minimum-tests', '1'], source, 1200)
+        run('desktop-build', ['cargo', 'build', '--locked', '--offline', '--bin', 'bilicomics'], source, 1200)
+        desktop_bin = ROOT / 'candidate/desktop/bilicomics'
+        desktop_bin.parent.mkdir()
+        shutil.copyfile(ROOT / 'target/debug/bilicomics', desktop_bin)
+        desktop_bin.chmod(0o500)
+        report['candidate_desktop_sha256'] = digest(desktop_bin)
+        run('arm-build', ['sh', source / 'scripts/build-kindle.sh', ROOT / 'candidate'], source, 1800)
+        verify_package('candidate')
+        report['passed'] = True
+    except Exception as error:
+        report['error'] = str(error)
+        print('Failed: ' + str(error), flush=True)
+    finally:
+        report['sources_unchanged'] = {name: callback(source) == before
+            for name, (callback, source, before) in manifests.items()}
+        if not all(report['sources_unchanged'].values()):
+            report['passed'] = False
+        (output / 'summary.json').write_text(json.dumps(report, indent=2) + '\n')
+    return 0 if report['passed'] else 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())

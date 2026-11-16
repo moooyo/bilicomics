@@ -1,0 +1,54 @@
+{
+  "record_kind": "Exported metadata projection; not an original application sidecar",
+  "case_id": "candidate-scribe-normal",
+  "profile": "scribe",
+  "software_variant": "candidate",
+  "source_commit": "585e571b422e9586f1e53a417cbaf330a9ec473f",
+  "binary_sha256": "f9a6225638a24b1cb5f6031af6022905dc7b1325a5b37af616a261b234b9dd6c",
+  "harness_sha256": "172f6c80ed9e7e2df1a78da663e90471913a503fa612a2a9b098c1e5146e50c8",
+  "original_case_result": "evidence/cases/candidate-scribe-normal/result.json",
+  "original_case_result_sha256": "8401c11fe02b5b1e0bf167daf83781b096ef10a25820e1fa178b192705e277d9",
+  "image": {
+    "file": "final-x11.png",
+    "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+    "size": [
+      1860,
+      2480
+    ],
+    "rgb_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+    "source": "Actual X11 application window",
+    "pixel_processing": "None; original PNG retained unchanged"
+  },
+  "stability": {
+    "minimum_settle_seconds": 1.5,
+    "identical_samples": 3,
+    "window": {
+      "id": "0x400003",
+      "x": 0,
+      "y": 0,
+      "width": 1860,
+      "height": 2480
+    },
+    "samples": [
+      {
+        "file": "settle/000.png",
+        "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+        "seconds_after_ready_observed": 1.618627
+      },
+      {
+        "file": "settle/001.png",
+        "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+        "seconds_after_ready_observed": 2.041113
+      },
+      {
+        "file": "settle/002.png",
+        "sha256": "d05e029ed941bae55951c1d28b597a9cf6b9239bf76c10a7195919b9923e6dc9",
+        "seconds_after_ready_observed": 2.544577
+      }
+    ]
+  },
+  "pixel_processing": "None; the original PNG was copied without modification",
+  "physical_device_used": false,
+  "live_account_used": false,
+  "visual_review": "pending"
+}

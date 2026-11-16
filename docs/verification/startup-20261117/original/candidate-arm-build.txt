@@ -1,0 +1,134 @@
+   Compiling zune-jpeg v0.5.15 (/root/bilicomics-startup-20261117-01a1d11a/candidate/app/vendor/zune-jpeg)
+warning: the `macro_use` attribute cannot be used on crates
+   --> vendor/zune-jpeg/src/lib.rs:166:4
+    |
+166 | #![macro_use]
+    |    ^^^^^^^^^
+    |
+    = help: the `macro_use` attribute can be applied to extern crates and modules
+    = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+    = note: `#[warn(unused_attributes)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling resvg v0.47.0
+   Compiling tiff v0.11.3
+warning: `zune-jpeg` (lib) generated 1 warning (run `cargo fix --lib -p zune-jpeg` to apply 1 suggestion)
+   Compiling image v0.25.10
+   Compiling i-slint-common v1.17.1
+warning: `zune-jpeg` (lib) generated 1 warning (1 duplicate)
+   Compiling i-slint-backend-selector v1.17.1
+   Compiling i-slint-core v1.17.1
+   Compiling i-slint-compiler v1.17.1
+   Compiling i-slint-renderer-software v1.17.1
+   Compiling slint-build v1.17.1
+   Compiling slint-macros v1.17.1
+   Compiling bilicomics v0.1.25 (/root/bilicomics-startup-20261117-01a1d11a/candidate/app)
+   Compiling slint v1.17.1
+   Compiling slint-backend-kindle v0.7.1 (/root/bilicomics-startup-20261117-01a1d11a/candidate/app/vendor/slint-backend-kindle)
+warning: use of deprecated method `std::sync::atomic::Atomic::<usize>::fetch_update`: renamed to `try_update` for consistency
+  --> vendor/slint-backend-kindle/src/command.rs:66:24
+   |
+66 |         self.in_flight.fetch_update(Ordering::AcqRel, Ordering::Acquire, |current| {
+   |                        ^^^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+help: replace the use of the deprecated method
+   |
+66 -         self.in_flight.fetch_update(Ordering::AcqRel, Ordering::Acquire, |current| {
+66 +         self.in_flight.try_update(Ordering::AcqRel, Ordering::Acquire, |current| {
+   |
+
+warning: `slint-backend-kindle` (lib) generated 1 warning (run `cargo fix --lib -p slint-backend-kindle` to apply 1 suggestion)
+warning: bilicomics@0.1.25: /root/.cache/cargo-zigbuild/0.24.0/aeabi_unaligned.c:1:1: error: FileNotFound
+warning: bilicomics@0.1.25: /root/.cache/cargo-zigbuild/0.24.0/aeabi_unaligned.c:1:1: error: FileNotFound
+warning: bilicomics@0.1.25: /root/.cache/cargo-zigbuild/0.24.0/aeabi_unaligned.c:1:1: error: FileNotFound
+warning: bilicomics@0.1.25: warning: Component is neither used nor exported
+warning: bilicomics@0.1.25:    --> /root/bilicomics-startup-20261117-01a1d11a/candidate/app/ui/reader.slint:136:1
+warning: bilicomics@0.1.25:     |
+warning: bilicomics@0.1.25: 136 | / component ReaderDashedBox inherits Rectangle {
+warning: bilicomics@0.1.25: 137 | |     in property <color> stroke-color: Theme.muted;
+warning: bilicomics@0.1.25: 138 | |     in property <length> stroke: 1.5px;
+warning: bilicomics@0.1.25: 139 | |     property <int> horizontal-count: ceil(root.width / 10px);
+warning: bilicomics@0.1.25: ...   |
+warning: bilicomics@0.1.25: 170 | | }
+warning: bilicomics@0.1.25:     | |_^
+warning: unused import: `Context`
+ --> src/app/catalog.rs:7:14
+  |
+7 | use anyhow::{Context, Result};
+  |              ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: use of deprecated method `std::sync::atomic::Atomic::<u64>::fetch_update`: renamed to `try_update` for consistency
+   --> src/performance.rs:243:35
+    |
+243 |         match sink.next_operation.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+    |                                   ^^^^^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+help: replace the use of the deprecated method
+    |
+243 -         match sink.next_operation.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+243 +         match sink.next_operation.try_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)) {
+    |
+
+warning: function `publish_cover` is never used
+   --> src/app/startup.rs:463:15
+    |
+463 | pub(super) fn publish_cover(temporary: &Path, target: &Path) -> Result<()> {
+    |               ^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `new` is never used
+   --> src/image_integrity.rs:105:19
+    |
+104 | impl HashedImage {
+    | ---------------- associated function in this implementation
+105 |     pub(crate) fn new(encoded: Vec<u8>) -> Result<Self, IntegrityError> {
+    |                   ^^^
+
+warning: function `decode_image_with_reuse` is never used
+   --> src/image_integrity.rs:260:15
+    |
+260 | pub(crate) fn decode_image_with_reuse<T>(encoded: &[u8], max_pixels: Option<u64>,
+    |               ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `decode_hashed_image_with_reuse_cancellable` is never used
+   --> src/image_integrity.rs:278:15
+    |
+278 | pub(crate) fn decode_hashed_image_with_reuse_cancellable<T>(input: &HashedImage, max_pixels: Option<u64>,
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `decode_fresh` is never used
+   --> src/image_integrity.rs:353:4
+    |
+353 | fn decode_fresh(encoded: &[u8], max_pixels: Option<u64>, digest: String, byte_len: u64)
+    |    ^^^^^^^^^^^^
+
+warning: methods `render_source_identity` and `render_source_identity_cancellable` are never used
+    --> src/reader.rs:1007:8
+     |
+ 624 | impl ReaderCore {
+     | --------------- methods in this implementation
+...
+1007 |     fn render_source_identity(&mut self, source: &GrayImage, viewport: Viewport, identity: Option<&str>,
+     |        ^^^^^^^^^^^^^^^^^^^^^^
+...
+1014 |     fn render_source_identity_cancellable(&mut self, source: &GrayImage, viewport: Viewport, identity: Option<&str>,
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `decode_source_bytes` is never used
+    --> src/reader.rs:1522:4
+     |
+1522 | fn decode_source_bytes(encoded: &[u8], resources: &ReaderResources, previous: Option<&ValidatedImage>)
+     |    ^^^^^^^^^^^^^^^^^^^
+
+warning: function `apply` is never used
+  --> src/reader/spatial_dither.rs:93:8
+   |
+93 | pub fn apply(image: &mut GrayImage, method: SpatialDither) -> Result<()> {
+   |        ^^^^^
+
+warning: `bilicomics` (lib) generated 10 warnings (run `cargo fix --lib -p bilicomics` to apply 2 suggestions)
+    Finished `release` profile [optimized] target(s) in 3m 35s

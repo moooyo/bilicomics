@@ -1,5 +1,13 @@
 # UI/UX baselines
 
+The [2026-11-17 startup comparison](baselines/2026-11-17-startup/README.md)
+preserves startup, loading, error, and unchanged final shelf pixels before and
+after the startup optimization. Its automated desktop checks passed; human
+visual review is pending. This supplement retains the reviewed baselines below
+and does not establish physical-device support or startup performance.
+An additional [assistant visual inspection](baselines/2026-11-17-startup/assistant-visual-review.md)
+records six original candidate frames without changing the frozen export.
+
 Use the reviewed [2026-11-16 software grayscale settings update](baselines/2026-11-16-spatial-dither/README.md)
 for the current Off/Bayer8/Floyd-Steinberg defaults and per-comic settings.
 It preserves twenty-four original settings captures plus four quiet Fast pages

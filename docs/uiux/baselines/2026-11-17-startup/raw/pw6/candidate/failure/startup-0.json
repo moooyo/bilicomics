@@ -1,0 +1,11 @@
+{
+  "animation_frame": 0,
+  "booting": true,
+  "error": false,
+  "native_epdc_mode": null,
+  "phase": "fonts",
+  "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+  "process_id": 2545363,
+  "suspended": false,
+  "worker_started": false
+}

@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "passed": false,
+  "created_at": "2026-11-16T16:50:19.376872+00:00",
+  "scope": "Real Rust/Slint offline demo desktop startup and raw RGB comparison",
+  "physical_device_used": false,
+  "live_account_used": false,
+  "input_injected": false,
+  "startup_performance_benchmark": false,
+  "scale_factor": 2,
+  "controlled_state_worker_delay_ms": 1800,
+  "harness_sha256": "c85e205404baf5626e503dd038cc0bb9216278a874e8ad5f22d5b59deb17df61",
+  "selection_sha256": "2baa617aca88fa8c3f7897a255996fd1dbc9a97c6de8655f7d2641c05075c38d",
+  "inputs": {
+    "baseline": {
+      "binary": "/root/bilicomics-startup-20261117-01a1d11a/baseline/desktop/bilicomics",
+      "binary_sha256": "4285b97673f646b259962e4c01b04d130f01eb536f3924d5f90fd81634e910bf",
+      "source_root": "/root/bilicomics-startup-20261117-01a1d11a/baseline/app",
+      "source_commit": "06ad90b02edb28db43abeed3031932a91dc2f8df",
+      "source_manifest": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/baseline-source-inputs.sha256",
+      "source_manifest_sha256": "e9eafe504fcd206aa46dcb257f60329d6d49be146d69915aedd8b031b36833a4",
+      "source_archive": "/root/bilicomics-startup-20261117-01a1d11a/baseline/source.tar",
+      "source_archive_sha256": "49d81e892558e4b3fd18ecc3a1faf56e7917aa57c2f23e3baac12f6f1ff646ad"
+    },
+    "candidate": {
+      "binary": "/root/bilicomics-startup-20261117-01a1d11a/candidate/desktop/bilicomics",
+      "binary_sha256": "f9a6225638a24b1cb5f6031af6022905dc7b1325a5b37af616a261b234b9dd6c",
+      "source_root": "/root/bilicomics-startup-20261117-01a1d11a/candidate/app",
+      "source_commit": "585e571b422e9586f1e53a417cbaf330a9ec473f",
+      "source_manifest": "/root/bilicomics-startup-20261117-01a1d11a/checks-r1/candidate-source-inputs.sha256",
+      "source_manifest_sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "source_archive": "/root/bilicomics-startup-20261117-01a1d11a/candidate/source.tar",
+      "source_archive_sha256": "9a45f57fa072fd1da28cb565430d58c990148151fb204ea9157a4ceea0cf5255"
+    }
+  },
+  "source_verification": {
+    "baseline": {
+      "files": 540,
+      "required_inputs": {
+        "src/main.rs": "6fb0869cbee170497863dad68fec29af2c7e31687ba6fde54316db818d1a1f5a",
+        "src/fonts.rs": "0779f0e542338ffbadd6525e2a894d48b50935fb5baeaa829f9d46b51ca3f3e7",
+        "src/app/startup.rs": "cf4b919c0d8977c882398c97c3c620309f02834107e1fd5fc137e5c961e28b4a",
+        "ui/app.slint": "acbe004ca19c6b2dac45e88075d8b698849e6f52b763eeb84a05088a43b062e2",
+        "ui/startup.slint": "ba1ee050d906568b73aa12325e3fa888820673ae2d9639096fdaf25d59904d70",
+        "assets/i18n/startup.json": "075631aa6791ce8379c610ecd09bd40161572f901bc95d10c4cb7f0435e42bec",
+        "assets/fonts/StartupSansSC.otf": "f2cc29530d646f9c18d06047d58dc062e890756b376dbab7635472ecbadcefd9",
+        "assets/fonts/startup-manifest.json": "17bd56f5598b69cefcba1bad496082e9b5ecb37c722b72a54b543de54022f337"
+      }
+    },
+    "candidate": {
+      "files": 542,
+      "required_inputs": {
+        "src/main.rs": "c7142e2a278bc3710ffa193e96b5c854c2550ae98985539a9ef7be7f79d0c9ac",
+        "src/fonts.rs": "64d8b38574ae23cc328f93cce456857deb7892dc89b5ff1a6244af032c76e43b",
+        "src/app/startup.rs": "1d7a8b3c8690838f641216a06b5b078f961b1fba3b059870aa7bcc7bcb67b7ee",
+        "ui/app.slint": "acbe004ca19c6b2dac45e88075d8b698849e6f52b763eeb84a05088a43b062e2",
+        "ui/startup.slint": "ba1ee050d906568b73aa12325e3fa888820673ae2d9639096fdaf25d59904d70",
+        "assets/i18n/startup.json": "075631aa6791ce8379c610ecd09bd40161572f901bc95d10c4cb7f0435e42bec",
+        "assets/fonts/StartupSansSC.otf": "f2cc29530d646f9c18d06047d58dc062e890756b376dbab7635472ecbadcefd9",
+        "assets/fonts/startup-manifest.json": "17bd56f5598b69cefcba1bad496082e9b5ecb37c722b72a54b543de54022f337"
+      }
+    }
+  },
+  "bootstrap_font_coverage": {
+    "baseline": {
+      "family": "BiliComics Startup",
+      "font_sha256": "f2cc29530d646f9c18d06047d58dc062e890756b376dbab7635472ecbadcefd9",
+      "required_codepoints": 52,
+      "missing_codepoints": [],
+      "empty_required_outlines": [],
+      "localization_keys": [
+        "startup_app_name",
+        "startup_error_body",
+        "startup_error_title",
+        "startup_exit",
+        "startup_loading",
+        "startup_phase_attach",
+        "startup_phase_fonts",
+        "startup_phase_state",
+        "startup_suspended"
+      ],
+      "text_and_clipping_visual_review": "pending"
+    },
+    "candidate": {
+      "family": "BiliComics Startup",
+      "font_sha256": "f2cc29530d646f9c18d06047d58dc062e890756b376dbab7635472ecbadcefd9",
+      "required_codepoints": 52,
+      "missing_codepoints": [],
+      "empty_required_outlines": [],
+      "localization_keys": [
+        "startup_app_name",
+        "startup_error_body",
+        "startup_error_title",
+        "startup_exit",
+        "startup_loading",
+        "startup_phase_attach",
+        "startup_phase_fonts",
+        "startup_phase_state",
+        "startup_suspended"
+      ],
+      "text_and_clipping_visual_review": "pending"
+    }
+  },
+  "capture_dependency": {
+    "path": "/root/bilicomics-startup-20261117-01a1d11a/candidate/app/scripts/verification/pointer_v2.py",
+    "sha256": "6f38298f400a89682b67ac5e2201a75f5960b903be332b8262111c2d50ad2404"
+  },
+  "cases": [],
+  "comparisons": [],
+  "limitations": [
+    "No native driver, waveform, SEND, or panel completion was measured",
+    "Controlled-delay desktop durations are not physical startup performance",
+    "Character outlines and pixel identity do not replace visual clipping review"
+  ],
+  "error": "A member of the private case group lacks its ownership marker",
+  "traceback": "Traceback (most recent call last):\n  File \"/root/bilicomics-startup-20261117-01a1d11a/tools/desktop_verify-r1.py\", line 531, in main\n    report[\"cases\"].append(future.result())\n                           ~~~~~~~~~~~~~^^\n  File \"/usr/lib/python3.13/concurrent/futures/_base.py\", line 449, in result\n    return self.__get_result()\n           ~~~~~~~~~~~~~~~~~^^\n  File \"/usr/lib/python3.13/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/usr/lib/python3.13/concurrent/futures/thread.py\", line 59, in run\n    result = self.fn(*self.args, **self.kwargs)\n  File \"/root/bilicomics-startup-20261117-01a1d11a/tools/desktop_verify-r1.py\", line 517, in run_case\n    cleanup = close_case_group(wrapper, config)\n  File \"/root/bilicomics-startup-20261117-01a1d11a/tools/desktop_verify-r1.py\", line 313, in close_case_group\n    remaining = owned_group_members(group, nonce)\n  File \"/root/bilicomics-startup-20261117-01a1d11a/tools/desktop_verify-r1.py\", line 276, in owned_group_members\n    raise AssertionError(\"A member of the private case group lacks its ownership marker\")\nAssertionError: A member of the private case group lacks its ownership marker\n"
+}

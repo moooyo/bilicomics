@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "scope": "Saved synthetic application evidence only; no device/lease/application/test execution during export",
+  "source_sha256": {
+    "report": "262850b321af04d8f28eab546ba3a3be35e1fcd64c4da3c82e455039b5d91745",
+    "analysis": "9e140c7ac46489d56388485d4868f6731854d85acd38a9ac873ac793c137b770",
+    "stage_projection": "e63e10e8f6abe0c10e6854283692b24d2902696d6a49ac379b2de605a5d4df1c",
+    "compiler": "3c0653b868be7e1ff7bad053b10a16924d8fbc4a05fea4dff047a6548890739e",
+    "frozen_tools": "25335f4ed493f0ee3d6ea4245a7c5658ee4c677f9123e7ed6398095f0afd2c44",
+    "fixture": "a930027e7e297c89b61c963d2dd17d30c605bca3d4260e1805b7aea2257f3f79"
+  },
+  "images": 6,
+  "excluded": [
+    "Native before/final images and content",
+    "Raw output archives",
+    "Private owner/token/configuration records",
+    "Private logs and databases",
+    "Raw framebuffer payloads",
+    "Reference Aidoku scripts",
+    "Actual account identities"
+  ],
+  "fresh_user_touch_confirmation": "pending at export; append a separate bound response later",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 5822,
+      "sha256": "b8be6265504a4157a6159c3592cae7794143144b410a1cc53292fda82eb25a85",
+      "role": "Scoped evidence narrative",
+      "source_tag": "public-exporter",
+      "source_sha256": null,
+      "original_bytes": false
+    },
+    {
+      "path": "images/baseline-early.json",
+      "bytes": 1594,
+      "sha256": "a2dddb3f0a889d4a499a0a46041518cae67ae7705dadc74ad401697528b78c5d",
+      "role": "Framebuffer projection sidecar",
+      "source_tag": "baseline-05/content-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "images/baseline-early.png",
+      "bytes": 128999,
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "role": "Lossless application framebuffer-memory projection",
+      "source_tag": "baseline-05/content-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "images/baseline-final-logical.json",
+      "bytes": 756,
+      "sha256": "fbf1d8e17659ce538ef76216ad3ddb9714a5f29104505e3a8183c1f44839f5ef",
+      "role": "Logical snapshot sidecar",
+      "source_tag": "baseline-05/final.png",
+      "source_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "original_bytes": false
+    },
+    {
+      "path": "images/baseline-final-logical.png",
+      "bytes": 453889,
+      "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "role": "Unmodified logical Slint application PNG",
+      "source_tag": "baseline-05/final.png",
+      "source_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "original_bytes": true
+    },
+    {
+      "path": "images/baseline-settled.json",
+      "bytes": 2113,
+      "sha256": "a02a91e33f757fdf3a9211a445a79975e56929267314d5b263ad417d1be0aa55",
+      "role": "Framebuffer projection sidecar",
+      "source_tag": "baseline-05/settled-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "images/baseline-settled.png",
+      "bytes": 128999,
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "role": "Lossless application framebuffer-memory projection",
+      "source_tag": "baseline-05/settled-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "images/candidate-early.json",
+      "bytes": 1595,
+      "sha256": "04e63d997d744db41b79751391660dc7d68bad8c6d155750c465ab9e8dc55671",
+      "role": "Framebuffer projection sidecar",
+      "source_tag": "candidate-05/content-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "images/candidate-early.png",
+      "bytes": 128999,
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "role": "Lossless application framebuffer-memory projection",
+      "source_tag": "candidate-05/content-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "images/candidate-final-logical.json",
+      "bytes": 757,
+      "sha256": "b2a081dd6a937365a3cb70e17301058f92eee7310d27ff012bc917e96a9d1d6e",
+      "role": "Logical snapshot sidecar",
+      "source_tag": "candidate-05/final.png",
+      "source_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "original_bytes": false
+    },
+    {
+      "path": "images/candidate-final-logical.png",
+      "bytes": 453889,
+      "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "role": "Unmodified logical Slint application PNG",
+      "source_tag": "candidate-05/final.png",
+      "source_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "original_bytes": true
+    },
+    {
+      "path": "images/candidate-settled.json",
+      "bytes": 2115,
+      "sha256": "21306f9605e3635456dd94bb1bc8840feeea03c8e048431cd8e6a6b05e668bc4",
+      "role": "Framebuffer projection sidecar",
+      "source_tag": "candidate-05/settled-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "images/candidate-settled.png",
+      "bytes": 128999,
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "role": "Lossless application framebuffer-memory projection",
+      "source_tag": "candidate-05/settled-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "sources/compiler-profile.json",
+      "bytes": 742,
+      "sha256": "3c0653b868be7e1ff7bad053b10a16924d8fbc4a05fea4dff047a6548890739e",
+      "role": "Original shared compiler profile",
+      "source_tag": "matched-build-controls",
+      "source_sha256": "3c0653b868be7e1ff7bad053b10a16924d8fbc4a05fea4dff047a6548890739e",
+      "original_bytes": true
+    },
+    {
+      "path": "sources/frozen-tools-r2.json",
+      "bytes": 2566,
+      "sha256": "25335f4ed493f0ee3d6ea4245a7c5658ee4c677f9123e7ed6398095f0afd2c44",
+      "role": "Original frozen host-tool identity record",
+      "source_tag": "host-tools-r2",
+      "source_sha256": "25335f4ed493f0ee3d6ea4245a7c5658ee4c677f9123e7ed6398095f0afd2c44",
+      "original_bytes": true
+    },
+    {
+      "path": "stage-projection.json",
+      "bytes": 778392,
+      "sha256": "e63e10e8f6abe0c10e6854283692b24d2902696d6a49ac379b2de605a5d4df1c",
+      "role": "Original audited anonymous stage projection",
+      "source_tag": "physical-stage-analysis",
+      "source_sha256": "e63e10e8f6abe0c10e6854283692b24d2902696d6a49ac379b2de605a5d4df1c",
+      "original_bytes": true
+    },
+    {
+      "path": "summary.json",
+      "bytes": 106731,
+      "sha256": "94372821fe605d72e58ba46236b7388952909040c1a737c749cd5dcf97c190fc",
+      "role": "Public anonymous numeric and recovery projection",
+      "source_tag": "physical-startup-analysis",
+      "source_sha256": "9e140c7ac46489d56388485d4868f6731854d85acd38a9ac873ac793c137b770",
+      "original_bytes": false
+    },
+    {
+      "path": "tools/MEASUREMENT_PLAN.md",
+      "bytes": 8706,
+      "sha256": "6feab0aea92adf82590867e25651a6a9a3cb26292fb36e245ac2d9e138120be7",
+      "role": "Final BiliComics protocol or analysis source",
+      "source_tag": "host-tools-r2",
+      "source_sha256": "6feab0aea92adf82590867e25651a6a9a3cb26292fb36e245ac2d9e138120be7",
+      "original_bytes": true
+    },
+    {
+      "path": "tools/analyze_startup_ab.py",
+      "bytes": 35228,
+      "sha256": "a5b7e9e9a5d5bc94796e7f8f34d06f11142de14fd562abaa117c16dcde112d10",
+      "role": "Final BiliComics protocol or analysis source",
+      "source_tag": "host-tools-r2",
+      "source_sha256": "a5b7e9e9a5d5bc94796e7f8f34d06f11142de14fd562abaa117c16dcde112d10",
+      "original_bytes": true
+    },
+    {
+      "path": "tools/export_physical.py",
+      "bytes": 35158,
+      "sha256": "e0953f3a5c6231a51b459e269651d2e73a13c6e7092ab34319927a7ed23a26ff",
+      "role": "Saved-artifact allowlist exporter",
+      "source_tag": "public-exporter",
+      "source_sha256": "e0953f3a5c6231a51b459e269651d2e73a13c6e7092ab34319927a7ed23a26ff",
+      "original_bytes": true
+    },
+    {
+      "path": "tools/startup-clock.c",
+      "bytes": 6922,
+      "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c",
+      "role": "Final BiliComics protocol or analysis source",
+      "source_tag": "host-tools-r2",
+      "source_sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c",
+      "original_bytes": true
+    }
+  ]
+}
