@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "passed": false,
+  "started_at": "2026-11-17T14:21:58.058810+00:00",
+  "candidate_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+  "root": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1",
+  "source": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+  "output": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r1",
+  "runner": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/runner-r1.py",
+    "bytes": 26557,
+    "sha256": "4b871f512617938a83dc96073f5d3b5c3aff2600f7dcc108a34f3a1eec9ee169"
+  },
+  "shell_runner": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/run-r1.sh",
+    "bytes": 367,
+    "sha256": "0160c28f6dafe43759299c1eb1fc99eba0574067a84e8277404a0639c4facdbe"
+  },
+  "host": {
+    "hostname": "test-env",
+    "system": "Linux",
+    "machine": "x86_64"
+  },
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/scripts/verification",
+    "TMPDIR": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r1/tmp",
+    "CARGO_NET_OFFLINE": "true",
+    "BILICOMICS_REMOTE_VERIFICATION": "1",
+    "LC_ALL": "C",
+    "TZ": "UTC"
+  },
+  "cleared_inherited_environment_names": [
+    "BILICOMICS_REMOTE_VERIFICATION"
+  ],
+  "steps": [],
+  "build_performed": false,
+  "rust_compilation_performed": false,
+  "arm_binary_executed": false,
+  "physical_device_accessed": false,
+  "device_lease_acquired": false,
+  "firmware_emulator_used": false,
+  "live_account_used": false,
+  "remote_account_writes": false,
+  "device_verified": false,
+  "limitations": [
+    "Linux fixture and static archive checks do not establish native Library behavior or physical acceptance.",
+    "The application and JPEG helper are unchanged selected ARM build inputs and are never executed by this runner."
+  ],
+  "source_archive": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/source.tar",
+    "bytes": 115752960,
+    "sha256": "5c513d92e48cbcdcbf408dbc02a80a6d9678455e4e06c95a62dd63523736b4b5"
+  },
+  "archive_source_inputs": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r1/archive-source-inputs.sha256",
+    "bytes": 233704,
+    "sha256": "b2313f92ea3c8eb108727c4e614a897dc8365d0cc572075adcba48eaa28fe108",
+    "files": 1782,
+    "pax_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+    "all_extracted_bytes_identical": true,
+    "extracted_file_set_exact": true
+  },
+  "error": "RuntimeError: The complete binary build source manifest differs from the selected old build",
+  "final_integrity": {
+    "source_archive_unchanged": true,
+    "all_archived_sources_unchanged": true,
+    "extracted_file_set_exact": true,
+    "compiled_inputs_unchanged": true,
+    "frozen_artifacts_unchanged": true,
+    "runner_unchanged": true,
+    "shell_runner_unchanged": true
+  },
+  "fixture_temporary_entries_remaining": [],
+  "finished_at": "2026-11-17T14:21:58.751531+00:00",
+  "executed_unittests_including_targeted_repeat": 0
+}

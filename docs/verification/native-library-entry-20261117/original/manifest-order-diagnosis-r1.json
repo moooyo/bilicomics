@@ -1,0 +1,17 @@
+{
+  "old_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+  "run_suite_manifest_sha256": "5d7d60c1164ceffe2b6a7339990cbb49b408d134aa0c8afc62f1367fdfec461b",
+  "native_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+  "run_suite_raw_identical": false,
+  "native_raw_identical": true,
+  "old_and_run_suite_pairs_identical": true,
+  "old_and_native_pairs_identical": true,
+  "old_file_count": 544,
+  "current_file_count": 544,
+  "missing_paths": [],
+  "additional_paths": [],
+  "changed_paths": [],
+  "source_changed": false,
+  "product_changes_performed": false,
+  "device_verified": false
+}

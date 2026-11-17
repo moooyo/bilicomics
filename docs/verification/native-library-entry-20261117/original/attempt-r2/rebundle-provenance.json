@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "completed_at_utc": "2026-11-17T14:28:24.894959+00:00",
+  "operation": "refresh_fixed_library_entry_packaging_without_rebuilding",
+  "source_root": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+  "source_file_count": 544,
+  "source_manifest_sha256": "5d7d60c1164ceffe2b6a7339990cbb49b408d134aa0c8afc62f1367fdfec461b",
+  "binary_source_manifest": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/source-inputs.sha256",
+  "binary_source_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+  "complete_source_pairs_identical": true,
+  "base_archive": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+  "base_archive_sha256": "1fe8ac38613d21904d187b41e973ff80302b0c78fe69b320e3d7143a31fd53ee",
+  "base_sidecar_sha256": "49da1e24f5003a8aba32634ddbe3ecfa7337abb52a49c8bffa8c5ad38a5a1268",
+  "base_schema": "pre-library-entry-v1",
+  "output_schema": "library-entry-v1",
+  "base_entry_count": 45,
+  "output_entry_count": 49,
+  "arm_binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+  "jpeg_worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+  "binary_mapping": "Unchanged complete source inputs and identical application/helper ARM bytes from the selected base archive",
+  "added_entries": [
+    "documents/bilicomics.sh",
+    "notices/aidoku-native-library-entry/LICENSE.AIDOKU",
+    "notices/aidoku-native-library-entry/README.md",
+    "notices/aidoku-native-library-entry/UPSTREAM_FILES.json"
+  ],
+  "updated_entries": [
+    "README.md",
+    "THIRD_PARTY_NOTICES.md",
+    "bilicomics/launch.sh"
+  ],
+  "packaging_sources": [
+    {
+      "path": "README.md",
+      "source": "packaging/kindle/README.md",
+      "bytes": 18159,
+      "sha256": "ab236c8391383d0e43120ae629c64b9458e9ce53e907b08d6da58edc5cdd615a"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "source": "THIRD_PARTY_NOTICES.md",
+      "bytes": 7145,
+      "sha256": "96e7bb86fb134e72c298f05039530cb3568aa6449600ed5fd9167474841ceb8b"
+    },
+    {
+      "path": "bilicomics/launch.sh",
+      "source": "packaging/kindle/launch.sh",
+      "bytes": 78208,
+      "sha256": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4"
+    },
+    {
+      "path": "documents/bilicomics.sh",
+      "source": "packaging/kindle/document-launcher.sh",
+      "bytes": 95,
+      "sha256": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4"
+    },
+    {
+      "path": "notices/aidoku-native-library-entry/LICENSE.AIDOKU",
+      "source": "docs/research/aidoku-native-library-entry-20261117/LICENSE.AIDOKU",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "notices/aidoku-native-library-entry/README.md",
+      "source": "docs/research/aidoku-native-library-entry-20261117/README.md",
+      "bytes": 5881,
+      "sha256": "ee426e3010ca69cc4338f26b70222a0e915fa0c04ee447d4f711dbe599e72ba7"
+    },
+    {
+      "path": "notices/aidoku-native-library-entry/UPSTREAM_FILES.json",
+      "source": "docs/research/aidoku-native-library-entry-20261117/UPSTREAM_FILES.json",
+      "bytes": 2849,
+      "sha256": "a2573dc40ef37a34a9b1221bd3f08016969438aaa4ab9fb11bcb563d92bcee41"
+    }
+  ],
+  "old_launcher_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+  "new_launcher_sha256": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4",
+  "shell_script_normalization": "CRLF converted to LF; bare CR and NUL rejected",
+  "retained_entries_byte_identical": 42,
+  "existing_entry_modes_and_timestamps_preserved": true,
+  "output_archive": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+  "output_archive_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+  "output_sidecar": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics-kindle-0.1.25-dev.manifest.json",
+  "output_sidecar_sha256": "8459c34eddd34fcacca2a2ba97e559da4ab2f647dd6c1f924c73cf4f252581c5",
+  "build_performed": false,
+  "arm_binary_executed": false,
+  "physical_device_accessed": false,
+  "device_verified": false,
+  "followup": "Run verify_package.py on this exact archive and selected ARM binary before deployment"
+}

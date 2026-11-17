@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "evidence": "native-library-entry-software",
+  "status": "passed",
+  "passed": true,
+  "scope": "Stored test-env Linux fixtures and static package checks only",
+  "current_frozen_source": {
+    "commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+    "purpose": "Entry scripts, tests, package sources, and software verification candidate; not a new binary compile commit",
+    "archive_identity": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/source.tar",
+      "bytes": 115752960,
+      "sha256": "5c513d92e48cbcdcbf408dbc02a80a6d9678455e4e06c95a62dd63523736b4b5"
+    },
+    "archive_payload_exported": false,
+    "archive_file_count": 1782,
+    "git_archive_pax_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+    "archive_extracted_bytes_identical": true,
+    "archive_source_manifest": "original/attempt-r2/archive-source-inputs.sha256",
+    "archive_source_manifest_sha256": "b2313f92ea3c8eb108727c4e614a897dc8365d0cc572075adcba48eaa28fe108"
+  },
+  "binary_build_inputs": {
+    "files": 544,
+    "canonical_manifest": "original/attempt-r2/source-inputs.sha256",
+    "canonical_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+    "canonical_serialization": "native_protocol.build_input_manifest using sorted Path values",
+    "historical_manifest_copy": "original/attempt-r2/binary-build-source.sha256",
+    "canonical_raw_bytes_identical_to_historical_build": true,
+    "alternate_manifest": "original/attempt-r2/source-inputs-run-suite.sha256",
+    "alternate_serialized_sha256": "5d7d60c1164ceffe2b6a7339990cbb49b408d134aa0c8afc62f1367fdfec461b",
+    "path_digest_pairs_identical": true,
+    "ordering_diagnosis": "original/manifest-order-diagnosis-r1.json",
+    "missing_paths": [],
+    "additional_paths": [],
+    "changed_paths": []
+  },
+  "historical_binary_build": {
+    "source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+    "raw_summary": "original/attempt-r2/base-build-summary.json",
+    "summary_original_record": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/summary.json",
+    "compiler_profile": "original/attempt-r2/base-compiler-profile.json",
+    "compiler_profile_sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+    "compiler_profile_original_record": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/compiler-profile.json",
+    "application_identity": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics",
+      "bytes": 74383808,
+      "sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59"
+    },
+    "jpeg_worker_identity": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/kindle-jpeg-worker",
+      "bytes": 426672,
+      "sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    },
+    "base_archive_identity": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+      "bytes": 51556358,
+      "sha256": "1fe8ac38613d21904d187b41e973ff80302b0c78fe69b320e3d7143a31fd53ee"
+    },
+    "application_and_worker_reused_without_recompilation": true,
+    "historical_test_counts_included_in_current_totals": false,
+    "binary_payloads_exported": false
+  },
+  "current_results": {
+    "unique_lifecycle_cases": 146,
+    "new_lifecycle_cases_within_full_suite": 17,
+    "unique_package_cases": 51,
+    "unique_cases_total": 197,
+    "executions_total": 214,
+    "additional_targeted_repeat_executions": 17,
+    "repeated_cases_are_included_in_the_full_lifecycle_suite": true,
+    "suites": [
+      {
+        "label": "library-entry-lifecycle-17",
+        "status": "passed",
+        "executed_tests": 17,
+        "returncode": 0,
+        "seconds": 16.442,
+        "actual_command": [
+          "/usr/bin/python3",
+          "-B",
+          "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/packaging/tests/launcher_test.py",
+          "-v",
+          "LauncherLifecycleTests.test_library_entry_waits_for_independent_worker_and_normal_exit",
+          "LauncherLifecycleTests.test_library_entry_preserves_worker_failure_status",
+          "LauncherLifecycleTests.test_library_drive_failure_before_worker_record_finishes_owned_cleanup",
+          "LauncherLifecycleTests.test_library_hup_requests_worker_cleanup_and_waits_for_its_status",
+          "LauncherLifecycleTests.test_library_int_requests_worker_cleanup_and_waits_for_its_status",
+          "LauncherLifecycleTests.test_library_term_requests_worker_cleanup_and_waits_for_its_status",
+          "LauncherLifecycleTests.test_library_early_cancellation_waits_until_worker_cleanup_traps_exist",
+          "LauncherLifecycleTests.test_library_cancellation_before_pid_capture_remains_pending",
+          "LauncherLifecycleTests.test_library_cancellation_does_not_signal_a_changed_worker_birth",
+          "LauncherLifecycleTests.test_retiring_only_library_entry_keeps_worker_sleep_and_recovery_alive",
+          "LauncherLifecycleTests.test_second_library_cancellation_never_targets_the_first_lock_owner",
+          "LauncherLifecycleTests.test_library_entry_propagates_setsid_exec_failure",
+          "LauncherLifecycleTests.test_library_entry_refuses_nohup_when_setsid_is_missing",
+          "LauncherLifecycleTests.test_default_admission_returns_while_its_independent_worker_remains_active",
+          "LauncherLifecycleTests.test_default_admission_preserves_detached_setsid_failure_acknowledgement",
+          "LauncherLifecycleTests.test_default_admission_preserves_nohup_fallback",
+          "LauncherLifecycleTests.test_detached_argument_keeps_existing_supervisor_identity_and_status"
+        ],
+        "log": "original/attempt-r2/logs/library-entry-lifecycle-17.txt",
+        "original_log_sha256": "a07fb021b78f512a68bcb97859c12e08cb5ec78c28f5a3a21ff018470984275b"
+      },
+      {
+        "label": "launcher-full-146",
+        "status": "passed",
+        "executed_tests": 146,
+        "returncode": 0,
+        "seconds": 272.926,
+        "actual_command": [
+          "/usr/bin/python3",
+          "-B",
+          "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/packaging/tests/launcher_test.py",
+          "-v"
+        ],
+        "log": "original/attempt-r2/logs/launcher-full-146.txt",
+        "original_log_sha256": "a4651408adde18feb97ad6b20561df4de7d15b1a4de6b09a610b4d828bf473b8"
+      },
+      {
+        "label": "library-entry-package-25",
+        "status": "passed",
+        "executed_tests": 25,
+        "returncode": 0,
+        "seconds": 0.266,
+        "actual_command": [
+          "/usr/bin/python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "test_library_entry_package"
+        ],
+        "log": "original/attempt-r2/logs/library-entry-package-25.txt",
+        "original_log_sha256": "9f0d6585e0954c433b91db2f4fa4099abd0afb2e79e00b857e4d511178448222"
+      },
+      {
+        "label": "test-startup-package",
+        "status": "passed",
+        "executed_tests": 18,
+        "returncode": 0,
+        "seconds": 0.166,
+        "actual_command": [
+          "/usr/bin/python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "test_startup_package"
+        ],
+        "log": "original/attempt-r2/logs/test-startup-package.txt",
+        "original_log_sha256": "4c4883859c5686fed92998534f398c5ddc4ab9ea3c1ecaf0a85652207fafb710"
+      },
+      {
+        "label": "test-spatial-dither-package",
+        "status": "passed",
+        "executed_tests": 5,
+        "returncode": 0,
+        "seconds": 0.115,
+        "actual_command": [
+          "/usr/bin/python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "test_spatial_dither_package"
+        ],
+        "log": "original/attempt-r2/logs/test-spatial-dither-package.txt",
+        "original_log_sha256": "b22d5569eabfd17874cc8be48d6f6be20337c165d99c5b88e12c72f2c68cd987"
+      },
+      {
+        "label": "test-native-media-package",
+        "status": "passed",
+        "executed_tests": 3,
+        "returncode": 0,
+        "seconds": 0.065,
+        "actual_command": [
+          "/usr/bin/python3",
+          "-B",
+          "-m",
+          "unittest",
+          "-v",
+          "test_native_media_package"
+        ],
+        "log": "original/attempt-r2/logs/test-native-media-package.txt",
+        "original_log_sha256": "f3d05e2f82e4accee91159642f64f63bea106e2c53ec4793de5885f6ac62ae5f"
+      }
+    ],
+    "production_shell_syntax_checks": 2,
+    "strict_static_package_checks": 20,
+    "exact_archive_entries": 49,
+    "raw_summary": "original/attempt-r2/summary.json",
+    "raw_summary_sha256": "757f2b33e8cac21163a23d79c4c2acdb3a7bf94080189b47965f27757bc0a4f7"
+  },
+  "current_package": {
+    "script_and_packaging_source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+    "archive_identity": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+      "bytes": 51575115,
+      "sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882"
+    },
+    "sidecar_identity": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics-kindle-0.1.25-dev.manifest.json",
+      "bytes": 8323,
+      "sha256": "8459c34eddd34fcacca2a2ba97e559da4ab2f647dd6c1f924c73cf4f252581c5"
+    },
+    "sidecar_record": "original/attempt-r2/selected-arm/bilicomics-kindle-0.1.25-dev.manifest.json",
+    "archive_payload_exported": false,
+    "base_entries": 45,
+    "output_entries": 49,
+    "added_entries": [
+      "documents/bilicomics.sh",
+      "notices/aidoku-native-library-entry/LICENSE.AIDOKU",
+      "notices/aidoku-native-library-entry/README.md",
+      "notices/aidoku-native-library-entry/UPSTREAM_FILES.json"
+    ],
+    "updated_entries": [
+      "README.md",
+      "THIRD_PARTY_NOTICES.md",
+      "bilicomics/launch.sh"
+    ],
+    "retained_old_entries_byte_identical": 42,
+    "old_entry_modes_and_timestamps_preserved": true,
+    "selected_packaging_sources": [
+      {
+        "path": "README.md",
+        "source": "packaging/kindle/README.md",
+        "bytes": 18159,
+        "sha256": "ab236c8391383d0e43120ae629c64b9458e9ce53e907b08d6da58edc5cdd615a"
+      },
+      {
+        "path": "THIRD_PARTY_NOTICES.md",
+        "source": "THIRD_PARTY_NOTICES.md",
+        "bytes": 7145,
+        "sha256": "96e7bb86fb134e72c298f05039530cb3568aa6449600ed5fd9167474841ceb8b"
+      },
+      {
+        "path": "bilicomics/launch.sh",
+        "source": "packaging/kindle/launch.sh",
+        "bytes": 78208,
+        "sha256": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4"
+      },
+      {
+        "path": "documents/bilicomics.sh",
+        "source": "packaging/kindle/document-launcher.sh",
+        "bytes": 95,
+        "sha256": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4"
+      },
+      {
+        "path": "notices/aidoku-native-library-entry/LICENSE.AIDOKU",
+        "source": "docs/research/aidoku-native-library-entry-20261117/LICENSE.AIDOKU",
+        "bytes": 35149,
+        "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+      },
+      {
+        "path": "notices/aidoku-native-library-entry/README.md",
+        "source": "docs/research/aidoku-native-library-entry-20261117/README.md",
+        "bytes": 5881,
+        "sha256": "ee426e3010ca69cc4338f26b70222a0e915fa0c04ee447d4f711dbe599e72ba7"
+      },
+      {
+        "path": "notices/aidoku-native-library-entry/UPSTREAM_FILES.json",
+        "source": "docs/research/aidoku-native-library-entry-20261117/UPSTREAM_FILES.json",
+        "bytes": 2849,
+        "sha256": "a2573dc40ef37a34a9b1221bd3f08016969438aaa4ab9fb11bcb563d92bcee41"
+      }
+    ],
+    "rebundle_current_manifest_serialization_sha256": "5d7d60c1164ceffe2b6a7339990cbb49b408d134aa0c8afc62f1367fdfec461b",
+    "rebundle_historical_binary_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+    "provenance": "original/attempt-r2/rebundle-provenance.json",
+    "entry_metadata_audit": "original/attempt-r2/package-entry-audit.json",
+    "static_checker": "original/attempt-r2/package-verification.json",
+    "static_checker_names": [
+      "selected_input_digests",
+      "archive_crc_and_exact_allowlist",
+      "entry_sizes_digests_timestamps_and_modes",
+      "packaged_binary_matches_selected_binary",
+      "packaged_jpeg_worker_matches_selected_binary",
+      "spatial_dither_notice_provenance",
+      "startup_implementation_notice_provenance",
+      "startup_sequence_notice_provenance",
+      "formal_library_document_source",
+      "library_entry_notice_provenance",
+      "canonical_launcher_source",
+      "device_allowlist_empty",
+      "startup_font_and_notice_provenance",
+      "jpeg_decoder_notice_provenance",
+      "triangle_resize_notice_provenance",
+      "native_media_notice_provenance",
+      "arm_elf_header",
+      "no_dynamic_interpreter_or_required_shared_libraries",
+      "jpeg_worker_arm_elf_header",
+      "jpeg_worker_no_dynamic_interpreter_or_required_shared_libraries"
+    ],
+    "embedded_application_and_worker_bytes_identical": true
+  },
+  "preserved_attempts": [
+    {
+      "name": "attempt-r1",
+      "raw_status": "failed",
+      "raw_passed": false,
+      "raw_error": "RuntimeError: The complete binary build source manifest differs from the selected old build",
+      "executed_tests": 0,
+      "raw_summary": "original/attempt-r1/summary.json",
+      "raw_failure": "original/attempt-r1/failure.txt",
+      "explanation": "The verifier compared different manifest serialization orders before running tests; the stored diagnosis establishes 544 identical path/digest pairs. Raw failed fields remain unchanged."
+    },
+    {
+      "name": "attempt-r2",
+      "raw_status": "passed",
+      "raw_passed": true,
+      "raw_summary": "original/attempt-r2/summary.json",
+      "explanation": "A new runner and new output directory used native serialization for the original build fingerprint and retained the alternate mapping comparison. Product sources were unchanged."
+    }
+  ],
+  "stored_final_integrity": {
+    "source_archive_unchanged": true,
+    "all_archived_sources_unchanged": true,
+    "extracted_file_set_exact": true,
+    "compiled_inputs_unchanged": true,
+    "frozen_artifacts_unchanged": true,
+    "runner_unchanged": true,
+    "shell_runner_unchanged": true
+  },
+  "stored_fixture_temporary_entries_remaining": [],
+  "selected_verification_tool_identities": {
+    "python3": {
+      "selected_path": "/usr/bin/python3",
+      "executable": {
+        "path": "/usr/bin/python3.13",
+        "bytes": 6832784,
+        "sha256": "889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9"
+      }
+    },
+    "sh": {
+      "selected_path": "/usr/bin/sh",
+      "executable": {
+        "path": "/usr/bin/dash",
+        "bytes": 129736,
+        "sha256": "a6f559e00b69a4aa4d8cb607be18d9386c5aee55c509e2c075549dcf00e00fc7"
+      }
+    },
+    "setsid": {
+      "selected_path": "/usr/bin/setsid",
+      "executable": {
+        "path": "/usr/bin/setsid",
+        "bytes": 14728,
+        "sha256": "3b63f0ac8f72fffabd0b1ac7160a931b7cf09d21bd3676ba3e8dd8e1db029702"
+      }
+    },
+    "readelf": {
+      "selected_path": "/usr/bin/readelf",
+      "executable": {
+        "path": "/usr/bin/x86_64-linux-gnu-readelf",
+        "bytes": 777864,
+        "sha256": "4a387d80a70e6e97ef940a666fab59d5c38e7cf19ff907192fa983cb8505a7de"
+      }
+    }
+  },
+  "qualification_limits": {
+    "new_rust_compilation_in_this_software_run": false,
+    "arm_binary_executed_in_this_software_run": false,
+    "physical_device_accessed_in_this_software_run": false,
+    "device_verified": false,
+    "physical_results_included": false,
+    "performance_results_included": false,
+    "local_inventory_used_as_qualification": false,
+    "native_library_behavior_or_physical_acceptance_established": false
+  },
+  "export_operations": {
+    "stored_only": true,
+    "new_tests": false,
+    "new_builds": false,
+    "new_application_or_runtime_probes": false,
+    "new_remote_commands": false,
+    "new_device_or_lease_operations": false
+  }
+}

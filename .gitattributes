@@ -74,3 +74,7 @@
 
 # Retain the exact selected native Library entry reference and its license.
 /docs/research/aidoku-native-library-entry-20261117/** -text
+
+# Preserve the formal Library entry verification and device evidence bytes.
+/docs/verification/native-library-entry-20261117/** -text
+/docs/physical/native-library-entry-20261117/** -text

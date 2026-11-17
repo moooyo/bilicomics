@@ -1,0 +1,752 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "passed": true,
+  "started_at": "2026-11-17T14:23:29.885269+00:00",
+  "candidate_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+  "root": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1",
+  "source": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+  "output": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2",
+  "runner": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/runner-r2.py",
+    "bytes": 27568,
+    "sha256": "0fb767046da5b0cb09ded8be0b24131190b920b914a4f4fdeb304bec97115c73"
+  },
+  "shell_runner": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/run-r2.sh",
+    "bytes": 367,
+    "sha256": "8b2850b1e8d87a6c64034bb33fe4608fed4d870871c7b94e34d2ab783fad80a0"
+  },
+  "host": {
+    "hostname": "test-env",
+    "system": "Linux",
+    "machine": "x86_64"
+  },
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/scripts/verification",
+    "TMPDIR": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/tmp",
+    "CARGO_NET_OFFLINE": "true",
+    "BILICOMICS_REMOTE_VERIFICATION": "1",
+    "LC_ALL": "C",
+    "TZ": "UTC"
+  },
+  "cleared_inherited_environment_names": [
+    "BILICOMICS_REMOTE_VERIFICATION"
+  ],
+  "steps": [
+    {
+      "label": "toolchain-python",
+      "command": [
+        "/usr/bin/python3",
+        "-VV"
+      ],
+      "shell_display": "/usr/bin/python3 -VV",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 30,
+      "started_at": "2026-11-17T14:23:30.351859+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3152081,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3152081,
+        "session": 3152081,
+        "birth": "66754370"
+      },
+      "returncode": 0,
+      "seconds": 0.002,
+      "finished_at": "2026-11-17T14:23:30.353832+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/toolchain-python.log",
+        "bytes": 57,
+        "sha256": "15e4cbef35bac15a68a0d80a827c8d30a03fcc292a71071e64faa7c98f05f363"
+      }
+    },
+    {
+      "label": "toolchain-readelf",
+      "command": [
+        "readelf",
+        "--version"
+      ],
+      "shell_display": "readelf --version",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 30,
+      "started_at": "2026-11-17T14:23:30.354488+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3152082,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3152082,
+        "session": 3152082,
+        "birth": "66754370"
+      },
+      "returncode": 0,
+      "seconds": 0.002,
+      "finished_at": "2026-11-17T14:23:30.357430+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/toolchain-readelf.log",
+        "bytes": 288,
+        "sha256": "a87e30813b76f838a61852bc2943afbe4a26ba28a4b2728efb9481b50f02aff8"
+      }
+    },
+    {
+      "label": "toolchain-setsid",
+      "command": [
+        "setsid",
+        "--version"
+      ],
+      "shell_display": "setsid --version",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 30,
+      "started_at": "2026-11-17T14:23:30.357649+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3152083,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3152083,
+        "session": 3152083,
+        "birth": "66754371"
+      },
+      "returncode": 0,
+      "seconds": 0.002,
+      "finished_at": "2026-11-17T14:23:30.359718+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/toolchain-setsid.log",
+        "bytes": 30,
+        "sha256": "c49cd5aa2d2c53ed5ae827811bf75b63a3e28a936d1dde9f7c4692cd4cb362f8"
+      }
+    },
+    {
+      "label": "library-entry-lifecycle-17",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/packaging/tests/launcher_test.py",
+        "-v",
+        "LauncherLifecycleTests.test_library_entry_waits_for_independent_worker_and_normal_exit",
+        "LauncherLifecycleTests.test_library_entry_preserves_worker_failure_status",
+        "LauncherLifecycleTests.test_library_drive_failure_before_worker_record_finishes_owned_cleanup",
+        "LauncherLifecycleTests.test_library_hup_requests_worker_cleanup_and_waits_for_its_status",
+        "LauncherLifecycleTests.test_library_int_requests_worker_cleanup_and_waits_for_its_status",
+        "LauncherLifecycleTests.test_library_term_requests_worker_cleanup_and_waits_for_its_status",
+        "LauncherLifecycleTests.test_library_early_cancellation_waits_until_worker_cleanup_traps_exist",
+        "LauncherLifecycleTests.test_library_cancellation_before_pid_capture_remains_pending",
+        "LauncherLifecycleTests.test_library_cancellation_does_not_signal_a_changed_worker_birth",
+        "LauncherLifecycleTests.test_retiring_only_library_entry_keeps_worker_sleep_and_recovery_alive",
+        "LauncherLifecycleTests.test_second_library_cancellation_never_targets_the_first_lock_owner",
+        "LauncherLifecycleTests.test_library_entry_propagates_setsid_exec_failure",
+        "LauncherLifecycleTests.test_library_entry_refuses_nohup_when_setsid_is_missing",
+        "LauncherLifecycleTests.test_default_admission_returns_while_its_independent_worker_remains_active",
+        "LauncherLifecycleTests.test_default_admission_preserves_detached_setsid_failure_acknowledgement",
+        "LauncherLifecycleTests.test_default_admission_preserves_nohup_fallback",
+        "LauncherLifecycleTests.test_detached_argument_keeps_existing_supervisor_identity_and_status"
+      ],
+      "shell_display": "/usr/bin/python3 -B /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/packaging/tests/launcher_test.py -v LauncherLifecycleTests.test_library_entry_waits_for_independent_worker_and_normal_exit LauncherLifecycleTests.test_library_entry_preserves_worker_failure_status LauncherLifecycleTests.test_library_drive_failure_before_worker_record_finishes_owned_cleanup LauncherLifecycleTests.test_library_hup_requests_worker_cleanup_and_waits_for_its_status LauncherLifecycleTests.test_library_int_requests_worker_cleanup_and_waits_for_its_status LauncherLifecycleTests.test_library_term_requests_worker_cleanup_and_waits_for_its_status LauncherLifecycleTests.test_library_early_cancellation_waits_until_worker_cleanup_traps_exist LauncherLifecycleTests.test_library_cancellation_before_pid_capture_remains_pending LauncherLifecycleTests.test_library_cancellation_does_not_signal_a_changed_worker_birth LauncherLifecycleTests.test_retiring_only_library_entry_keeps_worker_sleep_and_recovery_alive LauncherLifecycleTests.test_second_library_cancellation_never_targets_the_first_lock_owner LauncherLifecycleTests.test_library_entry_propagates_setsid_exec_failure LauncherLifecycleTests.test_library_entry_refuses_nohup_when_setsid_is_missing LauncherLifecycleTests.test_default_admission_returns_while_its_independent_worker_remains_active LauncherLifecycleTests.test_default_admission_preserves_detached_setsid_failure_acknowledgement LauncherLifecycleTests.test_default_admission_preserves_nohup_fallback LauncherLifecycleTests.test_detached_argument_keeps_existing_supervisor_identity_and_status",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 1200,
+      "started_at": "2026-11-17T14:23:30.368871+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3152084,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3152084,
+        "session": 3152084,
+        "birth": "66754372"
+      },
+      "returncode": 0,
+      "executed_tests": 17,
+      "unittest_ok": true,
+      "seconds": 16.442,
+      "finished_at": "2026-11-17T14:23:46.811112+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/library-entry-lifecycle-17.log",
+        "bytes": 2981,
+        "sha256": "a07fb021b78f512a68bcb97859c12e08cb5ec78c28f5a3a21ff018470984275b"
+      }
+    },
+    {
+      "label": "launcher-full-146",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/packaging/tests/launcher_test.py",
+        "-v"
+      ],
+      "shell_display": "/usr/bin/python3 -B /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/packaging/tests/launcher_test.py -v",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 1200,
+      "started_at": "2026-11-17T14:23:46.811874+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3154810,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3154810,
+        "session": 3154810,
+        "birth": "66756016"
+      },
+      "returncode": 0,
+      "executed_tests": 146,
+      "unittest_ok": true,
+      "seconds": 272.926,
+      "finished_at": "2026-11-17T14:28:19.739609+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/launcher-full-146.log",
+        "bytes": 24994,
+        "sha256": "a4651408adde18feb97ad6b20561df4de7d15b1a4de6b09a610b4d828bf473b8"
+      }
+    },
+    {
+      "label": "library-entry-package-25",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "test_library_entry_package"
+      ],
+      "shell_display": "/usr/bin/python3 -B -m unittest -v test_library_entry_package",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 1200,
+      "started_at": "2026-11-17T14:28:19.740804+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3200934,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3200934,
+        "session": 3200934,
+        "birth": "66783309"
+      },
+      "returncode": 0,
+      "executed_tests": 25,
+      "unittest_ok": true,
+      "seconds": 0.266,
+      "finished_at": "2026-11-17T14:28:20.009174+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/library-entry-package-25.log",
+        "bytes": 4953,
+        "sha256": "9f0d6585e0954c433b91db2f4fa4099abd0afb2e79e00b857e4d511178448222"
+      }
+    },
+    {
+      "label": "test-startup-package",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "test_startup_package"
+      ],
+      "shell_display": "/usr/bin/python3 -B -m unittest -v test_startup_package",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 1200,
+      "started_at": "2026-11-17T14:28:20.010072+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3200935,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3200935,
+        "session": 3200935,
+        "birth": "66783336"
+      },
+      "returncode": 0,
+      "executed_tests": 18,
+      "unittest_ok": true,
+      "seconds": 0.166,
+      "finished_at": "2026-11-17T14:28:20.180503+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/test-startup-package.log",
+        "bytes": 3261,
+        "sha256": "4c4883859c5686fed92998534f398c5ddc4ab9ea3c1ecaf0a85652207fafb710"
+      }
+    },
+    {
+      "label": "test-spatial-dither-package",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "test_spatial_dither_package"
+      ],
+      "shell_display": "/usr/bin/python3 -B -m unittest -v test_spatial_dither_package",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 1200,
+      "started_at": "2026-11-17T14:28:20.181329+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3200936,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3200936,
+        "session": 3200936,
+        "birth": "66783353"
+      },
+      "returncode": 0,
+      "executed_tests": 5,
+      "unittest_ok": true,
+      "seconds": 0.115,
+      "finished_at": "2026-11-17T14:28:20.300585+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/test-spatial-dither-package.log",
+        "bytes": 1015,
+        "sha256": "b22d5569eabfd17874cc8be48d6f6be20337c165d99c5b88e12c72f2c68cd987"
+      }
+    },
+    {
+      "label": "test-native-media-package",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "test_native_media_package"
+      ],
+      "shell_display": "/usr/bin/python3 -B -m unittest -v test_native_media_package",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 1200,
+      "started_at": "2026-11-17T14:28:20.301604+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3200937,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3200937,
+        "session": 3200937,
+        "birth": "66783365"
+      },
+      "returncode": 0,
+      "executed_tests": 3,
+      "unittest_ok": true,
+      "seconds": 0.065,
+      "finished_at": "2026-11-17T14:28:20.368822+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/test-native-media-package.log",
+        "bytes": 605,
+        "sha256": "f3d05e2f82e4accee91159642f64f63bea106e2c53ec4793de5885f6ac62ae5f"
+      }
+    },
+    {
+      "label": "shell-syntax-launch",
+      "command": [
+        "sh",
+        "-n",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/packaging/kindle/launch.sh"
+      ],
+      "shell_display": "sh -n /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/packaging/kindle/launch.sh",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 30,
+      "started_at": "2026-11-17T14:28:20.369710+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3200938,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3200938,
+        "session": 3200938,
+        "birth": "66783372"
+      },
+      "returncode": 0,
+      "seconds": 0.002,
+      "finished_at": "2026-11-17T14:28:20.373495+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/shell-syntax-launch.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "shell-syntax-document-launcher",
+      "command": [
+        "sh",
+        "-n",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/packaging/kindle/document-launcher.sh"
+      ],
+      "shell_display": "sh -n /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/packaging/kindle/document-launcher.sh",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 30,
+      "started_at": "2026-11-17T14:28:20.374292+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3200939,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3200939,
+        "session": 3200939,
+        "birth": "66783372"
+      },
+      "returncode": 0,
+      "seconds": 0.001,
+      "finished_at": "2026-11-17T14:28:20.375910+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/shell-syntax-document-launcher.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "rebundle-library-entry",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/scripts/verification/rebundle_launcher.py",
+        "--source-root",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+        "--base-archive",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+        "--expected-base-archive-sha256",
+        "1fe8ac38613d21904d187b41e973ff80302b0c78fe69b320e3d7143a31fd53ee",
+        "--expected-binary-sha256",
+        "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+        "--expected-worker-sha256",
+        "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+        "--binary-source-manifest",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/source-inputs.sha256",
+        "--expected-binary-source-manifest-sha256",
+        "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+        "--output",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+        "--provenance-output",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/rebundle-provenance.json"
+      ],
+      "shell_display": "/usr/bin/python3 -B /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/scripts/verification/rebundle_launcher.py --source-root /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app --base-archive /root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/selected-arm/bilicomics-kindle-0.1.25-dev.zip --expected-base-archive-sha256 1fe8ac38613d21904d187b41e973ff80302b0c78fe69b320e3d7143a31fd53ee --expected-binary-sha256 04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59 --expected-worker-sha256 12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb --binary-source-manifest /root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/source-inputs.sha256 --expected-binary-source-manifest-sha256 8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6 --output /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics-kindle-0.1.25-dev.zip --provenance-output /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/rebundle-provenance.json",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 1200,
+      "started_at": "2026-11-17T14:28:20.528540+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3200940,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3200940,
+        "session": 3200940,
+        "birth": "66783388"
+      },
+      "returncode": 0,
+      "seconds": 4.378,
+      "finished_at": "2026-11-17T14:28:24.906819+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/rebundle-library-entry.log",
+        "bytes": 413,
+        "sha256": "07be78588f6e907965973f00e90210af534d193dbcf55ecca4bb7ea7ad1e5a21"
+      }
+    },
+    {
+      "label": "strict-package-verification",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/scripts/verification/verify_package.py",
+        "--archive",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+        "--binary",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics",
+        "--worker",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/kindle-jpeg-worker",
+        "--app-root",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+        "--output",
+        "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/package-verification.json",
+        "--expected-binary-sha256",
+        "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+        "--expected-worker-sha256",
+        "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+        "--expected-archive-sha256",
+        "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882"
+      ],
+      "shell_display": "/usr/bin/python3 -B /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app/scripts/verification/verify_package.py --archive /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics-kindle-0.1.25-dev.zip --binary /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics --worker /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/kindle-jpeg-worker --app-root /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app --output /root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/package-verification.json --expected-binary-sha256 04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59 --expected-worker-sha256 12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb --expected-archive-sha256 c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+      "cwd": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/app",
+      "timeout_seconds": 1200,
+      "started_at": "2026-11-17T14:28:24.932099+00:00",
+      "status": "passed",
+      "process_identity": {
+        "pid": 3200942,
+        "state": "R",
+        "parent": 3152080,
+        "group": 3200942,
+        "session": 3200942,
+        "birth": "66783828"
+      },
+      "returncode": 0,
+      "seconds": 0.919,
+      "finished_at": "2026-11-17T14:28:25.851199+00:00",
+      "log": {
+        "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/strict-package-verification.log",
+        "bytes": 144,
+        "sha256": "ee5dc0f87b7c55f6488e2b38297de3a707aef0454279c9c05618978caca76b65"
+      }
+    }
+  ],
+  "build_performed": false,
+  "rust_compilation_performed": false,
+  "arm_binary_executed": false,
+  "physical_device_accessed": false,
+  "device_lease_acquired": false,
+  "firmware_emulator_used": false,
+  "live_account_used": false,
+  "remote_account_writes": false,
+  "device_verified": false,
+  "limitations": [
+    "Linux fixture and static archive checks do not establish native Library behavior or physical acceptance.",
+    "The application and JPEG helper are unchanged selected ARM build inputs and are never executed by this runner."
+  ],
+  "source_archive": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/candidate-r1/source.tar",
+    "bytes": 115752960,
+    "sha256": "5c513d92e48cbcdcbf408dbc02a80a6d9678455e4e06c95a62dd63523736b4b5"
+  },
+  "archive_source_inputs": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/archive-source-inputs.sha256",
+    "bytes": 233704,
+    "sha256": "b2313f92ea3c8eb108727c4e614a897dc8365d0cc572075adcba48eaa28fe108",
+    "files": 1782,
+    "pax_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+    "all_extracted_bytes_identical": true,
+    "extracted_file_set_exact": true
+  },
+  "binary_input_provenance": {
+    "source_inputs": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/source-inputs.sha256",
+      "bytes": 58541,
+      "sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6"
+    },
+    "old_build_source_inputs": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/source-inputs.sha256",
+      "bytes": 58541,
+      "sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6"
+    },
+    "files": 544,
+    "byte_identical": true,
+    "canonical_serialization": "native_protocol.build_input_manifest using sorted Path values",
+    "alternate_manifest": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/source-inputs-run-suite.sha256",
+      "bytes": 58541,
+      "sha256": "5d7d60c1164ceffe2b6a7339990cbb49b408d134aa0c8afc62f1367fdfec461b"
+    },
+    "both_repository_manifest_path_digest_pairs_identical": true,
+    "different_serialization_order_is_not_a_source_change": true
+  },
+  "preserved_first_attempt": {
+    "summary": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r1/summary.json",
+      "bytes": 3187,
+      "sha256": "581f7324eb084acc9d4c96dd80e8977dbdc21dcf1023ecfd03955288396389be"
+    },
+    "diagnosis": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/manifest-order-diagnosis-r1.json",
+      "bytes": 665,
+      "sha256": "2cc7e3ba49aa29abd7efa54737a0131a94d52b145ca9785ac012e44a6e2513b6"
+    },
+    "reason": "Correct verifier serialization order without changing any source input or historical evidence"
+  },
+  "product_and_package_sources": {
+    "THIRD_PARTY_NOTICES.md": "96e7bb86fb134e72c298f05039530cb3568aa6449600ed5fd9167474841ceb8b",
+    "docs/research/aidoku-native-library-entry-20261117/LICENSE.AIDOKU": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "docs/research/aidoku-native-library-entry-20261117/README.md": "ee426e3010ca69cc4338f26b70222a0e915fa0c04ee447d4f711dbe599e72ba7",
+    "docs/research/aidoku-native-library-entry-20261117/UPSTREAM_FILES.json": "a2573dc40ef37a34a9b1221bd3f08016969438aaa4ab9fb11bcb563d92bcee41",
+    "docs/research/aidoku-native-library-entry-20261117/upstream/bed9167/packaging/kindle/document-launcher.sh": "93a5ee75ce4f1c9c3d5211d1d5234ad41e4b309845286c397384af1d3b3e9d2c",
+    "docs/research/aidoku-native-library-entry-20261117/upstream/bed9167/packaging/kindle/launch.sh": "1ae50f6bd7a8262cce185dea08c69f5bc317ed9b7bd7945c55c1f5239dcdd385",
+    "docs/research/aidoku-native-library-entry-20261117/upstream/bed9167/packaging/kpm/document-launcher.sh": "0d5c565336f1f3d3b88292589253a38ef1abcc4c39e9f68cf3ca3f04f18ea44a",
+    "docs/research/aidoku-native-library-entry-20261117/upstream/bed9167/packaging/tests/launcher_test.py": "0bd97720b442ae927e28ce3acd669269aa33e88bef7b3d48c1839db0072de763",
+    "packaging/kindle/README.md": "ab236c8391383d0e43120ae629c64b9458e9ce53e907b08d6da58edc5cdd615a",
+    "packaging/kindle/device-allowlist.example": "5c0e5070c4afc759ad040499e077cfb7807fe244030acc082b66b12a04bfd30e",
+    "packaging/kindle/device-profile.example": "870bd452c69aef489cb08fedbfcb8ed7cfdb6991fe7a4b0e3fe01c42865ddc4e",
+    "packaging/kindle/document-launcher.sh": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+    "packaging/kindle/launch.sh": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4",
+    "packaging/kindle/manifest.draft.json": "57992a251d9aa55071caf9b73022490d71bd89b641e07bd426404327374bd04e",
+    "packaging/tests/PHYSICAL_DEVICE.md": "0a6311eb3cf34a0a0cfc91f64e84720d3e5f015051de0d20b79a0d8ba9b7bb7f",
+    "packaging/tests/emulator-wrapper.sh": "0fe8895290de1c6722d2f494183bacc89a28627ec20337d222beea09a98b3223",
+    "packaging/tests/launcher_test.py": "b25d9c0cfe4922eaa50e0e4bc7ad6ebe362b0b898271741d321f2bf4ad3fa69e",
+    "packaging/tests/physical-event-wrapper.sh": "97800fbd483ef3a2146a23777cf6ff2728b7397f8dec1f436b6db2e700d6f761",
+    "packaging/tests/physical-watchdog.sh": "548c484c4c15484e5a083ee6a1ab83c15480961fc6a1653ba7edfee60714de4e",
+    "packaging/tests/physical-wrapper.sh": "0b800a91484ad5d522a18075fee16529ac34732ca4f77a84705cb34c4be15e3a",
+    "scripts/verification/account_return.py": "676c6570c46d1b77bd98834ea06a2710b564d19b506ce3fc6ea0d34a46106e05",
+    "scripts/verification/backend.py": "f6b5125af5528799695fec087dfdf43adb3080a27447427092f08036e498375c",
+    "scripts/verification/capture_uiux_baseline.py": "4be08f33c36bcd96d2f4b3b73d2b2019c457d042c85e54be79fa3a77313ce4e9",
+    "scripts/verification/design-v2-cases.json": "bc611e5eccf409e9ef51c718948d05dcfe572ef160fbed54f3148b59f3dc0161",
+    "scripts/verification/device_lease.py": "92ddf2d621d76a9773e8234cf96e22054b9cb697b0cc9ec4afd6218a43b15a12",
+    "scripts/verification/download_batching.py": "b917cc55e750b9b906d5782fd5e2b98fcdb305570462e43482299e49d8dfcb32",
+    "scripts/verification/fast_mode_ui.py": "4c9d239fc93bbb31488c5eb4f9a16e72d93d06b8322f3e1a3efc84cf4d5eb38c",
+    "scripts/verification/firmware_launch.py": "eb3ff32f14b23eccfe5f8d65486069fa387727f23ed2deac92650560472f48ee",
+    "scripts/verification/firmware_protocol.py": "be375f6b53c349f657828ac27077338358e0115f8d8ef5d4d1cc33a7f880cd4f",
+    "scripts/verification/firmware_runtime.py": "e01ee96ec969a214fbeef6b8a15594da1d7d69a7c3d29395d59cb1a5cfd24f21",
+    "scripts/verification/firmware_setup.py": "578bcbaec03c8379ecc4f47383fb3f721de5461d81d99c093814ae1b1362fa72",
+    "scripts/verification/firmware_touch_diagnostic.py": "d4be0af2824a3445558b0834e8b2404f528c3143c504b4ad28eeb3b8f2dac752",
+    "scripts/verification/firmware_touch_probe.c": "01e3f2020008908d8ff6c2b3188df367039d63cec01d11eea710746bea83374c",
+    "scripts/verification/hardware_y4.py": "05bc031a88eb36adb9fa6b42bb7fef58a100b25acfc7e32a46cebdb7b0304cd7",
+    "scripts/verification/harness_signals.py": "99d422b06cf6ff6bcd6fc18ddafca96f11a0a6f2631d517d01e0124c6cc41e2f",
+    "scripts/verification/immersive_reader.py": "e45976aa6546ea0e8c8a40b57b7cef0535dc7367bc9b8e907997ac1718cdeb7f",
+    "scripts/verification/launcher_fixtures.py": "613497a9386b2769e26e21d7444ed012b0e251de32aa73c894550fa3eddb92bd",
+    "scripts/verification/launcher_real_reader.py": "e53dc2e83f718bf4081dc4ae4d9504f0c181e64f9695d51dca4eec96f67789c4",
+    "scripts/verification/native_media_codec_mock.c": "f314b0dd980951d8a89716a4174d8ee9b393286bba5b42ded8d51f0d7c98a3ac",
+    "scripts/verification/native_media_physical_fixture.py": "2bf1b2189129fe5d9b13a456bc3a16a8ea9871c801bcb588d042a5de0be35f17",
+    "scripts/verification/native_media_settings.py": "fbfa5342049517b8636417da9546bd2382d811c707a72f04717479de89aca11f",
+    "scripts/verification/native_protocol.py": "90ceacdce5f4da9fb805cfef3b21f67b0699bcc91878ff1708eff8a9e2fdc3d8",
+    "scripts/verification/native_protocol_arm.py": "8d56c0d3c56ee95c69aba9f1b7f81f759544adef41d387c1dd37e60ebfdedddd",
+    "scripts/verification/native_protocol_reference.cjs": "d1943e6d69a335477c8af3dd8d213cadd10f0ed83dcff18170c909b57ffd9133",
+    "scripts/verification/offline_app.py": "eec94269e49c0432baed58bba7553885cdf6a14c72ba6ad49061f5a4d20789cd",
+    "scripts/verification/perf05_reader.py": "fffb63d428193a44a9a61752921469aa165bc2c2a430f903eb6e5a1c5ccd9ef9",
+    "scripts/verification/physical/device_batch.py": "9bc03577f8bcda12be5ec1e624f4c9102232ddf6f6167b560d7f820ffdfe70ef",
+    "scripts/verification/physical/distinct_reader_fixture.py": "80e7a7fb9e387b6553dcb632fe3dbde4ae67231f17be4d3fe43d93213fdaaf6a",
+    "scripts/verification/physical/offline-socket-guard-test.c": "637f34513f2850f1cd9b4edabfadd35750b631ebff5ff39fe66aeb4c9382d610",
+    "scripts/verification/physical/offline-socket-guard.c": "431c514bb478eed904e7bae15e85583540502c44fe5de91017a337bb771af7eb",
+    "scripts/verification/physical/physical-event-wrapper.sh": "9d4bbb443a5d6a0e42994f9002682622c2ab3e825e20859110f90bbfe3e2b591",
+    "scripts/verification/physical/physical-watchdog.sh": "b7c70435781800333d99743e82e8f4d87ebe895840710bcd938f5a9541f1dd1d",
+    "scripts/verification/physical/physical-wrapper.sh": "5d531cf198e2a0a5d9b321cd0a853f1e7c22afa49fe359ead5dae85d28a5b3e4",
+    "scripts/verification/physical_device.py": "4a26539fe6893551ba88552eb86248fa8a2800a152987357fb79bc79486b85b6",
+    "scripts/verification/physical_framebuffer.c": "6cc9f90f4f986d13f3b15d95301112f80cc09b631b11115eb922225fdd3ee49f",
+    "scripts/verification/pointer_v2.py": "6f38298f400a89682b67ac5e2201a75f5960b903be332b8262111c2d50ad2404",
+    "scripts/verification/power_relay.py": "5743951ad2757b5fbab20c192f014b5808ca28c24533481614789d006a7344b8",
+    "scripts/verification/production_flow.py": "1e3fdc6a7232ed0969c6646f6e5c4ec369d3d38a9548f4696a8beb1043fc898b",
+    "scripts/verification/public_catalog.py": "900ec72018ce32f77e986711f6ae784a6141328dc3f1b4ea698a43772e7ce537",
+    "scripts/verification/reader_guest_fixtures.py": "044800d8d4a084f1108b9c61a6580f5163ae367fb461de52492554ffc10dfcfc",
+    "scripts/verification/reader_v2_runtime.py": "1fcefa68ef62bc580d4dd021a682ad5b2883bdadb88a84bd2c6802cdef7924c4",
+    "scripts/verification/rebundle_launcher.py": "50e68a63dd2bafe5570ec6814af0174cc82c9a283e6238ed5de799ffb5947ef9",
+    "scripts/verification/render_states.py": "effa9c5a059b934bbddbf8557f573bcdf68d68f329b01f6f0849bd1109523bf4",
+    "scripts/verification/resource_fixture.py": "e76bbf180e942eaa0d2fef2bd7dabbe73ac199cd4ed1122e52710d8a81c7b5d7",
+    "scripts/verification/resource_regression.py": "bf76ec3e4c4e288413db33ac563371a8d99152e8310fb3e62baa5efa22be7ed6",
+    "scripts/verification/run_suite.py": "0eb2ac52503a8fbc7a214f07b6c1f07232730e4badfee5aa64f56e9b03259ac6",
+    "scripts/verification/sleep_maintenance.py": "ca61fc6f86f7a0c95f15a8b567027c31a46359da695cd9eaa880183cc778efc4",
+    "scripts/verification/spatial_dither_ui.py": "0a401eb7d688563463488f51baa768bdd3081e41441b491732157a758cc0d181",
+    "scripts/verification/startup_frames.py": "f36e9198fdddcb78d661e9ff23236115356b4104dce9b454436c6f994f7d7239",
+    "scripts/verification/test_backend_results.py": "1b9298306f79e186707e9cb5aec0a3ad1a74d6b852dab9bf0b99d2f190dc2918",
+    "scripts/verification/test_checkpoint_polling.py": "4269e9b94acc255a5198d7b7af744a7d32555c2d129ad06d9bdfc3f1676b81aa",
+    "scripts/verification/test_confirmation_recovery.py": "0af6a7b8adf46eb53fc9578dbd14f1915d788e960d782c47cc8d3b0940d678fd",
+    "scripts/verification/test_device_batch.py": "122d39828b6527231e2bb37d3de10cc7582041608f0f5d3d688b8b57938000ae",
+    "scripts/verification/test_device_lease.py": "17819d3ba8744805600f844ee946aed28b7cf084b4e01f16882e452715747202",
+    "scripts/verification/test_distinct_reader_fixture.py": "e5820af50104d96fedcf6a023d928fad45bbbcb14849a02629828224a0f66642",
+    "scripts/verification/test_library_entry_package.py": "143e50fb4d66d720dc14a4bb83e426c0fab1323962563eddc327772c7f03f2d6",
+    "scripts/verification/test_native_identity_shell.py": "527efdc2d27535b4fa89f80f5df1d689e7b2894154c0c18f44f6664d4a17b2e3",
+    "scripts/verification/test_native_media_codec.py": "3653f2432d4bca8c0d16fcdf3cbac6f3bbea85a2746aed10504194114e8b7ec0",
+    "scripts/verification/test_native_media_package.py": "f98f513d8721f74fbe91dbc0be3bbd35dbb16b2af3080c60c1078620f7c5c802",
+    "scripts/verification/test_offline_physical_fixture.py": "27da3bbabc3a68f1067a38f3aae37313c9574443ad310e35608841a210e4e00e",
+    "scripts/verification/test_offline_socket_guard.py": "3320c7f5ec5aef6d7bb95933dc3095b3dfc6434631d6de02510cd1b2ebce65d2",
+    "scripts/verification/test_physical_fixture_wrapper.py": "70f12f914c6296245b8efd88183783bed2f84f1685dda0ef6fb11c9b47305682",
+    "scripts/verification/test_physical_framebuffer.py": "ee70c6e9d25d970c27ce1232d7213153802b125d0a2be6a68b1b494f7e346e9d",
+    "scripts/verification/test_physical_harness.py": "68217e56d7f2b04848a3a4fe6b00a613e94f7f7701c39d2ae922fe09ecb1c0a1",
+    "scripts/verification/test_physical_media_deploy.py": "557661c091aae2ab8b85162e44e44a954010e58895a35a1b25cc3b493c9174d2",
+    "scripts/verification/test_physical_recovery.py": "f115cc6ec10cc0f9cd7c12253ec4b5da9b825c37b755d93e6d650a9992cfd380",
+    "scripts/verification/test_spatial_dither_package.py": "481b790b093d4d683150487cb88b01dd9f7b050e7b57684dc8bc8e8f51170a90",
+    "scripts/verification/test_startup_package.py": "f3df57b75c431f3ec05c77aa0924907aeee13f6f7c31fd6c13e9bf3ac5852b99",
+    "scripts/verification/ui_refinement.py": "786f8e15ef3095a9eabb6bd9c9e656229e8979dff00cd02eb23d4fdc0c0931ec",
+    "scripts/verification/verify_package.py": "8fa8f05f407a5fc0f8aa09316c35cb40c724bc0bb0c1bfcc1d014619631583b5",
+    "scripts/verification/verify_uiux_baseline.py": "f7bf5e019b420d81b073e0f1255a80ee2b58fb7edd9577d22a1fc34ffed1e1df"
+  },
+  "verification_tools": {
+    "python3": {
+      "selected_path": "/usr/bin/python3",
+      "executable": {
+        "path": "/usr/bin/python3.13",
+        "bytes": 6832784,
+        "sha256": "889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9"
+      }
+    },
+    "sh": {
+      "selected_path": "/usr/bin/sh",
+      "executable": {
+        "path": "/usr/bin/dash",
+        "bytes": 129736,
+        "sha256": "a6f559e00b69a4aa4d8cb607be18d9386c5aee55c509e2c075549dcf00e00fc7"
+      }
+    },
+    "setsid": {
+      "selected_path": "/usr/bin/setsid",
+      "executable": {
+        "path": "/usr/bin/setsid",
+        "bytes": 14728,
+        "sha256": "3b63f0ac8f72fffabd0b1ac7160a931b7cf09d21bd3676ba3e8dd8e1db029702"
+      }
+    },
+    "readelf": {
+      "selected_path": "/usr/bin/readelf",
+      "executable": {
+        "path": "/usr/bin/x86_64-linux-gnu-readelf",
+        "bytes": 777864,
+        "sha256": "4a387d80a70e6e97ef940a666fab59d5c38e7cf19ff907192fa983cb8505a7de"
+      }
+    }
+  },
+  "base_build_toolchain_record": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/base-compiler-profile.json",
+    "bytes": 3882,
+    "sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955"
+  },
+  "base_build_summary": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/base-build-summary.json",
+    "bytes": 40159,
+    "sha256": "1f657d3c00494362b4518ea2535326d60a567bbcdf1ed64a8e4989a2b184aaae"
+  },
+  "selected_arm_binary": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics",
+    "bytes": 74383808,
+    "sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59"
+  },
+  "selected_jpeg_worker": {
+    "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/kindle-jpeg-worker",
+    "bytes": 426672,
+    "sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+  },
+  "base_archive": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+    "bytes": 51556358,
+    "sha256": "1fe8ac38613d21904d187b41e973ff80302b0c78fe69b320e3d7143a31fd53ee"
+  },
+  "base_archive_sidecar": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/selected-arm/bilicomics-kindle-0.1.25-dev.manifest.json",
+    "bytes": 7611,
+    "sha256": "49da1e24f5003a8aba32634ddbe3ecfa7337abb52a49c8bffa8c5ad38a5a1268"
+  },
+  "package": {
+    "archive": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+      "bytes": 51575115,
+      "sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882"
+    },
+    "sidecar": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics-kindle-0.1.25-dev.manifest.json",
+      "bytes": 8323,
+      "sha256": "8459c34eddd34fcacca2a2ba97e559da4ab2f647dd6c1f924c73cf4f252581c5"
+    },
+    "provenance": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/rebundle-provenance.json",
+      "bytes": 4472,
+      "sha256": "f0d8b71bbc0a53f30d181f3fcd32578b41a15427ac0b51b88063ecbda06d3f83"
+    },
+    "verification": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/package-verification.json",
+      "bytes": 18180,
+      "sha256": "5073842c66c5c3b03b94699085c1d739c90eaef3a455a1010410551193dceca1"
+    },
+    "entry_audit": {
+      "path": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/package-entry-audit.json",
+      "bytes": 18627,
+      "sha256": "a891f921282a322806bd5b2b734a8fd1a77e7176664e89098a953810e6354440"
+    },
+    "entry_count": 49,
+    "strict_checker_checks": 20,
+    "device_verified": false
+  },
+  "final_integrity": {
+    "source_archive_unchanged": true,
+    "all_archived_sources_unchanged": true,
+    "extracted_file_set_exact": true,
+    "compiled_inputs_unchanged": true,
+    "frozen_artifacts_unchanged": true,
+    "runner_unchanged": true,
+    "shell_runner_unchanged": true
+  },
+  "fixture_temporary_entries_remaining": [],
+  "finished_at": "2026-11-17T14:28:27.494197+00:00",
+  "executed_unittests_including_targeted_repeat": 214
+}

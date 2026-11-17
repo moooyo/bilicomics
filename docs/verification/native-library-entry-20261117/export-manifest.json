@@ -1,0 +1,494 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-11-17T14:41:44.9855958+00:00",
+  "export_scope": "Fixed-allowlist export of already stored software text evidence; no new tests, builds, runtime, remote, device, or lease operations",
+  "exporter_origin": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\export-software-r1.ps1",
+  "exporter_sha256": "550a094fa6d58d70e5598ee944932675f1c7d886a6fd5d82215c0893c613607a",
+  "script_and_package_source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+  "reused_binary_build_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+  "payload_file_count": 39,
+  "raw_file_count": 37,
+  "derived_file_count": 2,
+  "total_file_count_including_manifest_and_digest": 41,
+  "fixed_exported_file_allowlist": [
+    "export-manifest.json",
+    "export-manifest.sha256",
+    "original/attempt-r1/archive-source-inputs.sha256",
+    "original/attempt-r1/failure.txt",
+    "original/attempt-r1/source-inputs.sha256",
+    "original/attempt-r1/summary.json",
+    "original/attempt-r2/archive-source-inputs.sha256",
+    "original/attempt-r2/base-build-summary.json",
+    "original/attempt-r2/base-compiler-profile.json",
+    "original/attempt-r2/binary-build-source.sha256",
+    "original/attempt-r2/logs/launcher-full-146.txt",
+    "original/attempt-r2/logs/library-entry-lifecycle-17.txt",
+    "original/attempt-r2/logs/library-entry-package-25.txt",
+    "original/attempt-r2/logs/rebundle-library-entry.txt",
+    "original/attempt-r2/logs/shell-syntax-document-launcher.txt",
+    "original/attempt-r2/logs/shell-syntax-launch.txt",
+    "original/attempt-r2/logs/strict-package-verification.txt",
+    "original/attempt-r2/logs/test-native-media-package.txt",
+    "original/attempt-r2/logs/test-spatial-dither-package.txt",
+    "original/attempt-r2/logs/test-startup-package.txt",
+    "original/attempt-r2/logs/toolchain-python.txt",
+    "original/attempt-r2/logs/toolchain-readelf.txt",
+    "original/attempt-r2/logs/toolchain-setsid.txt",
+    "original/attempt-r2/package-entry-audit.json",
+    "original/attempt-r2/package-verification.json",
+    "original/attempt-r2/package-verification.readelf.txt",
+    "original/attempt-r2/package-verification.worker.readelf.txt",
+    "original/attempt-r2/rebundle-provenance.json",
+    "original/attempt-r2/selected-arm/bilicomics-kindle-0.1.25-dev.manifest.json",
+    "original/attempt-r2/source-inputs-run-suite.sha256",
+    "original/attempt-r2/source-inputs.sha256",
+    "original/attempt-r2/summary.json",
+    "original/helpers/diagnose-manifest-r1.py",
+    "original/helpers/export-software-r1.ps1",
+    "original/helpers/run-r1.sh",
+    "original/helpers/run-r2.sh",
+    "original/helpers/runner-r1.py",
+    "original/helpers/runner-r2.py",
+    "original/manifest-order-diagnosis-r1.json",
+    "README.md",
+    "software-summary.json"
+  ],
+  "self_reference_policy": "The manifest and its digest are excluded from files; export-manifest.sha256 binds the manifest bytes",
+  "files": [
+    {
+      "path": "original/attempt-r1/archive-source-inputs.sha256",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r1\\archive-source-inputs.sha256",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r1/archive-source-inputs.sha256"
+      },
+      "bytes": 233704,
+      "sha256": "b2313f92ea3c8eb108727c4e614a897dc8365d0cc572075adcba48eaa28fe108",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r1/failure.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r1\\failure.txt",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r1/failure.txt"
+      },
+      "bytes": 889,
+      "sha256": "c44f223dd59c817400abe124975bc56195c1bf3fa511d33720d508b7b4f1adfe",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r1/source-inputs.sha256",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r1\\source-inputs.sha256",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r1/source-inputs.sha256"
+      },
+      "bytes": 58541,
+      "sha256": "5d7d60c1164ceffe2b6a7339990cbb49b408d134aa0c8afc62f1367fdfec461b",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r1/summary.json",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r1\\summary.json",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r1/summary.json"
+      },
+      "bytes": 3187,
+      "sha256": "581f7324eb084acc9d4c96dd80e8977dbdc21dcf1023ecfd03955288396389be",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/archive-source-inputs.sha256",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\archive-source-inputs.sha256",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/archive-source-inputs.sha256"
+      },
+      "bytes": 233704,
+      "sha256": "b2313f92ea3c8eb108727c4e614a897dc8365d0cc572075adcba48eaa28fe108",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/base-build-summary.json",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\base-build-summary.json",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/base-build-summary.json"
+      },
+      "bytes": 40159,
+      "sha256": "1f657d3c00494362b4518ea2535326d60a567bbcdf1ed64a8e4989a2b184aaae",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/base-compiler-profile.json",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\base-compiler-profile.json",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/base-compiler-profile.json"
+      },
+      "bytes": 3882,
+      "sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/binary-build-source.sha256",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\binary-build-source.sha256",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/binary-build-source.sha256"
+      },
+      "bytes": 58541,
+      "sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/logs/launcher-full-146.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\launcher-full-146.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/launcher-full-146.log"
+      },
+      "bytes": 24994,
+      "sha256": "a4651408adde18feb97ad6b20561df4de7d15b1a4de6b09a610b4d828bf473b8",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/library-entry-lifecycle-17.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\library-entry-lifecycle-17.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/library-entry-lifecycle-17.log"
+      },
+      "bytes": 2981,
+      "sha256": "a07fb021b78f512a68bcb97859c12e08cb5ec78c28f5a3a21ff018470984275b",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/library-entry-package-25.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\library-entry-package-25.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/library-entry-package-25.log"
+      },
+      "bytes": 4953,
+      "sha256": "9f0d6585e0954c433b91db2f4fa4099abd0afb2e79e00b857e4d511178448222",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/rebundle-library-entry.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\rebundle-library-entry.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/rebundle-library-entry.log"
+      },
+      "bytes": 413,
+      "sha256": "07be78588f6e907965973f00e90210af534d193dbcf55ecca4bb7ea7ad1e5a21",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/shell-syntax-document-launcher.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\shell-syntax-document-launcher.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/shell-syntax-document-launcher.log"
+      },
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/shell-syntax-launch.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\shell-syntax-launch.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/shell-syntax-launch.log"
+      },
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/strict-package-verification.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\strict-package-verification.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/strict-package-verification.log"
+      },
+      "bytes": 144,
+      "sha256": "ee5dc0f87b7c55f6488e2b38297de3a707aef0454279c9c05618978caca76b65",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/test-native-media-package.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\test-native-media-package.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/test-native-media-package.log"
+      },
+      "bytes": 605,
+      "sha256": "f3d05e2f82e4accee91159642f64f63bea106e2c53ec4793de5885f6ac62ae5f",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/test-spatial-dither-package.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\test-spatial-dither-package.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/test-spatial-dither-package.log"
+      },
+      "bytes": 1015,
+      "sha256": "b22d5569eabfd17874cc8be48d6f6be20337c165d99c5b88e12c72f2c68cd987",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/test-startup-package.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\test-startup-package.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/test-startup-package.log"
+      },
+      "bytes": 3261,
+      "sha256": "4c4883859c5686fed92998534f398c5ddc4ab9ea3c1ecaf0a85652207fafb710",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/toolchain-python.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\toolchain-python.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/toolchain-python.log"
+      },
+      "bytes": 57,
+      "sha256": "15e4cbef35bac15a68a0d80a827c8d30a03fcc292a71071e64faa7c98f05f363",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/toolchain-readelf.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\toolchain-readelf.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/toolchain-readelf.log"
+      },
+      "bytes": 288,
+      "sha256": "a87e30813b76f838a61852bc2943afbe4a26ba28a4b2728efb9481b50f02aff8",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/logs/toolchain-setsid.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\logs\\toolchain-setsid.log",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/logs/toolchain-setsid.log"
+      },
+      "bytes": 30,
+      "sha256": "c49cd5aa2d2c53ed5ae827811bf75b63a3e28a936d1dde9f7c4692cd4cb362f8",
+      "transformation": "none to bytes; destination .log suffix renamed to .txt"
+    },
+    {
+      "path": "original/attempt-r2/package-entry-audit.json",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\package-entry-audit.json",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/package-entry-audit.json"
+      },
+      "bytes": 18627,
+      "sha256": "a891f921282a322806bd5b2b734a8fd1a77e7176664e89098a953810e6354440",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/package-verification.json",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\package-verification.json",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/package-verification.json"
+      },
+      "bytes": 18180,
+      "sha256": "5073842c66c5c3b03b94699085c1d739c90eaef3a455a1010410551193dceca1",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/package-verification.readelf.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\package-verification.readelf.txt",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/package-verification.readelf.txt"
+      },
+      "bytes": 2523,
+      "sha256": "80a512ffe5c15217414b1886dd5045e8125da7252607ca776ddfed8d26685ff8",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/package-verification.worker.readelf.txt",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\package-verification.worker.readelf.txt",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/package-verification.worker.readelf.txt"
+      },
+      "bytes": 2548,
+      "sha256": "fa668a46935ad8829e1d7d94944a07c2e601dec8518dabb68e69639b9d5d56ff",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/rebundle-provenance.json",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\rebundle-provenance.json",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/rebundle-provenance.json"
+      },
+      "bytes": 4472,
+      "sha256": "f0d8b71bbc0a53f30d181f3fcd32578b41a15427ac0b51b88063ecbda06d3f83",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/selected-arm/bilicomics-kindle-0.1.25-dev.manifest.json",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\selected-arm\\bilicomics-kindle-0.1.25-dev.manifest.json",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/selected-arm/bilicomics-kindle-0.1.25-dev.manifest.json"
+      },
+      "bytes": 8323,
+      "sha256": "8459c34eddd34fcacca2a2ba97e559da4ab2f647dd6c1f924c73cf4f252581c5",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/source-inputs-run-suite.sha256",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\source-inputs-run-suite.sha256",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/source-inputs-run-suite.sha256"
+      },
+      "bytes": 58541,
+      "sha256": "5d7d60c1164ceffe2b6a7339990cbb49b408d134aa0c8afc62f1367fdfec461b",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/source-inputs.sha256",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\source-inputs.sha256",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/source-inputs.sha256"
+      },
+      "bytes": 58541,
+      "sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/attempt-r2/summary.json",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\checks-r2\\summary.json",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/checks-r2/summary.json"
+      },
+      "bytes": 40889,
+      "sha256": "757f2b33e8cac21163a23d79c4c2acdb3a7bf94080189b47965f27757bc0a4f7",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/helpers/diagnose-manifest-r1.py",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\diagnose-manifest-r1.py",
+        "original_record": "Stored helper supplied through stdin to Python on the designated worker"
+      },
+      "bytes": 2073,
+      "sha256": "b6a6b99b87b59150880b1c43ca71edaed5f2f4768c065a0b5ee29383f99d3e55",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/helpers/export-software-r1.ps1",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\export-software-r1.ps1",
+        "original_record": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\export-software-r1.ps1"
+      },
+      "bytes": 20033,
+      "sha256": "550a094fa6d58d70e5598ee944932675f1c7d886a6fd5d82215c0893c613607a",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/helpers/run-r1.sh",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\run-r1.sh",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/run-r1.sh"
+      },
+      "bytes": 367,
+      "sha256": "0160c28f6dafe43759299c1eb1fc99eba0574067a84e8277404a0639c4facdbe",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/helpers/run-r2.sh",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\run-r2.sh",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/run-r2.sh"
+      },
+      "bytes": 367,
+      "sha256": "8b2850b1e8d87a6c64034bb33fe4608fed4d870871c7b94e34d2ab783fad80a0",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/helpers/runner-r1.py",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\runner-r1.py",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/runner-r1.py"
+      },
+      "bytes": 26557,
+      "sha256": "4b871f512617938a83dc96073f5d3b5c3aff2600f7dcc108a34f3a1eec9ee169",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/helpers/runner-r2.py",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\runner-r2.py",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/runner-r2.py"
+      },
+      "bytes": 27568,
+      "sha256": "0fb767046da5b0cb09ded8be0b24131190b920b914a4f4fdeb304bec97115c73",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "original/manifest-order-diagnosis-r1.json",
+      "kind": "raw",
+      "origin": {
+        "stored_local_file": "D:\\Code\\bilicomics\\artifacts\\verification\\native-library-entry-20261117\\software\\manifest-order-diagnosis-r1.json",
+        "original_record": "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/manifest-order-diagnosis-r1.json"
+      },
+      "bytes": 665,
+      "sha256": "2cc7e3ba49aa29abd7efa54737a0131a94d52b145ca9785ac012e44a6e2513b6",
+      "transformation": "none; exact original bytes; destination path relocation only"
+    },
+    {
+      "path": "README.md",
+      "kind": "derived",
+      "origin": [
+        "software-summary.json",
+        "original/attempt-r1/summary.json",
+        "original/attempt-r2/summary.json"
+      ],
+      "bytes": 4078,
+      "sha256": "9a2916c11f4d8e2e19178c07b4a8c168fd9a36ad1833e372ad9d283e999da5eb",
+      "transformation": "English explanation derived only from the exported stored records"
+    },
+    {
+      "path": "software-summary.json",
+      "kind": "derived",
+      "origin": [
+        "original/attempt-r1/summary.json",
+        "original/attempt-r2/summary.json",
+        "original/manifest-order-diagnosis-r1.json",
+        "original/attempt-r2/base-build-summary.json",
+        "original/attempt-r2/rebundle-provenance.json",
+        "original/attempt-r2/package-entry-audit.json",
+        "original/attempt-r2/package-verification.json"
+      ],
+      "bytes": 16357,
+      "sha256": "b2129a5252f0e649c67e4ebfc5d7849670691072cb8a8b40d1c732614aafdc8f",
+      "transformation": "Selected identities, scope, and counts derived only from the enumerated stored records; raw reports are not rewritten"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/runner-r1.py", line 413, in execute
+    self.prepare_sources()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/runner-r1.py", line 266, in prepare_sources
+    require(sha256(old) == SOURCE_SHA256 and current.read_bytes() == old.read_bytes(),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "The complete binary build source manifest differs from the selected old build")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/bilicomics-native-library-entry-20261117-01a1d11a-r1/runner-r1.py", line 65, in require
+    raise RuntimeError(message)
+RuntimeError: The complete binary build source manifest differs from the selected old build
