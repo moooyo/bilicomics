@@ -13,7 +13,7 @@ use std::{
 
 use anyhow::{Context, Result, bail};
 use bilicomics::{
-    app::{App, AppOptions, PreparedApp},
+    app::{App, AppOptions, PreparedApp, PreparedAppMetadata},
     fonts::{Fonts, PreparedFont},
     native_presentation::{NativeOutputMode, NativePortraitDirection, NativeResumePresentation},
     platform::{self, DeviceProfile, Platform, RefreshReason},
@@ -29,8 +29,12 @@ use slint::{ComponentHandle, Model};
 
 mod runtime_wakeup;
 mod sleep_cover_runtime;
+mod startup_admission;
 use runtime_wakeup::{RuntimeWake, StartupContinuation, TraceMoment, trace_moment};
 use sleep_cover_runtime::{CoverProgress, SleepCoverRuntime};
+use startup_admission::{
+    CoverPreparationGate, StartupAdmission, StartupLifetime, StartupUiTurn, complete_after_ui_turn,
+};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -75,6 +79,9 @@ struct Arguments {
     /// Delay only the isolated demonstration worker for startup verification.
     #[arg(long, hide = true)]
     startup_delay_ms: Option<u64>,
+    /// Keep isolated startup fixtures on the original serial preparation path.
+    #[arg(long, hide = true, requires_all = ["demo", "offline"])]
+    serial_startup_preparation: bool,
     /// Record power transitions without credentials or network payloads.
     #[arg(long)]
     lifecycle_trace: Option<PathBuf>,
@@ -259,6 +266,38 @@ enum StartupEvent {
     State(PreparedApp, TraceMoment),
     Stage(&'static str, TraceMoment),
     Failed(String),
+}
+
+/// Sendable worker inputs; the receiver retains no UI-thread-only handle.
+#[derive(Clone)]
+struct StartupWorkers {
+    admission: StartupAdmission,
+    handle: tokio::runtime::Handle,
+    options: AppOptions,
+    native: bool,
+    delay_ms: u64,
+    cancelled: Arc<AtomicBool>,
+    sender: mpsc::Sender<StartupEvent>,
+    wake: RuntimeWake,
+    trace_path: Option<PathBuf>,
+    covers: Option<CoverPreparationGate>,
+}
+
+impl StartupWorkers {
+    fn start(&self) {
+        self.admission.start_once(|| {
+            record_startup_stage(self.trace_path.as_deref(), "workers_started", trace_moment(), None);
+            if let Some(covers) = self.covers.as_ref() {
+                start_overlapped_startup_workers(&self.handle, self.options.clone(), self.native,
+                    self.delay_ms, self.cancelled.clone(), self.sender.clone(), self.wake.clone(),
+                    self.trace_path.is_some(), covers.clone());
+            } else {
+                start_startup_workers(&self.handle, self.options.clone(), self.native,
+                    self.delay_ms, self.cancelled.clone(), self.sender.clone(), self.wake.clone(),
+                    self.trace_path.is_some());
+            }
+        });
+    }
 }
 
 fn main() -> std::process::ExitCode {
@@ -614,6 +653,9 @@ fn run(arguments: Arguments) -> Result<()> {
     });
     let failures = Rc::new(RefCell::new(Vec::<String>::new()));
     let cancelled = Arc::new(AtomicBool::new(false));
+    let cover_gate = CoverPreparationGate::default();
+    // Drop before the runtime on every error path, including a failed show().
+    let mut startup_lifetime = StartupLifetime::new(cancelled.clone(), cover_gate.clone());
     let close_control = control.clone();
     ui.window().on_close_requested(move || {
         close_control.quitting.set(true);
@@ -633,6 +675,43 @@ fn run(arguments: Arguments) -> Result<()> {
     let startup_capture = arguments.capture_startup.clone();
     let startup_delay = arguments.startup_delay_ms.unwrap_or_default();
     let startup_trace = arguments.lifecycle_trace.clone();
+    let overlap_startup_preparation = if arguments.serial_startup_preparation {
+        false
+    } else {
+        #[cfg(all(feature = "kindle", target_os = "linux"))]
+        { native_backend.is_some() }
+        #[cfg(not(all(feature = "kindle", target_os = "linux")))]
+        { false }
+    };
+    let startup_workers = StartupWorkers {
+        admission: StartupAdmission::new(cancelled.clone()),
+        handle: handle.clone(),
+        options,
+        native: platform.is_kindle,
+        delay_ms: startup_delay,
+        cancelled: cancelled.clone(),
+        sender: startup_sender,
+        wake: wake.clone(),
+        trace_path: startup_trace.clone(),
+        covers: overlap_startup_preparation.then(|| cover_gate.clone()),
+    };
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    if let Some(backend) = native_backend.as_ref() {
+        let first_frame_signal = backend.first_frame_signal_handle();
+        let retire_signal = first_frame_signal.clone();
+        startup_lifetime.set_retirement(move || retire_signal.retire());
+        if overlap_startup_preparation {
+            let (first_frame_sender, first_frame_receiver) = mpsc::channel();
+            first_frame_signal.arm(first_frame_sender)
+                .context("Arm background preparation after the first native full SEND")?;
+            let early_handle = handle.clone();
+            let early_workers = startup_workers.clone();
+            startup_lifetime.wait_for_signal(first_frame_receiver, move || {
+                // This small receiver thread only queues work onto the runtime.
+                early_handle.spawn(async move { early_workers.start(); });
+            }).context("Start the cancelable first-frame receiver")?;
+        }
+    }
     let trace_demo_ui = arguments.demo;
     let automatic_error_exit = arguments.capture.is_some()
         || arguments.actions.is_some()
@@ -654,7 +733,7 @@ fn run(arguments: Arguments) -> Result<()> {
     let timer = slint::Timer::default();
     let tick_wake = wake.clone();
     let startup_continue = StartupContinuation::new(wake.clone());
-    let mut worker_started = false;
+    let mut startup_ui_turn = StartupUiTurn::new(cover_gate);
     let mut fonts = Fonts::default();
     let mut prepared = None::<PreparedApp>;
     let mut fonts_registered = false;
@@ -710,7 +789,7 @@ fn run(arguments: Arguments) -> Result<()> {
                         if let Err(error) = capture_startup_frame(
                             &ui,
                             &output,
-                            worker_started,
+                            startup_workers.admission.started(),
                             tick_control.native_epdc_mode.get(),
                         ) {
                             tick_failures
@@ -720,18 +799,15 @@ fn run(arguments: Arguments) -> Result<()> {
                         captured_startup += 1;
                     }
                 }
-                if !worker_started {
+                if !startup_ui_turn.has_yielded() {
                     update_startup_activity(&ui, &tick_platform, &mut frame, &mut last_animation);
                     if rendering_notifier && !first_rendered.load(Ordering::Acquire) {
                         record_performance_gate(&mut performance_gate, "first_scene");
                         return;
                     }
                     record_performance_gate(&mut performance_gate, "prepare");
-                    worker_started = true;
-                    record_startup_stage(startup_trace.as_deref(), "workers_started", trace_moment(), None);
-                    start_startup_workers(&handle, options.clone(), tick_platform.is_kindle, startup_delay,
-                        tick_cancelled.clone(), startup_sender.clone(), tick_wake.clone(),
-                        startup_trace.is_some());
+                    startup_workers.start();
+                    startup_ui_turn.yield_now();
                     // Yield this bootstrap turn before consuming even a very fast result.
                     return;
                 }
@@ -1025,7 +1101,7 @@ fn run(arguments: Arguments) -> Result<()> {
     ui.on_runtime_wakeup(|| {});
     control.quitting.set(true);
     signals.retire();
-    cancelled.store(true, Ordering::Release);
+    startup_lifetime.stop();
     let application = control.application.borrow().clone();
     let shutdown = application
         .as_ref()
@@ -1076,11 +1152,8 @@ fn update_startup_activity(ui: &AppWindow, platform: &Platform, frame: &mut i32,
     bilicomics::performance::startup("startup_activity_pulse", &());
 }
 
-fn start_startup_workers(
+fn start_startup_font_worker(
     handle: &tokio::runtime::Handle,
-    options: AppOptions,
-    native: bool,
-    delay_ms: u64,
     cancelled: Arc<AtomicBool>,
     sender: mpsc::Sender<StartupEvent>,
     wake: RuntimeWake,
@@ -1115,8 +1188,20 @@ fn start_startup_workers(
         }
         result
     });
-    observe_startup_worker(handle, font_worker, sender.clone(), wake.clone());
+    observe_startup_worker(handle, font_worker, sender, wake);
+}
 
+fn start_startup_workers(
+    handle: &tokio::runtime::Handle,
+    options: AppOptions,
+    native: bool,
+    delay_ms: u64,
+    cancelled: Arc<AtomicBool>,
+    sender: mpsc::Sender<StartupEvent>,
+    wake: RuntimeWake,
+    trace_enabled: bool,
+) {
+    start_startup_font_worker(handle, cancelled.clone(), sender.clone(), wake.clone(), trace_enabled);
     let state_sender = sender.clone();
     let state_wake = wake.clone();
     bilicomics::performance::startup("state_worker_queued", &());
@@ -1145,6 +1230,75 @@ fn start_startup_workers(
             }));
         }
         result
+    });
+    observe_startup_worker(handle, state_worker, sender, wake);
+}
+
+fn start_overlapped_startup_workers(
+    handle: &tokio::runtime::Handle,
+    options: AppOptions,
+    native: bool,
+    delay_ms: u64,
+    cancelled: Arc<AtomicBool>,
+    sender: mpsc::Sender<StartupEvent>,
+    wake: RuntimeWake,
+    trace_enabled: bool,
+    covers: CoverPreparationGate,
+) {
+    start_startup_font_worker(handle, cancelled.clone(), sender.clone(), wake.clone(), trace_enabled);
+    let metadata_sender = sender.clone();
+    let metadata_wake = wake.clone();
+    let metadata_cancelled = cancelled.clone();
+    bilicomics::performance::startup("state_worker_queued", &());
+    let metadata_worker = handle.spawn_blocking(move || -> Result<Option<PreparedAppMetadata>> {
+        bilicomics::performance::startup("state_worker_begin", &());
+        let measured = bilicomics::performance::enabled().then(bilicomics::performance::Span::start);
+        let result = (|| -> Result<Option<PreparedAppMetadata>> {
+            if delay_ms > 0 {
+                std::thread::sleep(Duration::from_millis(delay_ms));
+            }
+            if metadata_cancelled.load(Ordering::Acquire) { return Ok(None); }
+            if trace_enabled {
+                publish_startup(&metadata_sender, &metadata_wake,
+                    StartupEvent::Stage("state_prepare_begin", trace_moment()))?;
+            }
+            bilicomics::native_media::initialize(native);
+            if metadata_cancelled.load(Ordering::Acquire) { return Ok(None); }
+            let metadata = App::prepare_metadata(options)?;
+            if metadata_cancelled.load(Ordering::Acquire) { return Ok(None); }
+            if trace_enabled {
+                publish_startup(&metadata_sender, &metadata_wake,
+                    StartupEvent::Stage("state_metadata_prepared", trace_moment()))?;
+            }
+            Ok(Some(metadata))
+        })();
+        if let Some(measured) = measured {
+            bilicomics::performance::startup("state_worker_end", &serde_json::json!({
+                "scope": "metadata", "elapsed": measured.finish(), "success": result.is_ok(),
+                "cancelled": metadata_cancelled.load(Ordering::Acquire),
+            }));
+        }
+        result
+    });
+    let completion_handle = handle.clone();
+    let completion_sender = sender.clone();
+    let completion_wake = wake.clone();
+    let state_worker = handle.spawn(async move {
+        let prepared = complete_after_ui_turn(&completion_handle, metadata_worker, covers,
+            cancelled.clone(), |metadata| {
+                bilicomics::performance::startup("state_cover_worker_begin", &());
+                let measured = bilicomics::performance::enabled().then(bilicomics::performance::Span::start);
+                let result = metadata.prepare_covers();
+                if let Some(measured) = measured {
+                    bilicomics::performance::startup("state_cover_worker_end", &serde_json::json!({
+                        "elapsed": measured.finish(), "success": result.is_ok(),
+                    }));
+                }
+                result
+            }).await?;
+        let Some(prepared) = prepared else { return Ok(()); };
+        if cancelled.load(Ordering::Acquire) { return Ok(()); }
+        publish_startup(&completion_sender, &completion_wake, StartupEvent::State(prepared, trace_moment()))
     });
     observe_startup_worker(handle, state_worker, sender, wake);
 }
@@ -1255,7 +1409,9 @@ fn capture_startup_frame(
             "process_id": std::process::id(), "booting": shell.get_booting(),
             "native_epdc_mode": native_mode_name(native_mode), "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
             "phase": shell.get_startup_phase().as_str(), "animation_frame": shell.get_startup_frame(),
-            "worker_started": worker_started, "error": shell.get_startup_error(), "suspended": shell.get_suspended()
+            "worker_started": worker_started,
+            "worker_started_semantics": "A successful shared admission CAS before preparation jobs are queued",
+            "error": shell.get_startup_error(), "suspended": shell.get_suspended()
         }))?,
     )?;
     Ok(())
@@ -1536,6 +1692,21 @@ fn default_data_dir() -> Result<PathBuf> {
 #[cfg(test)]
 mod trace_tests {
     use super::*;
+
+    #[test]
+    fn serial_startup_control_requires_both_isolated_fixture_flags() {
+        assert!(Arguments::try_parse_from(["bilicomics", "--serial-startup-preparation"]).is_err());
+        assert!(Arguments::try_parse_from([
+            "bilicomics", "--serial-startup-preparation", "--demo",
+        ]).is_err());
+        assert!(Arguments::try_parse_from([
+            "bilicomics", "--serial-startup-preparation", "--offline",
+        ]).is_err());
+        let arguments = Arguments::try_parse_from([
+            "bilicomics", "--serial-startup-preparation", "--demo", "--offline",
+        ]).unwrap();
+        assert!(arguments.serial_startup_preparation);
+    }
 
     #[test]
     fn checkpoint_trace_excludes_identity_and_error_payloads() {

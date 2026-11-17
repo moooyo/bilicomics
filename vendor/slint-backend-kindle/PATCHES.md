@@ -1,5 +1,41 @@
 # Project-owned queued refresh patch
 
+## Initial full-frame background signal
+
+The accepted-submission boundary follows the reviewed startup sequence in
+AidokuForKindle revision `0992fee1377f08c5d4b537a26985bca8d4a52898`, specifically
+`vendor/slint-backend-kindle/src/platform.rs`,
+`vendor/slint-backend-kindle/src/frame_observer.rs`, and `src/bootstrap_startup.rs`.
+This is an independent one-shot channel adaptation;
+the reference's general UI-thread observer is not copied into the retained
+framebuffer borrow. The original MIT/Apache backend notices remain unchanged.
+
+`KindleBackend::first_frame_signal_handle()` returns a UI-thread-only
+`FirstFrameSignalHandle`. An owner may arm one unbounded `Sender<()>` before
+event-loop entry. Only a real initial complete draw with an accepted, nonzero,
+current SEND marker and known delivery can consume the signal. Sleep
+presentations, inactive frames, partial updates, and refreshes without a draw do
+not admit work. The Slint renderer borrow has ended before the signal is sent;
+the notification invokes no application callback, filesystem work, or optional
+performance logging. Without registration it adds no clocks, trace locks, or
+per-frame allocations.
+
+The original checked completion for that accepted marker and lifecycle input
+draining retain their order after notification. A receiver may start only pure
+background preparation; it must preserve the application's normal UI attachment
+boundary. SEND acceptance is not input readiness, driver completion, or optical
+panel evidence. Notification and retirement permanently close the slot, including
+when no sender was armed or its receiver has closed. Both event-loop unwinding
+and platform destruction retire the slot; the owner must also retire on errors
+before event-loop entry so an unused sender cannot hold a background waiter open.
+
+Anonymous framebuffer fixtures exercise real writes, accepted-marker bookkeeping,
+and the unchanged checked completion failure. They cover admission before a
+failed completion without permitting later writes, missing/stale markers,
+uncertain delivery, disabled tracing, one-shot ownership, and normal/error/panic
+cleanup. These fixtures do not access a native display or establish performance
+or hardware acceptance.
+
 ## Checked complete-frame replacements
 
 An explicit `RefreshArea::Full`, including the bounded queue's overflow fallback,

@@ -25,6 +25,25 @@ pub struct PreparedApp {
     resume_comic: Option<String>,
 }
 
+/// Background-owned metadata with startup cover pixel preparation still pending.
+pub struct PreparedAppMetadata {
+    prepared: PreparedApp,
+    pending_cover_comics: Vec<Comic>,
+}
+
+impl PreparedAppMetadata {
+    /// Finish on a worker after the caller's display-admission boundary.
+    pub fn prepare_covers(self) -> Result<PreparedApp> {
+        let Self { mut prepared, pending_cover_comics } = self;
+        let cover_span = startup_span("state-covers");
+        let (covers, cover_failed) = prepare_covers(&prepared.data_dir, &pending_cover_comics, prepared.demo.as_deref());
+        finish_startup_span("state-covers", cover_span, if cover_failed.is_empty() { "success" } else { "partial" });
+        prepared.covers = covers;
+        prepared.cover_failed = cover_failed;
+        Ok(prepared)
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(super) enum AttachStage {
     Covers,
@@ -69,6 +88,11 @@ fn startup_step<T>(stage: &'static str, work: impl FnOnce() -> Result<T>) -> Res
 impl App {
     /// Call on a worker after the platform backend has been installed.
     pub fn prepare(options: AppOptions) -> Result<PreparedApp> {
+        Self::prepare_metadata(options)?.prepare_covers()
+    }
+
+    /// Prepare metadata before startup cover pixels, retaining demo asset/header I/O.
+    pub fn prepare_metadata(options: AppOptions) -> Result<PreparedAppMetadata> {
         if performance::enabled() {
             performance::startup("state-prepare-context", &serde_json::json!({
                 "demo": options.demo, "offline": options.offline,
@@ -150,12 +174,12 @@ impl App {
                 Ok(())
             })?;
         }
-        let visible_covers = catalog.startup_cover_comics(route, options.profile.is_scribe(), resume_comic.as_deref(), demo.is_some());
-        let cover_span = startup_span("state-covers");
-        let (covers, cover_failed) = prepare_covers(&data_dir, &visible_covers, demo.as_deref());
-        finish_startup_span("state-covers", cover_span, if cover_failed.is_empty() { "success" } else { "partial" });
-        Ok(PreparedApp { options, data_dir, store, client, account,
-            preferences, demo, catalog, account_ui, covers, cover_failed, resume_comic })
+        let pending_cover_comics = catalog.startup_cover_comics(route, options.profile.is_scribe(), resume_comic.as_deref(), demo.is_some());
+        Ok(PreparedAppMetadata {
+            prepared: PreparedApp { options, data_dir, store, client, account,
+                preferences, demo, catalog, account_ui, covers: VecDeque::new(), cover_failed: BTreeSet::new(), resume_comic },
+            pending_cover_comics,
+        })
     }
 
     /// Attach already prepared data without repeating filesystem or seed work.
@@ -499,10 +523,43 @@ mod session_tests;
 mod tests {
     use super::*;
 
+    fn encoded_cover(width: u32, height: u32, pixel: [u8; 4]) -> Result<Vec<u8>> {
+        let source = image::RgbaImage::from_pixel(width, height, image::Rgba(pixel));
+        let mut encoded = Cursor::new(Vec::new());
+        image::DynamicImage::ImageRgba8(source).write_to(&mut encoded, image::ImageFormat::Png)?;
+        Ok(encoded.into_inner())
+    }
+
+    fn startup_cover_fixture(data_dir: &Path) -> Result<(AppOptions, Vec<Comic>)> {
+        let comics: Vec<_> = (1..=6).map(|id| Comic {
+            id: id.to_string(), title: format!("Startup cover {id}"), favorite: true,
+            cover_url: format!("https://fixture.invalid/startup-cover/{id}.png"), ..Comic::default()
+        }).collect();
+        let mut store = Store::open(data_dir.join("state.sqlite3"))?;
+        store.save_catalog("guest", "shelf", &comics)?;
+        store.set_preference("guest", "preferences", &Preferences { onboarded: true, ..Preferences::default() })?;
+        std::fs::create_dir_all(data_dir.join("covers"))?;
+        std::fs::write(covers::cached_cover_path(data_dir, &comics[0].cover_url), encoded_cover(2, 3, [17, 83, 149, 255])?)?;
+        std::fs::write(covers::cached_cover_path(data_dir, &comics[1].cover_url), b"Corrupt startup cover fixture")?;
+        std::fs::write(covers::cached_cover_path(data_dir, &comics[2].cover_url), encoded_cover(4097, 1, [255; 4])?)?;
+        std::fs::File::create(covers::cached_cover_path(data_dir, &comics[3].cover_url))?
+            .set_len(MAX_STARTUP_COVER_BYTES + 1)?;
+        std::fs::create_dir(covers::cached_cover_path(data_dir, &comics[5].cover_url))?;
+        let options = AppOptions { data_dir: data_dir.to_owned(), profile: DeviceProfile::Paperwhite5,
+            demo: false, offline: true, initial_screen: "library".into(), landscape: false };
+        Ok((options, comics))
+    }
+
+    fn cover_snapshot(prepared: &PreparedApp) -> Vec<(String, PathBuf, Vec<u8>, (u32, u32))> {
+        prepared.covers.iter().map(|cover| (cover.comic_id.clone(), cover.path.clone(),
+            cover.rgba.clone(), (cover.width, cover.height))).collect()
+    }
+
     #[test]
     fn preparation_can_cross_the_worker_boundary_and_preserves_demo_isolation() -> Result<()> {
         fn require_send<T: Send>() {}
         require_send::<PreparedApp>();
+        require_send::<PreparedAppMetadata>();
         let directory = tempfile::tempdir()?;
         let prepared = App::prepare(AppOptions { data_dir: directory.path().to_owned(),
             profile: DeviceProfile::Paperwhite5, demo: true, offline: true,
@@ -512,6 +569,45 @@ mod tests {
         assert_eq!(prepared.resume_comic.as_deref(), Some("28601"));
         assert!(prepared.demo.is_some());
         assert!(!directory.path().join("account").exists());
+        Ok(())
+    }
+
+    #[test]
+    fn metadata_defers_cover_inspection_until_finishing_and_reads_current_bytes() -> Result<()> {
+        let directory = tempfile::tempdir()?;
+        let (options, comics) = startup_cover_fixture(directory.path())?;
+        let metadata = App::prepare_metadata(options)?;
+        assert_eq!(metadata.pending_cover_comics, comics);
+        assert!(metadata.prepared.covers.is_empty());
+        assert!(metadata.prepared.cover_failed.is_empty());
+
+        std::fs::write(covers::cached_cover_path(directory.path(), &comics[0].cover_url), b"Changed after metadata preparation")?;
+        let pixel = [68, 102, 136, 255];
+        std::fs::write(covers::cached_cover_path(directory.path(), &comics[1].cover_url), encoded_cover(2, 3, pixel)?)?;
+        let prepared = metadata.prepare_covers()?;
+        let actual_covers = cover_snapshot(&prepared);
+        assert_eq!(actual_covers, vec![(comics[1].id.clone(), covers::cached_cover_path(directory.path(), &comics[1].cover_url),
+            pixel.repeat(6), (2, 3))]);
+        assert_eq!(prepared.cover_failed, BTreeSet::from(["1".into(), "3".into(), "4".into(), "6".into()]));
+        Ok(())
+    }
+
+    #[test]
+    fn serial_and_split_preparation_preserve_cover_identity_pixels_and_failures() -> Result<()> {
+        let directory = tempfile::tempdir()?;
+        let (options, _) = startup_cover_fixture(directory.path())?;
+        let serial = App::prepare(options.clone())?;
+        let split = App::prepare_metadata(options)?.prepare_covers()?;
+        assert_eq!(serial.account, split.account);
+        assert_eq!(serial.data_dir, split.data_dir);
+        assert_eq!(serial.catalog.comics, split.catalog.comics);
+        assert_eq!(serial.resume_comic, split.resume_comic);
+        assert_eq!(serial.client.session(), split.client.session());
+        assert_eq!(serde_json::to_value(&serial.preferences)?, serde_json::to_value(&split.preferences)?);
+        assert_eq!(cover_snapshot(&serial), cover_snapshot(&split));
+        assert_eq!(serial.covers.len(), 1);
+        assert_eq!(serial.cover_failed, BTreeSet::from(["2".into(), "3".into(), "4".into(), "6".into()]));
+        assert_eq!(serial.cover_failed, split.cover_failed);
         Ok(())
     }
 

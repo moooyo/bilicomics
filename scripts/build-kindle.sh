@@ -21,6 +21,7 @@ mkdir -p "$STAGING/notices/image-triangle"
 mkdir -p "$STAGING/notices/aidoku-native-media"
 mkdir -p "$STAGING/notices/spatial-dither"
 mkdir -p "$STAGING/notices/aidoku-startup"
+mkdir -p "$STAGING/notices/aidoku-startup-sequence"
 cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/bilicomics" "$STAGING/bilicomics/app/bilicomics"
 cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/kindle-jpeg-worker" "$STAGING/bilicomics/app/kindle-jpeg-worker"
 cp packaging/kindle/launch.sh "$STAGING/bilicomics/launch.sh"
@@ -52,6 +53,9 @@ cp docs/research/aidoku-spatial-dither-20261116/LICENSE.AIDOKU \
 cp docs/research/aidoku-startup-20261117/LICENSE.AIDOKU \
     docs/research/aidoku-startup-20261117/README.md \
     docs/research/aidoku-startup-20261117/UPSTREAM_FILES.json "$STAGING/notices/aidoku-startup/"
+cp docs/research/aidoku-startup-sequence-20261117/LICENSE.AIDOKU \
+    docs/research/aidoku-startup-sequence-20261117/README.md \
+    docs/research/aidoku-startup-sequence-20261117/UPSTREAM_FILES.json "$STAGING/notices/aidoku-startup-sequence/"
 chmod 755 "$STAGING/bilicomics/app/bilicomics" "$STAGING/bilicomics/app/kindle-jpeg-worker" "$STAGING/bilicomics/launch.sh"
 python3 - "$STAGING" "$ROOT/app/artifacts/verification/bilicomics-kindle-$VERSION-dev.zip" <<'PY'
 import hashlib
@@ -84,6 +88,8 @@ allowed = [
     "notices/spatial-dither/UPSTREAM_FILES.json",
     "notices/aidoku-startup/LICENSE.AIDOKU", "notices/aidoku-startup/README.md",
     "notices/aidoku-startup/UPSTREAM_FILES.json",
+    "notices/aidoku-startup-sequence/LICENSE.AIDOKU", "notices/aidoku-startup-sequence/README.md",
+    "notices/aidoku-startup-sequence/UPSTREAM_FILES.json",
 ]
 with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
     for relative in sorted(allowed):

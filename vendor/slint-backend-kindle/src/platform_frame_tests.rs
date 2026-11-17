@@ -1,8 +1,9 @@
 //! Production frame transactions exercised with anonymous mappings and pipe descriptors.
 
 use std::cell::Cell;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, mpsc};
 
+use crate::first_frame_signal::{FirstFrameSignalError, FirstFrameSignalHandle};
 use crate::framebuffer::{Framebuffer, RefreshSubmission};
 use crate::performance::{PerformanceFrameSample, PerformanceSampleKind, PerformanceTraceHandle, Recording};
 
@@ -124,4 +125,113 @@ fn a_rejected_replacement_cannot_reuse_the_preceding_frames_completion() {
     assert_eq!(sample.completion_errno, Some(libc::EIO));
     assert!(!sample.driver_completion_observed);
     assert!(!sample.panel_completion_observed);
+}
+
+fn initial_frame() -> super::FirstFrameSubmission {
+    super::FirstFrameSubmission {
+        initial: true, rendered: true, full: true, active: true, sleep_pending: false,
+    }
+}
+
+fn armed_first_frame_signal() -> (FirstFrameSignalHandle, mpsc::Receiver<()>) {
+    let signal = FirstFrameSignalHandle::default();
+    let (sender, receiver) = mpsc::channel();
+    signal.arm(sender).unwrap();
+    (signal, receiver)
+}
+
+#[test]
+fn the_initial_send_signals_after_writes_before_its_checked_completion_even_without_tracing() {
+    let mut framebuffer = Framebuffer::memory_for_test(2, 1, 4, 1, 0x7f).unwrap();
+    let (signal, receiver) = armed_first_frame_signal();
+    let mut trace = None;
+    let submission = super::with_settled_mapping(&mut framebuffer, &mut trace, |framebuffer, _| {
+        assert_eq!(receiver.try_recv(), Err(mpsc::TryRecvError::Empty));
+        framebuffer.write_line(0, 0..2, &[0x00, 0xff]);
+        let submission = framebuffer.fake_accept_update_for_test();
+        assert_eq!(receiver.try_recv(), Err(mpsc::TryRecvError::Empty));
+        submission
+    }).unwrap();
+    assert_eq!(framebuffer.mapped_bytes_for_test(), &[0x00, 0xff, 0x7f, 0x7f]);
+    assert_eq!(framebuffer.last_accepted_update_marker(), Some(1));
+    assert_eq!(framebuffer.last_completed_update_marker(), None);
+
+    let result = super::finish_frame_submission(&framebuffer, &submission, &mut trace,
+        &signal, initial_frame(), true);
+    // The real completion ioctl on the pipe fails. The signal has already
+    // admitted pure background work, but completion must still fail closed.
+    assert!(result.unwrap_err().to_string().contains("did not complete"));
+    assert_eq!(receiver.try_recv(), Ok(()));
+    assert_eq!(receiver.try_recv(), Err(mpsc::TryRecvError::Disconnected));
+    assert!(trace.is_none());
+    assert_eq!(framebuffer.last_completed_update_marker(), None);
+    assert_eq!(framebuffer.require_known_dithering_delivery().unwrap_err().raw_os_error(),
+        Some(libc::ENOTTY));
+    framebuffer.fill(0x55);
+    assert_eq!(framebuffer.mapped_bytes_for_test(), &[0x00, 0xff, 0x7f, 0x7f]);
+    let (late, _) = mpsc::channel();
+    assert_eq!(signal.arm(late), Err(FirstFrameSignalError::Retired));
+}
+
+#[test]
+fn an_accepted_current_marker_with_failed_delivery_cannot_admit_background_work() {
+    let framebuffer = Framebuffer::memory_for_test(1, 1, 1, 1, 0xff).unwrap();
+    let submission = framebuffer.fake_accept_update_for_test();
+    assert!(super::complete_frame_update(&framebuffer, &submission, &mut None).is_err());
+    assert_eq!(submission.update_marker, framebuffer.last_accepted_update_marker());
+    let (signal, receiver) = armed_first_frame_signal();
+
+    assert!(super::finish_frame_submission(&framebuffer, &submission, &mut None,
+        &signal, initial_frame(), false).is_err());
+    assert_eq!(receiver.try_recv(), Err(mpsc::TryRecvError::Empty));
+    signal.retire();
+    assert_eq!(receiver.try_recv(), Err(mpsc::TryRecvError::Disconnected));
+}
+
+#[test]
+fn rejected_uncertain_and_stale_submissions_do_not_consume_first_frame_admission() {
+    for rejected_marker in [None, Some(0), Some(1)] {
+        let framebuffer = Framebuffer::memory_for_test(1, 1, 1, 1, 0xff).unwrap();
+        framebuffer.fake_accept_update_for_test();
+        framebuffer.fake_complete_latest_update_for_test().unwrap();
+        let accepted = framebuffer.fake_accept_update_for_test();
+        assert_eq!(accepted.update_marker, Some(2));
+        let (signal, receiver) = armed_first_frame_signal();
+        let malformed = RefreshSubmission { update_marker: rejected_marker, ..accepted };
+        let rejected = RefreshSubmission { accepted: false, update_marker: None,
+            last_errno: Some(libc::EINVAL), ..accepted };
+        let uncertain = RefreshSubmission { dithering_delivery_uncertain: true, ..accepted };
+        for submission in [malformed, rejected, uncertain] {
+            super::finish_frame_submission(&framebuffer, &submission, &mut None,
+                &signal, initial_frame(), false).unwrap();
+            assert_eq!(receiver.try_recv(), Err(mpsc::TryRecvError::Empty));
+        }
+        super::finish_frame_submission(&framebuffer, &accepted, &mut None,
+            &signal, initial_frame(), false).unwrap();
+        assert_eq!(receiver.try_recv(), Ok(()));
+        assert_eq!(framebuffer.last_completed_update_marker(), Some(1));
+    }
+}
+
+#[test]
+fn refresh_only_partial_inactive_sleep_and_later_frames_do_not_consume_admission() {
+    let eligible = initial_frame();
+    for frame in [
+        super::FirstFrameSubmission { rendered: false, ..eligible },
+        super::FirstFrameSubmission { full: false, ..eligible },
+        super::FirstFrameSubmission { active: false, ..eligible },
+        super::FirstFrameSubmission { sleep_pending: true, ..eligible },
+        super::FirstFrameSubmission { initial: false, ..eligible },
+    ] {
+        let framebuffer = Framebuffer::memory_for_test(1, 1, 1, 1, 0xff).unwrap();
+        let submission = framebuffer.fake_accept_update_for_test();
+        let (signal, receiver) = armed_first_frame_signal();
+        super::finish_frame_submission(&framebuffer, &submission, &mut None,
+            &signal, frame, false).unwrap();
+        assert_eq!(receiver.try_recv(), Err(mpsc::TryRecvError::Empty));
+        super::finish_frame_submission(&framebuffer, &submission, &mut None,
+            &signal, eligible, false).unwrap();
+        assert_eq!(receiver.try_recv(), Ok(()));
+        assert_eq!(framebuffer.last_completed_update_marker(), None);
+    }
 }

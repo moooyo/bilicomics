@@ -20,6 +20,7 @@
 mod clipboard;
 mod command;
 mod dithering;
+mod first_frame_signal;
 mod framebuffer;
 mod frame_render;
 mod input_discovery;
@@ -37,6 +38,7 @@ mod wakeup;
 
 pub use command::run_bounded_command;
 pub use dithering::DitheringHandle;
+pub use first_frame_signal::{FirstFrameSignalError, FirstFrameSignalHandle};
 pub use lifecycle::DisplayLifecycleHandle;
 pub use performance::{
     PerformanceFrameSample, PerformanceSampleKind, PerformanceStageTimings,
@@ -143,10 +145,17 @@ pub struct KindleBackend<State = NoSchedule> {
     dithering_handle: DitheringHandle,
     lifecycle_handle: DisplayLifecycleHandle,
     performance_trace: PerformanceTraceHandle,
+    first_frame_signal: FirstFrameSignalHandle,
     _state: PhantomData<State>,
 }
 
 impl<State> KindleBackend<State> {
+    /// Admit background byte or metadata preparation after the initial full SEND.
+    /// This never advances UI attachment, display completion, or input readiness.
+    pub fn first_frame_signal_handle(&self) -> FirstFrameSignalHandle {
+        self.first_frame_signal.clone()
+    }
+
     /// Observe actual native work after it completes, without requesting draws.
     pub fn performance_trace_handle(&self) -> PerformanceTraceHandle {
         self.performance_trace.clone()
@@ -224,6 +233,7 @@ impl<State> KindleBackend<State> {
             dithering_handle: self.dithering_handle,
             lifecycle_handle: self.lifecycle_handle,
             performance_trace: self.performance_trace,
+            first_frame_signal: self.first_frame_signal,
             _state: PhantomData,
         }
     }
@@ -317,6 +327,7 @@ pub fn install(font_data: &[u8]) -> Result<KindleBackend, slint::PlatformError> 
     let dithering_handle = platform.dithering_handle();
     let lifecycle_handle = platform.lifecycle_handle();
     let performance_trace = platform.performance_trace_handle();
+    let first_frame_signal = platform.first_frame_signal_handle();
     slint::platform::set_platform(Box::new(platform))
         .map_err(|e| slint::PlatformError::Other(format!("{e}")))?;
     Ok(KindleBackend {
@@ -329,6 +340,7 @@ pub fn install(font_data: &[u8]) -> Result<KindleBackend, slint::PlatformError> 
         dithering_handle,
         lifecycle_handle,
         performance_trace,
+        first_frame_signal,
         _state: PhantomData,
     })
 }

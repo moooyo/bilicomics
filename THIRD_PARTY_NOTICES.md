@@ -65,3 +65,20 @@ independent verification scope. Existing first-scene refresh and process-read
 mechanisms are distinguished from the newly adopted changes. Aidoku timings
 do not establish BiliComics performance or hardware acceptance. This notice
 does not select an overall project license or declare a published release.
+
+## Aidoku startup-sequence preparation admission
+
+The item 1 candidate's accepted initial full SEND admission boundary references
+AidokuForKindle main revision
+`0992fee1377f08c5d4b537a26985bca8d4a52898`, whose selected inputs match its
+compiled production source `fc51eac0625565052fb3fd0ef7c1f117705ecba5`.
+The GPL-3.0-or-later application reference, complete original license, four
+unchanged selected-source snapshots, Git blob identities, and SHA-256 records
+are retained separately in `docs/research/aidoku-startup-sequence-20261117/`.
+BiliComics uses an independent one-shot standard-channel notification in place
+of Aidoku's general observer callback. Only background font-byte and metadata
+preparation is admitted early; covers and UI attachment retain their original
+UI-turn gate. The backend's original MIT and Apache-2.0 notices remain intact.
+Upstream items 2 through 6 are outside this change. These records do not declare
+final BiliComics adoption, performance or hardware acceptance, an overall project
+license, or a published release.

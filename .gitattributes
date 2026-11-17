@@ -64,3 +64,6 @@
 # Preserve native-query build, preflight, and device evidence identities.
 /docs/verification/native-query-20261117/** -text
 /docs/physical/native-query-20261117/** -text
+
+# Retain the exact selected startup-sequence references and their license.
+/docs/research/aidoku-startup-sequence-20261117/** -text

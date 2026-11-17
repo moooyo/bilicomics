@@ -58,6 +58,9 @@ ALLOWED_FILES = {
     "notices/aidoku-startup/LICENSE.AIDOKU",
     "notices/aidoku-startup/README.md",
     "notices/aidoku-startup/UPSTREAM_FILES.json",
+    "notices/aidoku-startup-sequence/LICENSE.AIDOKU",
+    "notices/aidoku-startup-sequence/README.md",
+    "notices/aidoku-startup-sequence/UPSTREAM_FILES.json",
 }
 EXECUTABLE_FILES = {"bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker", "bilicomics/launch.sh"}
 FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
@@ -89,6 +92,28 @@ STARTUP_SOURCES = {
     "LICENSE.AIDOKU": (STARTUP_COMMITS[2], "LICENSE"),
 }
 STARTUP_LICENSE_SHA256 = "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+STARTUP_SEQUENCE_NOTICES = ("LICENSE.AIDOKU", "README.md", "UPSTREAM_FILES.json")
+STARTUP_SEQUENCE_PREFIX = "notices/aidoku-startup-sequence/"
+STARTUP_SEQUENCE_REFERENCE = "docs/research/aidoku-startup-sequence-20261117"
+STARTUP_SEQUENCE_COMMIT = "0992fee1377f08c5d4b537a26985bca8d4a52898"
+STARTUP_SEQUENCE_PRODUCTION_COMMIT = "fc51eac0625565052fb3fd0ef7c1f117705ecba5"
+STARTUP_SEQUENCE_SOURCES = {
+    "LICENSE.AIDOKU": (
+        "LICENSE", "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+        "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"),
+    "upstream/0992fee/src/bootstrap_metrics.rs": (
+        "src/bootstrap_metrics.rs", "1ccde89cb7c838cf43169ae4ace9e482fa86511f",
+        "ef1ed0cf9f5a5dcbead0be64287c8200ac6cb76571fb9a261f4821856f7727d0"),
+    "upstream/0992fee/src/bootstrap_startup.rs": (
+        "src/bootstrap_startup.rs", "ee4da394eeeb903cd71353b1604836fed3f64c1a",
+        "8ca49c1c57b9a6816da16959abad36bad7293baca9cca3020d7d07c22698edf3"),
+    "upstream/0992fee/vendor/slint-backend-kindle/src/frame_observer.rs": (
+        "vendor/slint-backend-kindle/src/frame_observer.rs", "9ada755d1acee83a7628e8332974904b5c4fdab7",
+        "a17ad23c92ef7d984278efc93a9d997360a7e188ea64e2076b3697039b25a6f5"),
+    "upstream/0992fee/vendor/slint-backend-kindle/src/platform.rs": (
+        "vendor/slint-backend-kindle/src/platform.rs", "c9c9b8c7184907fa4c0aec9ea89341c428004d1a",
+        "fb69b78d0bfcb8822e15983414671e99e50b933748065b1d1ff2fe26153c4bf8"),
+}
 
 
 def sha256(path):
@@ -175,6 +200,60 @@ def check_startup_notices(archive, app_root, report):
            scope="Selected original sources and license only; independent BiliComics verification required")
 
 
+def check_startup_sequence_notices(archive, app_root, report):
+    """Keep the item 1 candidate reference separate from earlier startup records."""
+    expected = {STARTUP_SEQUENCE_PREFIX + name for name in STARTUP_SEQUENCE_NOTICES}
+    actual = {name for name in archive.namelist() if name.startswith(STARTUP_SEQUENCE_PREFIX)}
+    require(actual == expected, "The startup-sequence notice group is incomplete or contains source inputs")
+    reference = app_root / STARTUP_SEQUENCE_REFERENCE
+    contents = {}
+    for name in STARTUP_SEQUENCE_NOTICES:
+        content = archive.read(STARTUP_SEQUENCE_PREFIX + name)
+        require(content == (reference / name).read_bytes(),
+                f"A retained startup-sequence notice differs from the frozen source: {name}")
+        contents[name] = content
+    upstream = json.loads(contents["UPSTREAM_FILES.json"])
+    require(isinstance(upstream, dict) and upstream.get("schema_version") == 1
+            and upstream.get("source_repository") == "AidokuForKindle"
+            and upstream.get("source_repository_url") == "https://github.com/moooyo/aidokuForKindle"
+            and upstream.get("source_commits") == [STARTUP_SEQUENCE_COMMIT]
+            and upstream.get("production_source_commit") == STARTUP_SEQUENCE_PRODUCTION_COMMIT
+            and upstream.get("license") == "GPL-3.0-or-later",
+            "The startup-sequence provenance differs from the pinned source identities")
+    require(hashlib.sha256(contents["LICENSE.AIDOKU"]).hexdigest()
+            == STARTUP_SEQUENCE_SOURCES["LICENSE.AIDOKU"][2],
+            "The startup-sequence license differs from the original GPLv3 text")
+    files = upstream.get("files")
+    require(isinstance(files, list) and len(files) == len(STARTUP_SEQUENCE_SOURCES)
+            and all(isinstance(item, dict) and isinstance(item.get("path"), str) for item in files),
+            "The startup-sequence source manifest is incomplete or malformed")
+    paths = [item["path"] for item in files]
+    require(len(set(paths)) == len(paths) and set(paths) == set(STARTUP_SEQUENCE_SOURCES),
+            "The startup-sequence source manifest has duplicate, missing, or unexpected paths")
+    for item in files:
+        relative = item["path"]
+        source_path, blob, digest = STARTUP_SEQUENCE_SOURCES[relative]
+        require(item.get("source_commit") == STARTUP_SEQUENCE_COMMIT
+                and item.get("source_path") == source_path
+                and item.get("source_blob") == blob and item.get("production_source_blob") == blob,
+                f"A startup-sequence source identity differs from its pinned input: {relative}")
+        path = reference / relative
+        require(path.is_file() and not path.is_symlink(),
+                f"A retained startup-sequence source is unavailable: {relative}")
+        path.resolve().relative_to(reference.resolve())
+        data = path.read_bytes()
+        actual_digest = hashlib.sha256(data).hexdigest()
+        require(item.get("bytes") == len(data) and item.get("sha256") == actual_digest,
+                f"A retained startup-sequence source differs from its manifest: {relative}")
+        require(actual_digest == digest,
+                f"A retained startup-sequence source differs from its pinned bytes: {relative}")
+    record(report, "startup_sequence_notice_provenance", retained_files=list(STARTUP_SEQUENCE_NOTICES),
+           source_repository=upstream["source_repository"], source_commits=[STARTUP_SEQUENCE_COMMIT],
+           production_source_commit=STARTUP_SEQUENCE_PRODUCTION_COMMIT,
+           source_snapshots=len(STARTUP_SEQUENCE_SOURCES) - 1, source_code_bundled=False,
+           scope="Item 1 source/license reference only; no final adoption, performance or device claim")
+
+
 def check_package(args, report):
     archive_path = args.archive.resolve(strict=True)
     binary = args.binary.resolve(strict=True)
@@ -256,6 +335,7 @@ def check_package(args, report):
         record(report, "packaged_jpeg_worker_matches_selected_binary")
         check_spatial_dither_notices(archive, app_root, report)
         check_startup_notices(archive, app_root, report)
+        check_startup_sequence_notices(archive, app_root, report)
         accepted = [line for line in archive.read("bilicomics/data/device-allowlist").decode("utf-8").splitlines()
                     if line.strip() and not line.lstrip().startswith("#")]
         require(not accepted, "The development archive unexpectedly accepts a device/firmware combination")

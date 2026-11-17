@@ -14,6 +14,7 @@ use slint::platform::{Clipboard, EventLoopProxy, Platform, PlatformError, Window
 
 use crate::clipboard::{ClipboardKind, ClipboardStore};
 use crate::dithering::DitheringHandle;
+use crate::first_frame_signal::FirstFrameSignalHandle;
 use crate::lifecycle::DisplayLifecycleHandle;
 use crate::performance::{ClockSample, PerformanceSampleKind, PerformanceTraceHandle, Recording, observe_rgb_frame};
 use crate::power::{arm_wakealarm, find_wakealarm, suspend_to_mem};
@@ -40,6 +41,7 @@ pub(crate) struct KindlePlatform {
     dithering: DitheringHandle,
     lifecycle: DisplayLifecycleHandle,
     performance_trace: PerformanceTraceHandle,
+    first_frame_signal: FirstFrameSignalHandle,
     clipboard: RefCell<ClipboardStore>,
 }
 
@@ -75,6 +77,7 @@ impl KindlePlatform {
             dithering,
             lifecycle,
             performance_trace: PerformanceTraceHandle::default(),
+            first_frame_signal: FirstFrameSignalHandle::default(),
             clipboard: RefCell::new(ClipboardStore::default()),
         })
     }
@@ -98,6 +101,10 @@ impl KindlePlatform {
 
     pub(crate) fn performance_trace_handle(&self) -> PerformanceTraceHandle {
         self.performance_trace.clone()
+    }
+
+    pub(crate) fn first_frame_signal_handle(&self) -> FirstFrameSignalHandle {
+        self.first_frame_signal.clone()
     }
 
     fn begin_frame_trace(&self, framebuffer: &crate::framebuffer::Framebuffer,
@@ -224,9 +231,11 @@ impl Platform for KindlePlatform {
             quit: Arc<AtomicBool>,
             queue: Queue,
             lifecycle: DisplayLifecycleHandle,
+            first_frame_signal: FirstFrameSignalHandle,
         }
         impl Drop for QuitOnExit {
             fn drop(&mut self) {
+                self.first_frame_signal.retire();
                 let pending = wakeup::close_and_take_pending(&self.queue, &self.quit);
                 self.lifecycle.release_event_loop_io();
                 drop(pending);
@@ -236,6 +245,7 @@ impl Platform for KindlePlatform {
             quit: self.quit_flag.clone(),
             queue: self.queue.clone(),
             lifecycle: self.lifecycle.clone(),
+            first_frame_signal: self.first_frame_signal.clone(),
         };
         // Opening native devices is deferred. An initially sleeping process
         // must not grab touch, fill the framebuffer, or flash the system UI.
@@ -507,6 +517,7 @@ impl Platform for KindlePlatform {
             }
             let mut dirty_region = None;
             let mut did_draw = false;
+            let mut initial_draw = false;
             let mut frame_trace = None;
             let frame_result = self.lifecycle.with_framebuffer(|frame_buffer| -> Result<(), PlatformError> {
                 frame_buffer.require_known_dithering_delivery()
@@ -523,6 +534,7 @@ impl Platform for KindlePlatform {
                     }
                     draw_error = with_settled_mapping(frame_buffer, &mut frame_trace, |frame_buffer, frame_trace| {
                         let was_initial_frame = initial_fill;
+                        initial_draw = was_initial_frame;
                         if initial_fill {
                             let fill_started = frame_trace.as_ref().map(|_| ClockSample::now());
                             frame_buffer.fill(0xff);
@@ -623,11 +635,13 @@ impl Platform for KindlePlatform {
                         trace.sample.software_dither_fallback = Some(submission.software_dither_fallback
                             || trace.sample.software_dither_fallback == Some(true));
                     }
-                    frame_buffer.require_known_dithering_delivery()
-                        .map_err(|error| PlatformError::Other(format!("display delivery is uncertain; further native writes are blocked: {error}")))?;
-                    if sleep_token.is_some() || complete_frame_replacement {
-                        complete_frame_update(frame_buffer, &submission, &mut frame_trace)?;
-                    }
+                    finish_frame_submission(frame_buffer, &submission, &mut frame_trace,
+                        &self.first_frame_signal, FirstFrameSubmission {
+                            initial: initial_draw, rendered: did_draw, full: full_repaint,
+                            active: initial_draw && !self.lifecycle.is_suspended()
+                                && !self.quit_flag.load(Ordering::SeqCst),
+                            sleep_pending: sleep_token.is_some(),
+                        }, sleep_token.is_some() || complete_frame_replacement)?;
                 } else if let Some(refresh) = crate::refresh::resolve(
                     pending,
                     dirty_region,
@@ -665,11 +679,17 @@ impl Platform for KindlePlatform {
                         trace.sample.software_dither_fallback = Some(submission.software_dither_fallback
                             || trace.sample.software_dither_fallback == Some(true));
                     }
-                    frame_buffer.require_known_dithering_delivery()
-                        .map_err(|error| PlatformError::Other(format!("display delivery is uncertain; further native writes are blocked: {error}")))?;
-                    if complete_frame_replacement {
-                        complete_frame_update(frame_buffer, &submission, &mut frame_trace)?;
-                    }
+                    finish_frame_submission(frame_buffer, &submission, &mut frame_trace,
+                        &self.first_frame_signal, FirstFrameSubmission {
+                            initial: initial_draw, rendered: did_draw,
+                            full: full_repaint && (submission.software_dither_fallback
+                                || refresh.region.x == 0 && refresh.region.y == 0
+                                    && refresh.region.width == panel_width
+                                    && refresh.region.height == panel_height),
+                            active: initial_draw && !self.lifecycle.is_suspended()
+                                && !self.quit_flag.load(Ordering::SeqCst),
+                            sleep_pending: sleep_token.is_some(),
+                        }, complete_frame_replacement)?;
                 }
                 if did_draw {
                     applied_dithering = dithering_revision;
@@ -831,6 +851,37 @@ fn with_settled_mapping<T>(framebuffer: &mut crate::framebuffer::Framebuffer,
     result.map_err(|error| PlatformError::Other(format!("failed to settle preceding display update; further native writes are blocked: {error}")))
 }
 
+#[derive(Clone, Copy, Default)]
+struct FirstFrameSubmission {
+    initial: bool,
+    rendered: bool,
+    full: bool,
+    active: bool,
+    sleep_pending: bool,
+}
+
+fn finish_frame_submission(framebuffer: &crate::framebuffer::Framebuffer,
+    submission: &crate::framebuffer::RefreshSubmission, trace: &mut Option<Recording>,
+    signal: &FirstFrameSignalHandle, frame: FirstFrameSubmission, complete: bool)
+    -> Result<(), PlatformError>
+{
+    framebuffer.require_known_dithering_delivery()
+        .map_err(|error| PlatformError::Other(format!("display delivery is uncertain; further native writes are blocked: {error}")))?;
+    if frame.initial && frame.rendered && frame.full && frame.active && !frame.sleep_pending
+        && submission.accepted && !submission.dithering_delivery_uncertain
+        && submission.update_marker.is_some_and(|marker| marker != 0
+            && Some(marker) == framebuffer.last_accepted_update_marker())
+    {
+        // The Slint renderer borrow has ended. Only a one-shot background
+        // channel is notified while the framebuffer remains exclusively borrowed.
+        signal.submitted();
+    }
+    if complete {
+        complete_frame_update(framebuffer, submission, trace)?;
+    }
+    Ok(())
+}
+
 fn complete_frame_update(framebuffer: &crate::framebuffer::Framebuffer,
     submission: &crate::framebuffer::RefreshSubmission, trace: &mut Option<Recording>)
     -> Result<(), PlatformError>
@@ -865,6 +916,19 @@ mod lifecycle_tests {
     use super::*;
     use std::sync::mpsc;
 
+    fn arm_first_frame(platform: &KindlePlatform) -> (FirstFrameSignalHandle, mpsc::Receiver<()>) {
+        let signal = platform.first_frame_signal_handle();
+        let (sender, receiver) = mpsc::channel();
+        signal.arm(sender).unwrap();
+        (signal, receiver)
+    }
+
+    fn assert_first_frame_retired(signal: &FirstFrameSignalHandle, receiver: &mpsc::Receiver<()>) {
+        assert_eq!(receiver.try_recv(), Err(mpsc::TryRecvError::Disconnected));
+        let (sender, _) = mpsc::channel();
+        assert_eq!(signal.arm(sender), Err(crate::FirstFrameSignalError::Retired));
+    }
+
     fn sleeping_platform() -> KindlePlatform {
         let platform = KindlePlatform::new(
             Arc::new(Mutex::new(None)),
@@ -886,6 +950,7 @@ mod lifecycle_tests {
             Arc::new(AtomicU32::new(0)),
         )
         .unwrap();
+        let (first_frame_signal, first_frame_receiver) = arm_first_frame(&platform);
         let lifecycle = platform.lifecycle_handle();
         lifecycle.suspend().unwrap();
         let observed = Arc::new(AtomicBool::new(false));
@@ -902,6 +967,7 @@ mod lifecycle_tests {
         platform.run_event_loop().unwrap();
         assert!(observed.load(Ordering::SeqCst));
         assert!(lifecycle.is_suspended());
+        assert_first_frame_retired(&first_frame_signal, &first_frame_receiver);
     }
 
     #[test]
@@ -934,6 +1000,7 @@ mod lifecycle_tests {
     #[test]
     fn queue_capacity_failure_returns_through_native_lifecycle_cleanup() {
         let platform = sleeping_platform();
+        let (first_frame_signal, first_frame_receiver) = arm_first_frame(&platform);
         let proxy = platform.new_event_loop_proxy().unwrap();
         for _ in 0..wakeup::MAX_QUEUED_CLOSURES {
             proxy.invoke_from_event_loop(Box::new(|| {})).unwrap();
@@ -944,11 +1011,13 @@ mod lifecycle_tests {
         assert!(platform.lifecycle_handle().is_suspended());
         assert!(wakeup::queue_is_empty(&platform.queue, &platform.quit_flag));
         assert!(platform.lifecycle_handle().resume().is_err());
+        assert_first_frame_retired(&first_frame_signal, &first_frame_receiver);
     }
 
     #[test]
     fn dropping_the_platform_releases_pending_work_even_with_live_proxies() {
         let platform = sleeping_platform();
+        let (first_frame_signal, first_frame_receiver) = arm_first_frame(&platform);
         let lifecycle = platform.lifecycle_handle();
         let proxy = platform.new_event_loop_proxy().unwrap();
         let (sender, receiver) = mpsc::channel::<()>();
@@ -964,11 +1033,13 @@ mod lifecycle_tests {
         assert!(lifecycle.resume().is_err());
         assert!(proxy.invoke_from_event_loop(Box::new(|| {})).is_err());
         proxy.quit_event_loop().unwrap();
+        assert_first_frame_retired(&first_frame_signal, &first_frame_receiver);
     }
 
     #[test]
     fn a_panicking_control_callback_still_closes_admission_and_releases_captures() {
         let platform = sleeping_platform();
+        let (first_frame_signal, first_frame_receiver) = arm_first_frame(&platform);
         let proxy = platform.new_event_loop_proxy().unwrap();
         proxy
             .invoke_from_event_loop(Box::new(|| panic!("controlled callback failure")))
@@ -987,6 +1058,7 @@ mod lifecycle_tests {
         assert!(wakeup::queue_is_empty(&platform.queue, &platform.quit_flag));
         assert!(platform.lifecycle_handle().resume().is_err());
         assert!(proxy.invoke_from_event_loop(Box::new(|| {})).is_err());
+        assert_first_frame_retired(&first_frame_signal, &first_frame_receiver);
     }
 }
 
@@ -998,6 +1070,7 @@ fn duration_to_ms(d: Duration) -> libc::c_int {
 
 impl Drop for KindlePlatform {
     fn drop(&mut self) {
+        self.first_frame_signal.retire();
         let pending = wakeup::close_and_take_pending(&self.queue, &self.quit_flag);
         self.lifecycle.release_event_loop_io();
         drop(pending);

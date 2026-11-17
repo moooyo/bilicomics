@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "source_repository": "AidokuForKindle",
+  "source_repository_url": "https://github.com/moooyo/aidokuForKindle",
+  "source_commits": [
+    "0992fee1377f08c5d4b537a26985bca8d4a52898"
+  ],
+  "production_source_commit": "fc51eac0625565052fb3fd0ef7c1f117705ecba5",
+  "license": "GPL-3.0-or-later",
+  "scope": "Selected unchanged startup-sequence item 1 reference sources and original license; no device evidence or account data; no final BiliComics adoption or performance claim.",
+  "files": [
+    {
+      "path": "LICENSE.AIDOKU",
+      "source_path": "LICENSE",
+      "source_commit": "0992fee1377f08c5d4b537a26985bca8d4a52898",
+      "source_blob": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+      "production_source_blob": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "upstream/0992fee/src/bootstrap_metrics.rs",
+      "source_path": "src/bootstrap_metrics.rs",
+      "source_commit": "0992fee1377f08c5d4b537a26985bca8d4a52898",
+      "source_blob": "1ccde89cb7c838cf43169ae4ace9e482fa86511f",
+      "production_source_blob": "1ccde89cb7c838cf43169ae4ace9e482fa86511f",
+      "bytes": 4043,
+      "sha256": "ef1ed0cf9f5a5dcbead0be64287c8200ac6cb76571fb9a261f4821856f7727d0"
+    },
+    {
+      "path": "upstream/0992fee/src/bootstrap_startup.rs",
+      "source_path": "src/bootstrap_startup.rs",
+      "source_commit": "0992fee1377f08c5d4b537a26985bca8d4a52898",
+      "source_blob": "ee4da394eeeb903cd71353b1604836fed3f64c1a",
+      "production_source_blob": "ee4da394eeeb903cd71353b1604836fed3f64c1a",
+      "bytes": 15963,
+      "sha256": "8ca49c1c57b9a6816da16959abad36bad7293baca9cca3020d7d07c22698edf3"
+    },
+    {
+      "path": "upstream/0992fee/vendor/slint-backend-kindle/src/frame_observer.rs",
+      "source_path": "vendor/slint-backend-kindle/src/frame_observer.rs",
+      "source_commit": "0992fee1377f08c5d4b537a26985bca8d4a52898",
+      "source_blob": "9ada755d1acee83a7628e8332974904b5c4fdab7",
+      "production_source_blob": "9ada755d1acee83a7628e8332974904b5c4fdab7",
+      "bytes": 20672,
+      "sha256": "a17ad23c92ef7d984278efc93a9d997360a7e188ea64e2076b3697039b25a6f5"
+    },
+    {
+      "path": "upstream/0992fee/vendor/slint-backend-kindle/src/platform.rs",
+      "source_path": "vendor/slint-backend-kindle/src/platform.rs",
+      "source_commit": "0992fee1377f08c5d4b537a26985bca8d4a52898",
+      "source_blob": "c9c9b8c7184907fa4c0aec9ea89341c428004d1a",
+      "production_source_blob": "c9c9b8c7184907fa4c0aec9ea89341c428004d1a",
+      "bytes": 72476,
+      "sha256": "fb69b78d0bfcb8822e15983414671e99e50b933748065b1d1ff2fe26153c4bf8"
+    }
+  ]
+}

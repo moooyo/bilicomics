@@ -17,7 +17,7 @@ mod views;
 #[cfg(test)]
 mod test_support;
 
-pub use startup::PreparedApp;
+pub use startup::{PreparedApp, PreparedAppMetadata};
 
 use std::{
     cell::RefCell,
