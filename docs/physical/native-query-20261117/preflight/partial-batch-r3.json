@@ -1,0 +1,40 @@
+{
+  "authoritative_completed_comparisons": 0,
+  "candidate_content_observed": true,
+  "candidate_launcher_exit_status": 0,
+  "candidate_native_restored": true,
+  "candidate_owned_processes_gone": true,
+  "candidate_production_lock_absent": true,
+  "completed_cases": [
+    "baseline-warmup",
+    "candidate-warmup",
+    "baseline-01"
+  ],
+  "evidence_class": "rejected-partial-device-batch",
+  "final_recovery": {
+    "install_unchanged": true,
+    "lease_released": true,
+    "lighting_restored": true,
+    "native_restored": true,
+    "same_boot": true,
+    "temporary_stage_removed": true,
+    "transport_closed": true
+  },
+  "finished_at_utc": "2026-11-17T06:18:50.163743+00:00",
+  "interpretation": "Timing and source are consistent with a lock cleanup observation race; the failed predicate was not recorded, so foreign mismatch is not excluded and the result remains failed.",
+  "new_attempt_requires_fresh_run_and_lease": true,
+  "performance_improvement_established": false,
+  "planned_primary_pairs": 6,
+  "private_original_sha256": {
+    "outputs": "d15bdd07232f1e7ee087fe68e8ba18798b399da33a6e84d28f05cdc40a1ca771",
+    "recovery": "7bd7e52f8a613b300a018328d7c4591851cfb059c474a0f1198fdf78cfbbd695",
+    "report": "2d60432d675330b2c91f53227d0a0248ead172e822ab1890739da5cecb7af208"
+  },
+  "rejected_case": "candidate-01",
+  "rejection_reason": "lock-ownership-changed",
+  "run_id": "native-query-20261117-105808c7",
+  "schema_version": 1,
+  "source_unchanged": true,
+  "started_at_utc": "2026-11-17T06:14:41.685166+00:00",
+  "status": "failed_not_a_completed_paired_comparison"
+}

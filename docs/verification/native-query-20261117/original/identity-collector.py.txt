@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""Bind fresh native-query packages to source, compiler, and stored test evidence."""
+
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import re
+import sys
+import tomllib
+
+ROOT = Path('/root/bilicomics-native-query-20261117-01a1d11a-r1')
+COMMITS = {'baseline': 'f50ada15dd934c986e8305a1f9dd8e46f51b2529',
+           'candidate': '74c259338f1cfc234f92a160ccf582dbe292c8d1',
+           'candidate-r2': 'f574b2692e537f14b54f99f8f0f41b6e4c0885d6'}
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def main():
+    if sys.platform != 'linux':
+        raise RuntimeError('Run only on test-env')
+    os.umask(0o077)
+    output = ROOT / 'software-identity-r2'
+    output.mkdir(mode=0o700)
+    report = {'passed': False, 'physical_device_accessed': False, 'sources': {}, 'packages': {}}
+    texts, profiles = {}, []
+    for variant, commit in COMMITS.items():
+        source = ROOT / variant / 'app'
+        spec = importlib.util.spec_from_file_location('inputs_' + variant.replace('-', '_'),
+            source / 'scripts/verification/native_protocol.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        texts[variant] = module.build_input_manifest(source)
+        manifest = output / (variant + '-source-inputs.sha256')
+        manifest.write_text(texts[variant])
+        report['sources'][variant] = {'commit': commit, 'archive_sha256': sha(ROOT / variant / 'source.tar'),
+            'compiled_inputs_sha256': sha(manifest), 'compiled_input_files': len(texts[variant].splitlines())}
+        profiles.append(tomllib.loads((source / 'Cargo.toml').read_text())['profile']['release'])
+    if texts['candidate'] != texts['candidate-r2'] or len(set(json.dumps(x, sort_keys=True) for x in profiles)) != 1:
+        raise RuntimeError('Runtime build inputs or release profiles changed unexpectedly')
+    report['rust_test_and_authoritative_runtime_inputs_equal'] = True
+    compiler = {'record': (ROOT / 'logs/compiler.txt').read_text(), 'rust_release_profile': profiles[0],
+                'target': 'armv7-unknown-linux-musleabihf', 'features': ['kindle'], 'default_features': False,
+                'cargo_build_jobs': 6, 'cargo_incremental': 0, 'rust_test_threads': 1}
+    compiler_path = output / 'compiler-profile.json'
+    compiler_path.write_text(json.dumps(compiler, indent=2, sort_keys=True) + '\n')
+    report['compiler_fingerprint'] = sha(compiler_path)
+    for variant in ('baseline', 'candidate-r2'):
+        source = ROOT / variant / 'app'
+        stage = ROOT / variant / 'kindle-package/bilicomics'
+        package = source / 'artifacts/verification/bilicomics-kindle-0.1.25-dev.zip'
+        record = {'package': str(package), 'package_sha256': sha(package),
+                  'binary_sha256': sha(stage / 'app/bilicomics'),
+                  'worker_sha256': sha(stage / 'app/kindle-jpeg-worker'),
+                  'launcher_sha256': sha(stage / 'launch.sh'),
+                  'source_commit': COMMITS[variant],
+                  'source_fingerprint': report['sources'][variant]['compiled_inputs_sha256'],
+                  'compiler_fingerprint': report['compiler_fingerprint']}
+        if variant != 'baseline':
+            record['native_query_sha256'] = sha(stage / 'app/bilicomics-native-query')
+        checker = json.loads((ROOT / ('logs/baseline-package.json' if variant == 'baseline'
+                                      else 'logs/candidate-r2-package.json')).read_text())
+        if not checker['passed']:
+            raise RuntimeError('A selected archive did not pass its exact static checker')
+        record['package_checks'] = len(checker['checks'])
+        report['packages'][variant] = record
+        log = (source / 'artifacts/verification/kindle-build.log').read_text()
+        if 'Compiling slint-backend-kindle' not in log or 'Compiling bilicomics' not in log:
+            raise RuntimeError('A fresh build did not record both owned Rust compilations')
+        fresh = ROOT / ('logs/' + variant + '-fresh-target.txt')
+        if 'did not exist' not in fresh.read_text():
+            raise RuntimeError('The selected target lacks its initial-absence assertion')
+        report.setdefault('fresh_builds', {})[variant] = {'target': str(ROOT / variant / 'target'),
+            'target_initially_absent': True, 'assertion_sha256': sha(fresh),
+            'arm_log_sha256': sha(source / 'artifacts/verification/kindle-build.log'),
+            'backend_compilation_recorded': True, 'application_compilation_recorded': True}
+        binary = (stage / 'app/bilicomics').read_bytes()
+        banned = (b'aidoku: startup-probe', b'aidoku: startup-probe-barrier',
+                  b'render_us=', b'settle_us=', b'submit_us=', b'wait_us=')
+        signatures = {value.decode(): binary.count(value) for value in banned}
+        if any(signatures.values()):
+            raise RuntimeError('An unexpected upstream diagnostic signature is present')
+        report.setdefault('unexpected_diagnostic_literal_counts', {})[variant] = signatures
+    tests = (ROOT / 'rust-checks-r1/tests.txt').read_text()
+    results = [tuple(map(int, row)) for row in re.findall(
+        r'test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored;', tests)]
+    if results != [(904, 0, 4), (11, 0, 0), (0, 0, 0)]:
+        raise RuntimeError('The selected Rust feature-superset tests differ')
+    report['rust_tests'] = {'features': ['desktop', 'kindle'], 'source_commit': COMMITS['candidate'],
+                            'library_passed': 904, 'main_passed': 11, 'failed': 0, 'ignored': 4,
+                            'source_runtime_equal_to_authoritative': True, 'log_sha256': sha(ROOT / 'rust-checks-r1/tests.txt')}
+    report['c_worker_tests'] = {'passed': 14, 'failed': 0, 'source_unchanged': True,
+                               'log_sha256': sha(ROOT / 'python-checks-r1/native_query_worker_test.txt')}
+    report['package_regressions'] = {'native_query': 44, 'startup': 8, 'spatial_dither': 5,
+                                     'native_media': 3, 'failed': 0}
+    report['initial_package_rejection'] = {'report_sha256': sha(ROOT / 'logs/candidate-package.json'),
+        'preserved': True, 'runtime_change_required': False,
+        'reason': 'Unreviewed direct libpthread dependency; subsequently audited and narrowly checked'}
+    report['passed'] = True
+    (output / 'summary.json').write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps(report, indent=2))
+
+
+if __name__ == '__main__':
+    main()

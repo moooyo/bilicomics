@@ -1,0 +1,35 @@
+{
+  "active_owned_transports": [],
+  "application_starts": 0,
+  "completed_startup_samples": 0,
+  "deployment_started": false,
+  "evidence_class": "transport-preflight-failure",
+  "exact_owned_lease_released": true,
+  "finished_at_utc": "2026-11-17T05:53:23.446696+00:00",
+  "firmware_acceptance_established": false,
+  "lease_directory_absent_after_release": true,
+  "native_state_changed": false,
+  "native_state_observed": false,
+  "not_run": [
+    "native-state observation",
+    "application deployment",
+    "startup measurements",
+    "helper ABI probe",
+    "touch test",
+    "sleep/wake test"
+  ],
+  "owned_transports_closed": true,
+  "owner_and_token_checked": true,
+  "performance_result_established": false,
+  "private_original_sha256": {
+    "lease_release": "099a75622a380baad4746f84d1709b4c97e2df3ff436f1283fc6af974f09d563",
+    "report": "87be495b541aa9b3e15b5a43325746e9e84413b5cb4c28dc81e83205bd5c706a",
+    "stderr": "456a304454208d84eb4282d0b0cd16f2257e5180c74d94ab3d0ec7e708be9cc3",
+    "transport_closure": "4afed9a9f01d61ca505ed77b46c70c66aefd4f2ae7f8fad107611451d7fe38ae"
+  },
+  "reason": "SSH returned No route to host before any device command succeeded",
+  "run_id": "native-query-20261117-fe7fc669",
+  "schema_version": 1,
+  "started_at_utc": "2026-11-17T05:53:20.323159+00:00",
+  "status": "blocked_before_deployment"
+}

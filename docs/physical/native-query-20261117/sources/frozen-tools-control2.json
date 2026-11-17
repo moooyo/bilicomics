@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "revision": 2,
+  "scope": "host-only automatic controller lock-retirement fix; no device/lease access",
+  "parent_controller_sha256": "5446f6dd46f6abcf42ef0e00336d78f3ea516c57e7370e542cc8da587d69b3eb",
+  "files": {
+    "startup_ab.py": {
+      "sha256": "0ac578fb53ccd52d7bb5ebaf0ee2d013c34dcf1c6d7a69e3796a96bb91eddc27",
+      "bytes": 64718
+    },
+    "test_startup_batch.py": {
+      "sha256": "c8c2f0f2cbd49fc0f7bd654301d8020829448de65d5882ddcd891fa115b93ae2",
+      "bytes": 34077
+    },
+    "native_recovery_fragment.sh": {
+      "sha256": "f00898ef25b8fd56364a56b3924d6535262c2e302091265f51f24b7f48262d26",
+      "bytes": 16739
+    },
+    "native_query_abi_probe.sh": {
+      "sha256": "97fd0d31598fa831bf9e2615d9ecf1df5e67528917658568f871bf05b3591848",
+      "bytes": 17949
+    },
+    "analyze_startup_ab.py": {
+      "sha256": "55e80ecb8bc0c51b3da536bab29c0ea67074db27f00861685a4d648b858e4a28",
+      "bytes": 56113
+    },
+    "startup-clock.c": {
+      "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c",
+      "bytes": 6922
+    },
+    "INCIDENT_AND_FIX.md": {
+      "sha256": "79ee83f4b1f69a54b9a69abeb9063587047ad72358f0d4bce814a7887a8bd7c0",
+      "bytes": 2669
+    },
+    "stock-race-tests-r1.log": {
+      "sha256": "f8f2d4532da0d5e0e265ee729c86724a2203725980be8f804da420622f8b4082",
+      "bytes": 2160
+    },
+    "controller-tests-r2.log": {
+      "sha256": "82155160c6c1ecbae44b9e9f9236e2881d2338c8464e2050c0a6268c0d9592f2",
+      "bytes": 5273
+    }
+  },
+  "verification": {
+    "controller_tests_executed": 33,
+    "failed": 0,
+    "unmodified_prior_abi_probe_tests": 27,
+    "unmodified_prior_analysis_and_clock_tests": 65,
+    "all_120_prior_tests_rerun": false
+  },
+  "real_package_checks": {
+    "baseline": {
+      "package_sha256": "2eb7b6f2565bd1b6c93190ae51ebeb9750fffd9150654e92d28f64f090cf3dc4",
+      "application_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d",
+      "helper_sha256": null,
+      "instrumented_launcher_sha256": "7a5e7cd0ebe1ab26d5581e91d96dadacea68c92305ab5d9068b7e0bff7df61f3",
+      "shell_syntax": true
+    },
+    "candidate": {
+      "package_sha256": "3f49f56f570f980cd7322f4446a6d096f1a6c96131716671f869bc73fceb8711",
+      "application_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+      "helper_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268",
+      "instrumented_launcher_sha256": "7a5e7cd0ebe1ab26d5581e91d96dadacea68c92305ab5d9068b7e0bff7df61f3",
+      "shell_syntax": true
+    }
+  },
+  "supervisor_sha256": "55153d52d7ca070422de6006a3c4a2db396af84c097e3b2f617ab38322790b20",
+  "preserved_failed_run": {
+    "run_id": "native-query-20261117-105808c7",
+    "controller_sha256": "5446f6dd46f6abcf42ef0e00336d78f3ea516c57e7370e542cc8da587d69b3eb",
+    "candidate_recovery_sha256": "7bd7e52f8a613b300a018328d7c4591851cfb059c474a0f1198fdf78cfbbd695",
+    "reclassified": false
+  }
+}

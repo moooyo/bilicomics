@@ -1,0 +1,27 @@
+#!/bin/sh
+# Keep this variant's complete Cargo target separate from the baseline.
+set -eu
+umask 077
+NATIVE_QUERY_BUILD_ROOT=/root/bilicomics-native-query-20261117-01a1d11a-r1
+NATIVE_QUERY_VARIANT_ROOT=$NATIVE_QUERY_BUILD_ROOT/candidate-r2
+export CARGO_TARGET_DIR=$NATIVE_QUERY_VARIANT_ROOT/target
+test ! -e "$CARGO_TARGET_DIR"
+test ! -L "$CARGO_TARGET_DIR"
+printf '%s\n' 'The variant target did not exist before this build.' >"$NATIVE_QUERY_BUILD_ROOT/logs/candidate-r2-fresh-target.txt"
+date -u '+%Y-%m-%dT%H:%M:%SZ' >"$NATIVE_QUERY_BUILD_ROOT/logs/candidate-r2-build-started.txt"
+. /root/.cargo/env
+export CARGO_BUILD_JOBS=6
+export CARGO_INCREMENTAL=0
+export RUST_TEST_THREADS=1
+export CARGO_NET_OFFLINE=true
+export CARGO_TERM_VERBOSE=true
+cd "$NATIVE_QUERY_VARIANT_ROOT/app"
+sh scripts/build-kindle.sh "$NATIVE_QUERY_VARIANT_ROOT" >"$NATIVE_QUERY_BUILD_ROOT/logs/candidate-r2-build-wrapper.log" 2>&1
+date -u '+%Y-%m-%dT%H:%M:%SZ' >"$NATIVE_QUERY_BUILD_ROOT/logs/candidate-r2-build-finished.txt"
+for query_option in -h -l -d -V -A; do
+    readelf -W "$query_option" "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/bilicomics-native-query"
+done >"$NATIVE_QUERY_BUILD_ROOT/logs/native-query-r2-readelf.txt"
+sha256sum "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/bilicomics" \
+    "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/kindle-jpeg-worker" \
+    "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/bilicomics-native-query" \
+    artifacts/verification/bilicomics-kindle-0.1.25-dev.zip

@@ -1,0 +1,12 @@
+{
+  "source_tag": "candidate-06",
+  "optical_capture": false,
+  "evidence_kind": "Original logical Slint PNG copied byte for byte",
+  "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+  "rgb_pixels_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+  "width": 1860,
+  "height": 2480,
+  "semantics": "Logical Slint snapshot before framebuffer compensation",
+  "captured_at": "Application exit after the bounded post-ready duration",
+  "source_commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6"
+}

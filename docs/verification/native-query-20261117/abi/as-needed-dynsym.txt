@@ -1,0 +1,23 @@
+
+Symbol table '.dynsym' contains 20 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 00000000     0 FUNC    GLOBAL DEFAULT  UND __libc_start_main@GLIBC_2.4 (2)
+     2: 00000000     0 FUNC    GLOBAL DEFAULT  UND abort@GLIBC_2.4 (2)
+     3: 00000000     0 FUNC    GLOBAL DEFAULT  UND strcmp@GLIBC_2.4 (2)
+     4: 00000000     0 FUNC    GLOBAL DEFAULT  UND getppid@GLIBC_2.4 (2)
+     5: 00000000     0 FUNC    GLOBAL DEFAULT  UND prctl@GLIBC_2.4 (2)
+     6: 00000000     0 FUNC    GLOBAL DEFAULT  UND dlclose@GLIBC_2.4 (3)
+     7: 00000000     0 FUNC    GLOBAL DEFAULT  UND read@GLIBC_2.4 (4)
+     8: 00000000     0 FUNC    GLOBAL DEFAULT  UND snprintf@GLIBC_2.4 (2)
+     9: 00000000     0 FUNC    GLOBAL DEFAULT  UND __errno_location@GLIBC_2.4 (4)
+    10: 00000000     0 FUNC    GLOBAL DEFAULT  UND strnlen@GLIBC_2.4 (2)
+    11: 00000000     0 FUNC    GLOBAL DEFAULT  UND sigemptyset@GLIBC_2.4 (2)
+    12: 00000000     0 FUNC    GLOBAL DEFAULT  UND sigaction@GLIBC_2.4 (4)
+    13: 00000000     0 FUNC    GLOBAL DEFAULT  UND sigaddset@GLIBC_2.4 (2)
+    14: 00000000     0 FUNC    GLOBAL DEFAULT  UND sigprocmask@GLIBC_2.4 (2)
+    15: 00000000     0 FUNC    GLOBAL DEFAULT  UND signal@GLIBC_2.4 (2)
+    16: 00000000     0 FUNC    GLOBAL DEFAULT  UND alarm@GLIBC_2.4 (2)
+    17: 00000000     0 FUNC    GLOBAL DEFAULT  UND dlopen@GLIBC_2.4 (3)
+    18: 00000000     0 FUNC    GLOBAL DEFAULT  UND dlsym@GLIBC_2.4 (3)
+    19: 00000000     0 FUNC    GLOBAL DEFAULT  UND write@GLIBC_2.4 (4)

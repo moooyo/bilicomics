@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "source_repository": "AidokuForKindle",
+  "source_repository_url": "https://github.com/moooyo/aidokuForKindle",
+  "source_commits": [
+    "4e069260fa612e465b8fde8730596a0c60e0261f"
+  ],
+  "license": "GPL-3.0-or-later",
+  "scope": "Selected unchanged native-query implementation sources and original license; no firmware library, device evidence, or account data.",
+  "files": [
+    {
+      "path": "LICENSE.AIDOKU",
+      "source_path": "LICENSE",
+      "source_commit": "4e069260fa612e465b8fde8730596a0c60e0261f",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "upstream/4e06926/scripts/build-native-query.sh",
+      "source_path": "scripts/build-native-query.sh",
+      "source_commit": "4e069260fa612e465b8fde8730596a0c60e0261f",
+      "bytes": 723,
+      "sha256": "a4299385356445f7619bb96ce1196f9836bf59f6d7a2b66570f61d84914dc30f"
+    },
+    {
+      "path": "upstream/4e06926/src/native_query.rs",
+      "source_path": "src/native_query.rs",
+      "source_commit": "4e069260fa612e465b8fde8730596a0c60e0261f",
+      "bytes": 15654,
+      "sha256": "298a8b37fe2eb7aabb74bffa1ea8bb9c5dfa2601605f1e0c6df24c973e966422"
+    },
+    {
+      "path": "upstream/4e06926/src/native_query/worker.c",
+      "source_path": "src/native_query/worker.c",
+      "source_commit": "4e069260fa612e465b8fde8730596a0c60e0261f",
+      "bytes": 5501,
+      "sha256": "707ab2665fb230ab6c10104ba67e4320b3f63e946ce64a537911e202120e566a"
+    }
+  ]
+}

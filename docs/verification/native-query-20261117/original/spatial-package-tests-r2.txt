@@ -1,0 +1,10 @@
+test_complete_original_notice_bytes_pass_without_any_elf_mock (__main__.SpatialDitherPackageTests.test_complete_original_notice_bytes_pass_without_any_elf_mock) ... ok
+test_every_required_notice_is_required (__main__.SpatialDitherPackageTests.test_every_required_notice_is_required) ... ok
+test_replacing_any_notice_is_rejected_despite_a_valid_zip_crc (__main__.SpatialDitherPackageTests.test_replacing_any_notice_is_rejected_despite_a_valid_zip_crc) ... ok
+test_research_images_and_algorithm_sources_are_not_notice_members (__main__.SpatialDitherPackageTests.test_research_images_and_algorithm_sources_are_not_notice_members) ... ok
+test_the_full_package_checker_wires_notice_provenance_before_elf_checks (__main__.SpatialDitherPackageTests.test_the_full_package_checker_wires_notice_provenance_before_elf_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.016s
+
+OK

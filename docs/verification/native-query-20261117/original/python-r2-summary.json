@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "source_commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6",
+  "runner_sha256": "c2f70fe77f7dc78a7541c4ff3f9dbc48101964c9604ce89f3a18ee17e3e26b45",
+  "physical_device_accessed": false,
+  "cases": [
+    {
+      "path": "scripts/verification/test_native_query_package.py",
+      "source_sha256": "4eed08e30c13456c67306a7737cb884d5e1a6d8204e01ba95d1f6c9e7c3055b2",
+      "returncode": 0,
+      "seconds": 0.214,
+      "log_sha256": "07187c9acd72c9b39c4754c572412033763705b7fa41c5051e701dfebea17e8b"
+    },
+    {
+      "path": "scripts/verification/test_startup_package.py",
+      "source_sha256": "59c38e7e0d42610f79b55b05eb9aca4c0a32aad6d38f4b0528c03a3c7a7ef0a6",
+      "returncode": 0,
+      "seconds": 0.114,
+      "log_sha256": "77523d3bd4d1090115733d087b6e96ab2d5e6f3f9c50dccf402e565e88ce7470"
+    },
+    {
+      "path": "scripts/verification/test_spatial_dither_package.py",
+      "source_sha256": "481b790b093d4d683150487cb88b01dd9f7b050e7b57684dc8bc8e8f51170a90",
+      "returncode": 0,
+      "seconds": 0.114,
+      "log_sha256": "bf542152fd8751605fc9ce3374c3d6b1bf0998c93d2e358cb1db9bc03744f51c"
+    },
+    {
+      "path": "scripts/verification/test_native_media_package.py",
+      "source_sha256": "f98f513d8721f74fbe91dbc0be3bbd35dbb16b2af3080c60c1078620f7c5c802",
+      "returncode": 0,
+      "seconds": 0.064,
+      "log_sha256": "d3a78e418024bfd49006a83414bfba4be04e89b1de3a39ec945160d0ecc016b8"
+    }
+  ]
+}

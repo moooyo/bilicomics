@@ -1,0 +1,35 @@
+{
+  "scope": "Isolated C link ABI experiment only; no Cargo or device execution.",
+  "records": [
+    {
+      "variant": "original",
+      "command": [
+        "sh",
+        "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/original/scripts/build-native-query.sh",
+        "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/original/bilicomics-native-query"
+      ],
+      "returncode": 0,
+      "worker_source_sha256": "d8e7301a59b5fe691d7bfb9512f7d447da166de75c4acad66a740aee9a5ce3d2",
+      "build_script_sha256": "bd253ade57a85aba5cd25c4a12697fc6b0d93cbded2032172c50d0ed870d535b",
+      "arm_binary_executed": false,
+      "bytes": 6368,
+      "sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268",
+      "readelf": "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/original/readelf.txt"
+    },
+    {
+      "variant": "as-needed",
+      "command": [
+        "sh",
+        "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/as-needed/scripts/build-native-query.sh",
+        "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/as-needed/bilicomics-native-query"
+      ],
+      "returncode": 0,
+      "worker_source_sha256": "d8e7301a59b5fe691d7bfb9512f7d447da166de75c4acad66a740aee9a5ce3d2",
+      "build_script_sha256": "5da9f64be9e230f9e1dcd5b3b80f57c9da09d25401d8bf08212e95ce26c47e6f",
+      "arm_binary_executed": false,
+      "bytes": 6368,
+      "sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268",
+      "readelf": "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/as-needed/readelf.txt"
+    }
+  ]
+}

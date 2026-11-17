@@ -1,0 +1,26 @@
+#!/bin/sh
+# Build the published source from a new, variant-private Cargo target.
+set -eu
+umask 077
+NATIVE_QUERY_BUILD_ROOT=/root/bilicomics-native-query-20261117-01a1d11a-r1
+NATIVE_QUERY_VARIANT_ROOT=$NATIVE_QUERY_BUILD_ROOT/baseline
+export CARGO_TARGET_DIR=$NATIVE_QUERY_VARIANT_ROOT/target
+test ! -e "$CARGO_TARGET_DIR"
+test ! -L "$CARGO_TARGET_DIR"
+printf '%s\n' 'The variant target did not exist before this build.' >"$NATIVE_QUERY_BUILD_ROOT/logs/baseline-fresh-target.txt"
+date -u '+%Y-%m-%dT%H:%M:%SZ' >"$NATIVE_QUERY_BUILD_ROOT/logs/baseline-build-started.txt"
+. /root/.cargo/env
+export CARGO_BUILD_JOBS=6
+export CARGO_INCREMENTAL=0
+export RUST_TEST_THREADS=1
+export CARGO_NET_OFFLINE=true
+export CARGO_TERM_VERBOSE=true
+rustc -vV >"$NATIVE_QUERY_BUILD_ROOT/logs/compiler.txt"
+cargo --version >>"$NATIVE_QUERY_BUILD_ROOT/logs/compiler.txt"
+zig version >>"$NATIVE_QUERY_BUILD_ROOT/logs/compiler.txt"
+cd "$NATIVE_QUERY_VARIANT_ROOT/app"
+sh scripts/build-kindle.sh "$NATIVE_QUERY_VARIANT_ROOT" >"$NATIVE_QUERY_BUILD_ROOT/logs/baseline-build-wrapper.log" 2>&1
+date -u '+%Y-%m-%dT%H:%M:%SZ' >"$NATIVE_QUERY_BUILD_ROOT/logs/baseline-build-finished.txt"
+sha256sum "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/bilicomics" \
+    "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/kindle-jpeg-worker" \
+    artifacts/verification/bilicomics-kindle-0.1.25-dev.zip

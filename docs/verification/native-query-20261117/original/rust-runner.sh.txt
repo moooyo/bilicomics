@@ -1,0 +1,20 @@
+#!/bin/sh
+# Verify the Linux Kindle integration and ordinary application in one feature superset.
+set -eu
+umask 077
+NATIVE_QUERY_BUILD_ROOT=/root/bilicomics-native-query-20261117-01a1d11a-r1
+NATIVE_QUERY_VARIANT_ROOT=$NATIVE_QUERY_BUILD_ROOT/candidate
+. /root/.cargo/env
+export CARGO_TARGET_DIR=$NATIVE_QUERY_VARIANT_ROOT/target
+export CARGO_BUILD_JOBS=6
+export CARGO_INCREMENTAL=0
+export RUST_TEST_THREADS=1
+export CARGO_NET_OFFLINE=true
+export CARGO_TERM_VERBOSE=false
+export TMPDIR=$NATIVE_QUERY_BUILD_ROOT/rust-checks-r1/tmp
+mkdir -p "$TMPDIR"
+chmod 700 "$NATIVE_QUERY_BUILD_ROOT/rust-checks-r1" "$TMPDIR"
+cd "$NATIVE_QUERY_VARIANT_ROOT/app"
+cargo test --locked --offline --features kindle --lib --bins \
+    >"$NATIVE_QUERY_BUILD_ROOT/rust-checks-r1/tests.txt" 2>&1
+date -u '+%Y-%m-%dT%H:%M:%SZ' >"$NATIVE_QUERY_BUILD_ROOT/rust-checks-r1/finished.txt"

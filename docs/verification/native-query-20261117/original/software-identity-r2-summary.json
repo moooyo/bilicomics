@@ -1,0 +1,119 @@
+{
+  "passed": true,
+  "physical_device_accessed": false,
+  "sources": {
+    "baseline": {
+      "commit": "f50ada15dd934c986e8305a1f9dd8e46f51b2529",
+      "archive_sha256": "b329a272cfa567bb66bedee79439000a2ed22526e9fd9afda48006558c90695b",
+      "compiled_inputs_sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "compiled_input_files": 542
+    },
+    "candidate": {
+      "commit": "74c259338f1cfc234f92a160ccf582dbe292c8d1",
+      "archive_sha256": "9fc0e0d22c15bc943e4213f4b5114034febcceac2f079ba20ca676586ccba547",
+      "compiled_inputs_sha256": "92f34dd6c9f575c8c163312ba1e08cec5a451030316dd68e7bee7991986906bd",
+      "compiled_input_files": 545
+    },
+    "candidate-r2": {
+      "commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6",
+      "archive_sha256": "3aef41b91f51d078c0b5e8d332a7affbd780e31b44917f4887ff9755482ee0ca",
+      "compiled_inputs_sha256": "92f34dd6c9f575c8c163312ba1e08cec5a451030316dd68e7bee7991986906bd",
+      "compiled_input_files": 545
+    }
+  },
+  "packages": {
+    "baseline": {
+      "package": "/root/bilicomics-native-query-20261117-01a1d11a-r1/baseline/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.zip",
+      "package_sha256": "2eb7b6f2565bd1b6c93190ae51ebeb9750fffd9150654e92d28f64f090cf3dc4",
+      "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d",
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+      "launcher_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "source_commit": "f50ada15dd934c986e8305a1f9dd8e46f51b2529",
+      "source_fingerprint": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "compiler_fingerprint": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+      "package_checks": 16
+    },
+    "candidate-r2": {
+      "package": "/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate-r2/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.zip",
+      "package_sha256": "3f49f56f570f980cd7322f4446a6d096f1a6c96131716671f869bc73fceb8711",
+      "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+      "launcher_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "source_commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6",
+      "source_fingerprint": "92f34dd6c9f575c8c163312ba1e08cec5a451030316dd68e7bee7991986906bd",
+      "compiler_fingerprint": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+      "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268",
+      "package_checks": 19
+    }
+  },
+  "rust_test_and_authoritative_runtime_inputs_equal": true,
+  "compiler_fingerprint": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+  "fresh_builds": {
+    "baseline": {
+      "target": "/root/bilicomics-native-query-20261117-01a1d11a-r1/baseline/target",
+      "target_initially_absent": true,
+      "assertion_sha256": "1a27067bb59f8cfade80e88eaa6ff34cb74c76f3fd4dad142ed417eaa403fb62",
+      "arm_log_sha256": "0d947cb577f009b76581d898cbf63be1d5772dfc51eea99ef39fe759e5c7b33b",
+      "backend_compilation_recorded": true,
+      "application_compilation_recorded": true
+    },
+    "candidate-r2": {
+      "target": "/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate-r2/target",
+      "target_initially_absent": true,
+      "assertion_sha256": "1a27067bb59f8cfade80e88eaa6ff34cb74c76f3fd4dad142ed417eaa403fb62",
+      "arm_log_sha256": "c5d9850185c71c6f1f216e66df12d3f2eac6eae38e76c1d204ae0398d2a86f2e",
+      "backend_compilation_recorded": true,
+      "application_compilation_recorded": true
+    }
+  },
+  "unexpected_diagnostic_literal_counts": {
+    "baseline": {
+      "aidoku: startup-probe": 0,
+      "aidoku: startup-probe-barrier": 0,
+      "render_us=": 0,
+      "settle_us=": 0,
+      "submit_us=": 0,
+      "wait_us=": 0
+    },
+    "candidate-r2": {
+      "aidoku: startup-probe": 0,
+      "aidoku: startup-probe-barrier": 0,
+      "render_us=": 0,
+      "settle_us=": 0,
+      "submit_us=": 0,
+      "wait_us=": 0
+    }
+  },
+  "rust_tests": {
+    "features": [
+      "desktop",
+      "kindle"
+    ],
+    "source_commit": "74c259338f1cfc234f92a160ccf582dbe292c8d1",
+    "library_passed": 904,
+    "main_passed": 11,
+    "failed": 0,
+    "ignored": 4,
+    "source_runtime_equal_to_authoritative": true,
+    "log_sha256": "6776a6e2c4bdc13e3261708da5907b6c49c0f5d8427315385d7f8109b0c747c7"
+  },
+  "c_worker_tests": {
+    "passed": 14,
+    "failed": 0,
+    "source_unchanged": true,
+    "log_sha256": "6aba7c5cfe479f772b6a3bea7253b33d7dd4b4b2473e46e57dcbb1aaa5381ad5"
+  },
+  "package_regressions": {
+    "native_query": 44,
+    "startup": 8,
+    "spatial_dither": 5,
+    "native_media": 3,
+    "failed": 0
+  },
+  "initial_package_rejection": {
+    "report_sha256": "c1f63d865a50173074e59c7c898d81daeb0d4f95ce939db33136b573398c49d8",
+    "preserved": true,
+    "runtime_change_required": false,
+    "reason": "Unreviewed direct libpthread dependency; subsequently audited and narrowly checked"
+  }
+}

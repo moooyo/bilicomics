@@ -1,0 +1,13 @@
+test_complete_original_records_and_all_selected_snapshots_pass (__main__.StartupPackageTests.test_complete_original_records_and_all_selected_snapshots_pass) ... ok
+test_every_required_notice_is_required (__main__.StartupPackageTests.test_every_required_notice_is_required) ... ok
+test_full_checker_reaches_startup_provenance_before_elf_checks (__main__.StartupPackageTests.test_full_checker_reaches_startup_provenance_before_elf_checks) ... ok
+test_only_the_three_notice_records_are_package_members (__main__.StartupPackageTests.test_only_the_three_notice_records_are_package_members) ... ok
+test_recomputed_license_record_cannot_replace_the_original_license (__main__.StartupPackageTests.test_recomputed_license_record_cannot_replace_the_original_license) ... ok
+test_recomputed_records_cannot_rebind_the_pinned_commits (__main__.StartupPackageTests.test_recomputed_records_cannot_rebind_the_pinned_commits) ... ok
+test_replaced_source_snapshot_is_rejected_without_changing_the_notices (__main__.StartupPackageTests.test_replaced_source_snapshot_is_rejected_without_changing_the_notices) ... ok
+test_replacing_any_notice_is_rejected_with_valid_zip_crc (__main__.StartupPackageTests.test_replacing_any_notice_is_rejected_with_valid_zip_crc) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.030s
+
+OK

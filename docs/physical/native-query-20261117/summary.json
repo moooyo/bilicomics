@@ -1,0 +1,2642 @@
+{
+  "schema_version": 1,
+  "decision": {
+    "native_query_helper_adopted": false,
+    "main_import_scope": "Research reports and evidence only; no experimental runtime implementation",
+    "experimental_source_commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6",
+    "reason": "No overall startup benefit established; direct eight-operation diagnostic never executed"
+  },
+  "whole_batch": {
+    "success": false,
+    "status": "failed",
+    "selected_cases": 16,
+    "controller_completed_cases": 15,
+    "source_report_sha256": "8d633227a9e9f7bfb36728aea5c6ac09e17c07f146c5f1173b96a6ca8542edac",
+    "failure_scope": "Independent eight-op process refused before spawn; diagnostic whole case unqualified despite normal UI exit"
+  },
+  "primary": {
+    "status": "primary_qualified_projection",
+    "source_projection_sha256": "1475464028f82974e5f58ed0175ff66730bdd162c1c58e55cc9b1b3acc4bb577",
+    "original_analyzer_sha256": "55e80ecb8bc0c51b3da536bab29c0ea67074db27f00861685a4d648b858e4a28",
+    "new_projection_script_sha256": "e991f01792fa9b771d12a64c18e450c1435c7aca7ca24d8f22a374e451fbc01e",
+    "analyzer_source_rules_modified": false,
+    "launches": 14,
+    "warmups_excluded": 2,
+    "pairs": 6,
+    "all_six_pairs_retained": true,
+    "slow_candidate_01_and_06_retained": true,
+    "summary": {
+      "baseline": {
+        "content_send_ms": {
+          "maximum": 6742.57877,
+          "mean": 6649.158629,
+          "median": 6643.891885,
+          "minimum": 6581.683847,
+          "n": 6,
+          "values": [
+            6581.683847,
+            6628.367231,
+            6742.57877,
+            6654.538155,
+            6647.537539,
+            6640.246231
+          ]
+        },
+        "first_startup_send_ms": {
+          "maximum": 4440.608616,
+          "mean": 4376.115718,
+          "median": 4380.078231,
+          "minimum": 4324.960616,
+          "n": 6,
+          "values": [
+            4324.960616,
+            4333.018923,
+            4440.608616,
+            4397.949693,
+            4390.091462,
+            4370.065
+          ]
+        },
+        "hwm_kib": {
+          "maximum": 55844,
+          "mean": 55585.333333,
+          "median": 55618.0,
+          "minimum": 55308,
+          "n": 6,
+          "values": [
+            55720,
+            55308,
+            55532,
+            55704,
+            55844,
+            55404
+          ]
+        },
+        "process_enter_to_ready_ms": {
+          "maximum": 1814.950615,
+          "mean": 1791.040487,
+          "median": 1786.43927,
+          "minimum": 1770.627461,
+          "n": 6,
+          "values": [
+            1770.627461,
+            1814.950615,
+            1808.281308,
+            1783.505539,
+            1779.505,
+            1789.373
+          ]
+        },
+        "request_to_process_enter_ms": {
+          "maximum": 4127.557847,
+          "mean": 4072.617372,
+          "median": 4080.361539,
+          "minimum": 4017.643385,
+          "n": 6,
+          "values": [
+            4025.574462,
+            4017.643385,
+            4127.557847,
+            4104.205462,
+            4092.35,
+            4068.373077
+          ]
+        },
+        "rss_kib": {
+          "maximum": 55828,
+          "mean": 55569.333333,
+          "median": 55602.0,
+          "minimum": 55292,
+          "n": 6,
+          "values": [
+            55704,
+            55292,
+            55516,
+            55688,
+            55828,
+            55388
+          ]
+        },
+        "software_ready_ms": {
+          "maximum": 5935.839155,
+          "mean": 5863.657859,
+          "median": 5864.800538,
+          "minimum": 5796.201923,
+          "n": 6,
+          "values": [
+            5796.201923,
+            5832.594,
+            5935.839155,
+            5887.711001,
+            5871.855,
+            5857.746077
+          ]
+        }
+      },
+      "candidate": {
+        "content_send_ms": {
+          "maximum": 7366.525385,
+          "mean": 6752.587936,
+          "median": 6650.601077,
+          "minimum": 6408.192231,
+          "n": 6,
+          "values": [
+            7366.525385,
+            6408.192231,
+            6450.547769,
+            6666.807308,
+            6634.394846,
+            6989.060077
+          ]
+        },
+        "first_startup_send_ms": {
+          "maximum": 4520.645693,
+          "mean": 4280.180654,
+          "median": 4220.165577,
+          "minimum": 4142.397846,
+          "n": 6,
+          "values": [
+            4520.645693,
+            4142.397846,
+            4215.638077,
+            4376.657462,
+            4224.693077,
+            4201.051769
+          ]
+        },
+        "hwm_kib": {
+          "maximum": 56164,
+          "mean": 55670,
+          "median": 55598.0,
+          "minimum": 55384,
+          "n": 6,
+          "values": [
+            55436,
+            56164,
+            55760,
+            55384,
+            55840,
+            55436
+          ]
+        },
+        "process_enter_to_ready_ms": {
+          "maximum": 2644.712846,
+          "mean": 2080.456167,
+          "median": 1849.091,
+          "minimum": 1759.78277,
+          "n": 6,
+          "values": [
+            2644.712846,
+            1759.78277,
+            1774.102384,
+            1834.721692,
+            1863.460308,
+            2605.957
+          ]
+        },
+        "request_to_process_enter_ms": {
+          "maximum": 4189.940385,
+          "mean": 3964.422744,
+          "median": 3911.751423,
+          "minimum": 3874.806538,
+          "n": 6,
+          "values": [
+            4189.940385,
+            3874.806538,
+            3912.749385,
+            4016.935693,
+            3881.351,
+            3910.753462
+          ]
+        },
+        "rss_kib": {
+          "maximum": 56148,
+          "mean": 55654,
+          "median": 55582.0,
+          "minimum": 55368,
+          "n": 6,
+          "values": [
+            55420,
+            56148,
+            55744,
+            55368,
+            55824,
+            55420
+          ]
+        },
+        "software_ready_ms": {
+          "maximum": 6834.653231,
+          "mean": 6044.87891,
+          "median": 5798.234347,
+          "minimum": 5634.589308,
+          "n": 6,
+          "values": [
+            6834.653231,
+            5634.589308,
+            5686.851769,
+            5851.657385,
+            5744.811308,
+            6516.710462
+          ]
+        }
+      }
+    },
+    "paired_rounds": [
+      {
+        "metrics": {
+          "content_send_ms": {
+            "baseline": 6581.683847,
+            "candidate": 7366.525385,
+            "reduction_ms": -784.841538
+          },
+          "software_ready_ms": {
+            "baseline": 5796.201923,
+            "candidate": 6834.653231,
+            "reduction_ms": -1038.451308
+          }
+        },
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "round": 1
+      },
+      {
+        "metrics": {
+          "content_send_ms": {
+            "baseline": 6628.367231,
+            "candidate": 6408.192231,
+            "reduction_ms": 220.175
+          },
+          "software_ready_ms": {
+            "baseline": 5832.594,
+            "candidate": 5634.589308,
+            "reduction_ms": 198.004692
+          }
+        },
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "round": 2
+      },
+      {
+        "metrics": {
+          "content_send_ms": {
+            "baseline": 6742.57877,
+            "candidate": 6450.547769,
+            "reduction_ms": 292.031001
+          },
+          "software_ready_ms": {
+            "baseline": 5935.839155,
+            "candidate": 5686.851769,
+            "reduction_ms": 248.987386
+          }
+        },
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "round": 3
+      },
+      {
+        "metrics": {
+          "content_send_ms": {
+            "baseline": 6654.538155,
+            "candidate": 6666.807308,
+            "reduction_ms": -12.269153
+          },
+          "software_ready_ms": {
+            "baseline": 5887.711001,
+            "candidate": 5851.657385,
+            "reduction_ms": 36.053616
+          }
+        },
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "round": 4
+      },
+      {
+        "metrics": {
+          "content_send_ms": {
+            "baseline": 6647.537539,
+            "candidate": 6634.394846,
+            "reduction_ms": 13.142693
+          },
+          "software_ready_ms": {
+            "baseline": 5871.855,
+            "candidate": 5744.811308,
+            "reduction_ms": 127.043692
+          }
+        },
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "round": 5
+      },
+      {
+        "metrics": {
+          "content_send_ms": {
+            "baseline": 6640.246231,
+            "candidate": 6989.060077,
+            "reduction_ms": -348.813846
+          },
+          "software_ready_ms": {
+            "baseline": 5857.746077,
+            "candidate": 6516.710462,
+            "reduction_ms": -658.964385
+          }
+        },
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "round": 6
+      }
+    ],
+    "paired_deltas": {
+      "software_ready_ms": {
+        "candidate_minus_baseline": {
+          "n": 6,
+          "values": [
+            1038.451308,
+            -198.004692,
+            -248.987386,
+            -36.053616,
+            -127.043692,
+            658.964385
+          ],
+          "minimum": -248.987386,
+          "maximum": 1038.451308,
+          "median": -81.548654,
+          "mean": 181.221051
+        },
+        "win_counts": {
+          "candidate_faster": 4,
+          "candidate_slower": 2,
+          "equal": 0
+        }
+      },
+      "content_send_ms": {
+        "candidate_minus_baseline": {
+          "n": 6,
+          "values": [
+            784.841538,
+            -220.175,
+            -292.031001,
+            12.269153,
+            -13.142693,
+            348.813846
+          ],
+          "minimum": -292.031001,
+          "maximum": 784.841538,
+          "median": -0.43677,
+          "mean": 103.429307
+        },
+        "win_counts": {
+          "candidate_faster": 3,
+          "candidate_slower": 3,
+          "equal": 0
+        }
+      }
+    },
+    "paired_delta_units": "Milliseconds, candidate minus baseline; positive is slower",
+    "cases": [
+      {
+        "source_tag": "baseline-warmup",
+        "measurement_role": "warmup",
+        "software_variant": "baseline",
+        "warmup": true,
+        "included_in_primary_statistics": false,
+        "deployed_identity": {
+          "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d",
+          "native_query_sha256": null
+        },
+        "metrics": {
+          "content_send_ms": 7378.273385,
+          "first_startup_send_ms": 5129.267231,
+          "hwm_kib": 55852,
+          "process_enter_to_ready_ms": 1852.121307,
+          "request_to_process_enter_ms": 4742.210462,
+          "rss_kib": 55836,
+          "software_ready_ms": 6594.331769,
+          "ready_to_business_send_ms": 783.941616
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27336,
+          "RssFile": 28500,
+          "RssShmem": 0,
+          "VmHWM": 55852,
+          "VmRSS": 55836
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 0.826231,
+          "actual_request_after_business_send_ms": 1500.826231,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 5129.267231,
+          "record_after_request_ms": 5494.902769,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 7378.273385,
+          "record_after_request_ms": 7744.749539,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "97adccd16167fe4d2840dc75f99d37b97c9fbac075c3d05943b14535df23d5de",
+          "final.json": "8a88806a8c30b335c681474a437ff80c7254d419da7ef1ae2f4862821f47cf5b",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "9d045ca711901e015001b6f6d942a83554801aa00508c27aa80241d9ff44fc00",
+          "memory-at-content.txt": "3d55b1500aabadf6a64ac4c3d1eeb95803c834cb42f9dc7e4a559c37f9f7efc7",
+          "performance.jsonl": "ffb8268cf0389a2764412b45915c50114c1983c28713b277733de488a24483db",
+          "post-business-gate.json": "046fba72c8448f4ab2b0f13a98988a32729566d46c03235e26c1321e2746539f",
+          "post-business-target-ns.txt": "307a574e7029b778046b01c6646ab7d163f78039ab1a95a21929d3a7761655df",
+          "recovery.json": "4d368b41c23188d4801f3888d41b07836fc2b65dab3cee2eef28de5f597b53e3",
+          "request.json": "358be8503546d74cb2518e9790d13fe27eead6429d33ce37735a30707f8498e9",
+          "shell.tsv": "3d67de65d23465fc53953330e3bc98bf641300913a5d82b75f0f0016c6e509ba"
+        }
+      },
+      {
+        "source_tag": "candidate-warmup",
+        "measurement_role": "warmup",
+        "software_variant": "candidate",
+        "warmup": true,
+        "included_in_primary_statistics": false,
+        "deployed_identity": {
+          "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+          "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268"
+        },
+        "metrics": {
+          "content_send_ms": 6435.627,
+          "first_startup_send_ms": 4197.678385,
+          "hwm_kib": 56040,
+          "process_enter_to_ready_ms": 1769.662,
+          "request_to_process_enter_ms": 3910.009846,
+          "rss_kib": 56024,
+          "software_ready_ms": 5679.671846,
+          "ready_to_business_send_ms": 755.955154
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27444,
+          "RssFile": 28580,
+          "RssShmem": 0,
+          "VmHWM": 56040,
+          "VmRSS": 56024
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 0.324,
+          "actual_request_after_business_send_ms": 1500.324,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4197.678385,
+          "record_after_request_ms": 4563.542769,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6435.627,
+          "record_after_request_ms": 6801.211308,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "8a2c9bc1ed8bc0db3e17fadee8bdb0c2f271c97ac1f61010905be30d94d60c68",
+          "final.json": "4fa844aefca6f77bf4ab8ec5ed71ccc1521685fa9a59aa19f741b7176d696c49",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "1c33d287e22cbf85431dd3bd8b2d7b035cd995ef7284fe9d98d4d9d52f1d4e09",
+          "memory-at-content.txt": "fd7202716d8ac0bf60235b65f2202c9dfed7dd2b6990948117a9ea2f3dd44d0b",
+          "performance.jsonl": "a6af036a2c42e511da178a71fee11086b4d4f94d28a58ec55a9438bb6ca491f3",
+          "post-business-gate.json": "e8d6541d94996234eddc994a352f705cb02b6a3ed4876aeb7bc60dfcbe9313a2",
+          "post-business-target-ns.txt": "6cdb7ed9c65923d32443cef7a20ab8496671a5c085be82f960dabe79c212ccef",
+          "recovery.json": "4d368b41c23188d4801f3888d41b07836fc2b65dab3cee2eef28de5f597b53e3",
+          "request.json": "053f989c430d7f88701b87a122152e1a019309a9effd64bf890d07043a5a1907",
+          "shell.tsv": "b7b9760b75b9ad71db7d7976e83230b2cca4f96bb49cd9b92ce6e9fdadd1ed6d"
+        }
+      },
+      {
+        "source_tag": "baseline-01",
+        "measurement_role": "primary",
+        "software_variant": "baseline",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d",
+          "native_query_sha256": null
+        },
+        "metrics": {
+          "content_send_ms": 6581.683847,
+          "first_startup_send_ms": 4324.960616,
+          "hwm_kib": 55720,
+          "process_enter_to_ready_ms": 1770.627461,
+          "request_to_process_enter_ms": 4025.574462,
+          "rss_kib": 55704,
+          "software_ready_ms": 5796.201923,
+          "ready_to_business_send_ms": 785.481924
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27336,
+          "RssFile": 28368,
+          "RssShmem": 0,
+          "VmHWM": 55720,
+          "VmRSS": 55704
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 0.787615,
+          "actual_request_after_business_send_ms": 1500.787615,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4324.960616,
+          "record_after_request_ms": 4691.813847,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6581.683847,
+          "record_after_request_ms": 6948.510462,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "97adccd16167fe4d2840dc75f99d37b97c9fbac075c3d05943b14535df23d5de",
+          "final.json": "009ba466f820b2f58fc904f0b2b7ba7bd805858f95c1334804f946a598f9985b",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "60df71f64cf5f9df5fe89cd13f15cdacda6b6044ba04eaf2d6d508a653b1a3e3",
+          "memory-at-content.txt": "73ed2c7591d4847e96bad6625f9c609bf4baaadbcd0fb7b80657744ea95f3751",
+          "performance.jsonl": "40313dde9ad9ebc69c92138a93185318d405069a2722ffa7f0b9345f318cb5ca",
+          "post-business-gate.json": "1797e9d0db6d2f8f359a9c1d866f09a5fdc20ba6977f299b67ae5afaacfef26e",
+          "post-business-target-ns.txt": "8fefc6ba7ede3c456877df0c38afbc2b88bea081318c22528f6d6b4985298948",
+          "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+          "request.json": "2363f19c355cc136d43d4d04cd0339cdfc7a13cc39c92ff15782572f42d785e9",
+          "shell.tsv": "2bbfc6cbd35f54dd364df8ecb4d211205302eb37913007a30fbbfbb2ce0b6095"
+        }
+      },
+      {
+        "source_tag": "candidate-01",
+        "measurement_role": "primary",
+        "software_variant": "candidate",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+          "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268"
+        },
+        "metrics": {
+          "content_send_ms": 7366.525385,
+          "first_startup_send_ms": 4520.645693,
+          "hwm_kib": 55436,
+          "process_enter_to_ready_ms": 2644.712846,
+          "request_to_process_enter_ms": 4189.940385,
+          "rss_kib": 55420,
+          "software_ready_ms": 6834.653231,
+          "ready_to_business_send_ms": 531.872154
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 22,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27472,
+          "RssFile": 27948,
+          "RssShmem": 0,
+          "VmHWM": 55436,
+          "VmRSS": 55420
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 0.345692,
+          "actual_request_after_business_send_ms": 1500.345692,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4520.645693,
+          "record_after_request_ms": 4888.058923,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 7366.525385,
+          "record_after_request_ms": 7731.416,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 7,
+          "completed_update_marker": 7,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 7
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "8a2c9bc1ed8bc0db3e17fadee8bdb0c2f271c97ac1f61010905be30d94d60c68",
+          "final.json": "f87e05a455fbafedb979b2da1f4628d82cce1860a4022b203580ff2492b152d6",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "cc08f65ec6d8e283e70fbbe2c12ac87be375eee08504a0d7e83253706187c5fb",
+          "memory-at-content.txt": "4e886e5faac7052776feff768d788ed5b05c9a83bcd8f4b426b49a2f8ef8a057",
+          "performance.jsonl": "b4cef8bc151e85ccfcf44e51fd90cf6c9360bffbcb504b333b6b6852d7fde123",
+          "post-business-gate.json": "8ba59ba8b54210a4bc88064ba5c63e947584d401d7ed183c89687e4d49dc1034",
+          "post-business-target-ns.txt": "87c270939a1189d92829f971959252b146c4417de5cbecb954cbede5db39abb0",
+          "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+          "request.json": "99545394544d5bfb49e9ef9a6fea9f49bd029fe3df0728d0caa5443119066661",
+          "shell.tsv": "cd81c8973e8ff4c2300526f03a624a6ca4d83526c2f1a2451efb5ce3f5069c01"
+        }
+      },
+      {
+        "source_tag": "candidate-02",
+        "measurement_role": "primary",
+        "software_variant": "candidate",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+          "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268"
+        },
+        "metrics": {
+          "content_send_ms": 6408.192231,
+          "first_startup_send_ms": 4142.397846,
+          "hwm_kib": 56164,
+          "process_enter_to_ready_ms": 1759.78277,
+          "request_to_process_enter_ms": 3874.806538,
+          "rss_kib": 56148,
+          "software_ready_ms": 5634.589308,
+          "ready_to_business_send_ms": 773.602923
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27344,
+          "RssFile": 28804,
+          "RssShmem": 0,
+          "VmHWM": 56164,
+          "VmRSS": 56148
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 0.843692,
+          "actual_request_after_business_send_ms": 1500.843692,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4142.397846,
+          "record_after_request_ms": 4509.566692,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6408.192231,
+          "record_after_request_ms": 6774.197692,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "8a2c9bc1ed8bc0db3e17fadee8bdb0c2f271c97ac1f61010905be30d94d60c68",
+          "final.json": "2908ad849f6828bd330297c49f4360ee6938da9861506334ebf6fafbb0ff52da",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "c38698246f06dcb91323952a23a07acc5b17e5e3198ebc53065d1e72b2908782",
+          "memory-at-content.txt": "0e7b85aed351b842590aa9f472c0841e4384d41ff7c7eb8db2b63a388e4ae9fc",
+          "performance.jsonl": "399204ce075f8338b849bfec6107ee234b9be2659da54f5ff64a5f33215d6a00",
+          "post-business-gate.json": "34d0d6f23a1fcc3a26c9fe636c3cc8070bfd463fb3791c4e9cc5bfea658eea38",
+          "post-business-target-ns.txt": "5d9eb1c2767ef319f7238b8c895a19482bafa94e18eda0e867c5558f315820ee",
+          "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+          "request.json": "9a488793bce4e64aad6cea4253edbc900e400b757122820642570ffcf505c59e",
+          "shell.tsv": "72270958798768121112dd28cece8c1c75fa6ae578dc9ff1fc1e4c72e549e6b1"
+        }
+      },
+      {
+        "source_tag": "baseline-02",
+        "measurement_role": "primary",
+        "software_variant": "baseline",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d",
+          "native_query_sha256": null
+        },
+        "metrics": {
+          "content_send_ms": 6628.367231,
+          "first_startup_send_ms": 4333.018923,
+          "hwm_kib": 55308,
+          "process_enter_to_ready_ms": 1814.950615,
+          "request_to_process_enter_ms": 4017.643385,
+          "rss_kib": 55292,
+          "software_ready_ms": 5832.594,
+          "ready_to_business_send_ms": 795.773231
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27432,
+          "RssFile": 27860,
+          "RssShmem": 0,
+          "VmHWM": 55308,
+          "VmRSS": 55292
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 0.829308,
+          "actual_request_after_business_send_ms": 1500.829308,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4333.018923,
+          "record_after_request_ms": 4700.601615,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6628.367231,
+          "record_after_request_ms": 6994.526,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "97adccd16167fe4d2840dc75f99d37b97c9fbac075c3d05943b14535df23d5de",
+          "final.json": "59d4423973274a85dc1d7fae15107663de04e5829ab5655e4c7484220d58e01a",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "a7bccf22e42ba905366f25dfe292f279577766e7bcda5bcd65ae60902f70ecb6",
+          "memory-at-content.txt": "871309fa80e4c6a583fade1e0a79dfaec597444074c999816322a3cd2e77b5a5",
+          "performance.jsonl": "a638c94b093aff00d9f2df4aa0b35fc8131f9a7703107e951b7acd181d151bfa",
+          "post-business-gate.json": "7865c824324df500ca82ea676218ab0a0bdffb0d0d4c2544397ae5ca39f13eb2",
+          "post-business-target-ns.txt": "3c1a6e7922a42d565bf8db46acd10a935fcba92211acbeb45a27c92fe7bf27da",
+          "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+          "request.json": "42540efbd48afe94c3c0074214ce3f7b1fba5dbf775d644312de65b9a9b203da",
+          "shell.tsv": "227feec7b46e250b95afa195913d393f15d8e6a12786d8064fba6d50bfb7f450"
+        }
+      },
+      {
+        "source_tag": "baseline-03",
+        "measurement_role": "primary",
+        "software_variant": "baseline",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d",
+          "native_query_sha256": null
+        },
+        "metrics": {
+          "content_send_ms": 6742.57877,
+          "first_startup_send_ms": 4440.608616,
+          "hwm_kib": 55532,
+          "process_enter_to_ready_ms": 1808.281308,
+          "request_to_process_enter_ms": 4127.557847,
+          "rss_kib": 55516,
+          "software_ready_ms": 5935.839155,
+          "ready_to_business_send_ms": 806.739615
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27428,
+          "RssFile": 28088,
+          "RssShmem": 0,
+          "VmHWM": 55532,
+          "VmRSS": 55516
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 0.811769,
+          "actual_request_after_business_send_ms": 1500.811769,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4440.608616,
+          "record_after_request_ms": 4807.071308,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6742.57877,
+          "record_after_request_ms": 7108.479693,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "97adccd16167fe4d2840dc75f99d37b97c9fbac075c3d05943b14535df23d5de",
+          "final.json": "2232ffa393de70372c073844a441708d9fbfc63b83befa3a7c711426409fbd8b",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "e652563f574c2b054123fbf10bfde64234943cddf495e229f99bf82435ebb31f",
+          "memory-at-content.txt": "a60a78c69adb76fc74d7d5234eb6b8a80f745fddae453a161bbeecba0c0bde4b",
+          "performance.jsonl": "f5fc0095378f8fc4f9ebe0c677b6bad780e5e8a62eea7aa71a26c4b18d2be578",
+          "post-business-gate.json": "c87db0626e1b151c4cc06441e368106fa9e4faf4927ce0d286f486b9b9000ae0",
+          "post-business-target-ns.txt": "b350dde9f509a6d59577c4c4262b306effeb38a0c2a2ee50362d37b9e376e440",
+          "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+          "request.json": "1447d552e2a2a4cd4f38e30d4b2c3913e96ab2e87de7c58ae9bae23b025a7a50",
+          "shell.tsv": "14a180b7b71ee93141d4ed7cbc9fa5cd784cb5b08c616d2981230ed14a3e3c62"
+        }
+      },
+      {
+        "source_tag": "candidate-03",
+        "measurement_role": "primary",
+        "software_variant": "candidate",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+          "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268"
+        },
+        "metrics": {
+          "content_send_ms": 6450.547769,
+          "first_startup_send_ms": 4215.638077,
+          "hwm_kib": 55760,
+          "process_enter_to_ready_ms": 1774.102384,
+          "request_to_process_enter_ms": 3912.749385,
+          "rss_kib": 55744,
+          "software_ready_ms": 5686.851769,
+          "ready_to_business_send_ms": 763.696
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27436,
+          "RssFile": 28308,
+          "RssShmem": 0,
+          "VmHWM": 55760,
+          "VmRSS": 55744
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 1.319924,
+          "actual_request_after_business_send_ms": 1501.319924,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4215.638077,
+          "record_after_request_ms": 4582.868462,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6450.547769,
+          "record_after_request_ms": 6817.087616,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "8a2c9bc1ed8bc0db3e17fadee8bdb0c2f271c97ac1f61010905be30d94d60c68",
+          "final.json": "1571305b1c5022163bfa54e0866d3b5940119591417bdb7a05540ddcdefaa56e",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "86fc559fe0cf65465caac70fb6d5a88a86b6ae5136c9b45b707a2151639ca75b",
+          "memory-at-content.txt": "385c6c6a5d97fa5c832202b17a301fd19c1b6ee3e6e7d8a66fd619a6fd1f67e2",
+          "performance.jsonl": "9a0fae7ff92297bc54343dafc88824f106f93548f7c3750d730f9407d7c4c855",
+          "post-business-gate.json": "5e1b0e3daad3e8cda6995bae734a6beb5f85a1c8ee16ebc3af7f9e26470563c9",
+          "post-business-target-ns.txt": "93c0ddc3d7b4cfd14d50d502fd3692b5309aa37df4a236fa993323e5e6a1d4af",
+          "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+          "request.json": "aa7b1741b8bcda887960dd56cf9faaad6a258484b52533c7d302e21bcc2d23c4",
+          "shell.tsv": "ed856f07a4ee3ae366ed76eae9f91f06210f9c68c89ea0c51014e088239e781d"
+        }
+      },
+      {
+        "source_tag": "candidate-04",
+        "measurement_role": "primary",
+        "software_variant": "candidate",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+          "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268"
+        },
+        "metrics": {
+          "content_send_ms": 6666.807308,
+          "first_startup_send_ms": 4376.657462,
+          "hwm_kib": 55384,
+          "process_enter_to_ready_ms": 1834.721692,
+          "request_to_process_enter_ms": 4016.935693,
+          "rss_kib": 55368,
+          "software_ready_ms": 5851.657385,
+          "ready_to_business_send_ms": 815.149923
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27436,
+          "RssFile": 27932,
+          "RssShmem": 0,
+          "VmHWM": 55384,
+          "VmRSS": 55368
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 1.664539,
+          "actual_request_after_business_send_ms": 1501.664539,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4376.657462,
+          "record_after_request_ms": 4744.803231,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6666.807308,
+          "record_after_request_ms": 7033.488847,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "8a2c9bc1ed8bc0db3e17fadee8bdb0c2f271c97ac1f61010905be30d94d60c68",
+          "final.json": "7b78ceb25f4cd0dc8394d966f6c38558e96e580fc3c44b5a5ba1fa3ea4b64d8c",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "5655b92486b61a2d079a4ddfce04ed604f6c9479e5f22b4bff5100a5a335b722",
+          "memory-at-content.txt": "1630f866b1c981ea57d7bee0cbdbcdd0dd854a068b2c9c344a838a97e8ebc797",
+          "performance.jsonl": "f3a0892edb25d6ec5b0d46ff4e7934d6cf18c7d5f0b5728991eef92e84bcc344",
+          "post-business-gate.json": "c782fbb1f304d8635819379c557eee49ec92903d0cd4233b7dbdda8554a56837",
+          "post-business-target-ns.txt": "ac89fd0d03165e00aad37b71f0d633e1784e88fc81fa6dd545396b20f9ae3825",
+          "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+          "request.json": "e100fd16cde38ee2bfc1f75422c42a5a01b0425a9cb6ea99f55c2f7e3ada8e6a",
+          "shell.tsv": "cc37d566a28b0b04cbf2dfda2987f7b645a2ca473561142bc39b134f2fada855"
+        }
+      },
+      {
+        "source_tag": "baseline-04",
+        "measurement_role": "primary",
+        "software_variant": "baseline",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d",
+          "native_query_sha256": null
+        },
+        "metrics": {
+          "content_send_ms": 6654.538155,
+          "first_startup_send_ms": 4397.949693,
+          "hwm_kib": 55704,
+          "process_enter_to_ready_ms": 1783.505539,
+          "request_to_process_enter_ms": 4104.205462,
+          "rss_kib": 55688,
+          "software_ready_ms": 5887.711001,
+          "ready_to_business_send_ms": 766.827154
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27432,
+          "RssFile": 28256,
+          "RssShmem": 0,
+          "VmHWM": 55704,
+          "VmRSS": 55688
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 1.628615,
+          "actual_request_after_business_send_ms": 1501.628615,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4397.949693,
+          "record_after_request_ms": 4763.98877,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6654.538155,
+          "record_after_request_ms": 7021.202309,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "97adccd16167fe4d2840dc75f99d37b97c9fbac075c3d05943b14535df23d5de",
+          "final.json": "0f57f2f4ccbdde83f359486fc8028197f23577496ada5051a3a27034d792df8e",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "298597e2b856ddb237e6980aeab7ae98ffebd14e128330bd3aa4e1464601c8c5",
+          "memory-at-content.txt": "de7618ece6f7e51b85b22ef07606b497717a275e9485d597137e022e97b477cb",
+          "performance.jsonl": "7d8724f3f309451f00e9b4fcd616500dde545ee0ef046431bae65619e7d8bbb2",
+          "post-business-gate.json": "40982649ab3803772b317fae2fc2dca38892aff21b667b63ff187ef54e1ad363",
+          "post-business-target-ns.txt": "5e510347979c3aaa38b101d54a66e4239df709e45cd7f1888b44a09b586ef0e4",
+          "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+          "request.json": "dc2429da90540743af5ae9b37aab6805e8456364f3093da3ac1958a006a78deb",
+          "shell.tsv": "6a0aebeb5ed07e7c769260e0a0cf08c536fc1197c36f77e4749a08a32553e045"
+        }
+      },
+      {
+        "source_tag": "baseline-05",
+        "measurement_role": "primary",
+        "software_variant": "baseline",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d",
+          "native_query_sha256": null
+        },
+        "metrics": {
+          "content_send_ms": 6647.537539,
+          "first_startup_send_ms": 4390.091462,
+          "hwm_kib": 55844,
+          "process_enter_to_ready_ms": 1779.505,
+          "request_to_process_enter_ms": 4092.35,
+          "rss_kib": 55828,
+          "software_ready_ms": 5871.855,
+          "ready_to_business_send_ms": 775.682539
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27436,
+          "RssFile": 28392,
+          "RssShmem": 0,
+          "VmHWM": 55844,
+          "VmRSS": 55828
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 1.295615,
+          "actual_request_after_business_send_ms": 1501.295615,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4390.091462,
+          "record_after_request_ms": 4756.767154,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6647.537539,
+          "record_after_request_ms": 7013.47977,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "97adccd16167fe4d2840dc75f99d37b97c9fbac075c3d05943b14535df23d5de",
+          "final.json": "b17c9e6ef148a7775a51d2574687e4f5a89c2b8573c3ea30ceb6354ae0883287",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "d2849cbddd72bbb1697d79dcb45c7c4e8e945560fc59e1a1b4cda052a63b17f2",
+          "memory-at-content.txt": "f156007e98857c1f82c56c9a220d558a2fb2b12fe7a786a95d6e2994e6349268",
+          "performance.jsonl": "dbd463a6ae71ab8f79e568ee327f59c9b3d67c3e0ac271e986e9ff168ab268ea",
+          "post-business-gate.json": "5a204b4aff8172280a18a8f74a3ffa27734422f4528eec4a0a588510da94c321",
+          "post-business-target-ns.txt": "54a7821d2f75834212e50eb88637a767df6eb09fd6e802c36021544c68701618",
+          "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+          "request.json": "02e2403fe3dd276ad70b8c37e2c45f9718f3e793cd1156550cfdff2c14c5c828",
+          "shell.tsv": "6a06d733e193844a6289fa445df486de72dc031084870e7f0756cf20adb3687d"
+        }
+      },
+      {
+        "source_tag": "candidate-05",
+        "measurement_role": "primary",
+        "software_variant": "candidate",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+          "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268"
+        },
+        "metrics": {
+          "content_send_ms": 6634.394846,
+          "first_startup_send_ms": 4224.693077,
+          "hwm_kib": 55840,
+          "process_enter_to_ready_ms": 1863.460308,
+          "request_to_process_enter_ms": 3881.351,
+          "rss_kib": 55824,
+          "software_ready_ms": 5744.811308,
+          "ready_to_business_send_ms": 889.583538
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27436,
+          "RssFile": 28388,
+          "RssShmem": 0,
+          "VmHWM": 55840,
+          "VmRSS": 55824
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 0.366077,
+          "actual_request_after_business_send_ms": 1500.366077,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4224.693077,
+          "record_after_request_ms": 4606.850385,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6634.394846,
+          "record_after_request_ms": 7001.726616,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "deployed-identity.json": "8a2c9bc1ed8bc0db3e17fadee8bdb0c2f271c97ac1f61010905be30d94d60c68",
+          "final.json": "b51f11b620707857b39e2dd6c9373bd46f41e02419b2224838818fd025544719",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "97fee8f74b086d8223e801edaf059d15fe851a5e04b1f6c9e7d16041126d69b7",
+          "memory-at-content.txt": "63a0f2e58c5cf900dd5df9f16cedad403cd3069fa0ce72269f61400bfaa8c1f1",
+          "performance.jsonl": "d7230a540379e707c2236730038300ded1e5938a4142b02911f69d2a42bdbb03",
+          "post-business-gate.json": "bcbc2c3c653d6ae3eb3c738a323df1002574ffdf5847feaaed7a5ffa9bdbd5d6",
+          "post-business-target-ns.txt": "a4067567db86ba446ee99682556e1a873dd767080179dd21fa6949797126497f",
+          "recovery.json": "4d368b41c23188d4801f3888d41b07836fc2b65dab3cee2eef28de5f597b53e3",
+          "request.json": "e75076b504100aa9eca633df96244f3805ef5970c68b3a8bb9bd826d6942e291",
+          "shell.tsv": "6c52f3fa030f8763e0870aa803d30f64b94bff08a52059bdba74d9fc523b9931"
+        }
+      },
+      {
+        "source_tag": "candidate-06",
+        "measurement_role": "primary",
+        "software_variant": "candidate",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+          "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268"
+        },
+        "metrics": {
+          "content_send_ms": 6989.060077,
+          "first_startup_send_ms": 4201.051769,
+          "hwm_kib": 55436,
+          "process_enter_to_ready_ms": 2605.957,
+          "request_to_process_enter_ms": 3910.753462,
+          "rss_kib": 55420,
+          "software_ready_ms": 6516.710462,
+          "ready_to_business_send_ms": 472.349615
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27316,
+          "RssFile": 28104,
+          "RssShmem": 0,
+          "VmHWM": 55436,
+          "VmRSS": 55420
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 1.180462,
+          "actual_request_after_business_send_ms": 1501.180462,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4201.051769,
+          "record_after_request_ms": 4567.763769,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6989.060077,
+          "record_after_request_ms": 7355.358077,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 7,
+          "completed_update_marker": 7,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 7
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "capture-liveness.json": "5313dfc24883b72f394b8543582f1d1c7bbc29bb72333c234bf461d8599ee878",
+          "content-frame.raw": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+          "deployed-identity.json": "8a2c9bc1ed8bc0db3e17fadee8bdb0c2f271c97ac1f61010905be30d94d60c68",
+          "early-complete.json": "bbbf2f00107bef2929e4127cd47a000cd00288cf396c5aa87ab947817666ba9d",
+          "early-request.json": "74776e337c156d97b360dd899469d8b92e61e3b22c0fd8e5fe72e79ee4d80db7",
+          "final.json": "5cf401f41b8e1f7194c684387289e89ca78719aa9e178f1fcf2a84af5dae3163",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "3674f24d4dc7df040482160ba195aefdb9bf4cee61305c6dccc3c2236833014f",
+          "memory-at-content.txt": "c4bc3c214170fea0ffd642a4d79b98ae43b4a839e28bdccf62ddcd66c41f29ab",
+          "performance.jsonl": "51062f29751745f50bd12050004795a58289a3d48049177ed0a97680302dc8cc",
+          "post-business-gate.json": "bc4470296341cdcec4ac113c0225bfcfa93c1c330d02d34452cc2e5c5ab29e84",
+          "post-business-target-ns.txt": "9c2b8c547cfbab83f0f2af9780432c7cb3d9857f14e3fd3f40c4c2b3064904d5",
+          "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+          "request.json": "26f7d567eda1fe9622721d10aa9eee9fdbcc260816028de7e9b71367d39ad77e",
+          "settled-complete.json": "e2584e1de396c8b327595a251a9e752529e1b599ca0e5d7e23588b9ca7189058",
+          "settled-deadline-ns.txt": "9c2b8c547cfbab83f0f2af9780432c7cb3d9857f14e3fd3f40c4c2b3064904d5",
+          "settled-frame.raw": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+          "settled-request.json": "bc4470296341cdcec4ac113c0225bfcfa93c1c330d02d34452cc2e5c5ab29e84",
+          "shell.tsv": "470a0748bea0037a96bafe04f185cf76ea1bff187f4edd515da8f0da9d762e4b"
+        }
+      },
+      {
+        "source_tag": "baseline-06",
+        "measurement_role": "primary",
+        "software_variant": "baseline",
+        "warmup": false,
+        "included_in_primary_statistics": true,
+        "deployed_identity": {
+          "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d",
+          "native_query_sha256": null
+        },
+        "metrics": {
+          "content_send_ms": 6640.246231,
+          "first_startup_send_ms": 4370.065,
+          "hwm_kib": 55404,
+          "process_enter_to_ready_ms": 1789.373,
+          "request_to_process_enter_ms": 4068.373077,
+          "rss_kib": 55388,
+          "software_ready_ms": 5857.746077,
+          "ready_to_business_send_ms": 782.500154
+        },
+        "same_pid_final_lifecycle_performance": true,
+        "lifecycle_event_counts": {
+          "startup-stage": 21,
+          "ready": 1,
+          "reader-checkpoint": 1,
+          "ui-state": 1
+        },
+        "final_suspended": false,
+        "input_nodes": [
+          "/dev/input/event2",
+          "/dev/input/event4"
+        ],
+        "memory_kib": {
+          "RssAnon": 27428,
+          "RssFile": 27960,
+          "RssShmem": 0,
+          "VmHWM": 55404,
+          "VmRSS": 55388
+        },
+        "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+        "post_business_gate": {
+          "reference": "First qualified business SEND acceptance",
+          "offset_ms": 1500,
+          "deadline_slip_ms": 0.633154,
+          "actual_request_after_business_send_ms": 1500.633154,
+          "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+        },
+        "first_startup_frame": {
+          "send_accepted_after_request_ms": 4370.065,
+          "record_after_request_ms": 4735.875692,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 1,
+          "completed_update_marker": 1,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 1
+        },
+        "first_business_frame": {
+          "send_accepted_after_request_ms": 6640.246231,
+          "record_after_request_ms": 7006.692461,
+          "refresh_accepted": true,
+          "refresh_ioctl_returned": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_abi": "mtk",
+          "refresh_waveform": "gc16",
+          "refresh_flashing": true,
+          "accepted_update_marker": 6,
+          "completed_update_marker": 6,
+          "driver_completion_observed": true,
+          "panel_completion_observed": false,
+          "rendered": true,
+          "render_sequence": 6
+        },
+        "recovery": {
+          "launcher_exit_status": 0,
+          "native_restored": true,
+          "owned_processes_gone": true,
+          "passed": true,
+          "production_lock_absent": true
+        },
+        "final_logical_capture": {
+          "captured_at": "Application exit after the bounded post-ready duration",
+          "comparison_mode": "RGB",
+          "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "height": 2480,
+          "native_epdc_mode": "Y8",
+          "physical_framebuffer_capture": false,
+          "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+          "profile": "scribe",
+          "route": "shelf",
+          "semantics": "Logical Slint snapshot before framebuffer compensation",
+          "width": 1860
+        },
+        "private_original_file_sha256": {
+          "capture-liveness.json": "5814b7bc9217ee26c5f627a574788172703d02d7a98798899e270864382ab627",
+          "content-frame.raw": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+          "deployed-identity.json": "97adccd16167fe4d2840dc75f99d37b97c9fbac075c3d05943b14535df23d5de",
+          "early-complete.json": "95942cd7453dc3ce20ab515396bb4b8eb5c36a5ac890cfd1d516e3e45eb37797",
+          "early-request.json": "6b2a6fa70de7dc9c48628505bc16399807fe42b2a9996e581dbf504e49156eb7",
+          "final.json": "350545f0312c4fe2700d34b2a1a6b8def033bbe176d0691ac19159280beb1836",
+          "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+          "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+          "lifecycle.jsonl": "c64fad6af1906a98fb44f8d2f081091d8d2da21b6f77b27bcad65719fee68173",
+          "memory-at-content.txt": "1fa472b19f2c53d357b2f0e7ab93930a9625111a7bda138f105541c5111dd088",
+          "performance.jsonl": "6a98ec2498bf4a183be958963f6562eb64e87522f2d1b0af184fee8f076fa745",
+          "post-business-gate.json": "b8186529be0b3c65181d862698980364169c97039fc0f6776f579ebcd671c835",
+          "post-business-target-ns.txt": "f2f02966619ec0ee9b414dbd91487797e2e046598abdda215f861df9fdd26fa2",
+          "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+          "request.json": "54274df0137d3d4a414c7e3961496b38f89b9fe70457c1ae52225f06f9332305",
+          "settled-complete.json": "44a0f999f88c61a66b9258bd1c831b89527fd5f8191a7f16823bf5ecfaf23bbf",
+          "settled-deadline-ns.txt": "f2f02966619ec0ee9b414dbd91487797e2e046598abdda215f861df9fdd26fa2",
+          "settled-frame.raw": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+          "settled-request.json": "b8186529be0b3c65181d862698980364169c97039fc0f6776f579ebcd671c835",
+          "shell.tsv": "5a542e9e6d8de9afb29a00a5e5c5b02d3e0cacff9439ffb8ca33f3e626c722d1"
+        }
+      }
+    ]
+  },
+  "variants": {
+    "baseline": {
+      "source_commit": "f50ada15dd934c986e8305a1f9dd8e46f51b2529",
+      "source_fingerprint": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d",
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+      "package_sha256": "2eb7b6f2565bd1b6c93190ae51ebeb9750fffd9150654e92d28f64f090cf3dc4",
+      "native_query_sha256": null,
+      "deployed_native_query_sha256": null,
+      "launcher_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "instrumented_launcher_sha256": "7a5e7cd0ebe1ab26d5581e91d96dadacea68c92305ab5d9068b7e0bff7df61f3",
+      "compiler_fingerprint": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+      "build_configuration": {
+        "codegen_units": 1,
+        "compiler": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\ncargo 1.99.1 (5f94df478 2026-08-27)\n0.15.2\n",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "profile": "release",
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      }
+    },
+    "candidate": {
+      "source_commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6",
+      "source_fingerprint": "92f34dd6c9f575c8c163312ba1e08cec5a451030316dd68e7bee7991986906bd",
+      "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+      "package_sha256": "3f49f56f570f980cd7322f4446a6d096f1a6c96131716671f869bc73fceb8711",
+      "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268",
+      "deployed_native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268",
+      "launcher_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "instrumented_launcher_sha256": "7a5e7cd0ebe1ab26d5581e91d96dadacea68c92305ab5d9068b7e0bff7df61f3",
+      "compiler_fingerprint": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+      "build_configuration": {
+        "codegen_units": 1,
+        "compiler": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\ncargo 1.99.1 (5f94df478 2026-08-27)\n0.15.2\n",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "profile": "release",
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      }
+    },
+    "compat": {
+      "source_commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6",
+      "source_fingerprint": "92f34dd6c9f575c8c163312ba1e08cec5a451030316dd68e7bee7991986906bd",
+      "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+      "package_sha256": "3f49f56f570f980cd7322f4446a6d096f1a6c96131716671f869bc73fceb8711",
+      "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268",
+      "deployed_native_query_sha256": null,
+      "launcher_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "instrumented_launcher_sha256": "7a5e7cd0ebe1ab26d5581e91d96dadacea68c92305ab5d9068b7e0bff7df61f3",
+      "compiler_fingerprint": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+      "build_configuration": {
+        "codegen_units": 1,
+        "compiler": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\ncargo 1.99.1 (5f94df478 2026-08-27)\n0.15.2\n",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "profile": "release",
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      }
+    },
+    "diagnostic": {
+      "source_commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6",
+      "source_fingerprint": "92f34dd6c9f575c8c163312ba1e08cec5a451030316dd68e7bee7991986906bd",
+      "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+      "package_sha256": "3f49f56f570f980cd7322f4446a6d096f1a6c96131716671f869bc73fceb8711",
+      "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268",
+      "deployed_native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268",
+      "launcher_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "instrumented_launcher_sha256": "4bf74730e378d2a73ec26d06e04e490919a256af740b55175273bdddab367771",
+      "compiler_fingerprint": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+      "build_configuration": {
+        "codegen_units": 1,
+        "compiler": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\ncargo 1.99.1 (5f94df478 2026-08-27)\n0.15.2\n",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "profile": "release",
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      }
+    }
+  },
+  "software_identity_source_sha256": "444ff551e260ac7132bcd8c7ea805d4dd2a5ead9144f0ddddee341a7fe3ed23e",
+  "compiler_profile_sha256": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+  "compatibility": {
+    "status": "qualified_excluded_case",
+    "included_in_primary_statistics": false,
+    "case": {
+      "source_tag": "compat-01",
+      "measurement_role": "compatibility",
+      "software_variant": "compat",
+      "warmup": false,
+      "included_in_primary_statistics": false,
+      "deployed_identity": {
+        "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+        "native_query_sha256": null
+      },
+      "metrics": {
+        "content_send_ms": 6948.935155,
+        "first_startup_send_ms": 4691.220924,
+        "hwm_kib": 55816,
+        "process_enter_to_ready_ms": 1828.303693,
+        "request_to_process_enter_ms": 4342.136462,
+        "rss_kib": 55800,
+        "software_ready_ms": 6170.440155,
+        "ready_to_business_send_ms": 778.495
+      },
+      "same_pid_final_lifecycle_performance": true,
+      "lifecycle_event_counts": {
+        "startup-stage": 21,
+        "ready": 1,
+        "reader-checkpoint": 1,
+        "ui-state": 1
+      },
+      "final_suspended": false,
+      "input_nodes": [
+        "/dev/input/event2",
+        "/dev/input/event4"
+      ],
+      "memory_kib": {
+        "RssAnon": 27408,
+        "RssFile": 28392,
+        "RssShmem": 0,
+        "VmHWM": 55816,
+        "VmRSS": 55800
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "post_business_gate": {
+        "reference": "First qualified business SEND acceptance",
+        "offset_ms": 1500,
+        "deadline_slip_ms": 1.625384,
+        "actual_request_after_business_send_ms": 1501.625384,
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time"
+      },
+      "first_startup_frame": {
+        "send_accepted_after_request_ms": 4691.220924,
+        "record_after_request_ms": 5057.297847,
+        "refresh_accepted": true,
+        "refresh_ioctl_returned": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_abi": "mtk",
+        "refresh_waveform": "gc16",
+        "refresh_flashing": true,
+        "accepted_update_marker": 1,
+        "completed_update_marker": 1,
+        "driver_completion_observed": true,
+        "panel_completion_observed": false,
+        "rendered": true,
+        "render_sequence": 1
+      },
+      "first_business_frame": {
+        "send_accepted_after_request_ms": 6948.935155,
+        "record_after_request_ms": 7311.532693,
+        "refresh_accepted": true,
+        "refresh_ioctl_returned": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_abi": "mtk",
+        "refresh_waveform": "gc16",
+        "refresh_flashing": true,
+        "accepted_update_marker": 6,
+        "completed_update_marker": 6,
+        "driver_completion_observed": true,
+        "panel_completion_observed": false,
+        "rendered": true,
+        "render_sequence": 6
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "final_logical_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "private_original_file_sha256": {
+        "deployed-identity.json": "c99515c3689ef37e814fcf1ea5f65f9e42234ca0dec16c8cc597e80f548d24a8",
+        "final.json": "bbfaf1e8fee188448d00cbd53fe3e64d7951a00ef936350607acec48b16aa1f5",
+        "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "input-fds-at-content.txt": "7d4de4b2d4fcd949d21dacb96c5aad4d357557ad9f8d98f552f2dd3aa92fbff2",
+        "lifecycle.jsonl": "07c36de09b890bd8bc0c51fe671f713449d899db4e2a1f71949516936725a4d5",
+        "memory-at-content.txt": "52ef555850180c88ca73f544544904ae27fd6cb7e031fc85bce4ab57d09e28ae",
+        "performance.jsonl": "32d8c2019185d32f5d5226bd0ae6dfe3ecb8bda46db96ab5b3aacbb6d0063cd2",
+        "post-business-gate.json": "c8d5c50acd131551df6e8e38a9f1d0f33b9920c7c6df8431a55f62ceda28b16a",
+        "post-business-target-ns.txt": "a0180afbb8c53cf6ffdf331b56ac74ff430d4dc2bd12462f4ca2dcd2548bba80",
+        "recovery.json": "a8fd116c14d1000ae9b34534846e3e6d447992b44f4da8a314ef75a4af3dd515",
+        "request.json": "2ea8327668ae6585b197cdd2936f2e790cd7591641d5212f22ffbf3d8e84fb4f",
+        "shell.tsv": "c0839159915c41739c95ea710b694ac3488bbe2f477339be255f61ca17031dfe"
+      }
+    }
+  },
+  "diagnostic": {
+    "whole_case_qualified": false,
+    "included_in_primary_statistics": false,
+    "rust_session_status": "qualified_independent_session_observations",
+    "rust_sessions": [
+      {
+        "after_native_request_ms": 3159.924847,
+        "capture_path": "automatic_portrait",
+        "file": "calibration-1.jsonl",
+        "operation_id": 1,
+        "properties": [
+          1,
+          2,
+          3,
+          3,
+          1
+        ],
+        "requests": 5,
+        "scope": "Successful per-query observations followed by clean EOF/exit and session_finished; not a timer-based success inference or the complete capture span.",
+        "session_observed_ms": 109.619,
+        "session_ready_and_finished": true,
+        "sha256": "570740b3884b2bbca4c9727d73e3e05193d431fbe587517fdb219ce0193776c2",
+        "trace_finished_after_request_ms": 3365.270924,
+        "successful_query_records": 5,
+        "finish_requests": 5,
+        "distinct_properties": 3,
+        "same_process_as_later_window": false,
+        "later_window_ready_after_session_finished_ms": 2584.035538
+      }
+    ],
+    "direct_eight_op": {
+      "qualified": false,
+      "status": "not_completed_pre_spawn_refusal",
+      "requested_operations": 8,
+      "executed_operations": 0,
+      "process_receipt_sha256": "761ec823d8d2ee3417378b4a0d16984ca4ace3b4256b56df2679c5e2c31fa14a",
+      "pid": null,
+      "helper_executable": null,
+      "helper_sha256": null,
+      "exit_status": null,
+      "process_exited": false,
+      "timed_out": false,
+      "identity_observed": false,
+      "stdin_gate_verified": false,
+      "stdin_released": false,
+      "helper_executable_verified": false,
+      "reason": "reserved-descriptor-in-use"
+    },
+    "later_window": {
+      "ready_events": 1,
+      "final_matches_window_pid": true,
+      "active_final_shelf": true,
+      "launcher_exit_status": 0,
+      "diagnostic_recovery_passed": false,
+      "final_metadata_sha256": "e95e22c4e389d2ffb0830b2bbea85ab233275417bc094033275ef8b308a60db1"
+    },
+    "scope": "Independent Rust calibration session and a later normal UI window; the pre-spawn eight-op refusal keeps the whole diagnostic case unqualified"
+  },
+  "post_business_observation": {
+    "all_cases_cross_gate": true,
+    "procfs_sampling": "After the post-business gate and any scheduled framebuffer capture; not exact SEND sampling or a continuous peak",
+    "target": "first qualified business SEND plus 1500 ms"
+  },
+  "framebuffer_comparisons": {
+    "early": {
+      "cases": [
+        "baseline-06",
+        "candidate-06"
+      ],
+      "changed_bounding_box": null,
+      "changed_fraction": 0.0,
+      "changed_pixels": 0,
+      "comparison_scope": "Every visible 8-bit framebuffer pixel; no excluded regions or masks",
+      "filename": "content-frame.raw",
+      "geometry_match": true,
+      "maximum_absolute_difference": 0,
+      "mean_absolute_difference": 0.0,
+      "native_epdc_modes_match": true,
+      "physical_panel_update_confirmed": false,
+      "pixel_difference_status": "compared_every_visible_pixel",
+      "visible_pixels": 4612800,
+      "visible_raw_sha256": {
+        "baseline-06": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+        "candidate-06": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3"
+      },
+      "whole_visible_frame_equal": true
+    },
+    "settled": {
+      "cases": [
+        "baseline-06",
+        "candidate-06"
+      ],
+      "changed_bounding_box": null,
+      "changed_fraction": 0.0,
+      "changed_pixels": 0,
+      "comparison_scope": "Every visible 8-bit framebuffer pixel; no excluded regions or masks",
+      "filename": "settled-frame.raw",
+      "geometry_match": true,
+      "maximum_absolute_difference": 0,
+      "mean_absolute_difference": 0.0,
+      "native_epdc_modes_match": true,
+      "physical_panel_update_confirmed": false,
+      "pixel_difference_status": "compared_every_visible_pixel",
+      "visible_pixels": 4612800,
+      "visible_raw_sha256": {
+        "baseline-06": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+        "candidate-06": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3"
+      },
+      "whole_visible_frame_equal": true
+    }
+  },
+  "final_primary_logical_pixels_match": true,
+  "memory_scope": "One procfs sample after first-business SEND plus 1500 ms gate; no instantaneous or continuously monitored whole-lifetime peak claim",
+  "image_observations": [
+    {
+      "file": "images/baseline-early.png",
+      "source_tag": "baseline-06",
+      "phase": "early",
+      "optical_capture": false,
+      "evidence_kind": "Derived lossless Gray8 memory PNG; raw retained privately",
+      "raw_filename": "content-frame.raw",
+      "raw_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "visible_pixels_sha256": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+      "png_sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "pixel_processing": "None; all packed visible bytes without resize, crop, inversion, rotation, masks, or tone changes",
+      "raw_header": {
+        "width": 1860,
+        "height": 2480,
+        "virtual_width": 1872,
+        "virtual_height": 4960,
+        "xoffset": 0,
+        "yoffset": 0,
+        "bits_per_pixel": 8,
+        "line_length": 1872,
+        "smem_len": 9285120,
+        "visual": 1,
+        "grayscale": 1,
+        "rotate": 3,
+        "red_offset": 0,
+        "red_length": 8,
+        "red_msb_right": 0,
+        "green_offset": 0,
+        "green_length": 8,
+        "green_msb_right": 0,
+        "blue_offset": 0,
+        "blue_length": 8,
+        "blue_msb_right": 0,
+        "byte_order": "little",
+        "visible_bytes": 4612800,
+        "read_only": true
+      },
+      "observation": {
+        "request_monotonic_ns": 134841444391651,
+        "completion_monotonic_ns": 134842097439958,
+        "request_after_business_send_ms": 480.152154,
+        "completion_after_business_send_ms": 1133.200461,
+        "request_after_ready_ms": 1262.652308,
+        "completion_after_ready_ms": 1915.700615,
+        "between_markers_ms": 653.048307,
+        "same_application_alive_before": true,
+        "same_application_alive_after": true,
+        "scope": "Instrumented early helper request/completion window before the common post-business gate; not the exact read instant or an instantaneous SEND image",
+        "private_request_sha256": "6b2a6fa70de7dc9c48628505bc16399807fe42b2a9996e581dbf504e49156eb7",
+        "private_completion_sha256": "95942cd7453dc3ce20ab515396bb4b8eb5c36a5ac890cfd1d516e3e45eb37797",
+        "private_liveness_sha256": "5814b7bc9217ee26c5f627a574788172703d02d7a98798899e270864382ab627"
+      },
+      "source_commit": "f50ada15dd934c986e8305a1f9dd8e46f51b2529",
+      "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d"
+    },
+    {
+      "file": "images/baseline-settled.png",
+      "source_tag": "baseline-06",
+      "phase": "settled",
+      "optical_capture": false,
+      "evidence_kind": "Derived lossless Gray8 memory PNG; raw retained privately",
+      "raw_filename": "settled-frame.raw",
+      "raw_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "visible_pixels_sha256": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+      "png_sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "pixel_processing": "None; all packed visible bytes without resize, crop, inversion, rotation, masks, or tone changes",
+      "raw_header": {
+        "width": 1860,
+        "height": 2480,
+        "virtual_width": 1872,
+        "virtual_height": 4960,
+        "xoffset": 0,
+        "yoffset": 0,
+        "bits_per_pixel": 8,
+        "line_length": 1872,
+        "smem_len": 9285120,
+        "visual": 1,
+        "grayscale": 1,
+        "rotate": 3,
+        "red_offset": 0,
+        "red_length": 8,
+        "red_msb_right": 0,
+        "green_offset": 0,
+        "green_length": 8,
+        "green_msb_right": 0,
+        "blue_offset": 0,
+        "blue_length": 8,
+        "blue_msb_right": 0,
+        "byte_order": "little",
+        "visible_bytes": 4612800,
+        "read_only": true
+      },
+      "observation": {
+        "request_monotonic_ns": 134842464872651,
+        "completion_monotonic_ns": 134843109507881,
+        "request_after_business_send_ms": 1500.633154,
+        "completion_after_business_send_ms": 2145.268384,
+        "request_after_ready_ms": 2283.133308,
+        "completion_after_ready_ms": 2927.768538,
+        "between_markers_ms": 644.63523,
+        "same_application_alive_before": true,
+        "same_application_alive_after": true,
+        "scope": "Instrumented settled helper request/completion window after the common post-business gate; not the exact read instant or an instantaneous SEND image",
+        "private_request_sha256": "b8186529be0b3c65181d862698980364169c97039fc0f6776f579ebcd671c835",
+        "private_completion_sha256": "44a0f999f88c61a66b9258bd1c831b89527fd5f8191a7f16823bf5ecfaf23bbf",
+        "private_liveness_sha256": "5814b7bc9217ee26c5f627a574788172703d02d7a98798899e270864382ab627",
+        "scheduled_target_after_ready_ms": 2282.500154,
+        "scheduled_target_after_business_send_ms": 1500.0,
+        "request_lateness_ms": 0.633154,
+        "private_target_record_sha256": "f2f02966619ec0ee9b414dbd91487797e2e046598abdda215f861df9fdd26fa2"
+      },
+      "source_commit": "f50ada15dd934c986e8305a1f9dd8e46f51b2529",
+      "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d"
+    },
+    {
+      "file": "images/candidate-early.png",
+      "source_tag": "candidate-06",
+      "phase": "early",
+      "optical_capture": false,
+      "evidence_kind": "Derived lossless Gray8 memory PNG; raw retained privately",
+      "raw_filename": "content-frame.raw",
+      "raw_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "visible_pixels_sha256": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+      "png_sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "pixel_processing": "None; all packed visible bytes without resize, crop, inversion, rotation, masks, or tone changes",
+      "raw_header": {
+        "width": 1860,
+        "height": 2480,
+        "virtual_width": 1872,
+        "virtual_height": 4960,
+        "xoffset": 0,
+        "yoffset": 0,
+        "bits_per_pixel": 8,
+        "line_length": 1872,
+        "smem_len": 9285120,
+        "visual": 1,
+        "grayscale": 1,
+        "rotate": 3,
+        "red_offset": 0,
+        "red_length": 8,
+        "red_msb_right": 0,
+        "green_offset": 0,
+        "green_length": 8,
+        "green_msb_right": 0,
+        "blue_offset": 0,
+        "blue_length": 8,
+        "blue_msb_right": 0,
+        "byte_order": "little",
+        "visible_bytes": 4612800,
+        "read_only": true
+      },
+      "observation": {
+        "request_monotonic_ns": 134821110397880,
+        "completion_monotonic_ns": 134821762602649,
+        "request_after_business_send_ms": 442.735,
+        "completion_after_business_send_ms": 1094.939769,
+        "request_after_ready_ms": 915.084615,
+        "completion_after_ready_ms": 1567.289384,
+        "between_markers_ms": 652.204769,
+        "same_application_alive_before": true,
+        "same_application_alive_after": true,
+        "scope": "Instrumented early helper request/completion window before the common post-business gate; not the exact read instant or an instantaneous SEND image",
+        "private_request_sha256": "74776e337c156d97b360dd899469d8b92e61e3b22c0fd8e5fe72e79ee4d80db7",
+        "private_completion_sha256": "bbbf2f00107bef2929e4127cd47a000cd00288cf396c5aa87ab947817666ba9d",
+        "private_liveness_sha256": "5313dfc24883b72f394b8543582f1d1c7bbc29bb72333c234bf461d8599ee878"
+      },
+      "source_commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6",
+      "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6"
+    },
+    {
+      "file": "images/candidate-settled.png",
+      "source_tag": "candidate-06",
+      "phase": "settled",
+      "optical_capture": false,
+      "evidence_kind": "Derived lossless Gray8 memory PNG; raw retained privately",
+      "raw_filename": "settled-frame.raw",
+      "raw_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "visible_pixels_sha256": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+      "png_sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "pixel_processing": "None; all packed visible bytes without resize, crop, inversion, rotation, masks, or tone changes",
+      "raw_header": {
+        "width": 1860,
+        "height": 2480,
+        "virtual_width": 1872,
+        "virtual_height": 4960,
+        "xoffset": 0,
+        "yoffset": 0,
+        "bits_per_pixel": 8,
+        "line_length": 1872,
+        "smem_len": 9285120,
+        "visual": 1,
+        "grayscale": 1,
+        "rotate": 3,
+        "red_offset": 0,
+        "red_length": 8,
+        "red_msb_right": 0,
+        "green_offset": 0,
+        "green_length": 8,
+        "green_msb_right": 0,
+        "blue_offset": 0,
+        "blue_length": 8,
+        "blue_msb_right": 0,
+        "byte_order": "little",
+        "visible_bytes": 4612800,
+        "read_only": true
+      },
+      "observation": {
+        "request_monotonic_ns": 134822168843342,
+        "completion_monotonic_ns": 134822827198419,
+        "request_after_business_send_ms": 1501.180462,
+        "completion_after_business_send_ms": 2159.535539,
+        "request_after_ready_ms": 1973.530077,
+        "completion_after_ready_ms": 2631.885154,
+        "between_markers_ms": 658.355077,
+        "same_application_alive_before": true,
+        "same_application_alive_after": true,
+        "scope": "Instrumented settled helper request/completion window after the common post-business gate; not the exact read instant or an instantaneous SEND image",
+        "private_request_sha256": "bc4470296341cdcec4ac113c0225bfcfa93c1c330d02d34452cc2e5c5ab29e84",
+        "private_completion_sha256": "e2584e1de396c8b327595a251a9e752529e1b599ca0e5d7e23588b9ca7189058",
+        "private_liveness_sha256": "5313dfc24883b72f394b8543582f1d1c7bbc29bb72333c234bf461d8599ee878",
+        "scheduled_target_after_ready_ms": 1972.349615,
+        "scheduled_target_after_business_send_ms": 1500.0,
+        "request_lateness_ms": 1.180462,
+        "private_target_record_sha256": "9c2b8c547cfbab83f0f2af9780432c7cb3d9857f14e3fd3f40c4c2b3064904d5"
+      },
+      "source_commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6",
+      "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6"
+    }
+  ],
+  "recovery": {
+    "input_roster_unchanged": true,
+    "install_unchanged": true,
+    "lease_released": true,
+    "lighting_restored": true,
+    "native_restored": true,
+    "same_boot": true,
+    "temporary_stage_removed": true,
+    "transport_closed": true,
+    "selected_preservation_file_count": 9,
+    "preservation_scope": "Exact selected regular-file identities, including recorded absences; this is not a whole-tree census",
+    "whole_tree_census": false,
+    "exact_lease_release": {
+      "receipt_sha256": "2420c1fbb203a3ee2078d27f52b6e6ffe91427bab14d9efb3625ebd3c0bbb8c9",
+      "ok": true,
+      "owner_and_token_checked": true,
+      "native_restored_and_connections_closed": true,
+      "only_owned_owner_json_removed_then_rmdir": true,
+      "lease_directory_absent_after_release": true,
+      "private_token_retained": true,
+      "owner_run_token_or_token_hash_exported": false
+    },
+    "transport": {
+      "receipt_sha256": "134d9f3d53addbe439a482087576910d9dea4e218d86378bcf6589728b6501bf",
+      "connections_closed": true,
+      "active_owned_transport_count": 0
+    },
+    "native_home_pixels_reviewed_privately_by_primary_agent": true,
+    "native_home_images_exported": false
+  },
+  "host_verification_inventory": {
+    "current_controller_tests_executed": 33,
+    "unchanged_prior_abi_probe_tests": 27,
+    "unchanged_prior_analysis_and_clock_tests": 65,
+    "latest_recorded_inventory_total": 125,
+    "all_125_executed_together": false,
+    "all_120_prior_tests_rerun": false,
+    "frozen_control2_sha256": "fd0876fc6d6f3202cffa37a7ec1089d3b02dab21d9b3e1d4448085fefc0189ac",
+    "earlier_failed_partial_batch_reclassified": false
+  },
+  "scope": "Instrumented warm native launches on one device with synthetic offline demo; not physical-tap or optical panel latency",
+  "not_qualified": [
+    "Complete physical batch",
+    "Eight-operation ABI",
+    "New touch or rotation",
+    "Sleep/wake",
+    "Other models or firmware"
+  ],
+  "new_device_application_or_test_execution_during_export": false,
+  "limitations": [
+    "This projection does not promote report.success or qualify the complete batch.",
+    "Compatibility and diagnostic observations are outside all primary distributions.",
+    "Every primary sample, including slow candidates, remains included; no outlier rejection is performed.",
+    "These are instrumented warm-start software/SEND observations, not physical tap latency or optical panel completion.",
+    "Memory/input sampling follows the retained post-business gate and is not a continuous lifetime peak profile.",
+    "The independent Rust calibration and the subsequent UI window used different processes; neither qualifies the unstarted eight-op probe.",
+    "Memory image request/completion windows are delayed observations, not the instantaneous first-SEND display or optical evidence.",
+    "The candidate runtime remains experimental and is not adopted into main."
+  ]
+}

@@ -1,0 +1,19 @@
+test_alarm_survives_inherited_ignore_and_signal_mask (__main__.WorkerTests.test_alarm_survives_inherited_ignore_and_signal_mask) ... ok
+test_arbitrary_cli_names_or_setters_are_rejected_before_loading (__main__.WorkerTests.test_arbitrary_cli_names_or_setters_are_rejected_before_loading) ... ok
+test_blocked_library_call_is_killed_when_its_direct_parent_exits (__main__.WorkerTests.test_blocked_library_call_is_killed_when_its_direct_parent_exits) ... ok
+test_closed_output_releases_the_handle_without_an_unhandled_sigpipe (__main__.WorkerTests.test_closed_output_releases_the_handle_without_an_unhandled_sigpipe) ... ok
+test_eof_does_not_query_any_property (__main__.WorkerTests.test_eof_does_not_query_any_property) ... ok
+test_exact_read_only_allowlist_shares_one_handle (__main__.WorkerTests.test_exact_read_only_allowlist_shares_one_handle) ... ok
+test_failed_getters_publish_no_value_and_leave_the_handle_usable (__main__.WorkerTests.test_failed_getters_publish_no_value_and_leave_the_handle_usable) ... ok
+test_library_selection_cannot_be_overridden_by_environment (__main__.WorkerTests.test_library_selection_cannot_be_overridden_by_environment) ... ok
+test_missing_library_symbols_or_handle_prevent_the_handshake (__main__.WorkerTests.test_missing_library_symbols_or_handle_prevent_the_handshake) ... ok
+test_raw_string_bytes_are_preserved_for_the_parent_parser (__main__.WorkerTests.test_raw_string_bytes_are_preserved_for_the_parent_parser) ... ok
+test_request_cap_closes_cleanly_without_reading_a_33rd_property (__main__.WorkerTests.test_request_cap_closes_cleanly_without_reading_a_33rd_property) ... ok
+test_signed_integer_bounds_have_decimal_wire_values (__main__.WorkerTests.test_signed_integer_bounds_have_decimal_wire_values) ... ok
+test_string_size_boundary_and_owned_allocation_cleanup (__main__.WorkerTests.test_string_size_boundary_and_owned_allocation_cleanup) ... ok
+test_unknown_opcodes_never_reach_a_getter (__main__.WorkerTests.test_unknown_opcodes_never_reach_a_getter) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 5.427s
+
+OK

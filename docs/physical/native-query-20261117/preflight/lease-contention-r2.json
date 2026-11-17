@@ -1,0 +1,16 @@
+{
+  "application_starts": 0,
+  "completed_startup_samples": 0,
+  "device_connection_attempts": 0,
+  "device_modified": false,
+  "evidence_class": "lease-contention",
+  "finished_at_utc": "2026-11-17T06:05:29.027944+00:00",
+  "lease_acquired": false,
+  "lease_release_required": false,
+  "private_original_report_sha256": "96c6870af7d056956bd570a4365fd33017beeb540d8b27a0db692d1850881a72",
+  "reason": "Another owner held the shared physical-device lease",
+  "run_id": "native-query-20261117-f50724b2",
+  "schema_version": 1,
+  "started_at_utc": "2026-11-17T06:05:29.019731+00:00",
+  "status": "not_acquired_no_device_access"
+}

@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+"""Run isolated host fixtures from the frozen native-query candidate on test-env."""
+
+import hashlib
+import json
+import os
+from pathlib import Path
+import runpy
+import subprocess
+import sys
+import time
+
+ROOT = Path('/root/bilicomics-native-query-20261117-01a1d11a-r1')
+SOURCE = ROOT / 'candidate/app'
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def main():
+    if sys.platform != 'linux':
+        raise RuntimeError('Run only on test-env')
+    os.umask(0o077)
+    if len(sys.argv) == 3 and sys.argv[1] == '--case':
+        script = Path(sys.argv[2]).resolve(strict=True)
+        if not script.is_relative_to(SOURCE):
+            raise RuntimeError('The selected fixture escapes the frozen candidate')
+        sys.path.insert(0, str(script.parent))
+        sys.argv = [str(script), '-v']
+        runpy.run_path(script, run_name='__main__')
+        return 0
+    output = ROOT / 'python-checks-r1'
+    output.mkdir(mode=0o700)
+    temporary = output / 'tmp'
+    temporary.mkdir(mode=0o700)
+    environment = dict(os.environ, TMPDIR=str(temporary), PYTHONDONTWRITEBYTECODE='1')
+    report = {'passed': False, 'source_commit': '74c259338f1cfc234f92a160ccf582dbe292c8d1',
+              'runner_sha256': sha(Path(__file__)), 'physical_device_accessed': False, 'cases': []}
+    cases = ['packaging/tests/native_query_worker_test.py',
+             'scripts/verification/test_native_query_package.py',
+             'scripts/verification/test_startup_package.py',
+             'scripts/verification/test_spatial_dither_package.py',
+             'scripts/verification/test_native_media_package.py']
+    try:
+        for relative in cases:
+            script = SOURCE / relative
+            label = script.stem
+            print('Running ' + label, flush=True)
+            started = time.monotonic()
+            with (output / (label + '.txt')).open('w') as stream:
+                result = subprocess.run([sys.executable, '-I', str(Path(__file__).resolve()),
+                    '--case', str(script)], cwd=SOURCE, env=environment,
+                    stdout=stream, stderr=subprocess.STDOUT, timeout=180, check=False)
+            report['cases'].append({'path': relative, 'source_sha256': sha(script),
+                'returncode': result.returncode, 'seconds': round(time.monotonic() - started, 3),
+                'log_sha256': sha(output / (label + '.txt'))})
+            if result.returncode:
+                raise RuntimeError(label + ' failed')
+            print('Passed ' + label, flush=True)
+        report['passed'] = True
+    except Exception as error:
+        report['error'] = str(error)
+    (output / 'summary.json').write_text(json.dumps(report, indent=2) + '\n')
+    return 0 if report['passed'] else 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())

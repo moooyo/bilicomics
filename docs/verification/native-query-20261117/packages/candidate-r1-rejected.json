@@ -1,0 +1,510 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "passed": false,
+  "started_at": "2026-11-17T04:54:45.891234+00:00",
+  "coverage": "Static development-archive and ARM ELF checks only",
+  "build_executed_by_checker": false,
+  "arm_binary_executed": false,
+  "device_verified": false,
+  "checks": [
+    {
+      "name": "selected_input_digests",
+      "status": "passed",
+      "archive_digest_explicitly_selected": true,
+      "worker_digest_explicitly_selected": true
+    },
+    {
+      "name": "archive_crc_and_exact_allowlist",
+      "status": "passed",
+      "entries": 46,
+      "runtime_account_files_present": false
+    },
+    {
+      "name": "entry_sizes_digests_timestamps_and_modes",
+      "status": "passed",
+      "executable_modes": "0755"
+    },
+    {
+      "name": "packaged_binary_matches_selected_binary",
+      "status": "passed"
+    },
+    {
+      "name": "packaged_jpeg_worker_matches_selected_binary",
+      "status": "passed"
+    },
+    {
+      "name": "spatial_dither_notice_provenance",
+      "status": "passed",
+      "retained_files": [
+        "LICENSE.AIDOKU",
+        "README.md",
+        "UPSTREAM_FILES.json"
+      ],
+      "source_repository": "AidokuForKindle",
+      "source_snapshot_sha256": "25df24627f3db1dc3a334b1af6f30246744e3fda9a679191e15711f43c4fde97",
+      "reference_images_bundled": false,
+      "scope": "Original source/license provenance only; reference-project verification is separate"
+    },
+    {
+      "name": "startup_implementation_notice_provenance",
+      "status": "passed",
+      "retained_files": [
+        "LICENSE.AIDOKU",
+        "README.md",
+        "UPSTREAM_FILES.json"
+      ],
+      "source_repository": "AidokuForKindle",
+      "source_commits": [
+        "6660e32a5035a61705b942635fc41c7a16f749f7",
+        "e141d4479ae6440e2ba3f7b93d8f0e616458055f",
+        "4ce1fd156a7a4a75ca2fda5f4324991d6b02ce92"
+      ],
+      "source_snapshots": 9,
+      "source_code_bundled": false,
+      "scope": "Selected original sources and license only; independent BiliComics verification required"
+    },
+    {
+      "name": "packaged_native_query_matches_selected_binary",
+      "status": "passed",
+      "native_query_digest_explicitly_selected": true
+    },
+    {
+      "name": "native_query_implementation_notice_provenance",
+      "status": "passed",
+      "retained_files": [
+        "LICENSE.AIDOKU",
+        "README.md",
+        "UPSTREAM_FILES.json"
+      ],
+      "source_repository": "AidokuForKindle",
+      "source_commits": [
+        "4e069260fa612e465b8fde8730596a0c60e0261f"
+      ],
+      "source_snapshots": 3,
+      "source_code_bundled": false,
+      "firmware_libraries_bundled": false,
+      "scope": "Selected original sources and license only; independent BiliComics verification required"
+    },
+    {
+      "name": "device_allowlist_empty",
+      "status": "passed",
+      "accepted_entries": 0
+    },
+    {
+      "name": "startup_font_and_notice_provenance",
+      "status": "passed",
+      "font_sha256": "f2cc29530d646f9c18d06047d58dc062e890756b376dbab7635472ecbadcefd9",
+      "font_bytes": 22040,
+      "retained_notices": [
+        "NOTICES.txt",
+        "NotoSansCJK-LICENSE.txt",
+        "OFL.txt"
+      ]
+    },
+    {
+      "name": "jpeg_decoder_notice_provenance",
+      "status": "passed",
+      "retained_files": [
+        "0001-strict-entropy-completeness.patch",
+        "LICENSE-APACHE",
+        "LICENSE-MIT",
+        "LICENSE-ZLIB",
+        "PATCHES.md",
+        "UPSTREAM.md"
+      ]
+    },
+    {
+      "name": "triangle_resize_notice_provenance",
+      "status": "passed",
+      "retained_files": [
+        "LICENSE-MIT",
+        "LICENSE-APACHE",
+        "README.md",
+        "SHA256SUMS"
+      ]
+    },
+    {
+      "name": "native_media_notice_provenance",
+      "status": "passed",
+      "retained_files": [
+        "LICENSE-GPL-3.0-or-later",
+        "README.md",
+        "UPSTREAM_FILES.json"
+      ]
+    },
+    {
+      "name": "arm_elf_header",
+      "status": "passed",
+      "elf_class": 32,
+      "byte_order": "little",
+      "machine": "ARM",
+      "eabi_version": 5,
+      "hard_float": true
+    },
+    {
+      "name": "no_dynamic_interpreter_or_required_shared_libraries",
+      "status": "passed",
+      "evidence": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-package.readelf.txt",
+      "readelf_sha256": "5adf6431a9ee74d3b52abfae4359ebbfb78dd1157390c37d53316fbef60ab4e0"
+    },
+    {
+      "name": "jpeg_worker_arm_elf_header",
+      "status": "passed",
+      "elf_class": 32,
+      "byte_order": "little",
+      "machine": "ARM",
+      "eabi_version": 5,
+      "hard_float": true
+    },
+    {
+      "name": "jpeg_worker_no_dynamic_interpreter_or_required_shared_libraries",
+      "status": "passed",
+      "evidence": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-package.worker.readelf.txt",
+      "readelf_sha256": "66497697adb773dcfcd0a03c98c6c4341a308ae3c24da0540af59e8a4305cd4a"
+    }
+  ],
+  "inputs": {
+    "archive": "/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.zip",
+    "archive_bytes": 51517726,
+    "archive_sha256": "6ab1011dd14737b802930be693f947e0604fe54a93cd085895c8f4e0ea9ff06b",
+    "manifest": "/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.manifest.json",
+    "manifest_sha256": "e764ce9af17bf8d2013916f822e1b9a357a835bd5b7f7bb3c4fa383447f0ae1d",
+    "binary": "/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate/kindle-package/bilicomics/app/bilicomics",
+    "binary_bytes": 74302160,
+    "binary_sha256": "3499c2adcdac3abec8d8c17160f3ff6c82361566984bc1fd045e292817e85ccb",
+    "worker": "/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate/kindle-package/bilicomics/app/kindle-jpeg-worker",
+    "worker_bytes": 426672,
+    "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+    "app_root": "/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate/app",
+    "native_query": "/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate/kindle-package/bilicomics/app/bilicomics-native-query",
+    "native_query_bytes": 6368,
+    "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268"
+  },
+  "archive_entries": [
+    {
+      "path": "README.md",
+      "bytes": 14186,
+      "sha256": "92a692b6bdcf9d057637a980ec620a3e932547862133873b709e37dc2e68e6a4",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 6010,
+      "sha256": "4b90a1ae54453b69c0875da8b48e43aafed065d080dbe20d05e9d402b560154e",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "bilicomics/app/bilicomics",
+      "bytes": 74302160,
+      "sha256": "3499c2adcdac3abec8d8c17160f3ff6c82361566984bc1fd045e292817e85ccb",
+      "mode": "0o755",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "bilicomics/app/bilicomics-native-query",
+      "bytes": 6368,
+      "sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268",
+      "mode": "0o755",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "bilicomics/app/kindle-jpeg-worker",
+      "bytes": 426672,
+      "sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+      "mode": "0o755",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "bilicomics/data/device-allowlist",
+      "bytes": 187,
+      "sha256": "5c0e5070c4afc759ad040499e077cfb7807fe244030acc082b66b12a04bfd30e",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "bilicomics/data/device-profile",
+      "bytes": 4,
+      "sha256": "6c0299511647f0fb6f826b8bbc48db8e190cac459b2f8d4295236801a3149edb",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "bilicomics/launch.sh",
+      "bytes": 74425,
+      "sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "mode": "0o755",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/Cargo.lock",
+      "bytes": 172083,
+      "sha256": "a732ae40f2c7f9761d8984451b40b70494c560e7057203a56bd992cf7be974fa",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/aidoku-native-media/LICENSE-GPL-3.0-or-later",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/aidoku-native-media/README.md",
+      "bytes": 9670,
+      "sha256": "1b9e67df632cf0d6c11b3aeb34ef4549f68a07a2a308550f21be09c1f78a7e4c",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/aidoku-native-media/UPSTREAM_FILES.json",
+      "bytes": 1999,
+      "sha256": "3150d9b47382b01f570159ae8c7262714288a4bc485bde64b89a3a9d21fe7fb7",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/aidoku-native-query/LICENSE.AIDOKU",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/aidoku-native-query/README.md",
+      "bytes": 4579,
+      "sha256": "db49114613221c718059b661f3334bfbc47bd67c9ce040972845a66859891f8e",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/aidoku-native-query/UPSTREAM_FILES.json",
+      "bytes": 1537,
+      "sha256": "690e85d33ecef759c256fcbbc9893eb1e2613dc224d7de4e32208f7ad5f19d94",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/aidoku-startup/LICENSE.AIDOKU",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/aidoku-startup/README.md",
+      "bytes": 3682,
+      "sha256": "b8f21b7b394e26d37bcfc7f76cbd7e126681d8ffdb93d014852cc79348c21389",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/aidoku-startup/UPSTREAM_FILES.json",
+      "bytes": 3486,
+      "sha256": "a0f08fb7d40719a175c0cd29086f7c10d4e220c8ac642bb0f1f86a36718117b8",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/backend/LICENSE-APACHE",
+      "bytes": 11560,
+      "sha256": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/backend/LICENSE-MIT",
+      "bytes": 1087,
+      "sha256": "c9258d60bf86be3a36ca87da66de24339344518dfbb5c465ca2597b32f63acce",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/backend/PATCHES.md",
+      "bytes": 50336,
+      "sha256": "5c2cd5d15bebb21a0d62d55c382be9bf8103947ebf52bd54871fb27e956b1201",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/backend/UPSTREAM_REVISION",
+      "bytes": 263,
+      "sha256": "77f72dec4f6d2070ef5694a0a354ea6c37dcfc35997c77cdea3a55c7da30d01d",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/fonts/NOTICES.txt",
+      "bytes": 2756,
+      "sha256": "d1306af25c5e2d15a80fe6618c79c30c59351759122afab98cdab2c38e0caa3e",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/fonts/NotoSansCJK-LICENSE.txt",
+      "bytes": 4301,
+      "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/fonts/NotoSerifCJK-LICENSE.txt",
+      "bytes": 4301,
+      "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/fonts/OFL.txt",
+      "bytes": 4317,
+      "sha256": "57afc26659111a407cd721bbd1a2ce325a046ad1bf8182eafb9b49f9cf68e199",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/fonts/startup-manifest.json",
+      "bytes": 6604,
+      "sha256": "17bd56f5598b69cefcba1bad496082e9b5ecb37c722b72a54b543de54022f337",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/image-triangle/LICENSE-APACHE",
+      "bytes": 10174,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/image-triangle/LICENSE-MIT",
+      "bytes": 1036,
+      "sha256": "c77a4cf9da729987d0fe7ccd811e3bd27393914ddf3d23467c18cc22954513b3",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/image-triangle/README.md",
+      "bytes": 9854,
+      "sha256": "3962965f258452a48e2de28865daebf32fa1a6fd022038262bf46efe5c6eab8d",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/image-triangle/SHA256SUMS",
+      "bytes": 1011,
+      "sha256": "8ef4f0666326f1f495e4a3eb6a57f0c52bddfc0c752435063d1e0dd7842e002f",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/jpeg/0001-strict-entropy-completeness.patch",
+      "bytes": 36514,
+      "sha256": "38a92a8fd9cc5bc7608779b0eceb0efef11e4424174093e35c86903d357016aa",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/jpeg/LICENSE-APACHE",
+      "bytes": 11558,
+      "sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/jpeg/LICENSE-MIT",
+      "bytes": 1094,
+      "sha256": "126cdd7ff1d42abd43e10dc96befd09a5360ee2da5f3a275201b209040f4d674",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/jpeg/LICENSE-ZLIB",
+      "bytes": 878,
+      "sha256": "46044e33e3199a72648ae984ccd91a306ec1e412d5fb5c81096558bb0ddfb132",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/jpeg/PATCHES.md",
+      "bytes": 4117,
+      "sha256": "4b6fdb941c7ad9d697610535e4f39542c634f9335f14644af3c959d6c18bc7c7",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/jpeg/UPSTREAM.md",
+      "bytes": 1220,
+      "sha256": "865953055eefb7b2ed47948af39c8e14e639b11a7d26f8883de9578e837e2b4d",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/pinyin/LICENSE-AOSP.txt",
+      "bytes": 10880,
+      "sha256": "8c7788899f273f209560850d202d04b5515e2c4fae0bda6004761081c1c9d409",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/pinyin/README.md",
+      "bytes": 4207,
+      "sha256": "db032e500986f7f60afd649832908d3aa6de3e866d8d0edab6cd012769dd318f",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/protocol/README.md",
+      "bytes": 2853,
+      "sha256": "18e1de408ad9f8c7587821330d3887decc6299de8cd347f2244a180698bc3bb3",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/protocol/cjson-LICENSE",
+      "bytes": 1104,
+      "sha256": "ca7ea72cf3674a70394b1f377e85dc402a2dfae37385f14da6ccba4296849f9b",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/protocol/mbedtls-LICENSE",
+      "bytes": 30405,
+      "sha256": "f8582e76de1b7dd1caa680ab9a82cf2455b4392f00613b68a63df88121909175",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/protocol/wasm3-LICENSE",
+      "bytes": 1113,
+      "sha256": "ac6a4262cccf176c2fe0a51bf92108b1ecf9f27198dbdb5f4987c6fcf1d6859e",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/spatial-dither/LICENSE.AIDOKU",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/spatial-dither/README.md",
+      "bytes": 5074,
+      "sha256": "aa96d1dfc25361f3d149f8bd974058e25539a17cff67d03ae4260469ad3ce605",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    },
+    {
+      "path": "notices/spatial-dither/UPSTREAM_FILES.json",
+      "bytes": 2069,
+      "sha256": "77a875f70a97c68b23d05a7acad4d58faa201d4f26ef8d2f902b080e6992dc4e",
+      "mode": "0o600",
+      "fixed_timestamp": true
+    }
+  ],
+  "error": "The native-query helper requires missing, duplicate, or unreviewed shared libraries",
+  "finished_at": "2026-11-17T04:54:46.911165+00:00"
+}

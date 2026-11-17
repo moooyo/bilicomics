@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "whole_batch_success": false,
+  "helper_adopted": false,
+  "scope": "Saved research evidence export only; no new device/lease/application/test execution",
+  "source_sha256": {
+    "report": "8d633227a9e9f7bfb36728aea5c6ac09e17c07f146c5f1173b96a6ca8542edac",
+    "primary": "1475464028f82974e5f58ed0175ff66730bdd162c1c58e55cc9b1b3acc4bb577",
+    "projector": "e991f01792fa9b771d12a64c18e450c1435c7aca7ca24d8f22a374e451fbc01e",
+    "analyzer": "55e80ecb8bc0c51b3da536bab29c0ea67074db27f00861685a4d648b858e4a28",
+    "control2": "fd0876fc6d6f3202cffa37a7ec1089d3b02dab21d9b3e1d4448085fefc0189ac",
+    "compiler": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+    "software_identity": "444ff551e260ac7132bcd8c7ea805d4dd2a5ead9144f0ddddee341a7fe3ed23e"
+  },
+  "images": 6,
+  "new_files": [
+    {
+      "path": "README.md",
+      "bytes": 5999,
+      "sha256": "2e2a879e11753062a0111c5ee5629565b3f15dc0c7b9eb6e5b70a1d73261c4d8",
+      "role": "Research decision and explicit qualification limits",
+      "source_tag": "research-only",
+      "source_sha256": null,
+      "original_bytes": false
+    },
+    {
+      "path": "images/baseline-early.json",
+      "bytes": 2199,
+      "sha256": "0998d0d76ca7109bed2661da1f405e704c1c9ce08508f5249e5942200d83258f",
+      "role": "Projected memory-image sidecar",
+      "source_tag": "baseline-06",
+      "source_sha256": null,
+      "original_bytes": false
+    },
+    {
+      "path": "images/baseline-early.png",
+      "bytes": 128999,
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "role": "Lossless synthetic application memory projection",
+      "source_tag": "baseline-06/content-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "images/baseline-final-logical.json",
+      "bytes": 554,
+      "sha256": "ac969db5a707595948d347fb61ca59ddd9c095539e0c696adf6b251e9245546f",
+      "role": "Original logical snapshot sidecar",
+      "source_tag": "baseline-06",
+      "source_sha256": null,
+      "original_bytes": false
+    },
+    {
+      "path": "images/baseline-final-logical.png",
+      "bytes": 453889,
+      "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "role": "Original logical application PNG",
+      "source_tag": "baseline-06",
+      "source_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "original_bytes": true
+    },
+    {
+      "path": "images/baseline-settled.json",
+      "bytes": 2450,
+      "sha256": "c9e0d167b2f362c98a30501b1c5514cebc46c800a2e798ea1129b3f79c5d573e",
+      "role": "Projected memory-image sidecar",
+      "source_tag": "baseline-06",
+      "source_sha256": null,
+      "original_bytes": false
+    },
+    {
+      "path": "images/baseline-settled.png",
+      "bytes": 128999,
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "role": "Lossless synthetic application memory projection",
+      "source_tag": "baseline-06/settled-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "images/candidate-early.json",
+      "bytes": 2196,
+      "sha256": "02b064daf3647baa87abffc930d6dfc2bfe76c4bf3022efd48186e6dddbb71e8",
+      "role": "Projected memory-image sidecar",
+      "source_tag": "candidate-06",
+      "source_sha256": null,
+      "original_bytes": false
+    },
+    {
+      "path": "images/candidate-early.png",
+      "bytes": 128999,
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "role": "Lossless synthetic application memory projection",
+      "source_tag": "candidate-06/content-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "images/candidate-final-logical.json",
+      "bytes": 555,
+      "sha256": "ae95a71992b18ebc91811fcac2efbc5b74c1124f72608cf4c1153a1c749a1f83",
+      "role": "Original logical snapshot sidecar",
+      "source_tag": "candidate-06",
+      "source_sha256": null,
+      "original_bytes": false
+    },
+    {
+      "path": "images/candidate-final-logical.png",
+      "bytes": 453889,
+      "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "role": "Original logical application PNG",
+      "source_tag": "candidate-06",
+      "source_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "original_bytes": true
+    },
+    {
+      "path": "images/candidate-settled.json",
+      "bytes": 2452,
+      "sha256": "8b72728015939654d7951a69e51cc8bb7c58c312e5049fe73ac505a5518898f3",
+      "role": "Projected memory-image sidecar",
+      "source_tag": "candidate-06",
+      "source_sha256": null,
+      "original_bytes": false
+    },
+    {
+      "path": "images/candidate-settled.png",
+      "bytes": 128999,
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "role": "Lossless synthetic application memory projection",
+      "source_tag": "candidate-06/settled-frame.raw",
+      "source_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+      "original_bytes": false
+    },
+    {
+      "path": "primary-qualified-projection.json",
+      "bytes": 951775,
+      "sha256": "1475464028f82974e5f58ed0175ff66730bdd162c1c58e55cc9b1b3acc4bb577",
+      "role": "Original independent primary-only projection; whole batch remains failed",
+      "source_tag": "primary-subset",
+      "source_sha256": "1475464028f82974e5f58ed0175ff66730bdd162c1c58e55cc9b1b3acc4bb577",
+      "original_bytes": true
+    },
+    {
+      "path": "sources/compiler-profile.json",
+      "bytes": 547,
+      "sha256": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+      "role": "Original matched compiler controls",
+      "source_tag": "fresh-software-identity-r2",
+      "source_sha256": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+      "original_bytes": true
+    },
+    {
+      "path": "sources/frozen-tools-control2.json",
+      "bytes": 2979,
+      "sha256": "fd0876fc6d6f3202cffa37a7ec1089d3b02dab21d9b3e1d4448085fefc0189ac",
+      "role": "Original recorded host-tool inventory",
+      "source_tag": "control2-frozen33",
+      "source_sha256": "fd0876fc6d6f3202cffa37a7ec1089d3b02dab21d9b3e1d4448085fefc0189ac",
+      "original_bytes": true
+    },
+    {
+      "path": "summary.json",
+      "bytes": 112921,
+      "sha256": "78af09acee95e7bdee2558cca9e9f45782abae12062da36eccb503b9ecbe8eb6",
+      "role": "Anonymous research summary; no global passed claim",
+      "source_tag": "research-only",
+      "source_sha256": "1475464028f82974e5f58ed0175ff66730bdd162c1c58e55cc9b1b3acc4bb577",
+      "original_bytes": false
+    },
+    {
+      "path": "tools/as-built-analyze_startup_ab.py",
+      "bytes": 56113,
+      "sha256": "55e80ecb8bc0c51b3da536bab29c0ea67074db27f00861685a4d648b858e4a28",
+      "role": "Unmodified as-built analyzer with complete-batch rules intact",
+      "source_tag": "as-built-analyzer",
+      "source_sha256": "55e80ecb8bc0c51b3da536bab29c0ea67074db27f00861685a4d648b858e4a28",
+      "original_bytes": true
+    },
+    {
+      "path": "tools/control2/INCIDENT_AND_FIX.md",
+      "bytes": 2669,
+      "sha256": "79ee83f4b1f69a54b9a69abeb9063587047ad72358f0d4bce814a7887a8bd7c0",
+      "role": "Frozen controller/clock/narrow-fix source",
+      "source_tag": "control2-frozen33",
+      "source_sha256": "79ee83f4b1f69a54b9a69abeb9063587047ad72358f0d4bce814a7887a8bd7c0",
+      "original_bytes": true
+    },
+    {
+      "path": "tools/control2/startup-clock.c",
+      "bytes": 6922,
+      "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c",
+      "role": "Frozen controller/clock/narrow-fix source",
+      "source_tag": "control2-frozen33",
+      "source_sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c",
+      "original_bytes": true
+    },
+    {
+      "path": "tools/control2/startup_ab.py",
+      "bytes": 64718,
+      "sha256": "0ac578fb53ccd52d7bb5ebaf0ee2d013c34dcf1c6d7a69e3796a96bb91eddc27",
+      "role": "Frozen controller/clock/narrow-fix source",
+      "source_tag": "control2-frozen33",
+      "source_sha256": "0ac578fb53ccd52d7bb5ebaf0ee2d013c34dcf1c6d7a69e3796a96bb91eddc27",
+      "original_bytes": true
+    },
+    {
+      "path": "tools/export_physical_research.py",
+      "bytes": 34913,
+      "sha256": "264e81f66d8e0cdb66557d221076dc5a38764ea02a137d48ce2dd1af94a66a65",
+      "role": "Saved-artifact allowlist exporter",
+      "source_tag": "public-exporter",
+      "source_sha256": "264e81f66d8e0cdb66557d221076dc5a38764ea02a137d48ce2dd1af94a66a65",
+      "original_bytes": true
+    },
+    {
+      "path": "tools/project_primary.py",
+      "bytes": 13032,
+      "sha256": "e991f01792fa9b771d12a64c18e450c1435c7aca7ca24d8f22a374e451fbc01e",
+      "role": "New independent projection source",
+      "source_tag": "primary-subset-projector",
+      "source_sha256": "e991f01792fa9b771d12a64c18e450c1435c7aca7ca24d8f22a374e451fbc01e",
+      "original_bytes": true
+    }
+  ],
+  "preserved_existing_preflight_files": [
+    {
+      "path": "preflight/lease-contention-r2.json",
+      "sha256": "5b57f32101fe1497e2509e54b13b1d6434bff243e618b3c9f35564e95e6c8f03",
+      "bytes": 627,
+      "preserved_existing_file": true,
+      "rewritten_or_copied_by_exporter": false
+    },
+    {
+      "path": "preflight/partial-batch-r3.json",
+      "sha256": "3285300a3470f077a41c7a4302fbcd56fa3ca0814c7757c83f6a43c73cfce38f",
+      "bytes": 1591,
+      "preserved_existing_file": true,
+      "rewritten_or_copied_by_exporter": false
+    },
+    {
+      "path": "preflight/transport-failure-r1.json",
+      "sha256": "03169f9e3dc61bf98b21d035fc9516226a7f5c0a72492d0f32e0865e3fb25764",
+      "bytes": 1348,
+      "preserved_existing_file": true,
+      "rewritten_or_copied_by_exporter": false
+    }
+  ],
+  "excluded": [
+    "Private raw reports and configuration",
+    "Owner/token values",
+    "Native Home/before/final content",
+    "Databases",
+    "Raw logs and output archives",
+    "Raw framebuffer payloads",
+    "Runtime implementation adoption"
+  ]
+}

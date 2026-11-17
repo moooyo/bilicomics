@@ -1,0 +1,373 @@
+{
+  "exporter_sha256": "398bc408e11caa9d9c8f8d972dbcf4a98df410356290b22439b6518ad1fb5b29",
+  "files": [
+    {
+      "bytes": 5274,
+      "origin": "Derived only from the fixed stored-evidence allowlist",
+      "path": "README.md",
+      "sha256": "bcc565653b95c9f945dfef32d526d8212a9b7c3ef42288f9ffe559b39c53bc06",
+      "transformation": "English aggregation and scope explanation"
+    },
+    {
+      "bytes": 1775,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/comparison.json",
+      "path": "abi/as-needed-comparison.json",
+      "sha256": "41a96327de61805f2e8e6c211845c1ac46cb5e1ded4104101c15f6e6a802804d",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 1556,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/as-needed/dynsym.txt",
+      "path": "abi/as-needed-dynsym.txt",
+      "sha256": "fae448b78b150b1cf01090eb2021224dcd3ba3c42cf50c349da44953d6c61430",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 4721,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/as-needed/readelf.txt",
+      "path": "abi/as-needed-readelf.txt",
+      "sha256": "6dafc8fb34aefc1f0a8fcd74610cee1c647212fb96c9d34a23645aa47b976103",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 5381,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-package.native-query.readelf.txt",
+      "path": "abi/candidate-r1-helper-readelf.txt",
+      "sha256": "bc6cd5883cecf8e3fc016ed34d8329edf5cde58c948d6c281a90f655197e3e95",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 7092,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-r2-package.native-query.readelf.txt",
+      "path": "abi/candidate-r2-helper-readelf.txt",
+      "sha256": "0e19af3cd09edd3c51aa04c14f8554040ab97a36c00822006b9297c4e0a36069",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 10492,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/driver-order/build.log",
+      "path": "abi/driver-order-build.txt",
+      "sha256": "c1b6539fb8bdd6b48e1934c2ab359ca7d7a9345dd4a78d194e68c0d918251f20",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 1556,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/original/dynsym.txt",
+      "path": "abi/original-dynsym.txt",
+      "sha256": "fae448b78b150b1cf01090eb2021224dcd3ba3c42cf50c349da44953d6c61430",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 4721,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/abi-as-needed-20261117-01a1d11a-r1/original/readelf.txt",
+      "path": "abi/original-readelf.txt",
+      "sha256": "6dafc8fb34aefc1f0a8fcd74610cee1c647212fb96c9d34a23645aa47b976103",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 58330,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/software-identity-r2/baseline-source-inputs.sha256",
+      "path": "baseline-source-inputs.sha256",
+      "sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 5946,
+      "evidence_kind": "Narrative audit copied from ignored local notes; not an original machine receipt",
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/export-input-notes/fresh-baseline-identity-audit.md",
+      "path": "cache-audit/fresh-baseline-identity-audit.md",
+      "sha256": "825887951928801b279341fdbd77043c40479b9adf8895cd157b755b2b3439c8",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 6491,
+      "evidence_kind": "Narrative audit copied from ignored local notes; not an original machine receipt",
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/export-input-notes/original-startup-cache-audit.md",
+      "path": "cache-audit/original-startup-cache-audit.md",
+      "sha256": "fd26bd5cef94e72224aabd943fbec8466015d6209d2b648a1b5ddf8a23837fbf",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 58604,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/software-identity-r2/candidate-r2-source-inputs.sha256",
+      "path": "candidate-r2-source-inputs.sha256",
+      "sha256": "92f34dd6c9f575c8c163312ba1e08cec5a451030316dd68e7bee7991986906bd",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 58604,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/software-identity-r2/candidate-source-inputs.sha256",
+      "path": "candidate-source-inputs.sha256",
+      "sha256": "92f34dd6c9f575c8c163312ba1e08cec5a451030316dd68e7bee7991986906bd",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 547,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/software-identity-r2/compiler-profile.json",
+      "path": "compiler-profile.json",
+      "sha256": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 239,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/compiler.txt",
+      "path": "compiler.txt",
+      "sha256": "fc5ee3cdb4fb498f20c2c458aa5b2cda2a8550af90e724c2156dce5a52482dbc",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2547,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/baseline-package.readelf.txt",
+      "path": "original/baseline-app-readelf.txt",
+      "sha256": "181ff206fc49065302f19cb52dc666c36af0279c6862d41c8d7c9ed0ef9dc1c4",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 726419,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/baseline/app/artifacts/verification/kindle-build.log",
+      "path": "original/baseline-arm-build.txt",
+      "sha256": "0d947cb577f009b76581d898cbf63be1d5772dfc51eea99ef39fe759e5c7b33b",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 21,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/baseline-build-finished.txt",
+      "path": "original/baseline-build-finished.txt",
+      "sha256": "ef1c1ac1505349f41ec24bc35db42d54394625ecb673d7b8fc7b057251668454",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 21,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/baseline-build-started.txt",
+      "path": "original/baseline-build-started.txt",
+      "sha256": "d35289a654bdb42d4bf2fef6ed73325126b0acf816151926984954b73c0d21e4",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 52,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/baseline-fresh-target.txt",
+      "path": "original/baseline-fresh-target.txt",
+      "sha256": "1a27067bb59f8cfade80e88eaa6ff34cb74c76f3fd4dad142ed417eaa403fb62",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2572,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/baseline-package.worker.readelf.txt",
+      "path": "original/baseline-worker-readelf.txt",
+      "sha256": "aa09a99527b6ae2a05468230ef47d4a00b8b05ffba97bd8c0d47b3fb0e68aec9",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 1381,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/build-baseline.sh",
+      "path": "original/build-baseline.sh.txt",
+      "sha256": "eb5ebeaa5360f22183a4f84d5269ab35e4916b06bcda5d4106bf05d5a5545fc7",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 1514,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/build-candidate.sh",
+      "path": "original/build-candidate-r1.sh.txt",
+      "sha256": "bd2cc5001c9205060c5fdbb4f16ab43d4dcf3a6c758d439c2388f892cce8d735",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 1532,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/build-candidate-r2.sh",
+      "path": "original/build-candidate-r2.sh.txt",
+      "sha256": "c07b0c0038d65935be9c93c5aaf5a34ddd414b50508cbf08bfdc6fabd4d187bb",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2103,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/python-checks-r1/native_query_worker_test.txt",
+      "path": "original/c-helper-mock-tests.txt",
+      "sha256": "6aba7c5cfe479f772b6a3bea7253b33d7dd4b4b2473e46e57dcbb1aaa5381ad5",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2550,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-package.readelf.txt",
+      "path": "original/candidate-r1-app-readelf.txt",
+      "sha256": "5adf6431a9ee74d3b52abfae4359ebbfb78dd1157390c37d53316fbef60ab4e0",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2575,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-package.worker.readelf.txt",
+      "path": "original/candidate-r1-worker-readelf.txt",
+      "sha256": "66497697adb773dcfcd0a03c98c6c4341a308ae3c24da0540af59e8a4305cd4a",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2559,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-r2-package.readelf.txt",
+      "path": "original/candidate-r2-app-readelf.txt",
+      "sha256": "59f0e8091a5275af1fac359ec4b08a0ad237f480a88f63715ca356c6b842df01",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 736275,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate-r2/app/artifacts/verification/kindle-build.log",
+      "path": "original/candidate-r2-arm-build.txt",
+      "sha256": "c5d9850185c71c6f1f216e66df12d3f2eac6eae38e76c1d204ae0398d2a86f2e",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 21,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-r2-build-finished.txt",
+      "path": "original/candidate-r2-build-finished.txt",
+      "sha256": "04e757d10180aac77117301b821aad2ef280fd49c3c142cdccfa6fecc8b8587a",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 21,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-r2-build-started.txt",
+      "path": "original/candidate-r2-build-started.txt",
+      "sha256": "b885c0c0c2022b7884d9687d21a6256812ad7c4b9ab9c150aef5eeeb2293d6fc",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 52,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-r2-fresh-target.txt",
+      "path": "original/candidate-r2-fresh-target.txt",
+      "sha256": "1a27067bb59f8cfade80e88eaa6ff34cb74c76f3fd4dad142ed417eaa403fb62",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2584,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-r2-package.worker.readelf.txt",
+      "path": "original/candidate-r2-worker-readelf.txt",
+      "sha256": "c2022a4c0ca2790b98e7d023b659ed57722fb7e017d40dd3edc54e68be9b85a7",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 6562,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/collect_software.py",
+      "path": "original/identity-collector.py.txt",
+      "sha256": "e85ccbf74241e35c78d70b790077f55c813da3812402281e0db6e1086e1329a5",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 554,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/python-checks-r2/test_native_media_package.txt",
+      "path": "original/native-media-package-tests-r2.txt",
+      "sha256": "d3a78e418024bfd49006a83414bfba4be04e89b1de3a39ec945160d0ecc016b8",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 4777,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/python-checks-r1/test_native_query_package.txt",
+      "path": "original/native-query-package-tests-r1.txt",
+      "sha256": "33e112c0d7dd6246e64bd796bb61abc7242245469cdf7f2edc4c8b546f23212c",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 6989,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/python-checks-r2/test_native_query_package.txt",
+      "path": "original/native-query-package-tests-r2.txt",
+      "sha256": "07187c9acd72c9b39c4754c572412033763705b7fa41c5051e701dfebea17e8b",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 1740,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/python-checks-r1/summary.json",
+      "path": "original/python-r1-summary.json",
+      "sha256": "7b2b622411f03eb4e26f14f2b26bf8e0a55e407cbd4548f02390bb62febac015",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 1442,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/python-checks-r2/summary.json",
+      "path": "original/python-r2-summary.json",
+      "sha256": "eb0ff2d8ec78832d0be64d0a8e8ef6efae39748636fb34331b0ff1aebdba8f4e",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2812,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/run_python_checks.py",
+      "path": "original/python-runner-r1.py.txt",
+      "sha256": "4b2b4d5c1c9fb8b0544bed434b765d650c13320e5a45d978187cbe8dfcb23d16",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 2769,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/run_python_checks_r2.py",
+      "path": "original/python-runner-r2.py.txt",
+      "sha256": "c2f70fe77f7dc78a7541c4ff3f9dbc48101964c9604ce89f3a18ee17e3e26b45",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 21,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/rust-checks-r1/finished.txt",
+      "path": "original/rust-finished.txt",
+      "sha256": "f2ad20e0c7ea3d9c3b0f6612d3fed6ffb0e5489e296408cb94e7a48fbddd53f6",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 857,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/run-rust-checks.sh",
+      "path": "original/rust-runner.sh.txt",
+      "sha256": "c20f6c95833e78f7b152d7edc553a30fce5d66d909f5da351931b25c482b269d",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 119326,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/rust-checks-r1/tests.txt",
+      "path": "original/rust-tests.txt",
+      "sha256": "6776a6e2c4bdc13e3261708da5907b6c49c0f5d8427315385d7f8109b0c747c7",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 5220,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/software-identity-r2/summary.json",
+      "path": "original/software-identity-r2-summary.json",
+      "sha256": "444ff551e260ac7132bcd8c7ea805d4dd2a5ead9144f0ddddee341a7fe3ed23e",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 920,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/python-checks-r2/test_spatial_dither_package.txt",
+      "path": "original/spatial-package-tests-r2.txt",
+      "sha256": "bf542152fd8751605fc9ce3374c3d6b1bf0998c93d2e358cb1db9bc03744f51c",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 1346,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/python-checks-r2/test_startup_package.txt",
+      "path": "original/startup-package-tests-r2.txt",
+      "sha256": "77523d3bd4d1090115733d087b6e96ab2d5e6f3f9c50dccf402e565e88ce7470",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 14651,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/baseline-package.json",
+      "path": "packages/baseline.json",
+      "sha256": "3623e5218b5920f8ab45e87f46d7bc4875bd5048b988aadcedb6eb3bd719a1f7",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 16659,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-package.json",
+      "path": "packages/candidate-r1-rejected.json",
+      "sha256": "c1f63d865a50173074e59c7c898d81daeb0d4f95ce939db33136b573398c49d8",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 17836,
+      "origin": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-r2-package.json",
+      "path": "packages/candidate-r2.json",
+      "sha256": "83eba6de7914044d2ef95a20da13decd35cd0bd8809ac5cfb7cea84b3f0b55e8",
+      "transformation": "none; original bytes"
+    },
+    {
+      "bytes": 10207,
+      "origin": "Derived only from the fixed stored-evidence allowlist",
+      "path": "software-summary.json",
+      "sha256": "88e7aeeb03da454b64e3c20dc5c829552f53da1fc676b75aa8a3373d2d06fc41",
+      "transformation": "English aggregation and scope explanation"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "Read-only export of stored records; no tests, builds, applications, or device operations executed"
+}

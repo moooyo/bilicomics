@@ -1,0 +1,242 @@
+{
+  "as_needed_experiment": {
+    "conclusion": "The four ordinary GLIBC_2.4 symbols resolve from libpthread; --as-needed does not remove this actual dependency",
+    "helper_bytes_unchanged": true,
+    "record": "abi/as-needed-comparison.json"
+  },
+  "authoritative_runtime_variant": "candidate-r2",
+  "authority": "original/software-identity-r2-summary.json",
+  "c_helper_mock_tests": {
+    "failed": 0,
+    "log": "original/c-helper-mock-tests.txt",
+    "log_sha256": "6aba7c5cfe479f772b6a3bea7253b33d7dd4b4b2473e46e57dcbb1aaa5381ad5",
+    "passed": 14,
+    "source_unchanged": true
+  },
+  "cache_audit_context": {
+    "binary_identity_limit": "Equal compiled-input manifests across roots do not establish equal executable bytes or whole-program equivalence",
+    "cargo_path_limit": "Different absolute source paths did not isolate the backend Cargo artifact identity",
+    "evidence_kind": "Two copied read-only narrative notes; no separate original audit JSON receipts exist",
+    "finding": "No evidence of the specific Aidoku diagnostic-backend contamination was found in the older published BiliComics packages",
+    "fresh_identity_note": "cache-audit/fresh-baseline-identity-audit.md",
+    "old_results": "Retain their original frozen executable identities and scope; they are not revoked by a path-dependent hash difference",
+    "original_startup_note": "cache-audit/original-startup-cache-audit.md",
+    "scope_distinction": "The root task performed new fresh builds; the note authors did not build during their read-only audits"
+  },
+  "compiler_fingerprint": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+  "compiler_profile": "compiler-profile.json",
+  "excluded_material": [
+    "ELF and ZIP bytes",
+    "databases",
+    "credentials",
+    "private transport",
+    "account content",
+    "physical-run output"
+  ],
+  "fresh_compilations": {
+    "baseline": {
+      "announcements": [
+        {
+          "line": 916,
+          "text": "Compiling bilicomics v0.1.25 (/root/bilicomics-native-query-20261117-01a1d11a-r1/baseline/app)"
+        },
+        {
+          "line": 936,
+          "text": "Compiling slint-backend-kindle v0.7.1 (/root/bilicomics-native-query-20261117-01a1d11a-r1/baseline/app/vendor/slint-backend-kindle)"
+        }
+      ],
+      "application_compilation_recorded": true,
+      "arm_log_sha256": "0d947cb577f009b76581d898cbf63be1d5772dfc51eea99ef39fe759e5c7b33b",
+      "assertion_sha256": "1a27067bb59f8cfade80e88eaa6ff34cb74c76f3fd4dad142ed417eaa403fb62",
+      "backend_compilation_recorded": true,
+      "backend_rustc_lines": [
+        937
+      ],
+      "log": "original/baseline-arm-build.txt",
+      "main_rustc_lines": [
+        1054
+      ],
+      "target": "/root/bilicomics-native-query-20261117-01a1d11a-r1/baseline/target",
+      "target_initially_absent": true
+    },
+    "candidate-r2": {
+      "announcements": [
+        {
+          "line": 918,
+          "text": "Compiling bilicomics v0.1.25 (/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate-r2/app)"
+        },
+        {
+          "line": 942,
+          "text": "Compiling slint-backend-kindle v0.7.1 (/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate-r2/app/vendor/slint-backend-kindle)"
+        }
+      ],
+      "application_compilation_recorded": true,
+      "arm_log_sha256": "c5d9850185c71c6f1f216e66df12d3f2eac6eae38e76c1d204ae0398d2a86f2e",
+      "assertion_sha256": "1a27067bb59f8cfade80e88eaa6ff34cb74c76f3fd4dad142ed417eaa403fb62",
+      "backend_compilation_recorded": true,
+      "backend_rustc_lines": [
+        943
+      ],
+      "log": "original/candidate-r2-arm-build.txt",
+      "main_rustc_lines": [
+        1055
+      ],
+      "target": "/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate-r2/target",
+      "target_initially_absent": true
+    }
+  },
+  "initial_package_rejection": {
+    "archive_entries": 46,
+    "error": "The native-query helper requires missing, duplicate, or unreviewed shared libraries",
+    "passed": false,
+    "preserved": true,
+    "reason": "Unreviewed direct libpthread dependency; subsequently audited and narrowly checked",
+    "record": "packages/candidate-r1-rejected.json",
+    "recorded_checks": 18,
+    "report_sha256": "c1f63d865a50173074e59c7c898d81daeb0d4f95ce939db33136b573398c49d8",
+    "runtime_change_required": false,
+    "runtime_input_changes_for_abi_review": false,
+    "selected_helper_sha256_unchanged": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268"
+  },
+  "package_regressions": {
+    "counts": {
+      "native-media": 3,
+      "native-query": 44,
+      "spatial": 5,
+      "startup": 8
+    },
+    "failed": 0,
+    "total": 60
+  },
+  "physical_acceptance": "pending; not established by this software bundle",
+  "reviewed_helper_abi": {
+    "byte_order": "little",
+    "eabi_version": 5,
+    "elf_class": 32,
+    "evidence": "/root/bilicomics-native-query-20261117-01a1d11a-r1/logs/candidate-r2-package.native-query.readelf.txt",
+    "hard_float": true,
+    "immediate_symbol_binding": true,
+    "interpreter": "/lib/ld-linux-armhf.so.3",
+    "loader_search_paths": [],
+    "machine": "ARM",
+    "maximum_glibc_version": "2.4",
+    "name": "native_query_firmware_abi_and_hardening",
+    "needed_libraries": [
+      "libc.so.6",
+      "libdl.so.2",
+      "libpthread.so.0"
+    ],
+    "non_executable_stack": true,
+    "pthread_api_imports": [],
+    "pthread_compatibility_glibc": "2.4",
+    "pthread_compatibility_symbols": [
+      "__errno_location",
+      "read",
+      "sigaction",
+      "write"
+    ],
+    "readelf_sha256": "0e19af3cd09edd3c51aa04c14f8554040ab97a36c00822006b9297c4e0a36069",
+    "relro": true,
+    "scope": "Only the selected native-query helper may use the firmware dynamic loader",
+    "status": "passed",
+    "symbol_versions": [
+      "GLIBC_2.4"
+    ],
+    "text_relocations": false,
+    "type": "PIE",
+    "undefined_function_imports": 19,
+    "writable_executable_load": false
+  },
+  "runtime_inputs_equal_between_tested_74_and_authoritative_f574": true,
+  "rust_tests": {
+    "command": "cargo test --locked --offline --features kindle --lib --bins; default desktop features retained",
+    "failed": 0,
+    "features": [
+      "desktop",
+      "kindle"
+    ],
+    "ignored": 4,
+    "library_passed": 904,
+    "log": "original/rust-tests.txt",
+    "log_sha256": "6776a6e2c4bdc13e3261708da5907b6c49c0f5d8427315385d7f8109b0c747c7",
+    "main_passed": 11,
+    "source_commit": "74c259338f1cfc234f92a160ccf582dbe292c8d1",
+    "source_runtime_equal_to_authoritative": true,
+    "worker_passed": 0
+  },
+  "schema_version": 1,
+  "scope": "Stored software/build/audit evidence only; no physical, optical, live-account, or speed acceptance",
+  "selected_packages": {
+    "baseline": {
+      "archive_entries": 42,
+      "binary_sha256": "1970842488d4b7f389d3e3faa493759a0294b2109ead91a8e4e76aec25dfbb5d",
+      "checker": "packages/baseline.json",
+      "checks": 16,
+      "compiler_fingerprint": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+      "launcher_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "package": "/root/bilicomics-native-query-20261117-01a1d11a-r1/baseline/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.zip",
+      "package_checks": 16,
+      "package_sha256": "2eb7b6f2565bd1b6c93190ae51ebeb9750fffd9150654e92d28f64f090cf3dc4",
+      "passed": true,
+      "source_commit": "f50ada15dd934c986e8305a1f9dd8e46f51b2529",
+      "source_fingerprint": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28",
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    },
+    "candidate-r2": {
+      "archive_entries": 46,
+      "binary_sha256": "806a406dba49b4cb671f3670a1c0106b2dffae6b592409f0f47aa589409b1de6",
+      "checker": "packages/candidate-r2.json",
+      "checks": 19,
+      "compiler_fingerprint": "ef366827161fc01b775c24c85bbbec4fe4ac72d02c28404285fc5f8a13d7ff6d",
+      "launcher_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "native_query_sha256": "ecb336e4461dcfd5ac436af72d82661d5cc0a1dfe1b46434b00788160dc30268",
+      "package": "/root/bilicomics-native-query-20261117-01a1d11a-r1/candidate-r2/app/artifacts/verification/bilicomics-kindle-0.1.25-dev.zip",
+      "package_checks": 19,
+      "package_sha256": "3f49f56f570f980cd7322f4446a6d096f1a6c96131716671f869bc73fceb8711",
+      "passed": true,
+      "source_commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6",
+      "source_fingerprint": "92f34dd6c9f575c8c163312ba1e08cec5a451030316dd68e7bee7991986906bd",
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    }
+  },
+  "sources": {
+    "baseline": {
+      "archive_sha256": "b329a272cfa567bb66bedee79439000a2ed22526e9fd9afda48006558c90695b",
+      "commit": "f50ada15dd934c986e8305a1f9dd8e46f51b2529",
+      "compiled_input_files": 542,
+      "compiled_inputs_sha256": "33bda43e34f74c7e73058880b4a1ae7a8d4b00d3ec0ae9a1ee22a074b59beb28"
+    },
+    "candidate": {
+      "archive_sha256": "9fc0e0d22c15bc943e4213f4b5114034febcceac2f079ba20ca676586ccba547",
+      "commit": "74c259338f1cfc234f92a160ccf582dbe292c8d1",
+      "compiled_input_files": 545,
+      "compiled_inputs_sha256": "92f34dd6c9f575c8c163312ba1e08cec5a451030316dd68e7bee7991986906bd"
+    },
+    "candidate-r2": {
+      "archive_sha256": "3aef41b91f51d078c0b5e8d332a7affbd780e31b44917f4887ff9755482ee0ca",
+      "commit": "f574b2692e537f14b54f99f8f0f41b6e4c0885d6",
+      "compiled_input_files": 545,
+      "compiled_inputs_sha256": "92f34dd6c9f575c8c163312ba1e08cec5a451030316dd68e7bee7991986906bd"
+    }
+  },
+  "tests_builds_apps_or_devices_executed_by_exporter": false,
+  "unexpected_diagnostic_literal_counts": {
+    "baseline": {
+      "aidoku: startup-probe": 0,
+      "aidoku: startup-probe-barrier": 0,
+      "render_us=": 0,
+      "settle_us=": 0,
+      "submit_us=": 0,
+      "wait_us=": 0
+    },
+    "candidate-r2": {
+      "aidoku: startup-probe": 0,
+      "aidoku: startup-probe-barrier": 0,
+      "render_us=": 0,
+      "settle_us=": 0,
+      "submit_us=": 0,
+      "wait_us=": 0
+    }
+  },
+  "verification_host": "test-env"
+}

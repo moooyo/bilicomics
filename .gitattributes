@@ -57,3 +57,10 @@
 # Preserve the source-bound startup checks, timing samples, and projections.
 /docs/verification/startup-20261117/** -text
 /docs/physical/startup-20261117/** -text
+
+# Retain the exact read-only native-query reference sources and license.
+/docs/research/aidoku-native-query-20261117/** -text
+
+# Preserve native-query build, preflight, and device evidence identities.
+/docs/verification/native-query-20261117/** -text
+/docs/physical/native-query-20261117/** -text
