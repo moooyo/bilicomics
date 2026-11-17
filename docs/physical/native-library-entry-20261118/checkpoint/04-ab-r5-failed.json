@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "kind": "failed_timing_attempt_projection",
+  "source_ids": [
+    "r5-report",
+    "r5-clock-stderr",
+    "r5-observer-cancelled",
+    "r5-no-start-and-clock-stat",
+    "clock-c-safety-reference"
+  ],
+  "source_fields": {
+    "schema_version": 1,
+    "run_id": "lib-ab-20261117-0c9ca0a3",
+    "success": false,
+    "cancelled": false,
+    "started_at_utc": "2026-11-17T18:35:42.730843+00:00",
+    "finished_at_utc": "2026-11-17T18:36:53.714046+00:00",
+    "completed_cases": [],
+    "lease_released": false,
+    "native_restored": false,
+    "lighting_restored": false,
+    "catalog_restored": false,
+    "registration_unchanged": false,
+    "install_unchanged": false,
+    "transport_closed": false,
+    "same_boot": false
+  },
+  "interpretation": {
+    "failure_stage": "first native-stability clock sample",
+    "diagnostic": "The helper rejected the still-empty record's unsafe mode before URI dispatch.",
+    "uri_dispatched": false,
+    "application_started": false,
+    "startup_samples": 0,
+    "qualified_performance_or_lifetime_result": false,
+    "attribution_limit": "The observed failure is the clock file-safety gate; this batch establishes no application, SQLite, or observer defect."
+  },
+  "failed_command": {
+    "name": "case-baseline-warmup",
+    "returncode": 74,
+    "timeout": false,
+    "interrupted": false
+  },
+  "automatic_abort_command": {
+    "name": "abort-active",
+    "returncode": 0,
+    "timeout": false,
+    "interrupted": false
+  },
+  "bounded_clock_diagnostic": {
+    "source_id": "r5-clock-stderr",
+    "line": 1,
+    "text": "startup-clock: reject unsafe request record: Invalid argument"
+  },
+  "observer_cancelled_source_fields": {
+    "schema_version": 1,
+    "passed": false,
+    "reason": "observer-cancelled",
+    "entry_seen": false,
+    "entry_live_observed": false,
+    "worker_seen": false,
+    "generation_bound": false,
+    "content_observed": false,
+    "production_lock_absent": true,
+    "worker_signal_sent": false,
+    "status_helper_pending": false,
+    "owned_processes_gone": false,
+    "native_restored": false
+  },
+  "clock_record_stat": {
+    "source_id": "r5-no-start-and-clock-stat",
+    "line": 3,
+    "uid": 0,
+    "link_count": 1,
+    "size_bytes": 0,
+    "mode_octal": "0777"
+  },
+  "clock_safety_rule_reference": {
+    "source_id": "clock-c-safety-reference",
+    "expected_mode_octal": "0600",
+    "exit_record_code": 74,
+    "selected_lines": [
+      {
+        "line": 17,
+        "text": "    EXIT_RECORD = 74,"
+      },
+      {
+        "line": 160,
+        "text": "    if (!S_ISREG(identity.st_mode) || identity.st_nlink != 1 || identity.st_size != 0"
+      },
+      {
+        "line": 161,
+        "text": "            || identity.st_uid != geteuid() || (identity.st_mode & 0777) != 0600) {"
+      },
+      {
+        "line": 164,
+        "text": "        return report_failure(\"reject unsafe request record\", EXIT_RECORD);"
+      }
+    ],
+    "new_build_or_arm_execution": false
+  },
+  "independent_recovery_projection": "06-ab-r5-independent-recovery.json",
+  "recovery_status": "Observer cancellation was not successful application recovery; false original restoration/release fields are retained beside the later independent recovery."
+}

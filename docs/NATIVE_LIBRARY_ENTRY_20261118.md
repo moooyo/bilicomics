@@ -8,7 +8,7 @@ main.** The active candidate source is
 `39fac822a982868078201e605e50bdacf1dcf3ed` on `codex/library-entry-lifetime`.
 Main remains at the previously qualified `f8c24f8` runtime.
 
-All three attempted timing batches stopped before dispatching an application;
+All four attempted timing batches stopped before dispatching an application;
 there are zero startup samples. The later tiny device selfcheck passes only
 observer initialization. Neither is evidence of a startup gain, working
 Library lifetime, or same-process screensaver behavior for this candidate.
@@ -110,6 +110,10 @@ The original default shell MIME association and shared executable remain:
 
 The failed batches are retained separately; none supplies a latency sample:
 
+[The bounded checkpoint export](physical/native-library-entry-20261118/checkpoint/README.md)
+keeps their failed statuses, independent recovery receipts and initialization
+selfchecks as separate fixed-field projections, with original source hashes.
+
 1. `lib-ab-20261117-59ba43e0` stopped during initial catalog polling. SQLite
    returned BUSY (5) while the normal scanner wrote the index. The harness's
    `set -e` exited before its intended polling loop. A narrow, audited rc5/6
@@ -127,6 +131,13 @@ The failed batches are retained separately; none supplies a latency sample:
    separate recovery object proved the no-start state, reused frozen
    restoration/closure, and released the original owner/run/token. The failed
    report was not rewritten as successful.
+4. `lib-ab-20261117-0c9ca0a3` passed observer initialization, then the ARM clock
+   helper rejected its first, still-empty record before dispatch. Saved live
+   metadata shows UID 0, one link, size zero and mode `0777`; the helper
+   correctly requires mode `0600`. The observer was cancelled without an app
+   admission. A separate recovery retained every ownership/no-dispatch check,
+   restored original absence and native state, closed transports, and released
+   the original exact lease. Its failed timing report remains unchanged.
 
 The separate tiny selfcheck established the exact third cause: this Kindle's
 `/tmp` ancestor resolves to `/var/tmp`, violating the harness's exact-realpath
@@ -136,6 +147,21 @@ formal document and ran no scanner, app, framebuffer, input or lighting action.
 It cleaned its directories, verified native state, closed transports and
 released its fresh lease. The production `/tmp/bilicomics-launcher.lock`
 protocol is unchanged. No general symlink exception is introduced.
+
+The fourth attempt requires another harness correction: clock evidence must
+be created in the canonical private runtime filesystem, where its strict mode
+can be established, then copied byte for byte with hashes to the archive tree.
+The clock's file-safety checks must not be relaxed. Its pre-exec sampling origin
+must be retained for both variants. A new small clock-record selfcheck is still
+required before another timing batch; no such qualification or performance
+result is claimed here.
+
+The fourth recovery's original combined proof exceeded 59 KB and its SSH exec
+connection was reset, while short read-only commands worked. Splitting the
+same checks into sixteen commands of less than 8 KB completed restoration.
+No proof was omitted and no unknown process was signalled. The temporary
+network/wake request during recovery became unnecessary; it is not evidence
+that the device slept or that a user power cycle occurred.
 
 The native extractor may recreate UUIDs and sidecar locators during a genuine
 file opening. Those changes are recorded rather than rejected or used to drop

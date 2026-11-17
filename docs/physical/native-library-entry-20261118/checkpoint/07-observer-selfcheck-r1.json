@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "kind": "observer_initialization_selfcheck_projection",
+  "source_ids": [
+    "selfcheck-r1-report",
+    "selfcheck-r1-stdout",
+    "selfcheck-r1-stderr"
+  ],
+  "source_fields": {
+    "schema_version": 1,
+    "run_id": "lib-observer-check-20261117-e14c0ead",
+    "startup_gates_passed": false,
+    "probe_returncode": 2,
+    "application_started": false,
+    "uri_dispatched": false,
+    "native_preserved": true,
+    "transport_closed": true,
+    "lease_released": true,
+    "device_process_signals_requested": false
+  },
+  "runtime_context_projection": {
+    "source_id": "selfcheck-r1-stdout",
+    "line": 2,
+    "role": "runtime",
+    "directory": true,
+    "symlink": false,
+    "realpath_ancestor": "/var/tmp",
+    "runtime_suffix_omitted": true
+  },
+  "interpretation": {
+    "startup_gates_field_scope": "Observer initialization gates only, not application startup qualification.",
+    "formal_document_scanner_framebuffer_input_or_lighting_action": false,
+    "startup_samples": 0,
+    "formal_entry_qualified": false,
+    "diagnostic": "The exact-realpath runtime gate rejected the requested /tmp ancestor, observed as /var/tmp."
+  },
+  "failed_gate_source_fields": {
+    "success": false,
+    "gate": "g463",
+    "context": "runtime"
+  }
+}

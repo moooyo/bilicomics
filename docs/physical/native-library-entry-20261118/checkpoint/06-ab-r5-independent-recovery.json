@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "kind": "independent_recovery_projection",
+  "source_ids": [
+    "r5-recovery",
+    "r5-no-start-and-clock-stat",
+    "r5-exact-release"
+  ],
+  "source_fields": {
+    "schema_version": 1,
+    "run_id": "lib-ab-20261117-0c9ca0a3",
+    "success": true,
+    "finished_at_utc": "2026-11-17T18:58:46.056268+00:00",
+    "original_report_sha256": "3f76ef8ca34abf0f17c057deeda80b018838e39aa6a7d2b7b1e60670d80e9657",
+    "lease_released": true,
+    "native_restored": true,
+    "lighting_restored": true,
+    "catalog_restored": true,
+    "registration_unchanged": true,
+    "install_unchanged": true,
+    "input_roster_unchanged": true,
+    "temporary_stage_removed": true,
+    "transport_closed": true,
+    "same_boot": true,
+    "no_start_proven_before_clearing_recovery_object_active_case": true,
+    "device_process_signals_requested": false
+  },
+  "unchanged_failed_attempt_projection": "04-ab-r5-failed.json",
+  "interpretation": {
+    "separate_from_failed_timing_report": true,
+    "startup_samples_added": 0,
+    "scope": "Stored no-start proof, restoration, transport closure, and exact original lease release only.",
+    "intermediate_attempts": "Earlier helper setup and oversized SSH recovery commands failed; the completed later recovery used sixteen commands below 8 KB each. Raw transport stderr is omitted."
+  },
+  "bounded_no_start_proof": {
+    "source_id": "r5-no-start-and-clock-stat",
+    "line": 1,
+    "text": "no-start-markers-programs-lock-and-original-native-identities-verified"
+  },
+  "exact_release_source_fields": {
+    "ok": true,
+    "lease_directory_absent_after_release": true,
+    "native_restored_and_connections_closed": true,
+    "only_owned_owner_json_removed_then_rmdir": true,
+    "owner_and_token_checked": true,
+    "released_at_utc": "2026-11-17T18:58:46.056169+00:00"
+  }
+}

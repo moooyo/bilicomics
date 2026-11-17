@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "kind": "stored_failed_attempt_checkpoint",
+  "prepared_on": "2026-11-18",
+  "prepared_timezone": "Asia/Shanghai",
+  "source_timestamp_timezone": "UTC; original +00:00 values are retained",
+  "candidate_source": "39fac822a982868078201e605e50bdacf1dcf3ed",
+  "candidate_branch": "codex/library-entry-lifetime",
+  "adopted_on_main": false,
+  "qualified_main_runtime": "f8c24f8",
+  "attempted_timing_batches": 4,
+  "total_uri_dispatches": 0,
+  "total_application_starts": 0,
+  "total_startup_samples": 0,
+  "timing_batches": [
+    {
+      "run_id": "lib-ab-20261117-59ba43e0",
+      "original_report": {
+        "success": false,
+        "lease_released": true,
+        "native_restored": true,
+        "transport_closed": true
+      },
+      "startup_samples": 0,
+      "projection": "01-ab-r2-failed.json",
+      "independent_recovery": null,
+      "recovery_note": "Automatic restoration and release are recorded by the original failed report."
+    },
+    {
+      "run_id": "lib-ab-20261117-a2c375d4",
+      "original_report": {
+        "success": false,
+        "lease_released": true,
+        "native_restored": true,
+        "transport_closed": true
+      },
+      "startup_samples": 0,
+      "projection": "02-ab-r3-failed.json",
+      "independent_recovery": null,
+      "recovery_note": "Automatic restoration and release are recorded by the original failed report."
+    },
+    {
+      "run_id": "lib-ab-20261117-7a5ffc65",
+      "original_report": {
+        "success": false,
+        "lease_released": false,
+        "native_restored": false,
+        "transport_closed": false
+      },
+      "startup_samples": 0,
+      "projection": "03-ab-r4-failed.json",
+      "independent_recovery": {
+        "success": true,
+        "lease_released": true,
+        "native_restored": true,
+        "transport_closed": true,
+        "projection": "05-ab-r4-independent-recovery.json"
+      }
+    },
+    {
+      "run_id": "lib-ab-20261117-0c9ca0a3",
+      "original_report": {
+        "success": false,
+        "lease_released": false,
+        "native_restored": false,
+        "transport_closed": false
+      },
+      "startup_samples": 0,
+      "projection": "04-ab-r5-failed.json",
+      "independent_recovery": {
+        "success": true,
+        "lease_released": true,
+        "native_restored": true,
+        "transport_closed": true,
+        "projection": "06-ab-r5-independent-recovery.json"
+      }
+    }
+  ],
+  "observer_initialization_selfchecks": [
+    {
+      "run_id": "lib-observer-check-20261117-e14c0ead",
+      "startup_gates_passed": false,
+      "application_started": false,
+      "uri_dispatched": false,
+      "native_preserved": true,
+      "transport_closed": true,
+      "lease_released": true,
+      "projection": "07-observer-selfcheck-r1.json"
+    },
+    {
+      "run_id": "lib-observer-check-20261117-2a378a09",
+      "startup_gates_passed": true,
+      "application_started": false,
+      "uri_dispatched": false,
+      "native_preserved": true,
+      "transport_closed": true,
+      "lease_released": true,
+      "projection": "08-observer-selfcheck-r2.json"
+    }
+  ],
+  "not_established": [
+    "startup performance gain",
+    "formal native file-URI entry qualification",
+    "entry and worker lifetime",
+    "same-process reader screensaver cycles",
+    "software input readiness",
+    "visible full-cover completion",
+    "optical panel completion"
+  ],
+  "current_device_work_status": "Deferred after reassignment to a higher-priority project; BiliComics has no active device lease.",
+  "scope": "Fixed stored-host evidence projections. No new device, lease, probe, build, or test action was performed to create this export."
+}

@@ -1,0 +1,465 @@
+{
+  "schema_version": 1,
+  "kind": "bounded_stored_evidence_export_manifest",
+  "source_roots": {
+    "library-host-bundle": "bilicomics-native-library-entry-20261117-01a1d11a-r1",
+    "startup-sequence-reference": "bilicomics-startup-sequence-20261117-01a1d11a-r1"
+  },
+  "source_access": "ssh test-env; fixed known files only; no private-directory traversal or archive extraction",
+  "sources": [
+    {
+      "id": "r2-report",
+      "root": "library-host-bundle",
+      "relative_path": "runs/ab-r2/report.json",
+      "bytes": 10474,
+      "sha256": "bb9f61cea4edaac184378721500322258eede40070c85958f72e18d7b7e07234",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "run_id",
+          "success",
+          "cancelled",
+          "started_at_utc",
+          "finished_at_utc",
+          "completed_cases",
+          "lease_released",
+          "native_restored",
+          "lighting_restored",
+          "catalog_restored",
+          "registration_unchanged",
+          "install_unchanged",
+          "input_roster_unchanged",
+          "temporary_stage_removed",
+          "transport_closed",
+          "same_boot"
+        ],
+        "command_selector": "commands[name=document-baseline-warmup] -> name, returncode, timeout, interrupted"
+      }
+    },
+    {
+      "id": "r3-report",
+      "root": "library-host-bundle",
+      "relative_path": "runs/ab-r3/report.json",
+      "bytes": 14288,
+      "sha256": "f0b3b0b1155961eab460e532b7d8203e59046b95c73ef6524e5dd3849950408b",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "run_id",
+          "success",
+          "cancelled",
+          "started_at_utc",
+          "finished_at_utc",
+          "completed_cases",
+          "lease_released",
+          "native_restored",
+          "lighting_restored",
+          "catalog_restored",
+          "registration_unchanged",
+          "install_unchanged",
+          "input_roster_unchanged",
+          "temporary_stage_removed",
+          "transport_closed",
+          "same_boot"
+        ],
+        "command_selector": "commands[name=catalog-baseline-warmup-before-poll-01-sql-01] -> name, returncode, timeout, interrupted"
+      }
+    },
+    {
+      "id": "r4-report",
+      "root": "library-host-bundle",
+      "relative_path": "runs/ab-r4/report.json",
+      "bytes": 11651,
+      "sha256": "3be3108c995c11e60da8aa219841fe37be300a9aa20d6f076bfec0eecb52415c",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "run_id",
+          "success",
+          "cancelled",
+          "started_at_utc",
+          "finished_at_utc",
+          "completed_cases",
+          "lease_released",
+          "native_restored",
+          "lighting_restored",
+          "catalog_restored",
+          "registration_unchanged",
+          "install_unchanged",
+          "input_roster_unchanged",
+          "temporary_stage_removed",
+          "transport_closed",
+          "same_boot"
+        ],
+        "command_selector": "commands[name=case-baseline-warmup or abort-active] -> name, returncode, timeout, interrupted"
+      }
+    },
+    {
+      "id": "r5-report",
+      "root": "library-host-bundle",
+      "relative_path": "runs/ab-r5/report.json",
+      "bytes": 11652,
+      "sha256": "3f76ef8ca34abf0f17c057deeda80b018838e39aa6a7d2b7b1e60670d80e9657",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "run_id",
+          "success",
+          "cancelled",
+          "started_at_utc",
+          "finished_at_utc",
+          "completed_cases",
+          "lease_released",
+          "native_restored",
+          "lighting_restored",
+          "catalog_restored",
+          "registration_unchanged",
+          "install_unchanged",
+          "input_roster_unchanged",
+          "temporary_stage_removed",
+          "transport_closed",
+          "same_boot"
+        ],
+        "command_selector": "commands[name=case-baseline-warmup or abort-active] -> name, returncode, timeout, interrupted"
+      }
+    },
+    {
+      "id": "r4-recovery",
+      "root": "library-host-bundle",
+      "relative_path": "recovery-r4/manual-r4-20261117t154349z-37e6652c/manual-recovery-receipt.json",
+      "bytes": 3489,
+      "sha256": "c41356c8dddb0de7637fb2dd9796e0bfef102e0b216b2f1b6ca9a1a5cf43c73f",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "run_id",
+          "success",
+          "finished_at_utc",
+          "original_report_sha256",
+          "lease_released",
+          "native_restored",
+          "lighting_restored",
+          "catalog_restored",
+          "registration_unchanged",
+          "install_unchanged",
+          "input_roster_unchanged",
+          "temporary_stage_removed",
+          "transport_closed",
+          "same_boot",
+          "no_start_proven_before_clearing_recovery_object_active_case",
+          "device_process_signals_requested"
+        ]
+      }
+    },
+    {
+      "id": "r5-recovery",
+      "root": "library-host-bundle",
+      "relative_path": "recovery-ab-r5/observer-cancelled-r5-20261117t185824z-2ff017da/recovery-receipt.json",
+      "bytes": 6802,
+      "sha256": "290aadf7f1f66a5e225a0ba022a9076b86daff2e2815ba4f46b9e6c5c5b32a72",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "run_id",
+          "success",
+          "finished_at_utc",
+          "original_report_sha256",
+          "lease_released",
+          "native_restored",
+          "lighting_restored",
+          "catalog_restored",
+          "registration_unchanged",
+          "install_unchanged",
+          "input_roster_unchanged",
+          "temporary_stage_removed",
+          "transport_closed",
+          "same_boot",
+          "no_start_proven_before_clearing_recovery_object_active_case",
+          "device_process_signals_requested"
+        ]
+      }
+    },
+    {
+      "id": "selfcheck-r1-report",
+      "root": "library-host-bundle",
+      "relative_path": "observer-selfcheck-r1/runs/sc-r1/report.json",
+      "bytes": 1255,
+      "sha256": "d6250cbeae359db557414ce2f95285561113fd3b354e8c6eb798496fad2cf8f9",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "run_id",
+          "startup_gates_passed",
+          "probe_returncode",
+          "application_started",
+          "uri_dispatched",
+          "native_preserved",
+          "transport_closed",
+          "lease_released",
+          "device_process_signals_requested"
+        ]
+      }
+    },
+    {
+      "id": "selfcheck-r2-report",
+      "root": "library-host-bundle",
+      "relative_path": "observer-selfcheck-r2/runs/sc-r2/report.json",
+      "bytes": 1254,
+      "sha256": "1b457d0814a17520c51aa14644815afd15f29d2425e52bee8814cf9bf319a83a",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "run_id",
+          "startup_gates_passed",
+          "probe_returncode",
+          "application_started",
+          "uri_dispatched",
+          "native_preserved",
+          "transport_closed",
+          "lease_released",
+          "device_process_signals_requested"
+        ]
+      }
+    },
+    {
+      "id": "r2-index-stderr",
+      "root": "library-host-bundle",
+      "relative_path": "runs/ab-r2/evidence/document-baseline-warmup.stderr",
+      "bytes": 42,
+      "sha256": "f2362c7d0f5110dfd77ee438c9f1e9ae0b33b174a20eb3d3bd58fac7ee826f5e",
+      "extraction": {
+        "selected_lines_one_based": [
+          1
+        ]
+      }
+    },
+    {
+      "id": "r3-indexed-row",
+      "root": "library-host-bundle",
+      "relative_path": "runs/ab-r3/evidence/catalog-baseline-warmup-before-poll-01-sql-01.stdout",
+      "bytes": 532,
+      "sha256": "c04786d24ab27318ff6a7adc2bde03774683becb13d9dcd2292d330ea201a71b",
+      "extraction": {
+        "selected_lines_one_based": [
+          1
+        ],
+        "hex_columns_zero_based": {
+          "2": "canonical_path",
+          "3": "title",
+          "5": "mime_type",
+          "11": "size_bytes"
+        },
+        "transform": "Decode only these four hex fields as UTF-8; parse size as decimal. Omit every other column, including UUID and locator data."
+      }
+    },
+    {
+      "id": "r5-clock-stderr",
+      "root": "library-host-bundle",
+      "relative_path": "runs/ab-r5/evidence/case-baseline-warmup.stderr",
+      "bytes": 62,
+      "sha256": "5cc0f694255c640958d3de02aa3b1c35faa9ae136571e82f44868b546aae418f",
+      "extraction": {
+        "selected_lines_one_based": [
+          1
+        ]
+      }
+    },
+    {
+      "id": "r5-observer-cancelled",
+      "root": "library-host-bundle",
+      "relative_path": "runs/ab-r5/evidence/abort-active.stdout",
+      "bytes": 586,
+      "sha256": "f8e7123a1702f99cf9e8c6d2a7984c27b6caf59081266a04d233c165a831789e",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "passed",
+          "reason",
+          "entry_seen",
+          "entry_live_observed",
+          "worker_seen",
+          "generation_bound",
+          "content_observed",
+          "production_lock_absent",
+          "worker_signal_sent",
+          "status_helper_pending",
+          "owned_processes_gone",
+          "native_restored"
+        ]
+      }
+    },
+    {
+      "id": "r5-no-start-and-clock-stat",
+      "root": "library-host-bundle",
+      "relative_path": "recovery-ab-r5/observer-cancelled-r5-20261117t185824z-2ff017da/evidence/live-cancelled-observer-proof.stdout",
+      "bytes": 143,
+      "sha256": "d2c8e3730cba9c98ea5373a6aec0df509a82b19912bd1d9c3e66d3cff791fea5",
+      "extraction": {
+        "selected_lines_one_based": [
+          1,
+          3
+        ],
+        "transform": "Keep the fixed no-start marker; split only line 3 into UID, link count, byte length, and octal mode. Omit line 2 process identities."
+      }
+    },
+    {
+      "id": "r5-exact-release",
+      "root": "library-host-bundle",
+      "relative_path": "recovery-ab-r5/observer-cancelled-r5-20261117t185824z-2ff017da/evidence/exact-lease-release.json",
+      "bytes": 559,
+      "sha256": "2ef2ed5a0671f32d97ee4c034c81d7bb116d5d8423b2323da7ec9ef814c8cd89",
+      "extraction": {
+        "top_level_fields": [
+          "ok",
+          "lease_directory_absent_after_release",
+          "native_restored_and_connections_closed",
+          "only_owned_owner_json_removed_then_rmdir",
+          "owner_and_token_checked",
+          "released_at_utc"
+        ]
+      }
+    },
+    {
+      "id": "selfcheck-r1-stderr",
+      "root": "library-host-bundle",
+      "relative_path": "observer-selfcheck-r1/runs/sc-r1/evidence/probe.stderr",
+      "bytes": 52,
+      "sha256": "f65207a88c9694af6918cdb45028482c076636b10f704569118c905488485a1b",
+      "extraction": {
+        "top_level_fields": [
+          "success",
+          "gate",
+          "context"
+        ]
+      }
+    },
+    {
+      "id": "selfcheck-r1-stdout",
+      "root": "library-host-bundle",
+      "relative_path": "observer-selfcheck-r1/runs/sc-r1/evidence/probe.stdout",
+      "bytes": 517,
+      "sha256": "89c01be70a5f2520a0921db29899188e4481e6ad870ea5432887e80fa53d85c9",
+      "extraction": {
+        "json_line_selector": "role=runtime",
+        "fields": [
+          "role",
+          "directory",
+          "symlink"
+        ],
+        "transform": "Classify realpath by the fixed /var/tmp/ prefix; omit the complete path and suffix."
+      }
+    },
+    {
+      "id": "selfcheck-r2-stderr",
+      "root": "library-host-bundle",
+      "relative_path": "observer-selfcheck-r2/runs/sc-r2/evidence/probe.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "extraction": {
+        "transform": "Record byte length only; the selected source is empty."
+      }
+    },
+    {
+      "id": "selfcheck-r2-stdout",
+      "root": "library-host-bundle",
+      "relative_path": "observer-selfcheck-r2/runs/sc-r2/evidence/probe.stdout",
+      "bytes": 899,
+      "sha256": "e869eeb32ea73472eeb9c487e59802c7ef09bbee20457398384e8a2ec5293a80",
+      "extraction": {
+        "json_line_selectors": [
+          "role=runtime",
+          "gate=startup_complete"
+        ],
+        "fields": [
+          "role",
+          "directory",
+          "symlink",
+          "success",
+          "gate",
+          "context",
+          "clock_read"
+        ],
+        "transform": "Classify runtime realpath by /var/tmp/ and omit all suffix, PID, birth, and ownership fields."
+      }
+    },
+    {
+      "id": "clock-c-safety-reference",
+      "root": "startup-sequence-reference",
+      "relative_path": "tooling-tests/startup-clock.c",
+      "bytes": 6922,
+      "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c",
+      "extraction": {
+        "selected_lines_one_based": [
+          17,
+          160,
+          161,
+          164
+        ],
+        "transform": "Copy only the exit-code constant and strict record safety condition/rejection lines. This is a stored source reference, not a rebuild or renewed ARM qualification."
+      }
+    }
+  ],
+  "global_transformations": [
+    "All JSON source_fields preserve only explicitly listed keys. Missing fields are omitted, not synthesized.",
+    "Original failed success/restoration/release fields are retained unchanged; later recovery is a separate projection linked through original_report_sha256.",
+    "Zero URI/application/sample statements are interpretations of pre-dispatch failure stages and independent no-start proof; an empty completed_cases roster alone is not used as application-start proof.",
+    "The r4 runtime diagnosis uses the later bounded selfcheck context and current status explanation; it is not copied from the omitted observer archive.",
+    "The /tmp requested ancestor and recovery-attempt explanation follow the current status record; observed runtime classification is independently projected from stored context JSON lines.",
+    "Planned case names are omitted and never counted as completed startup samples.",
+    "Owner threads, UUID values, lease tokens/hashes, process identities, raw commands, private paths, device addresses, and unselected raw output are omitted.",
+    "All interpretation text was prepared for this checkpoint; it is separate from literal source_fields."
+  ],
+  "exported_payloads": [
+    {
+      "path": "README.md",
+      "bytes": 2313,
+      "sha256": "cd5744287bcc57f1c6172afc37261ab9c937a7d4e873d3287036d3d53adc8545"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 3688,
+      "sha256": "899247d3f91851f999417c7661bf1eb300d0c01a100e07873a31a1ca34f43990"
+    },
+    {
+      "path": "01-ab-r2-failed.json",
+      "bytes": 1405,
+      "sha256": "bfe8612898a410b6b52f55f9b476cc311b1c9c8b973e349621aaceb4aa1543d3"
+    },
+    {
+      "path": "02-ab-r3-failed.json",
+      "bytes": 1594,
+      "sha256": "f45461a9e966f76f17515407be841ba3437e0f2429ac4e3707be23b00a43d65c"
+    },
+    {
+      "path": "03-ab-r4-failed.json",
+      "bytes": 1530,
+      "sha256": "81f1caec55586d50ee7cbeb6975a35e4782c20c3cade73b5d88b39022a915d50"
+    },
+    {
+      "path": "04-ab-r5-failed.json",
+      "bytes": 3244,
+      "sha256": "e797c8b88cfbe284dede3630bc6f1397458e3c7d3236840a46d15534f864d8fa"
+    },
+    {
+      "path": "05-ab-r4-independent-recovery.json",
+      "bytes": 1094,
+      "sha256": "31b49d578402609d4c788e060349f6df844e3614bf0596c18ae465ca096bf838"
+    },
+    {
+      "path": "06-ab-r5-independent-recovery.json",
+      "bytes": 1839,
+      "sha256": "b2e092f0c8846b2a1ff1d402237651b2b1f8410b28fcfbdf51a056d576032b35"
+    },
+    {
+      "path": "07-observer-selfcheck-r1.json",
+      "bytes": 1278,
+      "sha256": "3b8ef39faa59f17a0d037cecbf1475c166cf739319e713f86cb2df2e388bc5f9"
+    },
+    {
+      "path": "08-observer-selfcheck-r2.json",
+      "bytes": 1422,
+      "sha256": "778fa3c04b287b31367e34c76b444f838335212cc9f41f5c027313f936b3a821"
+    }
+  ],
+  "checksum_scope": "SHA256SUMS covers README, summary, eight projections, and this manifest; its own SHA-256 is reported separately as the bundle identity."
+}

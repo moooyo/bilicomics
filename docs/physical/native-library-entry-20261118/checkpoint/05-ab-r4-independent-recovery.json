@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "kind": "independent_recovery_projection",
+  "source_ids": [
+    "r4-recovery"
+  ],
+  "source_fields": {
+    "schema_version": 1,
+    "run_id": "lib-ab-20261117-7a5ffc65",
+    "success": true,
+    "finished_at_utc": "2026-11-17T15:43:56.893533+00:00",
+    "original_report_sha256": "3be3108c995c11e60da8aa219841fe37be300a9aa20d6f076bfec0eecb52415c",
+    "lease_released": true,
+    "native_restored": true,
+    "lighting_restored": true,
+    "catalog_restored": true,
+    "registration_unchanged": true,
+    "install_unchanged": true,
+    "input_roster_unchanged": true,
+    "temporary_stage_removed": true,
+    "transport_closed": true,
+    "same_boot": true,
+    "no_start_proven_before_clearing_recovery_object_active_case": true,
+    "device_process_signals_requested": false
+  },
+  "unchanged_failed_attempt_projection": "03-ab-r4-failed.json",
+  "interpretation": {
+    "separate_from_failed_timing_report": true,
+    "startup_samples_added": 0,
+    "scope": "Stored no-start proof, restoration, transport closure, and exact original lease release only."
+  }
+}

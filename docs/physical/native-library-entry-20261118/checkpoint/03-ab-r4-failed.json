@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "kind": "failed_timing_attempt_projection",
+  "source_ids": [
+    "r4-report"
+  ],
+  "source_fields": {
+    "schema_version": 1,
+    "run_id": "lib-ab-20261117-7a5ffc65",
+    "success": false,
+    "cancelled": false,
+    "started_at_utc": "2026-11-17T15:28:51.347307+00:00",
+    "finished_at_utc": "2026-11-17T15:30:17.278007+00:00",
+    "completed_cases": [],
+    "lease_released": false,
+    "native_restored": false,
+    "lighting_restored": false,
+    "catalog_restored": false,
+    "registration_unchanged": false,
+    "install_unchanged": false,
+    "transport_closed": false,
+    "same_boot": false
+  },
+  "interpretation": {
+    "failure_stage": "observer initial context",
+    "diagnostic": "Observer context was rejected before URI dispatch; the later selfcheck isolated the exact-realpath alias.",
+    "uri_dispatched": false,
+    "application_started": false,
+    "startup_samples": 0,
+    "qualified_performance_or_lifetime_result": false
+  },
+  "failed_command": {
+    "name": "case-baseline-warmup",
+    "returncode": 1,
+    "timeout": false,
+    "interrupted": false
+  },
+  "automatic_abort_command": {
+    "name": "abort-active",
+    "returncode": 1,
+    "timeout": false,
+    "interrupted": false
+  },
+  "independent_recovery_projection": "05-ab-r4-independent-recovery.json",
+  "diagnostic_followup_projection": "07-observer-selfcheck-r1.json",
+  "recovery_status": "False restoration/release fields are the unchanged original automatic-recovery result, not the later final state."
+}
