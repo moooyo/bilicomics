@@ -2,9 +2,9 @@
 
 ## Status
 
-The implementation, remote software checks and first formal-entry timing
-comparison are complete. **Separate pixel/entry-retirement and reader
-lifecycle qualification are pending; the candidate is not adopted on main.**
+The implementation, remote software checks, first formal-entry timing comparison
+and separate framebuffer/entry-retirement qualification are complete.
+**Reader lifecycle qualification is pending; the candidate is not adopted on main.**
 The active candidate source is
 `39fac822a982868078201e605e50bdacf1dcf3ed` on `codex/library-entry-lifetime`.
 Main remains at the previously qualified `f8c24f8` runtime.
@@ -20,6 +20,9 @@ has been restored and its exact owned lease released.
 A later independent qualification batch stopped at its first baseline identity
 observation and completed no qualification cases. Its failed status and full
 recovery are retained separately; the successful timing comparison is unchanged.
+After a reproduced observer-only correction, a fresh four-case qualification
+batch completed with identical visible framebuffer bytes and successful entry
+retirement/cancellation recovery. It does not replace the required reader cycle.
 
 ## Implementation
 
@@ -164,14 +167,78 @@ selected Aidoku files, boot and input metadata were preserved or restored.
 Connections closed and the exact lease acquired at
 `2026-11-17T21:00:50.786927+00:00` was released at
 `2026-11-17T21:02:15.250484+00:00`. The failed result remains independent of the
-successful AB. A host-only deterministic reproduction is required before
-correcting the observer and preparing any fresh qualification batch. No product
-source or selected package change follows from this failure.
+successful AB. The observer correction was withheld until a host-only fixture
+reproduced this failure; the reproduction and fresh batch are described below.
+No product source or selected package change followed from this failure.
 
 [The failed qualification export](physical/native-library-entry-20261118/qualification-r1/README.md)
 keeps the original failed observer status, separate cleanup results and exact
 release projections with source hashes. Cleanup success is not a qualification
 pass.
+
+## Completed automatic framebuffer and entry qualification
+
+The exact missing-`cmdline` race was reproduced on `test-env`: the initial
+live-state and readable-file checks succeed, then the original entry retires
+before the shell opens its command line. The unchanged R6 observer returns
+unobservable (2). The new R7 observer rechecks the same PID/birth after metadata
+failure and returns retired (1) only when that original process is definitely
+gone or replaced. A still-live mismatch or unreadable identity remains 2;
+metadata failure never proves a live owned entry. All candidate-content,
+worker, parent, generation, context and signaling gates remain unchanged.
+The original 18 observer and 13 targeted race fixtures passed, including this
+exact readable-to-open interleaving. The selected product package is unchanged.
+
+R7 is a research observer patchset, not an application version. Its source
+freeze is `84c4c164500f485b3f7ac841397aa24da7d46bdb566774ca8b1e9f2f7bafec26`;
+the common controller retains its original bytes and tool revision 6. The fresh
+batch `lib-qualify-20261117-7ddd041f` follows the failed batch without rewriting
+it. Eleven new host binding/recovery/construction checks and independent review
+passed before device access. Native identity admission is Q<=128 and each
+complete command remains below 8192 bytes, including its marker and header.
+
+| Actual case | Observed result |
+| --- | --- |
+| Detached baseline | Live content with retired admission entry; normal worker/entry statuses 0. |
+| Waiting Library entry | Entry alive at content; normal worker/entry statuses 0. |
+| Entry-only SIGKILL | Bound waiting entry retires; independent worker survives, exits 0 and restores native control. No entry exit status is invented. |
+| Entry-only TERM | Bound entry requests cleanup; real worker and entry statuses are both 143, with native recovery complete. |
+
+The application retains its production runner parent. The pinned observer
+checks live ancestry through that runner; intermediate runner birth records
+are not fully archived, so a complete offline replay of that ancestry is not
+claimed. The worker's direct relationship to the waiting entry is recorded.
+
+Both qualified captures contain the same 405-byte geometry header and exactly
+4,612,800 identical visible Gray8 bytes at 1860x2480; there are zero differing
+pixel bytes. The entire raw captures have SHA-256
+`299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104`.
+The captures occur while the application is still alive. This establishes
+actual visible framebuffer-memory equality, independently of the earlier
+logical Slint PNG comparison; it does not establish optical panel completion.
+All twelve private clocks have mode 0600 and match their archive mirrors.
+Qualification timings remain outside the six-pair primary AB statistics.
+
+All four cases completed and recovered. Current registration and the selected
+Aidoku files were unchanged, original Bili absences/catalog were restored,
+native control and lighting were restored, boot/input metadata matched, and
+owned connections closed. The exact lease interval was
+`2026-11-17T21:25:40.633000+00:00` through
+`2026-11-17T21:28:43.952785+00:00` (about 3 min 3 sec), followed by the handoff
+notification. No reader sleep/wake or human UI-exit observation occurred in
+this automatic batch; its two ordinary application exits use the stated timer.
+
+The unchanged complete qualification analyzer passed once, and the independent
+stored audit found no blocking action, identity, capture or restoration anomaly.
+It also retains the candidate's pre-opening catalog size of 85 versus the
+95-byte document; the post-opening value matches the document byte count.
+The literal mismatch is not normalized away or used to discard the case, and
+the installed extractor's size unit remains independently unqualified. The
+primary AB is unchanged.
+
+[The automatic qualification export](physical/native-library-entry-20261118/qualification-r2/README.md)
+preserves the four case results, framebuffer comparison, clock and restoration
+records, and source hashes for the frozen analyzer and independent audit.
 
 ## Earlier bounded observations and harness corrections
 
@@ -266,9 +333,19 @@ predetermined warmups and all six balanced AB/BA pairs. Its excluded native
 stabilization period and two software/SEND endpoints do not supply a qualified
 visible-cover or software-input-ready stamp.
 
-Separate qualification must cover native pixels, actual worker/entry lifetime,
-normal exit, precise restoration and same-process reader screensaver cycles.
+Separate automatic qualification now covers visible framebuffer memory, actual
+worker/entry lifetime, ordinary timer exit, cancellation and precise restoration.
+Same-process reader screensaver cycles and human UI exits remain required.
 Physical power-button and touch observations require explicit operator evidence.
 Submission is not optical panel completion, and neither a timer nor the tiny
 selfcheck supplies any of these missing passes. Prior temporary Scriptlet
 timings are not an equivalent absolute baseline for this formal entry.
+
+Two fresh independent single-case reader batches have been host-prepared and
+reviewed but remain unexecuted, awaiting current operator availability. Each
+needs its own device window and fresh lease. Their eventual stored audit must
+require a strict before/suspend/resume/after time bracket, the same PID/birth
+and actual reader anchor, matching generation across all three checkpoints,
+and equal after-wake/idle visible framebuffer bytes, plus real operator power
+and UI-exit observations. The original two-case analyzer does not accept these
+single-case schedules; no such analyzer or lifecycle pass is claimed.

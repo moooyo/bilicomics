@@ -1,0 +1,150 @@
+{
+  "actual_status_fields": {
+    "entry-wait-status.txt": 0,
+    "worker-exit-status.txt": 0
+  },
+  "admission_relationships": {
+    "entry_alive_at_content": true,
+    "generation_bound": true,
+    "worker_parent_is_own_entry_at_admission": true,
+    "worker_reparented_to_init_at_admission": false
+  },
+  "case": "candidate-qualify",
+  "clock_fields": {
+    "native-stable-start.json": {
+      "boottime_ns": 251803650374756,
+      "monotonic_ns": 186545567751117
+    },
+    "qualified-capture-complete.json": {
+      "boottime_ns": 251821603355373,
+      "monotonic_ns": 186563520731733
+    },
+    "qualified-capture-request.json": {
+      "boottime_ns": 251820909003680,
+      "monotonic_ns": 186562826378195
+    },
+    "request.json": {
+      "boottime_ns": 251811970821987,
+      "monotonic_ns": 186553888195964
+    }
+  },
+  "clock_original_identities": {
+    "native-stable-start.json": {
+      "bytes": 75,
+      "private_mode_octal": "0600",
+      "private_uid": 0,
+      "public_mirror_bytes_equal": true,
+      "sha256": "20c39276c3bf0cae594f1ef654c2fccb58ebbbbf09edecd7e6e7e6807ffd11f8"
+    },
+    "qualified-capture-complete.json": {
+      "bytes": 75,
+      "private_mode_octal": "0600",
+      "private_uid": 0,
+      "public_mirror_bytes_equal": true,
+      "sha256": "2b970c7ec28521cfddac366801f08fe43f2d5d977a4931743b99aaaec7e0f312"
+    },
+    "qualified-capture-request.json": {
+      "bytes": 75,
+      "private_mode_octal": "0600",
+      "private_uid": 0,
+      "public_mirror_bytes_equal": true,
+      "sha256": "5a19bf4202e7105dfb1c8c5527b9a583a216823e184065f84d4c85fc93b71e7c"
+    },
+    "request.json": {
+      "bytes": 75,
+      "private_mode_octal": "0600",
+      "private_uid": 0,
+      "public_mirror_bytes_equal": true,
+      "sha256": "32982f7c714fc277f7b207c98b40109d74651073387e94e9fff61ce0b2de8930"
+    }
+  },
+  "content_size_observations": {
+    "catalog_after_literal": "95",
+    "catalog_before_literal": "85",
+    "document_after_bytes": 95,
+    "document_before_bytes": 95
+  },
+  "dispatch_order_1based": 2,
+  "entry_action_relationships": null,
+  "final_logical_snapshot_context": {
+    "backend": "kindle",
+    "demo": true,
+    "logical_size": [
+      930,
+      1240
+    ],
+    "offline": true,
+    "offline_requested": true,
+    "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+    "profile": "scribe",
+    "route": "shelf",
+    "snapshot_size": [
+      1860,
+      2480
+    ],
+    "suspended": false,
+    "window_size": [
+      1860,
+      2480
+    ]
+  },
+  "metadata_observation_fields": {
+    "catalog_size_after_literal_equals_document_bytes": true,
+    "catalog_size_before_literal_equals_document_bytes": false,
+    "catalog_size_unit_bound_to_installed_extractor": false,
+    "cover_locator_changed": false,
+    "document_mtime_nondecreasing": true,
+    "document_size_preserved": true,
+    "indexed_uuid_changed": true,
+    "recent_progress_observed": true,
+    "thumbnail_locator_changed": false,
+    "timestamps": {
+      "p_lastAccess": {
+        "increased": true,
+        "nondecreasing": true,
+        "observed": true
+      },
+      "p_lastOpenTime": {
+        "increased": false,
+        "nondecreasing": null,
+        "observed": false
+      },
+      "p_modificationTime": {
+        "increased": true,
+        "nondecreasing": true,
+        "observed": true
+      }
+    }
+  },
+  "native_stable_dwell_at_least_eight_seconds": true,
+  "recovery_fields": {
+    "content_observed": true,
+    "entry_alive_at_content": true,
+    "entry_gone": true,
+    "entry_live_observed": true,
+    "entry_seen": true,
+    "entry_status": 0,
+    "entry_status_observed": true,
+    "exit_status_observed": true,
+    "generation_bound": true,
+    "native_restored": true,
+    "owned_processes_gone": true,
+    "passed": true,
+    "production_lock_absent": true,
+    "reason": "normal-exit",
+    "schema_version": 1,
+    "status_helper_pending": false,
+    "worker_exit_status": 0,
+    "worker_gone": true,
+    "worker_seen": true,
+    "worker_signal_sent": false,
+    "worker_survived_entry_retirement": false
+  },
+  "schema_version": 1,
+  "source_ancestry_relationships": {
+    "application_process_group_matches_worker": true,
+    "application_session_matches_worker": true,
+    "full_intermediate_runner_proc_birth_chain_saved": false,
+    "source_qualified_ancestry_witness": true
+  }
+}

@@ -1,0 +1,221 @@
+{
+  "actual_host_admission": {
+    "all_commands_allowed_below_8192_bytes": true,
+    "command_events": 55,
+    "maximum_command_bytes": 7814,
+    "r7_freeze_and_actual_manifest_bound": true,
+    "report_command_names_match": true
+  },
+  "cases": [
+    {
+      "case": "baseline-qualify",
+      "entry_action_relationships": null,
+      "evidence": "cases/01-baseline-qualify.json",
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": false,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      }
+    },
+    {
+      "case": "candidate-qualify",
+      "entry_action_relationships": null,
+      "evidence": "cases/02-candidate-qualify.json",
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      }
+    },
+    {
+      "case": "candidate-retire",
+      "entry_action_relationships": {
+        "schema_version": 1,
+        "signal": "KILL",
+        "target_is_bound_entry": true,
+        "worker_identity_matches_own_admission": true
+      },
+      "evidence": "cases/03-candidate-retire.json",
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": null,
+        "entry_status_observed": false,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      }
+    },
+    {
+      "case": "candidate-cancel",
+      "entry_action_relationships": {
+        "schema_version": 1,
+        "signal": "TERM",
+        "target_is_bound_entry": true,
+        "worker_identity_matches_own_admission": true
+      },
+      "evidence": "cases/04-candidate-cancel.json",
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 143,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 143,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      }
+    }
+  ],
+  "clock_summary": {
+    "all_native_stable_dwells_at_least_eight_seconds": true,
+    "all_private_public_mirrors_equal": true,
+    "capture_records": 4,
+    "private_mode_octal": "0600",
+    "private_original_records": 12,
+    "private_uid": 0,
+    "startup_records": 8
+  },
+  "kind": "stored_automatic_qualification_export",
+  "lease_fields": {
+    "acquired_at_utc": "2026-11-17T21:25:40.633000+00:00",
+    "lease_directory_absent_after_release": true,
+    "native_restored_and_connections_closed": true,
+    "only_owned_owner_json_removed_then_rmdir": true,
+    "owner_and_token_checked": true,
+    "released_at_utc": "2026-11-17T21:28:43.952785+00:00",
+    "run_id": "lib-qualify-20261117-7ddd041f"
+  },
+  "limitations": [
+    "Retire entry KILL status was not observed; null is retained rather than inferred as 137. Cancel worker and entry status 143 is the intentional cancellation outcome, not normal UI exit.",
+    "Every application PGID/SID matches its worker; the live frozen observer checked ancestry through the production runner. Intermediate runner /proc birth chains are not fully archived, so offline replay of every ancestor is unavailable.",
+    "Captured framebuffer-memory equality does not establish optical completion or any sleep/wake, reader-anchor or input-readiness qualification.",
+    "The current shared dispatcher and six selected file identities are preserved; deployed wrapper source-to-binary mapping was not independently recaptured.",
+    "No qualification timing is added to primary startup AB statistics, and no lifecycle result is imported or claimed."
+  ],
+  "new_tests_builds_application_device_or_lease_actions": false,
+  "prepared_date_local": "2026-11-18",
+  "prepared_timezone": "Asia/Shanghai",
+  "product_adopted_by_this_export": false,
+  "raw_or_png_pixels_exported": false,
+  "restoration_fields": {
+    "catalog_restored": true,
+    "input_roster_unchanged": true,
+    "install_unchanged": true,
+    "lease_released": true,
+    "lighting_restored": true,
+    "native_restored": true,
+    "registration_unchanged": true,
+    "same_boot": true,
+    "success": true,
+    "temporary_stage_removed": true,
+    "transport_closed": true
+  },
+  "run_id": "lib-qualify-20261117-7ddd041f",
+  "schedule_fields": {
+    "all_cases_retained": true,
+    "expected_cases": [
+      "baseline-qualify",
+      "candidate-qualify",
+      "candidate-retire",
+      "candidate-cancel"
+    ],
+    "kind": "qualify",
+    "primary_ab_rounds": 0,
+    "statistics_in_original_qualify_analysis": false
+  },
+  "schema_version": 1,
+  "startup_timing_endpoints_exported": false,
+  "stored_host_results": {
+    "new_qualification_binding_checks": 11,
+    "r7_observer_fixtures": 31,
+    "rerun_by_this_export": false
+  },
+  "verdict_fields": {
+    "entry_cancellation_supported": true,
+    "entry_retirement_supported": true,
+    "global_product_acceptance_evaluated": false,
+    "lifecycle_evaluated": false,
+    "new_blocking_identity_action_frame_or_restoration_anomaly_found": false,
+    "optical_completion_evaluated": false,
+    "original_complete_qualify_analyzer_returncode": 0,
+    "raw_framebuffer_equality_supported": true,
+    "recorded_four_case_qualification_supported": true,
+    "startup_ab_statistics_updated": false
+  },
+  "visible_gray8_comparison": {
+    "changed_visible_bytes": 0,
+    "compared_visible_bytes": 4612800,
+    "maximum_absolute_gray8_difference": 0,
+    "visible_gray8_payloads_equal": true,
+    "whole_raw_files_equal": true
+  },
+  "visible_gray8_geometry": {
+    "bytes": 4612800,
+    "height": 2480,
+    "width": 1860
+  }
+}

@@ -1,0 +1,751 @@
+{
+  "aidoku_protection_fields": {
+    "files": [
+      {
+        "content_sha256": "709cefdf00318d40a3ee7cb8a5cc8b47e4b8c7865677040779a61264ae086960",
+        "path": "/mnt/us/documents/Aidoku.sh"
+      },
+      {
+        "content_sha256": "10432125b74ab5b69c8a0ec54a34abd5a74dc4a3cc9ed9b9d5cc8d03bbd75296",
+        "path": "/mnt/us/aidoku/launch.sh"
+      },
+      {
+        "content_sha256": "62de2771891b5bf8f720572c4544a3a732d619fa95131111cb00bccb6e0bc612",
+        "path": "/mnt/us/aidoku/app/aidoku"
+      },
+      {
+        "content_sha256": "84c2f27d8233d8695001aa86d880e29454fe188deb9884aca1c6694c82a5887d",
+        "path": "/mnt/us/aidoku/app/aidoku-native-query"
+      },
+      {
+        "content_sha256": "dde92cb1ae5f1dbf37db61e179a55522edea3759567fba74714f4954955dbf31",
+        "path": "/mnt/us/aidoku/assets/aidoku-cover-v2.png"
+      },
+      {
+        "content_sha256": "2db100d0bcb60a76571cd8de96bed7ea6c016e6ab73e388a885f692955cacd86",
+        "path": "/var/local/kindle-catalog-entry/v1-2db100d0bcb60a76571cd8de96bed7ea6c016e6ab73e388a885f692955cacd86/aidoku-library-dispatch"
+      }
+    ],
+    "fixed_file_count": 6,
+    "four_snapshots_equal": true,
+    "scope": "Selected file identities at recorded checkpoints; not a whole-tree census or proof of no transient change",
+    "snapshot_sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6"
+  },
+  "cases": [
+    {
+      "case": "baseline-qualify",
+      "content_size_observations": {
+        "catalog_after_literal": "85",
+        "catalog_before_literal": "85",
+        "document_after_bytes": 85,
+        "document_before_bytes": 85
+      },
+      "entry_action_relationships": null,
+      "entry_status_observed": true,
+      "full_intermediate_runner_proc_birth_chain_saved": false,
+      "metadata_fields": {
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        }
+      },
+      "raw_entry_exit_status": 0,
+      "raw_worker_exit_status": 0,
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": false,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      },
+      "source_ancestry_relationships": {
+        "application_process_group_matches_worker": true,
+        "application_session_matches_worker": true,
+        "full_intermediate_runner_proc_birth_chain_saved": false,
+        "source_qualified_ancestry_witness": true
+      },
+      "source_qualified_ancestry_witness": true
+    },
+    {
+      "case": "candidate-qualify",
+      "content_size_observations": {
+        "catalog_after_literal": "95",
+        "catalog_before_literal": "85",
+        "document_after_bytes": 95,
+        "document_before_bytes": 95
+      },
+      "entry_action_relationships": null,
+      "entry_status_observed": true,
+      "full_intermediate_runner_proc_birth_chain_saved": false,
+      "metadata_fields": {
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": false,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        }
+      },
+      "raw_entry_exit_status": 0,
+      "raw_worker_exit_status": 0,
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      },
+      "source_ancestry_relationships": {
+        "application_process_group_matches_worker": true,
+        "application_session_matches_worker": true,
+        "full_intermediate_runner_proc_birth_chain_saved": false,
+        "source_qualified_ancestry_witness": true
+      },
+      "source_qualified_ancestry_witness": true
+    },
+    {
+      "case": "candidate-retire",
+      "content_size_observations": {
+        "catalog_after_literal": "95",
+        "catalog_before_literal": "95",
+        "document_after_bytes": 95,
+        "document_before_bytes": 95
+      },
+      "entry_action_relationships": {
+        "schema_version": 1,
+        "signal": "KILL",
+        "target_is_bound_entry": true,
+        "worker_identity_matches_own_admission": true
+      },
+      "entry_status_observed": false,
+      "full_intermediate_runner_proc_birth_chain_saved": false,
+      "metadata_fields": {
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        }
+      },
+      "raw_entry_exit_status": null,
+      "raw_worker_exit_status": 0,
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": null,
+        "entry_status_observed": false,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      },
+      "source_ancestry_relationships": {
+        "application_process_group_matches_worker": true,
+        "application_session_matches_worker": true,
+        "full_intermediate_runner_proc_birth_chain_saved": false,
+        "source_qualified_ancestry_witness": true
+      },
+      "source_qualified_ancestry_witness": true
+    },
+    {
+      "case": "candidate-cancel",
+      "content_size_observations": {
+        "catalog_after_literal": "95",
+        "catalog_before_literal": "95",
+        "document_after_bytes": 95,
+        "document_before_bytes": 95
+      },
+      "entry_action_relationships": {
+        "schema_version": 1,
+        "signal": "TERM",
+        "target_is_bound_entry": true,
+        "worker_identity_matches_own_admission": true
+      },
+      "entry_status_observed": true,
+      "full_intermediate_runner_proc_birth_chain_saved": false,
+      "metadata_fields": {
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        }
+      },
+      "raw_entry_exit_status": 143,
+      "raw_worker_exit_status": 143,
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 143,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 143,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      },
+      "source_ancestry_relationships": {
+        "application_process_group_matches_worker": true,
+        "application_session_matches_worker": true,
+        "full_intermediate_runner_proc_birth_chain_saved": false,
+        "source_qualified_ancestry_witness": true
+      },
+      "source_qualified_ancestry_witness": true
+    }
+  ],
+  "clock_fields": {
+    "all_private_public_bytes_and_sha_equal": true,
+    "mode_octal": "0600",
+    "native_stability_excluded_from_request_endpoint": true,
+    "outputs_archive_sha256": "dde14d5f9b0de3f95a315b28ddc91c792cfe5654e6085e4bde43e138860adc02",
+    "private_clock_archive_sha256": "9f2f1c1210d8d1b7220c1c690748145c5c576450363d7b02043e4a0f0e259842",
+    "private_originals": 12,
+    "records": [
+      {
+        "bytes": 75,
+        "case": "baseline-qualify",
+        "leaf": "qualified-capture-complete.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251788442237986,
+          "monotonic_ns": 186530359613039
+        },
+        "sha256": "51e1f79434eadd24176b93dc8e0a197f3ee84c2d05ab77d3c200319cab00ddc0"
+      },
+      {
+        "bytes": 75,
+        "case": "baseline-qualify",
+        "leaf": "qualified-capture-request.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251787744008909,
+          "monotonic_ns": 186529661389039
+        },
+        "sha256": "369fa4f19bd637219f4534efee10e61c98e930db6e821e5a0b96e43047c438dd"
+      },
+      {
+        "bytes": 75,
+        "case": "baseline-qualify",
+        "leaf": "request.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251777289636447,
+          "monotonic_ns": 186519207017577
+        },
+        "sha256": "8521e9127f507dc7e66aa9c83c491839b2f045566c47e9922e72df04ce40167e"
+      },
+      {
+        "bytes": 75,
+        "case": "baseline-qualify",
+        "leaf": "native-stable-start.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251768747144139,
+          "monotonic_ns": 186510664521269
+        },
+        "sha256": "5cf5623db089de919126b032fa2ebf16ec680f0f8425cae6e0a8666881f04341"
+      },
+      {
+        "bytes": 75,
+        "case": "candidate-qualify",
+        "leaf": "qualified-capture-complete.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251821603355373,
+          "monotonic_ns": 186563520731733
+        },
+        "sha256": "2b970c7ec28521cfddac366801f08fe43f2d5d977a4931743b99aaaec7e0f312"
+      },
+      {
+        "bytes": 75,
+        "case": "candidate-qualify",
+        "leaf": "qualified-capture-request.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251820909003680,
+          "monotonic_ns": 186562826378195
+        },
+        "sha256": "5a19bf4202e7105dfb1c8c5527b9a583a216823e184065f84d4c85fc93b71e7c"
+      },
+      {
+        "bytes": 75,
+        "case": "candidate-qualify",
+        "leaf": "request.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251811970821987,
+          "monotonic_ns": 186553888195964
+        },
+        "sha256": "32982f7c714fc277f7b207c98b40109d74651073387e94e9fff61ce0b2de8930"
+      },
+      {
+        "bytes": 75,
+        "case": "candidate-qualify",
+        "leaf": "native-stable-start.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251803650374756,
+          "monotonic_ns": 186545567751117
+        },
+        "sha256": "20c39276c3bf0cae594f1ef654c2fccb58ebbbbf09edecd7e6e7e6807ffd11f8"
+      },
+      {
+        "bytes": 75,
+        "case": "candidate-retire",
+        "leaf": "request.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251845160021528,
+          "monotonic_ns": 186587077396504
+        },
+        "sha256": "d84eacb8a593fef3a7ef0842e05905d4f452664570b045ed652649c341d08593"
+      },
+      {
+        "bytes": 75,
+        "case": "candidate-retire",
+        "leaf": "native-stable-start.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251836839408989,
+          "monotonic_ns": 186578756781811
+        },
+        "sha256": "276379b94b0ae59766d89f362bf00934e712389b70e03c2ac661f63556250b68"
+      },
+      {
+        "bytes": 75,
+        "case": "candidate-cancel",
+        "leaf": "request.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251878949627068,
+          "monotonic_ns": 186620867001891
+        },
+        "sha256": "659c2dba89b710ab011a97c1deb023545f5ae3059658b933bd6085a11ebfd989"
+      },
+      {
+        "bytes": 75,
+        "case": "candidate-cancel",
+        "leaf": "native-stable-start.json",
+        "mode_octal": "0600",
+        "private_public_bytes_equal": true,
+        "record": {
+          "boottime_ns": 251870625821222,
+          "monotonic_ns": 186612543197890
+        },
+        "sha256": "791cbed697f37b1a5d654af3470297ac67ac5e3502b25ff5e01e896097cf410e"
+      }
+    ]
+  },
+  "created_at_utc": "2026-11-17T21:38:06.027091+00:00",
+  "host_admission_fields": {
+    "admission_sha256": "1bafd49099175109fdcc8a7626b3ef97d104b77396f65ca0f62fed0e287c6454",
+    "all_commands_allowed_below_8192_bytes": true,
+    "command_events": 55,
+    "event_count": 64,
+    "event_phases": {
+      "command": 55,
+      "native-identity": 1,
+      "protected-baseline": 1,
+      "protected-compare": 3,
+      "protected-snapshot": 4
+    },
+    "gate_events_sha256": "9a908ef90e9e1eb356693af6a245dd5ec1b73046a905ba66c374b6437331d3a4",
+    "guard_error_type": null,
+    "guard_receipt_sha256": "8b4b36255785474ed16531071eef458be7e2fb9ab130917404a9c382d197f9be",
+    "maximum_command_bytes": 7814,
+    "r7_freeze_and_actual_manifest_bound": true,
+    "report_command_names_match": true,
+    "scope": "Host sizing/admission receipts plus successful source-qualified guarded transport path; not a continuous lease-state trace",
+    "transport_owner_and_run_match": true
+  },
+  "lease_fields": {
+    "acquired_at_utc": "2026-11-17T21:25:40.633000+00:00",
+    "lease_directory_absent_after_release": true,
+    "native_restored_and_connections_closed": true,
+    "only_owned_owner_json_removed_then_rmdir": true,
+    "owner_and_token_checked": true,
+    "released_at_utc": "2026-11-17T21:28:43.952785+00:00",
+    "run_id": "lib-qualify-20261117-7ddd041f"
+  },
+  "limitations": [
+    "Retire entry KILL status was not observed; null is retained rather than inferred as 137. Cancel worker and entry status 143 is the intentional cancellation outcome, not normal UI exit.",
+    "Every application PGID/SID matches its worker; the live frozen observer checked ancestry through the production runner. Intermediate runner /proc birth chains are not fully archived, so offline replay of every ancestor is unavailable.",
+    "Captured framebuffer-memory equality does not establish optical completion or any sleep/wake, reader-anchor or input-readiness qualification.",
+    "The current shared dispatcher and six selected file identities are preserved; deployed wrapper source-to-binary mapping was not independently recaptured.",
+    "No qualification timing is added to primary startup AB statistics, and no lifecycle result is imported or claimed."
+  ],
+  "provenance_fields": {
+    "all_fixture_payload_members_match": true,
+    "all_frozen_source_hashes_match": true,
+    "analyzer_sha256": "31436f751fd62749f707860c3ec96db8b9277c8faaeaee68267dcf544016de30",
+    "binary_reused": true,
+    "bounded_manifest_sha256": "09c404b3d21be2e9eb7f570f53c851ae72b6d4dc0ac66d539d9c3f8e456a2a8e",
+    "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+    "config_sha256": "76922470b173c8285a381216e8c66b5c4403836327b8639be987345b128ca023",
+    "controller_tool_revision": 6,
+    "document_difference": "Only --library on the 95-byte candidate document; baseline is 85 bytes",
+    "fixture_files": 37,
+    "fixture_fingerprint": "a930027e7e297c89b61c963d2dd17d30c605bca3d4260e1805b7aea2257f3f79",
+    "instrumented_launcher_sha256": "d90e7cd75bec3eb892063bc1999676be283b655e15ec25afb71c2cb27d142bb2",
+    "native_uri": "file:///mnt/us/documents/bilicomics.sh",
+    "observer_sha256": "cb85a0cf20c743613d18519ae2afd82bc0be8f9fd0e139f94fc4822fdebcbebf",
+    "overlay_entry_sha256": "92694181aa431fdaf5cb43bd57ecaa47105c921406bf00e83311102d5dfdf2fb",
+    "overlay_manifest_sha256": "c0836b0016bf23248f0967c5c78ef40bd95cd4dd9e9a08a0c1b706b667c23e9d",
+    "package_entries": 49,
+    "package_member_sha256s": {
+      "bilicomics/app/bilicomics": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "bilicomics/app/kindle-jpeg-worker": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+      "bilicomics/launch.sh": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4",
+      "documents/bilicomics.sh": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4"
+    },
+    "package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+    "patchset_revision": 7,
+    "payload_member_sha256s": {
+      "canonical/app/bilicomics": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "canonical/app/kindle-jpeg-worker": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+      "canonical/launch.sh": "d90e7cd75bec3eb892063bc1999676be283b655e15ec25afb71c2cb27d142bb2",
+      "documents/baseline.sh": "d769e0b36ceed59ce1a4f82a81c7a3518775e4552c7d7f7ce052625d9d0f8537",
+      "documents/candidate.sh": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+      "observe.sh": "cb85a0cf20c743613d18519ae2afd82bc0be8f9fd0e139f94fc4822fdebcbebf",
+      "tools/physical-framebuffer": "b3af31796b1013f8e0b4ee66d364b32e2cf4fbd12c7ac68678bd08bea4e097cd",
+      "tools/startup-clock": "89efa9773505c770f2794be7ab53a7524742346e77500405788d589198f22a1f"
+    },
+    "payload_sha256": "42d0037bbe4d6af94a76535a2e9084eb252056712ee300ee60aa6ee783032135",
+    "product_source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+    "report_tool_revision": 6,
+    "runtime_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+    "rust_rebuilt": false,
+    "source_files_checked": 22,
+    "source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+    "source_freeze_sha256": "84c4c164500f485b3f7ac841397aa24da7d46bdb566774ca8b1e9f2f7bafec26"
+  },
+  "qualified_frame_comparison_fields": {
+    "captures": [
+      {
+        "capture_complete_monotonic_ns": 186530359613039,
+        "capture_complete_precedes_later_application_trace": true,
+        "capture_request_monotonic_ns": 186529661389039,
+        "case": "baseline-qualify",
+        "last_application_trace_monotonic_ns": 186539794581347,
+        "metadata": {
+          "bits_per_pixel": 8,
+          "blue_length": 8,
+          "blue_msb_right": 0,
+          "blue_offset": 0,
+          "byte_order": "little",
+          "grayscale": 1,
+          "green_length": 8,
+          "green_msb_right": 0,
+          "green_offset": 0,
+          "height": 2480,
+          "line_length": 1872,
+          "read_only": true,
+          "red_length": 8,
+          "red_msb_right": 0,
+          "red_offset": 0,
+          "rotate": 3,
+          "smem_len": 9285120,
+          "virtual_height": 4960,
+          "virtual_width": 1872,
+          "visible_bytes": 4612800,
+          "visual": 1,
+          "width": 1860,
+          "xoffset": 0,
+          "yoffset": 0
+        },
+        "metadata_bytes_including_newline": 405,
+        "metadata_line_sha256": "7a279c6c9fa85f347488741adc5c20ff2bd1f4ae1bdde787c0e2ff76ed3ef02b",
+        "payload_bytes": 4612800,
+        "payload_sha256": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+        "raw_bytes": 4613205,
+        "raw_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104"
+      },
+      {
+        "capture_complete_monotonic_ns": 186563520731733,
+        "capture_complete_precedes_later_application_trace": true,
+        "capture_request_monotonic_ns": 186562826378195,
+        "case": "candidate-qualify",
+        "last_application_trace_monotonic_ns": 186572461996426,
+        "metadata": {
+          "bits_per_pixel": 8,
+          "blue_length": 8,
+          "blue_msb_right": 0,
+          "blue_offset": 0,
+          "byte_order": "little",
+          "grayscale": 1,
+          "green_length": 8,
+          "green_msb_right": 0,
+          "green_offset": 0,
+          "height": 2480,
+          "line_length": 1872,
+          "read_only": true,
+          "red_length": 8,
+          "red_msb_right": 0,
+          "red_offset": 0,
+          "rotate": 3,
+          "smem_len": 9285120,
+          "virtual_height": 4960,
+          "virtual_width": 1872,
+          "visible_bytes": 4612800,
+          "visual": 1,
+          "width": 1860,
+          "xoffset": 0,
+          "yoffset": 0
+        },
+        "metadata_bytes_including_newline": 405,
+        "metadata_line_sha256": "7a279c6c9fa85f347488741adc5c20ff2bd1f4ae1bdde787c0e2ff76ed3ef02b",
+        "payload_bytes": 4612800,
+        "payload_sha256": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+        "raw_bytes": 4613205,
+        "raw_sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104"
+      }
+    ],
+    "changed_visible_pixel_bytes": 0,
+    "complete_raw_files_identical": true,
+    "metadata_bytes_identical": true,
+    "scope": "Same captured visible framebuffer-memory bytes for the two qualification Shelf scenes; not an optical panel observation or a reader lifecycle result",
+    "visible_gray8_payload_identical": true
+  },
+  "registration_fields": {
+    "deployed_wrapper_source_to_binary_independently_reverified": false,
+    "historical_registration_sha256_not_restoration_baseline": "a594716cfe9a66e912d5883ad0ae3721f7d4f4196c13d04f7ed3158865412471",
+    "observations": [
+      {
+        "decoded_canonical_sha256": "cfc0381d6262afe7aff58534a832a6c15eea3903f07f35b831c69c7102acf804",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      },
+      {
+        "decoded_canonical_sha256": "cfc0381d6262afe7aff58534a832a6c15eea3903f07f35b831c69c7102acf804",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      },
+      {
+        "decoded_canonical_sha256": "cfc0381d6262afe7aff58534a832a6c15eea3903f07f35b831c69c7102acf804",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      },
+      {
+        "decoded_canonical_sha256": "cfc0381d6262afe7aff58534a832a6c15eea3903f07f35b831c69c7102acf804",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      },
+      {
+        "decoded_canonical_sha256": "cfc0381d6262afe7aff58534a832a6c15eea3903f07f35b831c69c7102acf804",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      },
+      {
+        "decoded_canonical_sha256": "cfc0381d6262afe7aff58534a832a6c15eea3903f07f35b831c69c7102acf804",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      }
+    ],
+    "selected_canonical_sha256": "cfc0381d6262afe7aff58534a832a6c15eea3903f07f35b831c69c7102acf804"
+  },
+  "restoration_fields": {
+    "catalog_restored": true,
+    "input_roster_unchanged": true,
+    "install_unchanged": true,
+    "lease_released": true,
+    "lighting_restored": true,
+    "native_restored": true,
+    "registration_unchanged": true,
+    "same_boot": true,
+    "success": true,
+    "temporary_stage_removed": true,
+    "transport_closed": true
+  },
+  "run_id": "lib-qualify-20261117-7ddd041f",
+  "schedule_fields": {
+    "all_cases_retained": true,
+    "expected_cases": [
+      "baseline-qualify",
+      "candidate-qualify",
+      "candidate-retire",
+      "candidate-cancel"
+    ],
+    "kind": "qualify",
+    "primary_ab_rounds": 0,
+    "statistics_in_original_qualify_analysis": false
+  },
+  "schema_version": 1,
+  "scope": "Fixed-field projection of the frozen independent stored four-case qualification audit; no raw identity values or startup timing endpoints.",
+  "source_audit": {
+    "files": {
+      "ORIGIN_MANIFEST.json": "7094b4832cd006339d7b0b33335a9e17b44a2e588ef19250b330e05f245cb7de",
+      "SHA256SUMS": "40832afd1b8ff5ecdf90084b3b5a804feffdf807d0046a8be0ad8b3328a09523",
+      "frozen-qual-analyzer-execution.json": "3f10e39365aef1f2bd42b02696e0c4facb2f7e3dc911c1182fb06d66ef4006fc",
+      "frozen-qual-analyzer.json": "c65c3a3146e5846de7c6438448e76876a044239c0a62897f4143abe486d384c6",
+      "independent-qualification-audit.json": "cbb9cfdcd952f23f4fb0e17a6c0410920f6d673113a54bc828851d054bdd80f5",
+      "independent-qualification-audit.md": "aa03237354911917359602b83cf88f9ad1ce0838a0a22cfcda7ca1e95d6e780a"
+    },
+    "input_file_origins": 310,
+    "regular_archive_members": 123
+  },
+  "transport_closure_fields": {
+    "active_owned_transport_count": 0,
+    "connections_closed": true,
+    "device_polled": false,
+    "lease_accessed": false,
+    "run_id": "lib-qualify-20261117-7ddd041f",
+    "schema_version": 1,
+    "signals_sent": false,
+    "unreadable_host_process_count": 0
+  },
+  "verdict_fields": {
+    "entry_cancellation_supported": true,
+    "entry_retirement_supported": true,
+    "global_product_acceptance_evaluated": false,
+    "lifecycle_evaluated": false,
+    "new_blocking_identity_action_frame_or_restoration_anomaly_found": false,
+    "optical_completion_evaluated": false,
+    "original_complete_qualify_analyzer_returncode": 0,
+    "raw_framebuffer_equality_supported": true,
+    "recorded_four_case_qualification_supported": true,
+    "startup_ab_statistics_updated": false
+  }
+}

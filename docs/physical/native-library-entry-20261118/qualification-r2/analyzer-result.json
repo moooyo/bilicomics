@@ -1,0 +1,282 @@
+{
+  "cases": [
+    {
+      "case": "baseline-qualify",
+      "content_size_observations": {
+        "catalog_after_literal": "85",
+        "catalog_before_literal": "85",
+        "document_after_bytes": 85,
+        "document_before_bytes": 85
+      },
+      "metadata_fields": {
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        }
+      },
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": false,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      },
+      "variant": "baseline"
+    },
+    {
+      "case": "candidate-qualify",
+      "content_size_observations": {
+        "catalog_after_literal": "95",
+        "catalog_before_literal": "85",
+        "document_after_bytes": 95,
+        "document_before_bytes": 95
+      },
+      "metadata_fields": {
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": false,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        }
+      },
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      },
+      "variant": "candidate"
+    },
+    {
+      "case": "candidate-retire",
+      "content_size_observations": {
+        "catalog_after_literal": "95",
+        "catalog_before_literal": "95",
+        "document_after_bytes": 95,
+        "document_before_bytes": 95
+      },
+      "metadata_fields": {
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        }
+      },
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": null,
+        "entry_status_observed": false,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      },
+      "variant": "candidate"
+    },
+    {
+      "case": "candidate-cancel",
+      "content_size_observations": {
+        "catalog_after_literal": "95",
+        "catalog_before_literal": "95",
+        "document_after_bytes": 95,
+        "document_before_bytes": 95
+      },
+      "metadata_fields": {
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        }
+      },
+      "recovery_fields": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 143,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 143,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      },
+      "variant": "candidate"
+    }
+  ],
+  "execution_fields": {
+    "all_batch_tool_hashes_match": true,
+    "all_frozen_source_hashes_match": true,
+    "finished_at_utc": "2026-11-17T21:32:00.610854+00:00",
+    "output_sha256": "c65c3a3146e5846de7c6438448e76876a044239c0a62897f4143abe486d384c6",
+    "returncode": 0,
+    "schema_version": 1,
+    "scope": "Explicitly authorized existing full qualify analyzer on the four stored cases; no predicate changes or device/lease access",
+    "source_freeze_sha256": "84c4c164500f485b3f7ac841397aa24da7d46bdb566774ca8b1e9f2f7bafec26",
+    "source_sha256": "31436f751fd62749f707860c3ec96db8b9277c8faaeaee68267dcf544016de30",
+    "started_at_utc": "2026-11-17T21:32:00.578056+00:00"
+  },
+  "projection_scope": "Stored qualification/restoration only; all startup timing endpoints and SQLite rows are omitted.",
+  "result_fields": {
+    "all_runs_retained": true,
+    "kind": "qualify",
+    "metadata_recent_progress_observed_in_all_cases": true,
+    "native_uri": "file:///mnt/us/documents/bilicomics.sh",
+    "outliers_removed": false,
+    "restoration": {
+      "catalog_restored": true,
+      "install_unchanged": true,
+      "lease_released": true,
+      "lighting_restored": true,
+      "native_restored": true,
+      "registration_unchanged": true,
+      "same_boot": true,
+      "success": true,
+      "transport_closed": true
+    },
+    "run_id": "lib-qualify-20261117-7ddd041f",
+    "schema_version": 1
+  },
+  "schema_version": 1
+}

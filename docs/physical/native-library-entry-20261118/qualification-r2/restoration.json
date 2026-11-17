@@ -1,0 +1,161 @@
+{
+  "aidoku_scope": "Exact selected six regular files and four stored raw snapshots only; not a whole-tree census.",
+  "aidoku_selected_files": [
+    {
+      "content_sha256": "709cefdf00318d40a3ee7cb8a5cc8b47e4b8c7865677040779a61264ae086960",
+      "path": "/mnt/us/documents/Aidoku.sh"
+    },
+    {
+      "content_sha256": "10432125b74ab5b69c8a0ec54a34abd5a74dc4a3cc9ed9b9d5cc8d03bbd75296",
+      "path": "/mnt/us/aidoku/launch.sh"
+    },
+    {
+      "content_sha256": "62de2771891b5bf8f720572c4544a3a732d619fa95131111cb00bccb6e0bc612",
+      "path": "/mnt/us/aidoku/app/aidoku"
+    },
+    {
+      "content_sha256": "84c2f27d8233d8695001aa86d880e29454fe188deb9884aca1c6694c82a5887d",
+      "path": "/mnt/us/aidoku/app/aidoku-native-query"
+    },
+    {
+      "content_sha256": "dde92cb1ae5f1dbf37db61e179a55522edea3759567fba74714f4954955dbf31",
+      "path": "/mnt/us/aidoku/assets/aidoku-cover-v2.png"
+    },
+    {
+      "content_sha256": "2db100d0bcb60a76571cd8de96bed7ea6c016e6ab73e388a885f692955cacd86",
+      "path": "/var/local/kindle-catalog-entry/v1-2db100d0bcb60a76571cd8de96bed7ea6c016e6ab73e388a885f692955cacd86/aidoku-library-dispatch"
+    }
+  ],
+  "aidoku_snapshots": [
+    {
+      "bytes": 922,
+      "phase": "before",
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6"
+    },
+    {
+      "bytes": 922,
+      "phase": "before-writes",
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6"
+    },
+    {
+      "bytes": 922,
+      "phase": "after-finish",
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6"
+    },
+    {
+      "bytes": 922,
+      "phase": "before-release",
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6"
+    }
+  ],
+  "command_outcomes": {
+    "all_returncode_zero": true,
+    "count": 55,
+    "interrupted_count": 0,
+    "timeout_count": 0
+  },
+  "current_registration": {
+    "decoded_canonical_sha256": "cfc0381d6262afe7aff58534a832a6c15eea3903f07f35b831c69c7102acf804",
+    "deployed_wrapper_source_to_binary_independently_reverified": false,
+    "observation_count": 6,
+    "observations": [
+      {
+        "bytes": 695,
+        "observation": "before",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      },
+      {
+        "bytes": 695,
+        "observation": "baseline-qualify",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      },
+      {
+        "bytes": 695,
+        "observation": "candidate-qualify",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      },
+      {
+        "bytes": 695,
+        "observation": "candidate-retire",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      },
+      {
+        "bytes": 695,
+        "observation": "candidate-cancel",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      },
+      {
+        "bytes": 695,
+        "observation": "final",
+        "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99"
+      }
+    ],
+    "raw_observations_equal": true
+  },
+  "readonly_sqlite": {
+    "all_first_attempt": true,
+    "all_returncode_zero": true,
+    "attempt_count": 16
+  },
+  "report_fields": {
+    "cancelled": false,
+    "cases": [
+      "baseline-qualify",
+      "candidate-qualify",
+      "candidate-retire",
+      "candidate-cancel"
+    ],
+    "catalog_restored": true,
+    "completed_cases": [
+      "baseline-qualify",
+      "candidate-qualify",
+      "candidate-retire",
+      "candidate-cancel"
+    ],
+    "finished_at_utc": "2026-11-17T21:28:43.952914+00:00",
+    "input_roster_unchanged": true,
+    "install_unchanged": true,
+    "kind": "qualify",
+    "lease_released": true,
+    "lighting_restored": true,
+    "native_restored": true,
+    "preservation_path_count": 6,
+    "preservation_scope": "Exact selected regular-file identities, including recorded absences; this is not a whole-tree census",
+    "registration_unchanged": true,
+    "run_id": "lib-qualify-20261117-7ddd041f",
+    "same_boot": true,
+    "schema_version": 1,
+    "started_at_utc": "2026-11-17T21:25:40.621483+00:00",
+    "success": true,
+    "temporary_stage_removed": true,
+    "transport_closed": true
+  },
+  "schema_version": 1,
+  "scope": "Successful stored restoration and exact owned release after four qualification cases, including planned KILL and TERM entry actions. This does not imply four natural zero-status exits or lifecycle acceptance.",
+  "stored_receipt_fields": {
+    "lease-acquired": {
+      "acquired_at_utc": "2026-11-17T21:25:40.633000+00:00",
+      "ok": true,
+      "run_id": "lib-qualify-20261117-7ddd041f"
+    },
+    "lease-released": {
+      "lease_directory_absent_after_release": true,
+      "native_restored_and_connections_closed": true,
+      "ok": true,
+      "only_owned_owner_json_removed_then_rmdir": true,
+      "owner_and_token_checked": true,
+      "released_at_utc": "2026-11-17T21:28:43.952785+00:00",
+      "run_id": "lib-qualify-20261117-7ddd041f"
+    },
+    "transport-closure": {
+      "active_owned_transport_count": 0,
+      "connections_closed": true,
+      "device_polled": false,
+      "lease_accessed": false,
+      "run_id": "lib-qualify-20261117-7ddd041f",
+      "schema_version": 1,
+      "signals_sent": false,
+      "unreadable_host_process_count": 0
+    }
+  }
+}

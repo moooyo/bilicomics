@@ -1,0 +1,255 @@
+{
+  "actual_run_preparation_pins": {
+    "binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+    "build_configuration": {
+      "arm_compilation_proof_sha256": "9c48a552b5a908dedc6bad6b75b0fc19da6a69f2699fc17079bdb62d5f37b10b",
+      "binary_reused": true,
+      "codegen_units": 1,
+      "compiler_profile_sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+      "default_features": false,
+      "features": [
+        "kindle"
+      ],
+      "lto": "thin",
+      "native_source_input_count": 544,
+      "native_source_inputs_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "package_source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+      "profile": "release",
+      "runtime_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+      "rust_rebuilt": false,
+      "strip": true,
+      "target": "armv7-unknown-linux-musleabihf"
+    },
+    "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+    "fixture_fingerprint": "a930027e7e297c89b61c963d2dd17d30c605bca3d4260e1805b7aea2257f3f79",
+    "fixture_scope": "isolated-demo-offline",
+    "host_tools": {
+      "analyze_native_library.py": "31436f751fd62749f707860c3ec96db8b9277c8faaeaee68267dcf544016de30",
+      "clock-records.sh": "519ff07989cd53c06bd4e36a8ad8f9425075e0d5a94f9461ad4f5270edb09e98",
+      "device_lease.py": "494c62e67e29b2a9388148e4cef503ff7feceb15ef90c4af43a5ee3cf6971b72",
+      "guarded-device-ssh.py": "c2dfb7e982e32d02cf28fe901d85400a367647db08b3100946c7a83e0458e2db",
+      "native_library.py": "eba7304fb03b23ce156add9cda0c08aa3f6d3b7cba6731b2a2a5b77462d7f727",
+      "observe.sh": "cb85a0cf20c743613d18519ae2afd82bc0be8f9fd0e139f94fc4822fdebcbebf"
+    },
+    "package_entry_count": 49,
+    "package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+    "payload_sha256": "42d0037bbe4d6af94a76535a2e9084eb252056712ee300ee60aa6ee783032135",
+    "physical_framebuffer_sha256": "b3af31796b1013f8e0b4ee66d364b32e2cf4fbd12c7ac68678bd08bea4e097cd",
+    "source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+    "source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+    "startup_clock_sha256": "89efa9773505c770f2794be7ab53a7524742346e77500405788d589198f22a1f",
+    "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+  },
+  "host_results_rerun_by_this_export": false,
+  "observer_patch_fields": {
+    "candidate_alive_at_content_gate_preserved": true,
+    "changed_functions": [
+      "entry_metadata_failure_state",
+      "entry_is_owned"
+    ],
+    "diff_sha256": "c3e5a5f8db82d11f60387f22666eb41cd80adedc6a580a3541c5fee8f4eb6c16",
+    "metadata_failure_recheck": "Only definitely retired or replaced original PID/birth maps to 1; live, unobservable and unknown states map to 2; never 0",
+    "original_sha256": "62ea24decdc6424e81785aebb7798c3a745b22a37911242c839ebbe449a54e16",
+    "patched_sha256": "cb85a0cf20c743613d18519ae2afd82bc0be8f9fd0e139f94fc4822fdebcbebf",
+    "post_metadata_process_state_preserved": true,
+    "worker_parent_generation_and_signal_gates_preserved": true
+  },
+  "preparation_receipt_pins": {
+    "all_host_admission_checks_passed": true,
+    "bounded_entry_sha256": "dfbde5ec7395f667f6443dae85bcb4c64e23cb70c09c0bc24e805a8f39e8e8bc",
+    "bounded_manifest_sha256": "09c404b3d21be2e9eb7f570f53c851ae72b6d4dc0ac66d539d9c3f8e456a2a8e",
+    "cases": [
+      "baseline-qualify",
+      "candidate-qualify",
+      "candidate-retire",
+      "candidate-cancel"
+    ],
+    "config_sha256": "76922470b173c8285a381216e8c66b5c4403836327b8639be987345b128ca023",
+    "generator_sha256": "9b48f4c67b20dd1a48d25a4c3fd9e2f023f75ed8c1c9fd734ae8083dd9532b39",
+    "host_preparation_sha256": "dc65970b3157caa7e74286f467241e8e496d21978e649c4ce8af47a773803bcc",
+    "host_prepare_sha256": "bb3ab88fa05fc686c4697667a6e43b5b566a55fab4189afd2db1f2f849ee92ca",
+    "kind": "qualify",
+    "overlay_entry_sha256": "92694181aa431fdaf5cb43bd57ecaa47105c921406bf00e83311102d5dfdf2fb",
+    "overlay_manifest_sha256": "c0836b0016bf23248f0967c5c78ef40bd95cd4dd9e9a08a0c1b706b667c23e9d",
+    "payload_sha256": "42d0037bbe4d6af94a76535a2e9084eb252056712ee300ee60aa6ee783032135",
+    "recovery_sha256": "a7048fdbf02ad2c6bbf1aa68ca6a6fba75eafe0233d5884078cf329ebcc6a999",
+    "run_id": "lib-qualify-20261117-7ddd041f",
+    "source_freeze_sha256": "84c4c164500f485b3f7ac841397aa24da7d46bdb566774ca8b1e9f2f7bafec26"
+  },
+  "private_clock_chain": {
+    "pinned_elf_bytes": 971284,
+    "pinned_elf_sha256": "89efa9773505c770f2794be7ab53a7524742346e77500405788d589198f22a1f",
+    "private_archive_bytes": 759,
+    "private_archive_sha256": "9f2f1c1210d8d1b7220c1c690748145c5c576450363d7b02043e4a0f0e259842",
+    "private_mode_octal": "0600",
+    "private_original_and_public_mirror_bytes_equal": true,
+    "private_original_records": 12,
+    "private_uid": 0,
+    "record_shell_bytes": 6265,
+    "record_shell_sha256": "519ff07989cd53c06bd4e36a8ad8f9425075e0d5a94f9461ad4f5270edb09e98"
+  },
+  "r7_patch_binding_fields": {
+    "adapted_generator_sha256": "9b48f4c67b20dd1a48d25a4c3fd9e2f023f75ed8c1c9fd734ae8083dd9532b39",
+    "controller_bytes_changed": false,
+    "controller_tool_revision": 6,
+    "observer_sha256": "cb85a0cf20c743613d18519ae2afd82bc0be8f9fd0e139f94fc4822fdebcbebf",
+    "original_followup_generator_sha256": "432973d4054e3d6911609f05d8686254db1ba50bfe88593ae38c51e6f2e9ea36",
+    "parent_r6_source_freeze_sha256": "61e685a3e296497e132e9edde54c9191cee5e964717b3898aa6431b6415c67c1",
+    "patchset": "R7 entry metadata retirement-race correction",
+    "preparation_driver_sha256": "9c8f7b36c30154f507739901410a204e0ef017fe7cd06c49b0ad9b6b1d61bb44",
+    "prewrite_native_quoted_limit": 128,
+    "source_freeze_sha256": "84c4c164500f485b3f7ac841397aa24da7d46bdb566774ca8b1e9f2f7bafec26"
+  },
+  "r7_source_freeze_fields": {
+    "application_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+    "arm_rebuilt": false,
+    "candidate_package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+    "candidate_product_source": "39fac822a982868078201e605e50bdacf1dcf3ed",
+    "changed_parent_source_files": [
+      "observe.sh"
+    ],
+    "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+    "controller_bytes_changed": false,
+    "controller_tool_revision": 6,
+    "fixture_fingerprint": "a930027e7e297c89b61c963d2dd17d30c605bca3d4260e1805b7aea2257f3f79",
+    "parent_source_file_count": 21,
+    "patchset_revision": 7,
+    "product_changed": false,
+    "runtime_source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+    "schema_version": 1,
+    "scope": "R7 observer metadata retirement-race patchset; unchanged R6 controller and product; host-only qualification fixtures",
+    "source_file_count": 22,
+    "source_only": true,
+    "tool_revision": 6,
+    "unchanged_parent_source_file_count": 20,
+    "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+  },
+  "raw_archives_elf_or_tool_source_contents_exported": false,
+  "run_id": "lib-qualify-20261117-7ddd041f",
+  "schema_version": 1,
+  "stored_host_fixture_fields": {
+    "all_passed": true,
+    "device_accessed": false,
+    "lease_accessed": false,
+    "log_sha256": "ca32d4c96ccbe981eede570a2c92470638395febab749176a2b93a11a42ce49f",
+    "native_library_sha256": "eba7304fb03b23ce156add9cda0c08aa3f6d3b7cba6731b2a2a5b77462d7f727",
+    "observer_sha256": "cb85a0cf20c743613d18519ae2afd82bc0be8f9fd0e139f94fc4822fdebcbebf",
+    "original_observer_fixture_count": 18,
+    "returncode": 0,
+    "targeted_fixture_sha256": "79ce4a249b5a21e052ef9992bdce9fdf046aa1b85c62f6b61cae140dd5c53c56",
+    "targeted_race_fixture_count": 13,
+    "test_count": 31
+  },
+  "stored_new_binding_check_fields": {
+    "cases": [
+      "baseline-qualify",
+      "candidate-qualify",
+      "candidate-retire",
+      "candidate-cancel"
+    ],
+    "device_accessed": false,
+    "errors": 0,
+    "failures": 0,
+    "fixture_source_sha256": "1f53032f602bbe18344303bf4fb425a5e5459d8a68a24ef17a2164d1fb2c787c",
+    "kind": "qualify",
+    "lease_accessed": false,
+    "log_sha256": "c74d748617e76c4a604d771fe0db5bf7e47a5b54ff6b070eb9be48655b8d2ccc",
+    "overlay_manifest_sha256": "c0836b0016bf23248f0967c5c78ef40bd95cd4dd9e9a08a0c1b706b667c23e9d",
+    "passed": true,
+    "schema_version": 1,
+    "scope": "Only new follow-up host bindings, mocked recovery CLI and shell construction; no device or lease",
+    "source_freeze_sha256": "84c4c164500f485b3f7ac841397aa24da7d46bdb566774ca8b1e9f2f7bafec26",
+    "sqlite_opened": false,
+    "tests_run": 11
+  },
+  "stored_r7_fixture_counts": {
+    "final_combined_test_count": 31,
+    "observer_shell_syntax_passed": true,
+    "original_r6_observer_suite_count": 18,
+    "original_r6_observer_suite_passed": true,
+    "patched_observer_regression_count": 18,
+    "patched_observer_regressions_passed": true,
+    "targeted_race_fixture_count": 13,
+    "targeted_race_fixtures_passed": true
+  },
+  "variants": {
+    "baseline": {
+      "binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "build_configuration": {
+        "arm_compilation_proof_sha256": "9c48a552b5a908dedc6bad6b75b0fc19da6a69f2699fc17079bdb62d5f37b10b",
+        "binary_reused": true,
+        "codegen_units": 1,
+        "compiler_profile_sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "native_source_input_count": 544,
+        "native_source_inputs_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+        "package_source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+        "profile": "release",
+        "runtime_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+        "rust_rebuilt": false,
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      },
+      "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+      "document_sha256": "d769e0b36ceed59ce1a4f82a81c7a3518775e4552c7d7f7ce052625d9d0f8537",
+      "entry_arguments": [],
+      "instrumented_launcher_sha256": "d90e7cd75bec3eb892063bc1999676be283b655e15ec25afb71c2cb27d142bb2",
+      "launcher_sha256": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4",
+      "package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+      "production_document_sha256": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+      "source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+      "source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "startup_arguments": [
+        "--demo",
+        "--offline",
+        "--screen",
+        "shelf"
+      ],
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    },
+    "candidate": {
+      "binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "build_configuration": {
+        "arm_compilation_proof_sha256": "9c48a552b5a908dedc6bad6b75b0fc19da6a69f2699fc17079bdb62d5f37b10b",
+        "binary_reused": true,
+        "codegen_units": 1,
+        "compiler_profile_sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "native_source_input_count": 544,
+        "native_source_inputs_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+        "package_source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+        "profile": "release",
+        "runtime_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+        "rust_rebuilt": false,
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      },
+      "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+      "document_sha256": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+      "entry_arguments": [
+        "--library"
+      ],
+      "instrumented_launcher_sha256": "d90e7cd75bec3eb892063bc1999676be283b655e15ec25afb71c2cb27d142bb2",
+      "launcher_sha256": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4",
+      "package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+      "production_document_sha256": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+      "source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+      "source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "startup_arguments": [
+        "--demo",
+        "--offline",
+        "--screen",
+        "shelf"
+      ],
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    }
+  }
+}
