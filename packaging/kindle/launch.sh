@@ -17,6 +17,24 @@ fail() {
     exit 1
 }
 
+read_process() {
+    case "$1" in *[!0-9]*|'') return 1 ;; esac
+    IFS= read -r process_stat <"/proc/$1/stat" || return 1
+    [ "${process_stat%% *}" = "$1" ] || return 1
+    # comm can contain spaces and parentheses; fields follow its final ).
+    process_tail=${process_stat##*) }
+    [ "$process_tail" != "$process_stat" ] || return 1
+    set -- $process_tail
+    [ "$#" -ge 20 ] || return 1
+    PROCESS_STATE=$1
+    PROCESS_PARENT=$2
+    PROCESS_GROUP=$3
+    PROCESS_SESSION=$4
+    shift 19
+    case "$1" in *[!0-9]*|'') return 1 ;; esac
+    PROCESS_BIRTH=$1
+}
+
 case "$BILICOMICS_HOME" in
     /*) ;;
     *) fail 'BILICOMICS_HOME must be an absolute path.' ;;
@@ -55,10 +73,90 @@ export BILICOMICS_APPROVED_PROFILE BILICOMICS_APPROVED_FIRMWARE
 
 mkdir -p "$DATA_DIR/logs" "$DATA_DIR/fonts"
 
-# Return control to a document launcher before taking over the display.
+# Ordinary admission returns before the independent worker takes the display.
 if [ "${1:-}" != '--detached' ]; then
     SCRIPT_PATH=$(CDPATH= cd "$(dirname "$0")" && pwd)/$(basename "$0")
     export BILICOMICS_HOME
+    if [ "${1:-}" = '--library' ]; then
+        command -v setsid >/dev/null 2>&1 || fail 'Library admission requires an independent worker session.'
+        command -v usleep >/dev/null 2>&1 || fail 'Library cancellation requires bounded readiness observation.'
+        LIBRARY_WORKER_PID=''
+        LIBRARY_WORKER_BIRTH=''
+        LIBRARY_CANCEL_SIGNAL=''
+        LIBRARY_CANCEL_SENT=0
+        LIBRARY_REQUESTING=0
+        LIBRARY_WAIT_INTERRUPTED=0
+
+        library_worker_is_owned() {
+            [ -n "$LIBRARY_WORKER_PID" ] && [ -n "$LIBRARY_WORKER_BIRTH" ] || return 1
+            read_process "$LIBRARY_WORKER_PID" 2>/dev/null || return 1
+            [ "$PROCESS_PARENT" = "$$" ] && [ "$PROCESS_BIRTH" = "$LIBRARY_WORKER_BIRTH" ] || return 1
+            case "$PROCESS_STATE" in Z|X) return 1 ;; esac
+        }
+
+        library_worker_can_cleanup() {
+            library_worker_is_owned || return 1
+            [ "$PROCESS_GROUP:$PROCESS_SESSION" = "$LIBRARY_WORKER_PID:$LIBRARY_WORKER_PID" ] || return 1
+            for library_leaf in pid nonce generation; do
+                [ -f "$LOCK_DIR/$library_leaf" ] && [ ! -L "$LOCK_DIR/$library_leaf" ] || return 1
+            done
+            IFS= read -r library_lock_pid <"$LOCK_DIR/pid" || return 1
+            [ "$library_lock_pid" = "$LIBRARY_WORKER_PID" ] || return 1
+            IFS= read -r library_nonce <"$LOCK_DIR/nonce" || return 1
+            case "$library_nonce" in *[!0-9a-f]*|'') return 1 ;; esac
+            [ "${#library_nonce}" -eq 32 ] || return 1
+            IFS= read -r library_context <"$LOCK_DIR/generation" || return 1
+            library_generation=${library_context%:*}
+            case "$library_generation" in *[!0-9]*|''|0*) return 1 ;; esac
+            [ "$library_context" = "$library_generation:$library_nonce" ]
+        }
+
+        library_request_cleanup() {
+            [ "$LIBRARY_CANCEL_SENT" -eq 0 ] && [ "$LIBRARY_REQUESTING" -eq 0 ] || return 0
+            [ -n "$LIBRARY_WORKER_BIRTH" ] || return 0
+            LIBRARY_REQUESTING=1
+            # The worker publishes generation only after installing full cleanup
+            # traps. Preflight I/O must return before cancellation can use them.
+            while library_worker_is_owned; do
+                if library_worker_can_cleanup && library_worker_is_owned &&
+                    kill -TERM "$LIBRARY_WORKER_PID" 2>/dev/null; then
+                    LIBRARY_CANCEL_SENT=1
+                    break
+                fi
+                usleep 20000 || :
+            done
+            LIBRARY_REQUESTING=0
+        }
+
+        library_cancel() {
+            LIBRARY_WAIT_INTERRUPTED=1
+            [ -n "$LIBRARY_CANCEL_SIGNAL" ] || LIBRARY_CANCEL_SIGNAL=$1
+            library_request_cleanup
+        }
+
+        trap 'library_cancel HUP' HUP
+        trap 'library_cancel INT' INT
+        trap 'library_cancel TERM' TERM
+        # This direct child keeps native recovery in its own session even if
+        # the framework retires only the small Library waiting entry.
+        setsid sh "$SCRIPT_PATH" --detached >/dev/null 2>&1 </dev/null &
+        LIBRARY_WORKER_PID=$!
+        while :; do
+            LIBRARY_WAIT_INTERRUPTED=0
+            if read_process "$LIBRARY_WORKER_PID" 2>/dev/null && [ "$PROCESS_PARENT" = "$$" ]; then
+                LIBRARY_WORKER_BIRTH=$PROCESS_BIRTH
+                break
+            fi
+            [ "$LIBRARY_WAIT_INTERRUPTED" -eq 1 ] || break
+        done
+        if [ -n "$LIBRARY_CANCEL_SIGNAL" ]; then library_request_cleanup; fi
+        while :; do
+            LIBRARY_WAIT_INTERRUPTED=0
+            if wait "$LIBRARY_WORKER_PID"; then LIBRARY_STATUS=0; else LIBRARY_STATUS=$?; fi
+            [ "$LIBRARY_WAIT_INTERRUPTED" -eq 1 ] || break
+        done
+        exit "$LIBRARY_STATUS"
+    fi
     if command -v setsid >/dev/null 2>&1; then
         setsid sh "$SCRIPT_PATH" --detached >/dev/null 2>&1 </dev/null &
     else
@@ -144,24 +242,6 @@ launch_trace() {
     case "$trace_pid" in *[!0-9]*|'') return 0 ;; esac
     printf '%s\t%s\tpid=%s\tphase=%s\tsleep=%s\tcapture=%s\tprobe=%s\tlifecycle=%s\tmode=%s\tread_sequence=%s\n' \
         "$trace_uptime" "$1" "$trace_pid" "$APP_PHASE" "$SLEEP_GENERATION" "$NATIVE_MODE_SEQUENCE" "$WAKE_PROBE_SEQUENCE" "$LIFECYCLE_SEQUENCE" "${NATIVE_EPDC_MODE:-unknown}" "$NATIVE_READ_SEQUENCE" 2>/dev/null >>"$trace_path" || :
-}
-
-read_process() {
-    case "$1" in *[!0-9]*|'') return 1 ;; esac
-    IFS= read -r process_stat <"/proc/$1/stat" || return 1
-    [ "${process_stat%% *}" = "$1" ] || return 1
-    # comm can contain spaces and parentheses; fields follow its final ).
-    process_tail=${process_stat##*) }
-    [ "$process_tail" != "$process_stat" ] || return 1
-    set -- $process_tail
-    [ "$#" -ge 20 ] || return 1
-    PROCESS_STATE=$1
-    PROCESS_PARENT=$2
-    PROCESS_GROUP=$3
-    PROCESS_SESSION=$4
-    shift 19
-    case "$1" in *[!0-9]*|'') return 1 ;; esac
-    PROCESS_BIRTH=$1
 }
 
 process_birth() {

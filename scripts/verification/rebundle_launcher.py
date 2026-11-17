@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Replace only the launcher in a selected development archive without rebuilding."""
+"""Refresh fixed launcher packaging in a selected archive without rebuilding."""
 
 import argparse
 import copy
@@ -15,11 +15,25 @@ import sys
 import zipfile
 
 from run_suite import SOURCE_TREES, manifest_text
-from verify_package import ALLOWED_FILES, EXECUTABLE_FILES, FIXED_TIMESTAMP
+from verify_package import (ALLOWED_FILES, EXECUTABLE_FILES, FIXED_TIMESTAMP,
+                            LEGACY_ALLOWED_FILES, LIBRARY_DOCUMENT,
+                            LIBRARY_DOCUMENT_SOURCE, LIBRARY_ENTRY_NOTICES,
+                            LIBRARY_ENTRY_PREFIX, LIBRARY_ENTRY_REFERENCE)
 
 
 LAUNCHER = "bilicomics/launch.sh"
 BINARY = "bilicomics/app/bilicomics"
+JPEG_WORKER = "bilicomics/app/kindle-jpeg-worker"
+LEGACY_SCHEMA = "pre-library-entry-v1"
+CURRENT_SCHEMA = "library-entry-v1"
+PACKAGING_SOURCES = {
+    LAUNCHER: "packaging/kindle/launch.sh",
+    "README.md": "packaging/kindle/README.md",
+    "THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.md",
+    LIBRARY_DOCUMENT: LIBRARY_DOCUMENT_SOURCE,
+    **{LIBRARY_ENTRY_PREFIX + name: LIBRARY_ENTRY_REFERENCE + "/" + name
+       for name in LIBRARY_ENTRY_NOTICES},
+}
 MAX_ENTRY_BYTES = 128 * 1024 * 1024
 MAX_TOTAL_BYTES = 256 * 1024 * 1024
 
@@ -90,39 +104,54 @@ def source_pairs(value):
     return result
 
 
-def launcher_bytes(source):
-    value = read_regular(source / "packaging/kindle/launch.sh", 512 * 1024).replace(b"\r\n", b"\n")
+def shell_bytes(path):
+    value = read_regular(path, 512 * 1024).replace(b"\r\n", b"\n")
     require(value.startswith(b"#!/bin/sh\n") and value.endswith(b"\n")
             and b"\r" not in value and b"\0" not in value,
-            "The selected launcher is not a normalized LF POSIX shell script")
+            "A selected packaging script is not a normalized LF POSIX shell script")
     return value
 
 
-def check_arm_header(value):
+def packaging_inputs(source):
+    return {name: shell_bytes(source / relative) if name in (LAUNCHER, LIBRARY_DOCUMENT)
+            else read_regular(source / relative, 2 * 1024 * 1024)
+            for name, relative in PACKAGING_SOURCES.items()}
+
+
+def check_arm_header(value, role):
     require(len(value) >= 52 and value[:7] == b"\x7fELF\x01\x01\x01",
-            "The selected embedded binary is not ELF32 little-endian version 1")
-    require(struct.unpack_from("<H", value, 18)[0] == 40, "The selected embedded binary is not ARM")
+            f"The selected embedded {role} is not ELF32 little-endian version 1")
+    require(struct.unpack_from("<H", value, 18)[0] == 40, f"The selected embedded {role} is not ARM")
     flags = struct.unpack_from("<I", value, 36)[0]
     require(flags >> 24 == 5 and flags & 0x400 and not flags & 0x200,
-            "The selected embedded binary is not ARM EABI5 hard-float")
+            f"The selected embedded {role} is not ARM EABI5 hard-float")
 
 
-def base_entries(stream, sidecar, expected_binary):
+def base_schema(names):
+    if names == LEGACY_ALLOWED_FILES:
+        return LEGACY_SCHEMA
+    if names == ALLOWED_FILES:
+        return CURRENT_SCHEMA
+    raise ValueError("The base sidecar is not an exact supported package schema")
+
+
+def base_entries(stream, sidecar, expected_binary, expected_worker):
     require(sidecar.get("development_candidate") is True and sidecar.get("device_verified") is False,
             "The base sidecar must identify an unverified development candidate")
     records = sidecar.get("files")
-    require(isinstance(records, list) and len(records) == len(ALLOWED_FILES),
-            "The base sidecar does not contain the exact entry count")
+    require(isinstance(records, list), "The base sidecar does not contain an entry list")
     require(all(isinstance(row, dict) and isinstance(row.get("path"), str) for row in records),
             "The base sidecar contains an invalid entry")
     names = [row["path"] for row in records]
-    require(len(set(names)) == len(names) and set(names) == ALLOWED_FILES,
+    require(len(set(names)) == len(names),
             "The base sidecar has duplicate, missing, or unexpected paths")
+    selected_schema = base_schema(set(names))
+    expected_names = LEGACY_ALLOWED_FILES if selected_schema == LEGACY_SCHEMA else ALLOWED_FILES
     indexed = {row["path"]: row for row in records}
     with zipfile.ZipFile(stream) as archive:
         infos = archive.infolist()
         actual = [info.filename for info in infos]
-        require(len(actual) == len(set(actual)) == len(ALLOWED_FILES) and set(actual) == ALLOWED_FILES,
+        require(len(actual) == len(set(actual)) == len(expected_names) and set(actual) == expected_names,
                 "The base archive has duplicate, missing, or unexpected entries")
         require(all(0 <= info.file_size <= MAX_ENTRY_BYTES for info in infos)
                 and sum(info.file_size for info in infos) <= MAX_TOTAL_BYTES,
@@ -145,8 +174,11 @@ def base_entries(stream, sidecar, expected_binary):
             selected[info.filename] = (copy.copy(info), value)
     binary = selected[BINARY][1]
     require(digest(binary) == expected_binary, "The embedded binary differs from the selected ARM digest")
-    check_arm_header(binary)
-    return selected
+    check_arm_header(binary, "binary")
+    worker = selected[JPEG_WORKER][1]
+    require(digest(worker) == expected_worker, "The embedded JPEG worker differs from the selected ARM digest")
+    check_arm_header(worker, "JPEG worker")
+    return selected, selected_schema
 
 
 def write_json(stream, value):
@@ -155,16 +187,7 @@ def write_json(stream, value):
     os.fsync(stream.fileno())
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source-root", type=absolute_path, required=True)
-    parser.add_argument("--base-archive", type=absolute_path, required=True)
-    parser.add_argument("--expected-base-archive-sha256", type=digest_argument, required=True)
-    parser.add_argument("--expected-binary-sha256", type=digest_argument, required=True)
-    parser.add_argument("--binary-source-manifest", type=absolute_path, required=True)
-    parser.add_argument("--output", type=absolute_path, required=True)
-    parser.add_argument("--provenance-output", type=absolute_path, required=True)
-    args = parser.parse_args()
+def rebundle(args):
     require(sys.platform == "linux" and os.environ.get("BILICOMICS_REMOTE_VERIFICATION") == "1",
             "Run only through the designated remote verification worker")
     os.umask(0o077)
@@ -179,25 +202,41 @@ def main():
         require(path.parent.is_dir() and not path.exists() and not path.is_symlink(),
                 "Output parents must exist and output files must be new")
     manifest_raw = read_regular(args.binary_source_manifest, 2 * 1024 * 1024)
+    require(digest(manifest_raw) == args.expected_binary_source_manifest_sha256,
+            "The binary source manifest differs from its selected digest")
     previous_source = source_pairs(manifest_raw.decode("utf-8"))
     initial_manifest = manifest_text(source, SOURCE_TREES)
     current_source = source_pairs(initial_manifest)
     require(current_source == previous_source,
             "The complete source inputs differ from the selected binary build manifest")
-    launcher = launcher_bytes(source)
+    selected_packaging = packaging_inputs(source)
     base_sidecar_path = args.base_archive.with_suffix(".manifest.json")
     base_sidecar_raw = read_regular(base_sidecar_path, 2 * 1024 * 1024)
     base_sidecar = json.loads(base_sidecar_raw)
     with regular_input(args.base_archive) as base:
         require(stream_digest(base) == args.expected_base_archive_sha256,
                 "The base archive differs from its selected digest")
-        entries = base_entries(base, base_sidecar, args.expected_binary_sha256)
+        entries, selected_schema = base_entries(base, base_sidecar, args.expected_binary_sha256,
+                                                args.expected_worker_sha256)
         require(stream_digest(base) == args.expected_base_archive_sha256,
                 "The pinned base archive changed during inspection")
-    require(manifest_text(source, SOURCE_TREES) == initial_manifest and launcher_bytes(source) == launcher,
-            "The frozen source or launcher changed during inspection")
+    require(manifest_text(source, SOURCE_TREES) == initial_manifest and packaging_inputs(source) == selected_packaging,
+            "The frozen source or packaging inputs changed during inspection")
+    original_entries = {name: value for name, (_, value) in entries.items()}
     original_launcher = entries[LAUNCHER][1]
-    entries[LAUNCHER] = (entries[LAUNCHER][0], launcher)
+    added = sorted(set(selected_packaging) - set(entries))
+    updated = sorted(name for name, value in selected_packaging.items()
+                     if name in entries and entries[name][1] != value)
+    for name, value in selected_packaging.items():
+        if name in entries:
+            info = entries[name][0]
+        else:
+            info = zipfile.ZipInfo(name, date_time=FIXED_TIMESTAMP)
+            info.create_system = 3
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = (stat.S_IFREG | (0o755 if name in EXECUTABLE_FILES else 0o644)) << 16
+        entries[name] = (info, value)
+    require(set(entries) == ALLOWED_FILES, "The refreshed archive does not match the exact current package schema")
     new_manifest = {"development_candidate": True, "device_verified": False,
                     "files": [{"path": name, "bytes": len(value), "sha256": digest(value)}
                               for name, (_, value) in sorted(entries.items())]}
@@ -216,14 +255,14 @@ def main():
                 require(archive.read(name) == value and actual.date_time == info.date_time
                         and actual.external_attr == info.external_attr,
                         "A rebundled entry differs from the selected bytes or retained metadata")
-        require(manifest_text(source, SOURCE_TREES) == initial_manifest and launcher_bytes(source) == launcher,
-                "The frozen source or launcher changed while writing the archive")
+        require(manifest_text(source, SOURCE_TREES) == initial_manifest and packaging_inputs(source) == selected_packaging,
+                "The frozen source or packaging inputs changed while writing the archive")
         archive_sha = stream_digest(bundle)
         write_json(sidecar, new_manifest)
         report = {
             "schema_version": 1, "passed": True,
             "completed_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            "operation": "replace_only_launcher_in_development_archive",
+            "operation": "refresh_fixed_library_entry_packaging_without_rebuilding",
             "source_root": str(source), "source_file_count": len(current_source),
             "source_manifest_sha256": digest(initial_manifest.encode("utf-8")),
             "binary_source_manifest": str(args.binary_source_manifest),
@@ -232,13 +271,23 @@ def main():
             "base_archive": str(args.base_archive),
             "base_archive_sha256": args.expected_base_archive_sha256,
             "base_sidecar_sha256": digest(base_sidecar_raw),
+            "base_schema": selected_schema,
+            "output_schema": CURRENT_SCHEMA,
+            "base_entry_count": len(original_entries),
+            "output_entry_count": len(entries),
             "arm_binary_sha256": args.expected_binary_sha256,
-            "binary_mapping": "Unchanged complete source inputs and identical embedded ARM bytes from the selected base archive",
-            "changed_entry": LAUNCHER, "old_launcher_sha256": digest(original_launcher),
-            "new_launcher_sha256": digest(launcher),
-            "launcher_normalization": "CRLF converted to LF; bare CR and NUL rejected",
-            "retained_entries_byte_identical": len(entries) - 1,
-            "entry_modes_and_timestamps_preserved": True,
+            "jpeg_worker_sha256": args.expected_worker_sha256,
+            "binary_mapping": "Unchanged complete source inputs and identical application/helper ARM bytes from the selected base archive",
+            "added_entries": added,
+            "updated_entries": updated,
+            "packaging_sources": [{"path": name, "source": PACKAGING_SOURCES[name],
+                                    "bytes": len(value), "sha256": digest(value)}
+                                   for name, value in sorted(selected_packaging.items())],
+            "old_launcher_sha256": digest(original_launcher),
+            "new_launcher_sha256": digest(selected_packaging[LAUNCHER]),
+            "shell_script_normalization": "CRLF converted to LF; bare CR and NUL rejected",
+            "retained_entries_byte_identical": sum(entries[name][1] == value for name, value in original_entries.items()),
+            "existing_entry_modes_and_timestamps_preserved": True,
             "output_archive": str(output), "output_archive_sha256": archive_sha,
             "output_sidecar": str(sidecar_output),
             "output_sidecar_sha256": digest((json.dumps(new_manifest, indent=2) + "\n").encode("utf-8")),
@@ -247,8 +296,25 @@ def main():
             "followup": "Run verify_package.py on this exact archive and selected ARM binary before deployment",
         }
         write_json(provenance, report)
-    print(json.dumps({"passed": True, "archive_sha256": archive_sha,
+    return report
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--source-root", type=absolute_path, required=True)
+    parser.add_argument("--base-archive", type=absolute_path, required=True)
+    parser.add_argument("--expected-base-archive-sha256", type=digest_argument, required=True)
+    parser.add_argument("--expected-binary-sha256", type=digest_argument, required=True)
+    parser.add_argument("--expected-worker-sha256", type=digest_argument, required=True)
+    parser.add_argument("--binary-source-manifest", type=absolute_path, required=True)
+    parser.add_argument("--expected-binary-source-manifest-sha256", type=digest_argument, required=True)
+    parser.add_argument("--output", type=absolute_path, required=True)
+    parser.add_argument("--provenance-output", type=absolute_path, required=True)
+    args = parser.parse_args()
+    report = rebundle(args)
+    print(json.dumps({"passed": True, "archive_sha256": report["output_archive_sha256"],
                       "unchanged_arm_binary_sha256": args.expected_binary_sha256,
+                      "unchanged_jpeg_worker_sha256": args.expected_worker_sha256,
                       "provenance": str(args.provenance_output)}))
 
 

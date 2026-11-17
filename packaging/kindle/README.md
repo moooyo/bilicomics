@@ -1,6 +1,6 @@
 # Kindle development packaging
 
-This directory contains a source-level launcher and provisional KPM manifest for BiliComics. No BiliComics device/firmware combination has been accepted. The committed allowlist contains comments only, and the launcher refuses to take over the display until an operator records an exact accepted profile/firmware pair in the runtime data directory.
+This directory contains the production launcher, a thin Library document, and a provisional KPM manifest for BiliComics. The development bundle enables no device/firmware combination. The committed allowlist contains comments only, and the launcher refuses to take over the display until an operator records an exact accepted profile/firmware pair in the runtime data directory.
 
 ## Independent installation layout
 
@@ -8,18 +8,23 @@ A development bundle should stage this layout beneath the Kindle USB storage roo
 
 ```text
 documents/bilicomics.sh
+bilicomics/launch.sh
 bilicomics/app/bilicomics
-bilicomics/app/config/device-profile.example
-bilicomics/app/config/device-allowlist.example
-bilicomics/app/manifest.draft.json
-bilicomics/app/licenses/backend/
-bilicomics/app/licenses/pinyin/
-bilicomics/data/
+bilicomics/app/kindle-jpeg-worker
+bilicomics/data/device-profile
+bilicomics/data/device-allowlist
+notices/backend/
+notices/pinyin/
+notices/aidoku-native-library-entry/
 ```
 
-Stage `launch.sh` as `documents/bilicomics.sh`. The application executable must be the Linux ARM Kindle build, rather than a Windows or desktop executable. The reference build target is `armv7-unknown-linux-musleabihf`; target buildability and device acceptance must be established separately for this application.
+Stage `document-launcher.sh` as `documents/bilicomics.sh` and `launch.sh` as `bilicomics/launch.sh`. The document invokes the installed canonical launcher; it does not contain another supervisor copy. Its title remains the source launcher's `BiliComics for Kindle`. It adds no icon, `DontUseFBInk` declaration, scanner request, or handler registration. Keep exactly one indexed BiliComics document. Before updating any existing installation, retain that document's exact path spelling and scanner-visible metadata rather than adding an uppercase/lowercase alternative.
 
-The executable, bundled resources, and notices belong under `app/`. Persistent metadata, cache, account material, logs, and device configuration belong under `/mnt/us/bilicomics/data/`. Updating the application directory must preserve the data directory. Do not include real account material, downloaded comics, operator logs, or acceptance configuration in development archives.
+The 2026-11-17 read-only inventory found neither `/mnt/us/documents/bilicomics.sh` nor `/mnt/us/documents/BiliComics.sh`, no index row for either path, and no canonical BiliComics application, JPEG worker or launcher. The lowercase path is therefore the source-defined new-installation entry, not preservation of an existing device title or cover. A temporary physical qualification must use the same formal document and metadata for both admission variants and restore the original absent state afterward. Package creation does not authorize permanent device installation.
+
+The application and JPEG worker must be the selected Linux ARM Kindle builds, rather than Windows or desktop executables. The reference build target is `armv7-unknown-linux-musleabihf`; target buildability and device acceptance must be established separately for this application.
+
+Executables belong under `bilicomics/app/`; the canonical launcher belongs under `bilicomics/`; retained source and resource notices belong under `notices/`. Persistent metadata, cache, account material, logs, and device configuration belong under `/mnt/us/bilicomics/data/`. Updating an existing installation must preserve its data directory, including its device profile and acceptance allowlist. The archive's commented allowlist and default reference profile are for a new development installation, not replacements for an existing operator configuration. Do not include real account material, downloaded comics, operator logs, or acceptance configuration in development archives.
 
 Keep the original backend licenses, upstream revision, and patch history in the staged notices. Preserve the AOSP PinyinIME notice with the dictionary. Font and other resource notices must also accompany any resources actually bundled by the application.
 
@@ -38,6 +43,10 @@ The runtime `device-allowlist` contains exact two-field entries, `profile firmwa
 Only after an exact match does the launcher export `BILICOMICS_APPROVED_PROFILE` and `BILICOMICS_APPROVED_FIRMWARE`. Native initialization requires those values and rejects a framebuffer whose visible resolution or panning offsets differ from the selected reference geometry. No experimental display geometry override from the reference project is enabled in BiliComics.
 
 ## Display ownership, sleep, and exit
+
+The single Library document executes `sh /mnt/us/bilicomics/launch.sh --library`. It retains the original launcher's title declaration and standard-descriptor behavior, including the shared handler's existing startup screen. This admission starts the independently supervised worker/session and waits for that actual child's exit. The intended result is that the shared Scriptlet handler returns to Library after the worker finishes native restoration; actual indexed-document behavior requires separate qualification. The waiting entry never acquires the launcher lock, framebuffer, input or sleep protocol. Catchable HUP/INT/TERM requests cleanup only from its own live direct child; retiring only the waiting process leaves the independent supervisor responsible for recovery. The worker's normal exit status is preserved.
+
+Ordinary direct invocation of `/mnt/us/bilicomics/launch.sh` keeps detached admission. No KUAL integration or KPM installer is created by this bundle; any future direct menu/package hook must retain that detached behavior. The Library entry does not replace the shared Scriptlet handler, MIME association, scanner request or native application registration. Opening a temporary Scriptlet app URI is a separate measurement route from opening this actual indexed document through native file-URI dispatch.
 
 The launcher uses its own `/tmp/bilicomics-launcher.lock`. It leaves `powerd` and `lab126_gui` running, stops a running `statusbar` only when service controls are available, and pauses only `awesome` processes that it finds running. Its exit and signal traps resume exactly those changes. Application exit status is preserved.
 
@@ -72,6 +81,10 @@ The event FIFO remains responsive while acknowledgements and native unlock check
 ## Manifest and evidence
 
 `manifest.draft.json` uses a provisional independent package identity and the reference KPM manifest shape. Its `kindlehf` platform label is packaging metadata, not a device compatibility result. This directory does not create, publish, or verify a release package, update channel, or application license.
+
+An entry-only delivery may reuse an already qualified application and JPEG worker without rebuilding Rust. `scripts/verification/rebundle_launcher.py` requires the exact base archive, application, worker and original binary-source-manifest digests. It accepts either the complete frozen pre-Library file set or the complete current set, never a partial hybrid. Only the canonical launcher, this README, the top-level third-party notice, the one document and its three entry-provenance notices come from the selected current source. Existing member permissions/timestamps and all other payload bytes are retained. The new archive and sidecar must then pass `verify_package.py` against those same selected binaries; rebuilding or successful repackaging alone does not establish device behavior.
+
+The retained entry-lifetime source and original license are documented in [the Aidoku implementation reference](../../docs/research/aidoku-native-library-entry-20261117/README.md). Its package notice group contains only the original license, provenance manifest and reference README. Prototype handlers, research evidence and upstream timing numbers are not BiliComics package inputs or acceptance results.
 
 The launcher was adapted from the local WeRead implementation working tree inspected on 2026-11-03 and its lifecycle supervisor inspected on 2026-11-04. BiliComics uses an acknowledgement exchange to retain the same application process rather than restarting it after sleep. Reference-project test and emulator reports do not establish BiliComics behavior. No local verification was run for this import. Shell checks and isolated lifecycle fixtures run through the designated remote environment; they do not establish firmware-emulator or physical-device behavior. ARM cross-compilation and physical acceptance remain separate checks and must identify the exact model and firmware.
 

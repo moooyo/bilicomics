@@ -14,7 +14,7 @@ cargo zigbuild --locked --offline --release --target armv7-unknown-linux-musleab
     cat artifacts/verification/kindle-build.log; exit 1;
 }
 STAGING="$ROOT/kindle-package"
-mkdir -p "$STAGING/bilicomics/app" "$STAGING/bilicomics/data"
+mkdir -p "$STAGING/bilicomics/app" "$STAGING/bilicomics/data" "$STAGING/documents"
 mkdir -p "$STAGING/notices/backend" "$STAGING/notices/fonts" "$STAGING/notices/pinyin" "$STAGING/notices/protocol"
 mkdir -p "$STAGING/notices/jpeg"
 mkdir -p "$STAGING/notices/image-triangle"
@@ -22,9 +22,11 @@ mkdir -p "$STAGING/notices/aidoku-native-media"
 mkdir -p "$STAGING/notices/spatial-dither"
 mkdir -p "$STAGING/notices/aidoku-startup"
 mkdir -p "$STAGING/notices/aidoku-startup-sequence"
+mkdir -p "$STAGING/notices/aidoku-native-library-entry"
 cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/bilicomics" "$STAGING/bilicomics/app/bilicomics"
 cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/kindle-jpeg-worker" "$STAGING/bilicomics/app/kindle-jpeg-worker"
 cp packaging/kindle/launch.sh "$STAGING/bilicomics/launch.sh"
+cp packaging/kindle/document-launcher.sh "$STAGING/documents/bilicomics.sh"
 cp packaging/kindle/device-allowlist.example "$STAGING/bilicomics/data/device-allowlist"
 printf '%s\n' pw5 > "$STAGING/bilicomics/data/device-profile"
 cp packaging/kindle/README.md "$STAGING/README.md"
@@ -56,7 +58,11 @@ cp docs/research/aidoku-startup-20261117/LICENSE.AIDOKU \
 cp docs/research/aidoku-startup-sequence-20261117/LICENSE.AIDOKU \
     docs/research/aidoku-startup-sequence-20261117/README.md \
     docs/research/aidoku-startup-sequence-20261117/UPSTREAM_FILES.json "$STAGING/notices/aidoku-startup-sequence/"
-chmod 755 "$STAGING/bilicomics/app/bilicomics" "$STAGING/bilicomics/app/kindle-jpeg-worker" "$STAGING/bilicomics/launch.sh"
+cp docs/research/aidoku-native-library-entry-20261117/LICENSE.AIDOKU \
+    docs/research/aidoku-native-library-entry-20261117/README.md \
+    docs/research/aidoku-native-library-entry-20261117/UPSTREAM_FILES.json "$STAGING/notices/aidoku-native-library-entry/"
+chmod 755 "$STAGING/bilicomics/app/bilicomics" "$STAGING/bilicomics/app/kindle-jpeg-worker" "$STAGING/bilicomics/launch.sh" \
+    "$STAGING/documents/bilicomics.sh"
 python3 - "$STAGING" "$ROOT/app/artifacts/verification/bilicomics-kindle-$VERSION-dev.zip" <<'PY'
 import hashlib
 import json
@@ -69,7 +75,7 @@ output = pathlib.Path(sys.argv[2])
 manifest = []
 allowed = [
     "README.md", "THIRD_PARTY_NOTICES.md", "bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker",
-    "bilicomics/launch.sh", "bilicomics/data/device-allowlist", "bilicomics/data/device-profile",
+    "bilicomics/launch.sh", "documents/bilicomics.sh", "bilicomics/data/device-allowlist", "bilicomics/data/device-profile",
     "notices/Cargo.lock", "notices/backend/LICENSE-MIT", "notices/backend/LICENSE-APACHE",
     "notices/backend/UPSTREAM_REVISION", "notices/backend/PATCHES.md",
     "notices/fonts/OFL.txt", "notices/fonts/NotoSansCJK-LICENSE.txt",
@@ -90,6 +96,8 @@ allowed = [
     "notices/aidoku-startup/UPSTREAM_FILES.json",
     "notices/aidoku-startup-sequence/LICENSE.AIDOKU", "notices/aidoku-startup-sequence/README.md",
     "notices/aidoku-startup-sequence/UPSTREAM_FILES.json",
+    "notices/aidoku-native-library-entry/LICENSE.AIDOKU", "notices/aidoku-native-library-entry/README.md",
+    "notices/aidoku-native-library-entry/UPSTREAM_FILES.json",
 ]
 with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
     for relative in sorted(allowed):
@@ -98,6 +106,10 @@ with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
             raise RuntimeError(f"Missing or unsafe package input: {relative}")
         path.resolve().relative_to(root.resolve())
         data = path.read_bytes()
+        if relative in ("bilicomics/launch.sh", "documents/bilicomics.sh"):
+            data = data.replace(b"\r\n", b"\n")
+            if not data.startswith(b"#!/bin/sh\n") or not data.endswith(b"\n") or b"\r" in data or b"\0" in data:
+                raise RuntimeError(f"Invalid POSIX shell package input: {relative}")
         info = zipfile.ZipInfo(relative, date_time=(1980, 1, 1, 0, 0, 0))
         info.compress_type = zipfile.ZIP_DEFLATED
         info.external_attr = (path.stat().st_mode & 0xFFFF) << 16

@@ -15,7 +15,8 @@ import sys
 import zipfile
 
 
-ALLOWED_FILES = {
+# Keep this exact pre-Library schema available only to the controlled rebundler.
+LEGACY_ALLOWED_FILES = frozenset({
     "README.md",
     "THIRD_PARTY_NOTICES.md",
     "bilicomics/app/bilicomics",
@@ -61,8 +62,36 @@ ALLOWED_FILES = {
     "notices/aidoku-startup-sequence/LICENSE.AIDOKU",
     "notices/aidoku-startup-sequence/README.md",
     "notices/aidoku-startup-sequence/UPSTREAM_FILES.json",
+})
+LIBRARY_DOCUMENT = "documents/bilicomics.sh"
+LIBRARY_DOCUMENT_SOURCE = "packaging/kindle/document-launcher.sh"
+LIBRARY_ENTRY_NOTICES = ("LICENSE.AIDOKU", "README.md", "UPSTREAM_FILES.json")
+LIBRARY_ENTRY_PREFIX = "notices/aidoku-native-library-entry/"
+LIBRARY_ENTRY_REFERENCE = "docs/research/aidoku-native-library-entry-20261117"
+LIBRARY_ENTRY_COMMIT = "bed9167565106bb0e6382e7890b1a1170cc143e6"
+LIBRARY_ENTRY_REVIEWED_MAIN = "06b21491f7bf8977f1f44eb95e484ff9a14d6b8a"
+LIBRARY_ENTRY_SOURCES = {
+    "LICENSE.AIDOKU": (
+        "LICENSE", "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7", 35149,
+        "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"),
+    "upstream/bed9167/packaging/kindle/launch.sh": (
+        "packaging/kindle/launch.sh", "fc519938a073019629f61c21314f805520542d48", 43604,
+        "1ae50f6bd7a8262cce185dea08c69f5bc317ed9b7bd7945c55c1f5239dcdd385"),
+    "upstream/bed9167/packaging/kindle/document-launcher.sh": (
+        "packaging/kindle/document-launcher.sh", "f25666e8913c743b6b938a996248b65689233ad1", 274,
+        "93a5ee75ce4f1c9c3d5211d1d5234ad41e4b309845286c397384af1d3b3e9d2c"),
+    "upstream/bed9167/packaging/kpm/document-launcher.sh": (
+        "packaging/kpm/document-launcher.sh", "deda6459513ea31e122cb639055e6e1025ce0d13", 269,
+        "0d5c565336f1f3d3b88292589253a38ef1abcc4c39e9f68cf3ca3f04f18ea44a"),
+    "upstream/bed9167/packaging/tests/launcher_test.py": (
+        "packaging/tests/launcher_test.py", "b6187e35fd90855802bc1b539da1b194af63c8e0", 77385,
+        "0bd97720b442ae927e28ce3acd669269aa33e88bef7b3d48c1839db0072de763"),
 }
-EXECUTABLE_FILES = {"bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker", "bilicomics/launch.sh"}
+ALLOWED_FILES = LEGACY_ALLOWED_FILES | {LIBRARY_DOCUMENT} | {
+    LIBRARY_ENTRY_PREFIX + name for name in LIBRARY_ENTRY_NOTICES
+}
+EXECUTABLE_FILES = {"bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker",
+                    "bilicomics/launch.sh", LIBRARY_DOCUMENT}
 FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 SPATIAL_DITHER_NOTICES = ("LICENSE.AIDOKU", "README.md", "UPSTREAM_FILES.json")
 SPATIAL_DITHER_PREFIX = "notices/spatial-dither/"
@@ -254,6 +283,95 @@ def check_startup_sequence_notices(archive, app_root, report):
            scope="Item 1 source/license reference only; no final adoption, performance or device claim")
 
 
+def check_library_document(archive, app_root, report):
+    """Bind the single formal document to its selected thin-wrapper source."""
+    documents = [name for name in archive.namelist() if name.startswith("documents/")]
+    require(documents == [LIBRARY_DOCUMENT], "The archive must contain exactly the selected Library document")
+    source = app_root / LIBRARY_DOCUMENT_SOURCE
+    require(source.is_file() and not source.is_symlink(), "The selected Library document source is unavailable")
+    expected = source.read_bytes().replace(b"\r\n", b"\n")
+    require(expected.startswith(b"#!/bin/sh\n") and expected.endswith(b"\n")
+            and b"\r" not in expected and b"\0" not in expected,
+            "The selected Library document is not a normalized LF POSIX shell script")
+    command = b"exec sh /mnt/us/bilicomics/launch.sh --library"
+    require(expected.splitlines()[-1] == command and expected.splitlines().count(command) == 1,
+            "The selected Library document must invoke the canonical launcher with --library")
+    content = archive.read(LIBRARY_DOCUMENT)
+    require(content == expected, "The Library document differs from the selected thin-wrapper source")
+    record(report, "formal_library_document_source", document=LIBRARY_DOCUMENT,
+           source=LIBRARY_DOCUMENT_SOURCE, sha256=hashlib.sha256(content).hexdigest(),
+           launcher="/mnt/us/bilicomics/launch.sh", argument="--library",
+           shared_handler_changed=False,
+           scope="Package source binding only; native indexed-document behavior requires separate qualification")
+
+
+def check_library_entry_notices(archive, app_root, report):
+    """Retain the production entry implementation without bundling prototypes."""
+    expected = {LIBRARY_ENTRY_PREFIX + name for name in LIBRARY_ENTRY_NOTICES}
+    actual = {name for name in archive.namelist() if name.startswith(LIBRARY_ENTRY_PREFIX)}
+    require(actual == expected, "The Library-entry notice group is incomplete or contains source inputs")
+    reference = app_root / LIBRARY_ENTRY_REFERENCE
+    contents = {}
+    for name in LIBRARY_ENTRY_NOTICES:
+        content = archive.read(LIBRARY_ENTRY_PREFIX + name)
+        require(content == (reference / name).read_bytes(),
+                f"A retained Library-entry notice differs from the frozen source: {name}")
+        contents[name] = content
+    upstream = json.loads(contents["UPSTREAM_FILES.json"])
+    require(isinstance(upstream, dict) and upstream.get("schema_version") == 1
+            and upstream.get("source_repository") == "AidokuForKindle"
+            and upstream.get("source_repository_url") == "https://github.com/moooyo/aidokuForKindle"
+            and upstream.get("source_commits") == [LIBRARY_ENTRY_COMMIT]
+            and upstream.get("implementation_source_commit") == LIBRARY_ENTRY_COMMIT
+            and upstream.get("reviewed_main_commit") == LIBRARY_ENTRY_REVIEWED_MAIN
+            and upstream.get("license") == "GPL-3.0-or-later",
+            "The Library-entry provenance differs from the pinned source identities")
+    require(hashlib.sha256(contents["LICENSE.AIDOKU"]).hexdigest()
+            == LIBRARY_ENTRY_SOURCES["LICENSE.AIDOKU"][3],
+            "The Library-entry license differs from the original GPLv3 text")
+    files = upstream.get("files")
+    require(isinstance(files, list) and len(files) == len(LIBRARY_ENTRY_SOURCES)
+            and all(isinstance(item, dict) and isinstance(item.get("path"), str) for item in files),
+            "The Library-entry source manifest is incomplete or malformed")
+    paths = [item["path"] for item in files]
+    require(len(set(paths)) == len(paths) and set(paths) == set(LIBRARY_ENTRY_SOURCES),
+            "The Library-entry source manifest has duplicate, missing, or unexpected paths")
+    for item in files:
+        relative = item["path"]
+        source_path, blob, size, digest = LIBRARY_ENTRY_SOURCES[relative]
+        require(item.get("source_commit") == LIBRARY_ENTRY_COMMIT
+                and item.get("source_path") == source_path
+                and item.get("source_blob") == blob and item.get("reviewed_main_blob") == blob,
+                f"A Library-entry source identity differs from its pinned input: {relative}")
+        path = reference / relative
+        require(path.is_file() and not path.is_symlink(),
+                f"A retained Library-entry source is unavailable: {relative}")
+        path.resolve().relative_to(reference.resolve())
+        data = path.read_bytes()
+        require(item.get("bytes") == len(data) == size
+                and item.get("sha256") == hashlib.sha256(data).hexdigest() == digest,
+                f"A retained Library-entry source differs from its pinned bytes: {relative}")
+    record(report, "library_entry_notice_provenance", retained_files=list(LIBRARY_ENTRY_NOTICES),
+           source_repository=upstream["source_repository"], source_commits=[LIBRARY_ENTRY_COMMIT],
+           reviewed_main_commit=LIBRARY_ENTRY_REVIEWED_MAIN,
+           source_snapshots=len(LIBRARY_ENTRY_SOURCES) - 1, source_code_bundled=False,
+           scope="Retained production entry source/license only; independent BiliComics verification required")
+
+
+def check_library_launcher(archive, app_root, report):
+    """Do not pair the waiting document with a stale canonical launcher."""
+    source = app_root / "packaging/kindle/launch.sh"
+    require(source.is_file() and not source.is_symlink(), "The selected canonical launcher source is unavailable")
+    expected = source.read_bytes().replace(b"\r\n", b"\n")
+    require(expected.startswith(b"#!/bin/sh\n") and expected.endswith(b"\n")
+            and b"\r" not in expected and b"\0" not in expected,
+            "The selected canonical launcher is not a normalized LF POSIX shell script")
+    content = archive.read("bilicomics/launch.sh")
+    require(content == expected, "The canonical launcher differs from the selected source")
+    record(report, "canonical_launcher_source", source="packaging/kindle/launch.sh",
+           sha256=hashlib.sha256(content).hexdigest())
+
+
 def check_package(args, report):
     archive_path = args.archive.resolve(strict=True)
     binary = args.binary.resolve(strict=True)
@@ -311,7 +429,8 @@ def check_package(args, report):
             name = item["path"]
             info = archive.getinfo(name)
             mode = (info.external_attr >> 16) & 0xFFFF
-            require(not info.is_dir() and not stat.S_ISLNK(mode), f"The archive entry is not a regular file: {name}")
+            require(not info.is_dir() and stat.S_ISREG(mode) and not info.flag_bits & 1,
+                    f"The archive entry is not an unencrypted regular file: {name}")
             require(info.date_time == FIXED_TIMESTAMP, f"The archive entry timestamp is not fixed: {name}")
             data = archive.read(name)
             digest = hashlib.sha256(data).hexdigest()
@@ -336,6 +455,9 @@ def check_package(args, report):
         check_spatial_dither_notices(archive, app_root, report)
         check_startup_notices(archive, app_root, report)
         check_startup_sequence_notices(archive, app_root, report)
+        check_library_document(archive, app_root, report)
+        check_library_entry_notices(archive, app_root, report)
+        check_library_launcher(archive, app_root, report)
         accepted = [line for line in archive.read("bilicomics/data/device-allowlist").decode("utf-8").splitlines()
                     if line.strip() and not line.lstrip().startswith("#")]
         require(not accepted, "The development archive unexpectedly accepts a device/firmware combination")

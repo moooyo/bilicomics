@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "source_repository": "AidokuForKindle",
+  "source_repository_url": "https://github.com/moooyo/aidokuForKindle",
+  "source_commits": [
+    "bed9167565106bb0e6382e7890b1a1170cc143e6"
+  ],
+  "reviewed_main_commit": "06b21491f7bf8977f1f44eb95e484ff9a14d6b8a",
+  "implementation_source_commit": "bed9167565106bb0e6382e7890b1a1170cc143e6",
+  "license": "GPL-3.0-or-later",
+  "scope": "Selected unchanged retained Library-entry launcher and lifecycle-test reference sources and complete original license; no prototypes, rejected hooks, alternate handlers, device evidence, or account data; no final BiliComics adoption or performance claim.",
+  "files": [
+    {
+      "path": "LICENSE.AIDOKU",
+      "source_path": "LICENSE",
+      "source_commit": "bed9167565106bb0e6382e7890b1a1170cc143e6",
+      "source_blob": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+      "reviewed_main_blob": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "upstream/bed9167/packaging/kindle/launch.sh",
+      "source_path": "packaging/kindle/launch.sh",
+      "source_commit": "bed9167565106bb0e6382e7890b1a1170cc143e6",
+      "source_blob": "fc519938a073019629f61c21314f805520542d48",
+      "reviewed_main_blob": "fc519938a073019629f61c21314f805520542d48",
+      "bytes": 43604,
+      "sha256": "1ae50f6bd7a8262cce185dea08c69f5bc317ed9b7bd7945c55c1f5239dcdd385"
+    },
+    {
+      "path": "upstream/bed9167/packaging/kindle/document-launcher.sh",
+      "source_path": "packaging/kindle/document-launcher.sh",
+      "source_commit": "bed9167565106bb0e6382e7890b1a1170cc143e6",
+      "source_blob": "f25666e8913c743b6b938a996248b65689233ad1",
+      "reviewed_main_blob": "f25666e8913c743b6b938a996248b65689233ad1",
+      "bytes": 274,
+      "sha256": "93a5ee75ce4f1c9c3d5211d1d5234ad41e4b309845286c397384af1d3b3e9d2c"
+    },
+    {
+      "path": "upstream/bed9167/packaging/kpm/document-launcher.sh",
+      "source_path": "packaging/kpm/document-launcher.sh",
+      "source_commit": "bed9167565106bb0e6382e7890b1a1170cc143e6",
+      "source_blob": "deda6459513ea31e122cb639055e6e1025ce0d13",
+      "reviewed_main_blob": "deda6459513ea31e122cb639055e6e1025ce0d13",
+      "bytes": 269,
+      "sha256": "0d5c565336f1f3d3b88292589253a38ef1abcc4c39e9f68cf3ca3f04f18ea44a"
+    },
+    {
+      "path": "upstream/bed9167/packaging/tests/launcher_test.py",
+      "source_path": "packaging/tests/launcher_test.py",
+      "source_commit": "bed9167565106bb0e6382e7890b1a1170cc143e6",
+      "source_blob": "b6187e35fd90855802bc1b539da1b194af63c8e0",
+      "reviewed_main_blob": "b6187e35fd90855802bc1b539da1b194af63c8e0",
+      "bytes": 77385,
+      "sha256": "0bd97720b442ae927e28ce3acd669269aa33e88bef7b3d48c1839db0072de763"
+    }
+  ]
+}

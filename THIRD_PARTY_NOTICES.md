@@ -82,3 +82,21 @@ UI-turn gate. The backend's original MIT and Apache-2.0 notices remain intact.
 Upstream items 2 through 6 are outside this change. These records do not declare
 final BiliComics adoption, performance or hardware acceptance, an overall project
 license, or a published release.
+
+## Aidoku retained Library-entry lifetime
+
+The Library-document entry candidate references the retained
+GPL-3.0-or-later implementation in AidokuForKindle commit
+`bed9167565106bb0e6382e7890b1a1170cc143e6`, reviewed at main revision
+`06b21491f7bf8977f1f44eb95e484ff9a14d6b8a`. The complete original license,
+four unchanged launcher and lifecycle-test source snapshots, Git blob
+identities, and SHA-256 records are retained in
+`docs/research/aidoku-native-library-entry-20261117/`. BiliComics independently
+adapts direct-child PID/start-time/PPID identity, worker-generation readiness,
+pending cancellation, and waiting behavior. The upstream prototypes, rejected
+hooks, alternate handlers, and shared-executable replacements are excluded.
+The application ELF, native helper, backend, and original MIT and Apache-2.0
+notices remain outside this adaptation. Aidoku's timings and physical results
+do not establish BiliComics adoption, performance, or hardware acceptance.
+This source-specific record does not select an overall project license or
+declare a published release.

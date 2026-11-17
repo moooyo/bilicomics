@@ -509,6 +509,16 @@ class LauncherLifecycleTests(unittest.TestCase):
         (self.home / "data").mkdir()
         self.bin = self.root / "bin"
         self.bin.mkdir()
+        self.entry_workers = self.root / "entry-workers"
+        self.entry_workers.mkdir()
+        self.entry_processes = {}
+        self.entry_record_keys = {}
+        self.entry_sequence = 0
+        self.entry_worker_identities = {}
+        self.entry_release_gates = []
+        self.addCleanup(self.cleanup_admission_entries)
+        real_setsid = shutil.which("setsid")
+        self.assertIsNotNone(real_setsid, "The Linux lifecycle fixtures require setsid.")
         (self.home / "data" / "device-profile").write_text("pw6\n")
         (self.home / "data" / "device-allowlist").write_text("pw6 5.20.1\n")
         (self.root / "firmware").write_text("Kindle 5.20.1 (fixture)\n")
@@ -572,6 +582,9 @@ class LauncherLifecycleTests(unittest.TestCase):
             TEST_READY_DELAY="0",
             TEST_ACK_DELAY="0",
             TEST_ACK_MODE="normal",
+            TEST_ENTRY_WORKERS=str(self.entry_workers),
+            TEST_LAUNCHER=str(self.launcher),
+            TEST_REAL_SETSID=real_setsid,
         )
         (self.root / "statusbar-state").write_text("start/running, process 123\n")
         (self.root / "power-state").write_text("active\n")
@@ -604,11 +617,35 @@ class LauncherLifecycleTests(unittest.TestCase):
         application = self.home / "app" / "bilicomics"
         application.write_text(APPLICATION)
         application.chmod(0o755)
+        self.script(
+            self.bin / "setsid",
+            self.entry_worker_recorder() +
+            'if [ "${1:-}" = sh ] && [ "${2:-}" = "$TEST_LAUNCHER" ] && [ "${3:-}" = --detached ]; then\n'
+            '  record_entry_worker\n'
+            '  if [ "${TEST_ENTRY_SETSID_EXIT:-0}" != 0 ]; then exit "$TEST_ENTRY_SETSID_EXIT"; fi\n'
+            'fi\n'
+            'exec "$TEST_REAL_SETSID" "$@"',
+        )
 
     @staticmethod
     def script(path, body):
         path.write_text("#!/bin/sh\nset -eu\n" + body + "\n")
         path.chmod(0o755)
+
+    @staticmethod
+    def entry_worker_recorder():
+        return (
+            'record_entry_worker() {\n'
+            '  IFS= read -r entry_stat </proc/self/stat\n'
+            '  entry_pid=${entry_stat%% *}\n'
+            '  entry_fields=${entry_stat##*) }\n'
+            '  set -- $entry_fields\n'
+            '  entry_parent=$2\n'
+            '  shift 19\n'
+            '  printf "%s:%s:%s\\n" "$entry_pid" "$1" "$entry_parent" >"$TEST_ENTRY_WORKERS/$TEST_ADMISSION_KEY.pending"\n'
+            '  mv "$TEST_ENTRY_WORKERS/$TEST_ADMISSION_KEY.pending" "$TEST_ENTRY_WORKERS/$TEST_ADMISSION_KEY"\n'
+            '}\n'
+        )
 
     def native_getter(self, mode_body='cat "$TEST_NATIVE_MODE"', power_body='cat "$TEST_POWER_STATE"',
                       orientation_body='cat "$TEST_NATIVE_ORIENTATION"'):
@@ -681,7 +718,139 @@ class LauncherLifecycleTests(unittest.TestCase):
         return {"pid": int(pid), "parent": int(fields[1]), "group": int(fields[2]),
                 "session": int(fields[3]), "birth": fields[19], "state": fields[0]}
 
+    def spawn_admission(self, admission, environment=None):
+        self.entry_sequence += 1
+        key = f"entry-{self.entry_sequence}"
+        child_environment = dict(self.env if environment is None else environment, TEST_ADMISSION_KEY=key)
+        child = subprocess.Popen(
+            ["sh", str(self.launcher)] + ([admission] if admission is not None else []),
+            env=child_environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            start_new_session=True,
+        )
+        self.entry_record_keys[child.pid] = key
+        if admission != "--detached":
+            self.entry_processes[child.pid] = child
+        return child
+
+    def admission_worker_identity(self, child):
+        if child.pid not in self.entry_worker_identities:
+            try:
+                record = self.entry_workers / self.entry_record_keys[child.pid]
+                pid, birth, parent = record.read_text().strip().split(":")
+            except FileNotFoundError:
+                return None
+            self.assertTrue(pid.isdigit() and birth.isdigit() and parent.isdigit())
+            # The fixture records this exact asynchronous child before exec.
+            # Its parent can change after the small entry is killed or returns.
+            self.entry_worker_identities[child.pid] = {"pid": int(pid), "birth": birth,
+                                                      "recorded_parent": int(parent)}
+        return self.entry_worker_identities[child.pid]
+
+    def live_admission_worker(self, worker):
+        if worker is None:
+            return None
+        try:
+            identity = self.process_identity(worker["pid"])
+        except (FileNotFoundError, ProcessLookupError):
+            return None
+        if identity["birth"] != worker["birth"] or identity["state"] in ("Z", "X"):
+            return None
+        return identity
+
+    def admission_worker_ready(self, worker):
+        identity = self.live_admission_worker(worker)
+        if identity is None or identity["group"] != identity["pid"] or identity["session"] != identity["pid"]:
+            return False
+        lock = self.root / "lock"
+        try:
+            nonce = (lock / "nonce").read_text().strip()
+            return ((lock / "pid").read_text().strip() == str(identity["pid"])
+                    and (lock / "generation").read_text().strip() == f"1:{nonce}"
+                    and len(nonce) == 32 and all(byte in "0123456789abcdef" for byte in nonce))
+        except FileNotFoundError:
+            return False
+
+    def stop_admission_worker(self, child):
+        worker = self.admission_worker_identity(child)
+        record_deadline = time.monotonic() + 3
+        while worker is None and time.monotonic() < record_deadline:
+            # Default admission can return before its asynchronous wrapper runs.
+            # Keep looking under the unique request key after reparenting, too.
+            time.sleep(0.01)
+            worker = self.admission_worker_identity(child)
+        if worker is None:
+            self.assertIsNotNone(child.poll(), "The entry is still running without a recorded worker.")
+            return
+        deadline = time.monotonic() + 16
+        requested = False
+        while self.live_admission_worker(worker) is not None:
+            if not requested and self.admission_worker_ready(worker):
+                identity = self.live_admission_worker(worker)
+                if identity is not None:
+                    try:
+                        os.kill(identity["pid"], signal.SIGTERM)
+                    except ProcessLookupError:
+                        continue
+                    requested = True
+            if time.monotonic() >= deadline:
+                # This fallback is limited to the recorded fixture child and
+                # separately proved private groups; it never discovers a target
+                # from an arbitrary lock PID or kills the waiting entry's tree.
+                identity = self.live_admission_worker(worker)
+                if identity is not None and identity["group"] == identity["session"] == identity["pid"]:
+                    self.kill_owned_launcher_groups(identity["pid"])
+                raise AssertionError("The recorded admission worker did not finish fixture cleanup.")
+            time.sleep(0.01)
+
+    def cleanup_admission_entries(self):
+        failures = []
+        for child in self.entry_processes.values():
+            try:
+                self.finish_admission_entry(child)
+            except (OSError, ValueError, AssertionError) as error:
+                failures.append(error)
+        if failures:
+            raise failures[0]
+
+    def finish_admission_entry(self, child):
+        for gate in self.entry_release_gates:
+            gate.touch()
+        self.admission_worker_identity(child)
+        if child.poll() is None:
+            child.terminate()
+            try:
+                child.wait(timeout=18)
+            except subprocess.TimeoutExpired:
+                pass
+        try:
+            self.stop_admission_worker(child)
+        finally:
+            if child.poll() is None:
+                child.kill()
+            output, error = child.communicate(timeout=3)
+        return output, error
+
+    def kill_owned_launcher_groups(self, launcher_pid):
+        lock = self.root / "lock"
+        for record in ("observer-owned", "log-launcher-owned", "log-application-owned"):
+            try:
+                generation, nonce, pid, birth = (lock / record).read_text().strip().split(":")
+                identity = self.process_identity(pid)
+                if ((lock / "generation").read_text().strip() == f"{generation}:{nonce}"
+                        and (lock / "nonce").read_text().strip() == nonce
+                        and identity["parent"] == launcher_pid and identity["birth"] == birth
+                        and identity["group"] == identity["session"] == identity["pid"]):
+                    os.killpg(identity["pid"], signal.SIGKILL)
+            except (OSError, ValueError, IndexError):
+                pass
+        os.killpg(launcher_pid, signal.SIGKILL)
+
     def stop_launcher_after_failure(self, child):
+        if child.pid in self.entry_processes:
+            return self.finish_admission_entry(child)
         if child.poll() is not None:
             return child.communicate(timeout=3)
         child.send_signal(signal.SIGTERM)
@@ -704,20 +873,13 @@ class LauncherLifecycleTests(unittest.TestCase):
             os.killpg(child.pid, signal.SIGKILL)
             return child.communicate(timeout=3)
 
-    def run_launcher(self, drive=None):
+    def run_launcher(self, drive=None, *, admission="--detached"):
         log_path = self.home / "data" / "logs" / "launcher.log"
         try:
             previous_log = log_path.lstat()
         except FileNotFoundError:
             previous_log = None
-        child = subprocess.Popen(
-            ["sh", str(self.launcher), "--detached"],
-            env=self.env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            start_new_session=True,
-        )
+        child = self.spawn_admission(admission)
         try:
             if drive is not None:
                 drive(child)
@@ -738,6 +900,9 @@ class LauncherLifecycleTests(unittest.TestCase):
             finally:
                 self.attach_launcher_failure(failure, child, before, output, error)
             raise
+        if admission != "--detached":
+            self.assertIsNone(self.live_admission_worker(self.admission_worker_identity(child)),
+                              "The waiting entry left its independent worker running.")
         try:
             os.killpg(child.pid, 0)
         except ProcessLookupError:
@@ -952,6 +1117,345 @@ class LauncherLifecycleTests(unittest.TestCase):
         status, _, error = self.run_launcher(drive)
         self.assertEqual(status, 0, error)
         self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+        self.assertFalse((self.root / "lock").exists())
+
+    def wait_for_admission_worker(self, child, *, require_parent=True):
+        def independent_worker():
+            worker = self.admission_worker_identity(child)
+            identity = self.live_admission_worker(worker)
+            return (identity is not None
+                    and identity["group"] == identity["session"] == identity["pid"])
+
+        self.wait_until(independent_worker)
+        worker = self.admission_worker_identity(child)
+        identity = self.live_admission_worker(worker)
+        self.assertNotEqual(identity["pid"], child.pid)
+        if require_parent:
+            self.assertEqual(identity["parent"], child.pid)
+            self.assertEqual(worker["recorded_parent"], child.pid)
+        return worker
+
+    def assert_library_cancellation_waits_for_cleanup(self, cancellation):
+        self.env.update(
+            TEST_HOLD="1",
+            TEST_ENTRY_CLEANUP_ENTERED=str(self.root / "entry-cleanup-entered"),
+            TEST_ENTRY_CLEANUP_RELEASE=str(self.root / "entry-cleanup-release"),
+            TEST_ENTRY_CANCEL_REQUESTS=str(self.root / "entry-cancel-requests"),
+        )
+        release = self.root / "entry-cleanup-release"
+        self.entry_release_gates.append(release)
+        self.script(
+            self.bin / "start",
+            ': >"$TEST_ENTRY_CLEANUP_ENTERED"\n'
+            'while [ ! -e "$TEST_ENTRY_CLEANUP_RELEASE" ]; do sleep 0.01; done\n'
+            'printf "start:%s\\n" "$*" >>"$TEST_TRACE"\n'
+            'printf "start/running, process 123\\n" >"$TEST_STATUSBAR_STATE"',
+        )
+        self.launcher.write_text(self.launcher.read_text().replace(
+            "                    LIBRARY_CANCEL_SENT=1\n",
+            '                    printf "requested\\n" >>"$TEST_ENTRY_CANCEL_REQUESTS"\n'
+            "                    LIBRARY_CANCEL_SENT=1\n",
+        ))
+
+        def drive(child):
+            self.ready()
+            self.wait_for_admission_worker(child)
+            child.send_signal(cancellation)
+            self.wait_until(lambda: (self.root / "entry-cleanup-entered").exists())
+            for repeated in (signal.SIGHUP, signal.SIGINT, signal.SIGTERM, signal.SIGTERM):
+                child.send_signal(repeated)
+            with self.assertRaises(subprocess.TimeoutExpired):
+                child.wait(timeout=0.15)
+            self.assertEqual(self.lines("entry-cancel-requests"), ["requested"])
+            release.touch()
+
+        status, _, error = self.run_launcher(drive, admission="--library")
+        self.assertEqual(status, 143, error)
+        self.assertEqual(self.app_events().count("terminated"), 1)
+        self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+        self.assertFalse((self.root / "lock").exists())
+
+    def path_without_setsid(self):
+        isolated = self.root / "without-setsid"
+        isolated.mkdir()
+        for command in ("sh", "sed", "head", "awk", "mkdir", "dirname", "basename", "mv"):
+            os.symlink(shutil.which(command), isolated / command)
+        os.symlink(self.bin / "usleep", isolated / "usleep")
+        self.script(isolated / "nohup", self.entry_worker_recorder() +
+                    'record_entry_worker\nprintf "nohup\\n" >>"$TEST_TRACE"\nexit 7')
+        self.env["PATH"] = str(isolated)
+
+    def test_library_entry_waits_for_independent_worker_and_normal_exit(self):
+        self.env["TEST_HOLD"] = "1"
+
+        def drive(child):
+            self.ready()
+            self.wait_for_admission_worker(child)
+            self.assertIsNone(child.poll())
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive, admission="--library")
+        self.assertEqual(status, 0, error)
+        self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_library_entry_preserves_worker_failure_status(self):
+        self.env["TEST_APP_EXIT"] = "7"
+        status, _, error = self.run_launcher(admission="--library")
+        self.assertEqual(status, 7, error)
+        self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_library_drive_failure_before_worker_record_finishes_owned_cleanup(self):
+        self.env.update(TEST_HOLD="1", TEST_RECORD_ENTERED=str(self.root / "record-entered"),
+                        TEST_RECORD_RELEASE=str(self.root / "record-release"))
+        release = self.root / "record-release"
+        self.entry_release_gates.append(release)
+        wrapper = self.bin / "setsid"
+        wrapper.write_text(wrapper.read_text().replace(
+            "  record_entry_worker\n",
+            '  : >"$TEST_RECORD_ENTERED"\n'
+            '  while [ ! -e "$TEST_RECORD_RELEASE" ]; do sleep 0.01; done\n'
+            "  record_entry_worker\n",
+        ))
+        observed = {}
+
+        def drive(child):
+            observed["entry"] = child
+            self.wait_until(lambda: (self.root / "record-entered").exists())
+            self.assertIsNone(self.admission_worker_identity(child))
+            self.fail("Controlled Library admission failure before the worker record")
+
+        with self.assertRaisesRegex(AssertionError, "Controlled Library admission failure"):
+            self.run_launcher(drive, admission="--library")
+        worker = self.admission_worker_identity(observed["entry"])
+        self.assertIsNotNone(worker)
+        self.assertIsNone(self.live_admission_worker(worker))
+        self.assertFalse((self.root / "lock").exists())
+        self.assertTrue((self.root / "statusbar-state").read_text().startswith("start/running"))
+
+    def test_library_hup_requests_worker_cleanup_and_waits_for_its_status(self):
+        self.assert_library_cancellation_waits_for_cleanup(signal.SIGHUP)
+
+    def test_library_int_requests_worker_cleanup_and_waits_for_its_status(self):
+        self.assert_library_cancellation_waits_for_cleanup(signal.SIGINT)
+
+    def test_library_term_requests_worker_cleanup_and_waits_for_its_status(self):
+        self.assert_library_cancellation_waits_for_cleanup(signal.SIGTERM)
+
+    def test_library_early_cancellation_waits_until_worker_cleanup_traps_exist(self):
+        self.env.update(TEST_HOLD="1", TEST_BEFORE_TRAPS=str(self.root / "before-traps"),
+                        TEST_BEFORE_TRAPS_RELEASE=str(self.root / "before-traps-release"))
+        release = self.root / "before-traps-release"
+        self.entry_release_gates.append(release)
+        after_traps_release = self.root / "after-traps-release"
+        self.entry_release_gates.append(after_traps_release)
+        self.env["TEST_AFTER_TRAPS_RELEASE"] = str(after_traps_release)
+        source = self.launcher.read_text().replace(
+            'printf \'%s\\n\' "$$" >"$LOCK_DIR/pid"\n',
+            'printf \'%s\\n\' "$$" >"$LOCK_DIR/pid"\n'
+            ': >"$TEST_BEFORE_TRAPS"\n'
+            'while [ ! -e "$TEST_BEFORE_TRAPS_RELEASE" ]; do sleep 0.01; done\n',
+        )
+        self.launcher.write_text(source.replace(
+            'printf \'%s:%s\\n\' "$APP_GENERATION" "$LAUNCH_TOKEN" >"$LOCK_DIR/generation"\n',
+            'printf \'%s:%s\\n\' "$APP_GENERATION" "$LAUNCH_TOKEN" >"$LOCK_DIR/generation"\n'
+            'while [ ! -e "$TEST_AFTER_TRAPS_RELEASE" ]; do sleep 0.01; done\n',
+        ))
+
+        def drive(child):
+            self.wait_until(lambda: (self.root / "before-traps").exists())
+            worker = self.wait_for_admission_worker(child)
+            self.assertFalse((self.root / "lock" / "generation").exists())
+            child.send_signal(signal.SIGTERM)
+            with self.assertRaises(subprocess.TimeoutExpired):
+                child.wait(timeout=0.15)
+            self.assertIsNotNone(self.live_admission_worker(worker))
+            self.assertEqual(self.trace(), [])
+            release.touch()
+
+        status, _, error = self.run_launcher(drive, admission="--library")
+        self.assertEqual(status, 143, error)
+        self.assertEqual(self.trace(), [])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_library_cancellation_before_pid_capture_remains_pending(self):
+        self.env.update(TEST_HOLD="1", TEST_BEFORE_CAPTURE=str(self.root / "before-capture"),
+                        TEST_BEFORE_CAPTURE_RELEASE=str(self.root / "before-capture-release"))
+        release = self.root / "before-capture-release"
+        self.entry_release_gates.append(release)
+        self.launcher.write_text(self.launcher.read_text().replace(
+            "        LIBRARY_WORKER_PID=$!\n",
+            '        : >"$TEST_BEFORE_CAPTURE"\n'
+            '        while [ ! -e "$TEST_BEFORE_CAPTURE_RELEASE" ]; do sleep 0.01 || :; done\n'
+            "        LIBRARY_WORKER_PID=$!\n",
+        ))
+
+        def drive(child):
+            self.wait_until(lambda: (self.root / "before-capture").exists())
+            self.ready()
+            self.wait_for_admission_worker(child)
+            child.send_signal(signal.SIGTERM)
+            with self.assertRaises(subprocess.TimeoutExpired):
+                child.wait(timeout=0.15)
+            release.touch()
+
+        status, _, error = self.run_launcher(drive, admission="--library")
+        self.assertEqual(status, 143, error)
+        self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_library_cancellation_does_not_signal_a_changed_worker_birth(self):
+        self.env.update(TEST_HOLD="1", TEST_APP_EXIT="7")
+        self.launcher.write_text(self.launcher.read_text().replace(
+            "                LIBRARY_WORKER_BIRTH=$PROCESS_BIRTH\n",
+            "                LIBRARY_WORKER_BIRTH=$((PROCESS_BIRTH + 1))\n",
+        ))
+
+        def drive(child):
+            self.ready()
+            worker = self.wait_for_admission_worker(child)
+            child.send_signal(signal.SIGTERM)
+            with self.assertRaises(subprocess.TimeoutExpired):
+                child.wait(timeout=0.15)
+            self.assertIsNotNone(self.live_admission_worker(worker))
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive, admission="--library")
+        self.assertEqual(status, 7, error)
+        self.assertNotIn("terminated", self.app_events())
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_retiring_only_library_entry_keeps_worker_sleep_and_recovery_alive(self):
+        self.env["TEST_HOLD"] = "1"
+
+        def drive(child):
+            self.ready()
+            worker = self.wait_for_admission_worker(child)
+            original = self.state()
+            child.kill()
+            child.wait(timeout=3)
+            self.assertIsNotNone(self.live_admission_worker(worker))
+            self.suspend()
+            self.resume()
+            for key in ("pid", "comic", "episode", "revision", "page", "route"):
+                self.assertEqual(self.state()[key], original[key])
+            self.stop_admission_worker(child)
+
+        status, _, error = self.run_launcher(drive, admission="--library")
+        self.assertEqual(status, -signal.SIGKILL, error)
+        self.assertEqual(len(self.starts()), 1)
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_second_library_cancellation_never_targets_the_first_lock_owner(self):
+        self.env["TEST_HOLD"] = "1"
+        release = self.root / "second-before-lock-release"
+        self.entry_release_gates.append(release)
+        self.launcher.write_text(self.launcher.read_text().replace(
+            'mkdir "$LOCK_DIR" 2>/dev/null || fail',
+            'if [ -n "${TEST_BEFORE_LOCK:-}" ]; then\n'
+            '    : >"$TEST_BEFORE_LOCK"\n'
+            '    while [ ! -e "$TEST_BEFORE_LOCK_RELEASE" ]; do sleep 0.01; done\n'
+            'fi\n'
+            'mkdir "$LOCK_DIR" 2>/dev/null || fail',
+        ))
+
+        def drive(first):
+            self.ready()
+            first_worker = self.wait_for_admission_worker(first)
+            original = self.state()
+            lock = self.root / "lock"
+            before = {name: (lock / name).read_bytes() for name in ("pid", "nonce", "generation")}
+            logs = self.home / "data" / "logs"
+            before_logs = {name: (logs / name).read_bytes() for name in ("launcher.log", "application.log")}
+            second_env = dict(self.env, TEST_BEFORE_LOCK=str(self.root / "second-before-lock"),
+                              TEST_BEFORE_LOCK_RELEASE=str(release))
+            second = self.spawn_admission("--library", second_env)
+            self.wait_until(lambda: (self.root / "second-before-lock").exists())
+            second_worker = self.wait_for_admission_worker(second)
+            self.assertNotEqual(first_worker["pid"], second_worker["pid"])
+            second.send_signal(signal.SIGTERM)
+            with self.assertRaises(subprocess.TimeoutExpired):
+                second.wait(timeout=0.15)
+            self.assertIsNotNone(self.live_admission_worker(first_worker))
+            release.touch()
+            second_output, second_error = second.communicate(timeout=6)
+            self.assertEqual(second.returncode, 1, second_output + second_error)
+            self.assertIsNone(self.live_admission_worker(second_worker))
+            self.assertEqual({name: (lock / name).read_bytes() for name in before}, before)
+            self.assertEqual({name: (logs / name).read_bytes() for name in before_logs}, before_logs)
+            self.assertEqual(self.state()["pid"], original["pid"])
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive, admission="--library")
+        self.assertEqual(status, 0, error)
+        self.assertEqual(len(self.starts()), 1)
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_library_entry_propagates_setsid_exec_failure(self):
+        self.env["TEST_ENTRY_SETSID_EXIT"] = "7"
+        status, _, error = self.run_launcher(admission="--library")
+        self.assertEqual(status, 7, error)
+        self.assertEqual(self.starts(), [])
+        self.assertEqual(self.trace(), [])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_library_entry_refuses_nohup_when_setsid_is_missing(self):
+        self.path_without_setsid()
+        status, _, error = self.run_launcher(admission="--library")
+        self.assertEqual(status, 1, error)
+        self.assertIn("requires an independent worker session", error)
+        self.assertEqual(self.trace(), [])
+        self.assertEqual(self.starts(), [])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_default_admission_returns_while_its_independent_worker_remains_active(self):
+        self.env["TEST_HOLD"] = "1"
+
+        def drive(child):
+            self.ready()
+            worker = self.wait_for_admission_worker(child, require_parent=False)
+            self.assertEqual(child.wait(timeout=3), 0)
+            self.app_action("quit")
+            self.wait_until(lambda: not (self.root / "lock").exists())
+            self.wait_until(lambda: self.live_admission_worker(worker) is None)
+
+        status, _, error = self.run_launcher(drive, admission=None)
+        self.assertEqual(status, 0, error)
+        self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
+
+    def test_default_admission_preserves_detached_setsid_failure_acknowledgement(self):
+        self.env["TEST_ENTRY_SETSID_EXIT"] = "7"
+        child = self.spawn_admission(None)
+        output, error = child.communicate(timeout=3)
+        self.assertEqual(child.returncode, 0, output + error)
+        self.wait_until(lambda: self.admission_worker_identity(child) is not None)
+        self.wait_until(lambda: self.live_admission_worker(self.admission_worker_identity(child)) is None)
+        self.assertEqual(self.starts(), [])
+        self.assertEqual(self.trace(), [])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_default_admission_preserves_nohup_fallback(self):
+        self.path_without_setsid()
+        child = self.spawn_admission(None)
+        output, error = child.communicate(timeout=3)
+        self.assertEqual(child.returncode, 0, output + error)
+        self.wait_until(lambda: self.trace() == ["nohup"])
+        self.wait_until(lambda: self.admission_worker_identity(child) is not None)
+        self.wait_until(lambda: self.live_admission_worker(self.admission_worker_identity(child)) is None)
+        self.assertEqual(self.starts(), [])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_detached_argument_keeps_existing_supervisor_identity_and_status(self):
+        self.env.update(TEST_HOLD="1", TEST_APP_EXIT="7")
+
+        def drive(child):
+            self.ready()
+            self.assertEqual((self.root / "lock" / "pid").read_text().strip(), str(child.pid))
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive, admission="--detached")
+        self.assertEqual(status, 7, error)
         self.assertFalse((self.root / "lock").exists())
 
     def test_unaccepted_firmware_changes_no_services(self):

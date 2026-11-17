@@ -71,3 +71,6 @@
 # Preserve the startup-sequence software records and physical projections.
 /docs/verification/startup-sequence-20261117/** -text
 /docs/physical/startup-sequence-20261117/** -text
+
+# Retain the exact selected native Library entry reference and its license.
+/docs/research/aidoku-native-library-entry-20261117/** -text
