@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "bounded_observer_and_recovery_projection",
+  "archive_source_id": "output-archive",
+  "observer_metadata_disappearance": {
+    "member": "out/baseline-qualify/observer.log",
+    "observer_line": 93,
+    "operation": "read entry process cmdline",
+    "proc_entry": "/proc/<entry-pid>/cmdline",
+    "recorded_error": "no such file",
+    "stage_path_and_pid_omitted": true
+  },
+  "original_recovery_source_fields": {
+    "schema_version": 1,
+    "passed": false,
+    "reason": "identity-unproven",
+    "entry_seen": true,
+    "entry_live_observed": false,
+    "worker_seen": true,
+    "generation_bound": true,
+    "content_observed": false,
+    "entry_alive_at_content": null,
+    "worker_survived_entry_retirement": false,
+    "entry_gone": true,
+    "worker_gone": true,
+    "owned_processes_gone": true,
+    "native_restored": true,
+    "production_lock_absent": true,
+    "worker_signal_sent": true,
+    "status_helper_pending": false,
+    "worker_exit_status": 143,
+    "exit_status_observed": true,
+    "entry_status": 0,
+    "entry_status_observed": true
+  },
+  "status_members": [
+    {
+      "member": "out/baseline-qualify/entry-admission-status.txt",
+      "status": 0
+    },
+    {
+      "member": "out/baseline-qualify/worker-exit-status.txt",
+      "status": 143
+    }
+  ],
+  "admission_records": [
+    {
+      "member": "out/baseline-qualify/admission-entry.tsv",
+      "nonempty_record_count": 1,
+      "record_body_omitted": true
+    },
+    {
+      "member": "out/baseline-qualify/admission-worker.tsv",
+      "nonempty_record_count": 1,
+      "record_body_omitted": true
+    }
+  ],
+  "interpretation": {
+    "observed_stop": "The first baseline qualifier stopped with identity-unproven after the observer recorded a missing entry cmdline read.",
+    "root_cause_proven": false,
+    "cause_limit": "The exact process-metadata race cause still requires a deterministic fixture; the single stored log is an observation, not a proven causal diagnosis.",
+    "recovery_result": "Recovery reports worker signaling and status 143, entry status 0, owned processes gone, native restored, and production lock absent.",
+    "qualification_limit": "The original passed=false and reason=identity-unproven remain unchanged. Successful cleanup is not the planned entry-retirement or cancellation qualification."
+  }
+}

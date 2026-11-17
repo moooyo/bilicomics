@@ -1,0 +1,175 @@
+{
+  "actual_host_admission": {
+    "binding": "The stored host log binds this admission in all three admission pins; no different preparation admission is substituted.",
+    "identity": "host-20261117T203156Z-8c68d736",
+    "sha256": "b950926d2b75f3e14dfcfe0d3de24d4c38c734300aafec9a7d85e79f9543f21a"
+  },
+  "binary_or_zip_exported": false,
+  "clock_source_chain": {
+    "c_source": {
+      "bytes": 6922,
+      "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c"
+    },
+    "clock_record_shell": {
+      "bytes": 6265,
+      "sha256": "519ff07989cd53c06bd4e36a8ad8f9425075e0d5a94f9461ad4f5270edb09e98"
+    },
+    "original_pids_or_executable_bytes_exported": false,
+    "pinned_clock_elf": {
+      "bytes": 971284,
+      "sha256": "89efa9773505c770f2794be7ab53a7524742346e77500405788d589198f22a1f"
+    },
+    "private_archive": {
+      "bytes": 1530,
+      "sha256": "2ddc9fa55445f6ace2423b4c7d67b34698ef81b782c1f3d4a423e457dafaa131"
+    },
+    "private_original_and_public_mirror_bytes_equal": true,
+    "private_original_mode_octal": "0600",
+    "private_original_records": 28,
+    "scope": "Stored source/ELF identities and frozen private-clock audit chain only; no rebuild, application or new clock execution."
+  },
+  "current_registration": {
+    "deployed_wrapper_source_to_binary_independently_reverified": false,
+    "historical_registration_sha256_not_restoration_baseline": "a594716cfe9a66e912d5883ad0ae3721f7d4f4196c13d04f7ed3158865412471",
+    "observation_count": 16,
+    "observations_all_equal": true,
+    "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99",
+    "reference_commit": "78c5b2bc09a469133c886eb0d73aaf9ed63195b2",
+    "selected_canonical_sha256": "cfc0381d6262afe7aff58534a832a6c15eea3903f07f35b831c69c7102acf804"
+  },
+  "deployed_wrapper_source_to_binary_independently_reverified": false,
+  "instrumentation": {
+    "absolute_uninstrumented_latency_qualified": false,
+    "common_research_launcher_in_both_arms": true,
+    "production_direct_child_spawn_preserved": true,
+    "scope": "Only --library versus no entry argument differs in the document; shared handler, FBInk and launcher instrumentation costs remain common."
+  },
+  "original_native_handler": {
+    "expected_sha256_in_frozen_driver": "2b3db59ed7856b3f5026e3837f7ef07fc9bb6bc1c042274b48b3cd3fc2e04abc",
+    "observation": "The stored successful command path checks this hash without replacing the original handler; no new device recheck is claimed.",
+    "path": "/var/local/kmc/bin/sh_integration_launcher"
+  },
+  "run_id": "lib-ab-20261117-2e297ef4",
+  "rust_rebuilt_for_this_entry_package": false,
+  "schema_version": 1,
+  "source_fields": {
+    "baseline_document_bytes": 85,
+    "batch_host_tools_checked": 6,
+    "batch_host_tools_match": true,
+    "binary_reused": true,
+    "bounded_manifest_sha256": "93052169c7ec1372116da4409a0b9376244086a2e7704b88e3425857565192d6",
+    "candidate_document_bytes": 95,
+    "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+    "fixture_files": 37,
+    "fixture_fingerprint": "a930027e7e297c89b61c963d2dd17d30c605bca3d4260e1805b7aea2257f3f79",
+    "fixture_member_hashes_match": true,
+    "native_uri": "file:///mnt/us/documents/bilicomics.sh",
+    "only_document_argument_difference": "--library",
+    "overlay_manifest_sha256": "1cdf411c72b4af656a05403d6173f6bc04ea057e66d5a868a5c75c0f8a442b0b",
+    "overlay_source_sha256": "1c8dc70552d291e03f8a6d8a49617ce24877ba3c262579fe5a41337933a39d55",
+    "package_entries": 49,
+    "package_member_sha256s": {
+      "bilicomics/app/bilicomics": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "bilicomics/app/kindle-jpeg-worker": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+      "bilicomics/launch.sh": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4",
+      "documents/bilicomics.sh": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4"
+    },
+    "package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+    "payload_member_sha256s": {
+      "canonical/app/bilicomics": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "canonical/app/kindle-jpeg-worker": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+      "canonical/launch.sh": "952993d867171d471e41aad2b43fc928d03fcd560cc4959a7056628ec6a97760",
+      "documents/baseline.sh": "d769e0b36ceed59ce1a4f82a81c7a3518775e4552c7d7f7ce052625d9d0f8537",
+      "documents/candidate.sh": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+      "tools/startup-clock": "89efa9773505c770f2794be7ab53a7524742346e77500405788d589198f22a1f"
+    },
+    "payload_sha256": "ac6d544e6ab0ce703cc5f8b13e3fb713b58eec2dbecb0c1b45e06562c0d9971c",
+    "product_source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+    "r6_frozen_files_checked": 21,
+    "r6_frozen_files_match": true,
+    "r6_source_freeze_sha256": "61e685a3e296497e132e9edde54c9191cee5e964717b3898aa6431b6415c67c1",
+    "runtime_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+    "rust_rebuilt": false,
+    "source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6"
+  },
+  "variants": {
+    "baseline": {
+      "binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "build_configuration": {
+        "arm_compilation_proof_sha256": "9c48a552b5a908dedc6bad6b75b0fc19da6a69f2699fc17079bdb62d5f37b10b",
+        "binary_reused": true,
+        "codegen_units": 1,
+        "compiler_profile_sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "native_source_input_count": 544,
+        "native_source_inputs_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+        "package_source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+        "profile": "release",
+        "runtime_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+        "rust_rebuilt": false,
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      },
+      "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+      "document_sha256": "d769e0b36ceed59ce1a4f82a81c7a3518775e4552c7d7f7ce052625d9d0f8537",
+      "entry_arguments": [],
+      "instrumented_launcher_sha256": "952993d867171d471e41aad2b43fc928d03fcd560cc4959a7056628ec6a97760",
+      "launcher_sha256": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4",
+      "package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+      "production_document_sha256": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+      "source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+      "source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "startup_arguments": [
+        "--demo",
+        "--offline",
+        "--screen",
+        "shelf"
+      ],
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    },
+    "candidate": {
+      "binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "build_configuration": {
+        "arm_compilation_proof_sha256": "9c48a552b5a908dedc6bad6b75b0fc19da6a69f2699fc17079bdb62d5f37b10b",
+        "binary_reused": true,
+        "codegen_units": 1,
+        "compiler_profile_sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "native_source_input_count": 544,
+        "native_source_inputs_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+        "package_source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+        "profile": "release",
+        "runtime_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+        "rust_rebuilt": false,
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      },
+      "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+      "document_sha256": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+      "entry_arguments": [
+        "--library"
+      ],
+      "instrumented_launcher_sha256": "952993d867171d471e41aad2b43fc928d03fcd560cc4959a7056628ec6a97760",
+      "launcher_sha256": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4",
+      "package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+      "production_document_sha256": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+      "source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+      "source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "startup_arguments": [
+        "--demo",
+        "--offline",
+        "--screen",
+        "shelf"
+      ],
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    }
+  }
+}

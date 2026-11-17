@@ -1,0 +1,301 @@
+{
+  "cases": [
+    {
+      "case": "baseline-warmup",
+      "dispatch_order_1based": 1,
+      "evidence": "cases/01-baseline-warmup.json",
+      "first_shelf_send_ms": "7639.754000",
+      "software_ready_ms": "6851.625231",
+      "variant": "baseline",
+      "warmup": true
+    },
+    {
+      "case": "candidate-warmup",
+      "dispatch_order_1based": 2,
+      "evidence": "cases/02-candidate-warmup.json",
+      "first_shelf_send_ms": "6206.931001",
+      "software_ready_ms": "5407.379385",
+      "variant": "candidate",
+      "warmup": true
+    },
+    {
+      "case": "baseline-01",
+      "dispatch_order_1based": 3,
+      "evidence": "cases/03-baseline-01.json",
+      "first_shelf_send_ms": "6449.201154",
+      "software_ready_ms": "5736.387308",
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "candidate-01",
+      "dispatch_order_1based": 4,
+      "evidence": "cases/04-candidate-01.json",
+      "first_shelf_send_ms": "6482.273616",
+      "software_ready_ms": "6074.582308",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "candidate-02",
+      "dispatch_order_1based": 5,
+      "evidence": "cases/05-candidate-02.json",
+      "first_shelf_send_ms": "6874.022616",
+      "software_ready_ms": "6314.945231",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "baseline-02",
+      "dispatch_order_1based": 6,
+      "evidence": "cases/06-baseline-02.json",
+      "first_shelf_send_ms": "7105.487769",
+      "software_ready_ms": "6288.869308",
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "baseline-03",
+      "dispatch_order_1based": 7,
+      "evidence": "cases/07-baseline-03.json",
+      "first_shelf_send_ms": "6852.772846",
+      "software_ready_ms": "6062.142077",
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "candidate-03",
+      "dispatch_order_1based": 8,
+      "evidence": "cases/08-candidate-03.json",
+      "first_shelf_send_ms": "6535.265616",
+      "software_ready_ms": "5829.420308",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "candidate-04",
+      "dispatch_order_1based": 9,
+      "evidence": "cases/09-candidate-04.json",
+      "first_shelf_send_ms": "6094.787616",
+      "software_ready_ms": "5335.075154",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "baseline-04",
+      "dispatch_order_1based": 10,
+      "evidence": "cases/10-baseline-04.json",
+      "first_shelf_send_ms": "6625.933308",
+      "software_ready_ms": "5901.776154",
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "baseline-05",
+      "dispatch_order_1based": 11,
+      "evidence": "cases/11-baseline-05.json",
+      "first_shelf_send_ms": "6910.705000",
+      "software_ready_ms": "6117.772077",
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "candidate-05",
+      "dispatch_order_1based": 12,
+      "evidence": "cases/12-candidate-05.json",
+      "first_shelf_send_ms": "5999.310692",
+      "software_ready_ms": "5244.247615",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "candidate-06",
+      "dispatch_order_1based": 13,
+      "evidence": "cases/13-candidate-06.json",
+      "first_shelf_send_ms": "6036.637615",
+      "software_ready_ms": "5273.511154",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "baseline-06",
+      "dispatch_order_1based": 14,
+      "evidence": "cases/14-baseline-06.json",
+      "first_shelf_send_ms": "6788.704462",
+      "software_ready_ms": "6049.267692",
+      "variant": "baseline",
+      "warmup": false
+    }
+  ],
+  "clock_summary": {
+    "native_stability_excluded_from_endpoint": true,
+    "native_stable_to_request_max_ms": 8585.456462,
+    "native_stable_to_request_min_ms": 8307.860847,
+    "outputs_archive_sha256": "16b0233d73bff8e5bf1a621681389e155a0b94df5e55504e2a966b03c8c081d5",
+    "private_and_public_bytes_and_sha_equal": true,
+    "private_clock_archive_sha256": "2ddc9fa55445f6ace2423b4c7d67b34698ef81b782c1f3d4a423e457dafaa131",
+    "private_mode_octal": "0600",
+    "private_records": 28
+  },
+  "comparability": {
+    "common_launcher_instrumentation": true,
+    "general_population_or_causal_effect_established": false,
+    "only_document_argument_difference": "--library",
+    "prior_temporary_route_6_47_seconds_pooled": false,
+    "production_direct_child_spawn_preserved": true,
+    "same_application_and_worker_binary": true
+  },
+  "endpoints": {
+    "complete_cover_endpoint_available": false,
+    "first_shelf_send": "refresh_submit.finished_monotonic_ns on the earliest rendered accepted frame whose Slint render begins after ui_ready and ends before refresh submission",
+    "input_ready_endpoint_available": false,
+    "native_stability_is_before_and_excluded_from_origin": true,
+    "native_uri": "file:///mnt/us/documents/bilicomics.sh",
+    "optical_panel_completion_endpoint_available": false,
+    "origin": "Pinned startup-clock CLOCK_MONOTONIC before request-record close and native file-URI exec",
+    "software_ready": "Unique performance startup/ui_ready monotonic_ns"
+  },
+  "kind": "formal_native_library_ab_stored_evidence_export",
+  "logical_capture": {
+    "all_full_rgba_pixels_equal": true,
+    "captures": 14,
+    "decoded_rgba_sha256": "8e715ad14ad13686e8710028079481e882614f1ac24422830621742e86ecad95",
+    "height": 2480,
+    "native_home_image_created": false,
+    "pixels_per_capture": 4612800,
+    "png_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+    "rgba_bytes_per_capture": 18451200,
+    "scope": "Logical Slint snapshot before framebuffer compensation; not physical framebuffer or optical capture",
+    "width": 1860
+  },
+  "no_new_tests_builds_runtime_probes_application_device_or_lease_access": true,
+  "prepared_date_local": "2026-11-18",
+  "prepared_timezone": "Asia/Shanghai",
+  "privacy": {
+    "native_home_image_exported": false,
+    "original_native_uuid_values_exported": false,
+    "owner_token_values_or_digests_exported": false,
+    "private_original_pids_exported": false,
+    "raw_archives_elf_zip_transport_or_account_data_exported": false
+  },
+  "product_adopted_by_this_export": false,
+  "restoration": {
+    "catalog_restored": true,
+    "input_roster_unchanged": true,
+    "install_unchanged": true,
+    "lease_released": true,
+    "lighting_restored": true,
+    "native_restored": true,
+    "registration_unchanged": true,
+    "same_boot": true,
+    "success": true,
+    "temporary_stage_removed": true,
+    "transport_closed": true
+  },
+  "run_id": "lib-ab-20261117-2e297ef4",
+  "schedule": {
+    "abba_blocks": 3,
+    "all_cases": [
+      "baseline-warmup",
+      "candidate-warmup",
+      "baseline-01",
+      "candidate-01",
+      "candidate-02",
+      "baseline-02",
+      "baseline-03",
+      "candidate-03",
+      "candidate-04",
+      "baseline-04",
+      "baseline-05",
+      "candidate-05",
+      "candidate-06",
+      "baseline-06"
+    ],
+    "all_cases_retained": true,
+    "outliers_removed": false,
+    "primary_numbered_pairs": 6,
+    "primary_order": "ABBA ABBA ABBA",
+    "primary_samples": 12,
+    "warmups": 2
+  },
+  "schema_version": 1,
+  "statistics": {
+    "first_shelf_send_ms": {
+      "baseline_marginal_median_ms": "6820.738654",
+      "baseline_values_ms": [
+        "6449.201154",
+        "7105.487769",
+        "6852.772846",
+        "6625.933308",
+        "6910.705",
+        "6788.704462"
+      ],
+      "candidate_faster_pairs": 5,
+      "candidate_marginal_median_ms": "6288.530616",
+      "candidate_slower_pairs": 1,
+      "candidate_values_ms": [
+        "6482.273616",
+        "6874.022616",
+        "6535.265616",
+        "6094.787616",
+        "5999.310692",
+        "6036.637615"
+      ],
+      "marginal_median_candidate_minus_baseline_ms": "-532.208038",
+      "marginal_median_percent_change": "-7.802791823549614044484983136",
+      "median_pairwise_percent_change": "-6.32471534703362107174401699",
+      "paired_candidate_minus_baseline_ms": [
+        "33.072462",
+        "-231.465153",
+        "-317.507230",
+        "-531.145692",
+        "-911.394308",
+        "-752.066847"
+      ],
+      "paired_median_candidate_minus_baseline_ms": "-424.326461",
+      "paired_median_normalized_by_baseline_median_percent": "-6.221121824557155946998698772"
+    },
+    "software_ready_ms": {
+      "baseline_marginal_median_ms": "6055.7048845",
+      "baseline_values_ms": [
+        "5736.387308",
+        "6288.869308",
+        "6062.142077",
+        "5901.776154",
+        "6117.772077",
+        "6049.267692"
+      ],
+      "candidate_faster_pairs": 4,
+      "candidate_marginal_median_ms": "5582.247731",
+      "candidate_slower_pairs": 2,
+      "candidate_values_ms": [
+        "6074.582308",
+        "6314.945231",
+        "5829.420308",
+        "5335.075154",
+        "5244.247615",
+        "5273.511154"
+      ],
+      "marginal_median_candidate_minus_baseline_ms": "-473.4571535",
+      "marginal_median_percent_change": "-7.818365698629843790565583662",
+      "median_pairwise_percent_change": "-6.720573627065800583728981985",
+      "paired_candidate_minus_baseline_ms": [
+        "338.195000",
+        "26.075923",
+        "-232.721769",
+        "-566.701000",
+        "-873.524462",
+        "-775.756538"
+      ],
+      "paired_median_candidate_minus_baseline_ms": "-399.7113845",
+      "paired_median_normalized_by_baseline_median_percent": "-6.600575690587056711448964270"
+    }
+  },
+  "verdict": {
+    "formal_ab_timing_evidence_usable": true,
+    "lifecycle_qualification": "Not performed by this AB batch; remains unqualified",
+    "new_identity_clock_normal_exit_or_restoration_anomaly_found": false,
+    "physical_pixel_qualification": "Not performed by this AB batch; remains unqualified",
+    "product_adoption_or_acceptance_pass": false
+  }
+}

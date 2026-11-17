@@ -1,0 +1,3257 @@
+{
+  "all_runs_retained": true,
+  "cases": [
+    {
+      "case": "baseline-warmup",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 5,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 5,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 4,
+          "record_after_request_ms": 8005.647,
+          "record_kind": "native",
+          "record_monotonic_ns": 183306387782462,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 5,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 7639.754,
+          "send_accepted_monotonic_ns": 183306021889462,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183306021531385,
+              "finished_thread_cpu_ns": 753059778,
+              "same_thread": true,
+              "started_monotonic_ns": 183305991652770,
+              "started_thread_cpu_ns": 723594469,
+              "thread_cpu_ns": 29465309,
+              "wall_ns": 29878615
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183305507388385,
+              "finished_thread_cpu_ns": 459948705,
+              "same_thread": true,
+              "started_monotonic_ns": 183305248577001,
+              "started_thread_cpu_ns": 459882013,
+              "thread_cpu_ns": 66692,
+              "wall_ns": 258811384
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183306387442539,
+              "finished_thread_cpu_ns": 753442471,
+              "same_thread": true,
+              "started_monotonic_ns": 183306021897385,
+              "started_thread_cpu_ns": 753323240,
+              "thread_cpu_ns": 119231,
+              "wall_ns": 365545154
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183306021889462,
+              "finished_thread_cpu_ns": 753316470,
+              "same_thread": true,
+              "started_monotonic_ns": 183306021566770,
+              "started_thread_cpu_ns": 753082624,
+              "thread_cpu_ns": 233846,
+              "wall_ns": 322692
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183305991638308,
+              "finished_thread_cpu_ns": 723583315,
+              "same_thread": true,
+              "started_monotonic_ns": 183305942595847,
+              "started_thread_cpu_ns": 675328700,
+              "thread_cpu_ns": 48254615,
+              "wall_ns": 49042461
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183305942584693,
+              "finished_thread_cpu_ns": 675321161,
+              "same_thread": true,
+              "started_monotonic_ns": 183305507407001,
+              "started_thread_cpu_ns": 459961167,
+              "thread_cpu_ns": 215359994,
+              "wall_ns": 435177692
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 7639.754,
+        "software_ready_ms": 6851.625231,
+        "ui_ready_monotonic_ns": 183305233760693
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947577",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947574",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947563",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947563",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947574|85",
+        "document_stat_before": "1794947563|85",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": false,
+        "entry_gone": true,
+        "entry_live_observed": false,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      },
+      "variant": "baseline",
+      "warmup": true
+    },
+    {
+      "case": "candidate-warmup",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 4,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 4,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 3,
+          "record_after_request_ms": 6573.19977,
+          "record_kind": "native",
+          "record_monotonic_ns": 183333748030541,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 4,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 6206.931001,
+          "send_accepted_monotonic_ns": 183333381761772,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183333381119464,
+              "finished_thread_cpu_ns": 756364795,
+              "same_thread": true,
+              "started_monotonic_ns": 183333351551925,
+              "started_thread_cpu_ns": 726793180,
+              "thread_cpu_ns": 29571615,
+              "wall_ns": 29567539
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183332900796002,
+              "finished_thread_cpu_ns": 419334327,
+              "same_thread": true,
+              "started_monotonic_ns": 183332584168310,
+              "started_thread_cpu_ns": 419270251,
+              "thread_cpu_ns": 64076,
+              "wall_ns": 316627692
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183333747764849,
+              "finished_thread_cpu_ns": 756806180,
+              "same_thread": true,
+              "started_monotonic_ns": 183333383592002,
+              "started_thread_cpu_ns": 756689487,
+              "thread_cpu_ns": 116693,
+              "wall_ns": 364172847
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183333381761772,
+              "finished_thread_cpu_ns": 756553334,
+              "same_thread": true,
+              "started_monotonic_ns": 183333381137541,
+              "started_thread_cpu_ns": 756377411,
+              "thread_cpu_ns": 175923,
+              "wall_ns": 624231
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183333351520233,
+              "finished_thread_cpu_ns": 726770026,
+              "same_thread": true,
+              "started_monotonic_ns": 183333303798925,
+              "started_thread_cpu_ns": 679746795,
+              "thread_cpu_ns": 47023231,
+              "wall_ns": 47721308
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183333303781464,
+              "finished_thread_cpu_ns": 679735411,
+              "same_thread": true,
+              "started_monotonic_ns": 183332900813772,
+              "started_thread_cpu_ns": 419345404,
+              "thread_cpu_ns": 260390007,
+              "wall_ns": 402967692
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 6206.931001,
+        "software_ready_ms": 5407.379385,
+        "ui_ready_monotonic_ns": 183332582210156
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947603",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947603",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947577",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947574",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": false,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947603|95",
+        "document_stat_before": "1794947593|95",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      },
+      "variant": "candidate",
+      "warmup": true
+    },
+    {
+      "case": "baseline-01",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 4,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 4,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 3,
+          "record_after_request_ms": 6815.121231,
+          "record_kind": "native",
+          "record_monotonic_ns": 183361766466312,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 4,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 6449.201154,
+          "send_accepted_monotonic_ns": 183361400546235,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183361400357312,
+              "finished_thread_cpu_ns": 676313460,
+              "same_thread": true,
+              "started_monotonic_ns": 183361369927158,
+              "started_thread_cpu_ns": 646031305,
+              "thread_cpu_ns": 30282155,
+              "wall_ns": 30430154
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183361008877850,
+              "finished_thread_cpu_ns": 389468612,
+              "same_thread": true,
+              "started_monotonic_ns": 183360689869542,
+              "started_thread_cpu_ns": 389420920,
+              "thread_cpu_ns": 47692,
+              "wall_ns": 319008308
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183361766082312,
+              "finished_thread_cpu_ns": 676668460,
+              "same_thread": true,
+              "started_monotonic_ns": 183361400552389,
+              "started_thread_cpu_ns": 676502691,
+              "thread_cpu_ns": 165769,
+              "wall_ns": 365529923
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183361400546235,
+              "finished_thread_cpu_ns": 676496922,
+              "same_thread": true,
+              "started_monotonic_ns": 183361400375081,
+              "started_thread_cpu_ns": 676325614,
+              "thread_cpu_ns": 171308,
+              "wall_ns": 171154
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183361369898389,
+              "finished_thread_cpu_ns": 646011998,
+              "same_thread": true,
+              "started_monotonic_ns": 183361318878004,
+              "started_thread_cpu_ns": 595343151,
+              "thread_cpu_ns": 50668847,
+              "wall_ns": 51020385
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183361318866619,
+              "finished_thread_cpu_ns": 595335689,
+              "same_thread": true,
+              "started_monotonic_ns": 183361008976389,
+              "started_thread_cpu_ns": 389483612,
+              "thread_cpu_ns": 205852077,
+              "wall_ns": 309890230
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 6449.201154,
+        "software_ready_ms": 5736.387308,
+        "ui_ready_monotonic_ns": 183360687732389
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947631",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947631",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947603",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947603",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": false,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947631|85",
+        "document_stat_before": "1794947621|85",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": false,
+        "entry_gone": true,
+        "entry_live_observed": false,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      },
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "candidate-01",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 5,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 5,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 4,
+          "record_after_request_ms": 6848.581923,
+          "record_kind": "native",
+          "record_monotonic_ns": 183389444642467,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 5,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 6482.273616,
+          "send_accepted_monotonic_ns": 183389078334160,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183389078196544,
+              "finished_thread_cpu_ns": 784451155,
+              "same_thread": true,
+              "started_monotonic_ns": 183389044309621,
+              "started_thread_cpu_ns": 755711465,
+              "thread_cpu_ns": 28739690,
+              "wall_ns": 33886923
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183388680653159,
+              "finished_thread_cpu_ns": 495244776,
+              "same_thread": true,
+              "started_monotonic_ns": 183388680649544,
+              "started_thread_cpu_ns": 495241161,
+              "thread_cpu_ns": 3615,
+              "wall_ns": 3615
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183389444251929,
+              "finished_thread_cpu_ns": 784692693,
+              "same_thread": true,
+              "started_monotonic_ns": 183389078339544,
+              "started_thread_cpu_ns": 784589463,
+              "thread_cpu_ns": 103230,
+              "wall_ns": 365912385
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183389078334160,
+              "finished_thread_cpu_ns": 784584847,
+              "same_thread": true,
+              "started_monotonic_ns": 183389078209852,
+              "started_thread_cpu_ns": 784460539,
+              "thread_cpu_ns": 124308,
+              "wall_ns": 124308
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183389044286698,
+              "finished_thread_cpu_ns": 755697004,
+              "same_thread": true,
+              "started_monotonic_ns": 183388988929698,
+              "started_thread_cpu_ns": 708819925,
+              "thread_cpu_ns": 46877079,
+              "wall_ns": 55357000
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183388988906390,
+              "finished_thread_cpu_ns": 708805694,
+              "same_thread": true,
+              "started_monotonic_ns": 183388680657083,
+              "started_thread_cpu_ns": 495248622,
+              "thread_cpu_ns": 213557072,
+              "wall_ns": 308249307
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 6482.273616,
+        "software_ready_ms": 6074.582308,
+        "ui_ready_monotonic_ns": 183388670642852
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947659",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947658",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947631",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947631",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": false,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947658|95",
+        "document_stat_before": "1794947648|95",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      },
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "candidate-02",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 5,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 5,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 4,
+          "record_after_request_ms": 7240.231693,
+          "record_kind": "native",
+          "record_monotonic_ns": 183418254010854,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 5,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 6874.022616,
+          "send_accepted_monotonic_ns": 183417887801777,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183417887401546,
+              "finished_thread_cpu_ns": 908724611,
+              "same_thread": true,
+              "started_monotonic_ns": 183417856506854,
+              "started_thread_cpu_ns": 878956766,
+              "thread_cpu_ns": 29767845,
+              "wall_ns": 30894692
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183417339596930,
+              "finished_thread_cpu_ns": 532698841,
+              "same_thread": true,
+              "started_monotonic_ns": 183417339592007,
+              "started_thread_cpu_ns": 532694380,
+              "thread_cpu_ns": 4461,
+              "wall_ns": 4923
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183418253655392,
+              "finished_thread_cpu_ns": 909057611,
+              "same_thread": true,
+              "started_monotonic_ns": 183417887812161,
+              "started_thread_cpu_ns": 908996073,
+              "thread_cpu_ns": 61538,
+              "wall_ns": 365843231
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183417887801777,
+              "finished_thread_cpu_ns": 908986303,
+              "same_thread": true,
+              "started_monotonic_ns": 183417887428546,
+              "started_thread_cpu_ns": 908742380,
+              "thread_cpu_ns": 243923,
+              "wall_ns": 373231
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183417856483084,
+              "finished_thread_cpu_ns": 878941458,
+              "same_thread": true,
+              "started_monotonic_ns": 183417798491315,
+              "started_thread_cpu_ns": 828835305,
+              "thread_cpu_ns": 50106153,
+              "wall_ns": 57991769
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183417798470469,
+              "finished_thread_cpu_ns": 828820612,
+              "same_thread": true,
+              "started_monotonic_ns": 183417339600700,
+              "started_thread_cpu_ns": 532702918,
+              "thread_cpu_ns": 296117694,
+              "wall_ns": 458869769
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 6874.022616,
+        "software_ready_ms": 6314.945231,
+        "ui_ready_monotonic_ns": 183417328724392
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947687",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947687",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947659",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947658",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947687|95",
+        "document_stat_before": "1794947677|95",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      },
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "baseline-02",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 5,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 5,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 4,
+          "record_after_request_ms": 7471.821308,
+          "record_kind": "native",
+          "record_monotonic_ns": 183447213579471,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 5,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 7105.487769,
+          "send_accepted_monotonic_ns": 183446847245932,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183446846866932,
+              "finished_thread_cpu_ns": 828371393,
+              "same_thread": true,
+              "started_monotonic_ns": 183446816045701,
+              "started_thread_cpu_ns": 798456624,
+              "thread_cpu_ns": 29914769,
+              "wall_ns": 30821231
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183446355359163,
+              "finished_thread_cpu_ns": 474228997,
+              "same_thread": true,
+              "started_monotonic_ns": 183446033004778,
+              "started_thread_cpu_ns": 474154536,
+              "thread_cpu_ns": 74461,
+              "wall_ns": 322354385
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183447213278394,
+              "finished_thread_cpu_ns": 828682624,
+              "same_thread": true,
+              "started_monotonic_ns": 183446847255471,
+              "started_thread_cpu_ns": 828620777,
+              "thread_cpu_ns": 61847,
+              "wall_ns": 366022923
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183446847245932,
+              "finished_thread_cpu_ns": 828612547,
+              "same_thread": true,
+              "started_monotonic_ns": 183446846892701,
+              "started_thread_cpu_ns": 828388393,
+              "thread_cpu_ns": 224154,
+              "wall_ns": 353231
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183446816017163,
+              "finished_thread_cpu_ns": 798436701,
+              "same_thread": true,
+              "started_monotonic_ns": 183446759172701,
+              "started_thread_cpu_ns": 742448007,
+              "thread_cpu_ns": 55988694,
+              "wall_ns": 56844462
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183446759154471,
+              "finished_thread_cpu_ns": 742435700,
+              "same_thread": true,
+              "started_monotonic_ns": 183446355377009,
+              "started_thread_cpu_ns": 474239382,
+              "thread_cpu_ns": 268196318,
+              "wall_ns": 403777462
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 7105.487769,
+        "software_ready_ms": 6288.869308,
+        "ui_ready_monotonic_ns": 183446030627471
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947716",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947715",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947687",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947687",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": false,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947715|85",
+        "document_stat_before": "1794947705|85",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": false,
+        "entry_gone": true,
+        "entry_live_observed": false,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      },
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "baseline-03",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 5,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 5,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 4,
+          "record_after_request_ms": 7218.865077,
+          "record_kind": "native",
+          "record_monotonic_ns": 183475158242626,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 5,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 6852.772846,
+          "send_accepted_monotonic_ns": 183474792150395,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183474791836934,
+              "finished_thread_cpu_ns": 777194229,
+              "same_thread": true,
+              "started_monotonic_ns": 183474762070934,
+              "started_thread_cpu_ns": 747604767,
+              "thread_cpu_ns": 29589462,
+              "wall_ns": 29766000
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183474333629165,
+              "finished_thread_cpu_ns": 455410068,
+              "same_thread": true,
+              "started_monotonic_ns": 183474004928472,
+              "started_thread_cpu_ns": 455365530,
+              "thread_cpu_ns": 44538,
+              "wall_ns": 328700693
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183475158000857,
+              "finished_thread_cpu_ns": 777462076,
+              "same_thread": true,
+              "started_monotonic_ns": 183474792158395,
+              "started_thread_cpu_ns": 777414152,
+              "thread_cpu_ns": 47924,
+              "wall_ns": 365842462
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183474792150395,
+              "finished_thread_cpu_ns": 777406844,
+              "same_thread": true,
+              "started_monotonic_ns": 183474791861395,
+              "started_thread_cpu_ns": 777210306,
+              "thread_cpu_ns": 196538,
+              "wall_ns": 289000
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183474762047088,
+              "finished_thread_cpu_ns": 747588306,
+              "same_thread": true,
+              "started_monotonic_ns": 183474714289857,
+              "started_thread_cpu_ns": 700023382,
+              "thread_cpu_ns": 47564924,
+              "wall_ns": 47757231
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183474714271934,
+              "finished_thread_cpu_ns": 700011998,
+              "same_thread": true,
+              "started_monotonic_ns": 183474333638780,
+              "started_thread_cpu_ns": 455416607,
+              "thread_cpu_ns": 244595391,
+              "wall_ns": 380633154
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 6852.772846,
+        "software_ready_ms": 6062.142077,
+        "ui_ready_monotonic_ns": 183474001519626
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947744",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947744",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947716",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947715",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947744|85",
+        "document_stat_before": "1794947734|85",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": false,
+        "entry_gone": true,
+        "entry_live_observed": false,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      },
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "candidate-03",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 5,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 5,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 4,
+          "record_after_request_ms": 6901.185231,
+          "record_kind": "native",
+          "record_monotonic_ns": 183502757402012,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 5,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 6535.265616,
+          "send_accepted_monotonic_ns": 183502391482397,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183502391175935,
+              "finished_thread_cpu_ns": 734734405,
+              "same_thread": true,
+              "started_monotonic_ns": 183502361405474,
+              "started_thread_cpu_ns": 705147866,
+              "thread_cpu_ns": 29586539,
+              "wall_ns": 29770461
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183502014822474,
+              "finished_thread_cpu_ns": 461905312,
+              "same_thread": true,
+              "started_monotonic_ns": 183501687442628,
+              "started_thread_cpu_ns": 461859697,
+              "thread_cpu_ns": 45615,
+              "wall_ns": 327379846
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183502757108782,
+              "finished_thread_cpu_ns": 735051791,
+              "same_thread": true,
+              "started_monotonic_ns": 183502391490935,
+              "started_thread_cpu_ns": 734962483,
+              "thread_cpu_ns": 89308,
+              "wall_ns": 365617847
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183502391482397,
+              "finished_thread_cpu_ns": 734954637,
+              "same_thread": true,
+              "started_monotonic_ns": 183502391199397,
+              "started_thread_cpu_ns": 734750175,
+              "thread_cpu_ns": 204462,
+              "wall_ns": 283000
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183502361383474,
+              "finished_thread_cpu_ns": 705132558,
+              "same_thread": true,
+              "started_monotonic_ns": 183502313442782,
+              "started_thread_cpu_ns": 657355635,
+              "thread_cpu_ns": 47776923,
+              "wall_ns": 47940692
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183502313425397,
+              "finished_thread_cpu_ns": 657344173,
+              "same_thread": true,
+              "started_monotonic_ns": 183502014832166,
+              "started_thread_cpu_ns": 461911927,
+              "thread_cpu_ns": 195432246,
+              "wall_ns": 298593231
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 6535.265616,
+        "software_ready_ms": 5829.420308,
+        "ui_ready_monotonic_ns": 183501685637089
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947772",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947771",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947744",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947744",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": false,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947771|95",
+        "document_stat_before": "1794947762|95",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      },
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "candidate-04",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 4,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 4,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 3,
+          "record_after_request_ms": 6461.081231,
+          "record_kind": "native",
+          "record_monotonic_ns": 183530441032706,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 4,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 6094.787616,
+          "send_accepted_monotonic_ns": 183530074739091,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183530074474399,
+              "finished_thread_cpu_ns": 708570913,
+              "same_thread": true,
+              "started_monotonic_ns": 183530044758168,
+              "started_thread_cpu_ns": 678846759,
+              "thread_cpu_ns": 29724154,
+              "wall_ns": 29716231
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183529634190552,
+              "finished_thread_cpu_ns": 391749602,
+              "same_thread": true,
+              "started_monotonic_ns": 183529316956168,
+              "started_thread_cpu_ns": 391681987,
+              "thread_cpu_ns": 67615,
+              "wall_ns": 317234384
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183530440703629,
+              "finished_thread_cpu_ns": 709030374,
+              "same_thread": true,
+              "started_monotonic_ns": 183530074747091,
+              "started_thread_cpu_ns": 708835528,
+              "thread_cpu_ns": 194846,
+              "wall_ns": 365956538
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183530074739091,
+              "finished_thread_cpu_ns": 708828374,
+              "same_thread": true,
+              "started_monotonic_ns": 183530074498860,
+              "started_thread_cpu_ns": 708587913,
+              "thread_cpu_ns": 240461,
+              "wall_ns": 240231
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183530044732476,
+              "finished_thread_cpu_ns": 678828144,
+              "same_thread": true,
+              "started_monotonic_ns": 183529995385322,
+              "started_thread_cpu_ns": 630420757,
+              "thread_cpu_ns": 48407387,
+              "wall_ns": 49347154
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183529995368783,
+              "finished_thread_cpu_ns": 630408757,
+              "same_thread": true,
+              "started_monotonic_ns": 183529634208860,
+              "started_thread_cpu_ns": 391760525,
+              "thread_cpu_ns": 238648232,
+              "wall_ns": 361159923
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 6094.787616,
+        "software_ready_ms": 5335.075154,
+        "ui_ready_monotonic_ns": 183529315026629
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947800",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947800",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947772",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947771",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947800|95",
+        "document_stat_before": "1794947790|95",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      },
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "baseline-04",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 5,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 5,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 4,
+          "record_after_request_ms": 6991.982693,
+          "record_kind": "native",
+          "record_monotonic_ns": 183559059045247,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 5,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 6625.933308,
+          "send_accepted_monotonic_ns": 183558692995862,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183558692669400,
+              "finished_thread_cpu_ns": 727006226,
+              "same_thread": true,
+              "started_monotonic_ns": 183558663263247,
+              "started_thread_cpu_ns": 697903763,
+              "thread_cpu_ns": 29102463,
+              "wall_ns": 29406153
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183558300097554,
+              "finished_thread_cpu_ns": 454844459,
+              "same_thread": true,
+              "started_monotonic_ns": 183557971144016,
+              "started_thread_cpu_ns": 454672844,
+              "thread_cpu_ns": 171615,
+              "wall_ns": 328953538
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183559058720708,
+              "finished_thread_cpu_ns": 727383148,
+              "same_thread": true,
+              "started_monotonic_ns": 183558693003631,
+              "started_thread_cpu_ns": 727239764,
+              "thread_cpu_ns": 143384,
+              "wall_ns": 365717077
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183558692995862,
+              "finished_thread_cpu_ns": 727232995,
+              "same_thread": true,
+              "started_monotonic_ns": 183558692697862,
+              "started_thread_cpu_ns": 727024764,
+              "thread_cpu_ns": 208231,
+              "wall_ns": 298000
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183558663247093,
+              "finished_thread_cpu_ns": 697893225,
+              "same_thread": true,
+              "started_monotonic_ns": 183558616528247,
+              "started_thread_cpu_ns": 652833765,
+              "thread_cpu_ns": 45059460,
+              "wall_ns": 46718846
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183558616516708,
+              "finished_thread_cpu_ns": 652825457,
+              "same_thread": true,
+              "started_monotonic_ns": 183558300129554,
+              "started_thread_cpu_ns": 454856152,
+              "thread_cpu_ns": 197969305,
+              "wall_ns": 316387154
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 6625.933308,
+        "software_ready_ms": 5901.776154,
+        "ui_ready_monotonic_ns": 183557968838708
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947828",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947828",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947800",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947800",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": false,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947828|85",
+        "document_stat_before": "1794947818|85",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": false,
+        "entry_gone": true,
+        "entry_live_observed": false,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      },
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "baseline-05",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 5,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 5,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 4,
+          "record_after_request_ms": 7276.858616,
+          "record_kind": "native",
+          "record_monotonic_ns": 183587403944941,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 5,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 6910.705,
+          "send_accepted_monotonic_ns": 183587037791325,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183587037474171,
+              "finished_thread_cpu_ns": 791747692,
+              "same_thread": true,
+              "started_monotonic_ns": 183587007487248,
+              "started_thread_cpu_ns": 761918385,
+              "thread_cpu_ns": 29829307,
+              "wall_ns": 29986923
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183586568697017,
+              "finished_thread_cpu_ns": 462999243,
+              "same_thread": true,
+              "started_monotonic_ns": 183586247266248,
+              "started_thread_cpu_ns": 462906166,
+              "thread_cpu_ns": 93077,
+              "wall_ns": 321430769
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183587403670325,
+              "finished_thread_cpu_ns": 792107153,
+              "same_thread": true,
+              "started_monotonic_ns": 183587037798941,
+              "started_thread_cpu_ns": 791978076,
+              "thread_cpu_ns": 129077,
+              "wall_ns": 365871384
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183587037791325,
+              "finished_thread_cpu_ns": 791971384,
+              "same_thread": true,
+              "started_monotonic_ns": 183587037502402,
+              "started_thread_cpu_ns": 791765845,
+              "thread_cpu_ns": 205539,
+              "wall_ns": 288923
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183587007460479,
+              "finished_thread_cpu_ns": 761900385,
+              "same_thread": true,
+              "started_monotonic_ns": 183586960344556,
+              "started_thread_cpu_ns": 715060308,
+              "thread_cpu_ns": 46840077,
+              "wall_ns": 47115923
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183586960327402,
+              "finished_thread_cpu_ns": 715048692,
+              "same_thread": true,
+              "started_monotonic_ns": 183586568714787,
+              "started_thread_cpu_ns": 463011089,
+              "thread_cpu_ns": 252037603,
+              "wall_ns": 391612615
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 6910.705,
+        "software_ready_ms": 6117.772077,
+        "ui_ready_monotonic_ns": 183586244858402
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947856",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947856",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947828",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947828",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947856|85",
+        "document_stat_before": "1794947846|85",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": false,
+        "entry_gone": true,
+        "entry_live_observed": false,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      },
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "candidate-05",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 4,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 4,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 3,
+          "record_after_request_ms": 6365.258615,
+          "record_kind": "native",
+          "record_monotonic_ns": 183614523129634,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 4,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 5999.310692,
+          "send_accepted_monotonic_ns": 183614157181711,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183614156800788,
+              "finished_thread_cpu_ns": 711610310,
+              "same_thread": true,
+              "started_monotonic_ns": 183614127427481,
+              "started_thread_cpu_ns": 682309540,
+              "thread_cpu_ns": 29300770,
+              "wall_ns": 29373307
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183613727186942,
+              "finished_thread_cpu_ns": 398268545,
+              "same_thread": true,
+              "started_monotonic_ns": 183613403926711,
+              "started_thread_cpu_ns": 398201545,
+              "thread_cpu_ns": 67000,
+              "wall_ns": 323260231
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183614522992327,
+              "finished_thread_cpu_ns": 711885465,
+              "same_thread": true,
+              "started_monotonic_ns": 183614157189558,
+              "started_thread_cpu_ns": 711834388,
+              "thread_cpu_ns": 51077,
+              "wall_ns": 365802769
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183614157181711,
+              "finished_thread_cpu_ns": 711827004,
+              "same_thread": true,
+              "started_monotonic_ns": 183614156825634,
+              "started_thread_cpu_ns": 711626156,
+              "thread_cpu_ns": 200848,
+              "wall_ns": 356077
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183614127399634,
+              "finished_thread_cpu_ns": 682291386,
+              "same_thread": true,
+              "started_monotonic_ns": 183614078771481,
+              "started_thread_cpu_ns": 634800233,
+              "thread_cpu_ns": 47491153,
+              "wall_ns": 48628153
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183614078753865,
+              "finished_thread_cpu_ns": 634787463,
+              "same_thread": true,
+              "started_monotonic_ns": 183613727205173,
+              "started_thread_cpu_ns": 398279852,
+              "thread_cpu_ns": 236507611,
+              "wall_ns": 351548692
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 5999.310692,
+        "software_ready_ms": 5244.247615,
+        "ui_ready_monotonic_ns": 183613402118634
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947884",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947884",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947856",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947856",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": false,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947884|95",
+        "document_stat_before": "1794947874|95",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      },
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "candidate-06",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 4,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 4,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 3,
+          "record_after_request_ms": 6402.876077,
+          "record_kind": "native",
+          "record_monotonic_ns": 183642041215713,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 4,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 6036.637615,
+          "send_accepted_monotonic_ns": 183641674977251,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183641674666021,
+              "finished_thread_cpu_ns": 704595062,
+              "same_thread": true,
+              "started_monotonic_ns": 183641644867405,
+              "started_thread_cpu_ns": 674868524,
+              "thread_cpu_ns": 29726538,
+              "wall_ns": 29798616
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183641236279098,
+              "finished_thread_cpu_ns": 387123444,
+              "same_thread": true,
+              "started_monotonic_ns": 183640913678790,
+              "started_thread_cpu_ns": 387057829,
+              "thread_cpu_ns": 65615,
+              "wall_ns": 322600308
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183642040879636,
+              "finished_thread_cpu_ns": 704901832,
+              "same_thread": true,
+              "started_monotonic_ns": 183641674984867,
+              "started_thread_cpu_ns": 704821755,
+              "thread_cpu_ns": 80077,
+              "wall_ns": 365894769
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183641674977251,
+              "finished_thread_cpu_ns": 704815062,
+              "same_thread": true,
+              "started_monotonic_ns": 183641674690867,
+              "started_thread_cpu_ns": 704610678,
+              "thread_cpu_ns": 204384,
+              "wall_ns": 286384
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183641644840713,
+              "finished_thread_cpu_ns": 674850678,
+              "same_thread": true,
+              "started_monotonic_ns": 183641589824559,
+              "started_thread_cpu_ns": 620855369,
+              "thread_cpu_ns": 53995309,
+              "wall_ns": 55016154
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183641589806944,
+              "finished_thread_cpu_ns": 620843292,
+              "same_thread": true,
+              "started_monotonic_ns": 183641236297713,
+              "started_thread_cpu_ns": 387134906,
+              "thread_cpu_ns": 233708386,
+              "wall_ns": 353509231
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 6036.637615,
+        "software_ready_ms": 5273.511154,
+        "ui_ready_monotonic_ns": 183640911850790
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947912",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947911",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947884",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947884",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": true,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947911|95",
+        "document_stat_before": "1794947901|95",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": true,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": false
+      },
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "baseline-06",
+      "endpoints": {
+        "first_shelf_frame": {
+          "accepted_update_marker": 5,
+          "black_and_white": false,
+          "complete_frame_replacement": true,
+          "completed_update_marker": 5,
+          "completion_errno": null,
+          "driver_completion_observed": true,
+          "forced_full": true,
+          "framebuffer_bits_per_pixel": 8,
+          "framebuffer_size": [
+            1860,
+            2480
+          ],
+          "framebuffer_stride": 1872,
+          "initial_frame": false,
+          "output_inverted": false,
+          "panel_completion_observed": false,
+          "preceding_update_marker": 4,
+          "record_after_request_ms": 7154.396385,
+          "record_kind": "native",
+          "record_monotonic_ns": 183670829545638,
+          "record_stage": "frame",
+          "refresh_abi": "mtk",
+          "refresh_accepted": true,
+          "refresh_errno": null,
+          "refresh_flashing": true,
+          "refresh_ioctl_attempts": 1,
+          "refresh_ioctl_returned": true,
+          "refresh_region": {
+            "height": 2480,
+            "width": 1860,
+            "x": 0,
+            "y": 0
+          },
+          "refresh_waveform": "gc16",
+          "render_sequence": 5,
+          "rendered": true,
+          "rotation_degrees": 0,
+          "send_accepted_after_request_ms": 6788.704462,
+          "send_accepted_monotonic_ns": 183670463853715,
+          "stages": {
+            "active_io": null,
+            "buffer_setup": null,
+            "framebuffer_write": {
+              "finished_monotonic_ns": 183670463501561,
+              "finished_thread_cpu_ns": 755025540,
+              "same_thread": true,
+              "started_monotonic_ns": 183670433729330,
+              "started_thread_cpu_ns": 725402078,
+              "thread_cpu_ns": 29623462,
+              "wall_ns": 29772231
+            },
+            "initial_fill": null,
+            "lifecycle_complete": null,
+            "portrait_observer_setup": null,
+            "preceding_update_wait": {
+              "finished_monotonic_ns": 183670054465022,
+              "finished_thread_cpu_ns": 456386386,
+              "same_thread": true,
+              "started_monotonic_ns": 183669727492638,
+              "started_thread_cpu_ns": 456330463,
+              "thread_cpu_ns": 55923,
+              "wall_ns": 326972384
+            },
+            "refresh_complete_wait": {
+              "finished_monotonic_ns": 183670829295561,
+              "finished_thread_cpu_ns": 755354232,
+              "same_thread": true,
+              "started_monotonic_ns": 183670463865638,
+              "started_thread_cpu_ns": 755301231,
+              "thread_cpu_ns": 53001,
+              "wall_ns": 365429923
+            },
+            "refresh_submit": {
+              "finished_monotonic_ns": 183670463853715,
+              "finished_thread_cpu_ns": 755292308,
+              "same_thread": true,
+              "started_monotonic_ns": 183670463527099,
+              "started_thread_cpu_ns": 755042771,
+              "thread_cpu_ns": 249537,
+              "wall_ns": 326616
+            },
+            "rgb_fingerprint": {
+              "finished_monotonic_ns": 183670433706176,
+              "finished_thread_cpu_ns": 725386002,
+              "same_thread": true,
+              "started_monotonic_ns": 183670384733946,
+              "started_thread_cpu_ns": 676939541,
+              "thread_cpu_ns": 48446461,
+              "wall_ns": 48972230
+            },
+            "slint_render": {
+              "finished_monotonic_ns": 183670384715176,
+              "finished_thread_cpu_ns": 676927387,
+              "same_thread": true,
+              "started_monotonic_ns": 183670054513792,
+              "started_thread_cpu_ns": 456395771,
+              "thread_cpu_ns": 220531616,
+              "wall_ns": 330201384
+            },
+            "window_setup": null
+          }
+        },
+        "first_shelf_send_ms": 6788.704462,
+        "software_ready_ms": 6049.267692,
+        "ui_ready_monotonic_ns": 183669724416945
+      },
+      "metadata": {
+        "catalog_after": {
+          "p_contentSize": "85",
+          "p_cover": null,
+          "p_lastAccess": "1794947940",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947939",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_before": {
+          "p_contentSize": "95",
+          "p_cover": null,
+          "p_lastAccess": "1794947912",
+          "p_lastOpenTime": null,
+          "p_location": "/mnt/us/documents/bilicomics.sh",
+          "p_mimeType": "text/x-shellscript",
+          "p_modificationTime": "1794947911",
+          "p_thumbnail": null,
+          "p_titles_0_nominal": "BiliComics for Kindle"
+        },
+        "catalog_size_after_literal_equals_document_bytes": true,
+        "catalog_size_before_literal_equals_document_bytes": false,
+        "catalog_size_unit_bound_to_installed_extractor": false,
+        "cover_locator_changed": false,
+        "document_mtime_nondecreasing": true,
+        "document_size_preserved": true,
+        "document_stat_after": "1794947939|85",
+        "document_stat_before": "1794947929|85",
+        "indexed_uuid_changed": true,
+        "recent_progress_observed": true,
+        "thumbnail_locator_changed": false,
+        "timestamps": {
+          "p_lastAccess": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          },
+          "p_lastOpenTime": {
+            "increased": false,
+            "nondecreasing": null,
+            "observed": false
+          },
+          "p_modificationTime": {
+            "increased": true,
+            "nondecreasing": true,
+            "observed": true
+          }
+        },
+        "uuid_change_policy": "Recorded native scanner replacement; no cross-launch UUID stability requirement"
+      },
+      "recovery": {
+        "content_observed": true,
+        "entry_alive_at_content": false,
+        "entry_gone": true,
+        "entry_live_observed": true,
+        "entry_seen": true,
+        "entry_status": 0,
+        "entry_status_observed": true,
+        "exit_status_observed": true,
+        "generation_bound": true,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true,
+        "reason": "normal-exit",
+        "schema_version": 1,
+        "status_helper_pending": false,
+        "worker_exit_status": 0,
+        "worker_gone": true,
+        "worker_seen": true,
+        "worker_signal_sent": false,
+        "worker_survived_entry_retirement": true
+      },
+      "variant": "baseline",
+      "warmup": false
+    }
+  ],
+  "kind": "ab",
+  "metadata_recent_progress_observed_in_all_cases": true,
+  "native_uri": "file:///mnt/us/documents/bilicomics.sh",
+  "outliers_removed": false,
+  "restoration": {
+    "catalog_restored": true,
+    "install_unchanged": true,
+    "lease_released": true,
+    "lighting_restored": true,
+    "native_restored": true,
+    "registration_unchanged": true,
+    "same_boot": true,
+    "success": true,
+    "transport_closed": true
+  },
+  "run_id": "lib-ab-20261117-2e297ef4",
+  "schema_version": 1,
+  "scope": "Native file request to real Bili ui_ready and first Shelf rendered accepted SEND. SEND acceptance is submission, not driver completion or optical panel completion. Logical final captures and separate qualification captures are not startup endpoints. No input-ready or complete-cover endpoint exists in this build.",
+  "sqlite_readonly_attempts": [
+    {
+      "attempt": 1,
+      "command_name": "catalog-before-poll-01-sql-01",
+      "deadline_remaining_ms": 9588.45375,
+      "elapsed_ms": 411.369085,
+      "query_name": "catalog-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-before-sql-01",
+      "deadline_remaining_ms": 9693.443137,
+      "elapsed_ms": 306.531943,
+      "query_name": "registration-before",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-warmup-before-poll-01-sql-01",
+      "deadline_remaining_ms": 23758.941747,
+      "elapsed_ms": 725.380309,
+      "query_name": "catalog-baseline-warmup-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-warmup-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9590.39277,
+      "elapsed_ms": 409.509541,
+      "query_name": "catalog-baseline-warmup-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-baseline-warmup-sql-01",
+      "deadline_remaining_ms": 9684.255051,
+      "elapsed_ms": 315.722029,
+      "query_name": "registration-baseline-warmup",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-warmup-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24141.417119,
+      "elapsed_ms": 404.108897,
+      "query_name": "catalog-candidate-warmup-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-warmup-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9584.752347,
+      "elapsed_ms": 415.193094,
+      "query_name": "catalog-candidate-warmup-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-candidate-warmup-sql-01",
+      "deadline_remaining_ms": 9703.878377,
+      "elapsed_ms": 296.107864,
+      "query_name": "registration-candidate-warmup",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-01-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24109.41187,
+      "elapsed_ms": 429.344567,
+      "query_name": "catalog-baseline-01-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-01-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9588.738736,
+      "elapsed_ms": 411.169515,
+      "query_name": "catalog-baseline-01-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-baseline-01-sql-01",
+      "deadline_remaining_ms": 9679.635824,
+      "elapsed_ms": 320.341636,
+      "query_name": "registration-baseline-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-01-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24132.699612,
+      "elapsed_ms": 406.284027,
+      "query_name": "catalog-candidate-01-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-01-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9598.163064,
+      "elapsed_ms": 401.749037,
+      "query_name": "catalog-candidate-01-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-candidate-01-sql-01",
+      "deadline_remaining_ms": 9675.321113,
+      "elapsed_ms": 324.655647,
+      "query_name": "registration-candidate-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-02-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24137.486742,
+      "elapsed_ms": 396.003266,
+      "query_name": "catalog-candidate-02-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-02-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9589.199197,
+      "elapsed_ms": 410.714575,
+      "query_name": "catalog-candidate-02-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-candidate-02-sql-01",
+      "deadline_remaining_ms": 9688.880306,
+      "elapsed_ms": 311.092054,
+      "query_name": "registration-candidate-02",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-02-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24125.490777,
+      "elapsed_ms": 398.875245,
+      "query_name": "catalog-baseline-02-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-02-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9596.900115,
+      "elapsed_ms": 403.045746,
+      "query_name": "catalog-baseline-02-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-baseline-02-sql-01",
+      "deadline_remaining_ms": 9685.68137,
+      "elapsed_ms": 314.29519,
+      "query_name": "registration-baseline-02",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-03-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24118.121346,
+      "elapsed_ms": 406.619485,
+      "query_name": "catalog-baseline-03-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-03-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9659.78462,
+      "elapsed_ms": 340.153403,
+      "query_name": "catalog-baseline-03-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-baseline-03-sql-01",
+      "deadline_remaining_ms": 9691.151085,
+      "elapsed_ms": 308.824605,
+      "query_name": "registration-baseline-03",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-03-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24135.670376,
+      "elapsed_ms": 399.131522,
+      "query_name": "catalog-candidate-03-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-03-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9590.250089,
+      "elapsed_ms": 409.692492,
+      "query_name": "catalog-candidate-03-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-candidate-03-sql-01",
+      "deadline_remaining_ms": 9684.111479,
+      "elapsed_ms": 315.867242,
+      "query_name": "registration-candidate-03",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-04-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24137.518435,
+      "elapsed_ms": 403.889486,
+      "query_name": "catalog-candidate-04-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-04-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9607.651157,
+      "elapsed_ms": 392.259695,
+      "query_name": "catalog-candidate-04-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-candidate-04-sql-01",
+      "deadline_remaining_ms": 9699.601858,
+      "elapsed_ms": 300.377563,
+      "query_name": "registration-candidate-04",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-04-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24131.456139,
+      "elapsed_ms": 399.08993,
+      "query_name": "catalog-baseline-04-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-04-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9575.018829,
+      "elapsed_ms": 424.915693,
+      "query_name": "catalog-baseline-04-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-baseline-04-sql-01",
+      "deadline_remaining_ms": 9694.643496,
+      "elapsed_ms": 305.339465,
+      "query_name": "registration-baseline-04",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-05-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24125.747286,
+      "elapsed_ms": 397.268651,
+      "query_name": "catalog-baseline-05-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-05-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9588.977826,
+      "elapsed_ms": 410.933238,
+      "query_name": "catalog-baseline-05-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-baseline-05-sql-01",
+      "deadline_remaining_ms": 9688.961182,
+      "elapsed_ms": 311.009248,
+      "query_name": "registration-baseline-05",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-05-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24137.375566,
+      "elapsed_ms": 399.327961,
+      "query_name": "catalog-candidate-05-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-05-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9592.49821,
+      "elapsed_ms": 407.446952,
+      "query_name": "catalog-candidate-05-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-candidate-05-sql-01",
+      "deadline_remaining_ms": 9698.689658,
+      "elapsed_ms": 301.295612,
+      "query_name": "registration-candidate-05",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-06-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24136.71903,
+      "elapsed_ms": 400.953206,
+      "query_name": "catalog-candidate-06-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-candidate-06-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9588.522548,
+      "elapsed_ms": 411.418714,
+      "query_name": "catalog-candidate-06-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-candidate-06-sql-01",
+      "deadline_remaining_ms": 9684.066919,
+      "elapsed_ms": 315.906231,
+      "query_name": "registration-candidate-06",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-06-before-poll-01-sql-01",
+      "deadline_remaining_ms": 24138.498133,
+      "elapsed_ms": 389.939481,
+      "query_name": "catalog-baseline-06-before-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-baseline-06-after-poll-01-sql-01",
+      "deadline_remaining_ms": 9606.063144,
+      "elapsed_ms": 393.882006,
+      "query_name": "catalog-baseline-06-after-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-baseline-06-sql-01",
+      "deadline_remaining_ms": 9685.631328,
+      "elapsed_ms": 314.344943,
+      "query_name": "registration-baseline-06",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "catalog-final-poll-01-sql-01",
+      "deadline_remaining_ms": 24016.572703,
+      "elapsed_ms": 632.491263,
+      "query_name": "catalog-final-poll-01",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "attempt": 1,
+      "command_name": "registration-final-sql-01",
+      "deadline_remaining_ms": 9690.108059,
+      "elapsed_ms": 309.869731,
+      "query_name": "registration-final",
+      "returncode": 0,
+      "timeout": false
+    }
+  ],
+  "sqlite_readonly_policy": {
+    "attempt_timeout_seconds": 4.0,
+    "busy_timeout_ms": 500,
+    "catalog_deadline_seconds": 10.0,
+    "deadline_scope": "Query initiation and successful acceptance; required owned transport reaping is separate failure recovery",
+    "owned_transport_reaping_grace_seconds": 10,
+    "retry_returncodes": [
+      5,
+      6
+    ],
+    "setup_and_index_deadline_seconds": 25.0
+  },
+  "statistics": {
+    "first_shelf_send_ms": {
+      "baseline": {
+        "count": 6,
+        "max": 7105.487769,
+        "median": 6820.738654,
+        "min": 6449.201154,
+        "values": [
+          6449.201154,
+          7105.487769,
+          6852.772846,
+          6625.933308,
+          6910.705,
+          6788.704462
+        ]
+      },
+      "candidate": {
+        "count": 6,
+        "max": 6874.022616,
+        "median": 6288.530616,
+        "min": 5999.310692,
+        "values": [
+          6482.273616,
+          6874.022616,
+          6535.265616,
+          6094.787616,
+          5999.310692,
+          6036.637615
+        ]
+      },
+      "paired_candidate_minus_baseline_ms": [
+        33.072462,
+        -231.465153,
+        -317.50723,
+        -531.145692,
+        -911.394308,
+        -752.066847
+      ],
+      "paired_median_ms": -424.326461
+    },
+    "software_ready_ms": {
+      "baseline": {
+        "count": 6,
+        "max": 6288.869308,
+        "median": 6055.704884500001,
+        "min": 5736.387308,
+        "values": [
+          5736.387308,
+          6288.869308,
+          6062.142077,
+          5901.776154,
+          6117.772077,
+          6049.267692
+        ]
+      },
+      "candidate": {
+        "count": 6,
+        "max": 6314.945231,
+        "median": 5582.2477309999995,
+        "min": 5244.247615,
+        "values": [
+          6074.582308,
+          6314.945231,
+          5829.420308,
+          5335.075154,
+          5244.247615,
+          5273.511154
+        ]
+      },
+      "paired_candidate_minus_baseline_ms": [
+        338.195,
+        26.075923,
+        -232.721769,
+        -566.701,
+        -873.524462,
+        -775.756538
+      ],
+      "paired_median_ms": -399.7113845
+    }
+  },
+  "variants": {
+    "baseline": {
+      "binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "build_configuration": {
+        "arm_compilation_proof_sha256": "9c48a552b5a908dedc6bad6b75b0fc19da6a69f2699fc17079bdb62d5f37b10b",
+        "binary_reused": true,
+        "codegen_units": 1,
+        "compiler_profile_sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "native_source_input_count": 544,
+        "native_source_inputs_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+        "package_source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+        "profile": "release",
+        "runtime_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+        "rust_rebuilt": false,
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      },
+      "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+      "document_sha256": "d769e0b36ceed59ce1a4f82a81c7a3518775e4552c7d7f7ce052625d9d0f8537",
+      "entry_arguments": [],
+      "instrumented_launcher_sha256": "952993d867171d471e41aad2b43fc928d03fcd560cc4959a7056628ec6a97760",
+      "launcher_sha256": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4",
+      "package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+      "production_document_sha256": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+      "source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+      "source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "startup_arguments": [
+        "--demo",
+        "--offline",
+        "--screen",
+        "shelf"
+      ],
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    },
+    "candidate": {
+      "binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "build_configuration": {
+        "arm_compilation_proof_sha256": "9c48a552b5a908dedc6bad6b75b0fc19da6a69f2699fc17079bdb62d5f37b10b",
+        "binary_reused": true,
+        "codegen_units": 1,
+        "compiler_profile_sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "native_source_input_count": 544,
+        "native_source_inputs_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+        "package_source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+        "profile": "release",
+        "runtime_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+        "rust_rebuilt": false,
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      },
+      "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+      "document_sha256": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+      "entry_arguments": [
+        "--library"
+      ],
+      "instrumented_launcher_sha256": "952993d867171d471e41aad2b43fc928d03fcd560cc4959a7056628ec6a97760",
+      "launcher_sha256": "584ad6065565bf5529fd4ef17393a454a0db811824c685e104a360c82080dea4",
+      "package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+      "production_document_sha256": "7ac07e2a4e2b790642ff88787deaf05988e1bb8786d418b45bfd092d64d023f4",
+      "source_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+      "source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "startup_arguments": [
+        "--demo",
+        "--offline",
+        "--screen",
+        "shelf"
+      ],
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "kind": "bounded_protected_file_preservation_projection",
+  "report_source_id": "qualification-report",
+  "report_snapshot_count": 4,
+  "snapshots": [
+    {
+      "phase": "before",
+      "source_id": "aidoku-before",
+      "protected_record_count": 6,
+      "snapshot_bytes": 922,
+      "snapshot_sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6",
+      "record_bodies_and_paths_omitted": true
+    },
+    {
+      "phase": "before-writes",
+      "source_id": "aidoku-before-writes",
+      "protected_record_count": 6,
+      "snapshot_bytes": 922,
+      "snapshot_sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6",
+      "record_bodies_and_paths_omitted": true
+    },
+    {
+      "phase": "after-finish",
+      "source_id": "aidoku-after-finish",
+      "protected_record_count": 6,
+      "snapshot_bytes": 922,
+      "snapshot_sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6",
+      "record_bodies_and_paths_omitted": true
+    },
+    {
+      "phase": "before-release",
+      "source_id": "aidoku-before-release",
+      "protected_record_count": 6,
+      "snapshot_bytes": 922,
+      "snapshot_sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6",
+      "record_bodies_and_paths_omitted": true
+    }
+  ],
+  "all_four_snapshot_bytes_identical": true,
+  "six_protected_file_snapshots_unchanged": true,
+  "scope": "Only the six protected Aidoku file records at the four fixed phases. No file paths or contents are exported; this is not a wider device census."
+}

@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "kind": "bounded_failed_qualification_export_manifest",
+  "prepared_on": "2026-11-18",
+  "prepared_timezone": "Asia/Shanghai",
+  "run_id": "lib-qualify-20261117-b130366f",
+  "source_root": "bilicomics-native-library-entry-20261117-01a1d11a-r1",
+  "source_access": "ssh test-env; fixed known files and six fixed archive members only; no device/lease/private-transport access",
+  "fixed_source_allowlist": [
+    "runs/qual-r1/report.json",
+    "runs/qual-r1/evidence/lease-acquired.json",
+    "runs/qual-r1/evidence/lease-released.json",
+    "runs/qual-r1/evidence/transport-closure.json",
+    "runs/qual-r1/evidence/aidoku-protected-before.stdout",
+    "runs/qual-r1/evidence/aidoku-protected-before-writes.stdout",
+    "runs/qual-r1/evidence/aidoku-protected-after-finish.stdout",
+    "runs/qual-r1/evidence/aidoku-protected-before-release.stdout",
+    "runs/qual-r1/outputs.tar.gz"
+  ],
+  "fixed_archive_member_allowlist": [
+    "out/baseline-qualify/observer.log",
+    "out/baseline-qualify/recovery.json",
+    "out/baseline-qualify/admission-entry.tsv",
+    "out/baseline-qualify/admission-worker.tsv",
+    "out/baseline-qualify/entry-admission-status.txt",
+    "out/baseline-qualify/worker-exit-status.txt"
+  ],
+  "sources": [
+    {
+      "id": "qualification-report",
+      "origin": "runs/qual-r1/report.json",
+      "bytes": 14300,
+      "sha256": "175c9c912c9a5629d18504145acf2896c4226d1b1cce65e45925e3c74ecfac88",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "run_id",
+          "success",
+          "cancelled",
+          "started_at_utc",
+          "finished_at_utc",
+          "completed_cases",
+          "lease_released",
+          "native_restored",
+          "lighting_restored",
+          "catalog_restored",
+          "registration_unchanged",
+          "install_unchanged",
+          "input_roster_unchanged",
+          "temporary_stage_removed",
+          "transport_closed",
+          "same_boot"
+        ],
+        "command_selector": "commands[name=case-baseline-qualify or abort-active] -> name, returncode, timeout, interrupted",
+        "additional_selector": "aidoku_protected_snapshots -> count and SHA-256 equality only; no command/path values"
+      }
+    },
+    {
+      "id": "lease-acquired",
+      "origin": "runs/qual-r1/evidence/lease-acquired.json",
+      "bytes": 341,
+      "sha256": "1f7c743a1ef1e0908980e07bea6b0fe246227e71f1be2812e9e604c171fdd5c5",
+      "extraction": {
+        "top_level_fields": [
+          "run_id",
+          "ok",
+          "acquired_at_utc"
+        ]
+      }
+    },
+    {
+      "id": "lease-released",
+      "origin": "runs/qual-r1/evidence/lease-released.json",
+      "bytes": 564,
+      "sha256": "e8c1aeae96dcf02e6317471696eddd37afa22c173abb92638d0da8c0bcdf22c3",
+      "extraction": {
+        "top_level_fields": [
+          "run_id",
+          "ok",
+          "released_at_utc",
+          "owner_and_token_checked",
+          "native_restored_and_connections_closed",
+          "only_owned_owner_json_removed_then_rmdir",
+          "lease_directory_absent_after_release"
+        ]
+      }
+    },
+    {
+      "id": "transport-closure",
+      "origin": "runs/qual-r1/evidence/transport-closure.json",
+      "bytes": 337,
+      "sha256": "20c22e56e42e22b0ba36a3c19c5b01a845c806caa31234b0345646d06c28bce0",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "run_id",
+          "connections_closed",
+          "device_polled",
+          "lease_accessed",
+          "signals_sent",
+          "ssh_multiplexing",
+          "unreadable_host_process_count"
+        ],
+        "additional_selector": "len(active_owned_transports); omit all transport bodies"
+      }
+    },
+    {
+      "id": "aidoku-before",
+      "origin": "runs/qual-r1/evidence/aidoku-protected-before.stdout",
+      "bytes": 922,
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6",
+      "extraction": {
+        "transform": "Count nonempty records and compute the complete source byte length/SHA-256; compare the four fixed byte strings. Omit every record body and protected path."
+      }
+    },
+    {
+      "id": "aidoku-before-writes",
+      "origin": "runs/qual-r1/evidence/aidoku-protected-before-writes.stdout",
+      "bytes": 922,
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6",
+      "extraction": {
+        "transform": "Count nonempty records and compute the complete source byte length/SHA-256; compare the four fixed byte strings. Omit every record body and protected path."
+      }
+    },
+    {
+      "id": "aidoku-after-finish",
+      "origin": "runs/qual-r1/evidence/aidoku-protected-after-finish.stdout",
+      "bytes": 922,
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6",
+      "extraction": {
+        "transform": "Count nonempty records and compute the complete source byte length/SHA-256; compare the four fixed byte strings. Omit every record body and protected path."
+      }
+    },
+    {
+      "id": "aidoku-before-release",
+      "origin": "runs/qual-r1/evidence/aidoku-protected-before-release.stdout",
+      "bytes": 922,
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6",
+      "extraction": {
+        "transform": "Count nonempty records and compute the complete source byte length/SHA-256; compare the four fixed byte strings. Omit every record body and protected path."
+      }
+    },
+    {
+      "id": "output-archive",
+      "origin": "runs/qual-r1/outputs.tar.gz",
+      "bytes": 1326,
+      "sha256": "74653a2013d21646373852c32d1ede2c88ee95da83f58c3701bfbf85733a45fa",
+      "extraction": {
+        "transform": "Hash the original archive; read only the six named regular-file members; never extract to a filesystem or export the archive."
+      }
+    }
+  ],
+  "archive_members": [
+    {
+      "archive_source_id": "output-archive",
+      "member": "out/baseline-qualify/observer.log",
+      "bytes": 115,
+      "sha256": "47700379916fb713e7cd71f5b274606b58b8e39c42952c14901f6455bcae9d9c",
+      "extraction": {
+        "transform": "Project observer source line number, missing cmdline operation, and error text. Replace the numeric PID with <entry-pid>; omit the staged script path. Do not infer the deterministic cause."
+      }
+    },
+    {
+      "archive_source_id": "output-archive",
+      "member": "out/baseline-qualify/recovery.json",
+      "bytes": 571,
+      "sha256": "be3545f39f3b15b538f528758af44b711dc044d61b1bf0dface540ed3ef6e8b2",
+      "extraction": {
+        "top_level_fields": [
+          "schema_version",
+          "passed",
+          "reason",
+          "entry_seen",
+          "entry_live_observed",
+          "worker_seen",
+          "generation_bound",
+          "content_observed",
+          "entry_alive_at_content",
+          "worker_survived_entry_retirement",
+          "entry_gone",
+          "worker_gone",
+          "owned_processes_gone",
+          "native_restored",
+          "production_lock_absent",
+          "worker_signal_sent",
+          "status_helper_pending",
+          "worker_exit_status",
+          "exit_status_observed",
+          "entry_status",
+          "entry_status_observed"
+        ],
+        "omitted_fields": [
+          "application_pid",
+          "application_birth"
+        ]
+      }
+    },
+    {
+      "archive_source_id": "output-archive",
+      "member": "out/baseline-qualify/admission-entry.tsv",
+      "bytes": 44,
+      "sha256": "828b6a1de8e76ebdb9d230512aae2ad20c0b844213ae8c175e4b4ae589a5dbb7",
+      "extraction": {
+        "transform": "Count nonempty records only; omit the complete process/ownership record body."
+      }
+    },
+    {
+      "archive_source_id": "output-archive",
+      "member": "out/baseline-qualify/admission-worker.tsv",
+      "bytes": 42,
+      "sha256": "cc26921a301725617c7f8ffa4939e811cdc4c63c975f23fd5d6f55a933bec526",
+      "extraction": {
+        "transform": "Count nonempty records only; omit the complete process/ownership record body."
+      }
+    },
+    {
+      "archive_source_id": "output-archive",
+      "member": "out/baseline-qualify/entry-admission-status.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "extraction": {
+        "transform": "Parse the single decimal status value."
+      }
+    },
+    {
+      "archive_source_id": "output-archive",
+      "member": "out/baseline-qualify/worker-exit-status.txt",
+      "bytes": 4,
+      "sha256": "9d9b18720961e9b4689fd763b85e7b6f36160ccd3a8a1c9ddc5103bb0f66c396",
+      "extraction": {
+        "transform": "Parse the single decimal status value."
+      }
+    }
+  ],
+  "global_transformations": [
+    "Literal source_fields retain only explicit safe keys; original failure values are never overwritten by cleanup results.",
+    "Interpretation text is distinct from literal fields. Metadata disappearance is observed; the precise race cause is not proven.",
+    "Completed_cases remains empty. Planned cases or successful restoration are not accepted timing samples or qualification passes.",
+    "Report final restoration, protected snapshots, transport closure, and exact lease receipts are separate from qualification success.",
+    "Raw tokens/token fingerprints, owner UUIDs, numeric process identities, staged device paths, protected paths, device addresses, and transport bodies are omitted.",
+    "The earlier checkpoint, clock selfcheck, original reports, and original archive are not changed."
+  ],
+  "exported_payloads": [
+    {
+      "path": "README.md",
+      "bytes": 2335,
+      "sha256": "97cf8038a325a43345883c068992e979dba52649dc6814ce4da63c2f3fbdc587"
+    },
+    {
+      "path": "01-failed-qualification.json",
+      "bytes": 1633,
+      "sha256": "21a9e711f724f319575f152cea08bcefe45a784ca51fbc1df18da09dc6b565d0"
+    },
+    {
+      "path": "02-observer-and-recovery.json",
+      "bytes": 2354,
+      "sha256": "831947ac9223d07af883488a0d2f7273401d2f86b33e8475b25ba8119b54c523"
+    },
+    {
+      "path": "03-restoration-and-lease.json",
+      "bytes": 1677,
+      "sha256": "fd23e00d7170d32fc73576d6c9469545075b1a48d5d3ae463a59b1b9ba449be7"
+    },
+    {
+      "path": "04-aidoku-preservation.json",
+      "bytes": 1586,
+      "sha256": "f67f346462350878712b315964363a8fcb90c868f29fc64c094a9791589d716e"
+    }
+  ],
+  "checksum_scope": "SHA256SUMS covers README, four projections, and this manifest; the checksum list does not include itself."
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "kind": "failed_run_restoration_and_exact_release_projection",
+  "source_ids": [
+    "qualification-report",
+    "lease-acquired",
+    "lease-released",
+    "transport-closure"
+  ],
+  "report_restoration_fields": {
+    "run_id": "lib-qualify-20261117-b130366f",
+    "success": false,
+    "native_restored": true,
+    "install_unchanged": true,
+    "catalog_restored": true,
+    "lighting_restored": true,
+    "registration_unchanged": true,
+    "input_roster_unchanged": true,
+    "temporary_stage_removed": true,
+    "same_boot": true,
+    "transport_closed": true,
+    "lease_released": true
+  },
+  "lease_acquired_source_fields": {
+    "run_id": "lib-qualify-20261117-b130366f",
+    "ok": true,
+    "acquired_at_utc": "2026-11-17T21:00:50.786927+00:00"
+  },
+  "lease_released_source_fields": {
+    "run_id": "lib-qualify-20261117-b130366f",
+    "ok": true,
+    "released_at_utc": "2026-11-17T21:02:15.250484+00:00",
+    "owner_and_token_checked": true,
+    "native_restored_and_connections_closed": true,
+    "only_owned_owner_json_removed_then_rmdir": true,
+    "lease_directory_absent_after_release": true
+  },
+  "transport_closure_source_fields": {
+    "schema_version": 1,
+    "run_id": "lib-qualify-20261117-b130366f",
+    "connections_closed": true,
+    "device_polled": false,
+    "lease_accessed": false,
+    "signals_sent": false,
+    "ssh_multiplexing": false,
+    "unreadable_host_process_count": 0
+  },
+  "active_owned_transport_count": 0,
+  "interpretation": "These stored restoration and exact-lease-release results do not convert the failed qualification into a pass. Raw owner, token/hash, and transport identities are omitted."
+}

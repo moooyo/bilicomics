@@ -1,0 +1,164 @@
+{
+  "aidoku_protection": {
+    "files": [
+      {
+        "content_sha256": "709cefdf00318d40a3ee7cb8a5cc8b47e4b8c7865677040779a61264ae086960",
+        "path": "/mnt/us/documents/Aidoku.sh"
+      },
+      {
+        "content_sha256": "10432125b74ab5b69c8a0ec54a34abd5a74dc4a3cc9ed9b9d5cc8d03bbd75296",
+        "path": "/mnt/us/aidoku/launch.sh"
+      },
+      {
+        "content_sha256": "62de2771891b5bf8f720572c4544a3a732d619fa95131111cb00bccb6e0bc612",
+        "path": "/mnt/us/aidoku/app/aidoku"
+      },
+      {
+        "content_sha256": "84c2f27d8233d8695001aa86d880e29454fe188deb9884aca1c6694c82a5887d",
+        "path": "/mnt/us/aidoku/app/aidoku-native-query"
+      },
+      {
+        "content_sha256": "dde92cb1ae5f1dbf37db61e179a55522edea3759567fba74714f4954955dbf31",
+        "path": "/mnt/us/aidoku/assets/aidoku-cover-v2.png"
+      },
+      {
+        "content_sha256": "2db100d0bcb60a76571cd8de96bed7ea6c016e6ab73e388a885f692955cacd86",
+        "path": "/var/local/kindle-catalog-entry/v1-2db100d0bcb60a76571cd8de96bed7ea6c016e6ab73e388a885f692955cacd86/aidoku-library-dispatch"
+      }
+    ],
+    "fixed_file_count": 6,
+    "four_snapshots_equal": true,
+    "scope": "Exact selected regular-file identities; not a whole-tree census",
+    "snapshot_sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6"
+  },
+  "aidoku_snapshot_fields": [
+    {
+      "phase": "before",
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6"
+    },
+    {
+      "phase": "before-writes",
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6"
+    },
+    {
+      "phase": "after-finish",
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6"
+    },
+    {
+      "phase": "before-release",
+      "sha256": "3f0173905979e4ad96ec3e27d53a7c1e6adf6140d93d5fa704779ec0f22825a6"
+    }
+  ],
+  "command_outcomes": {
+    "all_returncode_zero": true,
+    "count": 125,
+    "interrupted_count": 0,
+    "timeout_count": 0
+  },
+  "current_registration": {
+    "deployed_wrapper_source_to_binary_independently_reverified": false,
+    "historical_registration_sha256_not_restoration_baseline": "a594716cfe9a66e912d5883ad0ae3721f7d4f4196c13d04f7ed3158865412471",
+    "observation_count": 16,
+    "observations_all_equal": true,
+    "raw_sha256": "bcc9333f46cbe59860b343706fdd36bbb88a63eb776e61d1f03c98746c15dd99",
+    "reference_commit": "78c5b2bc09a469133c886eb0d73aaf9ed63195b2",
+    "selected_canonical_sha256": "cfc0381d6262afe7aff58534a832a6c15eea3903f07f35b831c69c7102acf804"
+  },
+  "identity_qualification": {
+    "original_native_identity_preserved": true,
+    "same_private_token_digest": true,
+    "scope": "Stored normal-exit restoration and exact owned release only; no lifecycle or physical-pixel acceptance."
+  },
+  "readonly_sqlite": {
+    "all_first_attempt": true,
+    "all_returncode_zero": true,
+    "attempt_count": 46
+  },
+  "report_fields": {
+    "cancelled": false,
+    "cases": [
+      "baseline-warmup",
+      "candidate-warmup",
+      "baseline-01",
+      "candidate-01",
+      "candidate-02",
+      "baseline-02",
+      "baseline-03",
+      "candidate-03",
+      "candidate-04",
+      "baseline-04",
+      "baseline-05",
+      "candidate-05",
+      "candidate-06",
+      "baseline-06"
+    ],
+    "catalog_restored": true,
+    "completed_cases": [
+      "baseline-warmup",
+      "candidate-warmup",
+      "baseline-01",
+      "candidate-01",
+      "candidate-02",
+      "baseline-02",
+      "baseline-03",
+      "candidate-03",
+      "candidate-04",
+      "baseline-04",
+      "baseline-05",
+      "candidate-05",
+      "candidate-06",
+      "baseline-06"
+    ],
+    "finished_at_utc": "2026-11-17T20:39:31.192933+00:00",
+    "input_roster_unchanged": true,
+    "install_unchanged": true,
+    "kind": "ab",
+    "lease_released": true,
+    "lighting_restored": true,
+    "native_restored": true,
+    "preservation_path_count": 6,
+    "preservation_scope": "Exact selected regular-file identities, including recorded absences; this is not a whole-tree census",
+    "registration_unchanged": true,
+    "run_id": "lib-ab-20261117-2e297ef4",
+    "same_boot": true,
+    "schema_version": 1,
+    "started_at_utc": "2026-11-17T20:31:56.693810+00:00",
+    "success": true,
+    "temporary_stage_removed": true,
+    "transport_closed": true
+  },
+  "schema_version": 1,
+  "stored_receipt_fields": {
+    "lease-acquired": {
+      "acquired_at_utc": "2026-11-17T20:31:56.706115+00:00",
+      "ok": true,
+      "operation": "acquire",
+      "project": "BiliComics",
+      "run_id": "lib-ab-20261117-2e297ef4",
+      "state": "held"
+    },
+    "lease-released": {
+      "lease_directory_absent_after_release": true,
+      "native_restored_and_connections_closed": true,
+      "ok": true,
+      "only_owned_owner_json_removed_then_rmdir": true,
+      "operation": "release",
+      "owner_and_token_checked": true,
+      "project": "BiliComics",
+      "released_at_utc": "2026-11-17T20:39:31.192830+00:00",
+      "run_id": "lib-ab-20261117-2e297ef4",
+      "state": "released"
+    },
+    "transport-closure": {
+      "active_owned_transports_count": 0,
+      "connections_closed": true,
+      "device_polled": false,
+      "lease_accessed": false,
+      "run_id": "lib-ab-20261117-2e297ef4",
+      "schema_version": 1,
+      "signals_sent": false,
+      "ssh_multiplexing": false,
+      "unreadable_host_process_count": 0
+    }
+  }
+}

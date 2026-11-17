@@ -2,18 +2,24 @@
 
 ## Status
 
-The implementation and remote software checks are complete. **The candidate
-has not completed formal-entry device qualification and is not adopted on
-main.** The active candidate source is
+The implementation, remote software checks and first formal-entry timing
+comparison are complete. **Separate pixel/entry-retirement and reader
+lifecycle qualification are pending; the candidate is not adopted on main.**
+The active candidate source is
 `39fac822a982868078201e605e50bdacf1dcf3ed` on `codex/library-entry-lifetime`.
 Main remains at the previously qualified `f8c24f8` runtime.
 
-All four attempted timing batches stopped before dispatching an application;
-there are zero startup samples. The later tiny device selfchecks pass only
-observer initialization and private clock-record creation/copy. Neither proves a startup gain, working
-Library lifetime, or same-process screensaver behavior for this candidate.
-Further device work was deferred when the shared Kindle was reassigned to the
-higher-priority project. BiliComics has restored and released its exact leases.
+The first four attempted timing batches stopped before dispatching an
+application. After the harness corrections and two bounded initialization
+selfchecks, `lib-ab-20261117-2e297ef4` completed all fourteen launches.
+The six primary pairs show a first Shelf SEND median of 6820.739 to 6288.531 ms,
+with five pairs faster. This timing evidence does not establish optical panel
+completion or same-process screensaver behavior. Every executed device batch
+has been restored and its exact owned lease released.
+
+A later independent qualification batch stopped at its first baseline identity
+observation and completed no qualification cases. Its failed status and full
+recovery are retained separately; the successful timing comparison is unchanged.
 
 ## Implementation
 
@@ -92,7 +98,82 @@ retains actual commands, warnings, complete logs, failed verifier attempt,
 package provenance, entry audit and a source-mapped export manifest. The ZIP
 retains `device_verified=false`.
 
-## Bounded device observations and harness corrections
+## First completed formal-entry timing comparison
+
+Batch `lib-ab-20261117-2e297ef4` retains two warmups followed by six alternating
+AB/BA pairs (three ABBA blocks). Both variants open the actual indexed
+`file:///mnt/us/documents/bilicomics.sh` through the native application manager.
+The same product ELF, JPEG worker, common instrumented launcher, warm offline
+fixture and device boot are used. Only the document's final `--library`
+argument differs. Common research instrumentation and its source hashes are
+separate from the production package; no parent is inserted between the
+waiting entry and its worker.
+
+| Endpoint from the native request | Detached control median, ms | Library-wait median, ms | Candidate faster |
+| --- | ---: | ---: | ---: |
+| Software Ready | 6055.705 | 5582.248 | 4/6 |
+| First Shelf accepted SEND | 6820.739 | 6288.531 | 5/6 |
+
+The difference of SEND medians is 532.208 ms (about 7.8%); the median paired
+reduction is 424.326 ms. Candidate pair 01 was 33.072 ms slower and remains in
+the distribution. No run or slow sample was replaced or removed.
+
+Each request follows eight seconds of native stabilization, excluded from its
+measured interval; observed brackets are 8307.861–8585.456 ms. All 28 private
+clock records have mode `0600` and match the archived bytes/hashes. The source
+clock and its pre-exec sampling origin remain unchanged. The accepted business
+frame must render after the real Ready timestamp. Neither endpoint is a
+physical tap, optical completion, complete-cover or input-ready measurement.
+
+All fourteen final logical Slint captures have identical full RGBA pixels at
+1860x2480. These exit-time snapshots are not live framebuffer qualification.
+Separate capture and lifecycle batches are still required.
+
+This batch preserves the **new** Aidoku-only Scriptlet registration captured
+in the current inventory, rather than the old registration used by earlier
+harness attempts. Its selected read-only projection is
+`cfc0381d6262afe7aff58534a832a6c15eea3903f07f35b831c69c7102acf804`.
+The wrapper, Aidoku document, launcher, application/helper and cover fixed-file
+snapshots remain unchanged before/after. No registry database or Aidoku file
+is restored from an old snapshot. The current wrapper's passthrough policy is
+an installed integration condition, not an independently rebuilt binary proof.
+
+Native state, lighting, BiliComics' original absent paths/catalog rows,
+registration, boot and input metadata were restored/unchanged; all connections
+closed. The exact lease interval was `2026-11-17T20:31:56.706115+00:00` through
+`2026-11-17T20:39:31.192830+00:00` (about 7 min 34 sec), followed immediately by
+the handoff notification. The preceding temporary-script absolute timings
+must not be treated as this formal entry's baseline.
+
+[The formal AB export](physical/native-library-entry-20261118/formal-ab/README.md)
+retains all fourteen case projections, raw integer endpoint clocks, exact
+statistics, independent audit, safe restoration/provenance projections and one
+original logical PNG. The complete private originals remain source-hash bound.
+
+## Independent qualification attempt
+
+The subsequent `lib-qualify-20261117-b130366f` batch failed on its first
+`baseline-qualify` observation with `identity-unproven`. It completed no pixel,
+entry-retirement or cancellation qualification case. Its observer log records
+the entry's `cmdline` disappearing during an identity read. The entry's actual
+admission status was 0; recovery bound the detached worker and its generation,
+requested TERM, observed worker status 143, and restored native control.
+
+Original installation/document/catalog absence, lighting, current registration,
+selected Aidoku files, boot and input metadata were preserved or restored.
+Connections closed and the exact lease acquired at
+`2026-11-17T21:00:50.786927+00:00` was released at
+`2026-11-17T21:02:15.250484+00:00`. The failed result remains independent of the
+successful AB. A host-only deterministic reproduction is required before
+correcting the observer and preparing any fresh qualification batch. No product
+source or selected package change follows from this failure.
+
+[The failed qualification export](physical/native-library-entry-20261118/qualification-r1/README.md)
+keeps the original failed observer status, separate cleanup results and exact
+release projections with source hashes. Cleanup success is not a qualification
+pass.
+
+## Earlier bounded observations and harness corrections
 
 The initial read-only inventory found both known document spellings and the
 canonical `/mnt/us/bilicomics` install absent; the two document paths had zero
@@ -108,7 +189,7 @@ The original default shell MIME association and shared executable remain:
 - executable SHA-256:
   `2b3db59ed7856b3f5026e3837f7ef07fc9bb6bc1c042274b48b3cd3fc2e04abc`.
 
-The failed batches are retained separately; none supplies a latency sample:
+The earlier failed batches are retained separately; none supplies a latency sample:
 
 [The bounded checkpoint export](physical/native-library-entry-20261118/checkpoint/README.md)
 keeps their failed statuses, independent recovery receipts and initialization
@@ -179,12 +260,11 @@ reindexes on `SCANNER_UPDATE`. This candidate does not change that policy.
 
 ## Evidence still required before adoption
 
-The real indexed path must open through native file URI on both sides, with
-only the document's `--library` argument different. Predetermined warmups and
-six balanced AB/BA pairs must retain every observation. An eight-second native
-stabilization period precedes, and is excluded from, each request. Endpoints
-are BiliComics' existing software Ready and first accepted Shelf SEND; this
-build has no qualified visible-cover or software-input-ready stamp.
+The completed timing comparison opens the real indexed path on both sides,
+keeps only the document's `--library` argument different, and retains the
+predetermined warmups and all six balanced AB/BA pairs. Its excluded native
+stabilization period and two software/SEND endpoints do not supply a qualified
+visible-cover or software-input-ready stamp.
 
 Separate qualification must cover native pixels, actual worker/entry lifetime,
 normal exit, precise restoration and same-process reader screensaver cycles.
