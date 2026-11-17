@@ -4,10 +4,11 @@
 
 The implementation, remote software checks, first formal-entry timing comparison
 and separate framebuffer/entry-retirement qualification are complete.
-**Reader lifecycle qualification is pending; the candidate is not adopted on main.**
-The active candidate source is
-`39fac822a982868078201e605e50bdacf1dcf3ed` on `codex/library-entry-lifetime`.
-Main remains at the previously qualified `f8c24f8` runtime.
+The Library entry change was merged to `main` by operator request on 2026-11-18.
+**Manual reader sleep/wake and UI-exit qualification remain pending.**
+The merged implementation is `39fac822a982868078201e605e50bdacf1dcf3ed`;
+`e8d06e3` records the automatic qualification on the merged branch. The merge
+does not deploy the package or establish manual device acceptance.
 
 The first four attempted timing batches stopped before dispatching an
 application. After the harness corrections and two bounded initialization
@@ -325,7 +326,7 @@ requests normal timestamp/scan updates, and the
 [extractor](https://github.com/KindleModding/sh_integration/blob/adb7ef5c570a25c76fd64e94837ae0f590bd3b9c/extractor/main.c)
 reindexes on `SCANNER_UPDATE`. This candidate does not change that policy.
 
-## Evidence still required before adoption
+## Pending manual device qualification
 
 The completed timing comparison opens the real indexed path on both sides,
 keeps only the document's `--library` argument different, and retains the
