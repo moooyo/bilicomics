@@ -1,0 +1,21 @@
+{
+  "active_owned_transport_count": 0,
+  "derivation": "Fixed allowlist completed-closure projection; private ownership values excluded.",
+  "fields": {
+    "checked_at_utc": "2026-11-17T10:29:37.989624+00:00",
+    "connections_closed": true,
+    "device_polled": false,
+    "lease_accessed": false,
+    "run_id": "startup-sleep-20261117-a1067e98",
+    "schema_version": 1,
+    "scope": "Host-only exact startup sleep batch path markers after all bounded nonmultiplexed calls returned; raw command lines are not exported",
+    "signals_sent": false,
+    "ssh_multiplexing": false,
+    "unreadable_host_process_count": 0
+  },
+  "source": {
+    "bytes": 542,
+    "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.closure.json",
+    "sha256": "451abd3087c26870cd02c22ec2d3025d9c015d65fe2cba89050fd847ac4c13e1"
+  }
+}

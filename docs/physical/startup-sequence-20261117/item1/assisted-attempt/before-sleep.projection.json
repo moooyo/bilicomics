@@ -1,0 +1,41 @@
+{
+  "derivation": "Fixed allowlist projection of the before-sleep checkpoint; no image, titles, IDs, paths or private ownership values.",
+  "framebuffer_image_exported": false,
+  "latest_power": null,
+  "native_epdc_mode": "Y8",
+  "native_process": {
+    "demo_offline_native_arguments_verified": true,
+    "exe_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+    "pid": 3140,
+    "start_ticks": 21197129
+  },
+  "reader": {
+    "fit": "page",
+    "frame_height": 2480,
+    "frame_width": 1860,
+    "left_page_number": 18,
+    "menu": false,
+    "mode": "page",
+    "page_index": 17,
+    "page_number": 18,
+    "reader_generation": 2,
+    "refresh_mode": "normal",
+    "rendering": false,
+    "right_page_number": 0,
+    "rotation": 0,
+    "route": "reader",
+    "transition": false,
+    "viewport_height": 2480,
+    "viewport_width": 1860
+  },
+  "requested_checkpoint": "reader",
+  "route": "reader",
+  "source": {
+    "bytes": 11195,
+    "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/before-sleep.checkpoint.json",
+    "sha256": "25bca99d3603d51c395889ac46b1506722a270d51ce65019252284317b7a9f21"
+  },
+  "trace_records": 30,
+  "ui_reader_loading": false,
+  "ui_reader_transition": false
+}

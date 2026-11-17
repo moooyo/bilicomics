@@ -1,0 +1,21 @@
+{
+  "derivation": "Fixed allowlist completed-release projection; private ownership values and token digest excluded.",
+  "fields": {
+    "lease_directory_absent_after_release": true,
+    "native_restored_and_connections_closed": true,
+    "ok": true,
+    "only_owned_owner_json_removed_then_rmdir": true,
+    "operation": "release",
+    "owner_and_token_checked": true,
+    "private_token_retained": true,
+    "project": "BiliComics",
+    "released_at_utc": "2026-11-17T10:29:38.030434+00:00",
+    "run_id": "startup-sleep-20261117-a1067e98",
+    "state": "released"
+  },
+  "source": {
+    "bytes": 566,
+    "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.release.json",
+    "sha256": "cb8c59de36edf9ddd54321938444d49ec213183ec4dd27eaccdd3384087dc8c4"
+  }
+}

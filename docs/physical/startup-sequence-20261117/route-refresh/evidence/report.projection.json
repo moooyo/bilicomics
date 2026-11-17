@@ -1,0 +1,65 @@
+{
+  "derivation": "Fixed allowlist projection, not original report bytes.",
+  "fields": {
+    "cancelled": false,
+    "cases": [
+      "baseline-warmup",
+      "candidate-warmup",
+      "baseline-01",
+      "candidate-01",
+      "candidate-02",
+      "baseline-02",
+      "baseline-03",
+      "candidate-03",
+      "candidate-04",
+      "baseline-04",
+      "baseline-05",
+      "candidate-05",
+      "candidate-06",
+      "baseline-06"
+    ],
+    "completed_cases": [
+      "baseline-warmup",
+      "candidate-warmup",
+      "baseline-01",
+      "candidate-01",
+      "candidate-02",
+      "baseline-02",
+      "baseline-03",
+      "candidate-03",
+      "candidate-04",
+      "baseline-04",
+      "baseline-05",
+      "candidate-05",
+      "candidate-06",
+      "baseline-06"
+    ],
+    "finished_at_utc": "2026-11-17T11:03:28.437825+00:00",
+    "input_roster_unchanged": true,
+    "install_unchanged": true,
+    "lease_released": true,
+    "lighting_restored": true,
+    "native_restored": true,
+    "post_business_observation": {
+      "all_cases_cross_gate": true,
+      "procfs_sampling": "After the post-business gate and any scheduled framebuffer capture; not exact SEND sampling or a continuous peak",
+      "target": "first qualified business SEND plus 1500 ms"
+    },
+    "preservation_path_count": 9,
+    "preservation_scope": "Exact selected regular-file identities, including recorded absences; this is not a whole-tree census",
+    "primary_rounds": 6,
+    "run_id": "startup-route-20261117-196c8a73",
+    "same_boot": true,
+    "schema_version": 1,
+    "scope": "One fresh aggregate lease; warmup A/B then six balanced AB/BA pairs; one shared source/package/ELF/compiler identity and only the frozen legacy route-refresh flag differs; both variants retain default startup preparation; offline demo snapshot; native Scriptlet route; CLOCK_MONOTONIC readiness and first Shelf SEND endpoints; no optical or complete-cover claim.",
+    "started_at_utc": "2026-11-17T10:57:15.120226+00:00",
+    "success": true,
+    "temporary_stage_removed": true,
+    "transport_closed": true
+  },
+  "source": {
+    "bytes": 13185,
+    "path": "/root/bilicomics-physical-startup-route-20261117-196c8a73/report.json",
+    "sha256": "dec81ee7cd2d7e9032735bbd07dfe9c900cc783754542c2602a54e615e933091"
+  }
+}

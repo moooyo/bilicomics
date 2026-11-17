@@ -1,0 +1,28 @@
+{
+  "inputs": {
+    "analysis.json": "de6cd8fa9b7d2f4faa6e5ac876543cd8464f480abf917f6f8714a35cc86f9751",
+    "outputs.tar.gz": "d3a46de96b5d4881f09007eb366aa8242c56b092dc795933607f5bec03ec068f",
+    "report.json": "dec81ee7cd2d7e9032735bbd07dfe9c900cc783754542c2602a54e615e933091"
+  },
+  "outputs": {
+    "README.md": {
+      "bytes": 15635,
+      "sha256": "213d4f47b945fba8961fe1d7c9345c3c92f3248e615000313a3143f67d63b5fa"
+    },
+    "frame-spans.csv": {
+      "bytes": 46297,
+      "sha256": "904dde0d7b6860c47836cff43caee7deeb8ea2011c281c21f355dd17ec39642a"
+    },
+    "route-analysis.json": {
+      "bytes": 983133,
+      "sha256": "973e19a44826f34498cdef6edba2bf16f5957174e35e602fafc16972d7788ef0"
+    },
+    "timeline.csv": {
+      "bytes": 3012,
+      "sha256": "dda14ae1c9ac69e98246766a66beb640319752de0052d342a13713cf267237f6"
+    }
+  },
+  "processing": "Derived stored-evidence analysis only on test-env; no new runtime/device/test/build work and no raw-byte changes",
+  "schema_version": 1,
+  "script_sha256": "6bba5a54bc92782c2059ea08e0409efa33739c62842afbd683137f23c432b764"
+}

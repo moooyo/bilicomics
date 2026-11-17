@@ -1,0 +1,77 @@
+{
+  "application_liveness": "same_ui_process_verified_before_and_after_both_capture_windows",
+  "application_software_inversion_reapplied": false,
+  "capture_window": {
+    "bracket_wall_ms": 660.513077,
+    "complete_after_first_business_send_ms": 2162.121538,
+    "complete_monotonic_ns": 149092861569346,
+    "request_after_first_business_send_ms": 1501.608461,
+    "request_monotonic_ns": 149092201056269,
+    "scope": "Clock request before framebuffer-helper exec through completion marker after helper success; a software observation bracket, not optical-panel timing"
+  },
+  "complete_visible_frame_preserved": true,
+  "derivation": "Lossless full-visible-memory projection, not a panel photograph or optical completion observation.",
+  "epdc_inversion_applied": false,
+  "framebuffer_visual_inversion_applied": false,
+  "geometry": {
+    "bits_per_pixel": 8,
+    "blue_length": 8,
+    "blue_msb_right": 0,
+    "blue_offset": 0,
+    "byte_order": "little",
+    "grayscale": 1,
+    "green_length": 8,
+    "green_msb_right": 0,
+    "green_offset": 0,
+    "height": 2480,
+    "line_length": 1872,
+    "read_only": true,
+    "red_length": 8,
+    "red_msb_right": 0,
+    "red_offset": 0,
+    "rotate": 3,
+    "smem_len": 9285120,
+    "virtual_height": 4960,
+    "virtual_width": 1872,
+    "visible_bytes": 4612800,
+    "visual": 1,
+    "width": 1860,
+    "xoffset": 0,
+    "yoffset": 0
+  },
+  "native_epdc_mode": "Y8",
+  "native_epdc_mode_provenance": "Same isolated application's native EPDC mode in its final logical-snapshot sidecar; no intervening lifecycle transitions permitted",
+  "observation_timing": {
+    "capture_request": {
+      "boottime_ns": 214350283679062,
+      "monotonic_ns": 149092201056269,
+      "pid": 16462
+    },
+    "capture_request_after_first_business_send_ms": 1501.608461,
+    "deadline_slip_ms": 1.608461,
+    "scope": "Scheduled framebuffer capture request before record write/close/exec; not exact framebuffer pread start, startup readiness or SEND endpoint",
+    "target_after_first_business_send_ms": 1500,
+    "target_monotonic_ns": 149092199447808
+  },
+  "padding_included": false,
+  "physical_panel_update_confirmed": false,
+  "png": {
+    "bytes": 128999,
+    "height": 2480,
+    "mode": "L",
+    "path": "images/candidate-06-scheduled-memory.png",
+    "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+    "width": 1860
+  },
+  "source": {
+    "bytes": 4613205,
+    "path": "/root/bilicomics-physical-startup-route-20261117-196c8a73/outputs/out/candidate-06/settled-frame.raw",
+    "sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104"
+  },
+  "source_header_bytes": 404,
+  "source_header_sha256": "8f2e91b33e52577e3127987cae65c493481400ce5c4a875b94c5aba89dca2e2e",
+  "source_separator_bytes": 1,
+  "source_visible_pixel_bytes": 4612800,
+  "source_visible_pixel_sha256": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+  "transformation": "Lossless PNG encoding of all packed visible Gray8 memory bytes after the JSON header; no crop, resize, rotation, inversion, masking, tone correction or panel compensation."
+}

@@ -1,0 +1,108 @@
+{
+  "passed": true,
+  "physical_device": false,
+  "native_device_opened": false,
+  "source_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+  "runner_sha256": "f6b5125af5528799695fec087dfdf43adb3080a27447427092f08036e498375c",
+  "process_cleanup_helper_sha256": "0eb2ac52503a8fbc7a214f07b6c1f07232730e4badfee5aa64f56e9b03259ac6",
+  "production_lock_sha256": "a732ae40f2c7f9761d8984451b40b70494c560e7057203a56bd992cf7be974fa",
+  "touch_sha256": "218780a47e72c2ff5d2754619f32ad94e7eea034909ef7980d9f60ea02f85a20",
+  "commands": [
+    {
+      "name": "lock-resolution",
+      "arguments": [
+        "cargo",
+        "update",
+        "--workspace",
+        "--offline"
+      ]
+    },
+    {
+      "name": "build",
+      "arguments": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--lib",
+        "--no-run",
+        "--message-format=json"
+      ]
+    },
+    {
+      "name": "tests",
+      "arguments": [
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/backend/backend-tests-26c549d53e7b",
+        "--nocapture",
+        "--test-threads=1"
+      ]
+    }
+  ],
+  "production_patch_inputs": [
+    {
+      "package": "zune-jpeg",
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app/vendor/zune-jpeg",
+      "manifest_sha256": "27a23bbab6a149057e85273ccde42617d6849be0e4bb1a962e0e8dbee3917884"
+    }
+  ],
+  "standalone_manifest_sha256": "a5f87e3806ae6ebe6d3d54990079c1a98536927ea61cf132cae0e8d9eb60f7b4",
+  "standalone_lock_sha256": "bf9b15751de0906a51020361fc518fe7ca6f0a82fb6bc5f968c6ee0daf6f4f35",
+  "dependency_alignment": {
+    "all_versions_and_checksums_match_production": true,
+    "standalone_packages": 465,
+    "mismatches": []
+  },
+  "test_binary": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/backend/backend-tests-26c549d53e7b",
+    "sha256": "26c549d53e7b8ba0217c0a42bad013c17a2a143fbff1a824840e32ad39950107",
+    "bytes": 32312760
+  },
+  "tests": {
+    "passed": 244,
+    "failed": 0,
+    "ignored": 0
+  },
+  "checked_touch_tests": [
+    "a_second_loss_during_snapshot_keeps_the_report_boundary_closed",
+    "accelerometer_is_a_pressure_only_device",
+    "calibrated_portrait_touch_reaches_both_corners_at_one_scale",
+    "diagnostic_legacy_coordinates_do_not_feed_the_pointer",
+    "drain_resets_local_contact_and_reports_a_closed_or_partial_stream",
+    "drained_wake_coordinates_survive_without_replaying_the_wake_contact",
+    "global_btn_cannot_claim_a_stale_slot_before_its_tracking_id",
+    "input_diagnostic_budget_stays_exhausted_after_sixteen_records",
+    "legacy_contact_waits_for_observed_coordinates_instead_of_trusting_mt_absinfo",
+    "live_reorientation_loss_uses_fresh_positions_and_requires_a_new_contact",
+    "live_reorientation_snapshot_failure_keeps_input_gated_until_recovery",
+    "live_reorientation_waits_for_the_loss_report_without_querying_early",
+    "non_slot_tracking_capability_retains_legacy_btn_release",
+    "opening_discards_older_implicit_slot_prefix_and_retries_snapshot_races",
+    "panel_coordinates_apply_window_scale_after_rotation",
+    "reopened_slot_reuses_unchanged_axes_and_keeps_secondary_positions_separate",
+    "slot_snapshots_require_valid_ranges_complete_values_and_successful_ioctls",
+    "suspended_contact_cancels_without_click_and_requires_a_new_sequence",
+    "undo_rotation_inverts_slints_rendering_rotation"
+  ],
+  "checked_touch_test_results": {
+    "a_second_loss_during_snapshot_keeps_the_report_boundary_closed": "ok",
+    "accelerometer_is_a_pressure_only_device": "ok",
+    "calibrated_portrait_touch_reaches_both_corners_at_one_scale": "ok",
+    "diagnostic_legacy_coordinates_do_not_feed_the_pointer": "ok",
+    "drain_resets_local_contact_and_reports_a_closed_or_partial_stream": "ok",
+    "drained_wake_coordinates_survive_without_replaying_the_wake_contact": "ok",
+    "global_btn_cannot_claim_a_stale_slot_before_its_tracking_id": "ok",
+    "input_diagnostic_budget_stays_exhausted_after_sixteen_records": "ok",
+    "legacy_contact_waits_for_observed_coordinates_instead_of_trusting_mt_absinfo": "ok",
+    "live_reorientation_loss_uses_fresh_positions_and_requires_a_new_contact": "ok",
+    "live_reorientation_snapshot_failure_keeps_input_gated_until_recovery": "ok",
+    "live_reorientation_waits_for_the_loss_report_without_querying_early": "ok",
+    "non_slot_tracking_capability_retains_legacy_btn_release": "ok",
+    "opening_discards_older_implicit_slot_prefix_and_retries_snapshot_races": "ok",
+    "panel_coordinates_apply_window_scale_after_rotation": "ok",
+    "reopened_slot_reuses_unchanged_axes_and_keeps_secondary_positions_separate": "ok",
+    "slot_snapshots_require_valid_ranges_complete_values_and_successful_ioctls": "ok",
+    "suspended_contact_cancels_without_click_and_requires_a_new_sequence": "ok",
+    "undo_rotation_inverts_slints_rendering_rotation": "ok"
+  },
+  "inputs_unchanged": true
+}

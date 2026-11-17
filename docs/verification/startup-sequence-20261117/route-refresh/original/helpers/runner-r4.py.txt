@@ -1,0 +1,729 @@
+#!/usr/bin/env python3
+"""Verify one frozen startup-sequence candidate only on the designated worker."""
+
+import argparse
+import datetime
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path, PurePosixPath
+import platform
+import re
+import shutil
+import signal
+import subprocess
+import sys
+import tarfile
+import time
+import tomllib
+import traceback
+
+
+ROOT = Path("/root/bilicomics-startup-sequence-20261117-01a1d11a-r1")
+VARIANT = ROOT / "candidate-r2"
+SOURCE = VARIANT / "app"
+TARGET = ROOT / "target"
+OUTPUT = ROOT / "checks-r4"
+PREDECESSOR_OUTPUT = ROOT / "checks-r3"
+PREDECESSOR_SOURCE = ROOT / "candidate-r1/app"
+PREDECESSOR_SUMMARY_SHA256 = "1f657d3c00494362b4518ea2535326d60a567bbcdf1ed64a8e4989a2b184aaae"
+PACKAGE_MODULES = (
+    "test_native_media_package", "test_spatial_dither_package", "test_startup_package",
+)
+IGNORED_BENCHMARKS = {
+    "app::perf05_benchmark::perf05_controlled_host",
+    "reader::profile_tests::measure_reader_stage_candidates",
+    "reader::profile_tests::verify_full_frame_cancellable_production_paths",
+    "reader::triangle::tests::exhaustive_rounding_core_matches_the_original_float_conversion",
+}
+FORBIDDEN_DIAGNOSTICS = (
+    b"aidoku: startup-probe", b"aidoku: startup-probe-barrier",
+    b"render_us=", b"settle_us=", b"submit_us=", b"wait_us=",
+)
+EXPECTED_BACKEND_LITERALS = (
+    b"input discovery metadata is unavailable or inconsistent", b"/sys/class/input",
+    b"device/capabilities/abs", b"device/name",
+)
+EXPECTED_APP_LITERALS = (
+    b"backend_install_begin", b"bootstrap_font_registered", b"serial-startup-preparation",
+    b"legacy-startup-route-refresh",
+)
+
+
+def now():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def require(condition, message):
+    if not condition:
+        raise RuntimeError(message)
+
+
+def sha256(path):
+    value = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            value.update(block)
+    return value.hexdigest()
+
+
+def identity(path):
+    path = Path(path)
+    require(path.is_file() and not path.is_symlink(), "An identity input is not a regular file: " + str(path))
+    return {"path": str(path), "bytes": path.stat().st_size, "sha256": sha256(path)}
+
+
+def write_json(path, value):
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    temporary.replace(path)
+
+
+def stop_owned_group(process):
+    """Stop only this stage's process group, allowing nested verifiers to clean up."""
+    record = {"process_id": process.pid, "process_group": process.pid,
+              "term_sent": False, "kill_sent": False}
+
+    def exists():
+        try:
+            os.killpg(process.pid, 0)
+            return True
+        except ProcessLookupError:
+            return False
+
+    def send(signum):
+        try:
+            os.killpg(process.pid, signum)
+            return True
+        except ProcessLookupError:
+            return False
+
+    if exists():
+        record["term_sent"] = send(signal.SIGTERM)
+        deadline = time.monotonic() + 55
+        while exists() and time.monotonic() < deadline:
+            process.poll()
+            time.sleep(0.1)
+    if exists():
+        record["kill_sent"] = send(signal.SIGKILL)
+    try:
+        process.wait(timeout=5)
+        record["leader_reaped"] = True
+    except subprocess.TimeoutExpired:
+        record["leader_reaped"] = False
+    record["owned_process_group_gone"] = not exists()
+    record["leader_exit_code"] = process.returncode
+    return record
+
+
+def signal_interrupted(signum, frame):
+    raise KeyboardInterrupt("Runner interrupted by signal " + str(signum))
+
+
+class Runner:
+    def __init__(self, args):
+        self.args = args
+        require(sys.platform == "linux" and ROOT.is_dir(),
+                "Run only in the selected isolated test-env workspace")
+        require(ROOT.resolve() == ROOT and SOURCE.resolve(strict=True) == SOURCE,
+                "The selected root and source must not resolve through symbolic links")
+        os.umask(0o077)
+        sys.dont_write_bytecode = True
+        OUTPUT.mkdir(mode=0o700, exist_ok=False)
+        (OUTPUT / "logs").mkdir(mode=0o700)
+        temporary = OUTPUT / "tmp"
+        temporary.mkdir(mode=0o700)
+        self.environment = dict(os.environ)
+        cleared = []
+        for key in list(self.environment):
+            if (key in {"RUSTFLAGS", "CARGO_ENCODED_RUSTFLAGS", "RUSTDOCFLAGS",
+                        "CARGO_ENCODED_RUSTDOCFLAGS", "CARGO_BUILD_TARGET", "CARGO_BUILD_RUSTFLAGS",
+                        "RUSTC", "RUSTC_WRAPPER", "RUSTC_WORKSPACE_WRAPPER", "RUSTDOC",
+                        "CARGO_BUILD_RUSTC", "CARGO_BUILD_RUSTC_WRAPPER", "CARGO_BUILD_RUSTC_WORKSPACE_WRAPPER",
+                        "SLINT_BACKEND", "DISPLAY", "WAYLAND_DISPLAY"}
+                    or key.startswith(("CARGO_PROFILE_RELEASE_", "BILICOMICS_", "SLINT_KINDLE_"))
+                    or (key.startswith("CARGO_TARGET_") and key.endswith("_RUSTFLAGS"))):
+                cleared.append(key)
+                del self.environment[key]
+        self.environment.update(
+            CARGO_TARGET_DIR=str(TARGET), CARGO_BUILD_JOBS="6", CARGO_INCREMENTAL="0",
+            CARGO_PROFILE_DEV_INCREMENTAL="false", CARGO_PROFILE_TEST_INCREMENTAL="false",
+            RUST_TEST_THREADS="1", CARGO_NET_OFFLINE="true", CARGO_TERM_COLOR="never",
+            CARGO_TERM_VERBOSE="false", PYTHONDONTWRITEBYTECODE="1", TMPDIR=str(temporary),
+            RUSTC_WRAPPER="", RUSTC_WORKSPACE_WRAPPER="",
+            LC_ALL="C", TZ="UTC",
+        )
+        self.environment["PATH"] = "/root/.cargo/bin:" + self.environment.get("PATH", "")
+        self.manifest_function = None
+        self.source_manifest = None
+        self.archived_files = {}
+        self.sealed_files = {}
+        self.predecessor = None
+        self.predecessor_files = {}
+        self.inheritance_files = {}
+        self.inheritance = {}
+        self.report = {
+            "schema_version": 1, "passed": False, "status": "running", "started_at": now(),
+            "root": str(ROOT), "source": str(SOURCE), "target": str(TARGET),
+            "output": str(OUTPUT), "candidate_commit": args.commit,
+            "runner": identity(Path(__file__).resolve()),
+            "launcher": identity(Path(__file__).with_name("run-r4.sh")),
+            "startup_boundary_extension": identity(Path(__file__).with_name("startup-boundaries-r1.py")),
+            "environment": {key: self.environment[key] for key in (
+                "CARGO_TARGET_DIR", "CARGO_BUILD_JOBS", "CARGO_INCREMENTAL",
+                "CARGO_PROFILE_DEV_INCREMENTAL", "CARGO_PROFILE_TEST_INCREMENTAL",
+                "RUST_TEST_THREADS", "CARGO_NET_OFFLINE", "CARGO_TERM_COLOR",
+                "CARGO_TERM_VERBOSE", "PYTHONDONTWRITEBYTECODE", "RUSTC_WRAPPER",
+                "RUSTC_WORKSPACE_WRAPPER", "TMPDIR", "LC_ALL", "TZ")},
+            "cleared_inherited_environment_names": sorted(cleared),
+            "host": {"hostname": platform.node(), "system": platform.system(), "machine": platform.machine()},
+            "stage_commands_serial": True, "target_copied": False,
+            "physical_device_used": False, "device_lease_acquired": False,
+            "firmware_emulator_used": False, "live_account_used": False,
+            "remote_account_writes": False, "steps": [],
+            "limitations": [
+                "Desktop fixtures and static ARM package checks do not establish physical acceptance.",
+                "No Kindle, firmware emulator, real account, or account content is used by this runner.",
+            ],
+        }
+        self.save()
+
+    def save(self):
+        write_json(OUTPUT / "summary.json", self.report)
+
+    def run(self, label, command, timeout, cwd=SOURCE, extra_environment=None):
+        command = [str(value) for value in command]
+        log = OUTPUT / "logs" / (label + ".log")
+        entry = {"label": label, "command": command, "cwd": str(cwd),
+                 "timeout_seconds": timeout, "started_at": now(), "status": "running"}
+        if extra_environment:
+            entry["environment_overrides"] = extra_environment
+        self.report["steps"].append(entry)
+        self.save()
+        print(json.dumps({"running": label, "command": command}), flush=True)
+        started = time.monotonic()
+        process = None
+        try:
+            with log.open("x", encoding="utf-8") as stream:
+                process = subprocess.Popen(command, cwd=cwd,
+                    env=dict(self.environment, **(extra_environment or {})), stdout=stream,
+                    stderr=subprocess.STDOUT, start_new_session=True)
+                entry["process_id"] = process.pid
+                code = process.wait(timeout=timeout)
+                entry["returncode"] = code
+                if code:
+                    raise RuntimeError(label + " exited with " + str(code) + "; inspect its complete log")
+            entry["status"] = "passed"
+        except BaseException as error:
+            entry["status"] = "failed"
+            entry["error"] = type(error).__name__ + ": " + str(error)
+            if process is not None:
+                entry["cleanup"] = stop_owned_group(process)
+            raise
+        finally:
+            entry["seconds"] = round(time.monotonic() - started, 3)
+            entry["finished_at"] = now()
+            if log.is_file():
+                entry["log"] = identity(log)
+            self.save()
+        print(json.dumps({"passed": label, "seconds": entry["seconds"]}), flush=True)
+        return log
+
+    def freeze(self, source, destination, executable=False):
+        require(not destination.exists(), "A selected artifact must never be overwritten: " + str(destination))
+        with Path(source).open("rb") as before, destination.open("xb") as after:
+            shutil.copyfileobj(before, after, length=1024 * 1024)
+        destination.chmod(0o500 if executable else 0o400)
+        require(sha256(source) == sha256(destination), "A frozen artifact copy differs from its source")
+        item = identity(destination)
+        self.sealed_files[str(destination)] = item["sha256"]
+        return item
+
+    def prepare_sources(self):
+        predecessor_path = PREDECESSOR_OUTPUT / "summary.json"
+        require(sha256(predecessor_path) == PREDECESSOR_SUMMARY_SHA256,
+                "The authoritative predecessor summary changed")
+        predecessor = json.loads(predecessor_path.read_text(encoding="utf-8"))
+        require(predecessor.get("candidate_commit") == "530f1516c332931059c52161b52d64e86488b3f1"
+                and predecessor.get("source") == str(PREDECESSOR_SOURCE)
+                and predecessor.get("status") == "passed" and predecessor.get("passed") is True,
+                "The selected predecessor is not the frozen passed route-refresh control")
+        require(all(predecessor.get("final_integrity", {}).get(key) is True for key in (
+                    "compiled_inputs_unchanged", "all_archived_sources_unchanged", "source_archive_unchanged")),
+                "The predecessor did not retain unchanged frozen sources")
+        require(predecessor.get("target") == str(TARGET) and predecessor.get("target_copied") is False,
+                "The predecessor does not establish this run's own target")
+        absence = ROOT / "checks-r2/initial-target-state.json"
+        absence_record = json.loads(absence.read_text(encoding="utf-8"))
+        require(sha256(absence) == predecessor["predecessor"]["initial_target_state"]["sha256"]
+                and absence_record.get("exists_before_any_cargo_command") is False
+                and absence_record.get("path") == str(TARGET) and absence_record.get("copied") is False,
+                "The initial target absence must remain bound to the original checks-r2 record")
+        self.predecessor = predecessor
+        self.report["predecessor"] = {"summary": identity(predecessor_path),
+            "reason": "Reuse only unchanged backend and package regression evidence for a new route-refresh source",
+            "source_commit": predecessor["candidate_commit"], "new_main_suite_required": True,
+            "initial_target_absence": identity(absence)}
+        critical = ("CARGO_TARGET_DIR", "CARGO_BUILD_JOBS", "CARGO_INCREMENTAL",
+                    "CARGO_PROFILE_DEV_INCREMENTAL", "CARGO_PROFILE_TEST_INCREMENTAL",
+                    "RUST_TEST_THREADS", "CARGO_NET_OFFLINE", "RUSTC_WRAPPER", "RUSTC_WORKSPACE_WRAPPER")
+        require(all(self.environment[key] == predecessor["environment"][key] for key in critical),
+                "A critical environment field differs from the inherited backend/package evidence")
+        self.report["predecessor"]["critical_environment_fields_equal"] = list(critical)
+        initial = {"recorded_at": now(), "path": str(TARGET),
+                   "exists_before_any_cargo_command": TARGET.exists() or TARGET.is_symlink(),
+                   "copied": False, "inherited_from": str(PREDECESSOR_OUTPUT),
+                   "target_initial_absence_origin": str(absence), "source_revision_changed": True}
+        write_json(OUTPUT / "initial-target-state.json", initial)
+        self.report["initial_target"] = initial
+        self.save()
+        require(initial["exists_before_any_cargo_command"] and TARGET.is_dir()
+                and TARGET.resolve(strict=True) == TARGET,
+                "Only the predecessor's unchanged, owned target may be continued")
+        archive = self.args.archive.resolve(strict=True)
+        require(archive.is_relative_to(VARIANT) and not archive.is_symlink(),
+                "The frozen source archive must be inside the selected variant")
+        require(sha256(archive) == self.args.archive_sha256.lower(), "The frozen source archive digest differs")
+        self.report["source_archive"] = identity(archive)
+        rows = []
+        with tarfile.open(archive, "r:*") as stored:
+            require(stored.pax_headers.get("comment") == self.args.commit,
+                    "The Git archive PAX commit differs from the frozen source commit")
+            members = [item for item in stored.getmembers() if item.isfile()]
+            require(members, "The frozen source archive contains no files")
+            prefix = "app/" if all(item.name.startswith("app/") for item in members) else ""
+            require(all(item.isdir() or item.isfile() for item in stored.getmembers()),
+                    "The frozen source archive contains a non-file/non-directory entry")
+            for item in members:
+                name = item.name[len(prefix):]
+                relative = PurePosixPath(name)
+                require(not relative.is_absolute() and ".." not in relative.parts and name not in self.archived_files,
+                        "The source archive has an unsafe or duplicate file path")
+                path = SOURCE / Path(*relative.parts)
+                require(path.is_file() and not path.is_symlink() and path.resolve().is_relative_to(SOURCE),
+                        "An extracted source input is missing or unsafe: " + name)
+                value = hashlib.sha256()
+                with stored.extractfile(item) as stream:
+                    for block in iter(lambda: stream.read(1024 * 1024), b""):
+                        value.update(block)
+                expected = value.hexdigest()
+                require(path.stat().st_size == item.size and sha256(path) == expected,
+                        "Extracted bytes differ from the frozen Git archive: " + name)
+                self.archived_files[name] = expected
+                rows.append(expected + "  " + name + "\n")
+        archive_manifest = OUTPUT / "archive-source-inputs.sha256"
+        archive_manifest.write_text("".join(sorted(rows, key=lambda row: row.split("  ", 1)[1])), encoding="utf-8")
+        self.report["archive_source_inputs"] = dict(identity(archive_manifest), files=len(rows))
+        extracted_paths = list(SOURCE.rglob("*"))
+        require(not any(path.is_symlink() for path in extracted_paths),
+                "The freshly extracted source contains a symbolic link")
+        extracted_files = {path.relative_to(SOURCE).as_posix() for path in extracted_paths if path.is_file()}
+        require(extracted_files == set(self.archived_files),
+                "The freshly extracted source file set differs from the frozen archive; extra="
+                + repr(sorted(extracted_files - set(self.archived_files)))
+                + "; missing=" + repr(sorted(set(self.archived_files) - extracted_files)))
+        self.report["initial_extracted_source_file_set_exact"] = True
+        spec = importlib.util.spec_from_file_location("frozen_native_protocol", SOURCE / "scripts/verification/native_protocol.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.manifest_function = module.build_input_manifest
+        self.source_manifest = self.manifest_function(SOURCE)
+        manifest_path = OUTPUT / "source-inputs.sha256"
+        manifest_path.write_text(self.source_manifest, encoding="utf-8")
+        for row in self.source_manifest.splitlines():
+            digest, name = row.split("  ", 1)
+            require(self.archived_files.get(name) == digest, "A compiled input is not bound to the frozen archive: " + name)
+        self.report["source_inputs"] = dict(identity(manifest_path), files=len(self.source_manifest.splitlines()),
+            manifest_builder=identity(SOURCE / "scripts/verification/native_protocol.py"))
+        prior_manifest = PREDECESSOR_OUTPUT / "archive-source-inputs.sha256"
+        require(sha256(prior_manifest) == predecessor["archive_source_inputs"]["sha256"],
+                "The predecessor archive-source manifest changed")
+        self.predecessor_files = dict((name, digest) for digest, name in
+            (row.split("  ", 1) for row in prior_manifest.read_text(encoding="utf-8").splitlines()))
+        self.report["pipeline_inputs"] = {name: self.archived_files[name] for name in sorted(self.archived_files)
+            if name.startswith(("scripts/", "packaging/", "docs/research/aidoku-startup-"))
+            or name == "THIRD_PARTY_NOTICES.md"}
+        production = tomllib.loads((SOURCE / "Cargo.toml").read_text(encoding="utf-8"))
+        profile = production["profile"]["release"]
+        require(profile.get("lto") == "thin" and profile.get("codegen-units") == 1 and profile.get("strip") is True,
+                "The frozen source does not use the official ThinLTO/CGU1/strip release profile")
+        self.report["release_profile"] = {"lto": "thin", "codegen_units": 1, "strip": True,
+                                          "release_override_used": False}
+        self.report["package_version"] = production["package"]["version"]
+        self.save()
+
+    def compiler_identity(self):
+        self.run("compiler-rustc", ["rustc", "-vV"], 30)
+        self.run("compiler-cargo", ["cargo", "-vV"], 30)
+        self.run("compiler-zigbuild", ["cargo-zigbuild", "-V"], 30)
+        self.run("compiler-zig", ["zig", "version"], 30)
+        self.run("compiler-readelf", ["readelf", "--version"], 30)
+        sysroot_log = self.run("compiler-sysroot", ["rustc", "--print", "sysroot"], 30)
+        sysroot = Path(sysroot_log.read_text(encoding="utf-8").strip()).resolve(strict=True)
+        tools = {}
+        for name in ("rustc", "cargo", "cargo-zigbuild", "zig", "readelf", "cc", "ar"):
+            selected = shutil.which(name, path=self.environment["PATH"])
+            if selected:
+                tools[name] = {"selected_path": selected, "executable": identity(Path(selected).resolve(strict=True))}
+        for name in ("rustc", "cargo", "rust-lld"):
+            path = sysroot / "bin" / name
+            if path.is_file():
+                tools["toolchain-" + name] = identity(path)
+        self.report["compiler_tools"] = tools
+        require(tools == self.predecessor.get("compiler_tools"),
+                "The compiler executable identities changed after the inherited backend/package evidence")
+        self.report["compiler_tools_unchanged_from_predecessor"] = True
+        self.report["python"] = {"version": sys.version, "executable": identity(Path(sys.executable).resolve(strict=True))}
+        require(self.report["python"] == self.predecessor["python"],
+                "The Python interpreter changed after the inherited package regressions")
+        write_json(OUTPUT / "compiler-profile.json", {
+            "profile": self.report["release_profile"], "tools": tools,
+            "version_logs": {entry["label"]: entry["log"] for entry in self.report["steps"]
+                             if entry["label"].startswith("compiler-")},
+        })
+        self.save()
+
+    def main_tests(self):
+        log = self.run("library-and-binary-tests",
+            ["cargo", "test", "--locked", "--offline", "--lib", "--bins", "--features", "kindle"], 1800)
+        text = log.read_text(encoding="utf-8", errors="replace")
+        results = [tuple(map(int, row)) for row in re.findall(
+            r"test result: ok\.\s+(\d+) passed; (\d+) failed; (\d+) ignored;", text)]
+        ignored = re.findall(r"^test\s+([\w:]+)\s+\.\.\.\s+ignored(?:,[^\n]*)?\s*$", text, re.MULTILINE)
+        require(results and sum(row[0] for row in results) > 0 and all(row[1] == 0 for row in results)
+                and sum(row[2] for row in results) == len(ignored) == len(IGNORED_BENCHMARKS)
+                and set(ignored) == IGNORED_BENCHMARKS,
+                "The main crate did not report complete passing executed lib/bin suites")
+        self.report["main_tests"] = {"results": [{"passed": row[0], "failed": row[1], "ignored": row[2]}
+                                                for row in results],
+                                     "passed": sum(row[0] for row in results),
+                                     "ignored": sorted(ignored), "ignored_policy": "Exact pre-existing benchmark allowlist; never enabled",
+                                     "new_source_suite_executed": True, "source_manifest": self.report["source_inputs"],
+                                     "feature_scope": "Default desktop plus kindle; library and all eligible binaries"}
+        expected = set(re.findall(r"#\[test\]\s*fn\s+(\w+)",
+            (SOURCE / "src/app/startup_refresh_tests.rs").read_text(encoding="utf-8")))
+        expected.add("legacy_startup_route_refresh_requires_both_isolated_fixture_flags")
+        require(len(expected) == 7, "The frozen route-refresh regression set differs from six lib plus one main tests")
+        completed = {}
+        pattern = re.compile(r"(?:^|\n)test\s+([\w:]+)\s+\.\.\.(.*?)(?=\ntest\s|\Z)", re.DOTALL)
+        for match in pattern.finditer(text):
+            lines = match.group(2).strip().splitlines()
+            terminal = lines[-1].strip() if lines else ""
+            if terminal in {"ok", "FAILED", "ignored"}:
+                completed[match.group(1)] = terminal
+        selected_results = {}
+        for name in sorted(expected):
+            matches = [(full, result) for full, result in completed.items()
+                       if full == name or full.endswith("::" + name)]
+            require(len(matches) == 1 and matches[0][1] == "ok",
+                    "A new route-refresh regression did not execute successfully: " + name)
+            selected_results[matches[0][0]] = "ok"
+        self.report["main_tests"]["route_refresh_regressions"] = selected_results
+        self.save()
+        self.inherit_backend()
+
+    def compare_scope(self, label, names, prefixes):
+        old_names = {name for name in self.predecessor_files if name in names or name.startswith(prefixes)}
+        new_names = {name for name in self.archived_files if name in names or name.startswith(prefixes)}
+        require(old_names and old_names == new_names, label + " inherited input file sets differ")
+        require(names - {"rust-toolchain", "rust-toolchain.toml"} <= new_names,
+                label + " is missing a required inherited input")
+        entries = []
+        for name in sorted(new_names):
+            old_path, new_path = PREDECESSOR_SOURCE / name, SOURCE / name
+            require(old_path.is_file() and not old_path.is_symlink() and new_path.is_file() and not new_path.is_symlink()
+                    and old_path.resolve().is_relative_to(PREDECESSOR_SOURCE)
+                    and new_path.resolve().is_relative_to(SOURCE)
+                    and old_path.stat().st_size == new_path.stat().st_size
+                    and self.predecessor_files[name] == self.archived_files[name] == sha256(old_path) == sha256(new_path),
+                    label + " inherited input bytes differ: " + name)
+            entries.append({"path": name, "bytes": new_path.stat().st_size, "sha256": self.archived_files[name]})
+            self.inheritance_files[str(old_path)] = self.archived_files[name]
+            self.inheritance_files[str(new_path)] = self.archived_files[name]
+        manifest = OUTPUT / (label + "-inherited-inputs.sha256")
+        manifest.write_text("".join(item["sha256"] + "  " + item["path"] + "\n" for item in entries), encoding="utf-8")
+        binding = {"passed": True, "origin_source": str(PREDECESSOR_SOURCE), "new_source": str(SOURCE),
+                   "origin_source_commit": self.predecessor["candidate_commit"], "new_source_commit": self.args.commit,
+                   "source_relative_file_sets_equal": True, "file_sizes_and_sha256_equal": True,
+                   "scope_names": sorted(names), "scope_prefixes": list(prefixes),
+                   "common_manifest": identity(manifest), "files": entries,
+                   "old_full_app_manifest_not_rebound_to_new_app": True}
+        self.inheritance[label] = binding
+        write_json(OUTPUT / "inherited-evidence-bindings.json", self.inheritance)
+        self.report["inherited_evidence_bindings"] = identity(OUTPUT / "inherited-evidence-bindings.json")
+        return binding
+
+    def inherited_step(self, label, destination):
+        prior = next(item for item in self.predecessor["steps"] if item["label"] == label)
+        require(prior.get("status") == "passed" and prior.get("returncode") == 0,
+                "The predecessor stage did not pass: " + label)
+        original_log = Path(prior["log"]["path"])
+        require(original_log.resolve(strict=True).is_relative_to(PREDECESSOR_OUTPUT)
+                and sha256(original_log) == prior["log"]["sha256"], "The predecessor stage log changed: " + label)
+        copied = self.freeze(original_log, OUTPUT / "logs" / destination)
+        entry = {"label": label, "status": "inherited_passed", "command": prior["command"], "cwd": prior["cwd"],
+                 "returncode": 0, "origin_summary": self.report["predecessor"]["summary"],
+                 "origin_log": prior["log"], "log": copied, "command_repeated": False,
+                 "input_equivalence": self.inheritance[label]["common_manifest"]}
+        self.report["steps"].append(entry)
+        return copied
+
+    def inherit_backend(self):
+        names = {"Cargo.toml", "Cargo.lock", "rust-toolchain", "rust-toolchain.toml",
+                 "scripts/verification/backend.py", "scripts/verification/native_protocol.py",
+                 "scripts/verification/run_suite.py"}
+        prefixes = ["vendor/slint-backend-kindle/", ".cargo/"]
+        production = tomllib.loads((SOURCE / "Cargo.toml").read_text(encoding="utf-8"))
+        for registry, patches in production.get("patch", {}).items():
+            require(registry == "crates-io", "Unsupported inherited production patch registry")
+            for descriptor in patches.values():
+                path = (SOURCE / descriptor["path"]).resolve(strict=True)
+                require(path.is_relative_to(SOURCE), "An inherited production patch escapes the frozen source")
+                prefixes.append(path.relative_to(SOURCE).as_posix().rstrip("/") + "/")
+        self.compare_scope("backend-suite", names, tuple(prefixes))
+        path = PREDECESSOR_OUTPUT / "backend/summary.json"
+        require(sha256(path) == self.predecessor["backend"]["summary"]["sha256"],
+                "The predecessor backend summary changed")
+        backend = json.loads(path.read_text(encoding="utf-8"))
+        require(backend.get("passed") is True and backend.get("inputs_unchanged") is True,
+                "The backend suite did not pass with unchanged source inputs")
+        require(backend.get("dependency_alignment", {}).get("all_versions_and_checksums_match_production") is True,
+                "The backend dependency graph did not align with the production lockfile")
+        require(backend.get("tests", {}).get("passed") == 244
+                and backend["tests"].get("failed") == backend["tests"].get("ignored") == 0,
+                "The full backend suite did not execute without failures or ignores")
+        require(backend["dependency_alignment"].get("standalone_packages") == 465
+                and backend["dependency_alignment"].get("mismatches") == [],
+                "The predecessor backend dependency alignment differs from the selected 465-package result")
+        require(backend.get("checked_touch_tests") and backend.get("checked_touch_test_results")
+                and all(value == "ok" for value in backend["checked_touch_test_results"].values()),
+                "A selected backend touch regression was not executed successfully")
+        require(sha256(Path(backend["test_binary"]["path"])) == backend["test_binary"]["sha256"]
+                and sha256(PREDECESSOR_OUTPUT / "backend/production-Cargo.lock") == backend["production_lock_sha256"]
+                and sha256(PREDECESSOR_OUTPUT / "backend/backend-crate/Cargo.lock") == backend["standalone_lock_sha256"],
+                "A predecessor backend test ELF or lock identity changed")
+        inherited = OUTPUT / "inherited-backend"
+        inherited.mkdir(mode=0o700)
+        preserved = {"summary": self.freeze(path, inherited / "summary.json")}
+        for label in ("lock-resolution", "build", "tests"):
+            preserved[label + "_log"] = self.freeze(PREDECESSOR_OUTPUT / ("backend/logs/" + label + ".log"),
+                                                   inherited / (label + ".log"))
+        self.inherited_step("backend-suite", "backend-suite.inherited.log")
+        self.report["backend"] = {"summary": identity(path), "status": "inherited_passed", "tests": backend["tests"],
+                                  "dependency_alignment": backend["dependency_alignment"],
+                                  "checked_touch_test_results": backend["checked_touch_test_results"],
+                                  "origin_source_manifest_sha256": backend["source_manifest_sha256"],
+                                  "origin_test_binary": backend["test_binary"], "preserved_records": preserved,
+                                  "new_source_scope_binding": self.inheritance["backend-suite"]["common_manifest"]}
+        self.save()
+
+    def desktop_startup(self):
+        self.run("desktop-build", ["cargo", "build", "--locked", "--offline", "--bin", "bilicomics"], 1800)
+        selected = OUTPUT / "selected-desktop"
+        selected.mkdir(mode=0o700)
+        binary = selected / "bilicomics"
+        self.report["desktop"] = self.freeze(TARGET / "debug/bilicomics", binary, executable=True)
+        selected.chmod(0o500)
+        helper = Path(__file__).with_name("startup-boundaries-r1.py")
+        self.run("startup-boundaries", [sys.executable, helper,
+            "--helper", SOURCE / "scripts/verification/startup_frames.py", "--binary", binary,
+            "--output", OUTPUT / "startup-frames", "--expected-binary-sha256", sha256(binary)], 180,
+            extra_environment={"SLINT_BACKEND": "winit-software"})
+        normal_path = OUTPUT / "startup-frames/results.json"
+        boundary_path = OUTPUT / "startup-frames/boundary-results.json"
+        normal = json.loads(normal_path.read_text(encoding="utf-8"))
+        boundary = json.loads(boundary_path.read_text(encoding="utf-8"))
+        require(normal.get("passed") == normal.get("total") == 2,
+                "The original two-profile startup report did not pass")
+        require(boundary.get("passed") is True and boundary.get("total") == 4
+                and boundary.get("binary_sha256") == self.report["desktop"]["sha256"],
+                "The four-case startup boundary report did not match the selected desktop ELF")
+        self.report["startup_frames"] = {"original_report": identity(normal_path),
+                                         "boundary_report": identity(boundary_path), "cases": 4}
+        self.save()
+
+    def package_regressions(self):
+        names = {"scripts/build-kindle.sh", "scripts/verification/verify_package.py",
+                 *("scripts/verification/" + name + ".py" for name in PACKAGE_MODULES)}
+        self.compare_scope("package-regressions", names, (
+            "docs/research/aidoku-spatial-dither-20261116/", "docs/research/aidoku-startup-20261117/",
+            "docs/research/aidoku-startup-sequence-20261117/"))
+        selected = self.inherited_step("package-regressions", "package-regressions.inherited.log")
+        log = Path(selected["path"])
+        text = log.read_text(encoding="utf-8", errors="replace")
+        count = re.search(r"\nRan (\d+) tests? in [^\n]+\n\nOK\s*$", text)
+        require(count and int(count.group(1)) == 26, "The inherited package regressions did not report the selected 26 passing tests")
+        require(all("(" + name + "." in text for name in PACKAGE_MODULES),
+                "One of the three selected package regression modules did not execute")
+        self.report["package_regressions"] = {"passed": int(count.group(1)), "modules": list(PACKAGE_MODULES),
+            "status": "inherited_passed", "origin_summary": self.report["predecessor"]["summary"],
+            "new_source_scope_binding": self.inheritance["package-regressions"]["common_manifest"],
+            "build_script_scope": "Producer contract only; the 26 unit tests do not invoke build-kindle.sh",
+            "new_zip_static_check_must_run": True}
+        self.save()
+
+    def arm_package(self):
+        require(TARGET.resolve(strict=True) == TARGET and TARGET.is_relative_to(ROOT),
+                "The package cleanup target must be this run's own target directory")
+        self.run("arm-clean-selected-packages", ["cargo", "clean", "--locked", "--offline", "--release",
+            "--target", "armv7-unknown-linux-musleabihf", "-p", "bilicomics", "-p", "slint-backend-kindle"], 120)
+        self.report["arm_cleanup_scope"] = {"target": str(TARGET), "profile": "release",
+            "architecture": "armv7-unknown-linux-musleabihf", "packages": ["bilicomics", "slint-backend-kindle"],
+            "dependencies_retained": True, "performed_before_source_revision_arm_build": True}
+        source_log = SOURCE / "artifacts/verification/kindle-build.log"
+        frozen_log = OUTPUT / "logs/arm-build-cargo-verbose.log"
+        require(not source_log.exists(), "An ARM build log already exists in the fresh frozen source")
+        try:
+            self.run("arm-build", ["sh", SOURCE / "scripts/build-kindle.sh", VARIANT], 2400,
+                     extra_environment={"CARGO_TERM_VERBOSE": "true"})
+        finally:
+            if source_log.is_file():
+                self.report["arm_build_cargo_verbose_log"] = self.freeze(source_log, frozen_log)
+                self.save()
+        require(frozen_log.is_file(), "The ARM builder did not leave its raw Cargo build log")
+        text = frozen_log.read_text(encoding="utf-8", errors="replace")
+        announcements = {}
+        for package, path in (("bilicomics", SOURCE), ("slint-backend-kindle", SOURCE / "vendor/slint-backend-kindle")):
+            rows = [line for line in text.splitlines()
+                    if re.search(r"\bCompiling " + re.escape(package) + r" v", line) and "(" + str(path) + ")" in line]
+            require(rows, "No actual selected-source ARM compile announcement for " + package)
+            announcements[package] = rows
+        invocations = {}
+        for name, kind in (("slint_backend_kindle", "lib"), ("bilicomics", "bin"), ("kindle_jpeg_worker", "bin")):
+            rows = [line for line in text.splitlines()
+                    if "Running `" in line and "rustc --crate-name " + name + " " in line
+                    and "--crate-type " + kind in line and "--target armv7-unknown-linux-musleabihf" in line]
+            require(rows, "No actual selected-source ARM rustc invocation for " + name)
+            invocations[name] = rows
+        app_command = invocations["bilicomics"][-1]
+        for role in ("bilicomics", "kindle_jpeg_worker"):
+            require(all(flag in invocations[role][-1] for flag in (
+                        "-C opt-level=3", "-C lto=thin", "-C codegen-units=1", "-C strip=symbols")),
+                    "The actual ARM rustc invocation does not use the official release profile: " + role)
+        require("--extern slint_backend_kindle=" in app_command and "src/main.rs" in app_command,
+                "The actual ARM application invocation does not link the selected backend")
+        proof = {"passed": True, "verbose_log": identity(frozen_log), "announcements": announcements,
+                 "rustc_invocations": invocations, "profile_checked_from_actual_invocation": True,
+                 "source_paths_alone_used_as_isolation_claim": False}
+        write_json(OUTPUT / "arm-compilation-proof.json", proof)
+        self.report["arm_compilation_proof"] = identity(OUTPUT / "arm-compilation-proof.json")
+        version = self.report["package_version"]
+        stage = VARIANT / "kindle-package/bilicomics/app"
+        archive = SOURCE / ("artifacts/verification/bilicomics-kindle-" + version + "-dev.zip")
+        selected = OUTPUT / "selected-arm"
+        selected.mkdir(mode=0o700)
+        app = selected / "bilicomics"
+        worker = selected / "kindle-jpeg-worker"
+        package = selected / archive.name
+        self.report["arm"] = {
+            "app": self.freeze(stage / "bilicomics", app, executable=True),
+            "worker": self.freeze(stage / "kindle-jpeg-worker", worker, executable=True),
+            "archive": self.freeze(archive, package),
+            "manifest": self.freeze(archive.with_suffix(".manifest.json"), package.with_suffix(".manifest.json")),
+        }
+        require(sha256(TARGET / "armv7-unknown-linux-musleabihf/release/bilicomics") == sha256(app),
+                "The selected app differs from the actual ARM build output")
+        require(sha256(TARGET / "armv7-unknown-linux-musleabihf/release/kindle-jpeg-worker") == sha256(worker),
+                "The selected worker differs from the actual ARM build output")
+        selected.chmod(0o500)
+        data = app.read_bytes()
+        forbidden = {value.decode("ascii"): data.count(value) for value in FORBIDDEN_DIAGNOSTICS}
+        backend = {value.decode("ascii"): data.count(value) for value in EXPECTED_BACKEND_LITERALS}
+        application = {value.decode("ascii"): data.count(value) for value in EXPECTED_APP_LITERALS}
+        literals = {"passed": not any(forbidden.values()) and all(backend.values()) and all(application.values()),
+                    "selected_app": identity(app), "forbidden": forbidden,
+                    "expected_backend": backend, "expected_application": application,
+                    "legitimate_opt_in_input_diagnostics_allowed": True}
+        write_json(OUTPUT / "arm-literals.json", literals)
+        self.report["arm_literals"] = identity(OUTPUT / "arm-literals.json")
+        require(literals["passed"], "The selected ARM binary has unexpected diagnostics or lacks expected implementation literals")
+        output = OUTPUT / "package-check.json"
+        self.run("package-static", [sys.executable, SOURCE / "scripts/verification/verify_package.py",
+            "--archive", package, "--binary", app, "--worker", worker, "--app-root", SOURCE,
+            "--output", output, "--expected-binary-sha256", sha256(app),
+            "--expected-worker-sha256", sha256(worker), "--expected-archive-sha256", sha256(package)], 180)
+        package_result = json.loads(output.read_text(encoding="utf-8"))
+        require(package_result.get("passed") is True and package_result.get("device_verified") is False
+                and package_result.get("arm_binary_executed") is False,
+                "The static package report did not pass within the declared software scope")
+        self.report["package_check"] = identity(output)
+        self.save()
+
+    def finish(self):
+        checks = {}
+        if self.predecessor is not None:
+            checks["predecessor_summary_unchanged"] = sha256(PREDECESSOR_OUTPUT / "summary.json") == PREDECESSOR_SUMMARY_SHA256
+        if self.inheritance_files:
+            changed_inherited = [name for name, digest in self.inheritance_files.items()
+                                 if not Path(name).is_file() or Path(name).is_symlink() or sha256(name) != digest]
+            checks["inherited_source_inputs_unchanged"] = not changed_inherited
+            checks["changed_inherited_source_inputs"] = changed_inherited
+        if self.manifest_function is not None and self.source_manifest is not None:
+            try:
+                checks["compiled_inputs_unchanged"] = self.manifest_function(SOURCE) == self.source_manifest
+            except BaseException as error:
+                checks["compiled_inputs_unchanged"] = False
+                checks["compiled_input_check_error"] = type(error).__name__ + ": " + str(error)
+        if self.archived_files:
+            changed = [name for name, digest in self.archived_files.items()
+                       if not (SOURCE / name).is_file() or (SOURCE / name).is_symlink()
+                       or sha256(SOURCE / name) != digest]
+            checks["all_archived_sources_unchanged"] = not changed
+            checks["changed_archived_sources"] = changed
+        if self.report.get("source_archive"):
+            checks["source_archive_unchanged"] = sha256(self.args.archive) == self.report["source_archive"]["sha256"]
+        changed_selected = [name for name, digest in self.sealed_files.items()
+                            if not Path(name).is_file() or sha256(name) != digest]
+        checks["selected_artifacts_unchanged"] = not changed_selected
+        checks["changed_selected_artifacts"] = changed_selected
+        self.report["final_integrity"] = checks
+        if any(value is False for value in checks.values()):
+            self.report["passed"] = False
+            self.report.setdefault("error", "One or more frozen input or artifact integrity checks failed")
+        self.report["status"] = "passed" if self.report["passed"] else "failed"
+        self.report["finished_at"] = now()
+        self.save()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--commit", required=True)
+    parser.add_argument("--archive", type=Path, default=VARIANT / "source.tar")
+    parser.add_argument("--archive-sha256", required=True)
+    args = parser.parse_args()
+    if not re.fullmatch(r"[0-9a-f]{40}", args.commit):
+        parser.error("--commit must be the full lowercase frozen commit")
+    if not re.fullmatch(r"[0-9a-fA-F]{64}", args.archive_sha256):
+        parser.error("--archive-sha256 must be the frozen source archive SHA-256")
+    for signum in (signal.SIGTERM, signal.SIGHUP):
+        signal.signal(signum, signal_interrupted)
+    runner = Runner(args)
+    try:
+        runner.prepare_sources()
+        runner.compiler_identity()
+        runner.main_tests()
+        runner.desktop_startup()
+        runner.package_regressions()
+        runner.arm_package()
+        runner.report["passed"] = True
+    except BaseException as error:
+        runner.report["error"] = type(error).__name__ + ": " + str(error)
+        (OUTPUT / "failure.txt").write_text(traceback.format_exc(), encoding="utf-8")
+        print(json.dumps({"failed": runner.report["error"]}), flush=True)
+    finally:
+        try:
+            runner.finish()
+        except BaseException as error:
+            runner.report["passed"] = False
+            runner.report["status"] = "failed"
+            runner.report["finalization_error"] = type(error).__name__ + ": " + str(error)
+            runner.report["finished_at"] = now()
+            runner.save()
+    print(json.dumps({"passed": runner.report["passed"], "summary": str(OUTPUT / "summary.json"),
+                      "error": runner.report.get("error")}), flush=True)
+    return 0 if runner.report["passed"] else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

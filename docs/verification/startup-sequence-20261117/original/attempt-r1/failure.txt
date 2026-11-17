@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/runner-r1.py", line 525, in main
+    runner.compiler_identity()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/runner-r1.py", line 305, in compiler_identity
+    self.run("compiler-zigbuild", ["cargo", "zigbuild", "--version"], 30)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/runner-r1.py", line 200, in run
+    raise RuntimeError(label + " exited with " + str(code) + "; inspect its complete log")
+RuntimeError: compiler-zigbuild exited with 2; inspect its complete log

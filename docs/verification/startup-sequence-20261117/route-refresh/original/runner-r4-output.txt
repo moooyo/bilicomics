@@ -1,0 +1,25 @@
+{"running": "compiler-rustc", "command": ["rustc", "-vV"]}
+{"passed": "compiler-rustc", "seconds": 0.032}
+{"running": "compiler-cargo", "command": ["cargo", "-vV"]}
+{"passed": "compiler-cargo", "seconds": 0.016}
+{"running": "compiler-zigbuild", "command": ["cargo-zigbuild", "-V"]}
+{"passed": "compiler-zigbuild", "seconds": 0.001}
+{"running": "compiler-zig", "command": ["zig", "version"]}
+{"passed": "compiler-zig", "seconds": 0.007}
+{"running": "compiler-readelf", "command": ["readelf", "--version"]}
+{"passed": "compiler-readelf", "seconds": 0.001}
+{"running": "compiler-sysroot", "command": ["rustc", "--print", "sysroot"]}
+{"passed": "compiler-sysroot", "seconds": 0.032}
+{"running": "library-and-binary-tests", "command": ["cargo", "test", "--locked", "--offline", "--lib", "--bins", "--features", "kindle"]}
+{"passed": "library-and-binary-tests", "seconds": 145.938}
+{"running": "desktop-build", "command": ["cargo", "build", "--locked", "--offline", "--bin", "bilicomics"]}
+{"passed": "desktop-build", "seconds": 54.474}
+{"running": "startup-boundaries", "command": ["/usr/bin/python3", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/startup-boundaries-r1.py", "--helper", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app/scripts/verification/startup_frames.py", "--binary", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-desktop/bilicomics", "--output", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/startup-frames", "--expected-binary-sha256", "2abddaf6983d53aeb7e32a4e2f548f565075f6dc7f8ba3e035bec40010d4eb21"]}
+{"passed": "startup-boundaries", "seconds": 17.971}
+{"running": "arm-clean-selected-packages", "command": ["cargo", "clean", "--locked", "--offline", "--release", "--target", "armv7-unknown-linux-musleabihf", "-p", "bilicomics", "-p", "slint-backend-kindle"]}
+{"passed": "arm-clean-selected-packages", "seconds": 0.166}
+{"running": "arm-build", "command": ["sh", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app/scripts/build-kindle.sh", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2"]}
+{"passed": "arm-build", "seconds": 232.282}
+{"running": "package-static", "command": ["/usr/bin/python3", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app/scripts/verification/verify_package.py", "--archive", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/bilicomics-kindle-0.1.25-dev.zip", "--binary", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/bilicomics", "--worker", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/kindle-jpeg-worker", "--app-root", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app", "--output", "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/package-check.json", "--expected-binary-sha256", "3962bc49bb8cd33d21651845fe5de229e1b8458e5d0ba9026485c8bef7224525", "--expected-worker-sha256", "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb", "--expected-archive-sha256", "ff41fdf74505020f50ab9928b1a7168ed773b82713b3330ce6b71a0b915b194c"]}
+{"passed": "package-static", "seconds": 0.967}
+{"passed": true, "summary": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/summary.json", "error": null}

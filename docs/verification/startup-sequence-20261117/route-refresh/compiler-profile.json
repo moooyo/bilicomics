@@ -1,0 +1,108 @@
+{
+  "profile": {
+    "lto": "thin",
+    "codegen_units": 1,
+    "strip": true,
+    "release_override_used": false
+  },
+  "tools": {
+    "rustc": {
+      "selected_path": "/root/.cargo/bin/rustc",
+      "executable": {
+        "path": "/root/.cargo/bin/rustup",
+        "bytes": 21139856,
+        "sha256": "5be191e8c70a5007074254cb74d78dbfdd25cd5a61c27de7b8e5410122ec24f4"
+      }
+    },
+    "cargo": {
+      "selected_path": "/root/.cargo/bin/cargo",
+      "executable": {
+        "path": "/root/.cargo/bin/rustup",
+        "bytes": 21139856,
+        "sha256": "5be191e8c70a5007074254cb74d78dbfdd25cd5a61c27de7b8e5410122ec24f4"
+      }
+    },
+    "cargo-zigbuild": {
+      "selected_path": "/root/.cargo/bin/cargo-zigbuild",
+      "executable": {
+        "path": "/root/.cargo/bin/cargo-zigbuild",
+        "bytes": 5268048,
+        "sha256": "1fc7ef88fd3f03e14be418cd4351e9d1f27fcb16d16eea62e55b9beeefc42f38"
+      }
+    },
+    "zig": {
+      "selected_path": "/root/.cargo/bin/zig",
+      "executable": {
+        "path": "/root/weread-build/tools/zig-x86_64-linux-0.15.2/zig",
+        "bytes": 172295280,
+        "sha256": "2858dc89dbbfdd08cceda1b841e7fd0a793a1a67b49f150bc3d0d1de44ed7f51"
+      }
+    },
+    "readelf": {
+      "selected_path": "/usr/bin/readelf",
+      "executable": {
+        "path": "/usr/bin/x86_64-linux-gnu-readelf",
+        "bytes": 777864,
+        "sha256": "4a387d80a70e6e97ef940a666fab59d5c38e7cf19ff907192fa983cb8505a7de"
+      }
+    },
+    "cc": {
+      "selected_path": "/usr/bin/cc",
+      "executable": {
+        "path": "/usr/bin/x86_64-linux-gnu-gcc-14",
+        "bytes": 1162264,
+        "sha256": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f"
+      }
+    },
+    "ar": {
+      "selected_path": "/usr/bin/ar",
+      "executable": {
+        "path": "/usr/bin/x86_64-linux-gnu-ar",
+        "bytes": 52480,
+        "sha256": "f8fe09d485b40b1d47c534c96f5cbaaa9148e247aa0494c087104421f48ac5eb"
+      }
+    },
+    "toolchain-rustc": {
+      "path": "/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "bytes": 648536,
+      "sha256": "b53b780f77f952062f8ca8a3b70aef2390b1e45ad91939be94afdc9543026853"
+    },
+    "toolchain-cargo": {
+      "path": "/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "bytes": 36148320,
+      "sha256": "a670e02cfa39ac2e53f77a2d911ca1fc9e2c479b0603ec956625be1daf24e3af"
+    }
+  },
+  "version_logs": {
+    "compiler-rustc": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-rustc.log",
+      "bytes": 196,
+      "sha256": "f22d5e4e9ced367e774ce5bc140d9e6b1235c1882fec80d011044851f3ae6369"
+    },
+    "compiler-cargo": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-cargo.log",
+      "bytes": 336,
+      "sha256": "c8d779e105538d1d2db3c4799b42feb659c6f87b2b2182e963e54cb0537c5be1"
+    },
+    "compiler-zigbuild": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-zigbuild.log",
+      "bytes": 22,
+      "sha256": "bddd7af58d7b573540f6442c103d6ca11382807d0e0664e62e5608c86c5fdbf6"
+    },
+    "compiler-zig": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-zig.log",
+      "bytes": 7,
+      "sha256": "355a2e14f6a7f2cb387d9d3b75a3550980d020ee1d005b139b62290c1645068a"
+    },
+    "compiler-readelf": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-readelf.log",
+      "bytes": 288,
+      "sha256": "a87e30813b76f838a61852bc2943afbe4a26ba28a4b2728efb9481b50f02aff8"
+    },
+    "compiler-sysroot": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-sysroot.log",
+      "bytes": 57,
+      "sha256": "dfee3f602bb5780734ac3b8cfe541b0c2f06fd6105a65cce6d0478aed6ec1403"
+    }
+  }
+}

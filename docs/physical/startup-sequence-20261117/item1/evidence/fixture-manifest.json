@@ -1,0 +1,187 @@
+[
+  {
+    "bytes": 46245,
+    "path": "demo/fixtures/catalog.json",
+    "sha256": "b32728f3454050ea3332795d3666c232fc8724ed6c97c6a0a019e7d7f3013812"
+  },
+  {
+    "bytes": 4561,
+    "path": "demo/fixtures/covers/cover-28601-detail.png",
+    "sha256": "097f3ccf2dd7902142db1f6d087c7b2c6a05bf6befdba4b18db0b5f3d46f0dc8"
+  },
+  {
+    "bytes": 9646,
+    "path": "demo/fixtures/covers/cover-28601.png",
+    "sha256": "498dd99eeea016119e25300e8a640c697801f4f0942468dbe0d0c409ca32941d"
+  },
+  {
+    "bytes": 8696,
+    "path": "demo/fixtures/covers/cover-28602.png",
+    "sha256": "90a76eb7969849d2a5ef295a36a2fe28d87fed8d2646c56e95a73b3d5db0f726"
+  },
+  {
+    "bytes": 7028,
+    "path": "demo/fixtures/covers/cover-28603.png",
+    "sha256": "fcad4b352231bca3756082f91df08636c73846b90f8070f7e84a2823f0af5bb5"
+  },
+  {
+    "bytes": 8834,
+    "path": "demo/fixtures/covers/cover-28604.png",
+    "sha256": "135e9256928cd637770476dec5670dd4ff8f497bae6a92bb520e1446fecf8b6e"
+  },
+  {
+    "bytes": 5497,
+    "path": "demo/fixtures/covers/cover-28605.png",
+    "sha256": "9d5010cf819adc24a6e3ee219b8495cd839754c5bf17da0d111afcd11cd18e65"
+  },
+  {
+    "bytes": 4941,
+    "path": "demo/fixtures/covers/cover-28606.png",
+    "sha256": "957dda19724681812d998a5762a076089d38b43303bb06d543ebfd8882ac199a"
+  },
+  {
+    "bytes": 10366,
+    "path": "demo/fixtures/covers/cover-28607.png",
+    "sha256": "87e6ef9e36c0e324ed697d74b118d707bfad95154334e9b772fe9036de8326db"
+  },
+  {
+    "bytes": 6157,
+    "path": "demo/fixtures/covers/cover-28608.png",
+    "sha256": "2104bc5325a026a291ab249f61b2356c0c7628e245be692bf2d691d91366e5fb"
+  },
+  {
+    "bytes": 3583,
+    "path": "demo/fixtures/covers/cover-28609.png",
+    "sha256": "3c3903f9be8a40bc7d3aa73c0c64aa5caa0c5a3838de3d8f6dbfce47e9202656"
+  },
+  {
+    "bytes": 8615,
+    "path": "demo/fixtures/covers/cover-28610.png",
+    "sha256": "0da3d477003457c6ddacc26bf70e4bda5a7a0bb669462521b20ca4b3daae189b"
+  },
+  {
+    "bytes": 8464,
+    "path": "demo/fixtures/covers/cover-28611.png",
+    "sha256": "a1f120d3a9fed63b7fa93db76ed2846f3803e68cb30d56c9b84d1a6c148675c5"
+  },
+  {
+    "bytes": 6682,
+    "path": "demo/fixtures/covers/cover-28612.png",
+    "sha256": "f541fce82dc3ce6b996f5a5d04cd849e751445dff7df5938f3d754c5353136cc"
+  },
+  {
+    "bytes": 9489,
+    "path": "demo/fixtures/covers/cover-28613.png",
+    "sha256": "2bb4406174b9bae48a667fce029262177f06003b7d363f4c78e88af569dc71d9"
+  },
+  {
+    "bytes": 8847,
+    "path": "demo/fixtures/covers/cover-28614.png",
+    "sha256": "e11c8126f2d71c1cb70de9733c7e99d261762d13bdc78a010848e07220f9f6a3"
+  },
+  {
+    "bytes": 9786,
+    "path": "demo/fixtures/covers/cover-28615.png",
+    "sha256": "f9c456d74ca069d548249afceb093ee5779a4d7d73cb45c67aab405f239e9879"
+  },
+  {
+    "bytes": 9551,
+    "path": "demo/fixtures/covers/cover-28703.png",
+    "sha256": "b8d55e154345772e9233b0c8d0908e5da87f75f738dc7b75571ff5b711a4fdac"
+  },
+  {
+    "bytes": 6595,
+    "path": "demo/fixtures/covers/cover-28704.png",
+    "sha256": "ef66c8205a34171b4f8eabacc9be877d2750bf856b31030ca0bcea4e94e8d45b"
+  },
+  {
+    "bytes": 6968,
+    "path": "demo/fixtures/covers/cover-28705.png",
+    "sha256": "250c520a74aa644f2c9ec805fc28f261ada88aad97365af0544980c37ec01091"
+  },
+  {
+    "bytes": 8592,
+    "path": "demo/fixtures/covers/cover-28709.png",
+    "sha256": "2bee6e839a71040028940235d95f107f2d1ed9aa2f6f2c45e0548625d10c42ad"
+  },
+  {
+    "bytes": 6039,
+    "path": "demo/fixtures/covers/cover-28711.png",
+    "sha256": "2f14db2efc51a0faafe4cf71848f64cf0fc1e082bc9cad5fa99c6e803c81715c"
+  },
+  {
+    "bytes": 5236,
+    "path": "demo/fixtures/covers/cover-28712.png",
+    "sha256": "e6576c35f5a66e472cd518175642be850a6813fdeb133699ab3a0396467bca51"
+  },
+  {
+    "bytes": 7146,
+    "path": "demo/fixtures/covers/cover-28713.png",
+    "sha256": "fadd973ab75f856b253b512941dd3e873c5189ccd9fb628aa4ac1222e5393f21"
+  },
+  {
+    "bytes": 6882,
+    "path": "demo/fixtures/covers/cover-28715.png",
+    "sha256": "9f2fd6fe437435eac21f9544b74233ccdbe3f7f1e644b2ef99119a710d02deb6"
+  },
+  {
+    "bytes": 5229,
+    "path": "demo/fixtures/covers/cover-28716.png",
+    "sha256": "d5d04827146f6e04c6af956ffb2d37b0c7de6189e8055acb19e23129fa899e91"
+  },
+  {
+    "bytes": 8905,
+    "path": "demo/fixtures/covers/cover-28717.png",
+    "sha256": "af763c1cf877484694955001476789a9039d4933d00705ea5570e9c50596983c"
+  },
+  {
+    "bytes": 4802,
+    "path": "demo/fixtures/covers/cover-28718.png",
+    "sha256": "29a3a22999339deee152c0c23ae04ec4f821dca85dc4cac5fa0ff3e2ed787fe1"
+  },
+  {
+    "bytes": 8409,
+    "path": "demo/fixtures/covers/cover-28719.png",
+    "sha256": "68ac96f39241408fc2dded62a264f8b9d53bc1907c0464ebf34c1e557ad2740c"
+  },
+  {
+    "bytes": 5806,
+    "path": "demo/fixtures/covers/cover-28720.png",
+    "sha256": "dd85a5a3156b1264126f8b11eb2ac77ff50e3b02f36d0bfc08250f73423e02b6"
+  },
+  {
+    "bytes": 8984,
+    "path": "demo/fixtures/covers/cover-28803.png",
+    "sha256": "a816cfc758ef1a676b6b367b8d072c46024ba3daa8bd2c7de5bd6eabc2dfad96"
+  },
+  {
+    "bytes": 9920,
+    "path": "demo/fixtures/manifest.json",
+    "sha256": "3e74e6f2a0d10c1415ab11c1495b257ba228f1de8c4ba97c449e67545b9a3f03"
+  },
+  {
+    "bytes": 103979,
+    "path": "demo/fixtures/pages/page-18.png",
+    "sha256": "95e895a778d0859813670d95b524ab755a25197816337a55349924bf1cd8d924"
+  },
+  {
+    "bytes": 86296,
+    "path": "demo/fixtures/pages/page-19.png",
+    "sha256": "cec2aa8dfdfaa3c9af596587bee04329bb16e3d32eeb3458875bf4e5aa9a79f0"
+  },
+  {
+    "bytes": 142990,
+    "path": "demo/fixtures/pages/strip.png",
+    "sha256": "9435a8950d8921071c15a079abe20f58658bef94ed32aceec58205b9717ffd92"
+  },
+  {
+    "bytes": 4634,
+    "path": "demo/fixtures/qr-login.png",
+    "sha256": "a9bdceb7588a9a1a4f25a35f093f31874617abdd2bc950bc2e7fc2fc41a2e40a"
+  },
+  {
+    "bytes": 299008,
+    "path": "demo/state.sqlite3",
+    "sha256": "4670edfa661f214979dfce8623f3bbda96c55ba304bb9765794e0f0c7a28da6f"
+  }
+]

@@ -1,0 +1,146 @@
+{
+  "account_section": "account",
+  "auth_step": 1,
+  "backend": "desktop-software",
+  "catalog": {
+    "composition": "",
+    "keyboard": true,
+    "query": "",
+    "selection_count": 0,
+    "shelf_view": "grid"
+  },
+  "demo": true,
+  "download_selection": false,
+  "landscape": false,
+  "logical_size": [
+    618,
+    824
+  ],
+  "native_epdc_mode": null,
+  "network_prompt": false,
+  "offline": false,
+  "offline_requested": false,
+  "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+  "process_id": 2995765,
+  "profile": "pw5",
+  "reader": {
+    "comic_title": "山海邮差",
+    "direction": "ltr",
+    "episode_title": "第12话 雨停以前",
+    "fit": "page",
+    "loading": false,
+    "menu": false,
+    "mode": "page",
+    "page": 18,
+    "pages": 45,
+    "panel": 1,
+    "sheet": "",
+    "strip_screen": 1,
+    "thumbnail_count": 0,
+    "thumbnails_loading": false,
+    "transition": false
+  },
+  "route": "reader",
+  "snapshot_size": [
+    618,
+    824
+  ],
+  "startup": {
+    "booting": false,
+    "error": false,
+    "frame": 1,
+    "phase": "attach"
+  },
+  "suspended": false,
+  "ui": {
+    "account": {
+      "dither": true,
+      "dither_method": "bayer8",
+      "dither_note": "",
+      "media_acceleration": {
+        "available": false,
+        "note": "",
+        "reason": "platform",
+        "requested": false
+      },
+      "refresh_mode": "normal",
+      "refresh_mode_note": "",
+      "section": "account"
+    },
+    "catalog": {
+      "candidate_page": 0,
+      "candidate_pages": 1,
+      "candidates": [],
+      "composition": "",
+      "detail_id": "",
+      "download_selecting": false,
+      "episode_filter": "all",
+      "episode_page": 1,
+      "episode_pages": 1,
+      "keyboard": true,
+      "query": "",
+      "selection_count": 0,
+      "selection_size": "",
+      "shelf_menu": false,
+      "shelf_page": 1,
+      "shelf_pages": 1,
+      "shelf_view": "grid"
+    },
+    "downloads": {
+      "all_paused": false,
+      "can_read": false,
+      "has_active": false,
+      "items": [],
+      "selected_count": 0,
+      "selecting": false,
+      "sheet_id": "",
+      "sheet_open": false,
+      "status_summary": "",
+      "summary": "",
+      "task_primary_action": "",
+      "task_secondary_action": ""
+    },
+    "native_media": {
+      "attempts": 0,
+      "completed": 0,
+      "resized": 0,
+      "software_fallbacks": 0
+    },
+    "reader": {
+      "chapter_capacity": 9,
+      "chapter_count": 32,
+      "chapter_descending": false,
+      "chapter_filter": "all",
+      "chapter_page": 1,
+      "chapter_pages": 1,
+      "chapter_rows": [],
+      "dither": true,
+      "dither_method": "bayer8",
+      "dither_note": "8×8 Bayer：规则纹理，图像准备开销较低。",
+      "fit": "page",
+      "jpeg_acceleration": false,
+      "jpeg_acceleration_available": false,
+      "jpeg_acceleration_note": "当前预览环境未启用 JPEG 硬件加速。",
+      "loading": false,
+      "menu": false,
+      "mode": "page",
+      "page": 18,
+      "panel": 1,
+      "presented_cpu_dither": true,
+      "presented_fast_mode": false,
+      "refresh_mode": "normal",
+      "refresh_mode_note": "保留灰阶，按已选的全刷与抖动设置刷新。",
+      "sheet": "",
+      "strip_screen": 1,
+      "thumbnail_count": 0,
+      "thumbnails_loading": false,
+      "transition": false
+    },
+    "route": "reader",
+    "toast": ""
+  },
+  "window_size": [
+    618,
+    824
+  ]
+}

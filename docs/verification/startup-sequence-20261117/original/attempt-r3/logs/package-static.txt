@@ -1,0 +1,1 @@
+{"status": "passed", "output": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/package-check.json", "error": null}

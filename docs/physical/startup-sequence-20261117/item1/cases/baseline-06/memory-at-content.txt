@@ -1,0 +1,5 @@
+VmHWM:	   55964 kB
+VmRSS:	   55948 kB
+RssAnon:	   27484 kB
+RssFile:	   28464 kB
+RssShmem:	       0 kB

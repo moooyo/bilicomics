@@ -1,0 +1,19 @@
+{
+  "active_owned_transport_count": 0,
+  "derivation": "Fixed field projection; private ownership values excluded.",
+  "fields": {
+    "connections_closed": true,
+    "device_polled": false,
+    "lease_accessed": false,
+    "run_id": "startup-route-20261117-196c8a73",
+    "schema_version": 1,
+    "signals_sent": false,
+    "ssh_multiplexing": false,
+    "unreadable_host_process_count": 0
+  },
+  "source": {
+    "bytes": 339,
+    "path": "/root/bilicomics-physical-startup-route-20261117-196c8a73/evidence/transport-closure.json",
+    "sha256": "b41842cf22de3206ca05d7ef007d4c1921e451db5f75927ce1993c7b108436ad"
+  }
+}

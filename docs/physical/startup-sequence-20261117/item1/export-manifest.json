@@ -1,0 +1,2249 @@
+{
+  "export_revision": {
+    "documentation_edits": [
+      {
+        "new_utf8": "The clock is device `CLOCK_MONOTONIC`, from the request helper's timestamp\nsample before it writes the request record and execs\n`lipc-set-prop com.lab126.appmgrd start` for the native Scriptlet dispatch, to\n`startup/ui_ready` or the first accepted rendered Shelf SEND whose Slint render\nstarts after Ready. The interval includes request-record writing, LIPC/appmgr\ndispatch and launcher work before application entry. This is a warm-start,\nsingle-boot experiment with fresh\napplication processes, retained OS/filesystem caches and profiling. It does not\nmeasure physical-tap latency, complete covers, optical panel completion, cold\nboot, or a statistical population guarantee.\n",
+        "old_utf8": "The clock is device `CLOCK_MONOTONIC`, from just before native launch exec to\n`startup/ui_ready` or the first accepted rendered Shelf SEND whose Slint render\nstarts after Ready. This is a warm-process, single-boot experiment with retained\ncaches and profiling. It does not measure physical-tap latency, complete covers,\noptical panel completion, cold boot, or a statistical population guarantee.\n"
+      },
+      {
+        "after_utf8": "## Export boundaries\n\n",
+        "insert_utf8": "This is export revision 2. Only this README wording and the export manifest\nchanged; all measurement data, image bytes, analysis and archived source payloads\nretain revision 1 bytes. The manifest records the previous export identity,\nthe exact documentation edits and their stored-source confirmation. The\narchived `tools/export_item1.py` remains the unchanged revision 1 exporter.\n\n"
+      }
+    ],
+    "previous_manifest": {
+      "bytes": 102463,
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-f028b769-r1/export-manifest.json",
+      "sha256": "deac51a115e8033fdf8100e47f7cea9f25ad5873664ea1db9e000ea19d3e0692"
+    },
+    "previous_readme": {
+      "bytes": 7587,
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-f028b769-r1/README.md",
+      "sha256": "64cb484416f3dc2710c42fcebe5a3eac2c670bbad1400e025667b41c7364faa9"
+    },
+    "revision": 2,
+    "scope": "Only README explanatory wording and export-manifest metadata changed; all other 154 payloads retain revision 1 bytes.",
+    "stored_source_confirmation": {
+      "four_visible_pixel_payloads": {
+        "all_four_share_sha256": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+        "meaning": "The retained all-four equality wording is supported across both early/scheduled phases and both cases, not only within each variant pair.",
+        "recorded_visible_sha256_by_case_and_capture": {
+          "baseline-06": {
+            "framebuffer_capture": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+            "settled_framebuffer_capture": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3"
+          },
+          "candidate-06": {
+            "framebuffer_capture": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+            "settled_framebuffer_capture": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3"
+          }
+        },
+        "source": {
+          "bytes": 855207,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-f028b769-r1/analysis/frozen-analyzer.json",
+          "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+        }
+      },
+      "fresh_application_processes": {
+        "count": 14,
+        "source": {
+          "bytes": 855207,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-f028b769-r1/analysis/frozen-analyzer.json",
+          "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+        },
+        "unique_application_pid_count": 14
+      },
+      "request_dispatch": {
+        "argv_template": [
+          "lipc-set-prop",
+          "com.lab126.appmgrd",
+          "start",
+          "app://tech.hackerdude.shell_integration.launcher/<stage>/entry.sh"
+        ],
+        "clock_source": {
+          "bytes": 6922,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/startup-clock.c",
+          "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c"
+        },
+        "controller_line": 1021,
+        "controller_source": {
+          "bytes": 61749,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/tools/startup_ab.py",
+          "sha256": "45b1e3a4c57a2cbe55651059194d3dc470fd118fdaf1df913cdaa7c277020639"
+        },
+        "execvp_line": 214,
+        "meaning": "The request stamp precedes record writing/close and execvp of the LIPC appmgr Scriptlet dispatch command; it is not direct UI-process exec.",
+        "monotonic_sample_lines": "167-173",
+        "record_write_and_close_lines": "193-211"
+      }
+    },
+    "unchanged_payload_source": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-f028b769-r1"
+  },
+  "exporter": {
+    "bytes": 8925,
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-inputs-r2/revise_export_r2.py",
+    "sha256": "8eb45781fd7ba1bf1d4eb6bfac8888288beff492a1078102abe15daa7bf17f4c"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 8251,
+      "evidence_class": "export-documentation",
+      "sha256": "ef2fc847b77a196059977a07cf3e2aee87f80f922a16a083d43e55d7c62fec67",
+      "sources": [
+        {
+          "bytes": 7587,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-f028b769-r1/README.md",
+          "sha256": "64cb484416f3dc2710c42fcebe5a3eac2c670bbad1400e025667b41c7364faa9"
+        },
+        {
+          "bytes": 102463,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-f028b769-r1/export-manifest.json",
+          "sha256": "deac51a115e8033fdf8100e47f7cea9f25ad5873664ea1db9e000ea19d3e0692"
+        },
+        {
+          "bytes": 8925,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-inputs-r2/revise_export_r2.py",
+          "sha256": "8eb45781fd7ba1bf1d4eb6bfac8888288beff492a1078102abe15daa7bf17f4c"
+        },
+        {
+          "bytes": 61749,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/tools/startup_ab.py",
+          "sha256": "45b1e3a4c57a2cbe55651059194d3dc470fd118fdaf1df913cdaa7c277020639"
+        },
+        {
+          "bytes": 6922,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/startup-clock.c",
+          "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c"
+        },
+        {
+          "bytes": 855207,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-f028b769-r1/analysis/frozen-analyzer.json",
+          "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+        }
+      ],
+      "transformation": "Derived revision 2 documentation only: clarify fresh-process warm-start scope and pre-exec LIPC/appmgr Scriptlet request timing; retain confirmed all-four visible-pixel equality; record the revision chain. No measurement or image bytes changed."
+    },
+    "analysis/analysis-manifest.json": {
+      "bytes": 1026,
+      "evidence_class": "derived-stored-analysis",
+      "sha256": "ef1396023dd7b270010c9bbe0a7d8e90cf204064b7a4fe928f11d5741d7e7786",
+      "sources": [
+        {
+          "bytes": 1026,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/analysis-item1-f028b769/analysis-manifest.json",
+          "sha256": "ef1396023dd7b270010c9bbe0a7d8e90cf204064b7a4fe928f11d5741d7e7786"
+        }
+      ],
+      "transformation": "Verbatim final frozen stored-evidence analysis output or its source; not a new experiment or raw trace."
+    },
+    "analysis/critical-path.md": {
+      "bytes": 20015,
+      "evidence_class": "derived-stored-analysis",
+      "sha256": "5bfd7cf41132714adb6963ed7c1f2b2f7d8ba2b36c46fc9a8c524aae919a52ee",
+      "sources": [
+        {
+          "bytes": 20015,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/analysis-item1-f028b769/README.md",
+          "sha256": "5bfd7cf41132714adb6963ed7c1f2b2f7d8ba2b36c46fc9a8c524aae919a52ee"
+        }
+      ],
+      "transformation": "Verbatim final frozen stored-evidence analysis output or its source; not a new experiment or raw trace."
+    },
+    "analysis/frame-spans.csv": {
+      "bytes": 45678,
+      "evidence_class": "derived-stored-analysis",
+      "sha256": "5737257663add7b715547cbff095c6a49a1da1124526c1f34f106a7080b46e9c",
+      "sources": [
+        {
+          "bytes": 45678,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/analysis-item1-f028b769/frame-spans.csv",
+          "sha256": "5737257663add7b715547cbff095c6a49a1da1124526c1f34f106a7080b46e9c"
+        }
+      ],
+      "transformation": "Verbatim final frozen stored-evidence analysis output or its source; not a new experiment or raw trace."
+    },
+    "analysis/frozen-analyzer.json": {
+      "bytes": 855207,
+      "evidence_class": "derived-frozen-analysis",
+      "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261",
+      "sources": [
+        {
+          "bytes": 855207,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/analysis.json",
+          "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed frozen analyzer output; derived from the ended raw batch, not a raw trace."
+    },
+    "analysis/item1-analysis.json": {
+      "bytes": 850268,
+      "evidence_class": "derived-stored-analysis",
+      "sha256": "51759a67d68d39e1523cdd451da95bbec652e4dc8e1dda09ea35200e2dee0698",
+      "sources": [
+        {
+          "bytes": 850268,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/analysis-item1-f028b769/item1-analysis.json",
+          "sha256": "51759a67d68d39e1523cdd451da95bbec652e4dc8e1dda09ea35200e2dee0698"
+        }
+      ],
+      "transformation": "Verbatim final frozen stored-evidence analysis output or its source; not a new experiment or raw trace."
+    },
+    "analysis/physical-audit.md": {
+      "bytes": 12251,
+      "evidence_class": "independent-stored-evidence-audit",
+      "sha256": "8d247feb4c68412d6f78e12b85073b3c35bde4f34f280d02ebd4567e3b5f6a96",
+      "sources": [
+        {
+          "bytes": 12251,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-inputs-r1/PHYSICAL_AUDIT.md",
+          "sha256": "8d247feb4c68412d6f78e12b85073b3c35bde4f34f280d02ebd4567e3b5f6a96"
+        }
+      ],
+      "transformation": "Verbatim independent stored-evidence audit; transferred unchanged from the local ignored measurement revision 1 document."
+    },
+    "analysis/timeline.csv": {
+      "bytes": 4002,
+      "evidence_class": "derived-stored-analysis",
+      "sha256": "c8798bc96cf2a17d1dea1d7cc56553fbce352ffda6908f1cceef679db9bda9d3",
+      "sources": [
+        {
+          "bytes": 4002,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/analysis-item1-f028b769/timeline.csv",
+          "sha256": "c8798bc96cf2a17d1dea1d7cc56553fbce352ffda6908f1cceef679db9bda9d3"
+        }
+      ],
+      "transformation": "Verbatim final frozen stored-evidence analysis output or its source; not a new experiment or raw trace."
+    },
+    "assisted-attempt/before-sleep.projection.json": {
+      "bytes": 1252,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "4f3cbd970af199d86d9c1ae0d408f893079558c5d09723ad6ee3306db4d08b1d",
+      "sources": [
+        {
+          "bytes": 11195,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/before-sleep.checkpoint.json",
+          "sha256": "25bca99d3603d51c395889ac46b1506722a270d51ce65019252284317b7a9f21"
+        }
+      ],
+      "transformation": "Fixed allowlist field projection; not raw checkpoint bytes or evidence of sleep/wake/input."
+    },
+    "assisted-attempt/finalization.projection.json": {
+      "bytes": 547,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "e09c4ff5c8de6c2ff69ef6251e6a3867cc9858c27516217d4b39f392fcfd034b",
+      "sources": [
+        {
+          "bytes": 784,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.json",
+          "sha256": "9ffe59f052f302c6032cb7440e2f75014c7c00e6b808b364cc8e0e9733039c03"
+        }
+      ],
+      "transformation": "Fixed allowlist projection; private ownership and report binding paths excluded."
+    },
+    "assisted-attempt/lease-release.projection.json": {
+      "bytes": 832,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "ab4309ae5969be4fd1997251478c958824ef570a9b911cfb08f1bb0294bf3380",
+      "sources": [
+        {
+          "bytes": 566,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.release.json",
+          "sha256": "cb8c59de36edf9ddd54321938444d49ec213183ec4dd27eaccdd3384087dc8c4"
+        }
+      ],
+      "transformation": "Fixed allowlist projection; not original release bytes or current lease state."
+    },
+    "assisted-attempt/ready.projection.json": {
+      "bytes": 573,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "e2bb4eceddfab97010557349206db5b28c77f7fdc2d2575add35020d4a59f190",
+      "sources": [
+        {
+          "bytes": 22672,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/lifecycle.jsonl",
+          "sha256": "11f9742d73635ea10ffec95e0cc3a8fd1adf10a915baf6d48d104783aacdfdee"
+        }
+      ],
+      "transformation": "Fixed allowlist projection of the original ready record; not physical input or optical completion."
+    },
+    "assisted-attempt/run.projection.json": {
+      "bytes": 1724,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "d6722822f21abf1b9a9240d0bb49003e02713ca332348c7b612da8a06425db47",
+      "sources": [
+        {
+          "bytes": 26891,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/run.json",
+          "sha256": "680bbc400bb238c99336ea7f3788e4fd39c193dcb1396f59f4eca6e8efb15cac"
+        }
+      ],
+      "transformation": "Fixed allowlist projection; all lease/transport bindings, executable paths, account UI and image data excluded."
+    },
+    "assisted-attempt/summary.json": {
+      "bytes": 1190,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "0f66c4877e735a6074cd1d5b532c415bf7b541e6914f3701c32204495546572c",
+      "sources": [
+        {
+          "bytes": 26891,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/run.json",
+          "sha256": "680bbc400bb238c99336ea7f3788e4fd39c193dcb1396f59f4eca6e8efb15cac"
+        },
+        {
+          "bytes": 11195,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/before-sleep.checkpoint.json",
+          "sha256": "25bca99d3603d51c395889ac46b1506722a270d51ce65019252284317b7a9f21"
+        },
+        {
+          "bytes": 22672,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/lifecycle.jsonl",
+          "sha256": "11f9742d73635ea10ffec95e0cc3a8fd1adf10a915baf6d48d104783aacdfdee"
+        },
+        {
+          "bytes": 784,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.json",
+          "sha256": "9ffe59f052f302c6032cb7440e2f75014c7c00e6b808b364cc8e0e9733039c03"
+        },
+        {
+          "bytes": 566,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.release.json",
+          "sha256": "cb8c59de36edf9ddd54321938444d49ec213183ec4dd27eaccdd3384087dc8c4"
+        },
+        {
+          "bytes": 542,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.closure.json",
+          "sha256": "451abd3087c26870cd02c22ec2d3025d9c015d65fe2cba89050fd847ac4c13e1"
+        }
+      ],
+      "transformation": "Derived bounded-attempt summary; absent operator feedback is preserved as incomplete, never inferred from a timer."
+    },
+    "assisted-attempt/transport-closure.projection.json": {
+      "bytes": 885,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "34989837f2c044bebe02f2e4911baf85433978aa68516f654646f18bd3de19ad",
+      "sources": [
+        {
+          "bytes": 542,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.closure.json",
+          "sha256": "451abd3087c26870cd02c22ec2d3025d9c015d65fe2cba89050fd847ac4c13e1"
+        }
+      ],
+      "transformation": "Fixed allowlist projection of the completed host transport-closure receipt."
+    },
+    "cases/baseline-01/final.json": {
+      "bytes": 3250,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "6972a4a855b2211bbd938c0add62c81994d54f5e1ddc28909393095b4dec852e",
+      "sources": [
+        {
+          "bytes": 3250,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-01/final.json",
+          "sha256": "6972a4a855b2211bbd938c0add62c81994d54f5e1ddc28909393095b4dec852e"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-01/lifecycle.jsonl": {
+      "bytes": 8071,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "c5b96be9bce5da8751bf5125f3196e301b53bc9d67b4098b3b56e6e2a27230b6",
+      "sources": [
+        {
+          "bytes": 8071,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-01/lifecycle.jsonl",
+          "sha256": "c5b96be9bce5da8751bf5125f3196e301b53bc9d67b4098b3b56e6e2a27230b6"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-01/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "c29bfe45f841b2d0ea5a65b57a1af2e29152aa35d19eb21079ce2c53e153c52f",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-01/memory-at-content.txt",
+          "sha256": "c29bfe45f841b2d0ea5a65b57a1af2e29152aa35d19eb21079ce2c53e153c52f"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-01/performance.jsonl": {
+      "bytes": 45795,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "d04fb3b80e08e4d893633177a2062f9c4f1919ed934a12e27347c7f40c9f0bae",
+      "sources": [
+        {
+          "bytes": 45795,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-01/performance.jsonl",
+          "sha256": "d04fb3b80e08e4d893633177a2062f9c4f1919ed934a12e27347c7f40c9f0bae"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-01/post-business-gate.json": {
+      "bytes": 74,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "794db543bc8e6e9910ceca8f7b46c040bdf0a5cada19fdbefeebce036609e2ec",
+      "sources": [
+        {
+          "bytes": 74,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-01/post-business-gate.json",
+          "sha256": "794db543bc8e6e9910ceca8f7b46c040bdf0a5cada19fdbefeebce036609e2ec"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-01/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-01/recovery.json",
+          "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-01/request.json": {
+      "bytes": 74,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "8d906def43e829ab12068afbb82454bdc95270647371825366ea5f34f2e8960c",
+      "sources": [
+        {
+          "bytes": 74,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-01/request.json",
+          "sha256": "8d906def43e829ab12068afbb82454bdc95270647371825366ea5f34f2e8960c"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-01/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "57d4deb9435b9771767e7f730dc6fbe4c9ba5d4e170cc31faa54de01ee265fae",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-01/shell.tsv",
+          "sha256": "57d4deb9435b9771767e7f730dc6fbe4c9ba5d4e170cc31faa54de01ee265fae"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-02/final.json": {
+      "bytes": 3251,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "b4053d73ff0123a7059a2df435aa4b6448ec6ce78f930686f62038305cc7ed83",
+      "sources": [
+        {
+          "bytes": 3251,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-02/final.json",
+          "sha256": "b4053d73ff0123a7059a2df435aa4b6448ec6ce78f930686f62038305cc7ed83"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-02/lifecycle.jsonl": {
+      "bytes": 8104,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "7b78aa1b59d49f589f4d8f4fcf165f507b439815c39017117db267a37d28dd39",
+      "sources": [
+        {
+          "bytes": 8104,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-02/lifecycle.jsonl",
+          "sha256": "7b78aa1b59d49f589f4d8f4fcf165f507b439815c39017117db267a37d28dd39"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-02/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "cf01ce1943b80e97a17869cddd6e130fdf87c20e1dc3af2dc8306b217da6d939",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-02/memory-at-content.txt",
+          "sha256": "cf01ce1943b80e97a17869cddd6e130fdf87c20e1dc3af2dc8306b217da6d939"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-02/performance.jsonl": {
+      "bytes": 45999,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "55f76b1375d8f68301b616c63a5b66642d6f19bf297a6a34b6c767bafcdfc47b",
+      "sources": [
+        {
+          "bytes": 45999,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-02/performance.jsonl",
+          "sha256": "55f76b1375d8f68301b616c63a5b66642d6f19bf297a6a34b6c767bafcdfc47b"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-02/post-business-gate.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "6806defbbdcc3ef108b603d3838dd01831480859186db20a2de3cc5c2ef689f1",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-02/post-business-gate.json",
+          "sha256": "6806defbbdcc3ef108b603d3838dd01831480859186db20a2de3cc5c2ef689f1"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-02/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-02/recovery.json",
+          "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-02/request.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "234d017fb25806790c06a8d91e87ac0e6e90b616371a12aa61e1462e9d1ea459",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-02/request.json",
+          "sha256": "234d017fb25806790c06a8d91e87ac0e6e90b616371a12aa61e1462e9d1ea459"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-02/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "7f70c6874e09cde72ea4c2e2ad7758ea4257d20b62edc9b07741cf647e0cd66b",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-02/shell.tsv",
+          "sha256": "7f70c6874e09cde72ea4c2e2ad7758ea4257d20b62edc9b07741cf647e0cd66b"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-03/final.json": {
+      "bytes": 3251,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "0a241435388671d09aa2014bd430a1199f932bce31918f2b9b02f2f4f2ade63f",
+      "sources": [
+        {
+          "bytes": 3251,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-03/final.json",
+          "sha256": "0a241435388671d09aa2014bd430a1199f932bce31918f2b9b02f2f4f2ade63f"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-03/lifecycle.jsonl": {
+      "bytes": 8109,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "2c6df52df8c7d346088057c96ec8f562fbf670d95351394ebe7d8c07624d6e86",
+      "sources": [
+        {
+          "bytes": 8109,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-03/lifecycle.jsonl",
+          "sha256": "2c6df52df8c7d346088057c96ec8f562fbf670d95351394ebe7d8c07624d6e86"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-03/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "7346685781456cc17f934e6e698a71893aadb23d8242063febd9ab579aad45ad",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-03/memory-at-content.txt",
+          "sha256": "7346685781456cc17f934e6e698a71893aadb23d8242063febd9ab579aad45ad"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-03/performance.jsonl": {
+      "bytes": 45997,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "49148bd6052b948c94b6411be7487bf1e4adee03faa58862cecaa5fcc4798a23",
+      "sources": [
+        {
+          "bytes": 45997,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-03/performance.jsonl",
+          "sha256": "49148bd6052b948c94b6411be7487bf1e4adee03faa58862cecaa5fcc4798a23"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-03/post-business-gate.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "7b926809b2e56eb49ecc280379b4a79dd205f3e4c19940613ab0972c383508dc",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-03/post-business-gate.json",
+          "sha256": "7b926809b2e56eb49ecc280379b4a79dd205f3e4c19940613ab0972c383508dc"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-03/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-03/recovery.json",
+          "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-03/request.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "3fc1bdcbec1c6431a6e0087b84d761671f4e81644308eb17dc8eba1d5b7e9062",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-03/request.json",
+          "sha256": "3fc1bdcbec1c6431a6e0087b84d761671f4e81644308eb17dc8eba1d5b7e9062"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-03/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "a290c7f1a421d7cba966e671e6c279aafb195dd7d275d005fcf7495106930462",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-03/shell.tsv",
+          "sha256": "a290c7f1a421d7cba966e671e6c279aafb195dd7d275d005fcf7495106930462"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-04/final.json": {
+      "bytes": 3251,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "6c84336d208fb07d3f3f30002b1467e1496500439e21fb56f19c63530ec82c9c",
+      "sources": [
+        {
+          "bytes": 3251,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-04/final.json",
+          "sha256": "6c84336d208fb07d3f3f30002b1467e1496500439e21fb56f19c63530ec82c9c"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-04/lifecycle.jsonl": {
+      "bytes": 8109,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "556681d323fad59ff10b551a82486f944518f2cb24ee6ee93500480ad552d072",
+      "sources": [
+        {
+          "bytes": 8109,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-04/lifecycle.jsonl",
+          "sha256": "556681d323fad59ff10b551a82486f944518f2cb24ee6ee93500480ad552d072"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-04/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "624fefce959bc62fdccfa4089848aa1d6f3e46fae66f3ba513deca4824f8659d",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-04/memory-at-content.txt",
+          "sha256": "624fefce959bc62fdccfa4089848aa1d6f3e46fae66f3ba513deca4824f8659d"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-04/performance.jsonl": {
+      "bytes": 46009,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "64be1cc8db959f088a570a55ab2408b7b3b72d998a5c761bd780269a6b64ecc5",
+      "sources": [
+        {
+          "bytes": 46009,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-04/performance.jsonl",
+          "sha256": "64be1cc8db959f088a570a55ab2408b7b3b72d998a5c761bd780269a6b64ecc5"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-04/post-business-gate.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "2f4d53cb9d56ab55679b4b0cbf14f74becd2f2702362d7a764584bb70cc4e4ea",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-04/post-business-gate.json",
+          "sha256": "2f4d53cb9d56ab55679b4b0cbf14f74becd2f2702362d7a764584bb70cc4e4ea"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-04/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-04/recovery.json",
+          "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-04/request.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "3d84015ebf9ab6783bb2cdae6cfccbba75c1f627ac2b36d4d8c0576d60248f7d",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-04/request.json",
+          "sha256": "3d84015ebf9ab6783bb2cdae6cfccbba75c1f627ac2b36d4d8c0576d60248f7d"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-04/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "2cca71cd869f78ed95cff7703a6823092a7a7c5d5fc752f93d81a65a07bc1c08",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-04/shell.tsv",
+          "sha256": "2cca71cd869f78ed95cff7703a6823092a7a7c5d5fc752f93d81a65a07bc1c08"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-05/final.json": {
+      "bytes": 3251,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "95f0b27c600753268fca338bb43b6b51aaba0801127ab716d1c135daf585ad21",
+      "sources": [
+        {
+          "bytes": 3251,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-05/final.json",
+          "sha256": "95f0b27c600753268fca338bb43b6b51aaba0801127ab716d1c135daf585ad21"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-05/lifecycle.jsonl": {
+      "bytes": 8111,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "44a4fa80fd7d5286ab7d4e9de2f9323c64813f293c12297d4ac2375582bce5ea",
+      "sources": [
+        {
+          "bytes": 8111,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-05/lifecycle.jsonl",
+          "sha256": "44a4fa80fd7d5286ab7d4e9de2f9323c64813f293c12297d4ac2375582bce5ea"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-05/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "6903e3efb9d446b1fea1f552c7ccb7783f5c19b95bfc09d55a5f364ec9630956",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-05/memory-at-content.txt",
+          "sha256": "6903e3efb9d446b1fea1f552c7ccb7783f5c19b95bfc09d55a5f364ec9630956"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-05/performance.jsonl": {
+      "bytes": 46007,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "511231cc36cb9958363906564d8ebde4ea87e2ca68f2140c9f68b85fbe47b35b",
+      "sources": [
+        {
+          "bytes": 46007,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-05/performance.jsonl",
+          "sha256": "511231cc36cb9958363906564d8ebde4ea87e2ca68f2140c9f68b85fbe47b35b"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-05/post-business-gate.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "26697da5fc6c326b695bf1f4635004d56726b0b68ecdb967d7b96728eaf511e8",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-05/post-business-gate.json",
+          "sha256": "26697da5fc6c326b695bf1f4635004d56726b0b68ecdb967d7b96728eaf511e8"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-05/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-05/recovery.json",
+          "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-05/request.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "673dd0565b69412b3329088c4136deed2cf5c44f19fa61f6dec971ad11cedce8",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-05/request.json",
+          "sha256": "673dd0565b69412b3329088c4136deed2cf5c44f19fa61f6dec971ad11cedce8"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-05/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "56306aa97bfdfdef2b8d41993774b8cf464ee3511ce99e60f42d4a5d1ed54aa2",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-05/shell.tsv",
+          "sha256": "56306aa97bfdfdef2b8d41993774b8cf464ee3511ce99e60f42d4a5d1ed54aa2"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-06/final.json": {
+      "bytes": 3251,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "66fad46fa12364da6fe9429bf51a4551218fdceaf713a2b4a991fd233db4aeb6",
+      "sources": [
+        {
+          "bytes": 3251,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/final.json",
+          "sha256": "66fad46fa12364da6fe9429bf51a4551218fdceaf713a2b4a991fd233db4aeb6"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-06/lifecycle.jsonl": {
+      "bytes": 8095,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "c64bc13414532743cba191777add1940b8e2109b0ab87dfb234bfe17c01e313f",
+      "sources": [
+        {
+          "bytes": 8095,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/lifecycle.jsonl",
+          "sha256": "c64bc13414532743cba191777add1940b8e2109b0ab87dfb234bfe17c01e313f"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-06/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "b0f992dbe9c76c6f5787a59f329936eaa1fbe8f0f94cdb56ac5e43a202741da5",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/memory-at-content.txt",
+          "sha256": "b0f992dbe9c76c6f5787a59f329936eaa1fbe8f0f94cdb56ac5e43a202741da5"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-06/performance.jsonl": {
+      "bytes": 45993,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "3df25b57d0f2226ee9a7c946940a1c46f343269698f4382d35d467cbc01b2e73",
+      "sources": [
+        {
+          "bytes": 45993,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/performance.jsonl",
+          "sha256": "3df25b57d0f2226ee9a7c946940a1c46f343269698f4382d35d467cbc01b2e73"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-06/post-business-gate.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "f37931f4e22b368c550dd69a4766f26858783875bbbde1e72701e90c44fda9db",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/post-business-gate.json",
+          "sha256": "f37931f4e22b368c550dd69a4766f26858783875bbbde1e72701e90c44fda9db"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-06/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "450c27d89a8da88bc230f1f7057650a77f6425194efcbb41b50bdea5aa9c56c6",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/recovery.json",
+          "sha256": "450c27d89a8da88bc230f1f7057650a77f6425194efcbb41b50bdea5aa9c56c6"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-06/request.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "553292763215c26e6d3d7573da643133573c59711fd2e8614c7381244e14b273",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/request.json",
+          "sha256": "553292763215c26e6d3d7573da643133573c59711fd2e8614c7381244e14b273"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-06/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "ef75dbe4df27994eedb8b51b0d5cb5bc31907cab50a5ba2d2bfb57854f2147b4",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/shell.tsv",
+          "sha256": "ef75dbe4df27994eedb8b51b0d5cb5bc31907cab50a5ba2d2bfb57854f2147b4"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-warmup/final.json": {
+      "bytes": 3250,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "e01e6c48dfee86756f479d0fd9da970052914ebd739b29be3987a698b0f5a166",
+      "sources": [
+        {
+          "bytes": 3250,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-warmup/final.json",
+          "sha256": "e01e6c48dfee86756f479d0fd9da970052914ebd739b29be3987a698b0f5a166"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-warmup/lifecycle.jsonl": {
+      "bytes": 8093,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "c1042e0d425469b707b701b05e57a12c05de323eea92c2a3814396316c4daa18",
+      "sources": [
+        {
+          "bytes": 8093,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-warmup/lifecycle.jsonl",
+          "sha256": "c1042e0d425469b707b701b05e57a12c05de323eea92c2a3814396316c4daa18"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-warmup/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "7666097a2a0ec43b16b7d56f9afbf76d4324ea9ab074fd435138545b15a88882",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-warmup/memory-at-content.txt",
+          "sha256": "7666097a2a0ec43b16b7d56f9afbf76d4324ea9ab074fd435138545b15a88882"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-warmup/performance.jsonl": {
+      "bytes": 45805,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "620d69d0baa50c4a329be19164ebdc7007ce823794f263cef4718b5ea2d8e253",
+      "sources": [
+        {
+          "bytes": 45805,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-warmup/performance.jsonl",
+          "sha256": "620d69d0baa50c4a329be19164ebdc7007ce823794f263cef4718b5ea2d8e253"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-warmup/post-business-gate.json": {
+      "bytes": 74,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "c0374c773300b915b7e25e4bc9af9d9228595c51d0f9ffc161fbc801915a4167",
+      "sources": [
+        {
+          "bytes": 74,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-warmup/post-business-gate.json",
+          "sha256": "c0374c773300b915b7e25e4bc9af9d9228595c51d0f9ffc161fbc801915a4167"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-warmup/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-warmup/recovery.json",
+          "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-warmup/request.json": {
+      "bytes": 74,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "730e911914f5b159c1568dfb9d147fad233ddca0e8a5d736110a4e21427b0d0b",
+      "sources": [
+        {
+          "bytes": 74,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-warmup/request.json",
+          "sha256": "730e911914f5b159c1568dfb9d147fad233ddca0e8a5d736110a4e21427b0d0b"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/baseline-warmup/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "c1b9ef3faae143126b258668a20a722d78423dead81ebc7c88cb635ce2880c5e",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-warmup/shell.tsv",
+          "sha256": "c1b9ef3faae143126b258668a20a722d78423dead81ebc7c88cb635ce2880c5e"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-01/final.json": {
+      "bytes": 3251,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "5c19c3cb1d069dc3e54f69dbb42a29dde199c222af059483a24b494eaa32288a",
+      "sources": [
+        {
+          "bytes": 3251,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-01/final.json",
+          "sha256": "5c19c3cb1d069dc3e54f69dbb42a29dde199c222af059483a24b494eaa32288a"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-01/lifecycle.jsonl": {
+      "bytes": 8390,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "60ec20650014af9776264a45690fb3e81100e669299db86ddcce2c13715ac312",
+      "sources": [
+        {
+          "bytes": 8390,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-01/lifecycle.jsonl",
+          "sha256": "60ec20650014af9776264a45690fb3e81100e669299db86ddcce2c13715ac312"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-01/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "f928db4afee89452d33ec8928144195fcecc7e9653326bcb23a26c1afe870cd4",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-01/memory-at-content.txt",
+          "sha256": "f928db4afee89452d33ec8928144195fcecc7e9653326bcb23a26c1afe870cd4"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-01/performance.jsonl": {
+      "bytes": 43911,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "c45d07e42d6fd4c50d51071a347541c758552611c52add2ab0d562ec9d354d52",
+      "sources": [
+        {
+          "bytes": 43911,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-01/performance.jsonl",
+          "sha256": "c45d07e42d6fd4c50d51071a347541c758552611c52add2ab0d562ec9d354d52"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-01/post-business-gate.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "10f08d26d720d5d1024448d5718bcc5b53c89be7bfc16c5981632b1ad8380c81",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-01/post-business-gate.json",
+          "sha256": "10f08d26d720d5d1024448d5718bcc5b53c89be7bfc16c5981632b1ad8380c81"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-01/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-01/recovery.json",
+          "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-01/request.json": {
+      "bytes": 74,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "26ad6b0b5ca5a23333f341948b964e9f8aa3c7501814d03a4ea6e1d2fffae7d0",
+      "sources": [
+        {
+          "bytes": 74,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-01/request.json",
+          "sha256": "26ad6b0b5ca5a23333f341948b964e9f8aa3c7501814d03a4ea6e1d2fffae7d0"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-01/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "bab267393f4b41e3fb00a3befc317a4edb6fd3c1e6459ce2926f3664834d483b",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-01/shell.tsv",
+          "sha256": "bab267393f4b41e3fb00a3befc317a4edb6fd3c1e6459ce2926f3664834d483b"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-02/final.json": {
+      "bytes": 3251,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "93ca0a59dac2021b14b933c933ccaebfaa9f3b4075a2ee510901e164b53e212e",
+      "sources": [
+        {
+          "bytes": 3251,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-02/final.json",
+          "sha256": "93ca0a59dac2021b14b933c933ccaebfaa9f3b4075a2ee510901e164b53e212e"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-02/lifecycle.jsonl": {
+      "bytes": 8314,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "0be36560fc8508f693197ec41ad617656c7692c1c6bc0ddcf2729d2dc5bbd5aa",
+      "sources": [
+        {
+          "bytes": 8314,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-02/lifecycle.jsonl",
+          "sha256": "0be36560fc8508f693197ec41ad617656c7692c1c6bc0ddcf2729d2dc5bbd5aa"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-02/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "9e01ec82306dad185d8a12084f9f108ae071d5ae249f05f001504475e43a216c",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-02/memory-at-content.txt",
+          "sha256": "9e01ec82306dad185d8a12084f9f108ae071d5ae249f05f001504475e43a216c"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-02/performance.jsonl": {
+      "bytes": 43846,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "902f18d0ecf993b8ab34963f1668871cbca39c3d9a8469ef80dd0c9be4755766",
+      "sources": [
+        {
+          "bytes": 43846,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-02/performance.jsonl",
+          "sha256": "902f18d0ecf993b8ab34963f1668871cbca39c3d9a8469ef80dd0c9be4755766"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-02/post-business-gate.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "17b361bf8c9081ef794c9a08f79c38a05afb2f33c730de44fec49d76b92073e2",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-02/post-business-gate.json",
+          "sha256": "17b361bf8c9081ef794c9a08f79c38a05afb2f33c730de44fec49d76b92073e2"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-02/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-02/recovery.json",
+          "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-02/request.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "b09ee13f452d7dce2fa632d62b6796bc66820ca44ae6f85807d34932642416ae",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-02/request.json",
+          "sha256": "b09ee13f452d7dce2fa632d62b6796bc66820ca44ae6f85807d34932642416ae"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-02/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "b7d0ae97aebb4c839baf4724758b73cfb6de57190ef141e408aa13bcfd6031e4",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-02/shell.tsv",
+          "sha256": "b7d0ae97aebb4c839baf4724758b73cfb6de57190ef141e408aa13bcfd6031e4"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-03/final.json": {
+      "bytes": 3251,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "99dfb5d68eda433e2c0345ab5bac6e42a3b5122fc6740c3c2bde1fcc5826e4b0",
+      "sources": [
+        {
+          "bytes": 3251,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-03/final.json",
+          "sha256": "99dfb5d68eda433e2c0345ab5bac6e42a3b5122fc6740c3c2bde1fcc5826e4b0"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-03/lifecycle.jsonl": {
+      "bytes": 8344,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "39e001afd64be4cc19453af71283fa299a9728195eccb7cfdb81747f7bb3741a",
+      "sources": [
+        {
+          "bytes": 8344,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-03/lifecycle.jsonl",
+          "sha256": "39e001afd64be4cc19453af71283fa299a9728195eccb7cfdb81747f7bb3741a"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-03/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "07c7c0c3cd91608113bee72cc86376cd7c948f30edaf608348e5330818a218bd",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-03/memory-at-content.txt",
+          "sha256": "07c7c0c3cd91608113bee72cc86376cd7c948f30edaf608348e5330818a218bd"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-03/performance.jsonl": {
+      "bytes": 44057,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "c26fb9689f11b660712f505a0347cb45db62bde979e0e51ee0cbb0de0513d7f2",
+      "sources": [
+        {
+          "bytes": 44057,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-03/performance.jsonl",
+          "sha256": "c26fb9689f11b660712f505a0347cb45db62bde979e0e51ee0cbb0de0513d7f2"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-03/post-business-gate.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "7389b3a920bc8bd2b1978795a6b96282acfeed4f59f7a9fa3d098cff987c451d",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-03/post-business-gate.json",
+          "sha256": "7389b3a920bc8bd2b1978795a6b96282acfeed4f59f7a9fa3d098cff987c451d"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-03/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-03/recovery.json",
+          "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-03/request.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "ec7db05953eb1971e562909e6ad7c4597df531f7b05cc748c53a6941852c96c5",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-03/request.json",
+          "sha256": "ec7db05953eb1971e562909e6ad7c4597df531f7b05cc748c53a6941852c96c5"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-03/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "99c175a1aa06e08b5205800b40903287c4542859ee45e817f4e3131229141635",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-03/shell.tsv",
+          "sha256": "99c175a1aa06e08b5205800b40903287c4542859ee45e817f4e3131229141635"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-04/final.json": {
+      "bytes": 3251,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "9e64d83a5cb23109d3eb9506dcb33cd4819c3bfd9363158d2b96d1b90dec15ab",
+      "sources": [
+        {
+          "bytes": 3251,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-04/final.json",
+          "sha256": "9e64d83a5cb23109d3eb9506dcb33cd4819c3bfd9363158d2b96d1b90dec15ab"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-04/lifecycle.jsonl": {
+      "bytes": 8385,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "f9d999e207ace3ddeb5749ede5766d0292e3e04e96b41b91d1760a7c4b8b31cb",
+      "sources": [
+        {
+          "bytes": 8385,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-04/lifecycle.jsonl",
+          "sha256": "f9d999e207ace3ddeb5749ede5766d0292e3e04e96b41b91d1760a7c4b8b31cb"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-04/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "f47011b3bd0948f2f319e76610f40c3b13bdb31745ff833f1df33ce4ea5244d3",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-04/memory-at-content.txt",
+          "sha256": "f47011b3bd0948f2f319e76610f40c3b13bdb31745ff833f1df33ce4ea5244d3"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-04/performance.jsonl": {
+      "bytes": 41161,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "c87299d5a38cc86db89c4ce9d9d2adc9f3c4e5e401af682dde7ab9cfbbfeebac",
+      "sources": [
+        {
+          "bytes": 41161,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-04/performance.jsonl",
+          "sha256": "c87299d5a38cc86db89c4ce9d9d2adc9f3c4e5e401af682dde7ab9cfbbfeebac"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-04/post-business-gate.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "7f130938fa4ee959c148ade9bdf17403a62c360142dd39d892f005fab7760a4b",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-04/post-business-gate.json",
+          "sha256": "7f130938fa4ee959c148ade9bdf17403a62c360142dd39d892f005fab7760a4b"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-04/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-04/recovery.json",
+          "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-04/request.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "898fda015818dc2e4194c3a380b1b0832b011cef791267b2d8f293bf357ed815",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-04/request.json",
+          "sha256": "898fda015818dc2e4194c3a380b1b0832b011cef791267b2d8f293bf357ed815"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-04/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "e723323d3275ff23f39c4e15b0312ff5b5788728dd0d9729dc85679a36711d54",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-04/shell.tsv",
+          "sha256": "e723323d3275ff23f39c4e15b0312ff5b5788728dd0d9729dc85679a36711d54"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-05/final.json": {
+      "bytes": 3251,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "b5892cfde62951d341c0d7bd8d8c81fedf65b081c894af85280175420ffac365",
+      "sources": [
+        {
+          "bytes": 3251,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-05/final.json",
+          "sha256": "b5892cfde62951d341c0d7bd8d8c81fedf65b081c894af85280175420ffac365"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-05/lifecycle.jsonl": {
+      "bytes": 8351,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "d9148b3c8944e4fc32bbc453e7f83394bef9408b15cb509b2462272b638f7757",
+      "sources": [
+        {
+          "bytes": 8351,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-05/lifecycle.jsonl",
+          "sha256": "d9148b3c8944e4fc32bbc453e7f83394bef9408b15cb509b2462272b638f7757"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-05/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "5ae14f54c8d8d803007c598ae3b8ad7bee06f34913bd94aea723e5f11e37cea7",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-05/memory-at-content.txt",
+          "sha256": "5ae14f54c8d8d803007c598ae3b8ad7bee06f34913bd94aea723e5f11e37cea7"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-05/performance.jsonl": {
+      "bytes": 41135,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "7801815d3a1efa0108760946d2acb6c3a6abadfc8907285f4768925a63b789c5",
+      "sources": [
+        {
+          "bytes": 41135,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-05/performance.jsonl",
+          "sha256": "7801815d3a1efa0108760946d2acb6c3a6abadfc8907285f4768925a63b789c5"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-05/post-business-gate.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "dbdfd3b53f39d3510f34297852fc21c320d8347e4c75bf4921e3deadcb3845e6",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-05/post-business-gate.json",
+          "sha256": "dbdfd3b53f39d3510f34297852fc21c320d8347e4c75bf4921e3deadcb3845e6"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-05/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-05/recovery.json",
+          "sha256": "aa994566ba99c8f1aa42ea74d5eea8de96081c1cbe9902549f9469d403c72282"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-05/request.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "66b99236e234d8783229cb1010cb40a731eb204cd93ad0158e1826ba3df856f9",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-05/request.json",
+          "sha256": "66b99236e234d8783229cb1010cb40a731eb204cd93ad0158e1826ba3df856f9"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-05/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "42debe93b751b49660aba564914b94ec3d4c72f72e0d85aa0b1f1ee1e9a7d05b",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-05/shell.tsv",
+          "sha256": "42debe93b751b49660aba564914b94ec3d4c72f72e0d85aa0b1f1ee1e9a7d05b"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-06/final.json": {
+      "bytes": 3251,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "985a12812582ab6e91cc18983961bb8e079bb8cb6012d854929831f7f02a92eb",
+      "sources": [
+        {
+          "bytes": 3251,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/final.json",
+          "sha256": "985a12812582ab6e91cc18983961bb8e079bb8cb6012d854929831f7f02a92eb"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-06/lifecycle.jsonl": {
+      "bytes": 8331,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "34a42482e3a71bbace549f78d63a90dd5db480f85094a4d165b959403ca52cb8",
+      "sources": [
+        {
+          "bytes": 8331,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/lifecycle.jsonl",
+          "sha256": "34a42482e3a71bbace549f78d63a90dd5db480f85094a4d165b959403ca52cb8"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-06/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "a853b8343c3f577e66727949b186f20926f621ef5b602ba199514519321e2f94",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/memory-at-content.txt",
+          "sha256": "a853b8343c3f577e66727949b186f20926f621ef5b602ba199514519321e2f94"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-06/performance.jsonl": {
+      "bytes": 46772,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "16a97f0c581f364ec70ad0b00ecc57f8fbafea63a4f526f64ba64d08b19c248c",
+      "sources": [
+        {
+          "bytes": 46772,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/performance.jsonl",
+          "sha256": "16a97f0c581f364ec70ad0b00ecc57f8fbafea63a4f526f64ba64d08b19c248c"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-06/post-business-gate.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "ef35876373d49b88fff3fa5ceec431fe452b279df17569ea39c1c8b2945e74da",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/post-business-gate.json",
+          "sha256": "ef35876373d49b88fff3fa5ceec431fe452b279df17569ea39c1c8b2945e74da"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-06/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "450c27d89a8da88bc230f1f7057650a77f6425194efcbb41b50bdea5aa9c56c6",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/recovery.json",
+          "sha256": "450c27d89a8da88bc230f1f7057650a77f6425194efcbb41b50bdea5aa9c56c6"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-06/request.json": {
+      "bytes": 75,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "cf262c52bb825c7e31bc0293b099e37d9a7c9261e11c5676bc2b1c78cfc4186b",
+      "sources": [
+        {
+          "bytes": 75,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/request.json",
+          "sha256": "cf262c52bb825c7e31bc0293b099e37d9a7c9261e11c5676bc2b1c78cfc4186b"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-06/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "208b0fe511ecf6050037876c64d76a62acb12969de684d2a735487b78e8ce767",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/shell.tsv",
+          "sha256": "208b0fe511ecf6050037876c64d76a62acb12969de684d2a735487b78e8ce767"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-warmup/final.json": {
+      "bytes": 3250,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "d83a155a46626294d6c54c32a928f19a399433ff5327238610b0bac02647f6e0",
+      "sources": [
+        {
+          "bytes": 3250,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-warmup/final.json",
+          "sha256": "d83a155a46626294d6c54c32a928f19a399433ff5327238610b0bac02647f6e0"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-warmup/lifecycle.jsonl": {
+      "bytes": 8327,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "2ce69ff17e3aa37cf04e695b567a8d8173222d3da99898b8dc511f54abed2df5",
+      "sources": [
+        {
+          "bytes": 8327,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-warmup/lifecycle.jsonl",
+          "sha256": "2ce69ff17e3aa37cf04e695b567a8d8173222d3da99898b8dc511f54abed2df5"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-warmup/memory-at-content.txt": {
+      "bytes": 102,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "a04958d1e3c196d562130c221976626060c926130ed931c2db69e5032c6bbdc2",
+      "sources": [
+        {
+          "bytes": 102,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-warmup/memory-at-content.txt",
+          "sha256": "a04958d1e3c196d562130c221976626060c926130ed931c2db69e5032c6bbdc2"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-warmup/performance.jsonl": {
+      "bytes": 43672,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "58ea891e4adc1f15c8bc6258e7feed10afc767b5cce1cb0e0fecf2c2fd6a7570",
+      "sources": [
+        {
+          "bytes": 43672,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-warmup/performance.jsonl",
+          "sha256": "58ea891e4adc1f15c8bc6258e7feed10afc767b5cce1cb0e0fecf2c2fd6a7570"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-warmup/post-business-gate.json": {
+      "bytes": 74,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "e50c48571309fbee4144e2a6d3cb733e658dc67753c708fdc7825ffed12d79bf",
+      "sources": [
+        {
+          "bytes": 74,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-warmup/post-business-gate.json",
+          "sha256": "e50c48571309fbee4144e2a6d3cb733e658dc67753c708fdc7825ffed12d79bf"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-warmup/recovery.json": {
+      "bytes": 255,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "450c27d89a8da88bc230f1f7057650a77f6425194efcbb41b50bdea5aa9c56c6",
+      "sources": [
+        {
+          "bytes": 255,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-warmup/recovery.json",
+          "sha256": "450c27d89a8da88bc230f1f7057650a77f6425194efcbb41b50bdea5aa9c56c6"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-warmup/request.json": {
+      "bytes": 74,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "48d19248ee83c97504a5a6ac1ed6e91e4d926710480a889a10c8c5dd1074be7a",
+      "sources": [
+        {
+          "bytes": 74,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-warmup/request.json",
+          "sha256": "48d19248ee83c97504a5a6ac1ed6e91e4d926710480a889a10c8c5dd1074be7a"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "cases/candidate-warmup/shell.tsv": {
+      "bytes": 133,
+      "evidence_class": "physical-device-stored-raw",
+      "sha256": "3fdc67dc601fce3ccdf8017bd20282ba5ec0906ba35078748520d9223ea06e39",
+      "sources": [
+        {
+          "bytes": 133,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-warmup/shell.tsv",
+          "sha256": "3fdc67dc601fce3ccdf8017bd20282ba5ec0906ba35078748520d9223ea06e39"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed stored file; complete original bytes, no field removal or record filtering."
+    },
+    "evidence/fixture-manifest.json": {
+      "bytes": 5912,
+      "evidence_class": "fixture-identities",
+      "sha256": "eec7ef692df034b764eb510219ce23bf28c068d8fe9e931e752c62d2468f3a96",
+      "sources": [
+        {
+          "bytes": 5912,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/inputs/fixture-manifest.json",
+          "sha256": "eec7ef692df034b764eb510219ce23bf28c068d8fe9e931e752c62d2468f3a96"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed anonymous offline-demo fixture identities; no fixture payload or database is exported."
+    },
+    "evidence/lease-release.projection.json": {
+      "bytes": 781,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "810ca3fdccd39862bf676ad9fdc653f81e837ff09f2f35076db190b4c649a6f1",
+      "sources": [
+        {
+          "bytes": 569,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/evidence/lease-released.json",
+          "sha256": "903e50c3ac7e3c0e0d5108ae0bbc578a86b5d444a20a22e85a73d2edfa5b638f"
+        }
+      ],
+      "transformation": "Fixed allowlist projection of the completed release receipt; not original bytes or current lease state."
+    },
+    "evidence/report.projection.json": {
+      "bytes": 2253,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "f230a500a18d7597155b26a37dc14dae78384788215c031a713bad3d51e02988",
+      "sources": [
+        {
+          "bytes": 13137,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/report.json",
+          "sha256": "683dbd5cbca7cc682846238f59d3e5a2830196d05cf2434949239916487e5256"
+        }
+      ],
+      "transformation": "Fixed allowlist projection; command lines, owner fields, private bindings and native Home identities omitted."
+    },
+    "evidence/transport-closure.projection.json": {
+      "bytes": 630,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "43c15ccec8becfcce04e68593e06bcb07920343eb2baa163f66314eab50121a3",
+      "sources": [
+        {
+          "bytes": 342,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/evidence/transport-closure.json",
+          "sha256": "a12067037e91384436ad1b3a1f4b02cd40d14c49e0edc451fadeadbc0f6aca4d"
+        }
+      ],
+      "transformation": "Fixed allowlist projection of the completed host transport-closure receipt."
+    },
+    "images/baseline-06-early-memory.json": {
+      "bytes": 2635,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "4281d54329ed8acd83aaddd63125c32cd173181dbb155f53dcf1fc25e7f9844e",
+      "sources": [
+        {
+          "bytes": 4613205,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/content-frame.raw",
+          "sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104"
+        },
+        {
+          "bytes": 855207,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/analysis.json",
+          "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+        }
+      ],
+      "transformation": "Derived image-provenance sidecar; original raw framebuffer bytes remain private."
+    },
+    "images/baseline-06-early-memory.png": {
+      "bytes": 128999,
+      "evidence_class": "derived-framebuffer-memory-image",
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "sources": [
+        {
+          "bytes": 4613205,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/content-frame.raw",
+          "sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104"
+        }
+      ],
+      "transformation": "Lossless PNG encoding of all packed visible Gray8 memory bytes after the JSON header; no crop, resize, rotation, inversion, masking, tone correction or panel compensation."
+    },
+    "images/baseline-06-final-logical.json": {
+      "bytes": 1011,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "6a475d27f430fc152da9c0930bbc7f9027c901f83b8b476c7d41446ccd41e034",
+      "sources": [
+        {
+          "bytes": 453889,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/final.png",
+          "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da"
+        },
+        {
+          "bytes": 855207,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/analysis.json",
+          "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+        }
+      ],
+      "transformation": "Derived provenance sidecar; image bytes are unchanged."
+    },
+    "images/baseline-06-final-logical.png": {
+      "bytes": 453889,
+      "evidence_class": "original-logical-image",
+      "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "sources": [
+        {
+          "bytes": 453889,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/final.png",
+          "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da"
+        }
+      ],
+      "transformation": "Verbatim original logical Slint PNG before framebuffer compensation; no pixel or encoding changes."
+    },
+    "images/baseline-06-scheduled-memory.json": {
+      "bytes": 3101,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "716415c227c9594ae21f91db627e23f7803acddd38a79ea1eeeec49d3e3ce1e7",
+      "sources": [
+        {
+          "bytes": 4613205,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/settled-frame.raw",
+          "sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104"
+        },
+        {
+          "bytes": 855207,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/analysis.json",
+          "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+        }
+      ],
+      "transformation": "Derived image-provenance sidecar; original raw framebuffer bytes remain private."
+    },
+    "images/baseline-06-scheduled-memory.png": {
+      "bytes": 128999,
+      "evidence_class": "derived-framebuffer-memory-image",
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "sources": [
+        {
+          "bytes": 4613205,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/baseline-06/settled-frame.raw",
+          "sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104"
+        }
+      ],
+      "transformation": "Lossless PNG encoding of all packed visible Gray8 memory bytes after the JSON header; no crop, resize, rotation, inversion, masking, tone correction or panel compensation."
+    },
+    "images/candidate-06-early-memory.json": {
+      "bytes": 2637,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "8f442f49ece6c9ed2014c31e6da8c154151c17d6419088e9dbdfe4be4c471ae7",
+      "sources": [
+        {
+          "bytes": 4613205,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/content-frame.raw",
+          "sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104"
+        },
+        {
+          "bytes": 855207,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/analysis.json",
+          "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+        }
+      ],
+      "transformation": "Derived image-provenance sidecar; original raw framebuffer bytes remain private."
+    },
+    "images/candidate-06-early-memory.png": {
+      "bytes": 128999,
+      "evidence_class": "derived-framebuffer-memory-image",
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "sources": [
+        {
+          "bytes": 4613205,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/content-frame.raw",
+          "sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104"
+        }
+      ],
+      "transformation": "Lossless PNG encoding of all packed visible Gray8 memory bytes after the JSON header; no crop, resize, rotation, inversion, masking, tone correction or panel compensation."
+    },
+    "images/candidate-06-final-logical.json": {
+      "bytes": 1012,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "2fa62e2a507ebaf2bc8c54b06c4b00a791f0f29a7e42315917614e25334f4611",
+      "sources": [
+        {
+          "bytes": 453889,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/final.png",
+          "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da"
+        },
+        {
+          "bytes": 855207,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/analysis.json",
+          "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+        }
+      ],
+      "transformation": "Derived provenance sidecar; image bytes are unchanged."
+    },
+    "images/candidate-06-final-logical.png": {
+      "bytes": 453889,
+      "evidence_class": "original-logical-image",
+      "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+      "sources": [
+        {
+          "bytes": 453889,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/final.png",
+          "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da"
+        }
+      ],
+      "transformation": "Verbatim original logical Slint PNG before framebuffer compensation; no pixel or encoding changes."
+    },
+    "images/candidate-06-scheduled-memory.json": {
+      "bytes": 3118,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "56ce7c5a028f1ad1da785d86d7fb8c9b29a8266232969665b592e3386e5e8379",
+      "sources": [
+        {
+          "bytes": 4613205,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/settled-frame.raw",
+          "sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104"
+        },
+        {
+          "bytes": 855207,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/analysis.json",
+          "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+        }
+      ],
+      "transformation": "Derived image-provenance sidecar; original raw framebuffer bytes remain private."
+    },
+    "images/candidate-06-scheduled-memory.png": {
+      "bytes": 128999,
+      "evidence_class": "derived-framebuffer-memory-image",
+      "sha256": "9afa54a8c0147f620d5871ca0257f98d0ae7dbbfb8839c544b4fd50273fbee5c",
+      "sources": [
+        {
+          "bytes": 4613205,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/settled-frame.raw",
+          "sha256": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104"
+        }
+      ],
+      "transformation": "Lossless PNG encoding of all packed visible Gray8 memory bytes after the JSON header; no crop, resize, rotation, inversion, masking, tone correction or panel compensation."
+    },
+    "summary.json": {
+      "bytes": 163773,
+      "evidence_class": "derived-stored-evidence",
+      "sha256": "369c548c0cc5a719a78478b855e08b3a8cc7d56630e1bd1558db58a0aed53ec8",
+      "sources": [
+        {
+          "bytes": 13137,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/report.json",
+          "sha256": "683dbd5cbca7cc682846238f59d3e5a2830196d05cf2434949239916487e5256"
+        },
+        {
+          "bytes": 855207,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/analysis.json",
+          "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+        },
+        {
+          "bytes": 569,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/evidence/lease-released.json",
+          "sha256": "903e50c3ac7e3c0e0d5108ae0bbc578a86b5d444a20a22e85a73d2edfa5b638f"
+        },
+        {
+          "bytes": 4203,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/frozen-tools-r1.json",
+          "sha256": "e297e17673f3e2ee57838654bacda2e573ebfb23c4f1bf7296ac03b567c6ecc7"
+        },
+        {
+          "bytes": 5912,
+          "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/inputs/fixture-manifest.json",
+          "sha256": "eec7ef692df034b764eb510219ce23bf28c068d8fe9e931e752c62d2468f3a96"
+        },
+        {
+          "bytes": 26891,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/run.json",
+          "sha256": "680bbc400bb238c99336ea7f3788e4fd39c193dcb1396f59f4eca6e8efb15cac"
+        },
+        {
+          "bytes": 11195,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/before-sleep.checkpoint.json",
+          "sha256": "25bca99d3603d51c395889ac46b1506722a270d51ce65019252284317b7a9f21"
+        },
+        {
+          "bytes": 22672,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/lifecycle.jsonl",
+          "sha256": "11f9742d73635ea10ffec95e0cc3a8fd1adf10a915baf6d48d104783aacdfdee"
+        },
+        {
+          "bytes": 784,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.json",
+          "sha256": "9ffe59f052f302c6032cb7440e2f75014c7c00e6b808b364cc8e0e9733039c03"
+        },
+        {
+          "bytes": 566,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.release.json",
+          "sha256": "cb8c59de36edf9ddd54321938444d49ec213183ec4dd27eaccdd3384087dc8c4"
+        },
+        {
+          "bytes": 542,
+          "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.closure.json",
+          "sha256": "451abd3087c26870cd02c22ec2d3025d9c015d65fe2cba89050fd847ac4c13e1"
+        }
+      ],
+      "transformation": "Derived bounded summary retaining all 14 cases, every measured pair, exact distributions and separate assisted incompleteness."
+    },
+    "tools/analyze_startup_ab.py": {
+      "bytes": 43862,
+      "evidence_class": "measurement-source",
+      "sha256": "d51bb72e5b013ee5f9822387b99cb3411772516a24aff26573f5756282ae613f",
+      "sources": [
+        {
+          "bytes": 43862,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/analyze_startup_ab.py",
+          "sha256": "d51bb72e5b013ee5f9822387b99cb3411772516a24aff26573f5756282ae613f"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed public measurement source; no tool is executed by export."
+    },
+    "tools/analyze_stored_item1.py": {
+      "bytes": 39693,
+      "evidence_class": "analysis-source",
+      "sha256": "99b059a0155a9569a685558a2402940cc062eb58d850231b01f2ba4090fde16c",
+      "sources": [
+        {
+          "bytes": 39693,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/analysis-item1-f028b769/analyze_stored_item1.py",
+          "sha256": "99b059a0155a9569a685558a2402940cc062eb58d850231b01f2ba4090fde16c"
+        }
+      ],
+      "transformation": "Verbatim final frozen stored-evidence analysis output or its source; not a new experiment or raw trace."
+    },
+    "tools/device_lease.py": {
+      "bytes": 23476,
+      "evidence_class": "measurement-source",
+      "sha256": "494c62e67e29b2a9388148e4cef503ff7feceb15ef90c4af43a5ee3cf6971b72",
+      "sources": [
+        {
+          "bytes": 23476,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/device_lease.py",
+          "sha256": "494c62e67e29b2a9388148e4cef503ff7feceb15ef90c4af43a5ee3cf6971b72"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed public measurement source; no tool is executed by export."
+    },
+    "tools/export_item1.py": {
+      "bytes": 34703,
+      "evidence_class": "exporter-source",
+      "sha256": "07bf6de88bd6163227b6afe3a6fa7763e354972dc79f51c624254b2484e609d1",
+      "sources": [
+        {
+          "bytes": 34703,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-inputs-r1/export_item1.py",
+          "sha256": "07bf6de88bd6163227b6afe3a6fa7763e354972dc79f51c624254b2484e609d1"
+        }
+      ],
+      "transformation": "Verbatim exporter source; execution performs fixed stored-file reads and derived artifact writes only."
+    },
+    "tools/frozen-tools-r1.json": {
+      "bytes": 4203,
+      "evidence_class": "measurement-provenance",
+      "sha256": "e297e17673f3e2ee57838654bacda2e573ebfb23c4f1bf7296ac03b567c6ecc7",
+      "sources": [
+        {
+          "bytes": 4203,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/frozen-tools-r1.json",
+          "sha256": "e297e17673f3e2ee57838654bacda2e573ebfb23c4f1bf7296ac03b567c6ecc7"
+        }
+      ],
+      "transformation": "Verbatim public frozen tooling identity and historical host-only fixture-test record."
+    },
+    "tools/guarded-device-ssh.py": {
+      "bytes": 3908,
+      "evidence_class": "measurement-source",
+      "sha256": "c2dfb7e982e32d02cf28fe901d85400a367647db08b3100946c7a83e0458e2db",
+      "sources": [
+        {
+          "bytes": 3908,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/guarded-device-ssh.py",
+          "sha256": "c2dfb7e982e32d02cf28fe901d85400a367647db08b3100946c7a83e0458e2db"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed public measurement source; no tool is executed by export."
+    },
+    "tools/native_recovery_fragment.sh": {
+      "bytes": 16739,
+      "evidence_class": "measurement-source",
+      "sha256": "f00898ef25b8fd56364a56b3924d6535262c2e302091265f51f24b7f48262d26",
+      "sources": [
+        {
+          "bytes": 16739,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/native_recovery_fragment.sh",
+          "sha256": "f00898ef25b8fd56364a56b3924d6535262c2e302091265f51f24b7f48262d26"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed public measurement source; no tool is executed by export."
+    },
+    "tools/startup-clock.c": {
+      "bytes": 6922,
+      "evidence_class": "measurement-source",
+      "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c",
+      "sources": [
+        {
+          "bytes": 6922,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/startup-clock.c",
+          "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed public measurement source; no tool is executed by export."
+    },
+    "tools/startup_ab.py": {
+      "bytes": 61749,
+      "evidence_class": "measurement-source",
+      "sha256": "45b1e3a4c57a2cbe55651059194d3dc470fd118fdaf1df913cdaa7c277020639",
+      "sources": [
+        {
+          "bytes": 61749,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/startup_ab.py",
+          "sha256": "45b1e3a4c57a2cbe55651059194d3dc470fd118fdaf1df913cdaa7c277020639"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed public measurement source; no tool is executed by export."
+    },
+    "tools/test_startup_analysis.py": {
+      "bytes": 37693,
+      "evidence_class": "measurement-source",
+      "sha256": "c7fad487aa0d865dc2a0f43b73dd013c43145447456bbcc1e39617057875013c",
+      "sources": [
+        {
+          "bytes": 37693,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/test_startup_analysis.py",
+          "sha256": "c7fad487aa0d865dc2a0f43b73dd013c43145447456bbcc1e39617057875013c"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed public measurement source; no tool is executed by export."
+    },
+    "tools/test_startup_batch.py": {
+      "bytes": 36583,
+      "evidence_class": "measurement-source",
+      "sha256": "bb9adef6d0c01e582f963f55a8e47e0f4bc5072f1cba66c8c3660afd19ba9795",
+      "sources": [
+        {
+          "bytes": 36583,
+          "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests/test_startup_batch.py",
+          "sha256": "bb9adef6d0c01e582f963f55a8e47e0f4bc5072f1cba66c8c3660afd19ba9795"
+        }
+      ],
+      "transformation": "Verbatim privacy-reviewed public measurement source; no tool is executed by export."
+    }
+  },
+  "manifest_self_binding": "This JSON excludes itself and its SHA-256 sidecar; export-manifest.sha256 binds its exact bytes.",
+  "original_exporter": {
+    "bytes": 34703,
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-inputs-r1/export_item1.py",
+    "sha256": "07bf6de88bd6163227b6afe3a6fa7763e354972dc79f51c624254b2484e609d1"
+  },
+  "payload_file_count": 155,
+  "schema_version": 1,
+  "scope": "Fixed-allowlist stored-evidence export only; source evidence unchanged; no device, lease, build, application or test execution.",
+  "source_roots": [
+    "/root/bilicomics-physical-startup-sequence-20261117-f028b769",
+    "/root/bilicomics-physical-startup-sleep-20261117-a1067e98",
+    "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/analysis-item1-f028b769",
+    "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests",
+    "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-inputs-r1",
+    "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/export-item1-inputs-r2"
+  ]
+}

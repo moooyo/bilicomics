@@ -1,0 +1,16 @@
+#!/bin/sh
+# Run only the frozen software candidate in its isolated test-env workspace.
+set -eu
+umask 077
+STARTUP_SEQUENCE_ROOT=/root/bilicomics-startup-sequence-20261117-01a1d11a-r1
+. /root/.cargo/env
+export CARGO_TARGET_DIR="$STARTUP_SEQUENCE_ROOT/target"
+export CARGO_BUILD_JOBS=6
+export CARGO_INCREMENTAL=0
+export CARGO_PROFILE_DEV_INCREMENTAL=false
+export CARGO_PROFILE_TEST_INCREMENTAL=false
+export RUST_TEST_THREADS=1
+export CARGO_NET_OFFLINE=true
+export CARGO_TERM_COLOR=never
+export PYTHONDONTWRITEBYTECODE=1
+exec python3 -u "$STARTUP_SEQUENCE_ROOT/runner-r4.py" "$@"

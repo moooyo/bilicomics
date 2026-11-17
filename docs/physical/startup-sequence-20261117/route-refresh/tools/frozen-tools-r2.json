@@ -1,0 +1,141 @@
+{
+  "both_variants_retain_default_startup_preparation": true,
+  "experiment": "startup-route-refresh",
+  "files": {
+    "MEASUREMENT_PLAN.md": {
+      "bytes": 8313,
+      "sha256": "4de0ac11725b26ef0506c84556a6f3cbb260ed4f858049d7ecd2e370cd606b1d"
+    },
+    "READ_ONLY_REVIEW.md": {
+      "bytes": 2056,
+      "sha256": "af274c97bae30a84cd17698ecdb8e4d9de59131a404cd1864c252056beeabdc2"
+    },
+    "analysis-tests-r2.log": {
+      "bytes": 6529,
+      "sha256": "30354ac8150f73f18a50007d22417d020e4016dbc84fd19c984cfac91407a7f3"
+    },
+    "analyze_startup_ab.py": {
+      "bytes": 43930,
+      "sha256": "210d5c80e038aff134db1832f3d108018932d9975e56fc3f39912d9f7ccede7f"
+    },
+    "config.example.json": {
+      "bytes": 3590,
+      "sha256": "4d50d4aeb87d54a71d5b025a5603529dd61f95021ff4f91e03a832c48a60beb9"
+    },
+    "controller-tests-r2-pre-review.log": {
+      "bytes": 6283,
+      "sha256": "ba6663a5690cdc5eb9e4087a27cb728f73b391a09c6fea1751ccb8c0701edb18"
+    },
+    "controller-tests-r2.log": {
+      "bytes": 6283,
+      "sha256": "929bd682a9050f3e3eef3e6e40754bdd3f4e26189da1437d0fa96b269c630554"
+    },
+    "device_lease.py": {
+      "bytes": 23476,
+      "sha256": "494c62e67e29b2a9388148e4cef503ff7feceb15ef90c4af43a5ee3cf6971b72"
+    },
+    "guarded-device-ssh.py": {
+      "bytes": 3908,
+      "sha256": "c2dfb7e982e32d02cf28fe901d85400a367647db08b3100946c7a83e0458e2db"
+    },
+    "native_recovery_fragment.sh": {
+      "bytes": 16739,
+      "sha256": "f00898ef25b8fd56364a56b3924d6535262c2e302091265f51f24b7f48262d26"
+    },
+    "pre-review-host-check.json": {
+      "bytes": 564,
+      "sha256": "5746842f7a443df346c327359687f4af379536e824511dfe982fa981d9e6dff1"
+    },
+    "startup-clock.c": {
+      "bytes": 6922,
+      "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c"
+    },
+    "startup_ab.py": {
+      "bytes": 62037,
+      "sha256": "03a470c1ce59086561cf0d6e192f731a97172efa1a734274aab6a1e908155d31"
+    },
+    "test_startup_analysis.py": {
+      "bytes": 38036,
+      "sha256": "2b9ace59f2be1027769eff6e4ec4a94a86caf8a083bbd81e73260810bf9fff6b"
+    },
+    "test_startup_batch.py": {
+      "bytes": 38497,
+      "sha256": "38c4f94fafdb2d22e1c82eaaf9c4fa31e3d499a1279126ec34dbd9108fdf393b"
+    }
+  },
+  "fixture": {
+    "file_count": 37,
+    "fingerprint": "a930027e7e297c89b61c963d2dd17d30c605bca3d4260e1805b7aea2257f3f79",
+    "scope": "isolated-demo-offline"
+  },
+  "parent_analyzer_sha256": "d51bb72e5b013ee5f9822387b99cb3411772516a24aff26573f5756282ae613f",
+  "parent_controller_sha256": "45b1e3a4c57a2cbe55651059194d3dc470fd118fdaf1df913cdaa7c277020639",
+  "parent_revision": "artifacts/verification/startup-sequence-20261117/measurement/revision1",
+  "parent_schedule_endpoints_and_observation_windows_preserved": true,
+  "physical_tool_pins": {
+    "physical_framebuffer_sha256": "b3af31796b1013f8e0b4ee66d364b32e2cf4fbd12c7ac68678bd08bea4e097cd",
+    "startup_clock_sha256": "89efa9773505c770f2794be7ab53a7524742346e77500405788d589198f22a1f"
+  },
+  "product_artifact_identities_pending_actual_build": true,
+  "r2_lock_terminal_drain_preserved": true,
+  "real_package_checks": {
+    "executed": false,
+    "reason": "Final ELF/ZIP/compiler and source-input identities remain pending the coordinator build freeze"
+  },
+  "revision": 2,
+  "run_id_pattern": "startup-route-[0-9]{8}-[0-9a-f]{8}",
+  "schema_version": 1,
+  "scope": "Host-only route-refresh follow-up tooling; no actual product payload preparation, device, shared lease or private authentication access",
+  "shared_identity_fields": [
+    "source_commit",
+    "source_fingerprint",
+    "binary_sha256",
+    "worker_sha256",
+    "launcher_sha256",
+    "package_sha256",
+    "compiler_fingerprint",
+    "build_configuration"
+  ],
+  "source_commit_for_pending_package": "f6208d6f7dd3d8e64a09ef0ceb2ceb6b0c45d0f5",
+  "startup_arguments": {
+    "baseline": [
+      "--demo",
+      "--offline",
+      "--legacy-startup-route-refresh"
+    ],
+    "candidate": [
+      "--demo",
+      "--offline"
+    ]
+  },
+  "supervisor_only_namespace_changed_from_parent": true,
+  "supervisor_sha256": "3fd01a0825c96774d0831fcb51c281c155eca2a6be88b2b8ee3e49c68959242c",
+  "unchanged_components": [
+    "native_recovery_fragment.sh",
+    "startup-clock.c",
+    "guarded-device-ssh.py",
+    "device_lease.py"
+  ],
+  "verification": {
+    "actual_product_payload_prepared": false,
+    "analysis_and_clock": {
+      "elapsed_seconds": 0.722,
+      "failed": 0,
+      "passed": 45
+    },
+    "concurrency": 1,
+    "controller": {
+      "elapsed_seconds": 56.814,
+      "failed": 0,
+      "passed": 41
+    },
+    "environment": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests-r2",
+    "host_only": true,
+    "independent_read_only_review": "Initial parameter-token gap fixed; final review found no blocking issue",
+    "physical_device_accessed": false,
+    "pre_review_pass_is_not_final_source_validation": true,
+    "private_authentication_read": false,
+    "shared_lease_accessed": false,
+    "total_passed": 86
+  }
+}

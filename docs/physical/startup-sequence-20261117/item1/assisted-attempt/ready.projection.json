@@ -1,0 +1,21 @@
+{
+  "derivation": "One fixed ready-event field projection from the stored lifecycle trace.",
+  "fields": {
+    "elapsed_ms": 1765.138846,
+    "event": "ready",
+    "frame_size": [
+      0,
+      0
+    ],
+    "monotonic_ns": 146716950679589,
+    "native_epdc_mode": "Y8",
+    "process_id": 3140,
+    "route": "reader"
+  },
+  "source": {
+    "bytes": 22672,
+    "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/lifecycle.jsonl",
+    "sha256": "11f9742d73635ea10ffec95e0cc3a8fd1adf10a915baf6d48d104783aacdfdee"
+  },
+  "source_line_number": 22
+}

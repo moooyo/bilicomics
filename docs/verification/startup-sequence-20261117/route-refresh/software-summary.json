@@ -1,0 +1,454 @@
+{
+  "schema_version": 1,
+  "scope": "Stored route-refresh software evidence only; no physical, optical, performance, live-account, or adoption conclusion",
+  "authority": "original/checks-r4-summary.json",
+  "passed": true,
+  "independent_of_immutable_parent_item1_bundle": true,
+  "source_commit": "f6208d6f7dd3d8e64a09ef0ceb2ceb6b0c45d0f5",
+  "source_archive": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/source.tar",
+    "bytes": 98375680,
+    "sha256": "146a8f85798b2fce58345307c872c0cb5ce6977ee430dac7e8a255270da6bfb2"
+  },
+  "compiled_inputs": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/source-inputs.sha256",
+    "bytes": 58640,
+    "sha256": "1ef8122dcafbbc0554af12c135a1a592c68bb5b4722f3f6b2109dceacae94e03",
+    "files": 545,
+    "manifest_builder": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app/scripts/verification/native_protocol.py",
+      "bytes": 11491,
+      "sha256": "90ceacdce5f4da9fb805cfef3b21f67b0699bcc91878ff1708eff8a9e2fdc3d8"
+    }
+  },
+  "archive_source_inputs": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/archive-source-inputs.sha256",
+    "bytes": 151421,
+    "sha256": "3e40d294d58311718637ea6c7695a19ff22545ae07defb4d0b5a228fb32b80ab",
+    "files": 1243
+  },
+  "compiler_profile": "compiler-profile.json",
+  "compiler_profile_identity": {
+    "bytes": 3882,
+    "sha256": "cb86aeb94e3cd05a435ecb31f97e0f928d4a5eff6afb98afcc89064814c8ce91"
+  },
+  "compiler_executables": {
+    "rustc": {
+      "selected_path": "/root/.cargo/bin/rustc",
+      "executable": {
+        "path": "/root/.cargo/bin/rustup",
+        "bytes": 21139856,
+        "sha256": "5be191e8c70a5007074254cb74d78dbfdd25cd5a61c27de7b8e5410122ec24f4"
+      }
+    },
+    "cargo": {
+      "selected_path": "/root/.cargo/bin/cargo",
+      "executable": {
+        "path": "/root/.cargo/bin/rustup",
+        "bytes": 21139856,
+        "sha256": "5be191e8c70a5007074254cb74d78dbfdd25cd5a61c27de7b8e5410122ec24f4"
+      }
+    },
+    "cargo-zigbuild": {
+      "selected_path": "/root/.cargo/bin/cargo-zigbuild",
+      "executable": {
+        "path": "/root/.cargo/bin/cargo-zigbuild",
+        "bytes": 5268048,
+        "sha256": "1fc7ef88fd3f03e14be418cd4351e9d1f27fcb16d16eea62e55b9beeefc42f38"
+      }
+    },
+    "zig": {
+      "selected_path": "/root/.cargo/bin/zig",
+      "executable": {
+        "path": "/root/weread-build/tools/zig-x86_64-linux-0.15.2/zig",
+        "bytes": 172295280,
+        "sha256": "2858dc89dbbfdd08cceda1b841e7fd0a793a1a67b49f150bc3d0d1de44ed7f51"
+      }
+    },
+    "readelf": {
+      "selected_path": "/usr/bin/readelf",
+      "executable": {
+        "path": "/usr/bin/x86_64-linux-gnu-readelf",
+        "bytes": 777864,
+        "sha256": "4a387d80a70e6e97ef940a666fab59d5c38e7cf19ff907192fa983cb8505a7de"
+      }
+    },
+    "cc": {
+      "selected_path": "/usr/bin/cc",
+      "executable": {
+        "path": "/usr/bin/x86_64-linux-gnu-gcc-14",
+        "bytes": 1162264,
+        "sha256": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f"
+      }
+    },
+    "ar": {
+      "selected_path": "/usr/bin/ar",
+      "executable": {
+        "path": "/usr/bin/x86_64-linux-gnu-ar",
+        "bytes": 52480,
+        "sha256": "f8fe09d485b40b1d47c534c96f5cbaaa9148e247aa0494c087104421f48ac5eb"
+      }
+    },
+    "toolchain-rustc": {
+      "path": "/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "bytes": 648536,
+      "sha256": "b53b780f77f952062f8ca8a3b70aef2390b1e45ad91939be94afdc9543026853"
+    },
+    "toolchain-cargo": {
+      "path": "/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "bytes": 36148320,
+      "sha256": "a670e02cfa39ac2e53f77a2d911ca1fc9e2c479b0603ec956625be1daf24e3af"
+    }
+  },
+  "compiler_versions": {
+    "compiler-rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1",
+    "compiler-cargo": "cargo 1.99.1 (5f94df478 2026-08-27)\nrelease: 1.99.1\ncommit-hash: 5f94df4789f005f9a352888e8355ffc645b7ed0e\ncommit-date: 2026-08-27\nhost: x86_64-unknown-linux-gnu\nlibgit2: 1.9.6 (sys:0.21.0 vendored)\nlibcurl: 8.21.0-DEV (sys:0.4.90+curl-8.21.0 vendored ssl:OpenSSL/3.6.3)\nssl: OpenSSL 3.6.3 9 Jun 2026\nos: Debian 13.0.0 (trixie) [64-bit]",
+    "compiler-zigbuild": "cargo-zigbuild 0.24.0",
+    "compiler-zig": "0.15.2"
+  },
+  "official_release_profile": {
+    "lto": "thin",
+    "codegen-units": 1,
+    "strip": true
+  },
+  "release_override_used": false,
+  "actual_arm_rustc_settings": {
+    "bilicomics": {
+      "target": "armv7-unknown-linux-musleabihf",
+      "opt_level": "3",
+      "lto": "thin",
+      "codegen_units": "1",
+      "strip": "symbols",
+      "linker": "/root/.cache/cargo-zigbuild/0.24.0/wrappers/c4e1/zigcc-armv7-unknown-linux-musleabihf-bd0.sh"
+    },
+    "kindle_jpeg_worker": {
+      "target": "armv7-unknown-linux-musleabihf",
+      "opt_level": "3",
+      "lto": "thin",
+      "codegen_units": "1",
+      "strip": "symbols",
+      "linker": "/root/.cache/cargo-zigbuild/0.24.0/wrappers/c4e1/zigcc-armv7-unknown-linux-musleabihf-bd0.sh"
+    }
+  },
+  "arm_build": {
+    "actual_compile_proof": "arm-compilation-proof.json",
+    "passed": true,
+    "announcements": {
+      "bilicomics": [
+        "   Compiling bilicomics v0.1.25 (/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app)"
+      ],
+      "slint-backend-kindle": [
+        "   Compiling slint-backend-kindle v0.7.1 (/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app/vendor/slint-backend-kindle)"
+      ]
+    },
+    "raw_verbose_log": "original/logs/arm-build-cargo-verbose.txt",
+    "verbose_log_identity": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/arm-build-cargo-verbose.log",
+      "bytes": 82438,
+      "sha256": "a1f61bb8e3d83aecd955fb0347bd1b338eef3e3933c6bb9bf5d2cb3a789c24f8"
+    },
+    "source_paths_or_mtime_alone_used_as_rebuild_proof": false
+  },
+  "environment": {
+    "CARGO_TARGET_DIR": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/target",
+    "CARGO_BUILD_JOBS": "6",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_INCREMENTAL": "false",
+    "CARGO_PROFILE_TEST_INCREMENTAL": "false",
+    "RUST_TEST_THREADS": "1",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TERM_COLOR": "never",
+    "CARGO_TERM_VERBOSE": "false",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "RUSTC_WRAPPER": "",
+    "RUSTC_WORKSPACE_WRAPPER": "",
+    "TMPDIR": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/tmp",
+    "LC_ALL": "C",
+    "TZ": "UTC"
+  },
+  "target_provenance": {
+    "current_record": "original/initial-target-state.json",
+    "target_already_existed": true,
+    "target_copied": false,
+    "initial_absence_record_in_parent": "../original/attempt-r2/initial-target-state.json",
+    "initial_absence_identity": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r2/initial-target-state.json",
+      "bytes": 194,
+      "sha256": "dc96128f95828f33ffb56ea112bb772a6755dcb1f653377ea8193e17e34aa288"
+    },
+    "arm_cleanup_scope": {
+      "target": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/target",
+      "profile": "release",
+      "architecture": "armv7-unknown-linux-musleabihf",
+      "packages": [
+        "bilicomics",
+        "slint-backend-kindle"
+      ],
+      "dependencies_retained": true,
+      "performed_before_source_revision_arm_build": true
+    }
+  },
+  "main_tests": {
+    "new_source_suite_executed": true,
+    "library": {
+      "passed": 897,
+      "failed": 0,
+      "ignored": 4
+    },
+    "main_binary": {
+      "passed": 19,
+      "failed": 0,
+      "ignored": 0
+    },
+    "jpeg_worker_binary": {
+      "passed": 0,
+      "failed": 0,
+      "ignored": 0
+    },
+    "passed_total": 916,
+    "ignored_benchmarks": [
+      "app::perf05_benchmark::perf05_controlled_host",
+      "reader::profile_tests::measure_reader_stage_candidates",
+      "reader::profile_tests::verify_full_frame_cancellable_production_paths",
+      "reader::triangle::tests::exhaustive_rounding_core_matches_the_original_float_conversion"
+    ],
+    "ignored_benchmarks_were_enabled": false,
+    "route_refresh_regressions": {
+      "app::startup::refresh_tests::compatibility_attach_requests_its_own_final_complete_frame": "ok",
+      "app::startup::refresh_tests::failed_attachment_and_error_view_cannot_reveal_or_submit_ready": "ok",
+      "app::startup::refresh_tests::hidden_start_route_waits_for_views_and_ready_before_requesting_its_complete_frame": "ok",
+      "app::startup::refresh_tests::legacy_fixture_retains_only_the_hidden_route_refresh": "ok",
+      "app::startup::refresh_tests::legacy_refresh_setter_rejects_nonfixture_and_completed_attachment": "ok",
+      "trace_tests::legacy_startup_route_refresh_requires_both_isolated_fixture_flags": "ok",
+      "app::startup::refresh_tests::suspended_attachment_cannot_reveal_or_submit_ready": "ok"
+    },
+    "log": "original/logs/library-and-binary-tests.txt"
+  },
+  "inherited_backend": {
+    "executed_again": false,
+    "status": "inherited_passed",
+    "tests": {
+      "passed": 244,
+      "failed": 0,
+      "ignored": 0
+    },
+    "dependency_alignment": {
+      "all_versions_and_checksums_match_production": true,
+      "standalone_packages": 465,
+      "mismatches": []
+    },
+    "origin_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+    "origin_compiled_inputs": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/source-inputs.sha256",
+      "bytes": 58541,
+      "sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "files": 544,
+      "manifest_builder": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app/scripts/verification/native_protocol.py",
+        "bytes": 11491,
+        "sha256": "90ceacdce5f4da9fb805cfef3b21f67b0699bcc91878ff1708eff8a9e2fdc3d8"
+      }
+    },
+    "origin_summary_identity": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/backend/summary.json",
+      "bytes": 4969,
+      "sha256": "22efe07b5095a0951cd0f70cb5e02e49d43a65e2aa9d1405e05fda2184d6c46e"
+    },
+    "origin_summary_in_parent": "../original/backend/summary.json",
+    "origin_raw_logs_in_parent": "../original/backend/logs/",
+    "origin_test_binary": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/backend/backend-tests-26c549d53e7b",
+      "sha256": "26c549d53e7b8ba0217c0a42bad013c17a2a143fbff1a824840e32ad39950107",
+      "bytes": 32312760
+    },
+    "source_scope": "backend-suite-inherited-inputs.sha256",
+    "scope_files": 86,
+    "scoped_equivalence": "inherited-evidence-bindings.json",
+    "original_command": [
+      "/usr/bin/python3",
+      "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app/scripts/verification/backend.py",
+      "--source-root",
+      "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app",
+      "--target-dir",
+      "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/target",
+      "--output-dir",
+      "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/backend",
+      "--minimum-tests",
+      "1"
+    ],
+    "original_cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app"
+  },
+  "inherited_package_regressions": {
+    "executed_again": false,
+    "passed": 26,
+    "modules": [
+      "test_native_media_package",
+      "test_spatial_dither_package",
+      "test_startup_package"
+    ],
+    "classes": {
+      "test_native_media_package.NativeMediaPackageTests": 3,
+      "test_spatial_dither_package.SpatialDitherPackageTests": 5,
+      "test_startup_package.StartupPackageTests": 8,
+      "test_startup_package.StartupSequencePackageTests": 10
+    },
+    "origin_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+    "origin_summary_in_parent": "../original/checks-r3-summary.json",
+    "origin_log_in_parent": "../original/attempt-r3/logs/package-regressions.txt",
+    "retained_raw_log": "original/logs/package-regressions.inherited.txt",
+    "source_scope": "package-regressions-inherited-inputs.sha256",
+    "scope_files": 37,
+    "build_script_scope": "Producer contract only; the 26 unit tests do not invoke build-kindle.sh",
+    "original_command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "--verbose",
+      "test_native_media_package",
+      "test_spatial_dither_package",
+      "test_startup_package"
+    ],
+    "original_cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app/scripts/verification"
+  },
+  "new_static_package_checker": {
+    "executed_for_new_zip": true,
+    "report": "package-check.json",
+    "passed": true,
+    "checks": 17,
+    "archive_entries": 45,
+    "arm_binary_executed": false,
+    "device_verified": false,
+    "separate_from_inherited_package_regression_count": true
+  },
+  "startup_fixtures": {
+    "new_desktop_elf": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-desktop/bilicomics",
+      "bytes": 248751552,
+      "sha256": "2abddaf6983d53aeb7e32a4e2f548f565075f6dc7f8ba3e035bec40010d4eb21"
+    },
+    "cases": 4,
+    "passed": true,
+    "normal_report": "fixtures/startup/results.json",
+    "original_normal_cases": 2,
+    "independent_boundary_report": "fixtures/startup/boundary-results.json",
+    "normal_cases": 2,
+    "controlled_error_cases": 2,
+    "geometry": {
+      "pw5": [
+        618,
+        824
+      ],
+      "scribe": [
+        930,
+        1240
+      ]
+    },
+    "mechanism": "runpy executes the unchanged helper's original two normal cases, then calls the same execute function with fail=True for each profile",
+    "helper_sha256": "f36e9198fdddcb78d661e9ff23236115356b4104dce9b454436c6f994f7d7239",
+    "extension_sha256": "2a8351a3161973b9d7c76e5129bbfb16bb37b9f8ad7c24b4322f40bfce478b69",
+    "scope": "Demo/Xvfb desktop captures only; no physical-device or hardware-support conclusion"
+  },
+  "selected_artifacts": {
+    "desktop": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-desktop/bilicomics",
+      "bytes": 248751552,
+      "sha256": "2abddaf6983d53aeb7e32a4e2f548f565075f6dc7f8ba3e035bec40010d4eb21"
+    },
+    "arm": {
+      "app": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/bilicomics",
+        "bytes": 74388176,
+        "sha256": "3962bc49bb8cd33d21651845fe5de229e1b8458e5d0ba9026485c8bef7224525"
+      },
+      "worker": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/kindle-jpeg-worker",
+        "bytes": 426672,
+        "sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+      },
+      "archive": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+        "bytes": 51557791,
+        "sha256": "ff41fdf74505020f50ab9928b1a7168ed773b82713b3330ce6b71a0b915b194c"
+      },
+      "manifest": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/bilicomics-kindle-0.1.25-dev.manifest.json",
+        "bytes": 7611,
+        "sha256": "4b6c73378f98bff1680c662e8aa157051a0a281f7520c156455b42c43c0b23f1"
+      }
+    },
+    "binary_or_archive_bytes_exported": false,
+    "package_manifest": "package-manifest.json"
+  },
+  "diagnostic_literals": {
+    "report": "arm-literals.json",
+    "passed": true,
+    "forbidden": {
+      "aidoku: startup-probe": 0,
+      "aidoku: startup-probe-barrier": 0,
+      "render_us=": 0,
+      "settle_us=": 0,
+      "submit_us=": 0,
+      "wait_us=": 0
+    },
+    "expected_backend": {
+      "input discovery metadata is unavailable or inconsistent": 1,
+      "/sys/class/input": 1,
+      "device/capabilities/abs": 1,
+      "device/name": 1
+    },
+    "expected_application": {
+      "backend_install_begin": 1,
+      "bootstrap_font_registered": 1,
+      "serial-startup-preparation": 1,
+      "legacy-startup-route-refresh": 1
+    }
+  },
+  "scope_audit": {
+    "record": "scope-audit-derived.json",
+    "kind": "Derived static stored-evidence comparison",
+    "source_delta": {
+      "added": [
+        "src/app/startup_refresh_tests.rs"
+      ],
+      "removed": [],
+      "changed": [
+        "src/app/mod.rs",
+        "src/app/startup.rs",
+        "src/app/test_support.rs",
+        "src/main.rs"
+      ],
+      "added_count": 1,
+      "removed_count": 0,
+      "changed_count": 4
+    },
+    "scope_file_reads": 246,
+    "all_scoped_file_reads_equal": true
+  },
+  "final_integrity": {
+    "predecessor_summary_unchanged": true,
+    "inherited_source_inputs_unchanged": true,
+    "changed_inherited_source_inputs": [],
+    "compiled_inputs_unchanged": true,
+    "all_archived_sources_unchanged": true,
+    "changed_archived_sources": [],
+    "source_archive_unchanged": true,
+    "selected_artifacts_unchanged": true,
+    "changed_selected_artifacts": []
+  },
+  "physical_device_used_by_this_software_verification": false,
+  "firmware_emulator_used": false,
+  "live_account_used": false,
+  "tests_or_builds_executed_by_exporter": false,
+  "application_executed_by_exporter": false,
+  "device_or_lease_operation_by_exporter": false,
+  "excluded_material": [
+    "ELF and ZIP bytes",
+    "source tar archives",
+    "databases",
+    "credentials",
+    "session or authentication material",
+    "lease tokens",
+    "account content",
+    "physical-run output"
+  ]
+}

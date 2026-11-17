@@ -1,0 +1,25 @@
+{
+  "derivation": "Derived provenance sidecar for an unchanged original logical PNG.",
+  "encoding_changed": false,
+  "logical_snapshot": {
+    "captured_at": "Application exit after the bounded post-ready duration",
+    "comparison_mode": "RGB",
+    "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+    "height": 2480,
+    "native_epdc_mode": "Y8",
+    "physical_framebuffer_capture": false,
+    "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+    "profile": "scribe",
+    "route": "shelf",
+    "semantics": "Logical Slint snapshot before framebuffer compensation",
+    "width": 1860
+  },
+  "physical_framebuffer_capture": false,
+  "physical_panel_update_confirmed": false,
+  "pixel_masking_applied": false,
+  "source": {
+    "bytes": 453889,
+    "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/outputs/out/candidate-06/final.png",
+    "sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da"
+  }
+}

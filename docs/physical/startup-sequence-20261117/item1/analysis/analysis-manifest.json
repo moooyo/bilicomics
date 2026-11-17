@@ -1,0 +1,27 @@
+{
+  "inputs": {
+    "analysis.json": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261",
+    "outputs.tar.gz": "9995d8ceebdc21ae418b23b3c25045dae41140b9f02549b97589a78182ec6040",
+    "report.json": "683dbd5cbca7cc682846238f59d3e5a2830196d05cf2434949239916487e5256"
+  },
+  "outputs": {
+    "README.md": {
+      "bytes": 20015,
+      "sha256": "5bfd7cf41132714adb6963ed7c1f2b2f7d8ba2b36c46fc9a8c524aae919a52ee"
+    },
+    "frame-spans.csv": {
+      "bytes": 45678,
+      "sha256": "5737257663add7b715547cbff095c6a49a1da1124526c1f34f106a7080b46e9c"
+    },
+    "item1-analysis.json": {
+      "bytes": 850268,
+      "sha256": "51759a67d68d39e1523cdd451da95bbec652e4dc8e1dda09ea35200e2dee0698"
+    },
+    "timeline.csv": {
+      "bytes": 4002,
+      "sha256": "c8798bc96cf2a17d1dea1d7cc56553fbce352ffda6908f1cceef679db9bda9d3"
+    }
+  },
+  "processing": "Derived stored-evidence analysis only on test-env; raw bytes unchanged",
+  "script_sha256": "99b059a0155a9569a685558a2402940cc062eb58d850231b01f2ba4090fde16c"
+}

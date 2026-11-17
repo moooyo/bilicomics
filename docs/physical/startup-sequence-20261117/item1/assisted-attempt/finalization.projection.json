@@ -1,0 +1,17 @@
+{
+  "derivation": "Fixed allowlist finalization projection.",
+  "fields": {
+    "command": "stop",
+    "finalization": "released",
+    "harness_returncode": 0,
+    "run_id": "startup-sleep-20261117-a1067e98",
+    "schema_version": 1,
+    "stage": "lease_release",
+    "status": "completed"
+  },
+  "source": {
+    "bytes": 784,
+    "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/device-batch-b1c511b360bd4bd3b818ed4179750186.json",
+    "sha256": "9ffe59f052f302c6032cb7440e2f75014c7c00e6b808b364cc8e0e9733039c03"
+  }
+}

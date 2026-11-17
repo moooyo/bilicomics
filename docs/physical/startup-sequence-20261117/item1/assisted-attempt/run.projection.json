@@ -1,0 +1,50 @@
+{
+  "checkpoint_names": [
+    "before-sleep"
+  ],
+  "derivation": "Fixed allowlist projection; this is not original run.json bytes.",
+  "fields": {
+    "absolute_timeout_seconds": 600,
+    "assisted_physical_input": true,
+    "binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+    "content_mode": "demo",
+    "evidence_class": "physical-device",
+    "exit_after_ms": 360000,
+    "expected_firmware": "5.19.5",
+    "hardware_support_accepted": false,
+    "init_timeout_seconds": 90,
+    "input_injected_by_harness": false,
+    "live_account_used": false,
+    "operator_confirmed_model": "Scribe2022",
+    "package_sha256": "1fe8ac38613d21904d187b41e973ff80302b0c78fe69b320e3d7143a31fd53ee",
+    "performance_trace_enabled": true,
+    "phase": "stopped",
+    "physical_device_accessed": true,
+    "physical_panel_review": "pending",
+    "profile": "scribe",
+    "recovery_checks": {
+      "awesome_baseline_matches": true,
+      "launcher_lock_absent": true,
+      "native_home_and_touch_require_operator_observation": true,
+      "owned_process_snapshot_passed": true,
+      "passed": true,
+      "statusbar_baseline_matches": true
+    },
+    "remote_account_writes": false,
+    "run_id": "startup-sleep-20261117-a1067e98",
+    "schema_version": 1,
+    "screen": "reader",
+    "started_unix": 1794910982.1016467,
+    "watchdog": {
+      "launcher_exit_status": "0",
+      "reason": "launcher-exit",
+      "recovery_complete": true
+    }
+  },
+  "source": {
+    "bytes": 26891,
+    "path": "/root/bilicomics-physical-startup-sleep-20261117-a1067e98/evidence/run/run.json",
+    "sha256": "680bbc400bb238c99336ea7f3788e4fd39c193dcb1396f59f4eca6e8efb15cac"
+  },
+  "stored_observation_count": 0
+}

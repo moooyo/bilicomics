@@ -1,0 +1,16 @@
+{"running": "compiler-rustc", "command": ["rustc", "-vV"]}
+{"passed": "compiler-rustc", "seconds": 0.032}
+{"running": "compiler-cargo", "command": ["cargo", "-vV"]}
+{"passed": "compiler-cargo", "seconds": 0.016}
+{"running": "compiler-zigbuild", "command": ["cargo-zigbuild", "-V"]}
+{"passed": "compiler-zigbuild", "seconds": 0.001}
+{"running": "compiler-zig", "command": ["zig", "version"]}
+{"passed": "compiler-zig", "seconds": 0.007}
+{"running": "compiler-readelf", "command": ["readelf", "--version"]}
+{"passed": "compiler-readelf", "seconds": 0.008}
+{"running": "compiler-sysroot", "command": ["rustc", "--print", "sysroot"]}
+{"passed": "compiler-sysroot", "seconds": 0.032}
+{"running": "library-and-binary-tests", "command": ["cargo", "test", "--locked", "--offline", "--lib", "--bins", "--features", "kindle"]}
+{"passed": "library-and-binary-tests", "seconds": 188.103}
+{"failed": "RuntimeError: The main crate did not report complete passing executed lib/bin suites"}
+{"passed": false, "summary": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r2/summary.json", "error": "RuntimeError: The main crate did not report complete passing executed lib/bin suites"}

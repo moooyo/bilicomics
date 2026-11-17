@@ -1,0 +1,1 @@
+cargo-zigbuild 0.24.0

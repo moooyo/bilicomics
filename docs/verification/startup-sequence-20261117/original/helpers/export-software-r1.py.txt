@@ -1,0 +1,409 @@
+#!/usr/bin/env python3
+"""Export only allowlisted, stored startup-sequence software evidence."""
+
+import datetime
+import hashlib
+import json
+from pathlib import Path
+import shlex
+import shutil
+
+
+ROOT = Path("/root/bilicomics-startup-sequence-20261117-01a1d11a-r1")
+SOURCE = ROOT / "candidate-r1/app"
+OUTPUT = ROOT / "software-export-r1"
+FINAL = ROOT / "checks-r3"
+CASES = ("pw5-normal", "scribe-normal", "pw5-error", "scribe-error")
+CASE_FILES = (
+    ("startup-0.json", "startup-0.json"), ("startup-0.png", "startup-0.png"),
+    ("startup-1.json", "startup-1.json"), ("startup-1.png", "startup-1.png"),
+    ("ready.json", "ready.json"), ("ready.png", "ready.png"),
+    ("result.json", "result.json"), ("stdout.log", "stdout.txt"), ("stderr.log", "stderr.txt"),
+)
+COMPILER_LOGS = (
+    "compiler-rustc", "compiler-cargo", "compiler-zigbuild", "compiler-zig",
+    "compiler-readelf", "compiler-sysroot",
+)
+MAIN_COMMAND = ["cargo", "test", "--locked", "--offline", "--lib", "--bins", "--features", "kindle"]
+EXPECTED_IGNORED = (
+    "app::perf05_benchmark::perf05_controlled_host",
+    "reader::profile_tests::measure_reader_stage_candidates",
+    "reader::profile_tests::verify_full_frame_cancellable_production_paths",
+    "reader::triangle::tests::exhaustive_rounding_core_matches_the_original_float_conversion",
+)
+
+
+def sha256(path):
+    value = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            value.update(block)
+    return value.hexdigest()
+
+
+def read_json(path):
+    return json.loads(path.read_bytes())
+
+
+def identity(path):
+    return {"bytes": path.stat().st_size, "sha256": sha256(path)}
+
+
+def rustc_settings(line):
+    command = shlex.split(line[line.index("`") + 1:line.rindex("`")])
+    settings = {}
+    for index, value in enumerate(command[:-1]):
+        if value == "-C" and "=" in command[index + 1]:
+            name, selected = command[index + 1].split("=", 1)
+            settings[name] = selected
+    target_index = command.index("--target")
+    return {"target": command[target_index + 1],
+            "opt_level": settings.get("opt-level"), "lto": settings.get("lto"),
+            "codegen_units": settings.get("codegen-units"), "strip": settings.get("strip"),
+            "linker": settings.get("linker")}
+
+
+def main():
+    OUTPUT.mkdir(mode=0o700, exist_ok=False)
+    records = []
+    selected_paths = set()
+
+    def copy(origin, destination):
+        origin = Path(origin)
+        destination = Path(destination)
+        if (not origin.is_file() or origin.is_symlink() or destination.is_absolute()
+                or ".." in destination.parts or destination.as_posix() in selected_paths):
+            raise RuntimeError("An allowlisted export input or destination is unsafe")
+        if destination.suffix not in {".txt", ".json", ".md", ".sha256", ".png"}:
+            raise RuntimeError("The allowlist contains a forbidden export file type")
+        target = OUTPUT / destination
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with origin.open("rb") as source, target.open("xb") as output:
+            shutil.copyfileobj(source, output, length=1024 * 1024)
+        selected_paths.add(destination.as_posix())
+        records.append({"path": destination.as_posix(), "origin": str(origin), **identity(target),
+                        "transformation": "none; original bytes; filename relocation only"})
+
+    def derive(destination, content, origins, transformation):
+        path = OUTPUT / destination
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("xb") as stream:
+            stream.write(content.encode("utf-8"))
+        selected_paths.add(destination)
+        records.append({"path": destination, "origin": origins, **identity(path),
+                        "transformation": transformation})
+
+    # This list names every permitted input. No source or evidence directory is walked.
+    core = (
+        (FINAL / "summary.json", "original/checks-r3-summary.json"),
+        (FINAL / "compiler-profile.json", "compiler-profile.json"),
+        (FINAL / "source-inputs.sha256", "source-inputs.sha256"),
+        (FINAL / "archive-source-inputs.sha256", "archive-source-inputs.sha256"),
+        (FINAL / "initial-target-state.json", "original/attempt-r3/initial-target-state.json"),
+        (FINAL / "arm-compilation-proof.json", "arm-compilation-proof.json"),
+        (FINAL / "arm-literals.json", "arm-literals.json"),
+        (FINAL / "package-check.json", "package-check.json"),
+        (FINAL / "package-check.readelf.txt", "original/app-readelf.txt"),
+        (FINAL / "package-check.worker.readelf.txt", "original/worker-readelf.txt"),
+        (FINAL / "selected-arm/bilicomics-kindle-0.1.25-dev.manifest.json", "package-manifest.json"),
+        (FINAL / "backend/summary.json", "original/backend/summary.json"),
+        (FINAL / "backend/source-inputs.sha256", "original/backend/source-inputs.sha256"),
+        (FINAL / "backend/production-Cargo.lock", "original/backend/production-Cargo.lock.txt"),
+        (FINAL / "backend/backend-crate/Cargo.lock", "original/backend/standalone-Cargo.lock.txt"),
+        (FINAL / "backend/backend-crate/Cargo.toml", "original/backend/standalone-Cargo.toml.txt"),
+        (FINAL / "startup-frames/results.json", "fixtures/startup/results.json"),
+        (FINAL / "startup-frames/boundary-results.json", "fixtures/startup/boundary-results.json"),
+    )
+    for origin, destination in core:
+        copy(origin, destination)
+    for label in ("lock-resolution", "build", "tests"):
+        copy(FINAL / ("backend/logs/" + label + ".log"), "original/backend/logs/" + label + ".txt")
+    for label in (*COMPILER_LOGS, "library-and-binary-tests.inherited", "backend-suite", "desktop-build",
+                  "startup-boundaries", "package-regressions", "arm-clean-selected-packages",
+                  "arm-build", "arm-build-cargo-verbose", "package-static"):
+        copy(FINAL / ("logs/" + label + ".log"), "original/attempt-r3/logs/" + label + ".txt")
+    for attempt in (1, 2):
+        source = ROOT / ("checks-r" + str(attempt))
+        prefix = "original/attempt-r" + str(attempt) + "/"
+        copy(source / "summary.json", "original/checks-r" + str(attempt) + "-summary.json")
+        for name in ("failure.txt", "initial-target-state.json", "source-inputs.sha256", "archive-source-inputs.sha256"):
+            copy(source / name, prefix + name)
+        labels = COMPILER_LOGS[:3] if attempt == 1 else (*COMPILER_LOGS, "library-and-binary-tests")
+        for label in labels:
+            copy(source / ("logs/" + label + ".log"), prefix + "logs/" + label + ".txt")
+        if attempt == 2:
+            copy(source / "compiler-profile.json", prefix + "compiler-profile.json")
+    for attempt in (1, 2, 3):
+        copy(ROOT / ("runner-r" + str(attempt) + ".log"),
+             "original/attempt-r" + str(attempt) + "/runner-output.txt")
+        for prefix, extension in (("runner-r", ".py"), ("run-r", ".sh")):
+            name = prefix + str(attempt) + extension
+            copy(ROOT / name, "original/helpers/" + name + ".txt")
+    copy(ROOT / "startup-boundaries-r1.py", "original/helpers/startup-boundaries-r1.py.txt")
+    copy(Path(__file__), "original/helpers/export-software-r1.py.txt")
+    for source_name in ("scripts/build-kindle.sh", "scripts/verification/native_protocol.py",
+                        "scripts/verification/backend.py", "scripts/verification/run_suite.py",
+                        "scripts/verification/startup_frames.py", "scripts/verification/verify_package.py",
+                        "scripts/verification/test_native_media_package.py",
+                        "scripts/verification/test_spatial_dither_package.py",
+                        "scripts/verification/test_startup_package.py"):
+        copy(SOURCE / source_name, "original/helpers/frozen-source/" + source_name + ".txt")
+    for case in CASES:
+        for origin_name, destination_name in CASE_FILES:
+            copy(FINAL / "startup-frames" / case / origin_name,
+                 "fixtures/startup/" + case + "/" + destination_name)
+
+    original = {attempt: read_json(ROOT / ("checks-r" + str(attempt)) / "summary.json")
+                for attempt in (1, 2, 3)}
+    final = original[3]
+    backend = read_json(FINAL / "backend/summary.json")
+    package = read_json(FINAL / "package-check.json")
+    proof = read_json(FINAL / "arm-compilation-proof.json")
+    literals = read_json(FINAL / "arm-literals.json")
+    normal = read_json(FINAL / "startup-frames/results.json")
+    boundaries = read_json(FINAL / "startup-frames/boundary-results.json")
+    prior_step = next(item for item in original[2]["steps"] if item["label"] == "library-and-binary-tests")
+    inherited_step = next(item for item in final["steps"] if item["label"] == "library-and-binary-tests")
+    critical_keys = ("CARGO_TARGET_DIR", "CARGO_BUILD_JOBS", "CARGO_INCREMENTAL",
+                     "CARGO_PROFILE_DEV_INCREMENTAL", "CARGO_PROFILE_TEST_INCREMENTAL",
+                     "RUST_TEST_THREADS", "CARGO_NET_OFFLINE")
+    environment_equal = {key: original[2]["environment"].get(key) == final["environment"].get(key)
+                         for key in critical_keys}
+    package_classes = {}
+    for line in (FINAL / "logs/package-regressions.log").read_text().splitlines():
+        if line.startswith("test_") and ") ... ok" in line:
+            selected = line.split("(", 1)[1].split(".", 2)
+            name = selected[0] + "." + selected[1]
+            package_classes[name] = package_classes.get(name, 0) + 1
+    compiler_versions = {
+        name: (FINAL / ("logs/" + name + ".log")).read_text().strip()
+        for name in ("compiler-rustc", "compiler-cargo", "compiler-zigbuild", "compiler-zig")
+    }
+    step_summaries = [{key: value for key, value in item.items()
+                       if key in {"label", "status", "command", "cwd", "returncode", "seconds", "log",
+                                  "origin_log", "command_repeated", "environment_overrides"}}
+                      for item in final["steps"]]
+    summary = {
+        "schema_version": 1,
+        "scope": "Stored test-env software evidence only; no physical, optical, live-account, or performance acceptance",
+        "authority": "original/checks-r3-summary.json", "passed": final["passed"],
+        "verification_host": "test-env", "source_commit": final["candidate_commit"],
+        "source_archive": final["source_archive"], "compiled_inputs": final["source_inputs"],
+        "archive_source_inputs": final["archive_source_inputs"],
+        "compiler_profile": "compiler-profile.json", "compiler_profile_identity": identity(FINAL / "compiler-profile.json"),
+        "compiler_versions": compiler_versions, "compiler_executables": final["compiler_tools"],
+        "common_release_profile": {"lto": "thin", "codegen-units": 1, "strip": True},
+        "release_override_used": final["release_profile"]["release_override_used"],
+        "actual_arm_rustc_settings": {name: rustc_settings(proof["rustc_invocations"][name][-1])
+                                      for name in ("bilicomics", "kindle_jpeg_worker")},
+        "arm_build": {"command": next(item["command"] for item in final["steps"] if item["label"] == "arm-build"),
+                      "actual_compilation_proof": "arm-compilation-proof.json", "proof_passed": proof["passed"],
+                      "application_and_backend_announcements": proof["announcements"],
+                      "verbose_log": "original/attempt-r3/logs/arm-build-cargo-verbose.txt",
+                      "verbose_log_identity": final["arm_build_cargo_verbose_log"],
+                      "compile_identity_not_inferred_from_paths_or_mtime_alone": True},
+        "target_provenance": {"path": final["target"], "copied": final["target_copied"],
+                              "initial_absence_record": "original/attempt-r2/initial-target-state.json",
+                              "checks_r2_initially_absent": not original[2]["initial_target"]["exists_before_any_cargo_command"],
+                              "checks_r3_reused_owned_target": final["initial_target"]["exists_before_any_cargo_command"],
+                              "arm_cleanup_scope": final["arm_cleanup_scope"]},
+        "environment": final["environment"],
+        "main_tests": {"library": final["main_tests"]["results"][0],
+                       "main_binary": final["main_tests"]["results"][1],
+                       "jpeg_worker_binary": final["main_tests"]["results"][2],
+                       "passed_total": final["main_tests"]["passed"],
+                       "ignored_benchmarks": final["main_tests"]["ignored"],
+                       "ignored_benchmarks_were_enabled": False},
+        "backend": {"summary": "original/backend/summary.json", "tests": backend["tests"],
+                    "dependency_alignment": backend["dependency_alignment"],
+                    "checked_touch_test_results": backend["checked_touch_test_results"]},
+        "startup_fixtures": {"cases": 4, "passed": boundaries["passed"],
+                             "normal_report": "fixtures/startup/results.json",
+                             "normal_report_passed_cases": normal["passed"],
+                             "normal_report_total_cases": normal["total"],
+                             "independent_boundary_report": "fixtures/startup/boundary-results.json",
+                             "normal_cases": boundaries["normal_cases"], "controlled_error_cases": boundaries["controlled_error_cases"],
+                             "profiles": {"pw5": {"capture_pixels": [618, 824]}, "scribe": {"capture_pixels": [930, 1240]}},
+                             "mechanism": "runpy executes the unchanged helper's two normal cases, then calls the same execute function with fail=True for each profile",
+                             "helper_sha256": boundaries["helper_sha256"], "extension_sha256": boundaries["extension_sha256"],
+                             "binary_sha256": boundaries["binary_sha256"],
+                             "coverage": "Demo fixtures and Xvfb desktop startup; no hardware support or physical acceptance established"},
+        "package_regressions": {"passed": final["package_regressions"]["passed"],
+                                "modules": final["package_regressions"]["modules"], "classes": package_classes,
+                                "log": "original/attempt-r3/logs/package-regressions.txt"},
+        "static_package_checker": {"report": "package-check.json", "passed": package["passed"],
+                                   "checks": len(package["checks"]), "archive_entries": len(package["archive_entries"]),
+                                   "arm_binary_executed": package["arm_binary_executed"],
+                                   "device_verified": package["device_verified"],
+                                   "separate_from_package_regression_count": True},
+        "selected_artifacts": {"desktop": final["desktop"], "arm": final["arm"],
+                               "bytes_exported": False, "package_manifest": "package-manifest.json"},
+        "diagnostic_literals": {"report": "arm-literals.json", "passed": literals["passed"],
+                                "forbidden": literals["forbidden"], "expected_backend": literals["expected_backend"],
+                                "expected_application": literals["expected_application"]},
+        "attempts": {
+            "checks_r1": {"record": "original/checks-r1-summary.json", "passed": original[1]["passed"],
+                          "error": original[1]["error"], "tests_or_builds_reached": False,
+                          "explanation": "The unsupported cargo zigbuild --version metadata call exited with 2; no tests or builds ran"},
+            "checks_r2": {"record": "original/checks-r2-summary.json", "passed": original[2]["passed"],
+                          "error": original[2]["error"], "main_command_returncode": prior_step["returncode"],
+                          "explanation": "The complete main test command passed, but the original runner incorrectly rejected four existing ignored benchmarks"},
+            "checks_r3": {"record": "original/checks-r3-summary.json", "passed": final["passed"],
+                          "explanation": "The corrected verifier retained the exact four-name benchmark allowlist and continued the remaining stages without changing production source"},
+        },
+        "inherited_main_suite": {
+            "from": "original/checks-r2-summary.json", "to": "original/checks-r3-summary.json",
+            "command_repeated": inherited_step["command_repeated"],
+            "original_log": "original/attempt-r2/logs/library-and-binary-tests.txt",
+            "inherited_copy": "original/attempt-r3/logs/library-and-binary-tests.inherited.txt",
+            "log_sha256": prior_step["log"]["sha256"], "copy_log_sha256": inherited_step["log"]["sha256"],
+            "same_source_commit": original[2]["candidate_commit"] == final["candidate_commit"],
+            "same_archive_sha256": original[2]["source_archive"]["sha256"] == final["source_archive"]["sha256"],
+            "same_compiled_manifest_sha256": original[2]["source_inputs"]["sha256"] == final["source_inputs"]["sha256"],
+            "same_compiler_executable_identities": original[2]["compiler_tools"] == final["compiler_tools"],
+            "recorded_command": prior_step["command"],
+            "recorded_command_matches_selected_scope": prior_step["command"] == inherited_step["command"] == MAIN_COMMAND,
+            "recorded_cwd_matches_frozen_source": prior_step["cwd"] == inherited_step["cwd"] == str(SOURCE),
+            "critical_environment_fields_match": environment_equal,
+            "comparison_scope": "Static comparison of already stored receipt fields; no command or test was repeated",
+        },
+        "final_integrity": final["final_integrity"], "steps": step_summaries,
+        "physical_device_used_by_this_software_verification": final["physical_device_used"],
+        "firmware_emulator_used": final["firmware_emulator_used"], "live_account_used": final["live_account_used"],
+        "tests_or_builds_executed_by_exporter": False, "application_executed_by_exporter": False,
+        "device_or_lease_operation_by_exporter": False,
+        "excluded_material": ["ELF and ZIP bytes", "source tar archives", "databases", "credentials",
+                              "session or authentication material", "lease tokens", "account content", "physical-run output"],
+    }
+    summary_origins = [str(ROOT / ("checks-r" + str(attempt)) / "summary.json") for attempt in (1, 2, 3)]
+    summary_origins += [str(FINAL / name) for name in ("backend/summary.json", "package-check.json", "arm-compilation-proof.json",
+                                                    "arm-literals.json", "startup-frames/results.json", "startup-frames/boundary-results.json",
+                                                    "logs/package-regressions.log", "compiler-profile.json")]
+    summary_origins += [str(FINAL / ("logs/" + name + ".log")) for name in (
+        "compiler-rustc", "compiler-cargo", "compiler-zigbuild", "compiler-zig")]
+    derive("software-summary.json", json.dumps(summary, indent=2, ensure_ascii=False) + "\n", summary_origins,
+           "English aggregation and static comparison of stored reports only; raw reports are separate and unchanged")
+    readme = """# Startup-sequence item 1 software evidence: 2026-11-17
+
+This bundle exports already completed `test-env` software checks through a fixed
+allowlist. Exporting it ran no new test, build, application, firmware emulator,
+device operation, or lease operation. It does not establish startup speed,
+physical input readiness, panel completion, optical quality, hardware support,
+or live-account acceptance. Any physical or performance batch has separate
+records and conclusions.
+
+## Source and build identity
+
+The frozen candidate is `530f1516c332931059c52161b52d64e86488b3f1`.
+Its source archive SHA-256 is
+`5bf6950ebf72f38acb00cb1061ce165d54c117b934849dc4065954cda72e0576`.
+[source-inputs.sha256](source-inputs.sha256) binds 544 compiled inputs;
+[archive-source-inputs.sha256](archive-source-inputs.sha256) binds all 1,242
+archived source files, including build scripts and packaging inputs. Their exact
+identities and the selected desktop ELF, ARM ELF, JPEG worker, ZIP, and package
+manifest identities are retained in [software-summary.json](software-summary.json).
+Executable and archive bytes are excluded from this export.
+
+The ARM target is `armv7-unknown-linux-musleabihf`. The official release profile
+is ThinLTO (`lto = "thin"`), `codegen-units = 1`, and `strip = true`; the actual
+application and worker rustc commands use `opt-level=3`, `lto=thin`,
+`codegen-units=1`, and `strip=symbols`. No release override was used. The recorded
+tools are Rust/Cargo 1.99.1, cargo-zigbuild 0.24.0, and Zig 0.15.2; tool executable
+hashes are in [compiler-profile.json](compiler-profile.json).
+
+[arm-compilation-proof.json](arm-compilation-proof.json) retains the real app and
+backend compile announcements plus actual rustc invocations. Its complete
+[verbose Cargo log](original/attempt-r3/logs/arm-build-cargo-verbose.txt) is
+unchanged. The target was initially absent in checks-r2; checks-r3 continued that
+owned target after the main test command. Before ARM compilation, only
+`bilicomics` and `slint-backend-kindle` in this run's ARM release target were
+cleaned. Dependencies were retained. All build jobs were limited to 6,
+incremental compilation was disabled, Rust tests used one thread, and Cargo
+ran offline. Distinct paths or mtimes alone are not used to establish a rebuild.
+
+## Stored results
+
+| Check | Result |
+| --- | --- |
+| Main library | 891 passed, 0 failed, 4 existing ignored benchmarks |
+| Main binary | 18 passed, 0 failed |
+| Kindle JPEG worker test binary | 0 tests; compiled by the selected lib/bin command |
+| Main lib/bin total | 909 passed, 0 failed |
+| Complete isolated backend | 244 passed, 0 failed, 0 ignored |
+| Backend dependency alignment | 465 packages; all versions and checksums match production |
+| PW5/Scribe startup normal and controlled error fixtures | 4 cases passed |
+| Three package regression modules | 26 tests passed |
+| Static ARM package checker | 17 checks passed; 45 exact archive entries |
+| Desktop build and official ARM release build | Exit status 0 |
+
+The 26 regression tests and 17 static checks are separate counts.
+[package-check.json](package-check.json) verifies the selected app and worker
+bytes in the ZIP, notices, manifest, executable modes, and static ARM ELF
+properties; it did not execute ARM code. [arm-literals.json](arm-literals.json)
+records zero forbidden diagnostic prefixes and the expected implementation
+literals. Original warnings remain visible in the logs.
+
+## Preserved attempts and continuation
+
+- [checks-r1](original/checks-r1-summary.json) remains failed. The unsupported
+  `cargo zigbuild --version` metadata query exited with 2 before tests or builds.
+- [checks-r2](original/checks-r2-summary.json) remains failed. Its main test command
+  returned 0 with 891 library and 18 main-binary tests passed, but the runner
+  incorrectly rejected four existing ignored benchmarks.
+- [checks-r3](original/checks-r3-summary.json) is the authoritative passed report.
+  It retained that completed suite after matching the frozen commit, archive,
+  compiled-input manifest, compiler identities, and original log hash. The main
+  suite was not repeated; the remaining stages ran normally. The derived summary
+  also compares the stored command, working directory, and key environment
+  fields. Raw failed and passed reports are never rewritten.
+
+The four ignored benchmarks were never enabled:
+`app::perf05_benchmark::perf05_controlled_host`,
+`reader::profile_tests::measure_reader_stage_candidates`,
+`reader::profile_tests::verify_full_frame_cancellable_production_paths`, and
+`reader::triangle::tests::exhaustive_rounding_core_matches_the_original_float_conversion`.
+
+## Desktop fixture scope and raw bytes
+
+The [startup fixture directory](fixtures/startup) contains only an enumerated set
+of screenshots, capture JSON, result JSON, and process output. These are isolated
+demo/Xvfb desktop captures: PW5 uses 618x824 pixels and Scribe uses 930x1240 pixels.
+Those fixture geometries are not physical-device acceptance or a support claim.
+The unchanged startup helper ran its two original normal cases through `runpy`;
+the extension then called that same helper's `execute(..., fail=True)` once for
+each profile. The original two-normal-case [results.json](fixtures/startup/results.json)
+is retained unchanged. The independent four-case
+[boundary-results.json](fixtures/startup/boundary-results.json) includes the two
+controlled error cases. Producer, launcher, extension, exporter, and executed
+helper source snapshots are in [original/helpers](original/helpers).
+
+[export-manifest.json](export-manifest.json) maps every exported record to its
+origin, byte count, SHA-256, and processing method. Raw records preserve exact
+bytes; `.log` to `.txt` changes only the destination filename. The manifest's own
+digest is in [export-manifest.sha256](export-manifest.sha256). No source tree or
+fixture data directory was recursively exported. ELF, ZIP, tar, SQLite, account,
+authentication, session, lease-token, and physical-run material are excluded.
+"""
+    derive("README.md", readme, ["software-summary.json", "original/checks-r1-summary.json",
+                                "original/checks-r2-summary.json", "original/checks-r3-summary.json"],
+           "English scope and results description derived only from exported stored evidence")
+    manifest = {
+        "schema_version": 1, "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "export_scope": "Fixed-allowlist export of already completed software evidence; no new tests, builds, application, device, or lease operations",
+        "exporter_origin": str(Path(__file__)), "exporter_sha256": sha256(Path(__file__)),
+        "source_commit": final["candidate_commit"], "files": sorted(records, key=lambda item: item["path"]),
+        "raw_copy_policy": "No content transformation; all raw reports, logs, source snapshots, and PNG bytes are unchanged",
+        "manifest_exclusions": ["export-manifest.json", "export-manifest.sha256"],
+        "manifest_exclusion_reason": "The manifest cannot hash itself; its own digest is stored in the separate sidecar",
+        "excluded_material": summary["excluded_material"],
+    }
+    manifest_path = OUTPUT / "export-manifest.json"
+    manifest_path.write_bytes((json.dumps(manifest, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
+    (OUTPUT / "export-manifest.sha256").write_bytes((sha256(manifest_path) + "  export-manifest.json\n").encode("ascii"))
+    print(json.dumps({"output": str(OUTPUT), "exported_files": len(records) + 2,
+                      "manifest_sha256": sha256(manifest_path), "software_summary": identity(OUTPUT / "software-summary.json"),
+                      "new_tests_or_builds_run": False}), flush=True)
+
+
+if __name__ == "__main__":
+    main()

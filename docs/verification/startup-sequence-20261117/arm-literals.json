@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "selected_app": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/selected-arm/bilicomics",
+    "bytes": 74383808,
+    "sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59"
+  },
+  "forbidden": {
+    "aidoku: startup-probe": 0,
+    "aidoku: startup-probe-barrier": 0,
+    "render_us=": 0,
+    "settle_us=": 0,
+    "submit_us=": 0,
+    "wait_us=": 0
+  },
+  "expected_backend": {
+    "input discovery metadata is unavailable or inconsistent": 1,
+    "/sys/class/input": 1,
+    "device/capabilities/abs": 1,
+    "device/name": 1
+  },
+  "expected_application": {
+    "backend_install_begin": 1,
+    "bootstrap_font_registered": 1,
+    "serial-startup-preparation": 1
+  },
+  "legitimate_opt_in_input_diagnostics_allowed": true
+}

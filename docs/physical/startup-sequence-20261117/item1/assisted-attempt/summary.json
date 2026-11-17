@@ -1,0 +1,34 @@
+{
+  "acceptance": {
+    "physical_touch": "unverified",
+    "reading_continuation": "unverified",
+    "sleep_wake": "unverified"
+  },
+  "actual_operator_confirmation_received": false,
+  "after_input_checkpoint_present": false,
+  "before_sleep_page_number": 18,
+  "bounded_exit_after_ms": 360000,
+  "exact_owned_release_recorded": true,
+  "finalization": {
+    "command": "stop",
+    "finalization": "released",
+    "harness_returncode": 0,
+    "status": "completed"
+  },
+  "interpretation": "The bounded attempt and recovery succeeded; the requested sleep/wake/input observation did not occur in the received record and is not passed.",
+  "launcher_scope": "Isolated demo/offline reader through the production launcher, separate from the A/B native Scriptlet performance entry.",
+  "operator_observation": "no_operator_observation",
+  "recorded_checkpoint_names": [
+    "before-sleep"
+  ],
+  "released_at_utc": "2026-11-17T10:29:38.030434+00:00",
+  "resumed_checkpoint_present": false,
+  "same_binary_as_ab": true,
+  "status": "incomplete",
+  "stored_observation_count": 0,
+  "watchdog": {
+    "launcher_exit_status": "0",
+    "reason": "launcher-exit",
+    "recovery_complete": true
+  }
+}

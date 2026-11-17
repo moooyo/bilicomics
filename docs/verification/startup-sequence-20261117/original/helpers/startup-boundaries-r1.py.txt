@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+"""Extend the frozen startup helper with its existing two failure assertions."""
+
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import runpy
+import sys
+
+
+def sha256(path):
+    value = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            value.update(block)
+    return value.hexdigest()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--helper", type=Path, required=True)
+    parser.add_argument("--binary", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--expected-binary-sha256", required=True)
+    args = parser.parse_args()
+    sys.argv = [str(args.helper), "--binary", str(args.binary), "--output", str(args.output),
+                "--expected-binary-sha256", args.expected_binary_sha256]
+    namespace = runpy.run_path(str(args.helper), run_name="__startup_boundary_helper__")
+    execute = namespace["execute"]
+    records = namespace["records"]
+    execute("pw5-error", "pw5", fail=True)
+    execute("scribe-error", "scribe", fail=True)
+    expected = {"pw5-normal", "scribe-normal", "pw5-error", "scribe-error"}
+    if len(records) != 4 or {item["name"] for item in records} != expected:
+        raise RuntimeError("The complete four-case startup boundary suite did not execute")
+    if any(item.get("passed") is not True for item in records):
+        raise RuntimeError("A startup boundary case did not pass")
+    failures = [item for item in records if item["expected_failure"]]
+    if len(failures) != 2 or any(item["exit_code"] == 0 for item in failures):
+        raise RuntimeError("The controlled startup failures did not retain failure exits")
+    result = {
+        "passed": True, "total": 4, "normal_cases": 2, "controlled_error_cases": 2,
+        "binary_sha256": sha256(args.binary), "helper_sha256": sha256(args.helper),
+        "extension_sha256": sha256(Path(__file__)), "cases": records,
+        "coverage": "Original desktop startup assertions, including both existing fail=True paths",
+        "physical_device_used": False, "firmware_emulator_used": False,
+        "live_account_used": False,
+    }
+    with (args.output / "boundary-results.json").open("x", encoding="utf-8") as stream:
+        json.dump(result, stream, indent=2, ensure_ascii=False)
+        stream.write("\n")
+    print(json.dumps({key: value for key, value in result.items() if key != "cases"}), flush=True)
+
+
+if __name__ == "__main__":
+    main()

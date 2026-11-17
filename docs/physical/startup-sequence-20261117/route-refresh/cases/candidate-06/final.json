@@ -1,0 +1,146 @@
+{
+  "account_section": "account",
+  "auth_step": 1,
+  "backend": "kindle",
+  "catalog": {
+    "composition": "",
+    "keyboard": true,
+    "query": "",
+    "selection_count": 0,
+    "shelf_view": "grid"
+  },
+  "demo": true,
+  "download_selection": false,
+  "landscape": false,
+  "logical_size": [
+    930,
+    1240
+  ],
+  "native_epdc_mode": "Y8",
+  "network_prompt": false,
+  "offline": true,
+  "offline_requested": true,
+  "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+  "process_id": 16220,
+  "profile": "scribe",
+  "reader": {
+    "comic_title": "",
+    "direction": "ltr",
+    "episode_title": "",
+    "fit": "page",
+    "loading": false,
+    "menu": false,
+    "mode": "page",
+    "page": 1,
+    "pages": 1,
+    "panel": 1,
+    "sheet": "",
+    "strip_screen": 1,
+    "thumbnail_count": 0,
+    "thumbnails_loading": false,
+    "transition": false
+  },
+  "route": "shelf",
+  "snapshot_size": [
+    1860,
+    2480
+  ],
+  "startup": {
+    "booting": false,
+    "error": false,
+    "frame": 1,
+    "phase": "attach"
+  },
+  "suspended": false,
+  "ui": {
+    "account": {
+      "dither": true,
+      "dither_method": "bayer8",
+      "dither_note": "",
+      "media_acceleration": {
+        "available": false,
+        "note": "",
+        "reason": "available",
+        "requested": false
+      },
+      "refresh_mode": "normal",
+      "refresh_mode_note": "",
+      "section": "account"
+    },
+    "catalog": {
+      "candidate_page": 0,
+      "candidate_pages": 1,
+      "candidates": [],
+      "composition": "",
+      "detail_id": "",
+      "download_selecting": false,
+      "episode_filter": "all",
+      "episode_page": 1,
+      "episode_pages": 1,
+      "keyboard": true,
+      "query": "",
+      "selection_count": 0,
+      "selection_size": "",
+      "shelf_menu": false,
+      "shelf_page": 1,
+      "shelf_pages": 2,
+      "shelf_view": "grid"
+    },
+    "downloads": {
+      "all_paused": false,
+      "can_read": false,
+      "has_active": false,
+      "items": [],
+      "selected_count": 0,
+      "selecting": false,
+      "sheet_id": "",
+      "sheet_open": false,
+      "status_summary": "",
+      "summary": "",
+      "task_primary_action": "",
+      "task_secondary_action": ""
+    },
+    "native_media": {
+      "attempts": 0,
+      "completed": 0,
+      "resized": 0,
+      "software_fallbacks": 0
+    },
+    "reader": {
+      "chapter_capacity": 14,
+      "chapter_count": 0,
+      "chapter_descending": false,
+      "chapter_filter": "all",
+      "chapter_page": 1,
+      "chapter_pages": 1,
+      "chapter_rows": [],
+      "dither": true,
+      "dither_method": "bayer8",
+      "dither_note": "",
+      "fit": "page",
+      "jpeg_acceleration": false,
+      "jpeg_acceleration_available": false,
+      "jpeg_acceleration_note": "",
+      "loading": false,
+      "menu": false,
+      "mode": "page",
+      "page": 1,
+      "panel": 1,
+      "presented_cpu_dither": false,
+      "presented_fast_mode": false,
+      "refresh_mode": "normal",
+      "refresh_mode_note": "",
+      "sheet": "",
+      "strip_screen": 1,
+      "thumbnail_count": 0,
+      "thumbnails_loading": false,
+      "transition": false
+    },
+    "route": "shelf",
+    "toast": ""
+  },
+  "window_size": [
+    1860,
+    2480
+  ]
+}

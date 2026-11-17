@@ -1,0 +1,4618 @@
+{
+  "assisted_attempt": {
+    "acceptance": {
+      "physical_touch": "unverified",
+      "reading_continuation": "unverified",
+      "sleep_wake": "unverified"
+    },
+    "actual_operator_confirmation_received": false,
+    "after_input_checkpoint_present": false,
+    "before_sleep_page_number": 18,
+    "bounded_exit_after_ms": 360000,
+    "exact_owned_release_recorded": true,
+    "finalization": {
+      "command": "stop",
+      "finalization": "released",
+      "harness_returncode": 0,
+      "status": "completed"
+    },
+    "interpretation": "The bounded attempt and recovery succeeded; the requested sleep/wake/input observation did not occur in the received record and is not passed.",
+    "launcher_scope": "Isolated demo/offline reader through the production launcher, separate from the A/B native Scriptlet performance entry.",
+    "operator_observation": "no_operator_observation",
+    "recorded_checkpoint_names": [
+      "before-sleep"
+    ],
+    "released_at_utc": "2026-11-17T10:29:38.030434+00:00",
+    "resumed_checkpoint_present": false,
+    "same_binary_as_ab": true,
+    "status": "incomplete",
+    "stored_observation_count": 0,
+    "watchdog": {
+      "launcher_exit_status": "0",
+      "reason": "launcher-exit",
+      "recovery_complete": true
+    }
+  },
+  "capture_windows": {
+    "baseline-06": {
+      "early": {
+        "bracket_wall_ms": 649.725539,
+        "complete_after_first_business_send_ms": 1210.230308,
+        "complete_monotonic_ns": 146423811715418,
+        "request_after_first_business_send_ms": 560.504769,
+        "request_monotonic_ns": 146423161989879,
+        "scope": "Clock request before framebuffer-helper exec through completion marker after helper success; a software observation bracket, not optical-panel timing"
+      },
+      "scheduled": {
+        "bracket_wall_ms": 682.882923,
+        "complete_after_first_business_send_ms": 2183.282923,
+        "complete_monotonic_ns": 146424784768033,
+        "request_after_first_business_send_ms": 1500.4,
+        "request_monotonic_ns": 146424101885110,
+        "scope": "Clock request before framebuffer-helper exec through completion marker after helper success; a software observation bracket, not optical-panel timing"
+      }
+    },
+    "candidate-06": {
+      "early": {
+        "bracket_wall_ms": 667.335615,
+        "complete_after_first_business_send_ms": 1103.622077,
+        "complete_monotonic_ns": 146403051810570,
+        "request_after_first_business_send_ms": 436.286462,
+        "request_monotonic_ns": 146402384474955,
+        "scope": "Clock request before framebuffer-helper exec through completion marker after helper success; a software observation bracket, not optical-panel timing"
+      },
+      "scheduled": {
+        "bracket_wall_ms": 709.222923,
+        "complete_after_first_business_send_ms": 2210.868308,
+        "complete_monotonic_ns": 146404159056801,
+        "request_after_first_business_send_ms": 1501.645385,
+        "request_monotonic_ns": 146403449833878,
+        "scope": "Clock request before framebuffer-helper exec through completion marker after helper success; a software observation bracket, not optical-panel timing"
+      }
+    }
+  },
+  "case_schedule": [
+    "baseline-warmup",
+    "candidate-warmup",
+    "baseline-01",
+    "candidate-01",
+    "candidate-02",
+    "baseline-02",
+    "baseline-03",
+    "candidate-03",
+    "candidate-04",
+    "baseline-04",
+    "baseline-05",
+    "candidate-05",
+    "candidate-06",
+    "baseline-06"
+  ],
+  "cases": [
+    {
+      "case": "baseline-warmup",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 6,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 6,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 5,
+        "record_after_request_ms": 7250.962539,
+        "record_kind": "native",
+        "record_monotonic_ns": 146162792676864,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 6,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6884.903308,
+        "send_accepted_monotonic_ns": 146162426617633,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146162426491633,
+            "finished_thread_cpu_ns": 796260789,
+            "same_thread": true,
+            "started_monotonic_ns": 146162396481095,
+            "started_thread_cpu_ns": 766930171,
+            "thread_cpu_ns": 29330618,
+            "wall_ns": 30010538
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146161997672479,
+            "finished_thread_cpu_ns": 483486239,
+            "same_thread": true,
+            "started_monotonic_ns": 146161665206941,
+            "started_thread_cpu_ns": 483416547,
+            "thread_cpu_ns": 69692,
+            "wall_ns": 332465538
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146162792430633,
+            "finished_thread_cpu_ns": 796449404,
+            "same_thread": true,
+            "started_monotonic_ns": 146162426623556,
+            "started_thread_cpu_ns": 796388558,
+            "thread_cpu_ns": 60846,
+            "wall_ns": 365807077
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146162426617633,
+            "finished_thread_cpu_ns": 796383635,
+            "same_thread": true,
+            "started_monotonic_ns": 146162426504325,
+            "started_thread_cpu_ns": 796269327,
+            "thread_cpu_ns": 114308,
+            "wall_ns": 113308
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146162396458633,
+            "finished_thread_cpu_ns": 766912556,
+            "same_thread": true,
+            "started_monotonic_ns": 146162346895787,
+            "started_thread_cpu_ns": 717766324,
+            "thread_cpu_ns": 49146232,
+            "wall_ns": 49562846
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146162346878095,
+            "finished_thread_cpu_ns": 717754478,
+            "same_thread": true,
+            "started_monotonic_ns": 146161997690402,
+            "started_thread_cpu_ns": 483496855,
+            "thread_cpu_ns": 234257623,
+            "wall_ns": 349187693
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4998.512923,
+        "record_kind": "native",
+        "record_monotonic_ns": 146160540227248,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4633.091693,
+        "send_accepted_monotonic_ns": 146160174806018,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146160174628402,
+            "finished_thread_cpu_ns": 161926005,
+            "same_thread": true,
+            "started_monotonic_ns": 146160141995248,
+            "started_thread_cpu_ns": 133063159,
+            "thread_cpu_ns": 28862846,
+            "wall_ns": 32633154
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146160009742941,
+            "finished_thread_cpu_ns": 55299700,
+            "same_thread": true,
+            "started_monotonic_ns": 146160006318479,
+            "started_thread_cpu_ns": 53484468,
+            "thread_cpu_ns": 1815232,
+            "wall_ns": 3424462
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146160539955941,
+            "finished_thread_cpu_ns": 162247313,
+            "same_thread": true,
+            "started_monotonic_ns": 146160539937248,
+            "started_thread_cpu_ns": 162228160,
+            "thread_cpu_ns": 19153,
+            "wall_ns": 18693
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146160006316171,
+            "finished_thread_cpu_ns": 53482161,
+            "same_thread": true,
+            "started_monotonic_ns": 146160006313864,
+            "started_thread_cpu_ns": 53479930,
+            "thread_cpu_ns": 2231,
+            "wall_ns": 2307
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146160539923710,
+            "finished_thread_cpu_ns": 162217621,
+            "same_thread": true,
+            "started_monotonic_ns": 146160175822018,
+            "started_thread_cpu_ns": 162114313,
+            "thread_cpu_ns": 103308,
+            "wall_ns": 364101692
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146160174806018,
+            "finished_thread_cpu_ns": 162052236,
+            "same_thread": true,
+            "started_monotonic_ns": 146160174639402,
+            "started_thread_cpu_ns": 161933159,
+            "thread_cpu_ns": 119077,
+            "wall_ns": 166616
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146160141981325,
+            "finished_thread_cpu_ns": 133053466,
+            "same_thread": true,
+            "started_monotonic_ns": 146160078747864,
+            "started_thread_cpu_ns": 85894777,
+            "thread_cpu_ns": 47158689,
+            "wall_ns": 63233461
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146160078736787,
+            "finished_thread_cpu_ns": 85887854,
+            "same_thread": true,
+            "started_monotonic_ns": 146160009753941,
+            "started_thread_cpu_ns": 55307546,
+            "thread_cpu_ns": 30580308,
+            "wall_ns": 68982846
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": false,
+      "memory": {
+        "RssAnon": 27520,
+        "RssFile": 28664,
+        "RssShmem": 0,
+        "VmHWM": 56200,
+        "VmRSS": 56184
+      },
+      "metrics": {
+        "content_send_ms": 6884.903308,
+        "first_startup_send_ms": 4633.091693,
+        "hwm_kib": 56200,
+        "process_enter_to_ready_ms": 1828.878693,
+        "request_to_process_enter_ms": 4292.781769,
+        "rss_kib": 56184,
+        "software_ready_ms": 6121.660462
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 1.613462,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211422010853888,
+          "monotonic_ns": 146163928231095,
+          "pid": 3852
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146163926617633
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211413624333503,
+        "monotonic_ns": 146155541714325,
+        "pid": 3256
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "baseline",
+      "warmup": true
+    },
+    {
+      "case": "candidate-warmup",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 5,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 5,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 4,
+        "record_after_request_ms": 6955.723001,
+        "record_kind": "native",
+        "record_monotonic_ns": 146182795671096,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 5,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6589.726847,
+        "send_accepted_monotonic_ns": 146182429674942,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146182429226634,
+            "finished_thread_cpu_ns": 843269702,
+            "same_thread": true,
+            "started_monotonic_ns": 146182399412250,
+            "started_thread_cpu_ns": 813561933,
+            "thread_cpu_ns": 29707769,
+            "wall_ns": 29814384
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146181916536788,
+            "finished_thread_cpu_ns": 489287241,
+            "same_thread": true,
+            "started_monotonic_ns": 146181586216942,
+            "started_thread_cpu_ns": 489219626,
+            "thread_cpu_ns": 67615,
+            "wall_ns": 330319846
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146182795427788,
+            "finished_thread_cpu_ns": 843569933,
+            "same_thread": true,
+            "started_monotonic_ns": 146182429685634,
+            "started_thread_cpu_ns": 843505933,
+            "thread_cpu_ns": 64000,
+            "wall_ns": 365742154
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146182429674942,
+            "finished_thread_cpu_ns": 843496087,
+            "same_thread": true,
+            "started_monotonic_ns": 146182429252096,
+            "started_thread_cpu_ns": 843285856,
+            "thread_cpu_ns": 210231,
+            "wall_ns": 422846
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146182399385865,
+            "finished_thread_cpu_ns": 813544086,
+            "same_thread": true,
+            "started_monotonic_ns": 146182351670250,
+            "started_thread_cpu_ns": 766618009,
+            "thread_cpu_ns": 46926077,
+            "wall_ns": 47715615
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146182351650788,
+            "finished_thread_cpu_ns": 766604933,
+            "same_thread": true,
+            "started_monotonic_ns": 146181916553327,
+            "started_thread_cpu_ns": 489297164,
+            "thread_cpu_ns": 277307769,
+            "wall_ns": 435097461
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4875.242001,
+        "record_kind": "native",
+        "record_monotonic_ns": 146180715190096,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4509.425539,
+        "send_accepted_monotonic_ns": 146180349373634,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146180349018019,
+            "finished_thread_cpu_ns": 212159323,
+            "same_thread": true,
+            "started_monotonic_ns": 146180318685865,
+            "started_thread_cpu_ns": 182131167,
+            "thread_cpu_ns": 30028156,
+            "wall_ns": 30332154
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146180195850942,
+            "finished_thread_cpu_ns": 89482937,
+            "same_thread": true,
+            "started_monotonic_ns": 146180192105096,
+            "started_thread_cpu_ns": 85736860,
+            "thread_cpu_ns": 3746077,
+            "wall_ns": 3745846
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146180715047250,
+            "finished_thread_cpu_ns": 212661554,
+            "same_thread": true,
+            "started_monotonic_ns": 146180715028173,
+            "started_thread_cpu_ns": 212642323,
+            "thread_cpu_ns": 19231,
+            "wall_ns": 19077
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146180192100942,
+            "finished_thread_cpu_ns": 85732937,
+            "same_thread": true,
+            "started_monotonic_ns": 146180192098326,
+            "started_thread_cpu_ns": 85730167,
+            "thread_cpu_ns": 2770,
+            "wall_ns": 2616
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146180715012326,
+            "finished_thread_cpu_ns": 212629861,
+            "same_thread": true,
+            "started_monotonic_ns": 146180349471634,
+            "started_thread_cpu_ns": 212497399,
+            "thread_cpu_ns": 132462,
+            "wall_ns": 365540692
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146180349373634,
+            "finished_thread_cpu_ns": 212416477,
+            "same_thread": true,
+            "started_monotonic_ns": 146180349057634,
+            "started_thread_cpu_ns": 212184554,
+            "thread_cpu_ns": 231923,
+            "wall_ns": 316000
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146180318654634,
+            "finished_thread_cpu_ns": 182112321,
+            "same_thread": true,
+            "started_monotonic_ns": 146180270396480,
+            "started_thread_cpu_ns": 133921475,
+            "thread_cpu_ns": 48190846,
+            "wall_ns": 48258154
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146180270372788,
+            "finished_thread_cpu_ns": 133904629,
+            "same_thread": true,
+            "started_monotonic_ns": 146180195854403,
+            "started_thread_cpu_ns": 89486167,
+            "thread_cpu_ns": 44418462,
+            "wall_ns": 74518385
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": false,
+      "memory": {
+        "RssAnon": 27336,
+        "RssFile": 28536,
+        "RssShmem": 0,
+        "VmHWM": 55888,
+        "VmRSS": 55872
+      },
+      "metrics": {
+        "content_send_ms": 6589.726847,
+        "first_startup_send_ms": 4509.425539,
+        "hwm_kib": 55888,
+        "process_enter_to_ready_ms": 1591.867462,
+        "request_to_process_enter_ms": 4151.946231,
+        "rss_kib": 55872,
+        "software_ready_ms": 5743.813693
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 0.975615,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211442013273581,
+          "monotonic_ns": 146183930650557,
+          "pid": 6228
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146183929674942
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211433922567581,
+        "monotonic_ns": 146175839948095,
+        "pid": 5633
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "candidate",
+      "warmup": true
+    },
+    {
+      "case": "baseline-01",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 6,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 6,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 5,
+        "record_after_request_ms": 7087.823539,
+        "record_kind": "native",
+        "record_monotonic_ns": 146202813611328,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 6,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6721.950077,
+        "send_accepted_monotonic_ns": 146202447737866,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146202447295789,
+            "finished_thread_cpu_ns": 838462918,
+            "same_thread": true,
+            "started_monotonic_ns": 146202417808943,
+            "started_thread_cpu_ns": 809079611,
+            "thread_cpu_ns": 29383307,
+            "wall_ns": 29486846
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146202004190789,
+            "finished_thread_cpu_ns": 521838691,
+            "same_thread": true,
+            "started_monotonic_ns": 146201673801405,
+            "started_thread_cpu_ns": 521772999,
+            "thread_cpu_ns": 65692,
+            "wall_ns": 330389384
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146202813436020,
+            "finished_thread_cpu_ns": 838798841,
+            "same_thread": true,
+            "started_monotonic_ns": 146202447745712,
+            "started_thread_cpu_ns": 838748918,
+            "thread_cpu_ns": 49923,
+            "wall_ns": 365690308
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146202447737866,
+            "finished_thread_cpu_ns": 838741380,
+            "same_thread": true,
+            "started_monotonic_ns": 146202447320251,
+            "started_thread_cpu_ns": 838478687,
+            "thread_cpu_ns": 262693,
+            "wall_ns": 417615
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146202417779943,
+            "finished_thread_cpu_ns": 809060918,
+            "same_thread": true,
+            "started_monotonic_ns": 146202368226020,
+            "started_thread_cpu_ns": 759496610,
+            "thread_cpu_ns": 49564308,
+            "wall_ns": 49553923
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146202368207789,
+            "finished_thread_cpu_ns": 759484610,
+            "same_thread": true,
+            "started_monotonic_ns": 146202004207482,
+            "started_thread_cpu_ns": 521849075,
+            "thread_cpu_ns": 237635535,
+            "wall_ns": 364000307
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4812.408539,
+        "record_kind": "native",
+        "record_monotonic_ns": 146200538196328,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4445.603846,
+        "send_accepted_monotonic_ns": 146200171391635,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146200170991635,
+            "finished_thread_cpu_ns": 191077770,
+            "same_thread": true,
+            "started_monotonic_ns": 146200141465328,
+            "started_thread_cpu_ns": 161642155,
+            "thread_cpu_ns": 29435615,
+            "wall_ns": 29526307
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146200034321635,
+            "finished_thread_cpu_ns": 77473236,
+            "same_thread": true,
+            "started_monotonic_ns": 146200031584405,
+            "started_thread_cpu_ns": 74735929,
+            "thread_cpu_ns": 2737307,
+            "wall_ns": 2737230
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146200537698789,
+            "finished_thread_cpu_ns": 191506616,
+            "same_thread": true,
+            "started_monotonic_ns": 146200537653405,
+            "started_thread_cpu_ns": 191461693,
+            "thread_cpu_ns": 44923,
+            "wall_ns": 45384
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146200031581558,
+            "finished_thread_cpu_ns": 74733006,
+            "same_thread": true,
+            "started_monotonic_ns": 146200031578866,
+            "started_thread_cpu_ns": 74730390,
+            "thread_cpu_ns": 2616,
+            "wall_ns": 2692
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146200537617866,
+            "finished_thread_cpu_ns": 191435847,
+            "same_thread": true,
+            "started_monotonic_ns": 146200171400481,
+            "started_thread_cpu_ns": 191336155,
+            "thread_cpu_ns": 99692,
+            "wall_ns": 366217385
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146200171391635,
+            "finished_thread_cpu_ns": 191327924,
+            "same_thread": true,
+            "started_monotonic_ns": 146200171009866,
+            "started_thread_cpu_ns": 191090540,
+            "thread_cpu_ns": 237384,
+            "wall_ns": 381769
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146200141445174,
+            "finished_thread_cpu_ns": 161628770,
+            "same_thread": true,
+            "started_monotonic_ns": 146200094067635,
+            "started_thread_cpu_ns": 114333385,
+            "thread_cpu_ns": 47295385,
+            "wall_ns": 47377539
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146200094048712,
+            "finished_thread_cpu_ns": 114320078,
+            "same_thread": true,
+            "started_monotonic_ns": 146200034323943,
+            "started_thread_cpu_ns": 77475467,
+            "thread_cpu_ns": 36844611,
+            "wall_ns": 59724769
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27488,
+        "RssFile": 28480,
+        "RssShmem": 0,
+        "VmHWM": 55984,
+        "VmRSS": 55968
+      },
+      "metrics": {
+        "content_send_ms": 6721.950077,
+        "first_startup_send_ms": 4445.603846,
+        "hwm_kib": 55984,
+        "process_enter_to_ready_ms": 1816.431461,
+        "request_to_process_enter_ms": 4129.231385,
+        "rss_kib": 55968,
+        "software_ready_ms": 5945.662846
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 0.824846,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211462031185890,
+          "monotonic_ns": 146203948562712,
+          "pid": 8390
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146203947737866
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211453808406890,
+        "monotonic_ns": 146195725787789,
+        "pid": 7785
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "candidate-01",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 5,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 5,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 4,
+        "record_after_request_ms": 6838.21477,
+        "record_kind": "native",
+        "record_monotonic_ns": 146222701253560,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 5,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6472.051154,
+        "send_accepted_monotonic_ns": 146222335089944,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146222334896483,
+            "finished_thread_cpu_ns": 771768009,
+            "same_thread": true,
+            "started_monotonic_ns": 146222298033867,
+            "started_thread_cpu_ns": 741779702,
+            "thread_cpu_ns": 29988307,
+            "wall_ns": 36862616
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146221887453637,
+            "finished_thread_cpu_ns": 449857701,
+            "same_thread": true,
+            "started_monotonic_ns": 146221565013790,
+            "started_thread_cpu_ns": 449754085,
+            "thread_cpu_ns": 103616,
+            "wall_ns": 322439847
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146222700872483,
+            "finished_thread_cpu_ns": 772031163,
+            "same_thread": true,
+            "started_monotonic_ns": 146222335097560,
+            "started_thread_cpu_ns": 771960086,
+            "thread_cpu_ns": 71077,
+            "wall_ns": 365774923
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146222335089944,
+            "finished_thread_cpu_ns": 771953317,
+            "same_thread": true,
+            "started_monotonic_ns": 146222334922714,
+            "started_thread_cpu_ns": 771786163,
+            "thread_cpu_ns": 167154,
+            "wall_ns": 167230
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146222298012790,
+            "finished_thread_cpu_ns": 741764856,
+            "same_thread": true,
+            "started_monotonic_ns": 146222244190175,
+            "started_thread_cpu_ns": 691651549,
+            "thread_cpu_ns": 50113307,
+            "wall_ns": 53822615
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146222244169714,
+            "finished_thread_cpu_ns": 691637549,
+            "same_thread": true,
+            "started_monotonic_ns": 146221887472021,
+            "started_thread_cpu_ns": 449869624,
+            "thread_cpu_ns": 241767925,
+            "wall_ns": 356697693
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4835.163385,
+        "record_kind": "native",
+        "record_monotonic_ns": 146220698202175,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4469.046385,
+        "send_accepted_monotonic_ns": 146220332085175,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146220331715636,
+            "finished_thread_cpu_ns": 189690619,
+            "same_thread": true,
+            "started_monotonic_ns": 146220301864713,
+            "started_thread_cpu_ns": 159942465,
+            "thread_cpu_ns": 29748154,
+            "wall_ns": 29850923
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146220193652406,
+            "finished_thread_cpu_ns": 73707464,
+            "same_thread": true,
+            "started_monotonic_ns": 146220190148867,
+            "started_thread_cpu_ns": 70337464,
+            "thread_cpu_ns": 3370000,
+            "wall_ns": 3503539
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146220697974175,
+            "finished_thread_cpu_ns": 190210849,
+            "same_thread": true,
+            "started_monotonic_ns": 146220697889252,
+            "started_thread_cpu_ns": 190161618,
+            "thread_cpu_ns": 49231,
+            "wall_ns": 84923
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146220190145175,
+            "finished_thread_cpu_ns": 70334311,
+            "same_thread": true,
+            "started_monotonic_ns": 146220190143021,
+            "started_thread_cpu_ns": 70331618,
+            "thread_cpu_ns": 2693,
+            "wall_ns": 2154
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146220697739790,
+            "finished_thread_cpu_ns": 190133772,
+            "same_thread": true,
+            "started_monotonic_ns": 146220332159867,
+            "started_thread_cpu_ns": 190031465,
+            "thread_cpu_ns": 102307,
+            "wall_ns": 365579923
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146220332085175,
+            "finished_thread_cpu_ns": 189967157,
+            "same_thread": true,
+            "started_monotonic_ns": 146220331740713,
+            "started_thread_cpu_ns": 189705619,
+            "thread_cpu_ns": 261538,
+            "wall_ns": 344462
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146220301837713,
+            "finished_thread_cpu_ns": 159922004,
+            "same_thread": true,
+            "started_monotonic_ns": 146220250664636,
+            "started_thread_cpu_ns": 109300389,
+            "thread_cpu_ns": 50621615,
+            "wall_ns": 51173077
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146220250646406,
+            "finished_thread_cpu_ns": 109288082,
+            "same_thread": true,
+            "started_monotonic_ns": 146220193660636,
+            "started_thread_cpu_ns": 73713233,
+            "thread_cpu_ns": 35574849,
+            "wall_ns": 56985770
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27424,
+        "RssFile": 28776,
+        "RssShmem": 0,
+        "VmHWM": 56216,
+        "VmRSS": 56200
+      },
+      "metrics": {
+        "content_send_ms": 6472.051154,
+        "first_startup_send_ms": 4469.046385,
+        "hwm_kib": 56216,
+        "process_enter_to_ready_ms": 1534.350923,
+        "request_to_process_enter_ms": 4165.237385,
+        "rss_kib": 56200,
+        "software_ready_ms": 5699.588308
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 0.448385,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211481918157430,
+          "monotonic_ns": 146223835538329,
+          "pid": 10540
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146223835089944
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211473945658968,
+        "monotonic_ns": 146215863038790,
+        "pid": 9942
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "candidate-02",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 5,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 5,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 4,
+        "record_after_request_ms": 6825.060924,
+        "record_kind": "native",
+        "record_monotonic_ns": 146242374428869,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 5,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6458.671693,
+        "send_accepted_monotonic_ns": 146242008039638,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146242007730869,
+            "finished_thread_cpu_ns": 793751394,
+            "same_thread": true,
+            "started_monotonic_ns": 146241978168330,
+            "started_thread_cpu_ns": 764331472,
+            "thread_cpu_ns": 29419922,
+            "wall_ns": 29562539
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146241555342176,
+            "finished_thread_cpu_ns": 461964081,
+            "same_thread": true,
+            "started_monotonic_ns": 146241234714176,
+            "started_thread_cpu_ns": 461900158,
+            "thread_cpu_ns": 63923,
+            "wall_ns": 320628000
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146242374091099,
+            "finished_thread_cpu_ns": 794086779,
+            "same_thread": true,
+            "started_monotonic_ns": 146242008047099,
+            "started_thread_cpu_ns": 793974779,
+            "thread_cpu_ns": 112000,
+            "wall_ns": 366044000
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146242008039638,
+            "finished_thread_cpu_ns": 793968164,
+            "same_thread": true,
+            "started_monotonic_ns": 146242007754099,
+            "started_thread_cpu_ns": 793767010,
+            "thread_cpu_ns": 201154,
+            "wall_ns": 285539
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146241978140022,
+            "finished_thread_cpu_ns": 764312164,
+            "same_thread": true,
+            "started_monotonic_ns": 146241927274176,
+            "started_thread_cpu_ns": 713732779,
+            "thread_cpu_ns": 50579385,
+            "wall_ns": 50865846
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146241927255099,
+            "finished_thread_cpu_ns": 713720086,
+            "same_thread": true,
+            "started_monotonic_ns": 146241555360022,
+            "started_thread_cpu_ns": 461974773,
+            "thread_cpu_ns": 251745313,
+            "wall_ns": 371895077
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4815.173385,
+        "record_kind": "native",
+        "record_monotonic_ns": 146240364541330,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4448.765308,
+        "send_accepted_monotonic_ns": 146239998133253,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146239997830022,
+            "finished_thread_cpu_ns": 197538081,
+            "same_thread": true,
+            "started_monotonic_ns": 146239966454099,
+            "started_thread_cpu_ns": 166926773,
+            "thread_cpu_ns": 30611308,
+            "wall_ns": 31375923
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146239855582484,
+            "finished_thread_cpu_ns": 80076925,
+            "same_thread": true,
+            "started_monotonic_ns": 146239852791561,
+            "started_thread_cpu_ns": 77285925,
+            "thread_cpu_ns": 2791000,
+            "wall_ns": 2790923
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146240364346253,
+            "finished_thread_cpu_ns": 197947465,
+            "same_thread": true,
+            "started_monotonic_ns": 146240364325484,
+            "started_thread_cpu_ns": 197926849,
+            "thread_cpu_ns": 20616,
+            "wall_ns": 20769
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146239852788176,
+            "finished_thread_cpu_ns": 77282540,
+            "same_thread": true,
+            "started_monotonic_ns": 146239852786099,
+            "started_thread_cpu_ns": 77280540,
+            "thread_cpu_ns": 2000,
+            "wall_ns": 2077
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146240364247330,
+            "finished_thread_cpu_ns": 197880003,
+            "same_thread": true,
+            "started_monotonic_ns": 146239998175253,
+            "started_thread_cpu_ns": 197800927,
+            "thread_cpu_ns": 79076,
+            "wall_ns": 366072077
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146239998133253,
+            "finished_thread_cpu_ns": 197759466,
+            "same_thread": true,
+            "started_monotonic_ns": 146239997860022,
+            "started_thread_cpu_ns": 197556927,
+            "thread_cpu_ns": 202539,
+            "wall_ns": 273231
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146239966428330,
+            "finished_thread_cpu_ns": 166907850,
+            "same_thread": true,
+            "started_monotonic_ns": 146239916483330,
+            "started_thread_cpu_ns": 117577849,
+            "thread_cpu_ns": 49330001,
+            "wall_ns": 49945000
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146239916457407,
+            "finished_thread_cpu_ns": 117559388,
+            "same_thread": true,
+            "started_monotonic_ns": 146239855584868,
+            "started_thread_cpu_ns": 80079232,
+            "thread_cpu_ns": 37480156,
+            "wall_ns": 60872539
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27452,
+        "RssFile": 28836,
+        "RssShmem": 0,
+        "VmHWM": 56304,
+        "VmRSS": 56288
+      },
+      "metrics": {
+        "content_send_ms": 6458.671693,
+        "first_startup_send_ms": 4448.765308,
+        "hwm_kib": 56304,
+        "process_enter_to_ready_ms": 1550.695769,
+        "request_to_process_enter_ms": 4132.021539,
+        "rss_kib": 56288,
+        "software_ready_ms": 5682.717308
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 0.767769,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211501591430354,
+          "monotonic_ns": 146243508807407,
+          "pid": 13191
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146243508039638
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211493631987354,
+        "monotonic_ns": 146235549367945,
+        "pid": 12587
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "baseline-02",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 6,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 6,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 5,
+        "record_after_request_ms": 6940.268077,
+        "record_kind": "native",
+        "record_monotonic_ns": 146262298376485,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 6,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6574.331462,
+        "send_accepted_monotonic_ns": 146261932439870,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146261932058562,
+            "finished_thread_cpu_ns": 853549303,
+            "same_thread": true,
+            "started_monotonic_ns": 146261902397177,
+            "started_thread_cpu_ns": 824034610,
+            "thread_cpu_ns": 29514693,
+            "wall_ns": 29661385
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146261447968408,
+            "finished_thread_cpu_ns": 514676232,
+            "same_thread": true,
+            "started_monotonic_ns": 146261123166100,
+            "started_thread_cpu_ns": 514634310,
+            "thread_cpu_ns": 41922,
+            "wall_ns": 324802308
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146262298074562,
+            "finished_thread_cpu_ns": 853887149,
+            "same_thread": true,
+            "started_monotonic_ns": 146261932447947,
+            "started_thread_cpu_ns": 853841380,
+            "thread_cpu_ns": 45769,
+            "wall_ns": 365626615
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146261932439870,
+            "finished_thread_cpu_ns": 853833918,
+            "same_thread": true,
+            "started_monotonic_ns": 146261932093562,
+            "started_thread_cpu_ns": 853571995,
+            "thread_cpu_ns": 261923,
+            "wall_ns": 346308
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146261902362177,
+            "finished_thread_cpu_ns": 824012380,
+            "same_thread": true,
+            "started_monotonic_ns": 146261855315639,
+            "started_thread_cpu_ns": 777053610,
+            "thread_cpu_ns": 46958770,
+            "wall_ns": 47046538
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146261855299716,
+            "finished_thread_cpu_ns": 777043148,
+            "same_thread": true,
+            "started_monotonic_ns": 146261447978716,
+            "started_thread_cpu_ns": 514685386,
+            "thread_cpu_ns": 262357762,
+            "wall_ns": 407321000
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4636.898308,
+        "record_kind": "native",
+        "record_monotonic_ns": 146259995006716,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4270.929308,
+        "send_accepted_monotonic_ns": 146259629037716,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146259628594793,
+            "finished_thread_cpu_ns": 198022471,
+            "same_thread": true,
+            "started_monotonic_ns": 146259598898100,
+            "started_thread_cpu_ns": 168395086,
+            "thread_cpu_ns": 29627385,
+            "wall_ns": 29696693
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146259486315793,
+            "finished_thread_cpu_ns": 83427850,
+            "same_thread": true,
+            "started_monotonic_ns": 146259482913331,
+            "started_thread_cpu_ns": 80022543,
+            "thread_cpu_ns": 3405307,
+            "wall_ns": 3402462
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146259994621947,
+            "finished_thread_cpu_ns": 198403085,
+            "same_thread": true,
+            "started_monotonic_ns": 146259994595485,
+            "started_thread_cpu_ns": 198376470,
+            "thread_cpu_ns": 26615,
+            "wall_ns": 26462
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146259482909408,
+            "finished_thread_cpu_ns": 80019081,
+            "same_thread": true,
+            "started_monotonic_ns": 146259482906254,
+            "started_thread_cpu_ns": 80015543,
+            "thread_cpu_ns": 3538,
+            "wall_ns": 3154
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146259994578716,
+            "finished_thread_cpu_ns": 198363701,
+            "same_thread": true,
+            "started_monotonic_ns": 146259629047331,
+            "started_thread_cpu_ns": 198301624,
+            "thread_cpu_ns": 62077,
+            "wall_ns": 365531385
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146259629037716,
+            "finished_thread_cpu_ns": 198292931,
+            "same_thread": true,
+            "started_monotonic_ns": 146259628629870,
+            "started_thread_cpu_ns": 198044624,
+            "thread_cpu_ns": 248307,
+            "wall_ns": 407846
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146259598862793,
+            "finished_thread_cpu_ns": 168370471,
+            "same_thread": true,
+            "started_monotonic_ns": 146259551807177,
+            "started_thread_cpu_ns": 121442625,
+            "thread_cpu_ns": 46927846,
+            "wall_ns": 47055616
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146259551790023,
+            "finished_thread_cpu_ns": 121430317,
+            "same_thread": true,
+            "started_monotonic_ns": 146259486324793,
+            "started_thread_cpu_ns": 83434389,
+            "thread_cpu_ns": 37995928,
+            "wall_ns": 65465230
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27488,
+        "RssFile": 28484,
+        "RssShmem": 0,
+        "VmHWM": 55988,
+        "VmRSS": 55972
+      },
+      "metrics": {
+        "content_send_ms": 6574.331462,
+        "first_startup_send_ms": 4270.929308,
+        "hwm_kib": 55988,
+        "process_enter_to_ready_ms": 1808.133077,
+        "request_to_process_enter_ms": 3954.618769,
+        "rss_kib": 55972,
+        "software_ready_ms": 5762.751846
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 0.335461,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211521515399586,
+          "monotonic_ns": 146263432775331,
+          "pid": 15436
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146263432439870
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211513440728124,
+        "monotonic_ns": 146255358108408,
+        "pid": 14749
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "baseline-03",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 6,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 6,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 5,
+        "record_after_request_ms": 6969.447308,
+        "record_kind": "native",
+        "record_monotonic_ns": 146282548629179,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 6,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6603.181769,
+        "send_accepted_monotonic_ns": 146282182363640,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146282182055717,
+            "finished_thread_cpu_ns": 817699620,
+            "same_thread": true,
+            "started_monotonic_ns": 146282151993179,
+            "started_thread_cpu_ns": 787806852,
+            "thread_cpu_ns": 29892768,
+            "wall_ns": 30062538
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146281740408640,
+            "finished_thread_cpu_ns": 502076460,
+            "same_thread": true,
+            "started_monotonic_ns": 146281417095486,
+            "started_thread_cpu_ns": 502009767,
+            "thread_cpu_ns": 66693,
+            "wall_ns": 323313154
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146282548368871,
+            "finished_thread_cpu_ns": 818101697,
+            "same_thread": true,
+            "started_monotonic_ns": 146282182370794,
+            "started_thread_cpu_ns": 817923928,
+            "thread_cpu_ns": 177769,
+            "wall_ns": 365998077
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146282182363640,
+            "finished_thread_cpu_ns": 817917390,
+            "same_thread": true,
+            "started_monotonic_ns": 146282182083102,
+            "started_thread_cpu_ns": 817717697,
+            "thread_cpu_ns": 199693,
+            "wall_ns": 280538
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146282151972332,
+            "finished_thread_cpu_ns": 787792313,
+            "same_thread": true,
+            "started_monotonic_ns": 146282099947486,
+            "started_thread_cpu_ns": 736270005,
+            "thread_cpu_ns": 51522308,
+            "wall_ns": 52024846
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146282099928871,
+            "finished_thread_cpu_ns": 736257697,
+            "same_thread": true,
+            "started_monotonic_ns": 146281740424332,
+            "started_thread_cpu_ns": 502086767,
+            "thread_cpu_ns": 234170930,
+            "wall_ns": 359504539
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4711.118154,
+        "record_kind": "native",
+        "record_monotonic_ns": 146280290300025,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4344.963461,
+        "send_accepted_monotonic_ns": 146279924145332,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146279923799102,
+            "finished_thread_cpu_ns": 190723161,
+            "same_thread": true,
+            "started_monotonic_ns": 146279893638102,
+            "started_thread_cpu_ns": 160670237,
+            "thread_cpu_ns": 30052924,
+            "wall_ns": 30161000
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146279782775409,
+            "finished_thread_cpu_ns": 73318850,
+            "same_thread": true,
+            "started_monotonic_ns": 146279780368717,
+            "started_thread_cpu_ns": 70912081,
+            "thread_cpu_ns": 2406769,
+            "wall_ns": 2406692
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146280289840332,
+            "finished_thread_cpu_ns": 191154698,
+            "same_thread": true,
+            "started_monotonic_ns": 146280289817717,
+            "started_thread_cpu_ns": 191132083,
+            "thread_cpu_ns": 22615,
+            "wall_ns": 22615
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146279780365486,
+            "finished_thread_cpu_ns": 70908850,
+            "same_thread": true,
+            "started_monotonic_ns": 146279780362640,
+            "started_thread_cpu_ns": 70906004,
+            "thread_cpu_ns": 2846,
+            "wall_ns": 2846
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146280289800948,
+            "finished_thread_cpu_ns": 191118698,
+            "same_thread": true,
+            "started_monotonic_ns": 146279924154717,
+            "started_thread_cpu_ns": 190994930,
+            "thread_cpu_ns": 123768,
+            "wall_ns": 365646231
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146279924145332,
+            "finished_thread_cpu_ns": 190986776,
+            "same_thread": true,
+            "started_monotonic_ns": 146279923824025,
+            "started_thread_cpu_ns": 190739238,
+            "thread_cpu_ns": 247538,
+            "wall_ns": 321307
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146279893616640,
+            "finished_thread_cpu_ns": 160656237,
+            "same_thread": true,
+            "started_monotonic_ns": 146279839332178,
+            "started_thread_cpu_ns": 108193083,
+            "thread_cpu_ns": 52463154,
+            "wall_ns": 54284462
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146279839314178,
+            "finished_thread_cpu_ns": 108181006,
+            "same_thread": true,
+            "started_monotonic_ns": 146279782777871,
+            "started_thread_cpu_ns": 73321234,
+            "thread_cpu_ns": 34859772,
+            "wall_ns": 56536307
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27484,
+        "RssFile": 28108,
+        "RssShmem": 0,
+        "VmHWM": 55608,
+        "VmRSS": 55592
+      },
+      "metrics": {
+        "content_send_ms": 6603.181769,
+        "first_startup_send_ms": 4344.963461,
+        "hwm_kib": 55608,
+        "process_enter_to_ready_ms": 1788.924154,
+        "request_to_process_enter_ms": 4047.094769,
+        "rss_kib": 55592,
+        "software_ready_ms": 5836.018923
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 0.342693,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211541765329741,
+          "monotonic_ns": 146283682706333,
+          "pid": 17859
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146283682363640
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211533661801202,
+        "monotonic_ns": 146275579181871,
+        "pid": 17281
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "candidate-03",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 5,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 5,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 4,
+        "record_after_request_ms": 6925.388309,
+        "record_kind": "native",
+        "record_monotonic_ns": 146302548853488,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 5,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6560.644385,
+        "send_accepted_monotonic_ns": 146302184109564,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146302182274103,
+            "finished_thread_cpu_ns": 823468463,
+            "same_thread": true,
+            "started_monotonic_ns": 146302144124872,
+            "started_thread_cpu_ns": 793826463,
+            "thread_cpu_ns": 29642000,
+            "wall_ns": 38149231
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146301683224795,
+            "finished_thread_cpu_ns": 491335376,
+            "same_thread": true,
+            "started_monotonic_ns": 146301683220718,
+            "started_thread_cpu_ns": 491331300,
+            "thread_cpu_ns": 4076,
+            "wall_ns": 4077
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146302548593103,
+            "finished_thread_cpu_ns": 824117310,
+            "same_thread": true,
+            "started_monotonic_ns": 146302184176103,
+            "started_thread_cpu_ns": 823843541,
+            "thread_cpu_ns": 273769,
+            "wall_ns": 364417000
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146302184109564,
+            "finished_thread_cpu_ns": 823796156,
+            "same_thread": true,
+            "started_monotonic_ns": 146302182297564,
+            "started_thread_cpu_ns": 823484617,
+            "thread_cpu_ns": 311539,
+            "wall_ns": 1812000
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146302144097949,
+            "finished_thread_cpu_ns": 793808387,
+            "same_thread": true,
+            "started_monotonic_ns": 146302071114641,
+            "started_thread_cpu_ns": 747822153,
+            "thread_cpu_ns": 45986234,
+            "wall_ns": 72983308
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146302071097334,
+            "finished_thread_cpu_ns": 747810384,
+            "same_thread": true,
+            "started_monotonic_ns": 146301683228718,
+            "started_thread_cpu_ns": 491339223,
+            "thread_cpu_ns": 256471161,
+            "wall_ns": 387868616
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4796.485462,
+        "record_kind": "native",
+        "record_monotonic_ns": 146300419950641,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4430.606847,
+        "send_accepted_monotonic_ns": 146300054072026,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146300053743103,
+            "finished_thread_cpu_ns": 188825705,
+            "same_thread": true,
+            "started_monotonic_ns": 146300022917487,
+            "started_thread_cpu_ns": 158045935,
+            "thread_cpu_ns": 30779770,
+            "wall_ns": 30825616
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146299915752026,
+            "finished_thread_cpu_ns": 74654164,
+            "same_thread": true,
+            "started_monotonic_ns": 146299912533487,
+            "started_thread_cpu_ns": 71431395,
+            "thread_cpu_ns": 3222769,
+            "wall_ns": 3218539
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146300419799487,
+            "finished_thread_cpu_ns": 189267012,
+            "same_thread": true,
+            "started_monotonic_ns": 146300419782410,
+            "started_thread_cpu_ns": 189249935,
+            "thread_cpu_ns": 17077,
+            "wall_ns": 17077
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146299912530026,
+            "finished_thread_cpu_ns": 71427933,
+            "same_thread": true,
+            "started_monotonic_ns": 146299912527257,
+            "started_thread_cpu_ns": 71425318,
+            "thread_cpu_ns": 2615,
+            "wall_ns": 2769
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146300419767180,
+            "finished_thread_cpu_ns": 189237781,
+            "same_thread": true,
+            "started_monotonic_ns": 146300054119564,
+            "started_thread_cpu_ns": 189099396,
+            "thread_cpu_ns": 138385,
+            "wall_ns": 365647616
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146300054072026,
+            "finished_thread_cpu_ns": 189053934,
+            "same_thread": true,
+            "started_monotonic_ns": 146300053765795,
+            "started_thread_cpu_ns": 188839705,
+            "thread_cpu_ns": 214229,
+            "wall_ns": 306231
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146300022893026,
+            "finished_thread_cpu_ns": 158028320,
+            "same_thread": true,
+            "started_monotonic_ns": 146299973989641,
+            "started_thread_cpu_ns": 110201090,
+            "thread_cpu_ns": 47827230,
+            "wall_ns": 48903385
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146299973972180,
+            "finished_thread_cpu_ns": 110189397,
+            "same_thread": true,
+            "started_monotonic_ns": 146299915761795,
+            "started_thread_cpu_ns": 74659702,
+            "thread_cpu_ns": 35529695,
+            "wall_ns": 58210385
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27332,
+        "RssFile": 28364,
+        "RssShmem": 0,
+        "VmHWM": 55712,
+        "VmRSS": 55696
+      },
+      "metrics": {
+        "content_send_ms": 6560.644385,
+        "first_startup_send_ms": 4430.606847,
+        "hwm_kib": 55712,
+        "process_enter_to_ready_ms": 1926.694,
+        "request_to_process_enter_ms": 4124.738462,
+        "rss_kib": 55696,
+        "software_ready_ms": 6051.432462
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 0.851308,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211561767583973,
+          "monotonic_ns": 146303684960872,
+          "pid": 19947
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146303684109564
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211553706084973,
+        "monotonic_ns": 146295623465179,
+        "pid": 19364
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "candidate-04",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 4,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 4,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 3,
+        "record_after_request_ms": 6266.791616,
+        "record_kind": "native",
+        "record_monotonic_ns": 146322125281104,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 4,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 5900.554693,
+        "send_accepted_monotonic_ns": 146321759044181,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146321758660489,
+            "finished_thread_cpu_ns": 688385154,
+            "same_thread": true,
+            "started_monotonic_ns": 146321729371027,
+            "started_thread_cpu_ns": 659087000,
+            "thread_cpu_ns": 29298154,
+            "wall_ns": 29289462
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146321340415027,
+            "finished_thread_cpu_ns": 392445689,
+            "same_thread": true,
+            "started_monotonic_ns": 146321018394335,
+            "started_thread_cpu_ns": 392380996,
+            "thread_cpu_ns": 64693,
+            "wall_ns": 322020692
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146322125005489,
+            "finished_thread_cpu_ns": 688675845,
+            "same_thread": true,
+            "started_monotonic_ns": 146321759052796,
+            "started_thread_cpu_ns": 688612538,
+            "thread_cpu_ns": 63307,
+            "wall_ns": 365952693
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146321759044181,
+            "finished_thread_cpu_ns": 688605307,
+            "same_thread": true,
+            "started_monotonic_ns": 146321758686335,
+            "started_thread_cpu_ns": 688401692,
+            "thread_cpu_ns": 203615,
+            "wall_ns": 357846
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146321729344335,
+            "finished_thread_cpu_ns": 659069000,
+            "same_thread": true,
+            "started_monotonic_ns": 146321681744027,
+            "started_thread_cpu_ns": 611752386,
+            "thread_cpu_ns": 47316614,
+            "wall_ns": 47600308
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146321681726335,
+            "finished_thread_cpu_ns": 611739924,
+            "same_thread": true,
+            "started_monotonic_ns": 146321340432181,
+            "started_thread_cpu_ns": 392457458,
+            "thread_cpu_ns": 219282466,
+            "wall_ns": 341294154
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4707.139385,
+        "record_kind": "native",
+        "record_monotonic_ns": 146320565628873,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4342.570616,
+        "send_accepted_monotonic_ns": 146320201060104,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146320199728027,
+            "finished_thread_cpu_ns": 192786696,
+            "same_thread": true,
+            "started_monotonic_ns": 146320169058258,
+            "started_thread_cpu_ns": 162107926,
+            "thread_cpu_ns": 30678770,
+            "wall_ns": 30669769
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146320062066950,
+            "finished_thread_cpu_ns": 76992390,
+            "same_thread": true,
+            "started_monotonic_ns": 146320059480566,
+            "started_thread_cpu_ns": 74403236,
+            "thread_cpu_ns": 2589154,
+            "wall_ns": 2586384
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146320565497489,
+            "finished_thread_cpu_ns": 193160926,
+            "same_thread": true,
+            "started_monotonic_ns": 146320565476258,
+            "started_thread_cpu_ns": 193139464,
+            "thread_cpu_ns": 21462,
+            "wall_ns": 21231
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146320059477566,
+            "finished_thread_cpu_ns": 74400236,
+            "same_thread": true,
+            "started_monotonic_ns": 146320059474873,
+            "started_thread_cpu_ns": 74397928,
+            "thread_cpu_ns": 2308,
+            "wall_ns": 2693
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146320565461181,
+            "finished_thread_cpu_ns": 193127618,
+            "same_thread": true,
+            "started_monotonic_ns": 146320201129258,
+            "started_thread_cpu_ns": 193023311,
+            "thread_cpu_ns": 104307,
+            "wall_ns": 364331923
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146320201060104,
+            "finished_thread_cpu_ns": 192959695,
+            "same_thread": true,
+            "started_monotonic_ns": 146320199750104,
+            "started_thread_cpu_ns": 192799773,
+            "thread_cpu_ns": 159922,
+            "wall_ns": 1310000
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146320169036335,
+            "finished_thread_cpu_ns": 162093157,
+            "same_thread": true,
+            "started_monotonic_ns": 146320117568027,
+            "started_thread_cpu_ns": 111605849,
+            "thread_cpu_ns": 50487308,
+            "wall_ns": 51468308
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146320117549181,
+            "finished_thread_cpu_ns": 111592926,
+            "same_thread": true,
+            "started_monotonic_ns": 146320062075642,
+            "started_thread_cpu_ns": 76998390,
+            "thread_cpu_ns": 34594536,
+            "wall_ns": 55473539
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27492,
+        "RssFile": 28484,
+        "RssShmem": 0,
+        "VmHWM": 55992,
+        "VmRSS": 55976
+      },
+      "metrics": {
+        "content_send_ms": 5900.554693,
+        "first_startup_send_ms": 4342.570616,
+        "hwm_kib": 55992,
+        "process_enter_to_ready_ms": 1112.326231,
+        "request_to_process_enter_ms": 4045.696847,
+        "rss_kib": 55976,
+        "software_ready_ms": 5158.023078
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 1.671923,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211581343339282,
+          "monotonic_ns": 146323260716104,
+          "pid": 22005
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146323259044181
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211573941109435,
+        "monotonic_ns": 146315858489488,
+        "pid": 21460
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "baseline-04",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 6,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 6,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 5,
+        "record_after_request_ms": 7069.193308,
+        "record_kind": "native",
+        "record_monotonic_ns": 146342368401951,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 6,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6702.586155,
+        "send_accepted_monotonic_ns": 146342001794798,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146342001494951,
+            "finished_thread_cpu_ns": 900487779,
+            "same_thread": true,
+            "started_monotonic_ns": 146341971848413,
+            "started_thread_cpu_ns": 870932009,
+            "thread_cpu_ns": 29555770,
+            "wall_ns": 29646538
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146341514007028,
+            "finished_thread_cpu_ns": 559062006,
+            "same_thread": true,
+            "started_monotonic_ns": 146341183983105,
+            "started_thread_cpu_ns": 558989314,
+            "thread_cpu_ns": 72692,
+            "wall_ns": 330023923
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146342368199567,
+            "finished_thread_cpu_ns": 900752393,
+            "same_thread": true,
+            "started_monotonic_ns": 146342001806182,
+            "started_thread_cpu_ns": 900712470,
+            "thread_cpu_ns": 39923,
+            "wall_ns": 366393385
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146342001794798,
+            "finished_thread_cpu_ns": 900701932,
+            "same_thread": true,
+            "started_monotonic_ns": 146342001516567,
+            "started_thread_cpu_ns": 900501625,
+            "thread_cpu_ns": 200307,
+            "wall_ns": 278231
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146341971825413,
+            "finished_thread_cpu_ns": 870915778,
+            "same_thread": true,
+            "started_monotonic_ns": 146341918711644,
+            "started_thread_cpu_ns": 818020393,
+            "thread_cpu_ns": 52895385,
+            "wall_ns": 53113769
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146341918692644,
+            "finished_thread_cpu_ns": 818008008,
+            "same_thread": true,
+            "started_monotonic_ns": 146341514024259,
+            "started_thread_cpu_ns": 559073160,
+            "thread_cpu_ns": 258934848,
+            "wall_ns": 404668385
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4729.37577,
+        "record_kind": "native",
+        "record_monotonic_ns": 146340028584413,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4363.233924,
+        "send_accepted_monotonic_ns": 146339662442567,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146339662129644,
+            "finished_thread_cpu_ns": 208396304,
+            "same_thread": true,
+            "started_monotonic_ns": 146339632293259,
+            "started_thread_cpu_ns": 178757381,
+            "thread_cpu_ns": 29638923,
+            "wall_ns": 29836385
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146339509271259,
+            "finished_thread_cpu_ns": 84856304,
+            "same_thread": true,
+            "started_monotonic_ns": 146339505205105,
+            "started_thread_cpu_ns": 80784612,
+            "thread_cpu_ns": 4071692,
+            "wall_ns": 4066154
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146340028175874,
+            "finished_thread_cpu_ns": 208734535,
+            "same_thread": true,
+            "started_monotonic_ns": 146340028149028,
+            "started_thread_cpu_ns": 208707766,
+            "thread_cpu_ns": 26769,
+            "wall_ns": 26846
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146339505201874,
+            "finished_thread_cpu_ns": 80781612,
+            "same_thread": true,
+            "started_monotonic_ns": 146339505198874,
+            "started_thread_cpu_ns": 80778765,
+            "thread_cpu_ns": 2847,
+            "wall_ns": 3000
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146340028131413,
+            "finished_thread_cpu_ns": 208694381,
+            "same_thread": true,
+            "started_monotonic_ns": 146339662455259,
+            "started_thread_cpu_ns": 208625920,
+            "thread_cpu_ns": 68461,
+            "wall_ns": 365676154
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146339662442567,
+            "finished_thread_cpu_ns": 208614458,
+            "same_thread": true,
+            "started_monotonic_ns": 146339662153105,
+            "started_thread_cpu_ns": 208411612,
+            "thread_cpu_ns": 202846,
+            "wall_ns": 289462
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146339632269336,
+            "finished_thread_cpu_ns": 178740688,
+            "same_thread": true,
+            "started_monotonic_ns": 146339576553182,
+            "started_thread_cpu_ns": 124035534,
+            "thread_cpu_ns": 54705154,
+            "wall_ns": 55716154
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146339576535644,
+            "finished_thread_cpu_ns": 124023919,
+            "same_thread": true,
+            "started_monotonic_ns": 146339509285951,
+            "started_thread_cpu_ns": 84865458,
+            "thread_cpu_ns": 39158461,
+            "wall_ns": 67249693
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27492,
+        "RssFile": 28396,
+        "RssShmem": 0,
+        "VmHWM": 55904,
+        "VmRSS": 55888
+      },
+      "metrics": {
+        "content_send_ms": 6702.586155,
+        "first_startup_send_ms": 4363.233924,
+        "hwm_kib": 55904,
+        "process_enter_to_ready_ms": 1868.849538,
+        "request_to_process_enter_ms": 4013.994078,
+        "rss_kib": 55888,
+        "software_ready_ms": 5882.843616
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 0.852384,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211601585270668,
+          "monotonic_ns": 146343502647182,
+          "pid": 24093
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146343501794798
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211593381828667,
+        "monotonic_ns": 146335299208643,
+        "pid": 23506
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "baseline-05",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 6,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 6,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 5,
+        "record_after_request_ms": 7056.944308,
+        "record_kind": "native",
+        "record_monotonic_ns": 146362418356876,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 6,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6690.967154,
+        "send_accepted_monotonic_ns": 146362052379722,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146362052053876,
+            "finished_thread_cpu_ns": 835809230,
+            "same_thread": true,
+            "started_monotonic_ns": 146362021992876,
+            "started_thread_cpu_ns": 805850845,
+            "thread_cpu_ns": 29958385,
+            "wall_ns": 30061000
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146361622705414,
+            "finished_thread_cpu_ns": 517672073,
+            "same_thread": true,
+            "started_monotonic_ns": 146361291885106,
+            "started_thread_cpu_ns": 517606458,
+            "thread_cpu_ns": 65615,
+            "wall_ns": 330820308
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146362418127183,
+            "finished_thread_cpu_ns": 836162076,
+            "same_thread": true,
+            "started_monotonic_ns": 146362052387645,
+            "started_thread_cpu_ns": 836043153,
+            "thread_cpu_ns": 118923,
+            "wall_ns": 365739538
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146362052379722,
+            "finished_thread_cpu_ns": 836035768,
+            "same_thread": true,
+            "started_monotonic_ns": 146362052080491,
+            "started_thread_cpu_ns": 835827153,
+            "thread_cpu_ns": 208615,
+            "wall_ns": 299231
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146362021974337,
+            "finished_thread_cpu_ns": 805836691,
+            "same_thread": true,
+            "started_monotonic_ns": 146361968760491,
+            "started_thread_cpu_ns": 754332537,
+            "thread_cpu_ns": 51504154,
+            "wall_ns": 53213846
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146361968742799,
+            "finished_thread_cpu_ns": 754319922,
+            "same_thread": true,
+            "started_monotonic_ns": 146361622722183,
+            "started_thread_cpu_ns": 517682150,
+            "thread_cpu_ns": 236637772,
+            "wall_ns": 346020616
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4798.776615,
+        "record_kind": "native",
+        "record_monotonic_ns": 146360160189183,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4432.264923,
+        "send_accepted_monotonic_ns": 146359793677491,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146359793350952,
+            "finished_thread_cpu_ns": 189529844,
+            "same_thread": true,
+            "started_monotonic_ns": 146359763572414,
+            "started_thread_cpu_ns": 159948305,
+            "thread_cpu_ns": 29581539,
+            "wall_ns": 29778538
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146359655965491,
+            "finished_thread_cpu_ns": 74498072,
+            "same_thread": true,
+            "started_monotonic_ns": 146359653061722,
+            "started_thread_cpu_ns": 71592072,
+            "thread_cpu_ns": 2906000,
+            "wall_ns": 2903769
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146360159604953,
+            "finished_thread_cpu_ns": 189865844,
+            "same_thread": true,
+            "started_monotonic_ns": 146360159578337,
+            "started_thread_cpu_ns": 189839306,
+            "thread_cpu_ns": 26538,
+            "wall_ns": 26616
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146359653058029,
+            "finished_thread_cpu_ns": 71588533,
+            "same_thread": true,
+            "started_monotonic_ns": 146359653055106,
+            "started_thread_cpu_ns": 71585457,
+            "thread_cpu_ns": 3076,
+            "wall_ns": 2923
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146360159560645,
+            "finished_thread_cpu_ns": 189825998,
+            "same_thread": true,
+            "started_monotonic_ns": 146359793686645,
+            "started_thread_cpu_ns": 189770998,
+            "thread_cpu_ns": 55000,
+            "wall_ns": 365874000
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146359793677491,
+            "finished_thread_cpu_ns": 189762383,
+            "same_thread": true,
+            "started_monotonic_ns": 146359793379799,
+            "started_thread_cpu_ns": 189548075,
+            "thread_cpu_ns": 214308,
+            "wall_ns": 297692
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146359763546183,
+            "finished_thread_cpu_ns": 159930305,
+            "same_thread": true,
+            "started_monotonic_ns": 146359715498952,
+            "started_thread_cpu_ns": 112610381,
+            "thread_cpu_ns": 47319924,
+            "wall_ns": 48047231
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146359715479722,
+            "finished_thread_cpu_ns": 112597381,
+            "same_thread": true,
+            "started_monotonic_ns": 146359655973106,
+            "started_thread_cpu_ns": 74503457,
+            "thread_cpu_ns": 38093924,
+            "wall_ns": 59506616
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27488,
+        "RssFile": 28572,
+        "RssShmem": 0,
+        "VmHWM": 56076,
+        "VmRSS": 56060
+      },
+      "metrics": {
+        "content_send_ms": 6690.967154,
+        "first_startup_send_ms": 4432.264923,
+        "hwm_kib": 56076,
+        "process_enter_to_ready_ms": 1789.766461,
+        "request_to_process_enter_ms": 4138.500231,
+        "rss_kib": 56060,
+        "software_ready_ms": 5928.266692
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 0.836,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211621635838977,
+          "monotonic_ns": 146363553215722,
+          "pid": 26191
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146363552379722
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211613444032284,
+        "monotonic_ns": 146355361412568,
+        "pid": 25594
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "baseline",
+      "warmup": false
+    },
+    {
+      "case": "candidate-05",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 4,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 4,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 3,
+        "record_after_request_ms": 6242.548231,
+        "record_kind": "native",
+        "record_monotonic_ns": 146381974499800,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 4,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 5876.609,
+        "send_accepted_monotonic_ns": 146381608560569,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146381608398185,
+            "finished_thread_cpu_ns": 698423636,
+            "same_thread": true,
+            "started_monotonic_ns": 146381577855569,
+            "started_thread_cpu_ns": 667874251,
+            "thread_cpu_ns": 30549385,
+            "wall_ns": 30542616
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146381188462646,
+            "finished_thread_cpu_ns": 396036716,
+            "same_thread": true,
+            "started_monotonic_ns": 146380874648415,
+            "started_thread_cpu_ns": 395973562,
+            "thread_cpu_ns": 63154,
+            "wall_ns": 313814231
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146381974214646,
+            "finished_thread_cpu_ns": 698642867,
+            "same_thread": true,
+            "started_monotonic_ns": 146381608570338,
+            "started_thread_cpu_ns": 698588790,
+            "thread_cpu_ns": 54077,
+            "wall_ns": 365644308
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146381608560569,
+            "finished_thread_cpu_ns": 698579944,
+            "same_thread": true,
+            "started_monotonic_ns": 146381608418492,
+            "started_thread_cpu_ns": 698436867,
+            "thread_cpu_ns": 143077,
+            "wall_ns": 142077
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146381577828108,
+            "finished_thread_cpu_ns": 667856174,
+            "same_thread": true,
+            "started_monotonic_ns": 146381528473415,
+            "started_thread_cpu_ns": 619100327,
+            "thread_cpu_ns": 48755847,
+            "wall_ns": 49354693
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146381528445569,
+            "finished_thread_cpu_ns": 619082096,
+            "same_thread": true,
+            "started_monotonic_ns": 146381188481646,
+            "started_thread_cpu_ns": 396048485,
+            "thread_cpu_ns": 223033611,
+            "wall_ns": 339963923
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4695.691615,
+        "record_kind": "native",
+        "record_monotonic_ns": 146380427643184,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4329.797692,
+        "send_accepted_monotonic_ns": 146380061749261,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146380061447338,
+            "finished_thread_cpu_ns": 189190857,
+            "same_thread": true,
+            "started_monotonic_ns": 146380031914800,
+            "started_thread_cpu_ns": 159858011,
+            "thread_cpu_ns": 29332846,
+            "wall_ns": 29532538
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146379924045569,
+            "finished_thread_cpu_ns": 74936316,
+            "same_thread": true,
+            "started_monotonic_ns": 146379921524877,
+            "started_thread_cpu_ns": 72390008,
+            "thread_cpu_ns": 2546308,
+            "wall_ns": 2520692
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146380427422954,
+            "finished_thread_cpu_ns": 189527318,
+            "same_thread": true,
+            "started_monotonic_ns": 146380427402261,
+            "started_thread_cpu_ns": 189506549,
+            "thread_cpu_ns": 20769,
+            "wall_ns": 20693
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146379921521569,
+            "finished_thread_cpu_ns": 72386700,
+            "same_thread": true,
+            "started_monotonic_ns": 146379921519031,
+            "started_thread_cpu_ns": 72384239,
+            "thread_cpu_ns": 2461,
+            "wall_ns": 2538
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146380427387800,
+            "finished_thread_cpu_ns": 189495087,
+            "same_thread": true,
+            "started_monotonic_ns": 146380061815261,
+            "started_thread_cpu_ns": 189455780,
+            "thread_cpu_ns": 39307,
+            "wall_ns": 365572539
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146380061749261,
+            "finished_thread_cpu_ns": 189405011,
+            "same_thread": true,
+            "started_monotonic_ns": 146380061470492,
+            "started_thread_cpu_ns": 189206473,
+            "thread_cpu_ns": 198538,
+            "wall_ns": 278769
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146380031892338,
+            "finished_thread_cpu_ns": 159842088,
+            "same_thread": true,
+            "started_monotonic_ns": 146379982926646,
+            "started_thread_cpu_ns": 110967704,
+            "thread_cpu_ns": 48874384,
+            "wall_ns": 48965692
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146379982910031,
+            "finished_thread_cpu_ns": 110956628,
+            "same_thread": true,
+            "started_monotonic_ns": 146379925265031,
+            "started_thread_cpu_ns": 74962086,
+            "thread_cpu_ns": 35994542,
+            "wall_ns": 57645000
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27324,
+        "RssFile": 29068,
+        "RssShmem": 0,
+        "VmHWM": 56412,
+        "VmRSS": 56392
+      },
+      "metrics": {
+        "content_send_ms": 5876.609,
+        "first_startup_send_ms": 4329.797692,
+        "hwm_kib": 56412,
+        "process_enter_to_ready_ms": 1111.970539,
+        "request_to_process_enter_ms": 4028.429769,
+        "rss_kib": 56392,
+        "software_ready_ms": 5140.400308
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 1.700846,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211641192884208,
+          "monotonic_ns": 146383110261415,
+          "pid": 28242
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146383108560569
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211633814570900,
+        "monotonic_ns": 146375731951569,
+        "pid": 27694
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "candidate-06",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 6,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 6,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 5,
+        "record_after_request_ms": 7253.478924,
+        "record_kind": "native",
+        "record_monotonic_ns": 146402313790340,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 6,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6887.877077,
+        "send_accepted_monotonic_ns": 146401948188493,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146401947943340,
+            "finished_thread_cpu_ns": 879076610,
+            "same_thread": true,
+            "started_monotonic_ns": 146401918222417,
+            "started_thread_cpu_ns": 849411149,
+            "thread_cpu_ns": 29665461,
+            "wall_ns": 29720923
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146401483547263,
+            "finished_thread_cpu_ns": 558644999,
+            "same_thread": true,
+            "started_monotonic_ns": 146401483543186,
+            "started_thread_cpu_ns": 558640999,
+            "thread_cpu_ns": 4000,
+            "wall_ns": 4077
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146402313598955,
+            "finished_thread_cpu_ns": 879359071,
+            "same_thread": true,
+            "started_monotonic_ns": 146401948196493,
+            "started_thread_cpu_ns": 879317764,
+            "thread_cpu_ns": 41307,
+            "wall_ns": 365402462
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146401948188493,
+            "finished_thread_cpu_ns": 879310687,
+            "same_thread": true,
+            "started_monotonic_ns": 146401947974955,
+            "started_thread_cpu_ns": 879096533,
+            "thread_cpu_ns": 214154,
+            "wall_ns": 213538
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146401918192340,
+            "finished_thread_cpu_ns": 849390918,
+            "same_thread": true,
+            "started_monotonic_ns": 146401861109724,
+            "started_thread_cpu_ns": 803052766,
+            "thread_cpu_ns": 46338152,
+            "wall_ns": 57082616
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146401861093263,
+            "finished_thread_cpu_ns": 803042228,
+            "same_thread": true,
+            "started_monotonic_ns": 146401483551263,
+            "started_thread_cpu_ns": 558648768,
+            "thread_cpu_ns": 244393460,
+            "wall_ns": 377542000
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4731.168077,
+        "record_kind": "native",
+        "record_monotonic_ns": 146399791479493,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4365.187,
+        "send_accepted_monotonic_ns": 146399425498416,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146399425188186,
+            "finished_thread_cpu_ns": 193429687,
+            "same_thread": true,
+            "started_monotonic_ns": 146399393877647,
+            "started_thread_cpu_ns": 162810687,
+            "thread_cpu_ns": 30619000,
+            "wall_ns": 31310539
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146399285843263,
+            "finished_thread_cpu_ns": 75914912,
+            "same_thread": true,
+            "started_monotonic_ns": 146399283538801,
+            "started_thread_cpu_ns": 73610604,
+            "thread_cpu_ns": 2304308,
+            "wall_ns": 2304462
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146399791181801,
+            "finished_thread_cpu_ns": 193794226,
+            "same_thread": true,
+            "started_monotonic_ns": 146399791162878,
+            "started_thread_cpu_ns": 193775533,
+            "thread_cpu_ns": 18693,
+            "wall_ns": 18923
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146399283533647,
+            "finished_thread_cpu_ns": 73605450,
+            "same_thread": true,
+            "started_monotonic_ns": 146399283530878,
+            "started_thread_cpu_ns": 73602527,
+            "thread_cpu_ns": 2923,
+            "wall_ns": 2769
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146399791144878,
+            "finished_thread_cpu_ns": 193760764,
+            "same_thread": true,
+            "started_monotonic_ns": 146399425574570,
+            "started_thread_cpu_ns": 193706533,
+            "thread_cpu_ns": 54231,
+            "wall_ns": 365570308
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146399425498416,
+            "finished_thread_cpu_ns": 193650071,
+            "same_thread": true,
+            "started_monotonic_ns": 146399425213339,
+            "started_thread_cpu_ns": 193445764,
+            "thread_cpu_ns": 204307,
+            "wall_ns": 285077
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146399393853647,
+            "finished_thread_cpu_ns": 162792918,
+            "same_thread": true,
+            "started_monotonic_ns": 146399341914263,
+            "started_thread_cpu_ns": 110939456,
+            "thread_cpu_ns": 51853462,
+            "wall_ns": 51939384
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146399341893724,
+            "finished_thread_cpu_ns": 110925841,
+            "same_thread": true,
+            "started_monotonic_ns": 146399285846647,
+            "started_thread_cpu_ns": 75917989,
+            "thread_cpu_ns": 35007852,
+            "wall_ns": 56047077
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27476,
+        "RssFile": 28624,
+        "RssShmem": 0,
+        "VmHWM": 56116,
+        "VmRSS": 56100
+      },
+      "metrics": {
+        "content_send_ms": 6887.877077,
+        "first_startup_send_ms": 4365.187,
+        "hwm_kib": 56116,
+        "process_enter_to_ready_ms": 2337.443,
+        "request_to_process_enter_ms": 4072.857231,
+        "rss_kib": 56100,
+        "software_ready_ms": 6410.300231
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 1.645385,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211661532456671,
+          "monotonic_ns": 146403449833878,
+          "pid": 30365
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146403448188493
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211653142930825,
+        "monotonic_ns": 146395060311416,
+        "pid": 29739
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "candidate",
+      "warmup": false
+    },
+    {
+      "case": "baseline-06",
+      "final_capture": {
+        "captured_at": "Application exit after the bounded post-ready duration",
+        "comparison_mode": "RGB",
+        "file_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+        "height": 2480,
+        "native_epdc_mode": "Y8",
+        "physical_framebuffer_capture": false,
+        "pixel_sha256": "cd103a87490f36b9a5298b142e349ef63c4be974dbf54e06988df20cf429330f",
+        "profile": "scribe",
+        "route": "shelf",
+        "semantics": "Logical Slint snapshot before framebuffer compensation",
+        "width": 1860
+      },
+      "first_business_frame": {
+        "accepted_update_marker": 6,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 6,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": false,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": 5,
+        "record_after_request_ms": 7092.368462,
+        "record_kind": "native",
+        "record_monotonic_ns": 146422967781802,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 6,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 6726.07177,
+        "send_accepted_monotonic_ns": 146422601485110,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146422601184110,
+            "finished_thread_cpu_ns": 833740234,
+            "same_thread": true,
+            "started_monotonic_ns": 146422571721725,
+            "started_thread_cpu_ns": 804463774,
+            "thread_cpu_ns": 29276460,
+            "wall_ns": 29462385
+          },
+          "initial_fill": null,
+          "lifecycle_complete": null,
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146422153219418,
+            "finished_thread_cpu_ns": 514082624,
+            "same_thread": true,
+            "started_monotonic_ns": 146421822756879,
+            "started_thread_cpu_ns": 514012316,
+            "thread_cpu_ns": 70308,
+            "wall_ns": 330462539
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146422967496572,
+            "finished_thread_cpu_ns": 834014081,
+            "same_thread": true,
+            "started_monotonic_ns": 146422601492418,
+            "started_thread_cpu_ns": 833956157,
+            "thread_cpu_ns": 57924,
+            "wall_ns": 366004154
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146422601485110,
+            "finished_thread_cpu_ns": 833949465,
+            "same_thread": true,
+            "started_monotonic_ns": 146422601206264,
+            "started_thread_cpu_ns": 833755157,
+            "thread_cpu_ns": 194308,
+            "wall_ns": 278846
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146422571699802,
+            "finished_thread_cpu_ns": 804448158,
+            "same_thread": true,
+            "started_monotonic_ns": 146422522673418,
+            "started_thread_cpu_ns": 755523928,
+            "thread_cpu_ns": 48924230,
+            "wall_ns": 49026384
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146422522655341,
+            "finished_thread_cpu_ns": 755512697,
+            "same_thread": true,
+            "started_monotonic_ns": 146422153236802,
+            "started_thread_cpu_ns": 514092470,
+            "thread_cpu_ns": 241420227,
+            "wall_ns": 369418539
+          },
+          "window_setup": null
+        }
+      },
+      "first_startup_frame": {
+        "accepted_update_marker": 1,
+        "black_and_white": false,
+        "complete_frame_replacement": true,
+        "completed_update_marker": 1,
+        "completion_errno": null,
+        "driver_completion_observed": true,
+        "forced_full": true,
+        "framebuffer_bits_per_pixel": 8,
+        "framebuffer_size": [
+          1860,
+          2480
+        ],
+        "framebuffer_stride": 1872,
+        "initial_frame": true,
+        "output_inverted": false,
+        "panel_completion_observed": false,
+        "preceding_update_marker": null,
+        "record_after_request_ms": 4824.97077,
+        "record_kind": "native",
+        "record_monotonic_ns": 146420700384110,
+        "record_stage": "frame",
+        "refresh_abi": "mtk",
+        "refresh_accepted": true,
+        "refresh_errno": null,
+        "refresh_flashing": true,
+        "refresh_ioctl_attempts": 1,
+        "refresh_ioctl_returned": true,
+        "refresh_region": {
+          "height": 2480,
+          "width": 1860,
+          "x": 0,
+          "y": 0
+        },
+        "refresh_waveform": "gc16",
+        "render_sequence": 1,
+        "rendered": true,
+        "rotation_degrees": 0,
+        "send_accepted_after_request_ms": 4458.822385,
+        "send_accepted_monotonic_ns": 146420334235725,
+        "stages": {
+          "active_io": null,
+          "buffer_setup": null,
+          "framebuffer_write": {
+            "finished_monotonic_ns": 146420334042725,
+            "finished_thread_cpu_ns": 189882845,
+            "same_thread": true,
+            "started_monotonic_ns": 146420303792187,
+            "started_thread_cpu_ns": 159624691,
+            "thread_cpu_ns": 30258154,
+            "wall_ns": 30250538
+          },
+          "initial_fill": {
+            "finished_monotonic_ns": 146420197885802,
+            "finished_thread_cpu_ns": 76309155,
+            "same_thread": true,
+            "started_monotonic_ns": 146420195319802,
+            "started_thread_cpu_ns": 73739078,
+            "thread_cpu_ns": 2570077,
+            "wall_ns": 2566000
+          },
+          "lifecycle_complete": {
+            "finished_monotonic_ns": 146420699852572,
+            "finished_thread_cpu_ns": 190171615,
+            "same_thread": true,
+            "started_monotonic_ns": 146420699825418,
+            "started_thread_cpu_ns": 190144384,
+            "thread_cpu_ns": 27231,
+            "wall_ns": 27154
+          },
+          "portrait_observer_setup": null,
+          "preceding_update_wait": {
+            "finished_monotonic_ns": 146420195315956,
+            "finished_thread_cpu_ns": 73735463,
+            "same_thread": true,
+            "started_monotonic_ns": 146420195313264,
+            "started_thread_cpu_ns": 73732848,
+            "thread_cpu_ns": 2615,
+            "wall_ns": 2692
+          },
+          "refresh_complete_wait": {
+            "finished_monotonic_ns": 146420699808572,
+            "finished_thread_cpu_ns": 190131153,
+            "same_thread": true,
+            "started_monotonic_ns": 146420334245418,
+            "started_thread_cpu_ns": 190078230,
+            "thread_cpu_ns": 52923,
+            "wall_ns": 365563154
+          },
+          "refresh_submit": {
+            "finished_monotonic_ns": 146420334235725,
+            "finished_thread_cpu_ns": 190069307,
+            "same_thread": true,
+            "started_monotonic_ns": 146420334061956,
+            "started_thread_cpu_ns": 189894460,
+            "thread_cpu_ns": 174847,
+            "wall_ns": 173769
+          },
+          "rgb_fingerprint": {
+            "finished_monotonic_ns": 146420303767264,
+            "finished_thread_cpu_ns": 159607999,
+            "same_thread": true,
+            "started_monotonic_ns": 146420255262418,
+            "started_thread_cpu_ns": 111766615,
+            "thread_cpu_ns": 47841384,
+            "wall_ns": 48504846
+          },
+          "slint_render": {
+            "finished_monotonic_ns": 146420255245110,
+            "finished_thread_cpu_ns": 111754615,
+            "same_thread": true,
+            "started_monotonic_ns": 146420197897956,
+            "started_thread_cpu_ns": 76318001,
+            "thread_cpu_ns": 35436614,
+            "wall_ns": 57347154
+          },
+          "window_setup": null
+        }
+      },
+      "included_in_primary_statistics": true,
+      "memory": {
+        "RssAnon": 27484,
+        "RssFile": 28464,
+        "RssShmem": 0,
+        "VmHWM": 55964,
+        "VmRSS": 55948
+      },
+      "metrics": {
+        "content_send_ms": 6726.07177,
+        "first_startup_send_ms": 4458.822385,
+        "hwm_kib": 55964,
+        "process_enter_to_ready_ms": 1781.192384,
+        "request_to_process_enter_ms": 4163.850001,
+        "rss_kib": 55948,
+        "software_ready_ms": 5945.042385
+      },
+      "post_business_gate": {
+        "deadline_slip_ms": 0.4,
+        "offset_ms": 1500,
+        "reference": "First qualified business SEND acceptance",
+        "request": {
+          "boottime_ns": 211682184507980,
+          "monotonic_ns": 146424101885110,
+          "pid": 32461
+        },
+        "scope": "Instrumented post-business gate request, preceding exec; not a startup endpoint or the exact subsequent sampling time",
+        "target_monotonic_ns": 146424101485110
+      },
+      "recovery": {
+        "launcher_exit_status": 0,
+        "native_restored": true,
+        "owned_processes_gone": true,
+        "passed": true,
+        "production_lock_absent": true
+      },
+      "request": {
+        "boottime_ns": 211673958032287,
+        "monotonic_ns": 146415875413340,
+        "pid": 31831
+      },
+      "resource_observation_scope": "Memory and input descriptors are sampled after the common first-business SEND plus 1500 ms gate; no exact-time or whole-lifetime peak claim",
+      "variant": "baseline",
+      "warmup": false
+    }
+  ],
+  "clock": {
+    "content_send": "native/frame refresh_submit.finished_monotonic_ns, rendered and accepted, with slint_render starting after ui_ready",
+    "primary": "CLOCK_MONOTONIC",
+    "request": "startup-clock immediately before execvp",
+    "shell_uptime": "Separate coarse phase observations only; never used for primary endpoints",
+    "software_ready": "startup/ui_ready envelope monotonic_ns"
+  },
+  "evidence_class": "stored-physical-device-offline-demo",
+  "export_scope": "Stored files only on test-env; no tests, builds, emulator, application, device transport, lease access, account access or new capture.",
+  "faster_pairs": {
+    "content_send_ms": 5,
+    "software_ready_ms": 4
+  },
+  "final_logical_business_pixels_match": true,
+  "final_logical_case_count": 14,
+  "fixture": {
+    "file_count": 37,
+    "fingerprint": "a930027e7e297c89b61c963d2dd17d30c605bca3d4260e1805b7aea2257f3f79",
+    "scope": "isolated-demo-offline"
+  },
+  "fixture_manifest": {
+    "bytes": 5912,
+    "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/inputs/fixture-manifest.json",
+    "sha256": "eec7ef692df034b764eb510219ce23bf28c068d8fe9e931e752c62d2468f3a96"
+  },
+  "followup_boundary": "Candidate 03/06 contain an extra complete frame before Ready. A source followup is independent; this bundle does not measure it or assert final adoption.",
+  "framebuffer_comparisons": {
+    "early": {
+      "cases": [
+        "baseline-06",
+        "candidate-06"
+      ],
+      "changed_bounding_box": null,
+      "changed_fraction": 0.0,
+      "changed_pixels": 0,
+      "comparison_scope": "Every visible 8-bit framebuffer pixel; no excluded regions or masks",
+      "filename": "content-frame.raw",
+      "geometry_match": true,
+      "maximum_absolute_difference": 0,
+      "mean_absolute_difference": 0.0,
+      "native_epdc_modes_match": true,
+      "physical_panel_update_confirmed": false,
+      "pixel_difference_status": "compared_every_visible_pixel",
+      "visible_pixels": 4612800,
+      "visible_raw_sha256": {
+        "baseline-06": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+        "candidate-06": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3"
+      },
+      "whole_visible_frame_equal": true
+    },
+    "settled": {
+      "cases": [
+        "baseline-06",
+        "candidate-06"
+      ],
+      "changed_bounding_box": null,
+      "changed_fraction": 0.0,
+      "changed_pixels": 0,
+      "comparison_scope": "Every visible 8-bit framebuffer pixel; no excluded regions or masks",
+      "filename": "settled-frame.raw",
+      "geometry_match": true,
+      "maximum_absolute_difference": 0,
+      "mean_absolute_difference": 0.0,
+      "native_epdc_modes_match": true,
+      "physical_panel_update_confirmed": false,
+      "pixel_difference_status": "compared_every_visible_pixel",
+      "visible_pixels": 4612800,
+      "visible_raw_sha256": {
+        "baseline-06": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+        "candidate-06": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3"
+      },
+      "whole_visible_frame_equal": true
+    }
+  },
+  "historical_checks_scope": "Previously completed mocked host-only tooling checks; distinct from physical results and not rerun by export.",
+  "historical_host_fixture_checks": {
+    "analysis_and_clock": {
+      "elapsed_seconds": 0.756,
+      "failed": 0,
+      "passed": 45
+    },
+    "concurrency": 1,
+    "controller": {
+      "elapsed_seconds": 56.631,
+      "failed": 0,
+      "passed": 41
+    },
+    "environment": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests",
+    "host_only": true,
+    "independent_read_only_review": "No blocking issue found",
+    "physical_device_accessed": false,
+    "private_authentication_read": false,
+    "shared_lease_accessed": false,
+    "total_passed": 86
+  },
+  "input_roster_unchanged": true,
+  "limitations": [
+    "Warm process launches in one device boot; not cold boot or cache-evicted starts.",
+    "Request timing precedes execvp of the native launch command; it is not physical-tap latency.",
+    "SEND acceptance is a successful submission, not driver completion or optical panel completion.",
+    "Driver completion flags are retained per attempt and never substituted for primary endpoints.",
+    "First business frame does not establish that every background cover has completed.",
+    "Final PNGs are logical Slint snapshots at application exit, before framebuffer compensation.",
+    "Both predefined warmups and all twelve predefined measured launches are retained; only the warmups are excluded from primary performance distributions.",
+    "Memory/input sampling follows a common first-business SEND plus 1500 ms gate; the clock marker is not an exact subsequent sample time or a whole-lifetime peak measurement.",
+    "The content-frame.raw pair retains every early visible-pixel difference; it is not required to match and is never masked.",
+    "The settled-frame.raw pair must match at a scheduled target of first business SEND acceptance plus 1500 ms; actual capture-request lateness is reported separately.",
+    "The scheduled framebuffer observation is separate from all primary startup endpoints; any EPDC projection remains derived rather than optical evidence.",
+    "No new touch, rotation, sleep/wake or model qualification.",
+    "Shell uptime records retain their limited resolution and scheduling delay.",
+    "Stage spans may overlap and must not be summed into end-to-end startup time."
+  ],
+  "measured_pairs": 6,
+  "median_reductions": {
+    "content_send_ms": {
+      "difference_of_medians_ms": 231.41523,
+      "median_paired_reduction_ms": 182.779346,
+      "percent_from_medians": 3.456
+    },
+    "software_ready_ms": {
+      "difference_of_medians_ms": 214.402346,
+      "median_paired_reduction_ms": 163.054538,
+      "percent_from_medians": 3.631
+    }
+  },
+  "paired_rounds": [
+    {
+      "metrics": {
+        "content_send_ms": {
+          "baseline": 6721.950077,
+          "candidate": 6472.051154,
+          "reduction_ms": 249.898923
+        },
+        "software_ready_ms": {
+          "baseline": 5945.662846,
+          "candidate": 5699.588308,
+          "reduction_ms": 246.074538
+        }
+      },
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "round": 1
+    },
+    {
+      "metrics": {
+        "content_send_ms": {
+          "baseline": 6574.331462,
+          "candidate": 6458.671693,
+          "reduction_ms": 115.659769
+        },
+        "software_ready_ms": {
+          "baseline": 5762.751846,
+          "candidate": 5682.717308,
+          "reduction_ms": 80.034538
+        }
+      },
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "round": 2
+    },
+    {
+      "metrics": {
+        "content_send_ms": {
+          "baseline": 6603.181769,
+          "candidate": 6560.644385,
+          "reduction_ms": 42.537384
+        },
+        "software_ready_ms": {
+          "baseline": 5836.018923,
+          "candidate": 6051.432462,
+          "reduction_ms": -215.413539
+        }
+      },
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "round": 3
+    },
+    {
+      "metrics": {
+        "content_send_ms": {
+          "baseline": 6702.586155,
+          "candidate": 5900.554693,
+          "reduction_ms": 802.031462
+        },
+        "software_ready_ms": {
+          "baseline": 5882.843616,
+          "candidate": 5158.023078,
+          "reduction_ms": 724.820538
+        }
+      },
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "round": 4
+    },
+    {
+      "metrics": {
+        "content_send_ms": {
+          "baseline": 6690.967154,
+          "candidate": 5876.609,
+          "reduction_ms": 814.358154
+        },
+        "software_ready_ms": {
+          "baseline": 5928.266692,
+          "candidate": 5140.400308,
+          "reduction_ms": 787.866384
+        }
+      },
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "round": 5
+    },
+    {
+      "metrics": {
+        "content_send_ms": {
+          "baseline": 6726.07177,
+          "candidate": 6887.877077,
+          "reduction_ms": -161.805307
+        },
+        "software_ready_ms": {
+          "baseline": 5945.042385,
+          "candidate": 6410.300231,
+          "reduction_ms": -465.257846
+        }
+      },
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "round": 6
+    }
+  ],
+  "primary_cases": [
+    "baseline-01",
+    "candidate-01",
+    "candidate-02",
+    "baseline-02",
+    "baseline-03",
+    "candidate-03",
+    "candidate-04",
+    "baseline-04",
+    "baseline-05",
+    "candidate-05",
+    "candidate-06",
+    "baseline-06"
+  ],
+  "raw_framebuffer_capture_case_count": 2,
+  "raw_framebuffer_capture_file_count": 4,
+  "release": {
+    "lease_directory_absent_after_release": true,
+    "native_restored_and_connections_closed": true,
+    "ok": true,
+    "only_owned_owner_json_removed_then_rmdir": true,
+    "operation": "release",
+    "owner_and_token_checked": true,
+    "private_token_retained": true,
+    "project": "BiliComics",
+    "released_at_utc": "2026-11-17T10:18:37.889218+00:00",
+    "run_id": "startup-sequence-20261117-f028b769",
+    "state": "released"
+  },
+  "restoration": {
+    "install_unchanged": true,
+    "lease_released": true,
+    "lighting_restored": true,
+    "native_restored": true,
+    "same_boot": true,
+    "success": true,
+    "transport_closed": true
+  },
+  "schema_version": 1,
+  "source_analysis": {
+    "bytes": 855207,
+    "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/analysis.json",
+    "sha256": "fa74ed9b18b469e3ee5558cde6f40df599365c7a698727a81e5643c703d21261"
+  },
+  "source_batch": "/root/bilicomics-physical-startup-sequence-20261117-f028b769",
+  "source_report": {
+    "bytes": 13137,
+    "path": "/root/bilicomics-physical-startup-sequence-20261117-f028b769/report.json",
+    "sha256": "683dbd5cbca7cc682846238f59d3e5a2830196d05cf2434949239916487e5256"
+  },
+  "status": "measured_batch_passed_not_final_adoption",
+  "summary": {
+    "baseline": {
+      "content_send_ms": {
+        "maximum": 6726.07177,
+        "mean": 6669.848064,
+        "median": 6696.776654,
+        "minimum": 6574.331462,
+        "n": 6,
+        "values": [
+          6721.950077,
+          6574.331462,
+          6603.181769,
+          6702.586155,
+          6690.967154,
+          6726.07177
+        ]
+      },
+      "first_startup_send_ms": {
+        "maximum": 4458.822385,
+        "mean": 4385.969641,
+        "median": 4397.749423,
+        "minimum": 4270.929308,
+        "n": 6,
+        "values": [
+          4445.603846,
+          4270.929308,
+          4344.963461,
+          4363.233924,
+          4432.264923,
+          4458.822385
+        ]
+      },
+      "hwm_kib": {
+        "maximum": 56076,
+        "mean": 55920.666667,
+        "median": 55974.0,
+        "minimum": 55608,
+        "n": 6,
+        "values": [
+          55984,
+          55988,
+          55608,
+          55904,
+          56076,
+          55964
+        ]
+      },
+      "process_enter_to_ready_ms": {
+        "maximum": 1868.849538,
+        "mean": 1808.882846,
+        "median": 1798.949769,
+        "minimum": 1781.192384,
+        "n": 6,
+        "values": [
+          1816.431461,
+          1808.133077,
+          1788.924154,
+          1868.849538,
+          1789.766461,
+          1781.192384
+        ]
+      },
+      "request_to_process_enter_ms": {
+        "maximum": 4163.850001,
+        "mean": 4074.548206,
+        "median": 4088.163077,
+        "minimum": 3954.618769,
+        "n": 6,
+        "values": [
+          4129.231385,
+          3954.618769,
+          4047.094769,
+          4013.994078,
+          4138.500231,
+          4163.850001
+        ]
+      },
+      "rss_kib": {
+        "maximum": 56060,
+        "mean": 55904.666667,
+        "median": 55958.0,
+        "minimum": 55592,
+        "n": 6,
+        "values": [
+          55968,
+          55972,
+          55592,
+          55888,
+          56060,
+          55948
+        ]
+      },
+      "software_ready_ms": {
+        "maximum": 5945.662846,
+        "mean": 5883.431051,
+        "median": 5905.555154,
+        "minimum": 5762.751846,
+        "n": 6,
+        "values": [
+          5945.662846,
+          5762.751846,
+          5836.018923,
+          5882.843616,
+          5928.266692,
+          5945.042385
+        ]
+      }
+    },
+    "candidate": {
+      "content_send_ms": {
+        "maximum": 6887.877077,
+        "mean": 6359.401334,
+        "median": 6465.361424,
+        "minimum": 5876.609,
+        "n": 6,
+        "values": [
+          6472.051154,
+          6458.671693,
+          6560.644385,
+          5900.554693,
+          5876.609,
+          6887.877077
+        ]
+      },
+      "first_startup_send_ms": {
+        "maximum": 4469.046385,
+        "mean": 4397.662308,
+        "median": 4397.896924,
+        "minimum": 4329.797692,
+        "n": 6,
+        "values": [
+          4469.046385,
+          4448.765308,
+          4430.606847,
+          4342.570616,
+          4329.797692,
+          4365.187
+        ]
+      },
+      "hwm_kib": {
+        "maximum": 56412,
+        "mean": 56125.333333,
+        "median": 56166.0,
+        "minimum": 55712,
+        "n": 6,
+        "values": [
+          56216,
+          56304,
+          55712,
+          55992,
+          56412,
+          56116
+        ]
+      },
+      "process_enter_to_ready_ms": {
+        "maximum": 2337.443,
+        "mean": 1595.580077,
+        "median": 1542.523346,
+        "minimum": 1111.970539,
+        "n": 6,
+        "values": [
+          1534.350923,
+          1550.695769,
+          1926.694,
+          1112.326231,
+          1111.970539,
+          2337.443
+        ]
+      },
+      "request_to_process_enter_ms": {
+        "maximum": 4165.237385,
+        "mean": 4094.830206,
+        "median": 4098.797846,
+        "minimum": 4028.429769,
+        "n": 6,
+        "values": [
+          4165.237385,
+          4132.021539,
+          4124.738462,
+          4045.696847,
+          4028.429769,
+          4072.857231
+        ]
+      },
+      "rss_kib": {
+        "maximum": 56392,
+        "mean": 56108.666667,
+        "median": 56150.0,
+        "minimum": 55696,
+        "n": 6,
+        "values": [
+          56200,
+          56288,
+          55696,
+          55976,
+          56392,
+          56100
+        ]
+      },
+      "software_ready_ms": {
+        "maximum": 6410.300231,
+        "mean": 5690.410282,
+        "median": 5691.152808,
+        "minimum": 5140.400308,
+        "n": 6,
+        "values": [
+          5699.588308,
+          5682.717308,
+          6051.432462,
+          5158.023078,
+          5140.400308,
+          6410.300231
+        ]
+      }
+    }
+  },
+  "temporary_stage_removed": true,
+  "variants": {
+    "baseline": {
+      "binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "build_configuration": {
+        "arm_compilation_proof_sha256": "9c48a552b5a908dedc6bad6b75b0fc19da6a69f2699fc17079bdb62d5f37b10b",
+        "cargo_incremental": 0,
+        "cargo_jobs": 6,
+        "codegen_units": 1,
+        "compiler_profile_sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "profile": "release",
+        "software_summary_sha256": "1f657d3c00494362b4518ea2535326d60a567bbcdf1ed64a8e4989a2b184aaae",
+        "source_archive_sha256": "5bf6950ebf72f38acb00cb1061ce165d54c117b934849dc4065954cda72e0576",
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      },
+      "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+      "instrumented_launcher_sha256": "59b8371d8124cae903f21b9be78ff31e614520cf08a9b83f6a6a6b061e0d1493",
+      "launcher_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "package_sha256": "1fe8ac38613d21904d187b41e973ff80302b0c78fe69b320e3d7143a31fd53ee",
+      "source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+      "source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "startup_arguments": [
+        "--demo",
+        "--offline",
+        "--serial-startup-preparation"
+      ],
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    },
+    "candidate": {
+      "binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+      "build_configuration": {
+        "arm_compilation_proof_sha256": "9c48a552b5a908dedc6bad6b75b0fc19da6a69f2699fc17079bdb62d5f37b10b",
+        "cargo_incremental": 0,
+        "cargo_jobs": 6,
+        "codegen_units": 1,
+        "compiler_profile_sha256": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+        "default_features": false,
+        "features": [
+          "kindle"
+        ],
+        "lto": "thin",
+        "profile": "release",
+        "software_summary_sha256": "1f657d3c00494362b4518ea2535326d60a567bbcdf1ed64a8e4989a2b184aaae",
+        "source_archive_sha256": "5bf6950ebf72f38acb00cb1061ce165d54c117b934849dc4065954cda72e0576",
+        "strip": true,
+        "target": "armv7-unknown-linux-musleabihf"
+      },
+      "compiler_fingerprint": "8dae7219954e57236434f834b51c6dd74256ad7e14e5b68f88cf91864f31c955",
+      "instrumented_launcher_sha256": "7a5e7cd0ebe1ab26d5581e91d96dadacea68c92305ab5d9068b7e0bff7df61f3",
+      "launcher_sha256": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+      "package_sha256": "1fe8ac38613d21904d187b41e973ff80302b0c78fe69b320e3d7143a31fd53ee",
+      "source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+      "source_fingerprint": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+      "startup_arguments": [
+        "--demo",
+        "--offline"
+      ],
+      "worker_sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    }
+  },
+  "warmup_cases": [
+    "baseline-warmup",
+    "candidate-warmup"
+  ]
+}

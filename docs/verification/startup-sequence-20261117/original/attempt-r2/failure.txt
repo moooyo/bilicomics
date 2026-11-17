@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/runner-r2.py", line 527, in main
+    runner.main_tests()
+    ~~~~~~~~~~~~~~~~~^^
+  File "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/runner-r2.py", line 335, in main_tests
+    require(results and sum(row[0] for row in results) > 0 and all(row[1] == row[2] == 0 for row in results),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "The main crate did not report complete passing executed lib/bin suites")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/runner-r2.py", line 50, in require
+    raise RuntimeError(message)
+RuntimeError: The main crate did not report complete passing executed lib/bin suites

@@ -1,0 +1,125 @@
+{
+  "files": {
+    "MEASUREMENT_PLAN.md": {
+      "bytes": 7082,
+      "sha256": "d2ffde7914b60bec5e443c645047068c0383af9e594f344766592f8accb908bf"
+    },
+    "READ_ONLY_REVIEW.md": {
+      "bytes": 1558,
+      "sha256": "f70f821f6b6b8312fc5eece4ee5032079ce7b2c2f2bc8091c6711469eb381f51"
+    },
+    "analysis-tests-r1.log": {
+      "bytes": 6501,
+      "sha256": "4a8ac3f1d820906c5efdfc4b2abf5b89e31057556b97cf5c457bfc9598ce1109"
+    },
+    "analyze_startup_ab.py": {
+      "bytes": 43862,
+      "sha256": "d51bb72e5b013ee5f9822387b99cb3411772516a24aff26573f5756282ae613f"
+    },
+    "config.example.json": {
+      "bytes": 3587,
+      "sha256": "89af78b8561c05caa04dd352e20bdbe72e6ce774a10e3884d73d2b507977c062"
+    },
+    "controller-tests-r1.log": {
+      "bytes": 6279,
+      "sha256": "292a648e8dff05dbd7a32666f78db2a85a5b3ef52b5e925ba81956fb3e974cfb"
+    },
+    "device_lease.py": {
+      "bytes": 23476,
+      "sha256": "494c62e67e29b2a9388148e4cef503ff7feceb15ef90c4af43a5ee3cf6971b72"
+    },
+    "guarded-device-ssh.py": {
+      "bytes": 3908,
+      "sha256": "c2dfb7e982e32d02cf28fe901d85400a367647db08b3100946c7a83e0458e2db"
+    },
+    "native_recovery_fragment.sh": {
+      "bytes": 16739,
+      "sha256": "f00898ef25b8fd56364a56b3924d6535262c2e302091265f51f24b7f48262d26"
+    },
+    "startup-clock.c": {
+      "bytes": 6922,
+      "sha256": "479b6056d00281c795abd02f744accae8b9e5040f76d818a91b24e959af71b6c"
+    },
+    "startup_ab.py": {
+      "bytes": 61749,
+      "sha256": "45b1e3a4c57a2cbe55651059194d3dc470fd118fdaf1df913cdaa7c277020639"
+    },
+    "test_startup_analysis.py": {
+      "bytes": 37693,
+      "sha256": "c7fad487aa0d865dc2a0f43b73dd013c43145447456bbcc1e39617057875013c"
+    },
+    "test_startup_batch.py": {
+      "bytes": 36583,
+      "sha256": "bb9adef6d0c01e582f963f55a8e47e0f4bc5072f1cba66c8c3660afd19ba9795"
+    }
+  },
+  "fixture": {
+    "file_count": 37,
+    "fingerprint": "a930027e7e297c89b61c963d2dd17d30c605bca3d4260e1805b7aea2257f3f79",
+    "scope": "isolated-demo-offline"
+  },
+  "physical_tool_pins": {
+    "physical_framebuffer_sha256": "b3af31796b1013f8e0b4ee66d364b32e2cf4fbd12c7ac68678bd08bea4e097cd",
+    "startup_clock_sha256": "89efa9773505c770f2794be7ab53a7524742346e77500405788d589198f22a1f"
+  },
+  "r2_lock_terminal_drain_preserved": true,
+  "real_package_checks": {
+    "executed": false,
+    "reason": "Final ARM ELF/ZIP/compiler identities were not available during this tool-only task"
+  },
+  "revision": 1,
+  "schema_version": 1,
+  "scope": "Host-only startup-sequence item 1 measurement adaptation; no device, shared lease or private authentication access",
+  "shared_identity_fields": [
+    "source_commit",
+    "source_fingerprint",
+    "binary_sha256",
+    "worker_sha256",
+    "launcher_sha256",
+    "package_sha256",
+    "compiler_fingerprint",
+    "build_configuration"
+  ],
+  "source_commit_for_pending_package": "530f1516c332931059c52161b52d64e86488b3f1",
+  "startup_arguments": {
+    "baseline": [
+      "--demo",
+      "--offline",
+      "--serial-startup-preparation"
+    ],
+    "candidate": [
+      "--demo",
+      "--offline"
+    ]
+  },
+  "supervisor_sha256": "04984a2c4301989dc068ce11f02b01b57470d0dd0ccd3d4c602ae62b0de0e845",
+  "unchanged_components": [
+    "native_recovery_fragment.sh",
+    "startup-clock.c",
+    "guarded-device-ssh.py",
+    "device_lease.py"
+  ],
+  "upstream_analyzer_sha256": "55e80ecb8bc0c51b3da536bab29c0ea67074db27f00861685a4d648b858e4a28",
+  "upstream_controller_sha256": "0ac578fb53ccd52d7bb5ebaf0ee2d013c34dcf1c6d7a69e3796a96bb91eddc27",
+  "upstream_revision": "artifacts/verification/native-query-20261117/measurement/revision2",
+  "verification": {
+    "analysis_and_clock": {
+      "elapsed_seconds": 0.756,
+      "failed": 0,
+      "passed": 45
+    },
+    "concurrency": 1,
+    "controller": {
+      "elapsed_seconds": 56.631,
+      "failed": 0,
+      "passed": 41
+    },
+    "environment": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/tooling-tests",
+    "host_only": true,
+    "independent_read_only_review": "No blocking issue found",
+    "physical_device_accessed": false,
+    "private_authentication_read": false,
+    "shared_lease_accessed": false,
+    "total_passed": 86
+  }
+}

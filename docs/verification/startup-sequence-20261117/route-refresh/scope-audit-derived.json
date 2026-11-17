@@ -1,0 +1,76 @@
+{
+  "record_kind": "derived_stored_evidence_audit",
+  "original_raw_receipt": false,
+  "method": "Static comparison of the two stored archive-source manifests and stored scope bindings, with size and SHA-256 reads of the existing scoped source files",
+  "comparison_universe": "Archive-source manifest members; generated build outputs are outside this source comparison",
+  "origin_sources": {
+    "prior": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app",
+    "new": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app"
+  },
+  "source_commits": {
+    "prior": "530f1516c332931059c52161b52d64e86488b3f1",
+    "new": "f6208d6f7dd3d8e64a09ef0ceb2ceb6b0c45d0f5"
+  },
+  "archive_source_manifests": {
+    "prior": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/archive-source-inputs.sha256",
+      "bytes": 151322,
+      "sha256": "f2109fa18f51fdf6a9cdc3200ba46268956eb2d4646172d4ad08dac8d32a1a61",
+      "files": 1242
+    },
+    "new": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/archive-source-inputs.sha256",
+      "bytes": 151421,
+      "sha256": "3e40d294d58311718637ea6c7695a19ff22545ae07defb4d0b5a228fb32b80ab",
+      "files": 1243
+    }
+  },
+  "source_delta": {
+    "added": [
+      "src/app/startup_refresh_tests.rs"
+    ],
+    "removed": [],
+    "changed": [
+      "src/app/mod.rs",
+      "src/app/startup.rs",
+      "src/app/test_support.rs",
+      "src/main.rs"
+    ],
+    "added_count": 1,
+    "removed_count": 0,
+    "changed_count": 4
+  },
+  "inherited_scopes": {
+    "backend-suite": {
+      "files_per_source": 86,
+      "actual_files_compared": 172,
+      "mismatches": [],
+      "equal": true,
+      "old_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+      "new_source_commit": "f6208d6f7dd3d8e64a09ef0ceb2ceb6b0c45d0f5",
+      "common_manifest": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/backend-suite-inherited-inputs.sha256",
+        "bytes": 9204,
+        "sha256": "51dee8efd83bce00c9ae548ca74b1c22fc37d0b6e00a8b02ca6ed991c09fc611"
+      }
+    },
+    "package-regressions": {
+      "files_per_source": 37,
+      "actual_files_compared": 74,
+      "mismatches": [],
+      "equal": true,
+      "old_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+      "new_source_commit": "f6208d6f7dd3d8e64a09ef0ceb2ceb6b0c45d0f5",
+      "common_manifest": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/package-regressions-inherited-inputs.sha256",
+        "bytes": 5028,
+        "sha256": "34696b10beaf1e0fa6af60e86be305bea3db03e288a3c6155265341a0cdbd994"
+      }
+    }
+  },
+  "all_scoped_file_reads_equal": true,
+  "scoped_source_file_reads": 246,
+  "new_tests_or_builds_executed": false,
+  "application_executed": false,
+  "device_or_lease_operation": false
+}

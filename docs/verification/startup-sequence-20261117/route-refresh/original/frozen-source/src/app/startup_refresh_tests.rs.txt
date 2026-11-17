@@ -1,0 +1,216 @@
+//! Startup visibility boundaries and their complete-frame refresh requests.
+
+use super::*;
+use crate::platform::{PlatformError, RefreshKind, RefreshPlan, RefreshSink};
+use slint::Model;
+use std::sync::Mutex;
+
+#[derive(Default)]
+struct RecordedRefreshes(Mutex<Vec<RefreshPlan>>);
+
+impl RecordedRefreshes {
+    fn take(&self) -> Vec<RefreshPlan> { std::mem::take(&mut *self.0.lock().unwrap()) }
+}
+
+impl RefreshSink for RecordedRefreshes {
+    fn submit(&self, plan: RefreshPlan) -> std::result::Result<(), PlatformError> {
+        self.0.lock().unwrap().push(plan);
+        Ok(())
+    }
+}
+
+struct HeadlessPlatform { window: Rc<slint::platform::software_renderer::MinimalSoftwareWindow> }
+
+impl slint::platform::Platform for HeadlessPlatform {
+    fn create_window_adapter(&self) -> std::result::Result<Rc<dyn slint::platform::WindowAdapter>, slint::PlatformError> {
+        Ok(self.window.clone())
+    }
+}
+
+fn with_ui(work: impl FnOnce(&AppWindow) -> Result<()> + Send + 'static) -> Result<()> {
+    std::thread::spawn(move || {
+        let window = slint::platform::software_renderer::MinimalSoftwareWindow::new(
+            slint::platform::software_renderer::RepaintBufferType::ReusedBuffer);
+        slint::platform::set_platform(Box::new(HeadlessPlatform { window }))?;
+        let ui = AppWindow::new()?;
+        work(&ui)
+    }).join().map_err(|_| anyhow::anyhow!("The isolated startup refresh fixture panicked"))?
+}
+
+fn fixture_options(data_dir: &Path) -> AppOptions {
+    AppOptions { data_dir: data_dir.to_owned(), profile: DeviceProfile::Paperwhite5,
+        demo: true, offline: true, initial_screen: "shelf".into(), landscape: false }
+}
+
+fn fixture_platform() -> Result<(Arc<Platform>, Arc<RecordedRefreshes>)> {
+    let platform = Arc::new(Platform::new(DeviceProfile::Paperwhite5, false)?);
+    let refreshes = Arc::new(RecordedRefreshes::default());
+    platform.set_refresh_sink(refreshes.clone())?;
+    Ok((platform, refreshes))
+}
+
+fn attached_fixture(ui: &AppWindow, data_dir: &Path, handle: tokio::runtime::Handle)
+    -> Result<(Rc<RefCell<App>>, Arc<RecordedRefreshes>)>
+{
+    let (platform, refreshes) = fixture_platform()?;
+    let application = App::attach_prepared(ui, App::prepare(fixture_options(data_dir))?, platform, handle)?;
+    Ok((application, refreshes))
+}
+
+fn advance_to(application: &Rc<RefCell<App>>, target: AttachStage) -> Result<()> {
+    for _ in 0..32 {
+        if application.borrow().startup_stage == Some(target) { return Ok(()); }
+        anyhow::ensure!(!application.borrow_mut().advance_startup_stage()?,
+            "Startup completed before reaching the requested attachment stage");
+    }
+    anyhow::bail!("Startup did not reach the requested attachment stage")
+}
+
+fn complete_screen_frame() -> RefreshPlan {
+    RefreshPlan { kind: RefreshKind::FlashUi, rect: None }
+}
+
+#[test]
+fn hidden_start_route_waits_for_views_and_ready_before_requesting_its_complete_frame() -> Result<()> {
+    with_ui(|ui| {
+        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
+        let directory = tempfile::tempdir()?;
+        let (application, refreshes) = attached_fixture(ui, directory.path(), runtime.handle().clone())?;
+        advance_to(&application, AttachStage::Route)?;
+        let shell = ui.global::<ShellModel>();
+        let catalog = ui.global::<CatalogModel>();
+        catalog.set_shelf_state("unattached".into());
+        assert!(refreshes.take().is_empty());
+
+        // Force the same Route/Views boundary as a UI-budget yield without a clock race.
+        assert!(!application.borrow_mut().advance_startup_stage()?);
+        assert!(matches!(application.borrow().startup_stage, Some(AttachStage::Views)));
+        assert_eq!(shell.get_route().as_str(), "shelf");
+        assert!(shell.get_booting());
+        assert_eq!(catalog.get_shelf_state().as_str(), "unattached");
+        assert!(application.borrow().reveal_startup().is_err());
+        assert!(refreshes.take().is_empty());
+
+        assert!(application.borrow_mut().advance_startup()?);
+        assert!(catalog.get_shelf_items().row_count() > 0);
+        assert_ne!(catalog.get_shelf_state().as_str(), "unattached");
+        assert!(shell.get_booting());
+        assert!(refreshes.take().is_empty());
+        application.borrow().reveal_startup()?;
+        assert!(!shell.get_booting());
+        assert_eq!(refreshes.take(), vec![complete_screen_frame()]);
+
+        application.borrow().reveal_startup()?;
+        assert!(refreshes.take().is_empty());
+        application.borrow_mut().dispatch("shell", "navigate", "downloads")?;
+        assert_eq!(shell.get_route().as_str(), "downloads");
+        assert_eq!(refreshes.take(), vec![complete_screen_frame()]);
+        Ok(())
+    })
+}
+
+#[test]
+fn legacy_fixture_retains_only_the_hidden_route_refresh() -> Result<()> {
+    with_ui(|ui| {
+        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
+        let directory = tempfile::tempdir()?;
+        let (application, refreshes) = attached_fixture(ui, directory.path(), runtime.handle().clone())?;
+        application.borrow_mut().enable_legacy_startup_route_refresh_for_fixture()?;
+        advance_to(&application, AttachStage::Route)?;
+        assert!(refreshes.take().is_empty());
+
+        assert!(!application.borrow_mut().advance_startup_stage()?);
+        assert!(matches!(application.borrow().startup_stage, Some(AttachStage::Views)));
+        assert!(ui.global::<ShellModel>().get_booting());
+        assert_eq!(refreshes.take(), vec![complete_screen_frame()]);
+        assert!(application.borrow().reveal_startup().is_err());
+        assert!(refreshes.take().is_empty());
+
+        assert!(application.borrow_mut().advance_startup()?);
+        application.borrow().reveal_startup()?;
+        assert!(!ui.global::<ShellModel>().get_booting());
+        assert_eq!(refreshes.take(), vec![complete_screen_frame()]);
+        application.borrow_mut().dispatch("shell", "navigate", "downloads")?;
+        assert_eq!(refreshes.take(), vec![complete_screen_frame()]);
+        Ok(())
+    })
+}
+
+#[test]
+fn suspended_attachment_cannot_reveal_or_submit_ready() -> Result<()> {
+    with_ui(|ui| {
+        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
+        let directory = tempfile::tempdir()?;
+        let (application, refreshes) = attached_fixture(ui, directory.path(), runtime.handle().clone())?;
+        advance_to(&application, AttachStage::Views)?;
+        application.borrow_mut().begin_suspend_intent_gate();
+        assert!(!application.borrow_mut().advance_startup()?);
+        assert!(matches!(application.borrow().startup_stage, Some(AttachStage::Views)));
+        assert!(application.borrow().reveal_startup().is_err());
+        assert!(ui.global::<ShellModel>().get_booting());
+        assert!(refreshes.take().is_empty());
+        Ok(())
+    })
+}
+
+#[test]
+fn failed_attachment_and_error_view_cannot_reveal_or_submit_ready() -> Result<()> {
+    with_ui(|ui| {
+        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
+        let directory = tempfile::tempdir()?;
+        let (application, refreshes) = attached_fixture(ui, directory.path(), runtime.handle().clone())?;
+        advance_to(&application, AttachStage::Account)?;
+        let prepared_account = application.borrow_mut().startup_account.take();
+        assert!(application.borrow_mut().advance_startup().is_err());
+        assert!(application.borrow().reveal_startup().is_err());
+        let shell = ui.global::<ShellModel>();
+        shell.set_startup_error(true);
+        assert!(shell.get_booting());
+        assert!(refreshes.take().is_empty());
+
+        // A retained error view must still win if attachment resources recover.
+        application.borrow_mut().startup_account = prepared_account;
+        while !application.borrow_mut().advance_startup()? {}
+        assert!(application.borrow().reveal_startup().is_err());
+        assert!(shell.get_booting() && shell.get_startup_error());
+        assert!(refreshes.take().is_empty());
+        Ok(())
+    })
+}
+
+#[test]
+fn compatibility_attach_requests_its_own_final_complete_frame() -> Result<()> {
+    with_ui(|ui| {
+        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
+        let directory = tempfile::tempdir()?;
+        let (platform, refreshes) = fixture_platform()?;
+        let application = App::attach(ui, fixture_options(directory.path()), platform, runtime.handle().clone())?;
+        assert!(!application.borrow().is_starting());
+        assert!(!ui.global::<ShellModel>().get_booting());
+        assert!(ui.global::<CatalogModel>().get_shelf_items().row_count() > 0);
+        assert_eq!(refreshes.take(), vec![complete_screen_frame()]);
+        Ok(())
+    })
+}
+
+#[test]
+fn legacy_refresh_setter_rejects_nonfixture_and_completed_attachment() -> Result<()> {
+    let directory = tempfile::tempdir()?;
+    let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
+    let client = BiliClient::offline(directory.path())?;
+    let mut application = super::super::test_support::app(directory.path(), DeviceProfile::Paperwhite5,
+        client, runtime.handle().clone())?;
+    application.startup_stage = Some(AttachStage::Route);
+    for (demo, offline) in [(false, false), (false, true), (true, false)] {
+        application.options.demo = demo;
+        application.options.offline = offline;
+        assert!(application.enable_legacy_startup_route_refresh_for_fixture().is_err());
+        assert!(!application.legacy_startup_route_refresh);
+    }
+    application.options.demo = true;
+    application.options.offline = true;
+    application.startup_stage = None;
+    assert!(application.enable_legacy_startup_route_refresh_for_fixture().is_err());
+    assert!(!application.legacy_startup_route_refresh);
+    Ok(())
+}

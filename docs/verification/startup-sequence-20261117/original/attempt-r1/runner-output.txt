@@ -1,0 +1,7 @@
+{"running": "compiler-rustc", "command": ["rustc", "-vV"]}
+{"passed": "compiler-rustc", "seconds": 0.064}
+{"running": "compiler-cargo", "command": ["cargo", "-vV"]}
+{"passed": "compiler-cargo", "seconds": 0.033}
+{"running": "compiler-zigbuild", "command": ["cargo", "zigbuild", "--version"]}
+{"failed": "RuntimeError: compiler-zigbuild exited with 2; inspect its complete log"}
+{"passed": false, "summary": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r1/summary.json", "error": "RuntimeError: compiler-zigbuild exited with 2; inspect its complete log"}

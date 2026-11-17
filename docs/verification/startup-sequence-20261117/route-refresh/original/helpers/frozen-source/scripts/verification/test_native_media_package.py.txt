@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""Exercise the JPEG-helper package guards without executing an ARM binary.
+
+These deliberately invalid archives stop at the manifest, permission or selected
+helper identity guard. They do not claim successful ARM or device validation.
+Run the fixtures only on the designated Linux worker through ssh test-env.
+"""
+
+import hashlib
+import json
+from pathlib import Path
+import stat
+import tempfile
+from types import SimpleNamespace
+import unittest
+from unittest.mock import patch
+import zipfile
+
+from verify_package import ALLOWED_FILES, EXECUTABLE_FILES, FIXED_TIMESTAMP, check_package
+
+
+class NativeMediaPackageTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix="bilicomics-native-media-package-")
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.application = self.root / "bilicomics"
+        self.worker = self.root / "kindle-jpeg-worker"
+        self.application.write_bytes(b"selected application fixture\n")
+        self.worker.write_bytes(b"selected JPEG worker fixture\n")
+        self.source = self.root / "source"
+        self.source.mkdir()
+        self.archive = self.root / "candidate.zip"
+        self.members = {name: b"fixture\n" for name in ALLOWED_FILES}
+        self.members["bilicomics/app/bilicomics"] = self.application.read_bytes()
+        self.members["bilicomics/app/kindle-jpeg-worker"] = self.worker.read_bytes()
+        self.members["bilicomics/data/device-allowlist"] = b"# No approved runtime pair.\n"
+        self.arguments = SimpleNamespace(
+            archive=self.archive,
+            binary=self.application,
+            worker=self.worker,
+            app_root=self.source,
+            output=self.root / "verification.json",
+            expected_binary_sha256=hashlib.sha256(self.application.read_bytes()).hexdigest(),
+            expected_worker_sha256=hashlib.sha256(self.worker.read_bytes()).hexdigest(),
+            expected_archive_sha256=None,
+        )
+
+    def write_archive(self, mode_overrides=None):
+        mode_overrides = mode_overrides or {}
+        records = []
+        with zipfile.ZipFile(self.archive, "w", zipfile.ZIP_DEFLATED) as archive:
+            for name, content in sorted(self.members.items()):
+                default_mode = 0o755 if name in EXECUTABLE_FILES else 0o644
+                info = zipfile.ZipInfo(name, date_time=FIXED_TIMESTAMP)
+                info.create_system = 3
+                info.compress_type = zipfile.ZIP_DEFLATED
+                info.external_attr = (stat.S_IFREG | mode_overrides.get(name, default_mode)) << 16
+                archive.writestr(info, content)
+                records.append({"path": name, "bytes": len(content),
+                                "sha256": hashlib.sha256(content).hexdigest()})
+        self.archive.with_suffix(".manifest.json").write_text(json.dumps({
+            "development_candidate": True, "device_verified": False, "files": records,
+        }) + "\n", encoding="utf-8")
+
+    def assert_rejected(self, reason):
+        # A guard regression must not silently progress to an external tool.
+        with patch("verify_package.subprocess.run", side_effect=AssertionError("Unexpected ELF-tool invocation")):
+            with self.assertRaisesRegex(ValueError, reason):
+                check_package(self.arguments, {"checks": []})
+
+    def test_missing_worker_is_rejected_by_the_exact_manifest(self):
+        del self.members["bilicomics/app/kindle-jpeg-worker"]
+        self.write_archive()
+        self.assert_rejected("manifest does not match the exact allowed entry count")
+
+    def test_worker_without_execute_permission_is_rejected(self):
+        self.arguments.worker = None
+        self.write_archive({"bilicomics/app/kindle-jpeg-worker": 0o644})
+        self.assert_rejected("executable mode is not 0755: bilicomics/app/kindle-jpeg-worker")
+
+    def test_replaced_worker_with_a_recomputed_manifest_is_rejected(self):
+        self.members["bilicomics/app/kindle-jpeg-worker"] = b"a different JPEG worker\n"
+        self.write_archive()
+        self.assert_rejected("packaged JPEG worker differs from the selected ARM binary")
+
+
+if __name__ == "__main__":
+    unittest.main()

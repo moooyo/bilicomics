@@ -1,0 +1,677 @@
+{
+  "backend-suite": {
+    "passed": true,
+    "origin_source": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app",
+    "new_source": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+    "origin_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+    "new_source_commit": "f6208d6f7dd3d8e64a09ef0ceb2ceb6b0c45d0f5",
+    "source_relative_file_sets_equal": true,
+    "file_sizes_and_sha256_equal": true,
+    "scope_names": [
+      "Cargo.lock",
+      "Cargo.toml",
+      "rust-toolchain",
+      "rust-toolchain.toml",
+      "scripts/verification/backend.py",
+      "scripts/verification/native_protocol.py",
+      "scripts/verification/run_suite.py"
+    ],
+    "scope_prefixes": [
+      "vendor/slint-backend-kindle/",
+      ".cargo/",
+      "vendor/zune-jpeg/"
+    ],
+    "common_manifest": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/backend-suite-inherited-inputs.sha256",
+      "bytes": 9204,
+      "sha256": "51dee8efd83bce00c9ae548ca74b1c22fc37d0b6e00a8b02ca6ed991c09fc611"
+    },
+    "files": [
+      {
+        "path": ".cargo/config.toml",
+        "bytes": 20,
+        "sha256": "75f4af1ad7e7cb92fd10f5e7e0686706256e0e79c43aa6241066a8cb1c4685ad"
+      },
+      {
+        "path": "Cargo.lock",
+        "bytes": 172083,
+        "sha256": "a732ae40f2c7f9761d8984451b40b70494c560e7057203a56bd992cf7be974fa"
+      },
+      {
+        "path": "Cargo.toml",
+        "bytes": 1854,
+        "sha256": "14dc538b89e3d9900503a30d768cfd8b20d400184763107fa2acc93898c8747e"
+      },
+      {
+        "path": "scripts/verification/backend.py",
+        "bytes": 9871,
+        "sha256": "f6b5125af5528799695fec087dfdf43adb3080a27447427092f08036e498375c"
+      },
+      {
+        "path": "scripts/verification/native_protocol.py",
+        "bytes": 11491,
+        "sha256": "90ceacdce5f4da9fb805cfef3b21f67b0699bcc91878ff1708eff8a9e2fdc3d8"
+      },
+      {
+        "path": "scripts/verification/run_suite.py",
+        "bytes": 25944,
+        "sha256": "0eb2ac52503a8fbc7a214f07b6c1f07232730e4badfee5aa64f56e9b03259ac6"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/Cargo.toml",
+        "bytes": 1300,
+        "sha256": "44baf30a282bf396dfcca1ab8b005be02b5cbbde88950bc33bf6392f69d26845"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/LICENSE-APACHE",
+        "bytes": 11560,
+        "sha256": "3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/LICENSE-MIT",
+        "bytes": 1087,
+        "sha256": "c9258d60bf86be3a36ca87da66de24339344518dfbb5c465ca2597b32f63acce"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/PATCHES.md",
+        "bytes": 52599,
+        "sha256": "22d826c4bf08e9fadb02c9be782ea0cc6ef822e626aa05db8497a6b83584bcd6"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/README.md",
+        "bytes": 11222,
+        "sha256": "2fef43d985cb48d789b2af167166b102fcce227c0de69c09227960ab009e4b78"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/UPSTREAM_REVISION",
+        "bytes": 263,
+        "sha256": "77f72dec4f6d2070ef5694a0a354ea6c37dcfc35997c77cdea3a55c7da30d01d"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/clipboard.rs",
+        "bytes": 2903,
+        "sha256": "bbe884363ed6e9f827965a5e6051b110ca1dca1f9f6c96cb3820504b6c06139d"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/command.rs",
+        "bytes": 24945,
+        "sha256": "c12157d9ed77c222ffe775893965d7d12bf1415339c2f80000f50f923cae9722"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/dithering.rs",
+        "bytes": 10529,
+        "sha256": "ed4c7feb8c29663178546e478077558d7a9f2ceadb0d354a12c55f78df3b36be"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/first_frame_signal.rs",
+        "bytes": 4966,
+        "sha256": "6a8932b18ed7ed9568d02accfac905e58e77446f82cd9ef4b86cf3a2ecc21692"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/frame_render.rs",
+        "bytes": 6395,
+        "sha256": "1fb292ca7803e2189a8ca9e4349e7a6a7fa1d9062c442554b8263cab1c230d29"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/framebuffer/abi_selection_tests.rs",
+        "bytes": 9445,
+        "sha256": "afd5b6ef17277f13788812b0e6de5119d166cb2e6bdec1f8ae95e8babf2e2b16"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/framebuffer/dithering_tests.rs",
+        "bytes": 18944,
+        "sha256": "36e4419d340975d7801ff38c09f137ba64c99ba02aa8271d0205c4339a41c7ac"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/framebuffer/ffi.rs",
+        "bytes": 7131,
+        "sha256": "99f417cf2468c446f9cb1d0546181068bafeedfaf1916433e73e37827e4386ba"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/framebuffer/frame_transaction_tests.rs",
+        "bytes": 10559,
+        "sha256": "f85e0bf06605f1e421ca2cb0f1c5088f7dcfe634eedf23702cbf7675536f94a6"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/framebuffer/mod.rs",
+        "bytes": 37617,
+        "sha256": "91cb5d2efb533a5817e06cf554496d5586daec723b607d8cc2a1102fa7165c51"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/framebuffer/output_tests.rs",
+        "bytes": 5195,
+        "sha256": "331e918e1fb24ed6b8be9052378e6e862b147ee4b43311d8e05685bddac1b52c"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/framebuffer/probe.rs",
+        "bytes": 17259,
+        "sha256": "83d06890919b0de619ba8f4a52cfa3ec65b93172c670ee3b13afba0a9be3eb0e"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/framebuffer/refresh_submission_tests.rs",
+        "bytes": 9686,
+        "sha256": "ffa89ad7811457a71b62cbf9ef8587718a212b26833a25196e80b57aa6f51b30"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/framebuffer/test_support.rs",
+        "bytes": 3207,
+        "sha256": "bc41bc482ad49f8cf595eac34e33d30b419f6322fd48b6e0c244fbf8ce12db19"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/input_discovery.rs",
+        "bytes": 16807,
+        "sha256": "94782903c508ade3397fc02b20106f9607f8816ebbafe092c7cbaa495cdb5752"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/lib.rs",
+        "bytes": 13314,
+        "sha256": "947522bdff533b47023b27816e4fb4c15e8dea3b61df6b0e658fa7cf22bfbcdb"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/lifecycle.rs",
+        "bytes": 65674,
+        "sha256": "7b057be267c2f378050bd7dda74a628b9c3f92ed7291cf41fdc3bb0425e3d396"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/lifecycle/live_portrait_tests.rs",
+        "bytes": 19178,
+        "sha256": "261e5455f4f839330d9a3a1940f4455f4a6e95655e2ebbaa83ebb1ae521d8c32"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/lifecycle/orientation_tests.rs",
+        "bytes": 24171,
+        "sha256": "29ddbb0c93bdfb83a861eb555dde51bac2ca413cd448875baecf20e9a87d2be5"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/lifecycle/resume_trace_tests.rs",
+        "bytes": 5912,
+        "sha256": "5d8d62a3099bddb68fff9a59fca9b04ea87a36f73bf4cc066a0ea71880686579"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/performance.rs",
+        "bytes": 19251,
+        "sha256": "5fe747355c69a2e8b49fdb93b9c10d2863e81f7600d1be39bf1b0ce92214521f"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/platform.rs",
+        "bytes": 53634,
+        "sha256": "af7519116d801d09fc08d07a0550eb72dd6a57ce5c435f705c2975e608249b66"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/platform_frame_tests.rs",
+        "bytes": 11406,
+        "sha256": "5529af7336b501c82f3d4f13a90a6d3c19a3a41d584b3f7f9c4b11f211d276e9"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/portrait_events.rs",
+        "bytes": 21110,
+        "sha256": "95d67080cfe1e64af54c8956b115d437479102385192359911c1a2515234581d"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/portrait_pose.rs",
+        "bytes": 12955,
+        "sha256": "75d7466597368d648b23e5854ab10dbf24c2b9d82af4e2335634ade8269f3551"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/power.rs",
+        "bytes": 1683,
+        "sha256": "a5781e75fc2baed7d39ffd54bf13662775f92c007264ccda572ac617c6faf105"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/refresh.rs",
+        "bytes": 25043,
+        "sha256": "ef5ad983bb58812f0efe551512c3f33b98325d2c6d6ceaa824aef9389556baf7"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/resume_trace.rs",
+        "bytes": 2840,
+        "sha256": "f0ef6a1b4911017f0ad2af0acfc2077ff736b8aa0a1760cdd9061db891a2b58b"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/sleep_presentation.rs",
+        "bytes": 4610,
+        "sha256": "3965efcc371366893cf2f3ef9a0aa247ffa51252af5c31dcd66af79491624109"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/touch.rs",
+        "bytes": 79504,
+        "sha256": "218780a47e72c2ff5d2754619f32ad94e7eea034909ef7980d9f60ea02f85a20"
+      },
+      {
+        "path": "vendor/slint-backend-kindle/src/wakeup.rs",
+        "bytes": 14368,
+        "sha256": "63f4734e5be66383ba1aa382678b961898e9cb3a91810845ee06a76ebd0f8631"
+      },
+      {
+        "path": "vendor/zune-jpeg/.cargo_vcs_info.json",
+        "bytes": 110,
+        "sha256": "d4d2001e82c8ce49f692132594557f20691b99891eddb273957d2cac07002d9e"
+      },
+      {
+        "path": "vendor/zune-jpeg/.upstream/bitstream.rs",
+        "bytes": 30157,
+        "sha256": "0f053b8d4443b8818fe187be90304a4f3c645ee43bc9984b8baad4c8b39ce387"
+      },
+      {
+        "path": "vendor/zune-jpeg/.upstream/mcu.rs",
+        "bytes": 41016,
+        "sha256": "b2234b35227ee76fc43df76b64f5b68e44a395250d187016765d5922849dcfb3"
+      },
+      {
+        "path": "vendor/zune-jpeg/.upstream/mcu_prog.rs",
+        "bytes": 34720,
+        "sha256": "bfeba9b8f801baf0ce66b73ed9c688fd789244fe380d7223d3ea39d1ece26fa1"
+      },
+      {
+        "path": "vendor/zune-jpeg/Benches.md",
+        "bytes": 2725,
+        "sha256": "7fbb723004bdf0470f8d82df0853e3c551290548f30d3d5fa52df6337c636125"
+      },
+      {
+        "path": "vendor/zune-jpeg/Cargo.toml",
+        "bytes": 1535,
+        "sha256": "27a23bbab6a149057e85273ccde42617d6849be0e4bb1a962e0e8dbee3917884"
+      },
+      {
+        "path": "vendor/zune-jpeg/Cargo.toml.orig",
+        "bytes": 1106,
+        "sha256": "f6d3bbbf2e1231a3d4fe0bb6536a15a693bde6fb03af68540f0497be396c55ca"
+      },
+      {
+        "path": "vendor/zune-jpeg/Changelog.md",
+        "bytes": 2791,
+        "sha256": "e99f028fcdf4e4c0c53c92cc8976fb1b7fe64e922141972d513b3f1f17cabe41"
+      },
+      {
+        "path": "vendor/zune-jpeg/LICENSE-APACHE",
+        "bytes": 11558,
+        "sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6"
+      },
+      {
+        "path": "vendor/zune-jpeg/LICENSE-MIT",
+        "bytes": 1094,
+        "sha256": "126cdd7ff1d42abd43e10dc96befd09a5360ee2da5f3a275201b209040f4d674"
+      },
+      {
+        "path": "vendor/zune-jpeg/LICENSE-ZLIB",
+        "bytes": 878,
+        "sha256": "46044e33e3199a72648ae984ccd91a306ec1e412d5fb5c81096558bb0ddfb132"
+      },
+      {
+        "path": "vendor/zune-jpeg/PATCHES.md",
+        "bytes": 4117,
+        "sha256": "4b6fdb941c7ad9d697610535e4f39542c634f9335f14644af3c959d6c18bc7c7"
+      },
+      {
+        "path": "vendor/zune-jpeg/README.md",
+        "bytes": 3899,
+        "sha256": "644e5a456f2723d662820e4538fa1a6508bee193affb9a574d71c596f659fef4"
+      },
+      {
+        "path": "vendor/zune-jpeg/UPSTREAM.md",
+        "bytes": 1220,
+        "sha256": "865953055eefb7b2ed47948af39c8e14e639b11a7d26f8883de9578e837e2b4d"
+      },
+      {
+        "path": "vendor/zune-jpeg/patches/0001-strict-entropy-completeness.patch",
+        "bytes": 36514,
+        "sha256": "38a92a8fd9cc5bc7608779b0eceb0efef11e4424174093e35c86903d357016aa"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/bitstream.rs",
+        "bytes": 35473,
+        "sha256": "ce9d673781207965a48cdb835a89d084523a62e9963d028a60499370eba89155"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/color_convert.rs",
+        "bytes": 3500,
+        "sha256": "e401a9c71beffd50a0b17330a5f64de82ad944e7f7cfe42a8a8bbf6b24ac245a"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/color_convert/avx.rs",
+        "bytes": 10276,
+        "sha256": "7be52b218a32ca06d8727dbd5d9ff18f0e09ee05c2147e2469e1b78f25e4f1f5"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/color_convert/neon64.rs",
+        "bytes": 5055,
+        "sha256": "7f7f1bf474a9a4778d1a021ebddba7cd98bbd256f14e8158c37c364592fe14d5"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/color_convert/scalar.rs",
+        "bytes": 4129,
+        "sha256": "daf7a7595775ce00bec28997330bc72f0fd3cd113d764cf742a7b502ca93c108"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/components.rs",
+        "bytes": 7595,
+        "sha256": "1699aab5b99818e51bdbfc43afb9567e4ac0ac67e68fbda9bfb3ac86b62489ea"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/decoder.rs",
+        "bytes": 36950,
+        "sha256": "7fdf4e5f585a1f7bfdba51b3ab3a851fb519a326324fdb9f44a236864c26a554"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/errors.rs",
+        "bytes": 5986,
+        "sha256": "106e9bca458efccd9b290ff5cf9365ad195d7afc3e414108111cc88b9c344e8f"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/headers.rs",
+        "bytes": 23751,
+        "sha256": "95d98217434a99171cc17453018658475659516eacefad63f4136550407b6147"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/huffman.rs",
+        "bytes": 9033,
+        "sha256": "921649bd61aeeecb11bf91d7e76afad583e54717255824bf0c2d4bb6160d6b10"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/idct.rs",
+        "bytes": 6890,
+        "sha256": "be856aec47d17f28dfaa98072f2317eb78be0f6b9dc9535f5d309e97da5cf8e8"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/idct/avx2.rs",
+        "bytes": 13415,
+        "sha256": "7e2d93e1e0cfe6735a75562866162f3a5d78072301d6189b7b02fba4dfbd2d88"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/idct/neon.rs",
+        "bytes": 9951,
+        "sha256": "33ef1506f2d14889f2039e483988ad3afe58c7daadd2d241be61e69908dd32dc"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/idct/scalar.rs",
+        "bytes": 7840,
+        "sha256": "1994c32030ac7ff9ab904f3b890dcd44dfa231551bd033749faab565c014b3f9"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/lib.rs",
+        "bytes": 6227,
+        "sha256": "31cfd2c21b47b86595dde3b39e93e2754031541f35deb35a43ee8a56488de68d"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/marker.rs",
+        "bytes": 2777,
+        "sha256": "10014f879004c0b1ca4bca66155eb2385820cce02ae6e48a9e9b37ca60ecd294"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/mcu.rs",
+        "bytes": 45042,
+        "sha256": "bf9c192cf39688403f82f9751fea53ab546054d499aa25e9e8d0e13d67a76373"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/mcu_prog.rs",
+        "bytes": 41532,
+        "sha256": "2fd1e391ea6ef0f541a051c66fbfcab095cf931b86977c0aee94bc1b01c56675"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/misc.rs",
+        "bytes": 18760,
+        "sha256": "1ba8300b38095fc0cb2e91f615d401d7a6b45d20115f314df66153add7b776da"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/unsafe_utils.rs",
+        "bytes": 208,
+        "sha256": "8fa830ca67b7f701461fe2382f8843faa33c98b5f83f1845f60c8ef788143c75"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/unsafe_utils_avx2.rs",
+        "bytes": 5332,
+        "sha256": "2e2a8294a8c8c6ca3e92356b47a088090c2c62853b37cfcadeba4ab55f545721"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/unsafe_utils_neon.rs",
+        "bytes": 8219,
+        "sha256": "1c869e09726cec6ae699fddcc8c0551a9e798ebaa5d55b3514b3bfb4874282c5"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/upsampler.rs",
+        "bytes": 11047,
+        "sha256": "81ca309c31baf578b293abc6dbeb4d37b69f14b0e2811d15fe3bb9aa637cc01a"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/upsampler/avx2.rs",
+        "bytes": 6777,
+        "sha256": "3416787605115cee9f7eb918b3dd05f6596c8ed15e4942d18a12d301f5d843bc"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/upsampler/neon.rs",
+        "bytes": 6019,
+        "sha256": "91465d872b387de31919d1e29688bd33ca54046f8e1825056bd61f2a28c6b6c8"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/upsampler/portable_simd.rs",
+        "bytes": 5190,
+        "sha256": "36bfef56cc9c36c796cfccca77c13c7e394042c9ebf53bb18ffaaeba2311913d"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/upsampler/scalar.rs",
+        "bytes": 3993,
+        "sha256": "cc86288e29db2d6cbb25f5238f3064e3ad30179d0c1cfdab35d51fd54b074710"
+      },
+      {
+        "path": "vendor/zune-jpeg/src/worker.rs",
+        "bytes": 22727,
+        "sha256": "6f939fa614844d11b826c196ea56ea13846ba7725025da0e2418b2d453fecc6d"
+      }
+    ],
+    "old_full_app_manifest_not_rebound_to_new_app": true
+  },
+  "package-regressions": {
+    "passed": true,
+    "origin_source": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app",
+    "new_source": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+    "origin_source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+    "new_source_commit": "f6208d6f7dd3d8e64a09ef0ceb2ceb6b0c45d0f5",
+    "source_relative_file_sets_equal": true,
+    "file_sizes_and_sha256_equal": true,
+    "scope_names": [
+      "scripts/build-kindle.sh",
+      "scripts/verification/test_native_media_package.py",
+      "scripts/verification/test_spatial_dither_package.py",
+      "scripts/verification/test_startup_package.py",
+      "scripts/verification/verify_package.py"
+    ],
+    "scope_prefixes": [
+      "docs/research/aidoku-spatial-dither-20261116/",
+      "docs/research/aidoku-startup-20261117/",
+      "docs/research/aidoku-startup-sequence-20261117/"
+    ],
+    "common_manifest": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/package-regressions-inherited-inputs.sha256",
+      "bytes": 5028,
+      "sha256": "34696b10beaf1e0fa6af60e86be305bea3db03e288a3c6155265341a0cdbd994"
+    },
+    "files": [
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/LICENSE.AIDOKU",
+        "bytes": 35149,
+        "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/README.md",
+        "bytes": 5074,
+        "sha256": "aa96d1dfc25361f3d149f8bd974058e25539a17cff67d03ae4260469ad3ce605"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/UPSTREAM_FILES.json",
+        "bytes": 2069,
+        "sha256": "77a875f70a97c68b23d05a7acad4d58faa201d4f26ef8d2f902b080e6992dc4e"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/algorithm-equivalence.json",
+        "bytes": 1347,
+        "sha256": "e84f363bd86f85e7109f0c50dc1e1c71a67d9489e3d0384997f1ba13f708caab"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/expected-bayer8.png",
+        "bytes": 53296,
+        "sha256": "cd2fb81827fb8e25a322128e63e069a06c64289b079354075c185d245b6e322c"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/expected-floyd-steinberg-q8.png",
+        "bytes": 455435,
+        "sha256": "aa2b01a3553ca595d05d2ba4bad43cbfcd456de81198edd9e992b6663db3ac84"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/expected-off.png",
+        "bytes": 10793,
+        "sha256": "54f99ac2d2be1b8fd19fdf1b2b4d812053c80ccc036c2d0032bd798788bf8305"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/host-prototype-timings.json",
+        "bytes": 1479,
+        "sha256": "e0eae27281c3b442ff00378df98d04451da426c56cc32676a69b4585ab21f45e"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/input-gray8.png",
+        "bytes": 11258,
+        "sha256": "21ded69522eb01df3bdbd69839a1ca35c95d1d6025ed51429869ed0e6ea416ff"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/native-results.json",
+        "bytes": 5437,
+        "sha256": "cc51ff860cdf1f67131d482c1145925a766f32cbd1572446b7a2fc00e5566ff8"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/scribe-cpu-timings.json",
+        "bytes": 1568,
+        "sha256": "936499fec3c62cceb3ea921f09b2332c61a8cb334795b89a0567778ea6479f2e"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/source-manifest.json",
+        "bytes": 55634,
+        "sha256": "df780db30cab7f1b075943b24f436fb07dcf02694d8979acdce2061ea649ce0f"
+      },
+      {
+        "path": "docs/research/aidoku-spatial-dither-20261116/spatial_dither.rs",
+        "bytes": 7576,
+        "sha256": "182a692d45510bc862bbd6ff3780301600eba892559ac7f3893630e69fd27495"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/LICENSE.AIDOKU",
+        "bytes": 35149,
+        "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/README.md",
+        "bytes": 3682,
+        "sha256": "b8f21b7b394e26d37bcfc7f76cbd7e126681d8ffdb93d014852cc79348c21389"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/UPSTREAM_FILES.json",
+        "bytes": 3486,
+        "sha256": "a0f08fb7d40719a175c0cd29086f7c10d4e220c8ac642bb0f1f86a36718117b8"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/upstream/4ce1fd1/vendor/slint-backend-kindle/src/input_discovery.rs",
+        "bytes": 16721,
+        "sha256": "16a737308a68fc8b136badedb9e2778f4cfe5a2ba93c3b25e5c5da983b7e9737"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/upstream/4ce1fd1/vendor/slint-backend-kindle/src/lib.rs",
+        "bytes": 13032,
+        "sha256": "1b1019db0ee1ba8f1797d8dce52f38a8818a6ce2ac4fec7c359edcec3165a94c"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/upstream/4ce1fd1/vendor/slint-backend-kindle/src/portrait_pose.rs",
+        "bytes": 16543,
+        "sha256": "709d394b54ab9dfbb5481c87c10e377627456a53aaa8f9702639854eda2277d5"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/upstream/4ce1fd1/vendor/slint-backend-kindle/src/touch.rs",
+        "bytes": 52942,
+        "sha256": "4176103c455ba077740eaafdb9a5c9a483ed03e06fcc4f3aae934ac85223d7fe"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/upstream/6660e32/packaging/kindle/launch.sh",
+        "bytes": 42373,
+        "sha256": "02b20bc6c1f10f0afff5fc4c9802288ee43ac72f1647024bc316dc13b8c3a2c0"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/upstream/6660e32/src/app/startup.rs",
+        "bytes": 9298,
+        "sha256": "5673af4ec09c504bbe00fef5aa4b71a042779209bd170552d94e63cb3285d83c"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/upstream/e141d44/build.rs",
+        "bytes": 4472,
+        "sha256": "2309caa33917ce3b1fcfc36fa8020bc7c19bc6702c0597c3c6d6611a6ee96955"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/upstream/e141d44/src/bootstrap_fonts.rs",
+        "bytes": 7959,
+        "sha256": "1b4759f21e4bd40a35b3a5016fc631236852e381003259749a20d1b039f90e10"
+      },
+      {
+        "path": "docs/research/aidoku-startup-20261117/upstream/e141d44/src/bootstrap_startup.rs",
+        "bytes": 15049,
+        "sha256": "2ff4e2b359786da84a349870f436849cfe15a54ba2308ba16d839bf6a56df1b3"
+      },
+      {
+        "path": "docs/research/aidoku-startup-sequence-20261117/LICENSE.AIDOKU",
+        "bytes": 35149,
+        "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+      },
+      {
+        "path": "docs/research/aidoku-startup-sequence-20261117/README.md",
+        "bytes": 5075,
+        "sha256": "451b978bb88f51f2029976ed929b721d4636e46153d121e62a15dad5b65554f4"
+      },
+      {
+        "path": "docs/research/aidoku-startup-sequence-20261117/UPSTREAM_FILES.json",
+        "bytes": 2735,
+        "sha256": "df7880e68fe9ddd891c630526daf8d28d7fe1a80775c83043dc14aa3add5c2aa"
+      },
+      {
+        "path": "docs/research/aidoku-startup-sequence-20261117/upstream/0992fee/src/bootstrap_metrics.rs",
+        "bytes": 4043,
+        "sha256": "ef1ed0cf9f5a5dcbead0be64287c8200ac6cb76571fb9a261f4821856f7727d0"
+      },
+      {
+        "path": "docs/research/aidoku-startup-sequence-20261117/upstream/0992fee/src/bootstrap_startup.rs",
+        "bytes": 15963,
+        "sha256": "8ca49c1c57b9a6816da16959abad36bad7293baca9cca3020d7d07c22698edf3"
+      },
+      {
+        "path": "docs/research/aidoku-startup-sequence-20261117/upstream/0992fee/vendor/slint-backend-kindle/src/frame_observer.rs",
+        "bytes": 20672,
+        "sha256": "a17ad23c92ef7d984278efc93a9d997360a7e188ea64e2076b3697039b25a6f5"
+      },
+      {
+        "path": "docs/research/aidoku-startup-sequence-20261117/upstream/0992fee/vendor/slint-backend-kindle/src/platform.rs",
+        "bytes": 72476,
+        "sha256": "fb69b78d0bfcb8822e15983414671e99e50b933748065b1d1ff2fe26153c4bf8"
+      },
+      {
+        "path": "scripts/build-kindle.sh",
+        "bytes": 7104,
+        "sha256": "ed3b4a7050e4ae53ae03d0724080341be09c1ee5432184d4bdbd48dfde65d2f6"
+      },
+      {
+        "path": "scripts/verification/test_native_media_package.py",
+        "bytes": 4333,
+        "sha256": "f98f513d8721f74fbe91dbc0be3bbd35dbb16b2af3080c60c1078620f7c5c802"
+      },
+      {
+        "path": "scripts/verification/test_spatial_dither_package.py",
+        "bytes": 6820,
+        "sha256": "481b790b093d4d683150487cb88b01dd9f7b050e7b57684dc8bc8e8f51170a90"
+      },
+      {
+        "path": "scripts/verification/test_startup_package.py",
+        "bytes": 18639,
+        "sha256": "f3df57b75c431f3ec05c77aa0924907aeee13f6f7c31fd6c13e9bf3ac5852b99"
+      },
+      {
+        "path": "scripts/verification/verify_package.py",
+        "bytes": 27307,
+        "sha256": "090938dbc4b1feaa73fe6c9222df89eea01182cc6b68375140800d6a4fc57968"
+      }
+    ],
+    "old_full_app_manifest_not_rebound_to_new_app": true
+  }
+}

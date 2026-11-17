@@ -1,0 +1,908 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "status": "passed",
+  "started_at": "2026-11-17T10:48:30.177255+00:00",
+  "root": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1",
+  "source": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+  "target": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/target",
+  "output": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4",
+  "candidate_commit": "f6208d6f7dd3d8e64a09ef0ceb2ceb6b0c45d0f5",
+  "runner": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/runner-r4.py",
+    "bytes": 44687,
+    "sha256": "14d6857e3c96c18b3baa4cd11f484c76fb6a21218901233e5895b8ae13061e22"
+  },
+  "launcher": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/run-r4.sh",
+    "bytes": 576,
+    "sha256": "c3232823747f99e77bf589581c01e6f3438795a78af1c7483e1fc99d306fdd8c"
+  },
+  "startup_boundary_extension": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/startup-boundaries-r1.py",
+    "bytes": 2583,
+    "sha256": "2a8351a3161973b9d7c76e5129bbfb16bb37b9f8ad7c24b4322f40bfce478b69"
+  },
+  "environment": {
+    "CARGO_TARGET_DIR": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/target",
+    "CARGO_BUILD_JOBS": "6",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_INCREMENTAL": "false",
+    "CARGO_PROFILE_TEST_INCREMENTAL": "false",
+    "RUST_TEST_THREADS": "1",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TERM_COLOR": "never",
+    "CARGO_TERM_VERBOSE": "false",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "RUSTC_WRAPPER": "",
+    "RUSTC_WORKSPACE_WRAPPER": "",
+    "TMPDIR": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/tmp",
+    "LC_ALL": "C",
+    "TZ": "UTC"
+  },
+  "cleared_inherited_environment_names": [],
+  "host": {
+    "hostname": "test-env",
+    "system": "Linux",
+    "machine": "x86_64"
+  },
+  "stage_commands_serial": true,
+  "target_copied": false,
+  "physical_device_used": false,
+  "device_lease_acquired": false,
+  "firmware_emulator_used": false,
+  "live_account_used": false,
+  "remote_account_writes": false,
+  "steps": [
+    {
+      "label": "compiler-rustc",
+      "command": [
+        "rustc",
+        "-vV"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 30,
+      "started_at": "2026-11-17T10:48:30.526828+00:00",
+      "status": "passed",
+      "process_id": 2993304,
+      "returncode": 0,
+      "seconds": 0.032,
+      "finished_at": "2026-11-17T10:48:30.561636+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-rustc.log",
+        "bytes": 196,
+        "sha256": "f22d5e4e9ced367e774ce5bc140d9e6b1235c1882fec80d011044851f3ae6369"
+      }
+    },
+    {
+      "label": "compiler-cargo",
+      "command": [
+        "cargo",
+        "-vV"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 30,
+      "started_at": "2026-11-17T10:48:30.562276+00:00",
+      "status": "passed",
+      "process_id": 2993314,
+      "returncode": 0,
+      "seconds": 0.016,
+      "finished_at": "2026-11-17T10:48:30.582165+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-cargo.log",
+        "bytes": 336,
+        "sha256": "c8d779e105538d1d2db3c4799b42feb659c6f87b2b2182e963e54cb0537c5be1"
+      }
+    },
+    {
+      "label": "compiler-zigbuild",
+      "command": [
+        "cargo-zigbuild",
+        "-V"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 30,
+      "started_at": "2026-11-17T10:48:30.582649+00:00",
+      "status": "passed",
+      "process_id": 2993339,
+      "returncode": 0,
+      "seconds": 0.001,
+      "finished_at": "2026-11-17T10:48:30.584222+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-zigbuild.log",
+        "bytes": 22,
+        "sha256": "bddd7af58d7b573540f6442c103d6ca11382807d0e0664e62e5608c86c5fdbf6"
+      }
+    },
+    {
+      "label": "compiler-zig",
+      "command": [
+        "zig",
+        "version"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 30,
+      "started_at": "2026-11-17T10:48:30.584527+00:00",
+      "status": "passed",
+      "process_id": 2993340,
+      "returncode": 0,
+      "seconds": 0.007,
+      "finished_at": "2026-11-17T10:48:30.592225+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-zig.log",
+        "bytes": 7,
+        "sha256": "355a2e14f6a7f2cb387d9d3b75a3550980d020ee1d005b139b62290c1645068a"
+      }
+    },
+    {
+      "label": "compiler-readelf",
+      "command": [
+        "readelf",
+        "--version"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 30,
+      "started_at": "2026-11-17T10:48:30.592562+00:00",
+      "status": "passed",
+      "process_id": 2993341,
+      "returncode": 0,
+      "seconds": 0.001,
+      "finished_at": "2026-11-17T10:48:30.597634+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-readelf.log",
+        "bytes": 288,
+        "sha256": "a87e30813b76f838a61852bc2943afbe4a26ba28a4b2728efb9481b50f02aff8"
+      }
+    },
+    {
+      "label": "compiler-sysroot",
+      "command": [
+        "rustc",
+        "--print",
+        "sysroot"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 30,
+      "started_at": "2026-11-17T10:48:30.597975+00:00",
+      "status": "passed",
+      "process_id": 2993342,
+      "returncode": 0,
+      "seconds": 0.032,
+      "finished_at": "2026-11-17T10:48:30.630162+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/compiler-sysroot.log",
+        "bytes": 57,
+        "sha256": "dfee3f602bb5780734ac3b8cfe541b0c2f06fd6105a65cce6d0478aed6ec1403"
+      }
+    },
+    {
+      "label": "library-and-binary-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--lib",
+        "--bins",
+        "--features",
+        "kindle"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 1800,
+      "started_at": "2026-11-17T10:48:30.835211+00:00",
+      "status": "passed",
+      "process_id": 2993353,
+      "returncode": 0,
+      "seconds": 145.938,
+      "finished_at": "2026-11-17T10:50:56.773250+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/library-and-binary-tests.log",
+        "bytes": 105551,
+        "sha256": "fbeccaad330ee7d994dc398a33db18caab565afe8f7e83eb223faa77869aab2d"
+      }
+    },
+    {
+      "label": "backend-suite",
+      "status": "inherited_passed",
+      "command": [
+        "/usr/bin/python3",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app/scripts/verification/backend.py",
+        "--source-root",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app",
+        "--target-dir",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/target",
+        "--output-dir",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/backend",
+        "--minimum-tests",
+        "1"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app",
+      "returncode": 0,
+      "origin_summary": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/summary.json",
+        "bytes": 40159,
+        "sha256": "1f657d3c00494362b4518ea2535326d60a567bbcdf1ed64a8e4989a2b184aaae"
+      },
+      "origin_log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/logs/backend-suite.log",
+        "bytes": 132,
+        "sha256": "ec84a4d5b47d3eee0d089ae9584af4c94e56881ac631e0983135a70697f11a60"
+      },
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/backend-suite.inherited.log",
+        "bytes": 132,
+        "sha256": "ec84a4d5b47d3eee0d089ae9584af4c94e56881ac631e0983135a70697f11a60"
+      },
+      "command_repeated": false,
+      "input_equivalence": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/backend-suite-inherited-inputs.sha256",
+        "bytes": 9204,
+        "sha256": "51dee8efd83bce00c9ae548ca74b1c22fc37d0b6e00a8b02ca6ed991c09fc611"
+      }
+    },
+    {
+      "label": "desktop-build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "--bin",
+        "bilicomics"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 1800,
+      "started_at": "2026-11-17T10:50:56.847091+00:00",
+      "status": "passed",
+      "process_id": 2995378,
+      "returncode": 0,
+      "seconds": 54.474,
+      "finished_at": "2026-11-17T10:51:51.321021+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/desktop-build.log",
+        "bytes": 5778,
+        "sha256": "9e286ff0196a6e17a9421bf87e28047242ee2080f02f07b3446fd88c4e4459f3"
+      }
+    },
+    {
+      "label": "startup-boundaries",
+      "command": [
+        "/usr/bin/python3",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/startup-boundaries-r1.py",
+        "--helper",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app/scripts/verification/startup_frames.py",
+        "--binary",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-desktop/bilicomics",
+        "--output",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/startup-frames",
+        "--expected-binary-sha256",
+        "2abddaf6983d53aeb7e32a4e2f548f565075f6dc7f8ba3e035bec40010d4eb21"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 180,
+      "started_at": "2026-11-17T10:51:51.894476+00:00",
+      "status": "passed",
+      "environment_overrides": {
+        "SLINT_BACKEND": "winit-software"
+      },
+      "process_id": 2995751,
+      "returncode": 0,
+      "seconds": 17.971,
+      "finished_at": "2026-11-17T10:52:09.866105+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/startup-boundaries.log",
+        "bytes": 14700,
+        "sha256": "e75a9f824278d9bdea9c0315ec806f23854bb861f3436ae937eb5bb57c364ea4"
+      }
+    },
+    {
+      "label": "package-regressions",
+      "status": "inherited_passed",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "--verbose",
+        "test_native_media_package",
+        "test_spatial_dither_package",
+        "test_startup_package"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r1/app/scripts/verification",
+      "returncode": 0,
+      "origin_summary": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/summary.json",
+        "bytes": 40159,
+        "sha256": "1f657d3c00494362b4518ea2535326d60a567bbcdf1ed64a8e4989a2b184aaae"
+      },
+      "origin_log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/logs/package-regressions.log",
+        "bytes": 4685,
+        "sha256": "70bb50914667f8bc02ebd186d4e428b11c0a94b502d0cde9c87cd22cc916c56d"
+      },
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/package-regressions.inherited.log",
+        "bytes": 4685,
+        "sha256": "70bb50914667f8bc02ebd186d4e428b11c0a94b502d0cde9c87cd22cc916c56d"
+      },
+      "command_repeated": false,
+      "input_equivalence": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/package-regressions-inherited-inputs.sha256",
+        "bytes": 5028,
+        "sha256": "34696b10beaf1e0fa6af60e86be305bea3db03e288a3c6155265341a0cdbd994"
+      }
+    },
+    {
+      "label": "arm-clean-selected-packages",
+      "command": [
+        "cargo",
+        "clean",
+        "--locked",
+        "--offline",
+        "--release",
+        "--target",
+        "armv7-unknown-linux-musleabihf",
+        "-p",
+        "bilicomics",
+        "-p",
+        "slint-backend-kindle"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 120,
+      "started_at": "2026-11-17T10:52:09.894128+00:00",
+      "status": "passed",
+      "process_id": 2995890,
+      "returncode": 0,
+      "seconds": 0.166,
+      "finished_at": "2026-11-17T10:52:10.060315+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/arm-clean-selected-packages.log",
+        "bytes": 38,
+        "sha256": "65d78bde59618010a0632809a7c8655cc2fddfa441f4c63c5743277a8a030060"
+      }
+    },
+    {
+      "label": "arm-build",
+      "command": [
+        "sh",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app/scripts/build-kindle.sh",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 2400,
+      "started_at": "2026-11-17T10:52:10.061548+00:00",
+      "status": "passed",
+      "environment_overrides": {
+        "CARGO_TERM_VERBOSE": "true"
+      },
+      "process_id": 2995910,
+      "returncode": 0,
+      "seconds": 232.282,
+      "finished_at": "2026-11-17T10:56:02.343533+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/arm-build.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "package-static",
+      "command": [
+        "/usr/bin/python3",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app/scripts/verification/verify_package.py",
+        "--archive",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+        "--binary",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/bilicomics",
+        "--worker",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/kindle-jpeg-worker",
+        "--app-root",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+        "--output",
+        "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/package-check.json",
+        "--expected-binary-sha256",
+        "3962bc49bb8cd33d21651845fe5de229e1b8458e5d0ba9026485c8bef7224525",
+        "--expected-worker-sha256",
+        "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb",
+        "--expected-archive-sha256",
+        "ff41fdf74505020f50ab9928b1a7168ed773b82713b3330ce6b71a0b915b194c"
+      ],
+      "cwd": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app",
+      "timeout_seconds": 180,
+      "started_at": "2026-11-17T10:56:02.909319+00:00",
+      "status": "passed",
+      "process_id": 2998375,
+      "returncode": 0,
+      "seconds": 0.967,
+      "finished_at": "2026-11-17T10:56:03.877302+00:00",
+      "log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/package-static.log",
+        "bytes": 133,
+        "sha256": "e97eba822c3352d0e11661bd5983b114a6c434b3acb4b548fe1ec0ee5348370f"
+      }
+    }
+  ],
+  "limitations": [
+    "Desktop fixtures and static ARM package checks do not establish physical acceptance.",
+    "No Kindle, firmware emulator, real account, or account content is used by this runner."
+  ],
+  "predecessor": {
+    "summary": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/summary.json",
+      "bytes": 40159,
+      "sha256": "1f657d3c00494362b4518ea2535326d60a567bbcdf1ed64a8e4989a2b184aaae"
+    },
+    "reason": "Reuse only unchanged backend and package regression evidence for a new route-refresh source",
+    "source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+    "new_main_suite_required": true,
+    "initial_target_absence": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r2/initial-target-state.json",
+      "bytes": 194,
+      "sha256": "dc96128f95828f33ffb56ea112bb772a6755dcb1f653377ea8193e17e34aa288"
+    },
+    "critical_environment_fields_equal": [
+      "CARGO_TARGET_DIR",
+      "CARGO_BUILD_JOBS",
+      "CARGO_INCREMENTAL",
+      "CARGO_PROFILE_DEV_INCREMENTAL",
+      "CARGO_PROFILE_TEST_INCREMENTAL",
+      "RUST_TEST_THREADS",
+      "CARGO_NET_OFFLINE",
+      "RUSTC_WRAPPER",
+      "RUSTC_WORKSPACE_WRAPPER"
+    ]
+  },
+  "initial_target": {
+    "recorded_at": "2026-11-17T10:48:30.177830+00:00",
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/target",
+    "exists_before_any_cargo_command": true,
+    "copied": false,
+    "inherited_from": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3",
+    "target_initial_absence_origin": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r2/initial-target-state.json",
+    "source_revision_changed": true
+  },
+  "source_archive": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/source.tar",
+    "bytes": 98375680,
+    "sha256": "146a8f85798b2fce58345307c872c0cb5ce6977ee430dac7e8a255270da6bfb2"
+  },
+  "archive_source_inputs": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/archive-source-inputs.sha256",
+    "bytes": 151421,
+    "sha256": "3e40d294d58311718637ea6c7695a19ff22545ae07defb4d0b5a228fb32b80ab",
+    "files": 1243
+  },
+  "initial_extracted_source_file_set_exact": true,
+  "source_inputs": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/source-inputs.sha256",
+    "bytes": 58640,
+    "sha256": "1ef8122dcafbbc0554af12c135a1a592c68bb5b4722f3f6b2109dceacae94e03",
+    "files": 545,
+    "manifest_builder": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app/scripts/verification/native_protocol.py",
+      "bytes": 11491,
+      "sha256": "90ceacdce5f4da9fb805cfef3b21f67b0699bcc91878ff1708eff8a9e2fdc3d8"
+    }
+  },
+  "pipeline_inputs": {
+    "THIRD_PARTY_NOTICES.md": "d29444b229ce9a0249a76f65708bd015423f82dce388c6b54d732e10b89a0e97",
+    "docs/research/aidoku-startup-20261117/LICENSE.AIDOKU": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "docs/research/aidoku-startup-20261117/README.md": "b8f21b7b394e26d37bcfc7f76cbd7e126681d8ffdb93d014852cc79348c21389",
+    "docs/research/aidoku-startup-20261117/UPSTREAM_FILES.json": "a0f08fb7d40719a175c0cd29086f7c10d4e220c8ac642bb0f1f86a36718117b8",
+    "docs/research/aidoku-startup-20261117/upstream/4ce1fd1/vendor/slint-backend-kindle/src/input_discovery.rs": "16a737308a68fc8b136badedb9e2778f4cfe5a2ba93c3b25e5c5da983b7e9737",
+    "docs/research/aidoku-startup-20261117/upstream/4ce1fd1/vendor/slint-backend-kindle/src/lib.rs": "1b1019db0ee1ba8f1797d8dce52f38a8818a6ce2ac4fec7c359edcec3165a94c",
+    "docs/research/aidoku-startup-20261117/upstream/4ce1fd1/vendor/slint-backend-kindle/src/portrait_pose.rs": "709d394b54ab9dfbb5481c87c10e377627456a53aaa8f9702639854eda2277d5",
+    "docs/research/aidoku-startup-20261117/upstream/4ce1fd1/vendor/slint-backend-kindle/src/touch.rs": "4176103c455ba077740eaafdb9a5c9a483ed03e06fcc4f3aae934ac85223d7fe",
+    "docs/research/aidoku-startup-20261117/upstream/6660e32/packaging/kindle/launch.sh": "02b20bc6c1f10f0afff5fc4c9802288ee43ac72f1647024bc316dc13b8c3a2c0",
+    "docs/research/aidoku-startup-20261117/upstream/6660e32/src/app/startup.rs": "5673af4ec09c504bbe00fef5aa4b71a042779209bd170552d94e63cb3285d83c",
+    "docs/research/aidoku-startup-20261117/upstream/e141d44/build.rs": "2309caa33917ce3b1fcfc36fa8020bc7c19bc6702c0597c3c6d6611a6ee96955",
+    "docs/research/aidoku-startup-20261117/upstream/e141d44/src/bootstrap_fonts.rs": "1b4759f21e4bd40a35b3a5016fc631236852e381003259749a20d1b039f90e10",
+    "docs/research/aidoku-startup-20261117/upstream/e141d44/src/bootstrap_startup.rs": "2ff4e2b359786da84a349870f436849cfe15a54ba2308ba16d839bf6a56df1b3",
+    "docs/research/aidoku-startup-sequence-20261117/LICENSE.AIDOKU": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "docs/research/aidoku-startup-sequence-20261117/README.md": "451b978bb88f51f2029976ed929b721d4636e46153d121e62a15dad5b65554f4",
+    "docs/research/aidoku-startup-sequence-20261117/UPSTREAM_FILES.json": "df7880e68fe9ddd891c630526daf8d28d7fe1a80775c83043dc14aa3add5c2aa",
+    "docs/research/aidoku-startup-sequence-20261117/upstream/0992fee/src/bootstrap_metrics.rs": "ef1ed0cf9f5a5dcbead0be64287c8200ac6cb76571fb9a261f4821856f7727d0",
+    "docs/research/aidoku-startup-sequence-20261117/upstream/0992fee/src/bootstrap_startup.rs": "8ca49c1c57b9a6816da16959abad36bad7293baca9cca3020d7d07c22698edf3",
+    "docs/research/aidoku-startup-sequence-20261117/upstream/0992fee/vendor/slint-backend-kindle/src/frame_observer.rs": "a17ad23c92ef7d984278efc93a9d997360a7e188ea64e2076b3697039b25a6f5",
+    "docs/research/aidoku-startup-sequence-20261117/upstream/0992fee/vendor/slint-backend-kindle/src/platform.rs": "fb69b78d0bfcb8822e15983414671e99e50b933748065b1d1ff2fe26153c4bf8",
+    "packaging/kindle/README.md": "92a692b6bdcf9d057637a980ec620a3e932547862133873b709e37dc2e68e6a4",
+    "packaging/kindle/device-allowlist.example": "5c0e5070c4afc759ad040499e077cfb7807fe244030acc082b66b12a04bfd30e",
+    "packaging/kindle/device-profile.example": "870bd452c69aef489cb08fedbfcb8ed7cfdb6991fe7a4b0e3fe01c42865ddc4e",
+    "packaging/kindle/launch.sh": "212527233f8bba1709ff0734ff217ccce67fc843cef06c617b9ededaeff0aef8",
+    "packaging/kindle/manifest.draft.json": "57992a251d9aa55071caf9b73022490d71bd89b641e07bd426404327374bd04e",
+    "packaging/tests/PHYSICAL_DEVICE.md": "0a6311eb3cf34a0a0cfc91f64e84720d3e5f015051de0d20b79a0d8ba9b7bb7f",
+    "packaging/tests/emulator-wrapper.sh": "0fe8895290de1c6722d2f494183bacc89a28627ec20337d222beea09a98b3223",
+    "packaging/tests/launcher_test.py": "a21a9b3dd9e2b0151917779264893a08e92334686093ba213d9741b8c7e1cb45",
+    "packaging/tests/physical-event-wrapper.sh": "97800fbd483ef3a2146a23777cf6ff2728b7397f8dec1f436b6db2e700d6f761",
+    "packaging/tests/physical-watchdog.sh": "548c484c4c15484e5a083ee6a1ab83c15480961fc6a1653ba7edfee60714de4e",
+    "packaging/tests/physical-wrapper.sh": "0b800a91484ad5d522a18075fee16529ac34732ca4f77a84705cb34c4be15e3a",
+    "scripts/build-kindle.sh": "ed3b4a7050e4ae53ae03d0724080341be09c1ee5432184d4bdbd48dfde65d2f6",
+    "scripts/check-remote.sh": "67194f45a5804c9589e8d1099ab7de9c236370bef2121e56496f4c128514d56e",
+    "scripts/native-codec-bench.h": "4960991a250deeb9ed395eb7dee2fbc60c05d22df0036ee66c087691ea11b405",
+    "scripts/native-codec-probe.c": "214e3ddd685ccceee4f4bc56b4015be48be7a1f4db7a58a5bcec2e9b9f31381b",
+    "scripts/verification/account_return.py": "676c6570c46d1b77bd98834ea06a2710b564d19b506ce3fc6ea0d34a46106e05",
+    "scripts/verification/backend.py": "f6b5125af5528799695fec087dfdf43adb3080a27447427092f08036e498375c",
+    "scripts/verification/capture_uiux_baseline.py": "4be08f33c36bcd96d2f4b3b73d2b2019c457d042c85e54be79fa3a77313ce4e9",
+    "scripts/verification/design-v2-cases.json": "bc611e5eccf409e9ef51c718948d05dcfe572ef160fbed54f3148b59f3dc0161",
+    "scripts/verification/device_lease.py": "92ddf2d621d76a9773e8234cf96e22054b9cb697b0cc9ec4afd6218a43b15a12",
+    "scripts/verification/download_batching.py": "b917cc55e750b9b906d5782fd5e2b98fcdb305570462e43482299e49d8dfcb32",
+    "scripts/verification/fast_mode_ui.py": "4c9d239fc93bbb31488c5eb4f9a16e72d93d06b8322f3e1a3efc84cf4d5eb38c",
+    "scripts/verification/firmware_launch.py": "eb3ff32f14b23eccfe5f8d65486069fa387727f23ed2deac92650560472f48ee",
+    "scripts/verification/firmware_protocol.py": "be375f6b53c349f657828ac27077338358e0115f8d8ef5d4d1cc33a7f880cd4f",
+    "scripts/verification/firmware_runtime.py": "e01ee96ec969a214fbeef6b8a15594da1d7d69a7c3d29395d59cb1a5cfd24f21",
+    "scripts/verification/firmware_setup.py": "578bcbaec03c8379ecc4f47383fb3f721de5461d81d99c093814ae1b1362fa72",
+    "scripts/verification/firmware_touch_diagnostic.py": "d4be0af2824a3445558b0834e8b2404f528c3143c504b4ad28eeb3b8f2dac752",
+    "scripts/verification/firmware_touch_probe.c": "01e3f2020008908d8ff6c2b3188df367039d63cec01d11eea710746bea83374c",
+    "scripts/verification/hardware_y4.py": "05bc031a88eb36adb9fa6b42bb7fef58a100b25acfc7e32a46cebdb7b0304cd7",
+    "scripts/verification/harness_signals.py": "99d422b06cf6ff6bcd6fc18ddafca96f11a0a6f2631d517d01e0124c6cc41e2f",
+    "scripts/verification/immersive_reader.py": "e45976aa6546ea0e8c8a40b57b7cef0535dc7367bc9b8e907997ac1718cdeb7f",
+    "scripts/verification/launcher_fixtures.py": "613497a9386b2769e26e21d7444ed012b0e251de32aa73c894550fa3eddb92bd",
+    "scripts/verification/launcher_real_reader.py": "e53dc2e83f718bf4081dc4ae4d9504f0c181e64f9695d51dca4eec96f67789c4",
+    "scripts/verification/native_media_codec_mock.c": "f314b0dd980951d8a89716a4174d8ee9b393286bba5b42ded8d51f0d7c98a3ac",
+    "scripts/verification/native_media_physical_fixture.py": "2bf1b2189129fe5d9b13a456bc3a16a8ea9871c801bcb588d042a5de0be35f17",
+    "scripts/verification/native_media_settings.py": "fbfa5342049517b8636417da9546bd2382d811c707a72f04717479de89aca11f",
+    "scripts/verification/native_protocol.py": "90ceacdce5f4da9fb805cfef3b21f67b0699bcc91878ff1708eff8a9e2fdc3d8",
+    "scripts/verification/native_protocol_arm.py": "8d56c0d3c56ee95c69aba9f1b7f81f759544adef41d387c1dd37e60ebfdedddd",
+    "scripts/verification/native_protocol_reference.cjs": "d1943e6d69a335477c8af3dd8d213cadd10f0ed83dcff18170c909b57ffd9133",
+    "scripts/verification/offline_app.py": "eec94269e49c0432baed58bba7553885cdf6a14c72ba6ad49061f5a4d20789cd",
+    "scripts/verification/perf05_reader.py": "fffb63d428193a44a9a61752921469aa165bc2c2a430f903eb6e5a1c5ccd9ef9",
+    "scripts/verification/physical/device_batch.py": "9bc03577f8bcda12be5ec1e624f4c9102232ddf6f6167b560d7f820ffdfe70ef",
+    "scripts/verification/physical/distinct_reader_fixture.py": "80e7a7fb9e387b6553dcb632fe3dbde4ae67231f17be4d3fe43d93213fdaaf6a",
+    "scripts/verification/physical/offline-socket-guard-test.c": "637f34513f2850f1cd9b4edabfadd35750b631ebff5ff39fe66aeb4c9382d610",
+    "scripts/verification/physical/offline-socket-guard.c": "431c514bb478eed904e7bae15e85583540502c44fe5de91017a337bb771af7eb",
+    "scripts/verification/physical/physical-event-wrapper.sh": "9d4bbb443a5d6a0e42994f9002682622c2ab3e825e20859110f90bbfe3e2b591",
+    "scripts/verification/physical/physical-watchdog.sh": "b7c70435781800333d99743e82e8f4d87ebe895840710bcd938f5a9541f1dd1d",
+    "scripts/verification/physical/physical-wrapper.sh": "5d531cf198e2a0a5d9b321cd0a853f1e7c22afa49fe359ead5dae85d28a5b3e4",
+    "scripts/verification/physical_device.py": "4a26539fe6893551ba88552eb86248fa8a2800a152987357fb79bc79486b85b6",
+    "scripts/verification/physical_framebuffer.c": "6cc9f90f4f986d13f3b15d95301112f80cc09b631b11115eb922225fdd3ee49f",
+    "scripts/verification/pointer_v2.py": "6f38298f400a89682b67ac5e2201a75f5960b903be332b8262111c2d50ad2404",
+    "scripts/verification/power_relay.py": "5743951ad2757b5fbab20c192f014b5808ca28c24533481614789d006a7344b8",
+    "scripts/verification/production_flow.py": "1e3fdc6a7232ed0969c6646f6e5c4ec369d3d38a9548f4696a8beb1043fc898b",
+    "scripts/verification/public_catalog.py": "900ec72018ce32f77e986711f6ae784a6141328dc3f1b4ea698a43772e7ce537",
+    "scripts/verification/reader_guest_fixtures.py": "044800d8d4a084f1108b9c61a6580f5163ae367fb461de52492554ffc10dfcfc",
+    "scripts/verification/reader_v2_runtime.py": "1fcefa68ef62bc580d4dd021a682ad5b2883bdadb88a84bd2c6802cdef7924c4",
+    "scripts/verification/rebundle_launcher.py": "46250e743167067e734f82a862a9ee2c810878b642f95fd88a47d98664075837",
+    "scripts/verification/render_states.py": "effa9c5a059b934bbddbf8557f573bcdf68d68f329b01f6f0849bd1109523bf4",
+    "scripts/verification/resource_fixture.py": "e76bbf180e942eaa0d2fef2bd7dabbe73ac199cd4ed1122e52710d8a81c7b5d7",
+    "scripts/verification/resource_regression.py": "bf76ec3e4c4e288413db33ac563371a8d99152e8310fb3e62baa5efa22be7ed6",
+    "scripts/verification/run_suite.py": "0eb2ac52503a8fbc7a214f07b6c1f07232730e4badfee5aa64f56e9b03259ac6",
+    "scripts/verification/sleep_maintenance.py": "ca61fc6f86f7a0c95f15a8b567027c31a46359da695cd9eaa880183cc778efc4",
+    "scripts/verification/spatial_dither_ui.py": "0a401eb7d688563463488f51baa768bdd3081e41441b491732157a758cc0d181",
+    "scripts/verification/startup_frames.py": "f36e9198fdddcb78d661e9ff23236115356b4104dce9b454436c6f994f7d7239",
+    "scripts/verification/test_backend_results.py": "1b9298306f79e186707e9cb5aec0a3ad1a74d6b852dab9bf0b99d2f190dc2918",
+    "scripts/verification/test_checkpoint_polling.py": "4269e9b94acc255a5198d7b7af744a7d32555c2d129ad06d9bdfc3f1676b81aa",
+    "scripts/verification/test_confirmation_recovery.py": "0af6a7b8adf46eb53fc9578dbd14f1915d788e960d782c47cc8d3b0940d678fd",
+    "scripts/verification/test_device_batch.py": "122d39828b6527231e2bb37d3de10cc7582041608f0f5d3d688b8b57938000ae",
+    "scripts/verification/test_device_lease.py": "17819d3ba8744805600f844ee946aed28b7cf084b4e01f16882e452715747202",
+    "scripts/verification/test_distinct_reader_fixture.py": "e5820af50104d96fedcf6a023d928fad45bbbcb14849a02629828224a0f66642",
+    "scripts/verification/test_native_identity_shell.py": "527efdc2d27535b4fa89f80f5df1d689e7b2894154c0c18f44f6664d4a17b2e3",
+    "scripts/verification/test_native_media_codec.py": "3653f2432d4bca8c0d16fcdf3cbac6f3bbea85a2746aed10504194114e8b7ec0",
+    "scripts/verification/test_native_media_package.py": "f98f513d8721f74fbe91dbc0be3bbd35dbb16b2af3080c60c1078620f7c5c802",
+    "scripts/verification/test_offline_physical_fixture.py": "27da3bbabc3a68f1067a38f3aae37313c9574443ad310e35608841a210e4e00e",
+    "scripts/verification/test_offline_socket_guard.py": "3320c7f5ec5aef6d7bb95933dc3095b3dfc6434631d6de02510cd1b2ebce65d2",
+    "scripts/verification/test_physical_fixture_wrapper.py": "70f12f914c6296245b8efd88183783bed2f84f1685dda0ef6fb11c9b47305682",
+    "scripts/verification/test_physical_framebuffer.py": "ee70c6e9d25d970c27ce1232d7213153802b125d0a2be6a68b1b494f7e346e9d",
+    "scripts/verification/test_physical_harness.py": "68217e56d7f2b04848a3a4fe6b00a613e94f7f7701c39d2ae922fe09ecb1c0a1",
+    "scripts/verification/test_physical_media_deploy.py": "557661c091aae2ab8b85162e44e44a954010e58895a35a1b25cc3b493c9174d2",
+    "scripts/verification/test_physical_recovery.py": "f115cc6ec10cc0f9cd7c12253ec4b5da9b825c37b755d93e6d650a9992cfd380",
+    "scripts/verification/test_spatial_dither_package.py": "481b790b093d4d683150487cb88b01dd9f7b050e7b57684dc8bc8e8f51170a90",
+    "scripts/verification/test_startup_package.py": "f3df57b75c431f3ec05c77aa0924907aeee13f6f7c31fd6c13e9bf3ac5852b99",
+    "scripts/verification/ui_refinement.py": "786f8e15ef3095a9eabb6bd9c9e656229e8979dff00cd02eb23d4fdc0c0931ec",
+    "scripts/verification/verify_package.py": "090938dbc4b1feaa73fe6c9222df89eea01182cc6b68375140800d6a4fc57968",
+    "scripts/verification/verify_uiux_baseline.py": "f7bf5e019b420d81b073e0f1255a80ee2b58fb7edd9577d22a1fc34ffed1e1df",
+    "scripts/verify-remote.ps1": "973e945404fddd0a06133c1d43c932fe3044b9e41e7125897b6822821cea7f61"
+  },
+  "release_profile": {
+    "lto": "thin",
+    "codegen_units": 1,
+    "strip": true,
+    "release_override_used": false
+  },
+  "package_version": "0.1.25",
+  "compiler_tools": {
+    "rustc": {
+      "selected_path": "/root/.cargo/bin/rustc",
+      "executable": {
+        "path": "/root/.cargo/bin/rustup",
+        "bytes": 21139856,
+        "sha256": "5be191e8c70a5007074254cb74d78dbfdd25cd5a61c27de7b8e5410122ec24f4"
+      }
+    },
+    "cargo": {
+      "selected_path": "/root/.cargo/bin/cargo",
+      "executable": {
+        "path": "/root/.cargo/bin/rustup",
+        "bytes": 21139856,
+        "sha256": "5be191e8c70a5007074254cb74d78dbfdd25cd5a61c27de7b8e5410122ec24f4"
+      }
+    },
+    "cargo-zigbuild": {
+      "selected_path": "/root/.cargo/bin/cargo-zigbuild",
+      "executable": {
+        "path": "/root/.cargo/bin/cargo-zigbuild",
+        "bytes": 5268048,
+        "sha256": "1fc7ef88fd3f03e14be418cd4351e9d1f27fcb16d16eea62e55b9beeefc42f38"
+      }
+    },
+    "zig": {
+      "selected_path": "/root/.cargo/bin/zig",
+      "executable": {
+        "path": "/root/weread-build/tools/zig-x86_64-linux-0.15.2/zig",
+        "bytes": 172295280,
+        "sha256": "2858dc89dbbfdd08cceda1b841e7fd0a793a1a67b49f150bc3d0d1de44ed7f51"
+      }
+    },
+    "readelf": {
+      "selected_path": "/usr/bin/readelf",
+      "executable": {
+        "path": "/usr/bin/x86_64-linux-gnu-readelf",
+        "bytes": 777864,
+        "sha256": "4a387d80a70e6e97ef940a666fab59d5c38e7cf19ff907192fa983cb8505a7de"
+      }
+    },
+    "cc": {
+      "selected_path": "/usr/bin/cc",
+      "executable": {
+        "path": "/usr/bin/x86_64-linux-gnu-gcc-14",
+        "bytes": 1162264,
+        "sha256": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f"
+      }
+    },
+    "ar": {
+      "selected_path": "/usr/bin/ar",
+      "executable": {
+        "path": "/usr/bin/x86_64-linux-gnu-ar",
+        "bytes": 52480,
+        "sha256": "f8fe09d485b40b1d47c534c96f5cbaaa9148e247aa0494c087104421f48ac5eb"
+      }
+    },
+    "toolchain-rustc": {
+      "path": "/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+      "bytes": 648536,
+      "sha256": "b53b780f77f952062f8ca8a3b70aef2390b1e45ad91939be94afdc9543026853"
+    },
+    "toolchain-cargo": {
+      "path": "/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+      "bytes": 36148320,
+      "sha256": "a670e02cfa39ac2e53f77a2d911ca1fc9e2c479b0603ec956625be1daf24e3af"
+    }
+  },
+  "compiler_tools_unchanged_from_predecessor": true,
+  "python": {
+    "version": "3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]",
+    "executable": {
+      "path": "/usr/bin/python3.13",
+      "bytes": 6832784,
+      "sha256": "889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9"
+    }
+  },
+  "main_tests": {
+    "results": [
+      {
+        "passed": 897,
+        "failed": 0,
+        "ignored": 4
+      },
+      {
+        "passed": 19,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    ],
+    "passed": 916,
+    "ignored": [
+      "app::perf05_benchmark::perf05_controlled_host",
+      "reader::profile_tests::measure_reader_stage_candidates",
+      "reader::profile_tests::verify_full_frame_cancellable_production_paths",
+      "reader::triangle::tests::exhaustive_rounding_core_matches_the_original_float_conversion"
+    ],
+    "ignored_policy": "Exact pre-existing benchmark allowlist; never enabled",
+    "new_source_suite_executed": true,
+    "source_manifest": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/source-inputs.sha256",
+      "bytes": 58640,
+      "sha256": "1ef8122dcafbbc0554af12c135a1a592c68bb5b4722f3f6b2109dceacae94e03",
+      "files": 545,
+      "manifest_builder": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/candidate-r2/app/scripts/verification/native_protocol.py",
+        "bytes": 11491,
+        "sha256": "90ceacdce5f4da9fb805cfef3b21f67b0699bcc91878ff1708eff8a9e2fdc3d8"
+      }
+    },
+    "feature_scope": "Default desktop plus kindle; library and all eligible binaries",
+    "route_refresh_regressions": {
+      "app::startup::refresh_tests::compatibility_attach_requests_its_own_final_complete_frame": "ok",
+      "app::startup::refresh_tests::failed_attachment_and_error_view_cannot_reveal_or_submit_ready": "ok",
+      "app::startup::refresh_tests::hidden_start_route_waits_for_views_and_ready_before_requesting_its_complete_frame": "ok",
+      "app::startup::refresh_tests::legacy_fixture_retains_only_the_hidden_route_refresh": "ok",
+      "app::startup::refresh_tests::legacy_refresh_setter_rejects_nonfixture_and_completed_attachment": "ok",
+      "trace_tests::legacy_startup_route_refresh_requires_both_isolated_fixture_flags": "ok",
+      "app::startup::refresh_tests::suspended_attachment_cannot_reveal_or_submit_ready": "ok"
+    }
+  },
+  "inherited_evidence_bindings": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/inherited-evidence-bindings.json",
+    "bytes": 26325,
+    "sha256": "ea0db7b8c3e854e89bc69798a71456b8b64b7b6a10e70049c3203db1cf7188ef"
+  },
+  "backend": {
+    "summary": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/backend/summary.json",
+      "bytes": 4969,
+      "sha256": "22efe07b5095a0951cd0f70cb5e02e49d43a65e2aa9d1405e05fda2184d6c46e"
+    },
+    "status": "inherited_passed",
+    "tests": {
+      "passed": 244,
+      "failed": 0,
+      "ignored": 0
+    },
+    "dependency_alignment": {
+      "all_versions_and_checksums_match_production": true,
+      "standalone_packages": 465,
+      "mismatches": []
+    },
+    "checked_touch_test_results": {
+      "a_second_loss_during_snapshot_keeps_the_report_boundary_closed": "ok",
+      "accelerometer_is_a_pressure_only_device": "ok",
+      "calibrated_portrait_touch_reaches_both_corners_at_one_scale": "ok",
+      "diagnostic_legacy_coordinates_do_not_feed_the_pointer": "ok",
+      "drain_resets_local_contact_and_reports_a_closed_or_partial_stream": "ok",
+      "drained_wake_coordinates_survive_without_replaying_the_wake_contact": "ok",
+      "global_btn_cannot_claim_a_stale_slot_before_its_tracking_id": "ok",
+      "input_diagnostic_budget_stays_exhausted_after_sixteen_records": "ok",
+      "legacy_contact_waits_for_observed_coordinates_instead_of_trusting_mt_absinfo": "ok",
+      "live_reorientation_loss_uses_fresh_positions_and_requires_a_new_contact": "ok",
+      "live_reorientation_snapshot_failure_keeps_input_gated_until_recovery": "ok",
+      "live_reorientation_waits_for_the_loss_report_without_querying_early": "ok",
+      "non_slot_tracking_capability_retains_legacy_btn_release": "ok",
+      "opening_discards_older_implicit_slot_prefix_and_retries_snapshot_races": "ok",
+      "panel_coordinates_apply_window_scale_after_rotation": "ok",
+      "reopened_slot_reuses_unchanged_axes_and_keeps_secondary_positions_separate": "ok",
+      "slot_snapshots_require_valid_ranges_complete_values_and_successful_ioctls": "ok",
+      "suspended_contact_cancels_without_click_and_requires_a_new_sequence": "ok",
+      "undo_rotation_inverts_slints_rendering_rotation": "ok"
+    },
+    "origin_source_manifest_sha256": "8537123d6b1dc0c75a048b09d1204664988a6c1668ea35d721bfbac641ff49c6",
+    "origin_test_binary": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/backend/backend-tests-26c549d53e7b",
+      "sha256": "26c549d53e7b8ba0217c0a42bad013c17a2a143fbff1a824840e32ad39950107",
+      "bytes": 32312760
+    },
+    "preserved_records": {
+      "summary": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/inherited-backend/summary.json",
+        "bytes": 4969,
+        "sha256": "22efe07b5095a0951cd0f70cb5e02e49d43a65e2aa9d1405e05fda2184d6c46e"
+      },
+      "lock-resolution_log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/inherited-backend/lock-resolution.log",
+        "bytes": 5979,
+        "sha256": "22901609daceaacd1c4842cba39a1b63e71ca8c06a16cde2b176a8512d145781"
+      },
+      "build_log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/inherited-backend/build.log",
+        "bytes": 237712,
+        "sha256": "14427954c58613c8365cacf972c52ac841c328b2fc9ceaec85ba1afe26fe058e"
+      },
+      "tests_log": {
+        "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/inherited-backend/tests.log",
+        "bytes": 26165,
+        "sha256": "9647e340dbfe877fa7d1fcb6bd6906fd07c0ad4eea0a35c6c8c3172bf8f6ca54"
+      }
+    },
+    "new_source_scope_binding": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/backend-suite-inherited-inputs.sha256",
+      "bytes": 9204,
+      "sha256": "51dee8efd83bce00c9ae548ca74b1c22fc37d0b6e00a8b02ca6ed991c09fc611"
+    }
+  },
+  "desktop": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-desktop/bilicomics",
+    "bytes": 248751552,
+    "sha256": "2abddaf6983d53aeb7e32a4e2f548f565075f6dc7f8ba3e035bec40010d4eb21"
+  },
+  "startup_frames": {
+    "original_report": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/startup-frames/results.json",
+      "bytes": 11354,
+      "sha256": "c2f7f5958067bf3e4ae0840387f092d5c4071f7dee0978d2c71ebf74ac3ce42a"
+    },
+    "boundary_report": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/startup-frames/boundary-results.json",
+      "bytes": 22009,
+      "sha256": "8ddf9a94feb7f85480eda4631a1bad0894c59713ccaa09582367c9e24dbbd426"
+    },
+    "cases": 4
+  },
+  "package_regressions": {
+    "passed": 26,
+    "modules": [
+      "test_native_media_package",
+      "test_spatial_dither_package",
+      "test_startup_package"
+    ],
+    "status": "inherited_passed",
+    "origin_summary": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r3/summary.json",
+      "bytes": 40159,
+      "sha256": "1f657d3c00494362b4518ea2535326d60a567bbcdf1ed64a8e4989a2b184aaae"
+    },
+    "new_source_scope_binding": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/package-regressions-inherited-inputs.sha256",
+      "bytes": 5028,
+      "sha256": "34696b10beaf1e0fa6af60e86be305bea3db03e288a3c6155265341a0cdbd994"
+    },
+    "build_script_scope": "Producer contract only; the 26 unit tests do not invoke build-kindle.sh",
+    "new_zip_static_check_must_run": true
+  },
+  "arm_cleanup_scope": {
+    "target": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/target",
+    "profile": "release",
+    "architecture": "armv7-unknown-linux-musleabihf",
+    "packages": [
+      "bilicomics",
+      "slint-backend-kindle"
+    ],
+    "dependencies_retained": true,
+    "performed_before_source_revision_arm_build": true
+  },
+  "arm_build_cargo_verbose_log": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/logs/arm-build-cargo-verbose.log",
+    "bytes": 82438,
+    "sha256": "a1f61bb8e3d83aecd955fb0347bd1b338eef3e3933c6bb9bf5d2cb3a789c24f8"
+  },
+  "arm_compilation_proof": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/arm-compilation-proof.json",
+    "bytes": 13237,
+    "sha256": "febeeacc9ae426e558870beb6ed5ca5db1df1639a5f83c8d0dccfec00340a5ae"
+  },
+  "arm": {
+    "app": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/bilicomics",
+      "bytes": 74388176,
+      "sha256": "3962bc49bb8cd33d21651845fe5de229e1b8458e5d0ba9026485c8bef7224525"
+    },
+    "worker": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/kindle-jpeg-worker",
+      "bytes": 426672,
+      "sha256": "12c8988c6a93cade9923d54bef784b774e13cb5e3b042f2e72ea5ecb6b897beb"
+    },
+    "archive": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/bilicomics-kindle-0.1.25-dev.zip",
+      "bytes": 51557791,
+      "sha256": "ff41fdf74505020f50ab9928b1a7168ed773b82713b3330ce6b71a0b915b194c"
+    },
+    "manifest": {
+      "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/selected-arm/bilicomics-kindle-0.1.25-dev.manifest.json",
+      "bytes": 7611,
+      "sha256": "4b6c73378f98bff1680c662e8aa157051a0a281f7520c156455b42c43c0b23f1"
+    }
+  },
+  "arm_literals": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/arm-literals.json",
+    "bytes": 837,
+    "sha256": "7f84b028a3eda6b58f725e395cab10ead1632efc31e5b31b86544545d1a04185"
+  },
+  "package_check": {
+    "path": "/root/bilicomics-startup-sequence-20261117-01a1d11a-r1/checks-r4/package-check.json",
+    "bytes": 15915,
+    "sha256": "3c03bba5a93f394437948a95f3fe02bd4f96fbaf4f82a21f07e822bd885a90dd"
+  },
+  "final_integrity": {
+    "predecessor_summary_unchanged": true,
+    "inherited_source_inputs_unchanged": true,
+    "changed_inherited_source_inputs": [],
+    "compiled_inputs_unchanged": true,
+    "all_archived_sources_unchanged": true,
+    "changed_archived_sources": [],
+    "source_archive_unchanged": true,
+    "selected_artifacts_unchanged": true,
+    "changed_selected_artifacts": []
+  },
+  "finished_at": "2026-11-17T10:56:04.513729+00:00"
+}
