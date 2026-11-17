@@ -1,0 +1,12 @@
+{
+  "active_owned_transports": [],
+  "connections_closed": true,
+  "device_polled": false,
+  "lease_accessed": false,
+  "owner_thread": "01a1d11a-1833-7703-aa40-167b49276737",
+  "run_id": "lib-clock-check-20261117-376777a2",
+  "schema_version": 1,
+  "signals_sent": false,
+  "ssh_multiplexing": false,
+  "unreadable_host_process_count": 0
+}

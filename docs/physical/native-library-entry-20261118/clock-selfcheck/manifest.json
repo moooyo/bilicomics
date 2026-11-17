@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "kind": "stored_clock_record_selfcheck_export",
+  "prepared_on": "2026-11-18",
+  "prepared_timezone": "Asia/Shanghai",
+  "source_timestamp_timezone": "UTC; original +00:00 values retained",
+  "run_id": "lib-clock-check-20261117-376777a2",
+  "selfcheck_source_freeze_sha256": "61e685a3e296497e132e9edde54c9191cee5e964717b3898aa6431b6415c67c1",
+  "source_root": "bilicomics-native-library-entry-20261117-01a1d11a-r1",
+  "source_access": "ssh test-env; four fixed stored files only; no new device or lease access",
+  "fixed_source_allowlist": [
+    "clock-selfcheck-r6/runs/sc-r1/report.json",
+    "clock-selfcheck-r6/runs/sc-r1/evidence/clock-private-records-and-mirrors.stdout",
+    "clock-selfcheck-r6/runs/sc-r1/evidence/lease-released.json",
+    "clock-selfcheck-r6/runs/sc-r1/evidence/transport-closure.json"
+  ],
+  "raw_files": [
+    {
+      "path": "report.json",
+      "origin": "clock-selfcheck-r6/runs/sc-r1/report.json",
+      "origin_bytes": 2010,
+      "origin_sha256": "5d07e1333adada89b29c1dac5396c329019d13b7cc1f61a5a54cbfc53853df09",
+      "export_bytes": 2010,
+      "export_sha256": "5d07e1333adada89b29c1dac5396c329019d13b7cc1f61a5a54cbfc53853df09",
+      "transformation": "None; original bytes copied exactly."
+    },
+    {
+      "path": "clock-private-records-and-mirrors.stdout",
+      "origin": "clock-selfcheck-r6/runs/sc-r1/evidence/clock-private-records-and-mirrors.stdout",
+      "origin_bytes": 246,
+      "origin_sha256": "61cbb931fdc3a5509884574c46ffb48164adb17826b738d34eb938cdea49276f",
+      "export_bytes": 246,
+      "export_sha256": "61cbb931fdc3a5509884574c46ffb48164adb17826b738d34eb938cdea49276f",
+      "transformation": "None; original bytes copied exactly."
+    },
+    {
+      "path": "lease-released.json",
+      "origin": "clock-selfcheck-r6/runs/sc-r1/evidence/lease-released.json",
+      "origin_bytes": 568,
+      "origin_sha256": "21e184729a107158733c6a30e62860c827d25ba1ddde03c8251ca88735eb47e0",
+      "export_bytes": 568,
+      "export_sha256": "21e184729a107158733c6a30e62860c827d25ba1ddde03c8251ca88735eb47e0",
+      "transformation": "None; original bytes copied exactly."
+    },
+    {
+      "path": "transport-closure.json",
+      "origin": "clock-selfcheck-r6/runs/sc-r1/evidence/transport-closure.json",
+      "origin_bytes": 341,
+      "origin_sha256": "03e9b9f0572423b3c9efcdebc91e9dd095784269daf0fa207ff3310ecac1d8fa",
+      "export_bytes": 341,
+      "export_sha256": "03e9b9f0572423b3c9efcdebc91e9dd095784269daf0fa207ff3310ecac1d8fa",
+      "transformation": "None; original bytes copied exactly."
+    }
+  ],
+  "derived_files": [
+    {
+      "path": "README.md",
+      "bytes": 2181,
+      "sha256": "1d91934dffd99a30fa741ee602e1e306bc18b04eb839d3d59358807b02c0b586",
+      "inputs": [
+        "report.json",
+        "clock-private-records-and-mirrors.stdout",
+        "lease-released.json",
+        "transport-closure.json"
+      ],
+      "transformation": "English scope explanation of literal report/receipt flags and the four public stat/hash lines. Prior candidate/checkpoint status is contextual documentation, not a result of this selfcheck."
+    }
+  ],
+  "scope_limits": [
+    "The success result concerns only private clock records and exact archived byte/hash mirrors.",
+    "This is not formal native Library startup, UI performance, optical completion, or actual reader lifecycle qualification.",
+    "The four earlier failed timing batches retain zero startup samples; the previous checkpoint files are unchanged.",
+    "Project owner identity and lease token SHA-256 are retained in the authorized raw receipts; no raw token, device address, or active private transport value is exported.",
+    "No executable, ZIP, database, photo, archive, clock record body, private script, or production source is exported."
+  ],
+  "checksum_scope": "SHA256SUMS covers README.md, the four raw files, and this manifest. The checksum list is detached and does not include itself."
+}

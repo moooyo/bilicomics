@@ -1,0 +1,15 @@
+{
+  "lease_directory_absent_after_release": true,
+  "lease_token_sha256": "5ade9beb380d573510fa0c449fbd71545621eeb3daeb5b77c7e9d10f51ef0135",
+  "native_restored_and_connections_closed": true,
+  "ok": true,
+  "only_owned_owner_json_removed_then_rmdir": true,
+  "operation": "release",
+  "owner_and_token_checked": true,
+  "owner_thread": "01a1d11a-1833-7703-aa40-167b49276737",
+  "private_token_retained": true,
+  "project": "BiliComics",
+  "released_at_utc": "2026-11-17T19:33:10.423858+00:00",
+  "run_id": "lib-clock-check-20261117-376777a2",
+  "state": "released"
+}

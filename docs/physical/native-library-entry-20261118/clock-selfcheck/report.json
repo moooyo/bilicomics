@@ -1,0 +1,75 @@
+{
+  "application_started": false,
+  "archive_bytes_and_sha_equal": true,
+  "commands": [
+    {
+      "interrupted": false,
+      "name": "native-before",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "interrupted": false,
+      "name": "boot-before",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "interrupted": false,
+      "name": "upload-tiny-clock-check",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "interrupted": false,
+      "name": "clock-private-records-and-mirrors",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "interrupted": false,
+      "name": "collect-stage-records",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "interrupted": false,
+      "name": "collect-private-records",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "interrupted": false,
+      "name": "remove-owned-clock-check",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "interrupted": false,
+      "name": "native-after",
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "interrupted": false,
+      "name": "boot-after",
+      "returncode": 0,
+      "timeout": false
+    }
+  ],
+  "device_process_signals_requested": false,
+  "finished_at_utc": "2026-11-17T19:33:10.423945+00:00",
+  "lease_released": true,
+  "native_preserved": true,
+  "owner_thread": "01a1d11a-1833-7703-aa40-167b49276737",
+  "private_clock_records_passed": true,
+  "run_id": "lib-clock-check-20261117-376777a2",
+  "same_boot": true,
+  "schema_version": 1,
+  "scope": "Only fresh owned temporary stage/runtime directories, unchanged clock -- /bin/true, private 0600 records and exact byte/SHA mirrors; no application, URI, scanner, formal document, observer, input, framebuffer or lighting operation",
+  "source_freeze_sha256": "61e685a3e296497e132e9edde54c9191cee5e964717b3898aa6431b6415c67c1",
+  "success": true,
+  "temporary_directories_removed": true,
+  "transport_closed": true,
+  "uri_dispatched": false
+}

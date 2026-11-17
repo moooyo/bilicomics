@@ -9,8 +9,8 @@ main.** The active candidate source is
 Main remains at the previously qualified `f8c24f8` runtime.
 
 All four attempted timing batches stopped before dispatching an application;
-there are zero startup samples. The later tiny device selfcheck passes only
-observer initialization. Neither is evidence of a startup gain, working
+there are zero startup samples. The later tiny device selfchecks pass only
+observer initialization and private clock-record creation/copy. Neither proves a startup gain, working
 Library lifetime, or same-process screensaver behavior for this candidate.
 Further device work was deferred when the shared Kindle was reassigned to the
 higher-priority project. BiliComics has restored and released its exact leases.
@@ -148,13 +148,18 @@ It cleaned its directories, verified native state, closed transports and
 released its fresh lease. The production `/tmp/bilicomics-launcher.lock`
 protocol is unchanged. No general symlink exception is introduced.
 
-The fourth attempt requires another harness correction: clock evidence must
-be created in the canonical private runtime filesystem, where its strict mode
-can be established, then copied byte for byte with hashes to the archive tree.
-The clock's file-safety checks must not be relaxed. Its pre-exec sampling origin
-must be retained for both variants. A new small clock-record selfcheck is still
-required before another timing batch; no such qualification or performance
-result is claimed here.
+The fourth attempt led to another harness correction: clock evidence is created
+in the canonical private runtime filesystem, then copied byte for byte with
+hashes to the archive tree. The clock's file-safety checks and pre-exec sampling
+origin are retained. The corrected research tools passed 24 targeted host
+fixtures. A subsequent [small clock-record selfcheck](physical/native-library-entry-20261118/clock-selfcheck/README.md)
+passed on the observed Kindle in about 4.6 seconds: both records had UID 0,
+one link, 74 bytes and mode `0600`; private and archive bytes/hashes matched.
+It ran only the unchanged clock with `/bin/true`, cleaned its own directories,
+preserved native state, closed transports and released the fresh exact lease
+at `2026-11-17T19:33:10.423858+00:00`. It dispatched no URI and performed no
+application, scanner, formal-document, observer, input, display or lighting
+operation. This is not application or timing-comparison qualification.
 
 The fourth recovery's original combined proof exceeded 59 KB and its SSH exec
 connection was reset, while short read-only commands worked. Splitting the
