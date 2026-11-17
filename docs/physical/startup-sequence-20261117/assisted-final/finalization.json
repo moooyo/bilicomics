@@ -1,0 +1,75 @@
+{
+  "controller": {
+    "command": "stop",
+    "finalization": "released",
+    "harness_returncode": 0,
+    "stage": "lease_release",
+    "status": "completed"
+  },
+  "lease_identity": {
+    "ownership_verified": true,
+    "same_owner_run_and_token_digest": true
+  },
+  "owned_process_snapshot": {
+    "passed": true,
+    "recorded_identities": 28,
+    "signals_sent": false,
+    "states": {
+      "gone": 28
+    }
+  },
+  "owner_thread": "01a1d11a-1833-7703-aa40-167b49276737",
+  "raw_token_or_token_file_exported": false,
+  "recovery_checks": {
+    "awesome_baseline_matches": true,
+    "launcher_lock_absent": true,
+    "native_home_and_touch_require_operator_observation": true,
+    "owned_process_snapshot_passed": true,
+    "passed": true,
+    "statusbar_baseline_matches": true
+  },
+  "release": {
+    "lease_directory_absent_after_release": true,
+    "native_restored_and_connections_closed": true,
+    "ok": true,
+    "only_owned_owner_json_removed_then_rmdir": true,
+    "operation": "release",
+    "owner_and_token_checked": true,
+    "released_at_utc": "2026-11-17T11:28:12.165059+00:00",
+    "state": "released"
+  },
+  "run_id": "startup-sleep-20261117-06a7c018",
+  "source_receipts": {
+    "device-batch-c8c419bf27224540a5f040140315ed9d.closure.json": {
+      "bytes": 542,
+      "sha256": "e283cb1de2d75d288a8270056bc9bf84484384f0e70b92d8b6c26d5c07e29a87"
+    },
+    "device-batch-c8c419bf27224540a5f040140315ed9d.json": {
+      "bytes": 784,
+      "sha256": "2cd840c6469b109e2c3b1148003b8ead066169350539ab24e3cac926074ca120"
+    },
+    "device-batch-c8c419bf27224540a5f040140315ed9d.release.json": {
+      "bytes": 566,
+      "sha256": "dd7eade9542f7edc4d1ce3ed47225d6f335802e0799832334301116c6372a20c"
+    },
+    "device-batch-c8c419bf27224540a5f040140315ed9d.status.json": {
+      "bytes": 315,
+      "sha256": "5f3c46a571d3b566462bd6d8563dff1937b3588cbc318b007402632c44fa8f3b"
+    }
+  },
+  "transport_closure": {
+    "active_owned_transports": [],
+    "checked_at_utc": "2026-11-17T11:28:12.125464+00:00",
+    "connections_closed": true,
+    "device_polled": false,
+    "lease_accessed": false,
+    "signals_sent": false,
+    "ssh_multiplexing": false,
+    "unreadable_host_process_count": 0
+  },
+  "watchdog": {
+    "launcher_exit_status": "143",
+    "reason": "operator-stop",
+    "recovery_complete": true
+  }
+}

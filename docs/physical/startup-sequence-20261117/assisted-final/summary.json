@@ -1,0 +1,47 @@
+{
+  "actual_start_arguments": {
+    "assisted": true,
+    "exit_after_ms": 480000,
+    "init_timeout": 90,
+    "lifecycle_trace_enabled": true,
+    "performance_trace_enabled": false,
+    "screen": "reader",
+    "session_timeout": 600
+  },
+  "binary_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+  "checks": "checks-r3",
+  "content": "isolated built-in offline demo Reader",
+  "exact_lease_released_at_utc": "2026-11-17T11:28:12.165059+00:00",
+  "exit_kind": "planned operator-stop, launcher status 143; not user X exit",
+  "export_scope": "Fixed minimal stored-evidence projection; no device, lease, probe, build or test operation",
+  "firmware": "5.19.5",
+  "historical_new_cycle_verified": true,
+  "limitations": [
+    "No optical latency or panel-completion measurement",
+    "No fast-mode, four-way rotation or deep-sleep duration claim",
+    "Configured timers are bounds, not evidence of sleep duration",
+    "No performance logging was enabled",
+    "No general model/firmware support claim",
+    "Earlier a1067e98 export remains incomplete and immutable"
+  ],
+  "live_suspended_checkpoint_executed": false,
+  "native_baseline_restored": true,
+  "native_home_and_touch": "Explicit post-release user confirmation; separate from unchanged harness observations",
+  "owned_process_identities_gone": 28,
+  "post_wake_physical_touch_page_number": 19,
+  "presentation_scope": {
+    "automatic_orientation": "upright/upside-down policy; no rotation stress in this batch",
+    "cpu_dither": "Bayer8",
+    "fit": "page",
+    "refresh_mode": "normal"
+  },
+  "profile": "scribe",
+  "retained_awake_memory_pixels_equal": true,
+  "retained_awake_png_bytes_equal": true,
+  "retained_page_number": 18,
+  "run_id": "startup-sleep-20261117-06a7c018",
+  "same_process_and_reader_generation": true,
+  "schema_version": 1,
+  "source_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+  "transport_closed": true
+}

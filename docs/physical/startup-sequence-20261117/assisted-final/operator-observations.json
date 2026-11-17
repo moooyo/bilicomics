@@ -1,0 +1,36 @@
+{
+  "derived_post_release_operator_return": {
+    "applies_to_run_id": "startup-sleep-20261117-06a7c018",
+    "event_time_gap": "No exact observation or message timestamp was supplied",
+    "event_time_utc": null,
+    "harness_confirm_record": false,
+    "note": "The operator confirmed return to the native interface and normal native touch.",
+    "received_after_release": true,
+    "source": "Explicit user confirmation relayed in the current root coordinator message after lease release",
+    "translation_of_user_observation": true
+  },
+  "earlier_batch_suffix_a1067e98": "Remains incomplete and unchanged; this fresh batch does not retrospectively confirm it",
+  "stored_harness_native_home_touch_confirmation_count": 0,
+  "stored_harness_observations": [
+    {
+      "checkpoint": "resumed",
+      "home_restored": false,
+      "native_touch_restored": false,
+      "note": "The operator reported a physical sleep and wake cycle with reader page 18 retained in this fresh batch.",
+      "observer": "operator",
+      "physical_input_observed": "physical-sleep-and-wake",
+      "physical_panel_observed": false,
+      "source": "explicit operator observation; not inferred from framebuffer or process state"
+    },
+    {
+      "checkpoint": "after-input",
+      "home_restored": false,
+      "native_touch_restored": false,
+      "note": "The operator tapped the right third once and observed reader page 19 with normal touch response.",
+      "observer": "operator",
+      "physical_input_observed": "finger-touch",
+      "physical_panel_observed": false,
+      "source": "explicit operator observation; not inferred from framebuffer or process state"
+    }
+  ]
+}

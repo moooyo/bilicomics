@@ -1,0 +1,89 @@
+{
+  "anchor_fields_compared": [
+    "page_id",
+    "page_index",
+    "crop_index",
+    "crop_count",
+    "source_x",
+    "source_y",
+    "zoom_ratio"
+  ],
+  "before_checkpoint_trace_records": 28,
+  "boundary_monotonic_ns": {
+    "before_record_28": 150200244872720,
+    "resume_record_30": 150404821533347,
+    "resumed_record_35": 150407885110578,
+    "suspend_record_29": 150401500806963
+  },
+  "checkpoint_saved": {
+    "resume": true,
+    "suspend": true
+  },
+  "event_interval_is_not_physical_button_or_deep_sleep_duration": true,
+  "evidence_class": "historical stored same-process lifecycle interval; no live suspended checkpoint was executed",
+  "frame_epoch_gap": "No performance trace or per-frame epoch/driver-ack measurement was recorded in this assisted run",
+  "frame_epoch_or_driver_ack_measurement": null,
+  "identity_and_anchor_retained_in_both_power_events": true,
+  "identity_fields_compared": [
+    "comic_id",
+    "episode_id",
+    "revision",
+    "reader_generation",
+    "route",
+    "launch_preference",
+    "mode",
+    "core_mode",
+    "fit",
+    "direction",
+    "rotation",
+    "landscape_layout",
+    "cover_alone",
+    "dither",
+    "footer",
+    "demo_strip"
+  ],
+  "latest_power_matches_new_resume": true,
+  "native_resume_presentation": {
+    "event": "native-resume-frame-rendered",
+    "framebuffer_pixels_written": true,
+    "output_inverted": false,
+    "physical_panel_update_confirmed": false,
+    "process_id": 22416,
+    "refresh_requested": true,
+    "uptime_seconds": 215663.54
+  },
+  "operator_power_source_requires_separate_observation": true,
+  "raw_slice_sha256": "1f57b0d5e3adb36b9eb29da5b571bb1b6d1cd4b81c54824ca62aead6770f43f9",
+  "resumed_checkpoint_trace_records": 35,
+  "same_native_process": {
+    "demo_offline_native_arguments_verified": true,
+    "exe_path": "/mnt/us/bilicomics-physical-startup-sleep-20261117-06a7c018/app/bilicomics-04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+    "exe_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+    "pid": 22416,
+    "start_ticks": 21545300
+  },
+  "selected_raw_lines": [
+    {
+      "bytes": 2407,
+      "sha256": "9334a3eb33d9ac3907d390b5b5b2192e694fb2128da56977e136c676c38fc48d",
+      "source_line": 29
+    },
+    {
+      "bytes": 2795,
+      "sha256": "cb745c5b1464bd1cc588a9cea15c25faf8e3086763a619e885c15f1672a9035e",
+      "source_line": 30
+    },
+    {
+      "bytes": 210,
+      "sha256": "054affcfe82917bb47c1ab05718f7bba6f565b8db9a212e91f50aa0267cd9ee8",
+      "source_line": 31
+    }
+  ],
+  "source_lifecycle": {
+    "bytes": 44532,
+    "sha256": "c7cfaa42dca0293895b6c3af5398ec7e9ba113d4f639cfd4d1b6fb11be3bb088"
+  },
+  "source_records": 40,
+  "strict_new_cycle_after_before": true,
+  "verified": true
+}
