@@ -58,6 +58,7 @@ Normal execution uses the per-user `bilicomics` data directory; `--data-dir` ove
 
 | Document | Contents |
 | --- | --- |
+| [Startup optimization handoff (2026-11-20)](docs/HANDOFF_STARTUP_20261120.md) | Start here to verify the merged candidate, rebuild on `test-env`, and run the paired Kindle comparison. No candidate speedup has been measured. |
 | [Implementation status](docs/IMPLEMENTATION_STATUS.md) | Implemented behavior, verification evidence, and acceptance boundaries |
 | [Comic-cover sleep](docs/SLEEP_COVER.md) | Prepared covers, checked presentation, native ownership, fallback, and verification scope |
 | [Design source](docs/DESIGN_SOURCE.md) | Downloaded design provenance and reference renders |

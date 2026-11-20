@@ -82,3 +82,6 @@
 
 # Keep the native card-click projections and their pinned evidence readers byte-exact.
 /docs/physical/library-to-shelf-20261119/** -text
+
+# Keep the paired comparison plan, readers and source-only handoff templates portable.
+/docs/physical/startup-optimization-20261119/** -text
