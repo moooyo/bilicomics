@@ -920,9 +920,29 @@ remove_owned_lock() {
         recovery_complete=0
         return 0
     fi
+    # A worker killed during startup can leave one empty timer receipt. Only
+    # accept the exact observer previously bound to this generation and lock.
+    settle_item=''
+    settle_prefix=''
+    if [ "${observer_group_proven:-0}" = 1 ] && [ -n "${observer_anchor_pid:-}" ] &&
+        [ "${observer_anchor_generation:-}:${observer_anchor_nonce:-}" = "$owned_lock_generation:$owned_lock_nonce" ]; then
+        settle_owner=$(stat -c %u "$lock" 2>/dev/null) || settle_owner=''
+        case "$settle_owner" in ''|*[!0-9]*) ;; *) settle_prefix=$lock/observer-settled.$owned_lock_generation.$owned_lock_nonce.$observer_anchor_pid ;; esac
+    fi
     for lock_item in "$lock"/* "$lock"/.[!.]* "$lock"/..?*; do
         [ -e "$lock_item" ] || [ -L "$lock_item" ] || continue
         case "${lock_item##*/}" in
+            observer-settled.*)
+                if [ -n "$settle_prefix" ] && [ -z "$settle_item" ] &&
+                    { [ "$lock_item" = "$settle_prefix.ok" ] || [ "$lock_item" = "$settle_prefix.failed" ]; } &&
+                    [ -d "$lock_item" ] && [ ! -L "$lock_item" ]; then
+                    case "$(stat -c %u:%a "$lock_item" 2>/dev/null)" in
+                        "$settle_owner:700"|"$settle_owner:2700") settle_item=$lock_item; continue ;;
+                    esac
+                fi
+                printf '%s\n' 'An unproven startup timer receipt requires operator review.' >>"$logs/recovery.log"
+                recovery_complete=0
+                return 0 ;;
             pid|power-events|power-source|power-control|nonce|generation|application-pid|application-pid.pending|observer-pid|observer-pid.pending|observer-go|observer-go.pending|observer-owned|observer-owned.pending|observer-runner-pid|observer-runner-pid.pending|observer-relay-pid|observer-relay-pid.pending|observer-status|observer-status.pending|application-exit|application-exit.pending|lifecycle-ready|lifecycle-ready.pending|lifecycle-request|lifecycle-request.pending|lifecycle-ack|lifecycle-ack.pending|sleep-cover-request|sleep-cover-request.pending|sleep-cover-ready|sleep-cover-ready.pending|native-output-capability|native-output-capability.pending|native-epdc-mode|native-epdc-mode.pending|resume-native-epdc-mode|resume-native-epdc-mode.pending|native-portrait-orientation|native-portrait-orientation.pending|resume-native-portrait-orientation|resume-native-portrait-orientation.pending|native-read-output|native-read-done|native-read-done.pending|native-read-command|native-read-command.pending|native-read-go|native-read-go.pending) ;;
             log-launcher-pipe|log-launcher-ready|log-launcher-ready.pending|log-launcher-owned|log-launcher-owned.pending|log-launcher-quota|log-launcher-archive.pending|log-launcher-empty.pending|log-application-pipe|log-application-ready|log-application-ready.pending|log-application-owned|log-application-owned.pending|log-application-quota|log-application-archive.pending|log-application-empty.pending) ;;
             log-stopping|log-launcher-exit|log-launcher-exit.pending|log-application-exit|log-application-exit.pending) ;;
@@ -943,6 +963,11 @@ remove_owned_lock() {
             return 0
         fi
     done
+    if [ -n "$settle_item" ] && ! rmdir "$settle_item" 2>/dev/null; then
+        printf '%s\n' 'The startup timer receipt is not an owned empty directory.' >>"$logs/recovery.log"
+        recovery_complete=0
+        return 0
+    fi
     for lock_name in pid power-events power-source power-control nonce generation application-pid application-pid.pending observer-pid observer-pid.pending observer-go observer-go.pending observer-owned observer-owned.pending observer-runner-pid observer-runner-pid.pending observer-relay-pid observer-relay-pid.pending observer-status observer-status.pending application-exit application-exit.pending lifecycle-ready lifecycle-ready.pending lifecycle-request lifecycle-request.pending lifecycle-ack lifecycle-ack.pending sleep-cover-request sleep-cover-request.pending sleep-cover-ready sleep-cover-ready.pending native-output-capability native-output-capability.pending native-epdc-mode native-epdc-mode.pending resume-native-epdc-mode resume-native-epdc-mode.pending native-portrait-orientation native-portrait-orientation.pending resume-native-portrait-orientation resume-native-portrait-orientation.pending native-read-output native-read-done native-read-done.pending native-read-command native-read-command.pending native-read-go native-read-go.pending; do
         rm -f "$lock/$lock_name"
     done

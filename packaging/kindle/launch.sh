@@ -1119,6 +1119,15 @@ observe_power() {
         relay_pid=$!
         printf "%s\n" "$relay_pid" >"$directory/observer-relay-pid.pending"
         mv -f "$directory/observer-relay-pid.pending" "$directory/observer-relay-pid"
+        # This timer shares the owned observer group, but holds no event FIFO.
+        # Its receipt proves only the full delay, not native subscription readiness.
+        (
+            cd -P "$directory" || exit 1
+            IFS= read -r settle_go <observer-go && [ "$settle_go" = "$generation:$token:$wrapper_pid" ] || exit 1
+            if sleep 2; then result=ok; else result=failed; fi
+            # The cwd pins this lock even if its pathname is later reused.
+            mkdir "observer-settled.$generation.$token.$wrapper_pid.$result"
+        ) </dev/null >/dev/null 2>&1 3>&- &
         if wait "$relay_pid"; then relay_status=0; else relay_status=$?; fi
         observer_status=$relay_status
         if [ "$relay_status" -eq 0 ]; then
@@ -1134,7 +1143,7 @@ observe_power() {
         fi
         printf "_bilicomics_observer_exit %s\n" "$observer_status" >&3
         while :; do sleep 1; done
-    ' sh "$LOCK_DIR" "$APP_GENERATION" "$LAUNCH_TOKEN" "$APP_DIR/bilicomics" 4>&- 5>&- 6>&-
+    ' sh "$LOCK_DIR" "$APP_GENERATION" "$LAUNCH_TOKEN" "$APP_DIR/bilicomics" </dev/null >/dev/null 2>&1 4>&- 5>&- 6>&-
 }
 
 observer_is_owned() {
@@ -1159,16 +1168,32 @@ start_observer() {
             EVENT_SOURCE_BIRTH=$PROCESS_BIRTH
         fi
         if observer_group_is_owned; then
-            printf '%s:%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$EVENT_SOURCE_PID" "$EVENT_SOURCE_BIRTH" >"$LOCK_DIR/observer-owned.pending"
-            mv -f "$LOCK_DIR/observer-owned.pending" "$LOCK_DIR/observer-owned"
-            printf '%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$EVENT_SOURCE_PID" >"$LOCK_DIR/observer-go.pending"
-            mv -f "$LOCK_DIR/observer-go.pending" "$LOCK_DIR/observer-go"
+            printf '%s:%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$EVENT_SOURCE_PID" "$EVENT_SOURCE_BIRTH" >"$LOCK_DIR/observer-owned.pending" &&
+                mv -f "$LOCK_DIR/observer-owned.pending" "$LOCK_DIR/observer-owned" &&
+                printf '%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" "$EVENT_SOURCE_PID" >"$LOCK_DIR/observer-go.pending" &&
+                mv -f "$LOCK_DIR/observer-go.pending" "$LOCK_DIR/observer-go" || return 1
             return 0
         fi
         observer_checks=$((observer_checks - 1))
-        usleep 20000
+        usleep 20000 || return 1
     done
-    fail 'Power event observer ownership could not be established.'
+    return 1
+}
+
+wait_for_observer_settle() {
+    settle_prefix=$LOCK_DIR/observer-settled.$APP_GENERATION.$LAUNCH_TOKEN.$EVENT_SOURCE_PID
+    settle_checks=100
+    while [ "$settle_checks" -gt 0 ] && observer_group_is_owned; do
+        case "$PROCESS_STATE" in Z|X) return 1 ;; esac
+        [ ! -e "$settle_prefix.failed" ] && [ ! -L "$settle_prefix.failed" ] || return 1
+        if [ -e "$settle_prefix.ok" ] || [ -L "$settle_prefix.ok" ]; then
+            [ -d "$settle_prefix.ok" ] && [ ! -L "$settle_prefix.ok" ] && rmdir "$settle_prefix.ok" 2>/dev/null
+            return $?
+        fi
+        settle_checks=$((settle_checks - 1))
+        usleep 50000 || return 1
+    done
+    return 1
 }
 
 stop_observer() {
@@ -1187,6 +1212,14 @@ stop_observer() {
             esac
             usleep 100000
             observer_reap=$((observer_reap - 1))
+        done
+        for settle_result in ok failed; do
+            settle_leaf=$LOCK_DIR/observer-settled.$APP_GENERATION.$LAUNCH_TOKEN.$EVENT_SOURCE_PID.$settle_result
+            if [ -d "$settle_leaf" ] && [ ! -L "$settle_leaf" ]; then
+                rmdir "$settle_leaf" 2>/dev/null || :
+            elif [ -e "$settle_leaf" ] || [ -L "$settle_leaf" ]; then
+                rm -f "$settle_leaf" 2>/dev/null || :
+            fi
         done
         EVENT_SOURCE_PID=''
         EVENT_SOURCE_BIRTH=''
@@ -1517,10 +1550,12 @@ exec 3<>"$LOCK_DIR/power-events"
 EVENT_FD_OPEN=1
 exec 4<>"$LOCK_DIR/power-control"
 CONTROL_FD_OPEN=1
+observer_started=0
+if start_observer; then observer_started=1; fi
 start_logging || fail 'Production log preparation or bounded output setup failed.'
-start_observer
-
-sleep 2
+[ "$observer_started" -eq 1 ] || fail 'Power event observer ownership could not be established.'
+launch_trace startup_logging_ready
+wait_for_observer_settle || fail 'The native startup settling delay did not complete.'
 export BILICOMICS_HOME
 launch_trace startup_sample_begin
 if ! capture_native_epdc_mode || [ "$NATIVE_CAPTURE_STATUS" != known ]; then

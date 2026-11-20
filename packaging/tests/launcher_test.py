@@ -528,7 +528,7 @@ class LauncherLifecycleTests(unittest.TestCase):
             .replace("/dev/fb0", "/dev/null")
             .replace("/tmp/bilicomics-launcher.lock", str(self.root / "lock"))
             .replace("/var/local/system/userpasswdenabled", str(self.root / "passcode"))
-            .replace("\nsleep 2\n", "\n")
+            .replace("if sleep 2; then result=ok", 'if "$TEST_STARTUP_SETTLE" 2; then result=ok')
             .replace("                launch_trace wake_barrier_dropped\n            fi\n            ;;\n        '_bilicomics_app_exit '*)",
                      "                launch_trace wake_barrier_dropped\n            fi\n"
                      '            printf "processed\\n" >>"$TEST_SUPERVISOR_BARRIERS"\n'
@@ -580,6 +580,7 @@ class LauncherLifecycleTests(unittest.TestCase):
             TEST_APP_EXIT="0",
             TEST_TERM_EXIT="0",
             TEST_READY_DELAY="0",
+            TEST_STARTUP_SETTLE="true",
             TEST_ACK_DELAY="0",
             TEST_ACK_MODE="normal",
             TEST_ENTRY_WORKERS=str(self.entry_workers),
@@ -1526,6 +1527,140 @@ class LauncherLifecycleTests(unittest.TestCase):
         self.assertEqual(len(self.starts()), 1)
         self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
         self.assertFalse((self.root / "lock").exists())
+
+    def gate_startup_settle(self, finish="exit 0"):
+        timer = self.root / "settle-timer"
+        self.env.update(TEST_STARTUP_SETTLE=str(timer), TEST_SETTLE_ROOT=str(self.root))
+        self.script(timer, 'test "$#:$1" = 1:2\n'
+                    'printf "%s\\n" "$$" >"$TEST_SETTLE_ROOT/timer-started"\n'
+                    'while [ ! -e "$TEST_SETTLE_ROOT/timer-go" ]; do /bin/sleep .02; done\n' + finish)
+
+    def test_logging_overlaps_the_full_settle_without_sampling_native_state_early(self):
+        self.gate_startup_settle('exec /bin/sleep "$1"')
+        self.env["TEST_HOLD"] = "1"
+
+        def drive(_):
+            lock = self.root / "lock"
+            self.wait_until(lambda: self.lines("timer-started") and (lock / "log-application-owned").exists())
+            timer = self.lines("timer-started")[0]
+            group = int((lock / "observer-owned").read_text().split(":")[2])
+            self.assertEqual(self.process_identity(timer)["group"], group)
+            for pid in (timer, group):
+                self.assertTrue(all(os.readlink(f"/proc/{pid}/fd/{fd}") == "/dev/null" for fd in (0, 1, 2)))
+            self.assertTrue(all(not Path(f"/proc/{timer}/fd/{fd}").exists() for fd in (3, 4, 5, 6)))
+            self.assertTrue((lock / "log-launcher-owned").is_file())
+            self.assertEqual(self.captures(), [])
+            self.assertEqual(self.trace(), [])
+            (self.root / "native-mode").write_text("Y8INV\n")
+            started = time.monotonic()
+            (self.root / "timer-go").touch()
+            self.ready()
+            self.assertGreaterEqual(time.monotonic() - started, 2)
+            self.assertEqual(self.state()["native_mode"], "Y8INV")
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 0, error)
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_settle_failure_precedes_native_sampling_and_display_takeover(self):
+        self.env["TEST_STARTUP_SETTLE"] = "false"
+        status, _, error = self.run_launcher()
+        self.assertEqual(status, 1, error)
+        self.assertIn("settling delay did not complete", error)
+        self.assertEqual(self.captures(), [])
+        self.assertEqual(self.trace(), [])
+        self.assertEqual(self.starts(), [])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_non_directory_or_redirected_settle_receipt_cannot_start_the_app(self):
+        self.gate_startup_settle()
+        external = self.root / "foreign-receipt"
+        external.mkdir()
+        for kind in ("regular", "symlink", "fifo"):
+            with self.subTest(kind=kind):
+                (self.root / "timer-started").unlink(missing_ok=True)
+
+                def drive(_):
+                    lock = self.root / "lock"
+                    self.wait_until(lambda: self.lines("timer-started"))
+                    generation, token, leader, _ = (lock / "observer-owned").read_text().strip().split(":")
+                    receipt = lock / f"observer-settled.{generation}.{token}.{leader}.ok"
+                    if kind == "regular":
+                        receipt.touch()
+                    elif kind == "fifo":
+                        os.mkfifo(receipt)
+                    else:
+                        receipt.symlink_to(external, target_is_directory=True)
+
+                status, _, error = self.run_launcher(drive)
+                self.assertEqual(status, 1, error)
+                self.assertIn("settling delay did not complete", error)
+                self.assertEqual(self.captures(), [])
+                self.assertEqual(self.trace(), [])
+                self.assertEqual(self.starts(), [])
+                self.assertFalse((self.root / "lock").exists())
+                self.assertTrue(external.is_dir())
+
+    def test_native_sleep_and_usb_during_settle_precede_first_display_takeover(self):
+        self.gate_startup_settle()
+        for event, expected in (("goingToScreenSaver 2", 1), ("usbConfigured 1", 143)):
+            with self.subTest(event=event):
+                for leaf in ("timer-started", "timer-go", "source-gate", "source-done"):
+                    (self.root / leaf).unlink(missing_ok=True)
+                self.gate_observer((event + "\n").encode())
+
+                def drive(_):
+                    self.wait_until(lambda: self.lines("timer-started"))
+                    (self.root / "source-gate").touch()
+                    self.wait_until(lambda: (self.root / "source-done").exists())
+                    (self.root / "timer-go").touch()
+
+                status, _, error = self.run_launcher(drive)
+                self.assertEqual(status, expected, error)
+                self.assertEqual(self.trace(), [])
+                self.assertEqual(self.starts(), [])
+                self.assertFalse((self.root / "lock").exists())
+
+    def assert_settle_timer_retired(self, timer):
+        try:
+            actual = self.process_identity(timer["pid"])
+        except FileNotFoundError:
+            pass
+        else:
+            self.assertTrue(actual["birth"] != timer["birth"] or actual["state"] in ("Z", "X"))
+        self.assertEqual(self.captures(), [])
+        self.assertEqual(self.trace(), [])
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_cancellation_reaps_the_still_blocked_observer_timer(self):
+        self.gate_startup_settle()
+        timer = []
+
+        def drive(child):
+            self.wait_until(lambda: self.lines("timer-started") and (self.root / "lock/log-application-owned").exists())
+            timer.append(self.process_identity(self.lines("timer-started")[0]))
+            child.send_signal(signal.SIGTERM)
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 143, error)
+        self.assert_settle_timer_retired(timer[0])
+
+    def test_logging_failure_reaps_the_still_blocked_observer_timer(self):
+        self.gate_startup_settle()
+        timer = []
+        self.script(self.bin / "stat", 'case "$*" in *"$TEST_SETTLE_ROOT/bilicomics/data/logs/launcher.log")\n'
+                    '  while [ ! -e "$TEST_SETTLE_ROOT/fail-stat" ]; do /bin/sleep .02; done\n'
+                    '  exit 1;;\nesac\n' + f'exec "{shutil.which("stat")}" "$@"')
+
+        def drive(_):
+            self.wait_until(lambda: self.lines("timer-started"))
+            timer.append(self.process_identity(self.lines("timer-started")[0]))
+            (self.root / "fail-stat").touch()
+
+        status, _, error = self.run_launcher(drive)
+        self.assertEqual(status, 1, error)
+        self.assert_settle_timer_retired(timer[0])
 
     def test_oversized_production_logs_rotate_once_and_keep_one_backup(self):
         logs = self.home / "data" / "logs"
