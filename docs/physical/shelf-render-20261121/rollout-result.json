@@ -1,0 +1,30 @@
+{
+  "run": "bili-prod-f3690b72",
+  "measured_source_id": "shelf-private-rgb-v1-tIiP8C4F",
+  "measured_comparison": "lib-p-b4a63eed",
+  "scope": "Ordinary installed Library entry, not an offline Shelf timing or a visual or account acceptance test",
+  "initial_observe_attempt_failed": true,
+  "completion_path": "Rechecked the still-running original process on the unchanged exact lease; accepted only real /tmp or its trusted /var/tmp parent with the same private lock directory identity",
+  "normal_smoke": {
+    "ordinary_library_click": true,
+    "new_click_sent": false,
+    "exact_production_arguments": true,
+    "matching_lifecycle_ready": true,
+    "framebuffer_and_input_fds": true,
+    "managed_exit": true,
+    "original_observer_rejected_tmp_parent_alias": true,
+    "verified_on_original_lease": true,
+    "sign_in_exercised": false,
+    "purchases_exercised": false,
+    "no_user_data_exported": true
+  },
+  "initial_selected_rows": 0,
+  "final_selected_rows": 1,
+  "sole_actual_document": "/mnt/us/documents/bilicomics.sh",
+  "casefold_observed": "casefold-proven",
+  "restored_home_and_pointer": true,
+  "production_installation_retained": true,
+  "staging_removed": true,
+  "exact_lease_released_utc": "2026-11-20T20:47:08.512127+00:00",
+  "native_restored_and_connections_closed": true
+}

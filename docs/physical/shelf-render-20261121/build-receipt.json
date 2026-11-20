@@ -1,0 +1,46 @@
+{
+  "passed": true,
+  "source_id": "shelf-private-rgb-v1-tIiP8C4F",
+  "source_base_commit": "ab52019569ec8431e145a5cd0bc7cbf58c340ce0",
+  "source_commit": null,
+  "source_files": [
+    "src/app/startup.rs",
+    "src/main.rs",
+    "vendor/slint-backend-kindle/src/lifecycle.rs",
+    "vendor/slint-backend-kindle/src/platform.rs",
+    "vendor/slint-backend-kindle/src/platform_frame_tests.rs",
+    "vendor/slint-backend-kindle/src/refresh.rs"
+  ],
+  "source_variant": "shelf-private-rgb-v1",
+  "control_source_commit": "57265de60553ea97b01894592427d60c9008f850",
+  "source_kind": "working-tree snapshot (not a commit)",
+  "target": "armv7-unknown-linux-musleabihf",
+  "cargo_jobs": 2,
+  "arm_executed": false,
+  "device_accessed": false,
+  "compiler_invocations": {
+    "bilicomics:bin": [
+      "opt-level=3",
+      "codegen-units=1",
+      "strip=symbols",
+      "lto=thin"
+    ],
+    "bilicomics:lib": [
+      "opt-level=3",
+      "codegen-units=1",
+      "strip=symbols"
+    ],
+    "slint_backend_kindle:lib": [
+      "opt-level=3",
+      "codegen-units=1",
+      "strip=symbols"
+    ]
+  },
+  "versions": {
+    "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+    "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+    "zig": "0.15.2",
+    "cargo-zigbuild": "cargo-zigbuild 0.24.0"
+  },
+  "worker_reused_from_qualified_control": true
+}

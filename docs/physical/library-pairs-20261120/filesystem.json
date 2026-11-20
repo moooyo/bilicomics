@@ -1,0 +1,22 @@
+{
+  "media_dir": "0:777:3",
+  "media_file": "0:1:15",
+  "media_canonical": "yes",
+  "media_stdin_cmp": "yes",
+  "media_file_cmp": "yes",
+  "media_exact_line": "yes",
+  "private_dir": "0:2700:2",
+  "private_file": "0:1:15",
+  "private_canonical": "yes",
+  "private_stdin_cmp": "yes",
+  "private_file_cmp": "yes",
+  "private_exact_line": "yes",
+  "tools_canonical": "yes",
+  "private_explicit_mode": "0:700",
+  "stdin_diff": "yes",
+  "across_cmp": "yes",
+  "kernel_directory_probe": [
+    "exit=1",
+    "pair-fs: no-replace directory rename is not qualified on this volume"
+  ]
+}

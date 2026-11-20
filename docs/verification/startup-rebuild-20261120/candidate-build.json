@@ -1,0 +1,43 @@
+{
+  "passed": true,
+  "arm": "candidate",
+  "source_commit": "57265de60553ea97b01894592427d60c9008f850",
+  "source_base_commit": "d81b529fd8f84790d91dfe3a8396853c296a8280",
+  "qualification": "Independent rebuild; not a historical click-batch admission",
+  "target": "armv7-unknown-linux-musleabihf",
+  "cargo_jobs": 2,
+  "arm_executed": false,
+  "device_accessed": false,
+  "compiler_invocations": {
+    "bilicomics:bin": [
+      "opt-level=3",
+      "lto=thin",
+      "codegen-units=1",
+      "strip=symbols"
+    ],
+    "bilicomics:lib": [
+      "opt-level=3",
+      "codegen-units=1",
+      "strip=symbols"
+    ],
+    "kindle_jpeg_worker:bin": [
+      "opt-level=3",
+      "lto=thin",
+      "codegen-units=1",
+      "strip=symbols"
+    ],
+    "slint_backend_kindle:lib": [
+      "opt-level=3",
+      "codegen-units=1",
+      "strip=symbols"
+    ]
+  },
+  "versions": {
+    "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+    "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+    "zig": "0.15.2",
+    "cargo-zigbuild": "cargo-zigbuild 0.24.0"
+  },
+  "archive_members": 49,
+  "package_checks": 20
+}

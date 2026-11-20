@@ -1,0 +1,22 @@
+test_both_parked_requires_explicit_a_recovery (__main__.SelectTest.test_both_parked_requires_explicit_a_recovery) ... ok
+test_both_parked_with_bad_hash_is_not_recovery (__main__.SelectTest.test_both_parked_with_bad_hash_is_not_recovery) ... ok
+test_destination_created_after_hashes_is_not_replaced_or_nested (__main__.SelectTest.test_destination_created_after_hashes_is_not_replaced_or_nested) ... ok
+test_extra_park_and_unknown_target_never_replaced (__main__.SelectTest.test_extra_park_and_unknown_target_never_replaced) ... ok
+test_forged_locked_cli_does_not_move (__main__.SelectTest.test_forged_locked_cli_does_not_move) ... ok
+test_interruption_after_move_recovers_a (__main__.SelectTest.test_interruption_after_move_recovers_a) ... ok
+test_kernel_lock_and_read_only_verification (__main__.SelectTest.test_kernel_lock_and_read_only_verification) ... ok
+test_link_inside_bundle_and_escaped_bundle (__main__.SelectTest.test_link_inside_bundle_and_escaped_bundle) ... ok
+test_missing_tool_read_only_restore_proof (__main__.SelectTest.test_missing_tool_read_only_restore_proof) ... ok
+test_native_app_or_existing_lock_refuses (__main__.SelectTest.test_native_app_or_existing_lock_refuses) ... ok
+test_null_link_at_target_is_not_absence (__main__.SelectTest.test_null_link_at_target_is_not_absence) ... ok
+test_roundtrip_probe_and_verify (__main__.SelectTest.test_roundtrip_probe_and_verify) ... ok
+test_same_payload_warmups_and_six_alternating_pairs (__main__.SelectTest.test_same_payload_warmups_and_six_alternating_pairs) ... ok
+test_unexpected_hidden_and_hardlink_fail (__main__.SelectTest.test_unexpected_hidden_and_hardlink_fail) ... ok
+test_unknown_canonical_never_replaced (__main__.SelectTest.test_unknown_canonical_never_replaced) ... ok
+test_wrong_owner_or_inactive_hash (__main__.SelectTest.test_wrong_owner_or_inactive_hash) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 3.167s
+
+OK
+Selector host tests and static ARM ELF checks passed; no device admission was issued.

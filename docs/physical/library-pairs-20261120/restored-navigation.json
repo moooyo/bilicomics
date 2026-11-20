@@ -1,0 +1,34 @@
+{
+  "screen": [
+    1860,
+    2480
+  ],
+  "pointer": [
+    899,
+    852
+  ],
+  "buttons_clear": true,
+  "home": {
+    "count": 1,
+    "box": [
+      186,
+      2410,
+      282,
+      2435
+    ],
+    "underline_pct": 89
+  },
+  "library": {
+    "count": 1,
+    "box": [
+      572,
+      2409,
+      686,
+      2444
+    ],
+    "underline_pct": 0
+  },
+  "title": {
+    "count": 0
+  }
+}

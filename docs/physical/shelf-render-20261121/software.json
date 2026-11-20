@@ -1,0 +1,65 @@
+{
+  "passed": true,
+  "source_id": "shelf-private-rgb-v1-tIiP8C4F",
+  "source_base_commit": "ab52019569ec8431e145a5cd0bc7cbf58c340ce0",
+  "source_variant": "shelf-private-rgb-v1",
+  "targeted_tests_passed": 6,
+  "backend_tests_passed": 249,
+  "software_cargo_jobs": 1,
+  "earlier_parallel_test_compiler_oom": true,
+  "control_source_commit": "57265de60553ea97b01894592427d60c9008f850",
+  "physical_device_accessed": false,
+  "rust_suites": {
+    "app": [
+      {
+        "passed": 898,
+        "failed": 0,
+        "ignored": 4
+      },
+      {
+        "passed": 18,
+        "failed": 0,
+        "ignored": 0
+      }
+    ],
+    "backend": [
+      {
+        "passed": 249,
+        "failed": 0,
+        "ignored": 0
+      }
+    ]
+  },
+  "selected_passing_tests": [
+    "failed_preceding_wait_never_writes_or_submits_the_prepared_shelf",
+    "initial_render_permission_rechecks_the_scene_once_and_never_queues_a_draw",
+    "initial_shelf_render_excludes_booting_redirects_empty_states_and_overlays",
+    "private_render_changes_only_rgb_order_and_still_requires_both_markers",
+    "private_shelf_render_requires_only_full_gc16_and_an_outstanding_known_marker",
+    "sleep_suspension_or_termination_retires_unarmed_and_pending_initial_renders"
+  ],
+  "shelf_pixel_regressions": [
+    {
+      "profile": "pw6",
+      "size": [
+        1264,
+        1680
+      ],
+      "route": "shelf",
+      "shelf_pages": 2,
+      "different_rgb_pixels": 0
+    },
+    {
+      "profile": "scribe",
+      "size": [
+        1860,
+        2480
+      ],
+      "route": "shelf",
+      "shelf_pages": 2,
+      "different_rgb_pixels": 0
+    }
+  ],
+  "startup_before_workers_and_activity_checked": true,
+  "qemu_static_arm_cli_only": true
+}

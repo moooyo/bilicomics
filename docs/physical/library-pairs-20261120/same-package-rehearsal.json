@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "dry_only": true,
+  "same_package": true,
+  "arms": [
+    "a00",
+    "b00",
+    "a01",
+    "b01",
+    "b02",
+    "a02",
+    "a03",
+    "b03",
+    "b04",
+    "a04",
+    "a05",
+    "b05",
+    "b06",
+    "a06"
+  ],
+  "foreign_document_preserved": true,
+  "lease_acquired": false,
+  "device_accessed": false
+}

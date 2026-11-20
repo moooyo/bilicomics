@@ -1,10 +1,22 @@
 # Paired Kindle startup: source-only handoff
 
-**Untested source template, not a device package or performance result.** It
-implements the [predeclared comparison](../../PLAN.md). No new host or physical
-verification has been performed. Do not run these sources from the checkout.
+**Historical-input controller, not a device package or performance result.**
+It implements the [predeclared comparison](../../PLAN.md). The selector has
+since passed independent host tests. That does not qualify the original
+`operator.py` on a worker without its historical inputs. See the
+[rebuilt-worker path](../rebuilt/README.md). Do not run these sources from the checkout.
 
 ## Explicit inputs
+
+On a rebuilt worker without the historical click workspace, the selector
+alone can be qualified by combining the [standalone host runner and fixtures](../../../library-pairs-20261120/selector/)
+with this directory's unchanged `select-arms.in.sh` and `pair-fs.c`. Run
+`sh build-selector.sh --standalone` in a fresh private directory with
+`BILI_PAIR_WORK` and `BILI_PAIR_TEST_HOST`. This
+exercises the directory switch and recovery against synthetic payloads,
+including two warmups and six alternating pairs with identical payloads.
+It does not run `operator.py`, arm a click, or authorize device access. Do
+not invent a historical workspace to get past the physical runner's checks.
 
 On Linux `test-env`, copy the five source files into a new root-owned mode-0700
 workspace and work there. Supply:

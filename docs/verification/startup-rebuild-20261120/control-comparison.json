@@ -1,0 +1,16 @@
+{
+  "independent_builds": true,
+  "armv7_runtime_executed": false,
+  "archive_entry_count": 49,
+  "changed_payloads": [
+    "bilicomics/app/bilicomics",
+    "bilicomics/launch.sh"
+  ],
+  "unchanged_payload_count": 47,
+  "rebuilt_control_matches_historical": {
+    "archive_sha256": false,
+    "binary_sha256": false,
+    "worker_sha256": true
+  },
+  "physical_admission": false
+}

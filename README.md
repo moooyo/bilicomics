@@ -58,7 +58,9 @@ Normal execution uses the per-user `bilicomics` data directory; `--data-dir` ove
 
 | Document | Contents |
 | --- | --- |
-| [Startup optimization handoff (2026-11-20)](docs/HANDOFF_STARTUP_20261120.md) | Start here to verify the merged candidate, rebuild on `test-env`, and run the paired Kindle comparison. No candidate speedup has been measured. |
+| [Current startup handoff (2026-11-21)](docs/HANDOFF_STARTUP_20261121.md) | Source revision, installed Scribe baseline, outstanding device coordination, and where to resume without touching the Kindle. |
+| [Startup optimization handoff (2026-11-20)](docs/HANDOFF_STARTUP_20261120.md) | [Rebuilt-worker software checks](docs/verification/startup-rebuild-20261120/README.md) passed. In the [native Library comparison](docs/physical/library-pairs-20261120/README.md), the candidate was faster in four of six pairs; no one-second gain or permanent installation is claimed. |
+| [First Shelf render and deployment (2026-11-21)](docs/physical/shelf-render-20261121/README.md) | On one Scribe, all six native Library pairs reached driver-confirmed complete Shelf sooner: 585 ms median paired improvement, with identical pixels. The selected application is installed and its ordinary Library entry was smoke-tested separately. |
 | [Implementation status](docs/IMPLEMENTATION_STATUS.md) | Implemented behavior, verification evidence, and acceptance boundaries |
 | [Comic-cover sleep](docs/SLEEP_COVER.md) | Prepared covers, checked presentation, native ownership, fallback, and verification scope |
 | [Design source](docs/DESIGN_SOURCE.md) | Downloaded design provenance and reference renders |
