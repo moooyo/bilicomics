@@ -904,15 +904,16 @@ class PhysicalWatchdogLockCleanupTests(unittest.TestCase):
             path.write_text(content)
             path.chmod(0o600)
 
-    def run_cleanup(self):
+    def run_cleanup(self, *, observer_bound=False):
         # Execute the actual watchdog function with its recorded directory
         # identity, without starting a launcher or replacing native services.
         script = "set -eu\numask 077\n" + self.read_one + "\n" + self.cleanup_source + "\n" + \
             'lock=$1\nlogs=$2\nlauncher_pid=$3\nowned_lock_nonce=$4\n' + \
             'owned_lock_generation=1\nowned_lock_inode=$5\nrecovery_complete=1\n' + \
+            'observer_group_proven=$6\nobserver_anchor_pid=42\nobserver_anchor_generation=1\nobserver_anchor_nonce=$4\n' + \
             'remove_owned_lock\nprintf "%s\\n" "$recovery_complete"\n'
         result = subprocess.run(["sh", "-c", script, "watchdog-lock-fixture", str(self.lock), str(self.logs),
-                                 self.launcher_pid, self.nonce, str(self.expected_inode)],
+                                 self.launcher_pid, self.nonce, str(self.expected_inode), str(int(observer_bound))],
                                 capture_output=True, text=True, timeout=5)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(result.stdout.strip(), ("0", "1"))
@@ -926,6 +927,39 @@ class PhysicalWatchdogLockCleanupTests(unittest.TestCase):
     def test_sleep_cover_records_are_removed_with_the_owned_lock(self):
         self.assertEqual(self.run_cleanup(), "1")
         self.assertFalse(self.lock.exists(), "Recognized cover records prevented exact lock cleanup")
+
+    def test_only_the_proven_observers_empty_timer_receipt_is_recovered(self):
+        for result in ("ok", "failed"):
+            with self.subTest(result=result):
+                self.prepare_lock(f"timer-{result}")
+                (self.lock / f"observer-settled.1.{self.nonce}.42.{result}").mkdir(mode=0o700)
+                self.assertEqual(self.run_cleanup(observer_bound=True), "1")
+                self.assertFalse(self.lock.exists())
+
+    def test_unproven_or_nonempty_timer_receipts_leave_all_lock_records_intact(self):
+        outside = self.root / "external-dir"
+        outside.mkdir(mode=0o700)
+        for variant in ("unobserved", "wrong-leader", "wrong-generation", "wrong-nonce", "symlink", "regular", "fifo",
+                        "nonempty", "both-results", "unsafe-mode"):
+            with self.subTest(variant=variant):
+                self.prepare_lock(f"timer-{variant}")
+                anchor = f"1.{self.nonce}.42"
+                if variant == "wrong-leader": anchor = f"1.{self.nonce}.43"
+                if variant == "wrong-generation": anchor = f"2.{self.nonce}.42"
+                if variant == "wrong-nonce": anchor = "1.stale.42"
+                marker = self.lock / f"observer-settled.{anchor}.ok"
+                if variant == "symlink": marker.symlink_to(outside, target_is_directory=True)
+                elif variant == "regular": marker.touch()
+                elif variant == "fifo": os.mkfifo(marker, 0o600)
+                else:
+                    marker.mkdir(mode=0o700)
+                    if variant == "nonempty": (marker / "unexpected").touch()
+                    if variant == "both-results": marker.with_suffix(".failed").mkdir(mode=0o700)
+                    if variant == "unsafe-mode": marker.chmod(0o755)
+                self.assertEqual(self.run_cleanup(observer_bound=variant != "unobserved"), "0")
+                self.assert_owned_records_unchanged()
+                self.assertTrue(marker.exists())
+                self.assertTrue(outside.is_dir())
 
     def test_unknown_lock_entry_preserves_cover_records_and_the_lock(self):
         unexpected = self.lock / "foreign-cover-record"

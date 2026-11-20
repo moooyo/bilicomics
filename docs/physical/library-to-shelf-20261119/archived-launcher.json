@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "source": "Stored Library-harness raw cases, no device access by this projection",
+  "verified_source_archive": {
+    "sha256": "16b0233d73bff8e5bf1a621681389e155a0b94df5e55504e2a966b03c8c081d5",
+    "matched_regular_members": 24,
+    "member_pattern": "out/CASE/SOURCE"
+  },
+  "scope": "Awake, fresh-process Shelf launches with the original fixed two-second settle and three successful pre-takeover probes. Entry and worker are research prolog marks after admission-record publication; neither is a tap or an exact exec timestamp.",
+  "clock": "Request samples CLOCK_MONOTONIC then CLOCK_BOOTTIME before record close and dispatch. Launcher marks read /proc/uptime (boot time including suspend), truncated to 10 ms. Durations using an uptime mark have about 10 ms resolution; decimal places on the request origin are not greater landmark precision.",
+  "groups": {
+    "nonoverlapping_boot": "Exclusive consecutive intervals on the boot clock, summing to each native total. The worker interval includes, but is not all, the fixed sleep. No speedup is inferred.",
+    "nested_probe": "Within the sample or post-sample interval; not additional time. Go to ready includes child startup/command and supervisor polling; ready to reaped is observed cleanup. Gaps outside these markers remain in their parent interval.",
+    "other": "The boot and monotonic totals are separately valid. Their difference estimates the final gap only assuming no new kernel suspend between request and Rust entry. It inherits uptime quantization and sequential request clock sampling skew; it is not a direct cross-clock timestamp."
+  },
+  "statistics": "Milliseconds; per-interval min, median and max. Marginal medians are not additive.",
+  "summary_ms": {
+    "nonoverlapping_boot": {
+      "request_to_instrumented_entry": {
+        "min": 499.504,
+        "median": 535.175,
+        "max": 557.424
+      },
+      "entry_to_instrumented_worker": {
+        "min": 70.0,
+        "median": 150.0,
+        "max": 220.0
+      },
+      "worker_to_sample_begin_includes_fixed_wait": {
+        "min": 2630.0,
+        "median": 2660.0,
+        "max": 2710.0
+      },
+      "sample_begin_to_sample_ready": {
+        "min": 400.0,
+        "median": 445.0,
+        "max": 470.0
+      },
+      "sample_ready_to_take_begin": {
+        "min": 340.0,
+        "median": 350.0,
+        "max": 380.0
+      },
+      "take_begin_to_take_done": {
+        "min": 100.0,
+        "median": 100.0,
+        "max": 100.0
+      }
+    },
+    "nested_probe": {
+      "capture_display_and_portrait_go_to_ready": {
+        "min": 350.0,
+        "median": 390.0,
+        "max": 410.0
+      },
+      "capture_display_and_portrait_ready_to_reaped": {
+        "min": 10.0,
+        "median": 10.0,
+        "max": 10.0
+      },
+      "publish_portrait_go_to_ready": {
+        "min": 110.0,
+        "median": 115.0,
+        "max": 120.0
+      },
+      "publish_portrait_ready_to_reaped": {
+        "min": 10.0,
+        "median": 10.0,
+        "max": 40.0
+      },
+      "query_sleep_cover_go_to_ready": {
+        "min": 80.0,
+        "median": 90.0,
+        "max": 90.0
+      },
+      "query_sleep_cover_ready_to_reaped": {
+        "min": 10.0,
+        "median": 10.0,
+        "max": 40.0
+      }
+    },
+    "other": {
+      "request_to_native_take_done_boot": {
+        "min": 4149.504,
+        "median": 4214.37,
+        "max": 4363.598
+      },
+      "request_to_rust_entry_monotonic": {
+        "min": 4175.19,
+        "median": 4236.211,
+        "max": 4384.276
+      },
+      "estimated_take_done_to_rust_entry_if_no_suspend": {
+        "min": 19.577,
+        "median": 21.86,
+        "max": 25.685
+      }
+    }
+  },
+  "samples": [
+    {
+      "case": "candidate-01",
+      "source_sha256": {
+        "request.json": "d8ac81966b8c67369b5038532dd844c2dcabd9ab1f34e94dedd4e10cd009b6dd",
+        "shell.tsv": "b7921d1841c3f04d53dd1029873f8f469690b5effb36d3cd4fe9a2f062f3ff92",
+        "production-launcher-timing.tsv": "a39adec2334517c744279ee4f06aeef3677618198152f25f2fc87fadebdaea3d",
+        "lifecycle.jsonl": "1a1b56bf2cab76e282c0f0fe8e9b7458fb26d93c54c404d09d9bc98562831b76"
+      },
+      "ms": {
+        "nonoverlapping_boot": {
+          "request_to_instrumented_entry": 531.315,
+          "entry_to_instrumented_worker": 70.0,
+          "worker_to_sample_begin_includes_fixed_wait": 2670.0,
+          "sample_begin_to_sample_ready": 450.0,
+          "sample_ready_to_take_begin": 370.0,
+          "take_begin_to_take_done": 100.0
+        },
+        "nested_probe": {
+          "capture_display_and_portrait_go_to_ready": 390.0,
+          "capture_display_and_portrait_ready_to_reaped": 10.0,
+          "publish_portrait_go_to_ready": 110.0,
+          "publish_portrait_ready_to_reaped": 10.0,
+          "query_sleep_cover_go_to_ready": 80.0,
+          "query_sleep_cover_ready_to_reaped": 40.0
+        },
+        "other": {
+          "request_to_native_take_done_boot": 4191.315,
+          "request_to_rust_entry_monotonic": 4211.955,
+          "estimated_take_done_to_rust_entry_if_no_suspend": 20.64
+        }
+      }
+    },
+    {
+      "case": "candidate-02",
+      "source_sha256": {
+        "request.json": "f8695f22910bf0087b2440892ddc339c09f3c54dcfca0b46de4ce4b09d4dd68c",
+        "shell.tsv": "8294ba987cec689ac88d1e07295d73f93ff4cbbbb882d36285067348a1292d2b",
+        "production-launcher-timing.tsv": "7f0b5f93dbae6b9b909614c2abcb44f010bcfe772c5665f956a2988f7bb3d03b",
+        "lifecycle.jsonl": "132d9e26a8e1b65f48ad603ae08b17a55c3057c68814b8d8fae648b4a3ffcfa8"
+      },
+      "ms": {
+        "nonoverlapping_boot": {
+          "request_to_instrumented_entry": 513.598,
+          "entry_to_instrumented_worker": 220.0,
+          "worker_to_sample_begin_includes_fixed_wait": 2710.0,
+          "sample_begin_to_sample_ready": 440.0,
+          "sample_ready_to_take_begin": 380.0,
+          "take_begin_to_take_done": 100.0
+        },
+        "nested_probe": {
+          "capture_display_and_portrait_go_to_ready": 390.0,
+          "capture_display_and_portrait_ready_to_reaped": 10.0,
+          "publish_portrait_go_to_ready": 110.0,
+          "publish_portrait_ready_to_reaped": 40.0,
+          "query_sleep_cover_go_to_ready": 90.0,
+          "query_sleep_cover_ready_to_reaped": 10.0
+        },
+        "other": {
+          "request_to_native_take_done_boot": 4363.598,
+          "request_to_rust_entry_monotonic": 4384.276,
+          "estimated_take_done_to_rust_entry_if_no_suspend": 20.678
+        }
+      }
+    },
+    {
+      "case": "candidate-03",
+      "source_sha256": {
+        "request.json": "2a11a3b6c763e6985f63d0f9fa40c3430e36bfca19beae02301f8f8f06fa441c",
+        "shell.tsv": "032ce6769f0e935ebb09abb90ef2e138c4b7f13f7c087f16cccc7b9c661e38b9",
+        "production-launcher-timing.tsv": "3b2d0cc3e1663534299b756a24165c73278dfbf649688eacb2d7940e4c2a6b15",
+        "lifecycle.jsonl": "d34df184bd3a581222e2363ee9f0b0d932cf0ff520bf1c279043975b2ef9fd53"
+      },
+      "ms": {
+        "nonoverlapping_boot": {
+          "request_to_instrumented_entry": 541.158,
+          "entry_to_instrumented_worker": 200.0,
+          "worker_to_sample_begin_includes_fixed_wait": 2660.0,
+          "sample_begin_to_sample_ready": 460.0,
+          "sample_ready_to_take_begin": 350.0,
+          "take_begin_to_take_done": 100.0
+        },
+        "nested_probe": {
+          "capture_display_and_portrait_go_to_ready": 390.0,
+          "capture_display_and_portrait_ready_to_reaped": 10.0,
+          "publish_portrait_go_to_ready": 120.0,
+          "publish_portrait_ready_to_reaped": 10.0,
+          "query_sleep_cover_go_to_ready": 90.0,
+          "query_sleep_cover_ready_to_reaped": 10.0
+        },
+        "other": {
+          "request_to_native_take_done_boot": 4311.158,
+          "request_to_rust_entry_monotonic": 4330.736,
+          "estimated_take_done_to_rust_entry_if_no_suspend": 19.577
+        }
+      }
+    },
+    {
+      "case": "candidate-04",
+      "source_sha256": {
+        "request.json": "2e3f9cc5e46a26799cf1ede6b65de8e34ce6e77f5e28ebc1c2f40ccbfb5e2384",
+        "shell.tsv": "dc0c52f184789afd45c82c9f843aa3cace5ea03cdf20982607959b0b2d42d008",
+        "production-launcher-timing.tsv": "402cb279977f8d3fe0c81bc4bf030493fb1868bb1a0330cf35fab88a42024a7f",
+        "lifecycle.jsonl": "27feaaa6e63efefa3fecf21a4793748e2a97316c01ce5211066c5c08e17528f4"
+      },
+      "ms": {
+        "nonoverlapping_boot": {
+          "request_to_instrumented_entry": 557.424,
+          "entry_to_instrumented_worker": 170.0,
+          "worker_to_sample_begin_includes_fixed_wait": 2640.0,
+          "sample_begin_to_sample_ready": 430.0,
+          "sample_ready_to_take_begin": 340.0,
+          "take_begin_to_take_done": 100.0
+        },
+        "nested_probe": {
+          "capture_display_and_portrait_go_to_ready": 370.0,
+          "capture_display_and_portrait_ready_to_reaped": 10.0,
+          "publish_portrait_go_to_ready": 120.0,
+          "publish_portrait_ready_to_reaped": 10.0,
+          "query_sleep_cover_go_to_ready": 90.0,
+          "query_sleep_cover_ready_to_reaped": 10.0
+        },
+        "other": {
+          "request_to_native_take_done_boot": 4237.424,
+          "request_to_rust_entry_monotonic": 4260.466,
+          "estimated_take_done_to_rust_entry_if_no_suspend": 23.042
+        }
+      }
+    },
+    {
+      "case": "candidate-05",
+      "source_sha256": {
+        "request.json": "262a9d719c674b06d6a014473049c06e544e0edd748f21c260719868d36e256f",
+        "shell.tsv": "439b65b2320c6ac6e618b0e200dcca98c386155f35e5a3abf9663b55d370f85c",
+        "production-launcher-timing.tsv": "540b3a22248fdf19f097fe586fb70024f7c79b55f37d6b65a55870f5257e913f",
+        "lifecycle.jsonl": "7ef44d65b2794930ed123430ff0c4ce6c57510054b314d2e68cacc008492a825"
+      },
+      "ms": {
+        "nonoverlapping_boot": {
+          "request_to_instrumented_entry": 499.504,
+          "entry_to_instrumented_worker": 110.0,
+          "worker_to_sample_begin_includes_fixed_wait": 2630.0,
+          "sample_begin_to_sample_ready": 470.0,
+          "sample_ready_to_take_begin": 340.0,
+          "take_begin_to_take_done": 100.0
+        },
+        "nested_probe": {
+          "capture_display_and_portrait_go_to_ready": 410.0,
+          "capture_display_and_portrait_ready_to_reaped": 10.0,
+          "publish_portrait_go_to_ready": 110.0,
+          "publish_portrait_ready_to_reaped": 10.0,
+          "query_sleep_cover_go_to_ready": 80.0,
+          "query_sleep_cover_ready_to_reaped": 10.0
+        },
+        "other": {
+          "request_to_native_take_done_boot": 4149.504,
+          "request_to_rust_entry_monotonic": 4175.19,
+          "estimated_take_done_to_rust_entry_if_no_suspend": 25.685
+        }
+      }
+    },
+    {
+      "case": "candidate-06",
+      "source_sha256": {
+        "request.json": "6452d3119ac88024a130d79f6e36c6cb6f63aafad9d34d339f06a9dcfd5d7fab",
+        "shell.tsv": "4b2f97e690c3501c790b0b1d122c57d3b2bd80394e816c41625468a2d2155c61",
+        "production-launcher-timing.tsv": "25c909160f83a6a7069ab9ce53918a0f9430c824ec38eaa9c124040f58776d54",
+        "lifecycle.jsonl": "c9b47af419257736b277a5165ce91d9812b53575a99828e5129fad0ae176370a"
+      },
+      "ms": {
+        "nonoverlapping_boot": {
+          "request_to_instrumented_entry": 539.036,
+          "entry_to_instrumented_worker": 130.0,
+          "worker_to_sample_begin_includes_fixed_wait": 2660.0,
+          "sample_begin_to_sample_ready": 400.0,
+          "sample_ready_to_take_begin": 350.0,
+          "take_begin_to_take_done": 100.0
+        },
+        "nested_probe": {
+          "capture_display_and_portrait_go_to_ready": 350.0,
+          "capture_display_and_portrait_ready_to_reaped": 10.0,
+          "publish_portrait_go_to_ready": 120.0,
+          "publish_portrait_ready_to_reaped": 10.0,
+          "query_sleep_cover_go_to_ready": 90.0,
+          "query_sleep_cover_ready_to_reaped": 10.0
+        },
+        "other": {
+          "request_to_native_take_done_boot": 4179.036,
+          "request_to_rust_entry_monotonic": 4202.456,
+          "estimated_take_done_to_rust_entry_if_no_suspend": 23.42
+        }
+      }
+    }
+  ]
+}

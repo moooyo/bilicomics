@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "run": "lib-t-1119-a709c5c7",
+  "report_sha256": "2275449c27a7794ab8c9eebfb87e459f8f5b7630354fd74e2d59241058a95562",
+  "verified_source_archive": {
+    "sha256": "13d77e3d3f544c7deced1fd9da74b5a56852d55b0a7a5bf8b75fc6bef2c1dd91",
+    "matched_regular_members": 36,
+    "member_pattern": "out/CASE/SOURCE"
+  },
+  "scope": "Native XTest Library tile click to isolated offline Shelf, same boot and distinct process launches. The first launch is separate, not a cold boot.",
+  "origin": "Primary partition starts after XSync confirms the release (click.json up_after_ns); companion up_before_ns endpoints start immediately before sends. Both are device CLOCK_MONOTONIC, not finger/digitizer timestamps. Preflight request.json precedes target checks and is excluded from all launch spans.",
+  "clock": "Native marks are /proc/uptime truncated to 10 ms. Estimated release boot time = request.boottime_ns + (click.up_after_ns - request.monotonic_ns), likewise for up_before. A second dual-clock record after Rust entry checks the per-case offset; all absolute offset changes must be <1 ms. The two clock reads are sequential, not simultaneous. A boot/monotonic gap is an estimate, not optical or precisely sub-centisecond.",
+  "groups": {
+    "partition_from_up_after": "Consecutive non-overlapping intervals; first crosses the checked clock mapping and later marks are same-domain uptime. The research admission prolog is included before entry/worker marks. Worker to sample includes a fixed 2 s settle, not 2 s of proven removable work.",
+    "nested_probe": "Parts of the two relevant native sample intervals, not additional durations.",
+    "endpoints": "Standalone totals under each release bracket. Rust entry is always measured directly on CLOCK_MONOTONIC.",
+    "method_only": "Excluded preflight duration and the release injection bracket, not extra launch stages."
+  },
+  "statistics": "Milliseconds, rounded after calculating per-case intervals; only the five repeats enter min, median and max. Marginal medians are not additive.",
+  "first_in_batch": {
+    "case": "candidate-warmup",
+    "ms": {
+      "partition_from_up_after": {
+        "estimated_up_after_to_entry": 532.751,
+        "entry_to_instrumented_worker": 90.0,
+        "worker_to_sample_begin_includes_fixed_wait": 2720.0,
+        "sample_begin_to_sample_ready": 540.0,
+        "sample_ready_to_take_begin": 300.0,
+        "take_begin_to_take_done": 100.0
+      },
+      "nested_probe": {
+        "capture_display_and_portrait_go_to_ready": 490.0,
+        "capture_display_and_portrait_ready_to_reaped": 0.0,
+        "publish_portrait_go_to_ready": 80.0,
+        "publish_portrait_ready_to_reaped": 10.0,
+        "query_sleep_cover_go_to_ready": 90.0,
+        "query_sleep_cover_ready_to_reaped": 10.0
+      },
+      "endpoints": {
+        "estimated_up_before_to_entry": 533.682,
+        "estimated_up_before_to_native_take_done": 4283.682,
+        "up_before_to_rust_entry_monotonic": 4316.888,
+        "estimated_up_after_to_native_take_done": 4282.751,
+        "up_after_to_rust_entry_monotonic": 4315.957,
+        "estimated_native_take_done_to_rust_entry": 33.206
+      },
+      "method_only": {
+        "excluded_request_to_up_before": 559.289,
+        "up_send_to_xsync": 0.931
+      }
+    },
+    "clock_recheck": {
+      "case": "candidate-01",
+      "source": "native-stable-start.json",
+      "boot_minus_monotonic_offset_change_ns": -923
+    },
+    "source_sha256": {
+      "request.json": "9317d82e38e016729ec4df66c7a167b5dadf6f3a8654eebbd4c5d1a50d4f1369",
+      "shell.tsv": "9ee3596b801b6a7810631011dc859f2de59890171bb4bbd58d6a204ce6d4a505",
+      "production-launcher-timing.tsv": "ede96364524a42af6dbb09d893247c20927d8ff7fe7672e5a3e5454ca37aa5ef",
+      "lifecycle.jsonl": "6137c078bc572a5bdf2e11c855f24d4e52d63fb09355aa6113284960f8559140",
+      "click.json": "d02edfae2554c680713a4e11329a541ce3486bf651d0bb88c29f67adf1f5aa6a"
+    }
+  },
+  "repeated_summary_ms": {
+    "partition_from_up_after": {
+      "estimated_up_after_to_entry": {
+        "min": 436.967,
+        "median": 448.225,
+        "max": 533.174
+      },
+      "entry_to_instrumented_worker": {
+        "min": 110.0,
+        "median": 290.0,
+        "max": 340.0
+      },
+      "worker_to_sample_begin_includes_fixed_wait": {
+        "min": 2430.0,
+        "median": 2750.0,
+        "max": 2820.0
+      },
+      "sample_begin_to_sample_ready": {
+        "min": 450.0,
+        "median": 450.0,
+        "max": 490.0
+      },
+      "sample_ready_to_take_begin": {
+        "min": 340.0,
+        "median": 350.0,
+        "max": 350.0
+      },
+      "take_begin_to_take_done": {
+        "min": 100.0,
+        "median": 100.0,
+        "max": 100.0
+      }
+    },
+    "nested_probe": {
+      "capture_display_and_portrait_go_to_ready": {
+        "min": 390.0,
+        "median": 400.0,
+        "max": 420.0
+      },
+      "capture_display_and_portrait_ready_to_reaped": {
+        "min": 10.0,
+        "median": 10.0,
+        "max": 30.0
+      },
+      "publish_portrait_go_to_ready": {
+        "min": 110.0,
+        "median": 120.0,
+        "max": 120.0
+      },
+      "publish_portrait_ready_to_reaped": {
+        "min": 10.0,
+        "median": 10.0,
+        "max": 10.0
+      },
+      "query_sleep_cover_go_to_ready": {
+        "min": 80.0,
+        "median": 90.0,
+        "max": 90.0
+      },
+      "query_sleep_cover_ready_to_reaped": {
+        "min": 10.0,
+        "median": 10.0,
+        "max": 10.0
+      }
+    },
+    "endpoints": {
+      "estimated_up_before_to_entry": {
+        "min": 445.979,
+        "median": 450.088,
+        "max": 533.855
+      },
+      "estimated_up_before_to_native_take_done": {
+        "min": 3919.435,
+        "median": 4345.979,
+        "max": 4593.855
+      },
+      "up_before_to_rust_entry_monotonic": {
+        "min": 3947.776,
+        "median": 4366.929,
+        "max": 4615.798
+      },
+      "estimated_up_after_to_native_take_done": {
+        "min": 3918.225,
+        "median": 4344.765,
+        "max": 4593.174
+      },
+      "up_after_to_rust_entry_monotonic": {
+        "min": 3946.565,
+        "median": 4365.714,
+        "max": 4615.117
+      },
+      "estimated_native_take_done_to_rust_entry": {
+        "min": 20.95,
+        "median": 23.335,
+        "max": 28.34
+      }
+    },
+    "method_only": {
+      "excluded_request_to_up_before": {
+        "min": 472.385,
+        "median": 476.691,
+        "max": 527.739
+      },
+      "up_send_to_xsync": {
+        "min": 0.681,
+        "median": 1.211,
+        "max": 13.121
+      }
+    }
+  },
+  "repeated_samples": [
+    {
+      "case": "candidate-01",
+      "ms": {
+        "partition_from_up_after": {
+          "estimated_up_after_to_entry": 533.174,
+          "entry_to_instrumented_worker": 340.0,
+          "worker_to_sample_begin_includes_fixed_wait": 2820.0,
+          "sample_begin_to_sample_ready": 450.0,
+          "sample_ready_to_take_begin": 350.0,
+          "take_begin_to_take_done": 100.0
+        },
+        "nested_probe": {
+          "capture_display_and_portrait_go_to_ready": 390.0,
+          "capture_display_and_portrait_ready_to_reaped": 10.0,
+          "publish_portrait_go_to_ready": 120.0,
+          "publish_portrait_ready_to_reaped": 10.0,
+          "query_sleep_cover_go_to_ready": 90.0,
+          "query_sleep_cover_ready_to_reaped": 10.0
+        },
+        "endpoints": {
+          "estimated_up_before_to_entry": 533.855,
+          "estimated_up_before_to_native_take_done": 4593.855,
+          "up_before_to_rust_entry_monotonic": 4615.798,
+          "estimated_up_after_to_native_take_done": 4593.174,
+          "up_after_to_rust_entry_monotonic": 4615.117,
+          "estimated_native_take_done_to_rust_entry": 21.943
+        },
+        "method_only": {
+          "excluded_request_to_up_before": 472.385,
+          "up_send_to_xsync": 0.681
+        }
+      },
+      "clock_recheck": {
+        "case": "candidate-02",
+        "source": "native-stable-start.json",
+        "boot_minus_monotonic_offset_change_ns": 1462
+      },
+      "source_sha256": {
+        "native-stable-start.json": "5cec7431da3bb79f137deb3c0197142ef638561b3c7860fef746ac6f8921e49a",
+        "request.json": "8c70b13a15e0a2b1dbc845cc8b7660269fe213b75be869bbf66f03d070324bc3",
+        "shell.tsv": "64afa7bf3c9f6f6bf7b355e84bcd513a1d4cb1aff39efda60da7c3f18dbc06c8",
+        "production-launcher-timing.tsv": "6e97e7814807d91a9f0b3c56ddade71d3861be1a3e3bf7c0fd0632510b40b046",
+        "lifecycle.jsonl": "1032962adbdc66fe60b5421bb4bba6089e38ba60c4d586f34c2c3c2556836361",
+        "click.json": "006b019873c88782404ccf57040882f56b9fd8aebc8a941c3a0bc2e2ee64075a"
+      }
+    },
+    {
+      "case": "candidate-02",
+      "ms": {
+        "partition_from_up_after": {
+          "estimated_up_after_to_entry": 448.225,
+          "entry_to_instrumented_worker": 110.0,
+          "worker_to_sample_begin_includes_fixed_wait": 2430.0,
+          "sample_begin_to_sample_ready": 490.0,
+          "sample_ready_to_take_begin": 340.0,
+          "take_begin_to_take_done": 100.0
+        },
+        "nested_probe": {
+          "capture_display_and_portrait_go_to_ready": 410.0,
+          "capture_display_and_portrait_ready_to_reaped": 30.0,
+          "publish_portrait_go_to_ready": 110.0,
+          "publish_portrait_ready_to_reaped": 10.0,
+          "query_sleep_cover_go_to_ready": 80.0,
+          "query_sleep_cover_ready_to_reaped": 10.0
+        },
+        "endpoints": {
+          "estimated_up_before_to_entry": 449.435,
+          "estimated_up_before_to_native_take_done": 3919.435,
+          "up_before_to_rust_entry_monotonic": 3947.776,
+          "estimated_up_after_to_native_take_done": 3918.225,
+          "up_after_to_rust_entry_monotonic": 3946.565,
+          "estimated_native_take_done_to_rust_entry": 28.34
+        },
+        "method_only": {
+          "excluded_request_to_up_before": 479.43,
+          "up_send_to_xsync": 1.211
+        }
+      },
+      "clock_recheck": {
+        "case": "candidate-03",
+        "source": "native-stable-start.json",
+        "boot_minus_monotonic_offset_change_ns": -4230
+      },
+      "source_sha256": {
+        "native-stable-start.json": "41a897acf9e9aa45e53cc8fb7e5c383a8e1653f295a3de8c57c2bd60ce85a3a4",
+        "request.json": "d0b763a978787d5914a6dd570d125e6a579f837d3bd3e4f80233933aa307d6c1",
+        "shell.tsv": "5e6aa87cdd187f71fb38a7578db40cee2f2a6ca81492ebb026356c3766f44e53",
+        "production-launcher-timing.tsv": "fc990decf1f50d5fd0a1193d6d5bc6701393da1c1b2fea6bbfb7dd1053e1b5d3",
+        "lifecycle.jsonl": "20344d5fd5968436712c2b62fd2f2407d6e7d0aa4567a1413d5c4bbc1b326aa2",
+        "click.json": "c882831fe57f318840981199b62af86f14a2d9cd189db74f30e9fc292ec47ac1"
+      }
+    },
+    {
+      "case": "candidate-03",
+      "ms": {
+        "partition_from_up_after": {
+          "estimated_up_after_to_entry": 436.967,
+          "entry_to_instrumented_worker": 300.0,
+          "worker_to_sample_begin_includes_fixed_wait": 2750.0,
+          "sample_begin_to_sample_ready": 450.0,
+          "sample_ready_to_take_begin": 340.0,
+          "take_begin_to_take_done": 100.0
+        },
+        "nested_probe": {
+          "capture_display_and_portrait_go_to_ready": 390.0,
+          "capture_display_and_portrait_ready_to_reaped": 10.0,
+          "publish_portrait_go_to_ready": 110.0,
+          "publish_portrait_ready_to_reaped": 10.0,
+          "query_sleep_cover_go_to_ready": 90.0,
+          "query_sleep_cover_ready_to_reaped": 10.0
+        },
+        "endpoints": {
+          "estimated_up_before_to_entry": 450.088,
+          "estimated_up_before_to_native_take_done": 4390.088,
+          "up_before_to_rust_entry_monotonic": 4413.423,
+          "estimated_up_after_to_native_take_done": 4376.967,
+          "up_after_to_rust_entry_monotonic": 4400.302,
+          "estimated_native_take_done_to_rust_entry": 23.335
+        },
+        "method_only": {
+          "excluded_request_to_up_before": 527.739,
+          "up_send_to_xsync": 13.121
+        }
+      },
+      "clock_recheck": {
+        "case": "candidate-04",
+        "source": "native-stable-start.json",
+        "boot_minus_monotonic_offset_change_ns": 4307
+      },
+      "source_sha256": {
+        "native-stable-start.json": "4770a8d93bcf416b9aaab9a2b493fa3ecb80ef6bb021819884a298cf2c72b8bc",
+        "request.json": "b39934c5fb94c056357d66a73e2befb4ac348205215636cdca0231675553c71f",
+        "shell.tsv": "301b190b40858b4b3c9a9d42b2a13dbacb70b9cb1c469a4a4257151fed1561d7",
+        "production-launcher-timing.tsv": "69ba3c999441faca18f9905c780464a0e702cba42896265694854cf004a1a475",
+        "lifecycle.jsonl": "59fd10991beaf5baee6ef2399713ff1f40629c99aa509ca27740e077c17a4cc4",
+        "click.json": "3e7f71d9644167b071ff93e3a2af013dc72a845f96d0b17f57dc366ce252b0c0"
+      }
+    },
+    {
+      "case": "candidate-04",
+      "ms": {
+        "partition_from_up_after": {
+          "estimated_up_after_to_entry": 444.765,
+          "entry_to_instrumented_worker": 230.0,
+          "worker_to_sample_begin_includes_fixed_wait": 2770.0,
+          "sample_begin_to_sample_ready": 450.0,
+          "sample_ready_to_take_begin": 350.0,
+          "take_begin_to_take_done": 100.0
+        },
+        "nested_probe": {
+          "capture_display_and_portrait_go_to_ready": 400.0,
+          "capture_display_and_portrait_ready_to_reaped": 10.0,
+          "publish_portrait_go_to_ready": 120.0,
+          "publish_portrait_ready_to_reaped": 10.0,
+          "query_sleep_cover_go_to_ready": 90.0,
+          "query_sleep_cover_ready_to_reaped": 10.0
+        },
+        "endpoints": {
+          "estimated_up_before_to_entry": 445.979,
+          "estimated_up_before_to_native_take_done": 4345.979,
+          "up_before_to_rust_entry_monotonic": 4366.929,
+          "estimated_up_after_to_native_take_done": 4344.765,
+          "up_after_to_rust_entry_monotonic": 4365.714,
+          "estimated_native_take_done_to_rust_entry": 20.95
+        },
+        "method_only": {
+          "excluded_request_to_up_before": 476.691,
+          "up_send_to_xsync": 1.214
+        }
+      },
+      "clock_recheck": {
+        "case": "candidate-05",
+        "source": "native-stable-start.json",
+        "boot_minus_monotonic_offset_change_ns": -3307
+      },
+      "source_sha256": {
+        "native-stable-start.json": "307597872bf381f5fd125e10b78813daf7477a1c07cee894eaf4078237112f64",
+        "request.json": "c3b7498466201ee96e0727b402ef68c37299e7e2bcf0015caa24cfa504376240",
+        "shell.tsv": "043bc376ed9e1117ab2a11746e13ed1f5c88f7f5cb5eac777b5ac1aba8f8c16d",
+        "production-launcher-timing.tsv": "df12e6ab2e4baf2fd4e247b53f110efd6d822b6cc3108a73eac4eb38ec9e6bb7",
+        "lifecycle.jsonl": "39555b1761934f895372ea1fc293d13513b4d4e0af5689b128cc752ddca833dd",
+        "click.json": "fd0a25d8e705113e86c4fa37b1947f203dab1e2ae410334d7631fde49e8bc1f3"
+      }
+    },
+    {
+      "case": "candidate-05",
+      "ms": {
+        "partition_from_up_after": {
+          "estimated_up_after_to_entry": 480.119,
+          "entry_to_instrumented_worker": 290.0,
+          "worker_to_sample_begin_includes_fixed_wait": 2620.0,
+          "sample_begin_to_sample_ready": 480.0,
+          "sample_ready_to_take_begin": 350.0,
+          "take_begin_to_take_done": 100.0
+        },
+        "nested_probe": {
+          "capture_display_and_portrait_go_to_ready": 420.0,
+          "capture_display_and_portrait_ready_to_reaped": 10.0,
+          "publish_portrait_go_to_ready": 120.0,
+          "publish_portrait_ready_to_reaped": 10.0,
+          "query_sleep_cover_go_to_ready": 90.0,
+          "query_sleep_cover_ready_to_reaped": 10.0
+        },
+        "endpoints": {
+          "estimated_up_before_to_entry": 481.259,
+          "estimated_up_before_to_native_take_done": 4321.259,
+          "up_before_to_rust_entry_monotonic": 4344.916,
+          "estimated_up_after_to_native_take_done": 4320.119,
+          "up_after_to_rust_entry_monotonic": 4343.776,
+          "estimated_native_take_done_to_rust_entry": 23.657
+        },
+        "method_only": {
+          "excluded_request_to_up_before": 474.28,
+          "up_send_to_xsync": 1.14
+        }
+      },
+      "clock_recheck": {
+        "case": "candidate-05",
+        "source": "qualified-capture-request.json",
+        "boot_minus_monotonic_offset_change_ns": -308
+      },
+      "source_sha256": {
+        "native-stable-start.json": "4ff0e2d9c849aced4a3e26b0547de4eba2410fa35a5acba5c174d36d51f6a075",
+        "request.json": "9a7651e2c15a33b7ecd0098b5bbe57ee19b43f04adc0d51ff3522beff7dfb400",
+        "shell.tsv": "497d070351d5bd8919c9051584309ab4254d570aed1e446789bef6d4825fb593",
+        "production-launcher-timing.tsv": "813d80b67c9656bad78ffe881c7ed75feb5b63c5ec66274d5fba4f080f8ca3e8",
+        "lifecycle.jsonl": "ce6fe9c0349a47c382b3a9a30cebacadbe6b283ef466e74b7ffa7056c529b448",
+        "click.json": "2842f341f9f7e47cee7549696738bd86581ed2d887b1495db4c6a46f824dcf8f",
+        "qualified-capture-request.json": "abce77dadc78ab7db6e9fba37563cf5a875440fdd8cc4cdf41f46f04e4e487ca"
+      }
+    }
+  ]
+}

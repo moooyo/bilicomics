@@ -58,6 +58,7 @@ Normal execution uses the per-user `bilicomics` data directory; `--data-dir` ove
 
 | Document | Contents |
 | --- | --- |
+| [Startup optimization handoff (2026-11-20)](docs/HANDOFF_STARTUP_20261120.md) | Start here to verify the merged candidate, rebuild on `test-env`, and run the paired Kindle comparison. No candidate speedup has been measured. |
 | [Implementation status](docs/IMPLEMENTATION_STATUS.md) | Implemented behavior, verification evidence, and acceptance boundaries |
 | [Comic-cover sleep](docs/SLEEP_COVER.md) | Prepared covers, checked presentation, native ownership, fallback, and verification scope |
 | [Design source](docs/DESIGN_SOURCE.md) | Downloaded design provenance and reference renders |
@@ -74,6 +75,7 @@ Normal execution uses the per-user `bilicomics` data directory; `--data-dir` ove
 | [Resource and performance review](docs/RESOURCE_AND_PERFORMANCE_REVIEW.md) | Cancellation lifetimes, idle cover work, reader/cache retention, optimization priorities, and bounded remote observations |
 | [Resource and performance implementation](docs/RESOURCE_AND_PERFORMANCE_IMPLEMENTATION.md) | Version 0.1.6 implementation mapping, resource budgets, durability boundaries, controlled verification results, and acceptance limits |
 | [Startup and reader performance](docs/PERFORMANCE_IMPLEMENTATION_20261109.md) | Version 0.1.19 startup scheduling, pixel-equivalent reader resizing, page retention, durable progress, resource bounds, and scoped software/physical results |
+| [Native Library click to Shelf](docs/physical/library-to-shelf-20261119/README.md) | Physical Scribe card-click latency, first Shelf frame and driver completion, and the two largest optimization candidates |
 | [Startup and page-turn cost breakdown](docs/PERFORMANCE_COST_REVIEW_20261110.md) | R45 timing boundaries, root-cause and feasibility review, remaining reader/composition work, and a scoped traversal experiment |
 | [Performance diagnostics](docs/PERFORMANCE_DIAGNOSTICS.md) | Opt-in 0.1.20 stage tracing, operation correlation, clock boundaries and verification expectations |
 | [Perf05 reader priority](docs/PERF05_READER_PRIORITY_20261116.md) | Bounded shared pixels and [completed prediction delivery](docs/PERF05_PREFETCH_DELIVERY_20261116.md), with separate [partial physical observations](docs/PHYSICAL_PREFETCH_DELIVERY_20261116.md) |

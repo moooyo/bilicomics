@@ -4,6 +4,8 @@ Recorded: 2026-11-03 (Asia/Shanghai).
 
 Historical status: source review before the design was supplied. The user subsequently supplied the design and authorized implementation. See [implementation status](IMPLEMENTATION_STATUS.md) and [design provenance](DESIGN_SOURCE.md) for current work. The original preparation notes below retain their original scope and evidence boundaries.
 
+For the pending native Library startup comparison, use the [2026-11-20 session handoff](HANDOFF_STARTUP_20261120.md).
+
 ## Request and current state
 
 The user wants a Kindle application for Bilibili Comics, referring to the existing local WeRead application for implementation context and `moooyo/bilicomics.koplugin` for upstream interface usage. The immediate deliverable is this handoff.

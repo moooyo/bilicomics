@@ -1,0 +1,240 @@
+{
+  "source": "../native-library-entry-20261118/formal-ab",
+  "run": "lib-ab-20261117-2e297ef4",
+  "summary_sha256": "97bc68f5374e031aa37ef6140af3cbb1c1987347d667313fa1696b7c4689dbbc",
+  "provenance_sha256": "0e1b1386b5577477e3d4020b2e068d7c4f0b14f84f818b90d33c730c8d6b7232",
+  "runtime_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+  "package_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+  "application_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+  "scope": "Stored physical Scribe evidence, new processes with retained caches, offline demo Shelf. Six primary --library starts; no new launches, warmups or detached controls in this projection.",
+  "origin": "Pinned startup-clock CLOCK_MONOTONIC before request-record close and native file-URI exec",
+  "native_uri": "file:///mnt/us/documents/bilicomics.sh",
+  "endpoints": {
+    "app_splash_send": "Initial accepted rendered application frame, not earlier native handler feedback.",
+    "ui_ready": "Unique performance startup/ui_ready clock; the separate lifecycle Ready record confirms Shelf.",
+    "shelf_send": "refresh_submit.finished_monotonic_ns on the earliest rendered accepted frame whose Slint render begins after ui_ready and ends before refresh submission",
+    "shelf_driver_complete": "End of the driver's checked wait for the positive accepted Shelf marker, not the later trace-record timestamp."
+  },
+  "limits": "No finger-touch timestamp, optical observation, complete-cover or input-ready endpoint. Includes profiling (RGB fingerprinting).",
+  "statistics": "Milliseconds rounded to 0.001 after calculation from monotonic nanoseconds. Each median uses its own six per-run spans; marginal medians are not additive.",
+  "interval_ms": {
+    "request_to_process_enter": {
+      "min": 4175.19,
+      "median": 4236.211,
+      "max": 4384.276
+    },
+    "request_to_app_splash_send": {
+      "min": 4435.412,
+      "median": 4493.574,
+      "max": 4664.238
+    },
+    "request_to_ui_ready": {
+      "min": 5244.248,
+      "median": 5582.248,
+      "max": 6314.945
+    },
+    "request_to_shelf_send": {
+      "min": 5999.311,
+      "median": 6288.531,
+      "max": 6874.023
+    },
+    "request_to_shelf_driver_complete": {
+      "min": 6365.121,
+      "median": 6654.472,
+      "max": 7239.876
+    },
+    "process_enter_to_ui_ready": {
+      "min": 1069.058,
+      "median": 1286.647,
+      "max": 1930.669
+    },
+    "ui_ready_to_shelf_send": {
+      "min": 407.691,
+      "median": 730.454,
+      "max": 763.126
+    },
+    "shelf_send_to_driver_complete": {
+      "min": 365.626,
+      "median": 365.878,
+      "max": 365.965
+    }
+  },
+  "shelf_frame_ms": {
+    "preceding_update_wait": {
+      "min": 0.004,
+      "median": 319.917,
+      "max": 327.38
+    },
+    "slint_render": {
+      "min": 298.593,
+      "median": 352.529,
+      "max": 458.87
+    },
+    "rgb_fingerprint": {
+      "min": 47.941,
+      "median": 52.182,
+      "max": 57.992
+    },
+    "framebuffer_write": {
+      "min": 29.373,
+      "median": 29.785,
+      "max": 33.887
+    },
+    "refresh_submit": {
+      "min": 0.124,
+      "median": 0.285,
+      "max": 0.373
+    },
+    "refresh_complete_wait": {
+      "min": 365.618,
+      "median": 365.869,
+      "max": 365.957
+    }
+  },
+  "samples": [
+    {
+      "case": "candidate-01",
+      "source": "cases/04-candidate-01.json",
+      "source_sha256": "4eb0a1a7a00d78ae6db9eada248fe2f9a69dca60cc559c06b4bab984e57870eb",
+      "shelf_marker": 5,
+      "interval_ms": {
+        "request_to_process_enter": 4211.955,
+        "request_to_app_splash_send": 4452.854,
+        "request_to_ui_ready": 6074.582,
+        "request_to_shelf_send": 6482.274,
+        "request_to_shelf_driver_complete": 6848.191,
+        "process_enter_to_ui_ready": 1862.627,
+        "ui_ready_to_shelf_send": 407.691,
+        "shelf_send_to_driver_complete": 365.918
+      },
+      "shelf_frame_ms": {
+        "preceding_update_wait": 0.004,
+        "slint_render": 308.249,
+        "rgb_fingerprint": 55.357,
+        "framebuffer_write": 33.887,
+        "refresh_submit": 0.124,
+        "refresh_complete_wait": 365.912
+      }
+    },
+    {
+      "case": "candidate-02",
+      "source": "cases/05-candidate-02.json",
+      "source_sha256": "98d726edb8ea97ef63c9dd838bf76642a64513d1762dd207240e9f11ee265ed1",
+      "shelf_marker": 5,
+      "interval_ms": {
+        "request_to_process_enter": 4384.276,
+        "request_to_app_splash_send": 4664.238,
+        "request_to_ui_ready": 6314.945,
+        "request_to_shelf_send": 6874.023,
+        "request_to_shelf_driver_complete": 7239.876,
+        "process_enter_to_ui_ready": 1930.669,
+        "ui_ready_to_shelf_send": 559.077,
+        "shelf_send_to_driver_complete": 365.854
+      },
+      "shelf_frame_ms": {
+        "preceding_update_wait": 0.005,
+        "slint_render": 458.87,
+        "rgb_fingerprint": 57.992,
+        "framebuffer_write": 30.895,
+        "refresh_submit": 0.373,
+        "refresh_complete_wait": 365.843
+      }
+    },
+    {
+      "case": "candidate-03",
+      "source": "cases/08-candidate-03.json",
+      "source_sha256": "685a2d2ced5a6797acf7598a3beb6ac1c1f3172005a539bbd95d7ca79f4fcba9",
+      "shelf_marker": 5,
+      "interval_ms": {
+        "request_to_process_enter": 4330.736,
+        "request_to_app_splash_send": 4598.122,
+        "request_to_ui_ready": 5829.42,
+        "request_to_shelf_send": 6535.266,
+        "request_to_shelf_driver_complete": 6900.892,
+        "process_enter_to_ui_ready": 1498.685,
+        "ui_ready_to_shelf_send": 705.845,
+        "shelf_send_to_driver_complete": 365.626
+      },
+      "shelf_frame_ms": {
+        "preceding_update_wait": 327.38,
+        "slint_render": 298.593,
+        "rgb_fingerprint": 47.941,
+        "framebuffer_write": 29.77,
+        "refresh_submit": 0.283,
+        "refresh_complete_wait": 365.618
+      }
+    },
+    {
+      "case": "candidate-04",
+      "source": "cases/09-candidate-04.json",
+      "source_sha256": "177606b5da53fa83fa81fb69a6661db01c0eb2738fed4f72be45fdae6cbcc75d",
+      "shelf_marker": 4,
+      "interval_ms": {
+        "request_to_process_enter": 4260.466,
+        "request_to_app_splash_send": 4523.896,
+        "request_to_ui_ready": 5335.075,
+        "request_to_shelf_send": 6094.788,
+        "request_to_shelf_driver_complete": 6460.752,
+        "process_enter_to_ui_ready": 1074.609,
+        "ui_ready_to_shelf_send": 759.712,
+        "shelf_send_to_driver_complete": 365.965
+      },
+      "shelf_frame_ms": {
+        "preceding_update_wait": 317.234,
+        "slint_render": 361.16,
+        "rgb_fingerprint": 49.347,
+        "framebuffer_write": 29.716,
+        "refresh_submit": 0.24,
+        "refresh_complete_wait": 365.957
+      }
+    },
+    {
+      "case": "candidate-05",
+      "source": "cases/12-candidate-05.json",
+      "source_sha256": "25b55df7e2bae56072748d8100d3e33a1466cf02c65296c880ced5034f8fd644",
+      "shelf_marker": 4,
+      "interval_ms": {
+        "request_to_process_enter": 4175.19,
+        "request_to_app_splash_send": 4435.412,
+        "request_to_ui_ready": 5244.248,
+        "request_to_shelf_send": 5999.311,
+        "request_to_shelf_driver_complete": 6365.121,
+        "process_enter_to_ui_ready": 1069.058,
+        "ui_ready_to_shelf_send": 755.063,
+        "shelf_send_to_driver_complete": 365.811
+      },
+      "shelf_frame_ms": {
+        "preceding_update_wait": 323.26,
+        "slint_render": 351.549,
+        "rgb_fingerprint": 48.628,
+        "framebuffer_write": 29.373,
+        "refresh_submit": 0.356,
+        "refresh_complete_wait": 365.803
+      }
+    },
+    {
+      "case": "candidate-06",
+      "source": "cases/13-candidate-06.json",
+      "source_sha256": "3b80e4e693108b39b7e53836753394635eb0de02b3d3900ffe8965de3d8c73ef",
+      "shelf_marker": 4,
+      "interval_ms": {
+        "request_to_process_enter": 4202.456,
+        "request_to_app_splash_send": 4463.251,
+        "request_to_ui_ready": 5273.511,
+        "request_to_shelf_send": 6036.638,
+        "request_to_shelf_driver_complete": 6402.54,
+        "process_enter_to_ui_ready": 1071.055,
+        "ui_ready_to_shelf_send": 763.126,
+        "shelf_send_to_driver_complete": 365.902
+      },
+      "shelf_frame_ms": {
+        "preceding_update_wait": 322.6,
+        "slint_render": 353.509,
+        "rgb_fingerprint": 55.016,
+        "framebuffer_write": 29.799,
+        "refresh_submit": 0.286,
+        "refresh_complete_wait": 365.895
+      }
+    }
+  ]
+}

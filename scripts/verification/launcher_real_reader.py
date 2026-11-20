@@ -328,7 +328,10 @@ def run(arguments, result):
     for original, replacement in replacements.items():
         require(original in launcher_text, f"Missing explicit launcher fixture boundary: {original}")
         launcher_text = launcher_text.replace(original, replacement)
-    require("\nsleep 2\n" in launcher_text, "The production launcher startup delay must remain intact")
+    observer = launcher_text.partition("\nobserve_power() {\n")[2].partition("\nobserver_is_owned() {\n")[0]
+    require("if sleep 2; then result=ok; else result=failed; fi" in observer
+            and "\nwait_for_observer_settle || fail " in launcher_text,
+            "The production observer's full startup delay and launcher gate must remain intact")
     launcher_file = output / "launch.sh"
     launcher_file.write_text(launcher_text)
     launcher_file.chmod(0o700)

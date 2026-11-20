@@ -62,6 +62,14 @@ pub(super) struct PreparedCover {
     height: u32,
 }
 
+fn startup_screen<'a>(requested: &'a str, preferences: &Preferences, has_resume: bool) -> &'a str {
+    match requested {
+        "" if !preferences.onboarded => "welcome",
+        "" if preferences.launch == "resume" && has_resume => "reader",
+        "" | "library" => "shelf", "spread" => "reader", "settings" => "account", other => other,
+    }
+}
+
 fn startup_span(stage: &'static str) -> Option<Span> {
     if !performance::enabled() { return None; }
     performance::startup(stage, &serde_json::json!({ "phase": "begin" }));
@@ -163,11 +171,7 @@ impl App {
         if let Some(selected) = selected {
             catalog.detail = startup_step("state-resume-detail", || store.load_detail(&account, &selected))?;
         }
-        let route = match options.initial_screen.as_str() {
-            "" if !preferences.onboarded => "welcome",
-            "" if preferences.launch == "resume" && resume_comic.is_some() => "reader",
-            "" | "library" => "shelf", "spread" => "reader", "settings" => "account", other => other,
-        };
+        let route = startup_screen(&options.initial_screen, &preferences, resume_comic.is_some());
         if route == "search" {
             startup_step("state-input-dictionary", || {
                 let _ = crate::input::PinyinInput::default().candidates();
@@ -260,13 +264,21 @@ impl App {
     pub fn is_starting(&self) -> bool { self.startup_stage.is_some() }
 
     /// Coalesce cheap stages while keeping UI mutation on this thread.
-    /// Check the budget between stages; a slow or blocked stage yields immediately.
     pub fn advance_startup(&mut self) -> Result<bool> {
+        self.advance_startup_with_budget(Duration::from_millis(4))
+    }
+
+    fn advance_startup_with_budget(&mut self, budget: Duration) -> Result<bool> {
         let started = Instant::now();
         loop {
             let previous = self.startup_stage;
+            // A plain Shelf navigation and its view projection present one scene. Yielding
+            // between them would send the navigation refresh while the splash is still visible.
+            let commit_shelf = previous == Some(AttachStage::Route) && self.start_screen() == "shelf";
             if self.advance_startup_stage()? { return Ok(true); }
-            if self.startup_stage == previous || started.elapsed() >= Duration::from_millis(4) {
+            if self.startup_stage == previous { return Ok(false); }
+            if commit_shelf && self.route == "shelf" && self.startup_stage == Some(AttachStage::Views) { continue; }
+            if started.elapsed() >= budget {
                 return Ok(false);
             }
         }
@@ -391,16 +403,15 @@ impl App {
         });
     }
 
+    fn start_screen(&self) -> &str {
+        startup_screen(&self.options.initial_screen, &self.preferences, self.startup_resume_comic.is_some())
+    }
+
     fn initialize_start_route(&mut self) -> Result<()> {
-        let start = match self.options.initial_screen.as_str() {
-            "library" => "shelf", "settings" => "account", "spread" => "reader", value => value,
-        }.to_owned();
-        if start.is_empty() {
-            if !self.preferences.onboarded { self.navigate("welcome"); }
-            else if self.preferences.launch == "resume" {
-                if let Some(comic) = self.startup_resume_comic.take() { self.open_reader_for_comic(&comic)?; }
-                else { self.navigate("shelf"); }
-            } else { self.navigate("shelf"); }
+        let start = self.start_screen().to_owned();
+        if self.options.initial_screen.is_empty() && start == "reader" {
+            let comic = self.startup_resume_comic.take().context("Startup resume anchor is missing")?;
+            self.open_reader_for_comic(&comic)?;
         } else if start == "reader" || start == "detail" || start == "purchase" {
             let id = self.demo.as_ref().and_then(|demo| demo.comics.first()).map(|comic| comic.id.clone())
                 .or_else(|| self.catalog.comics.first().map(|comic| comic.id.clone()));
@@ -522,6 +533,117 @@ mod session_tests;
 #[cfg(test)]
 mod tests {
     use super::*;
+    use slint::Model;
+
+    fn with_final_attachment(work: impl FnOnce(&mut App, &AppWindow) -> Result<()> + Send + 'static) -> Result<()> {
+        struct TestPlatform;
+        impl slint::platform::Platform for TestPlatform {
+            fn create_window_adapter(&self) -> std::result::Result<Rc<dyn slint::platform::WindowAdapter>, slint::PlatformError> {
+                use slint::platform::software_renderer::{MinimalSoftwareWindow, RepaintBufferType};
+                Ok(MinimalSoftwareWindow::new(RepaintBufferType::ReusedBuffer))
+            }
+        }
+        std::thread::spawn(move || {
+            slint::platform::set_platform(Box::new(TestPlatform))?;
+            let ui = AppWindow::new()?;
+            let directory = tempfile::tempdir()?;
+            let (options, _) = startup_cover_fixture(directory.path())?;
+            let platform = Arc::new(Platform::new(options.profile, false)?);
+            let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
+            let app = App::attach_prepared(&ui, App::prepare(options)?, platform, runtime.handle().clone())?;
+            let mut app = app.borrow_mut();
+            for _ in 0..16 {
+                if app.startup_stage == Some(AttachStage::Downloads) { return work(&mut app, &ui); }
+                assert!(!app.advance_startup_stage()?);
+            }
+            anyhow::bail!("Startup did not reach Downloads")
+        }).join().map_err(|_| anyhow::anyhow!("The isolated startup UI fixture panicked"))?
+    }
+
+    #[test]
+    fn resolved_startup_screen_distinguishes_plain_shelf_from_welcome_and_resume() {
+        let mut prefs = Preferences { onboarded: false, launch: "resume".into(), ..Preferences::default() };
+        assert_eq!(startup_screen("", &prefs, true), "welcome");
+        assert_eq!(startup_screen("library", &prefs, true), "shelf");
+        prefs.onboarded = true;
+        assert_eq!(startup_screen("", &prefs, false), "shelf");
+        assert_eq!(startup_screen("", &prefs, true), "reader");
+        prefs.launch = "shelf".into();
+        assert_eq!(startup_screen("", &prefs, true), "shelf");
+        assert_eq!(startup_screen("shelf", &prefs, true), "shelf");
+        assert_eq!(startup_screen("spread", &prefs, false), "reader");
+        assert_eq!(startup_screen("settings", &prefs, true), "account");
+    }
+
+    #[test]
+    fn exhausted_budget_yields_before_shelf_navigation_but_not_before_its_views() -> Result<()> {
+        with_final_attachment(|app, ui| {
+            let shell = ui.global::<ShellModel>();
+            assert!(!app.advance_startup_with_budget(Duration::ZERO)?);
+            assert!(matches!(app.startup_stage, Some(AttachStage::Route)));
+            assert_ne!(shell.get_route().as_str(), "shelf");
+            assert!(app.advance_startup_with_budget(Duration::ZERO)?);
+            assert!(!app.is_starting());
+            assert_eq!(shell.get_route().as_str(), "shelf");
+            assert!(ui.global::<CatalogModel>().get_shelf_items().row_count() > 0);
+            assert!(shell.get_booting(), "Only the driver reveals the committed scene");
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn non_shelf_navigation_keeps_the_budget_boundary_before_views() -> Result<()> {
+        with_final_attachment(|app, ui| {
+            app.options.initial_screen = "settings".into();
+            assert!(!app.advance_startup_with_budget(Duration::ZERO)?);
+            assert!(!app.advance_startup_with_budget(Duration::ZERO)?);
+            assert!(matches!(app.startup_stage, Some(AttachStage::Views)));
+            assert_eq!(ui.global::<ShellModel>().get_route().as_str(), "account");
+            assert!(ui.global::<ShellModel>().get_booting());
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn shelf_redirect_to_login_keeps_its_own_view_boundary() -> Result<()> {
+        with_final_attachment(|app, ui| {
+            assert!(!app.advance_startup_with_budget(Duration::ZERO)?);
+            app.client = BiliClient::offline(&app.data_dir)?;
+            app.client.replace_session(Some(AuthSession::default()))?;
+            app.options.offline = false;
+            assert!(!app.advance_startup_with_budget(Duration::ZERO)?);
+            assert_eq!(ui.global::<ShellModel>().get_route().as_str(), "login");
+            assert!(matches!(app.startup_stage, Some(AttachStage::Views)));
+            assert!(ui.global::<ShellModel>().get_booting());
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn suspension_before_shelf_navigation_does_not_consume_the_commit() -> Result<()> {
+        with_final_attachment(|app, ui| {
+            assert!(!app.advance_startup_with_budget(Duration::ZERO)?);
+            app.begin_suspend_intent_gate();
+            assert!(!app.advance_startup_with_budget(Duration::ZERO)?);
+            assert!(matches!(app.startup_stage, Some(AttachStage::Route)));
+            assert_ne!(ui.global::<ShellModel>().get_route().as_str(), "shelf");
+            assert!(ui.global::<ShellModel>().get_booting());
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn failed_shelf_projection_does_not_publish_ready_or_retry_navigation() -> Result<()> {
+        with_final_attachment(|app, ui| {
+            assert!(!app.advance_startup_with_budget(Duration::ZERO)?);
+            let db = rusqlite::Connection::open(app.data_dir.join("state.sqlite3"))?;
+            db.execute("DROP TABLE reading_anchors", [])?;
+            assert!(app.advance_startup_with_budget(Duration::ZERO).is_err());
+            assert!(matches!(app.startup_stage, Some(AttachStage::Views)));
+            assert!(ui.global::<ShellModel>().get_booting());
+            Ok(())
+        })
+    }
 
     fn encoded_cover(width: u32, height: u32, pixel: [u8; 4]) -> Result<Vec<u8>> {
         let source = image::RgbaImage::from_pixel(width, height, image::Rgba(pixel));
