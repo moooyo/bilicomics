@@ -263,6 +263,17 @@ impl App {
 
     pub fn is_starting(&self) -> bool { self.startup_stage.is_some() }
 
+    pub fn starts_on_shelf(&self) -> bool { self.start_screen() == "shelf" }
+
+    pub fn plain_shelf_is_visible(ui: &AppWindow) -> bool {
+        let shell = ui.global::<ShellModel>();
+        let catalog = ui.global::<CatalogModel>();
+        shell.get_route() == "shelf" && !shell.get_booting() && !shell.get_startup_error()
+            && !shell.get_suspended() && shell.get_toast().is_empty()
+            && catalog.get_shelf_state() == "ready" && !catalog.get_shelf_menu_open()
+            && !ui.global::<AuthModel>().get_net_visible() && !ui.global::<crate::ui::SleepScreenModel>().get_active()
+    }
+
     /// Coalesce cheap stages while keeping UI mutation on this thread.
     pub fn advance_startup(&mut self) -> Result<bool> {
         self.advance_startup_with_budget(Duration::from_millis(4))
@@ -274,7 +285,7 @@ impl App {
             let previous = self.startup_stage;
             // A plain Shelf navigation and its view projection present one scene. Yielding
             // between them would send the navigation refresh while the splash is still visible.
-            let commit_shelf = previous == Some(AttachStage::Route) && self.start_screen() == "shelf";
+            let commit_shelf = previous == Some(AttachStage::Route) && self.starts_on_shelf();
             if self.advance_startup_stage()? { return Ok(true); }
             if self.startup_stage == previous { return Ok(false); }
             if commit_shelf && self.route == "shelf" && self.startup_stage == Some(AttachStage::Views) { continue; }
@@ -573,6 +584,52 @@ mod tests {
         assert_eq!(startup_screen("shelf", &prefs, true), "shelf");
         assert_eq!(startup_screen("spread", &prefs, false), "reader");
         assert_eq!(startup_screen("settings", &prefs, true), "account");
+    }
+
+    #[test]
+    fn initial_shelf_render_excludes_booting_redirects_empty_states_and_overlays() -> Result<()> {
+        with_final_attachment(|app, ui| {
+            assert!(app.starts_on_shelf());
+            app.options.initial_screen = "reader".into();
+            assert!(!app.starts_on_shelf());
+            let shell = ui.global::<ShellModel>();
+            let catalog = ui.global::<CatalogModel>();
+            shell.set_route("shelf".into());
+            catalog.set_shelf_state("ready".into());
+            assert!(!App::plain_shelf_is_visible(ui));
+            shell.set_booting(false);
+            assert!(App::plain_shelf_is_visible(ui));
+            for route in ["reader", "login", "welcome", "account"] {
+                shell.set_route(route.into());
+                assert!(!App::plain_shelf_is_visible(ui));
+            }
+            shell.set_route("shelf".into());
+            for state in ["empty", "signed-out", "syncing"] {
+                catalog.set_shelf_state(state.into());
+                assert!(!App::plain_shelf_is_visible(ui));
+            }
+            catalog.set_shelf_state("ready".into());
+            catalog.set_shelf_menu_open(true);
+            assert!(!App::plain_shelf_is_visible(ui));
+            catalog.set_shelf_menu_open(false);
+            ui.global::<AuthModel>().set_net_visible(true);
+            assert!(!App::plain_shelf_is_visible(ui));
+            ui.global::<AuthModel>().set_net_visible(false);
+            shell.set_toast("notification".into());
+            assert!(!App::plain_shelf_is_visible(ui));
+            shell.set_toast("".into());
+            ui.global::<crate::ui::SleepScreenModel>().set_active(true);
+            assert!(!App::plain_shelf_is_visible(ui));
+            ui.global::<crate::ui::SleepScreenModel>().set_active(false);
+            shell.set_suspended(true);
+            assert!(!App::plain_shelf_is_visible(ui));
+            shell.set_suspended(false);
+            shell.set_startup_error(true);
+            assert!(!App::plain_shelf_is_visible(ui));
+            shell.set_startup_error(false);
+            assert!(App::plain_shelf_is_visible(ui));
+            Ok(())
+        })
     }
 
     #[test]

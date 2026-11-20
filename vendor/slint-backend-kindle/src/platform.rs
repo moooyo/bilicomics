@@ -519,6 +519,15 @@ impl Platform for KindlePlatform {
             let mut did_draw = false;
             let mut initial_draw = false;
             let mut frame_trace = None;
+            let startup_draw = StartupDraw {
+                current: self.lifecycle.take_initial_render_permission(),
+                initial: initial_fill,
+                lifecycle_forced: force_full,
+                rotation_changed,
+                dithering_changed,
+                hardware_y4: self.dithering.requested(),
+                bilevel: black_and_white,
+            };
             let frame_result = self.lifecycle.with_framebuffer(|frame_buffer| -> Result<(), PlatformError> {
                 frame_buffer.require_known_dithering_delivery()
                     .map_err(|error| PlatformError::Other(format!("display delivery is uncertain; further native writes are blocked: {error}")))?;
@@ -532,17 +541,10 @@ impl Platform for KindlePlatform {
                     if let Some(trace) = frame_trace.as_mut() {
                         trace.sample.complete_frame_replacement = complete_frame_replacement;
                     }
-                    draw_error = with_settled_mapping(frame_buffer, &mut frame_trace, |frame_buffer, frame_trace| {
-                        let was_initial_frame = initial_fill;
-                        initial_draw = was_initial_frame;
-                        if initial_fill {
-                            let fill_started = frame_trace.as_ref().map(|_| ClockSample::now());
-                            frame_buffer.fill(0xff);
-                            initial_fill = false;
-                            if let Some(trace) = frame_trace.as_mut() {
-                                trace.sample.stages.initial_fill = fill_started.map(ClockSample::finish);
-                            }
-                        }
+                    initial_draw = initial_fill;
+                    let width = panel_width as usize;
+                    let order = startup_draw.order(&pending, frame_buffer);
+                    draw_error = render_with_settled_mapping(order, frame_buffer, &mut rgb_buffer, &mut frame_trace, |pixels, frame_trace| {
                         renderer.set_rendering_rotation(
                             match (applied_rotation + render_offset) % 360 {
                                 90 => RenderingRotation::Rotate90,
@@ -551,15 +553,16 @@ impl Platform for KindlePlatform {
                                 _ => RenderingRotation::NoRotation,
                             },
                         );
-                        let width = panel_width as usize;
                         let render_started = frame_trace.as_ref().map(|_| ClockSample::now());
-                        let dirty = crate::frame_render::render_scene(renderer, &mut rgb_buffer, width, full_repaint);
+                        let dirty = crate::frame_render::render_scene(renderer, pixels, width, full_repaint);
                         if let Some(trace) = frame_trace.as_mut() {
                             trace.sample.rendered = true;
-                            trace.sample.initial_frame = was_initial_frame;
+                            trace.sample.initial_frame = initial_draw;
                             trace.sample.stages.slint_render = render_started.map(ClockSample::finish);
                         }
-                        observe_rgb_frame(frame_trace.as_mut(), &rgb_buffer);
+                        observe_rgb_frame(frame_trace.as_mut(), pixels);
+                        dirty
+                    }, |frame_buffer, pixels, dirty, frame_trace| {
                         let origin = dirty.bounding_box_origin();
                         let size = dirty.bounding_box_size();
                         let (x0, y0) = (origin.x as usize, origin.y as usize);
@@ -569,7 +572,7 @@ impl Platform for KindlePlatform {
                         let gray = &mut gray_buffer[..w];
                         for row in 0..h {
                             let start = (y0 + row) * width + x0;
-                            let rgb = &rgb_buffer[start..start + w];
+                            let rgb = &pixels[start..start + w];
                             for (g, p) in gray.iter_mut().zip(rgb.iter()) {
                                 let value =
                                     ((77 * p.r as u32 + 150 * p.g as u32 + 29 * p.b as u32) >> 8) as u8;
@@ -596,6 +599,7 @@ impl Platform for KindlePlatform {
                             trace.sample.dirty_region = dirty_region;
                         }
                     }).err();
+                    if draw_error.is_none() { initial_fill = false; }
                 });
                 if let Some(error) = draw_error { return Err(error); }
                 if complete_frame_replacement && !did_draw {
@@ -820,6 +824,61 @@ mod binary_du_tests {
                                            area: RefreshArea::Dirty });
         assert!(!allowed(&pending, &pixels()));
     }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum DrawOrder { InitialFill, WaitFirst, PrivateRenderFirst }
+
+#[derive(Default)]
+struct StartupDraw {
+    current: bool,
+    initial: bool,
+    lifecycle_forced: bool,
+    rotation_changed: bool,
+    dithering_changed: bool,
+    hardware_y4: bool,
+    bilevel: bool,
+}
+
+impl StartupDraw {
+    fn order(&self, pending: &PendingRefresh, framebuffer: &crate::framebuffer::Framebuffer) -> DrawOrder {
+        if self.initial { return DrawOrder::InitialFill; }
+        if self.current && !self.lifecycle_forced && !self.rotation_changed && !self.dithering_changed
+            && !self.hardware_y4 && !self.bilevel && pending.initial_full
+            && framebuffer.last_accepted_update_marker().is_some_and(|marker| marker != 0
+                && Some(marker) != framebuffer.last_completed_update_marker())
+            && framebuffer.require_known_dithering_delivery().is_ok()
+        {
+            DrawOrder::PrivateRenderFirst
+        } else {
+            DrawOrder::WaitFirst
+        }
+    }
+}
+
+fn render_with_settled_mapping<Region>(
+    order: DrawOrder,
+    framebuffer: &mut crate::framebuffer::Framebuffer,
+    pixels: &mut [Rgb8Pixel],
+    trace: &mut Option<Recording>,
+    render: impl FnOnce(&mut [Rgb8Pixel], &mut Option<Recording>) -> Region,
+    write: impl FnOnce(&mut crate::framebuffer::Framebuffer, &[Rgb8Pixel], Region, &mut Option<Recording>),
+) -> Result<(), PlatformError> {
+    if order == DrawOrder::PrivateRenderFirst {
+        let region = render(pixels, trace);
+        return with_settled_mapping(framebuffer, trace, |framebuffer, trace| write(framebuffer, pixels, region, trace));
+    }
+    with_settled_mapping(framebuffer, trace, |framebuffer, trace| {
+        if order == DrawOrder::InitialFill {
+            let started = trace.as_ref().map(|_| ClockSample::now());
+            framebuffer.fill(0xff);
+            if let Some(recording) = trace.as_mut() {
+                recording.sample.stages.initial_fill = started.map(ClockSample::finish);
+            }
+        }
+        let region = render(pixels, trace);
+        write(framebuffer, pixels, region, trace);
+    })
 }
 
 fn with_settled_mapping<T>(framebuffer: &mut crate::framebuffer::Framebuffer,

@@ -53,6 +53,8 @@ pub(crate) struct DisplayLifecycle {
     resume_frame_pending: Cell<bool>,
     geometry: Cell<Option<(u32, u32)>>,
     sleep_settled: Cell<bool>,
+    initial_render_used: Cell<bool>,
+    initial_render_check: Cell<Option<Box<dyn FnOnce() -> bool>>>,
     sleep_presentation: crate::sleep_presentation::SleepPresentationControl,
     pending: Arc<Mutex<PendingRefresh>>,
     wake: Arc<OwnedFd>,
@@ -203,6 +205,8 @@ impl DisplayLifecycleHandle {
                 resume_frame_pending: Cell::new(false),
                 geometry: Cell::new(None),
                 sleep_settled: Cell::new(false),
+                initial_render_used: Cell::new(false),
+                initial_render_check: Cell::new(None),
                 sleep_presentation: crate::sleep_presentation::SleepPresentationControl::default(),
                 pending,
                 wake,
@@ -225,6 +229,7 @@ impl DisplayLifecycleHandle {
             return Err(std::io::Error::other("the Kindle display is unavailable for sleep presentation"));
         }
         let token = self.inner.sleep_presentation.request()?;
+        self.retire_initial_render();
         self.inner.window.request_redraw();
         crate::wakeup::poke(&self.inner.wake);
         Ok(token)
@@ -757,11 +762,29 @@ impl DisplayLifecycleHandle {
         Ok(())
     }
 
+    pub fn allow_initial_render_ahead_if(&self, still_current: impl FnOnce() -> bool + 'static) {
+        if !self.inner.initial_render_used.replace(true)
+            && self.inner.pending.lock().is_ok_and(|mut pending| pending.bind_initial_full())
+        {
+            self.inner.initial_render_check.set(Some(Box::new(still_current)));
+        }
+    }
+
+    pub(crate) fn take_initial_render_permission(&self) -> bool {
+        self.inner.initial_render_check.take().is_some_and(|check| check())
+    }
+
+    fn retire_initial_render(&self) {
+        self.inner.initial_render_used.set(true);
+        self.inner.initial_render_check.take();
+    }
+
     /// Yield input and display ownership without terminating the event loop.
     ///
     /// The existing panel-completion ioctl remains best effort. Success is an
     /// input-release/display-gate acknowledgement, not physical panel evidence.
     pub fn suspend(&self) -> Result<(), PlatformError> {
+        self.retire_initial_render();
         if self.inner.quit.load(Ordering::SeqCst) {
             return Err(failure("the Kindle event loop has terminated"));
         }
@@ -1025,6 +1048,7 @@ impl DisplayLifecycleHandle {
     }
 
     pub(crate) fn release_event_loop_io(&self) {
+        self.retire_initial_render();
         self.inner.sleep_presentation.terminate();
         self.inner.resume_frame_pending.set(false);
         self.inner.resume_trace_path.borrow_mut().take();
@@ -1099,6 +1123,42 @@ mod tests {
             Some((3, 2)),
         );
         assert!(handle.inner.state.input.borrow().is_none());
+    }
+
+    #[test]
+    fn initial_render_permission_rechecks_the_scene_once_and_never_queues_a_draw() {
+        for current in [false, true] {
+            let (handle, wake) = output_handle();
+            assert!(!handle.take_initial_render_permission());
+            handle.inner.pending.lock().unwrap().test_push(crate::RefreshRequest::full());
+            let visible = Rc::new(Cell::new(!current));
+            let check = visible.clone();
+            handle.allow_initial_render_ahead_if(move || check.get());
+            visible.set(current);
+            assert_eq!(handle.take_initial_render_permission(), current);
+            assert!(!handle.take_initial_render_permission());
+            handle.allow_initial_render_ahead_if(|| panic!("must not rearm the initial scene"));
+            assert!(!handle.take_initial_render_permission());
+            assert_eq!(take_wake_bytes(&wake), 0);
+        }
+    }
+
+    #[test]
+    fn sleep_suspension_or_termination_retires_unarmed_and_pending_initial_renders() {
+        for transition in ["cover", "suspend", "quit"] {
+            for armed in [false, true] {
+                let (handle, _wake) = output_handle();
+                handle.inner.pending.lock().unwrap().test_push(crate::RefreshRequest::full());
+                if armed { handle.allow_initial_render_ahead_if(|| panic!("stale scene")); }
+                match transition {
+                    "cover" => { handle.request_sleep_presentation().unwrap(); }
+                    "suspend" => handle.suspend().unwrap(),
+                    _ => handle.release_event_loop_io(),
+                }
+                handle.allow_initial_render_ahead_if(|| panic!("transition already retired the scene"));
+                assert!(!handle.take_initial_render_permission());
+            }
+        }
     }
 
     #[test]

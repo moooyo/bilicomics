@@ -734,6 +734,8 @@ fn run(arguments: Arguments) -> Result<()> {
     let tick_wake = wake.clone();
     let startup_continue = StartupContinuation::new(wake.clone());
     let mut startup_ui_turn = StartupUiTurn::new(cover_gate);
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    let mut shelf_startup = false;
     let mut fonts = Fonts::default();
     let mut prepared = None::<PreparedApp>;
     let mut fonts_registered = false;
@@ -905,6 +907,8 @@ fn run(arguments: Arguments) -> Result<()> {
                                 handle.clone(),
                             ) {
                                 Ok(application) => {
+                                    #[cfg(all(feature = "kindle", target_os = "linux"))]
+                                    { shelf_startup = application.borrow().starts_on_shelf(); }
                                     let job_wake = tick_wake.clone();
                                     application.borrow().set_runtime_wakeup(Arc::new(move || job_wake.request()));
                                     *tick_control.application.borrow_mut() = Some(application);
@@ -940,6 +944,12 @@ fn run(arguments: Arguments) -> Result<()> {
                         bilicomics::performance::startup("ui_ready", &());
                         ready_at = Some(Instant::now());
                         let _ = tick_platform.request_refresh(RefreshReason::EnterScreen);
+                        #[cfg(all(feature = "kindle", target_os = "linux"))]
+                        if let Some(backend) = native_backend.as_ref() && shelf_startup && App::plain_shelf_is_visible(&ui) {
+                            let window = ui.as_weak();
+                            backend.lifecycle_handle().allow_initial_render_ahead_if(move ||
+                                window.upgrade().is_some_and(|ui| App::plain_shelf_is_visible(&ui)));
+                        }
                         if let Some(path) = startup_trace.as_deref() {
                             if let Err(error) = append_ready_trace(
                                 path,

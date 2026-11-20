@@ -75,10 +75,12 @@ impl std::error::Error for RefreshError {}
 pub(crate) struct PendingRefresh {
     requests: Vec<RefreshRequest>,
     overflowed: bool,
+    pub(crate) initial_full: bool,
 }
 
 impl PendingRefresh {
     fn push(&mut self, request: RefreshRequest) {
+        self.initial_full = false;
         if self.overflowed {
             return;
         }
@@ -107,6 +109,12 @@ impl PendingRefresh {
 
     pub(crate) fn is_empty(&self) -> bool {
         self.requests.is_empty()
+    }
+
+    pub(crate) fn bind_initial_full(&mut self) -> bool {
+        self.initial_full = !self.overflowed && !self.requests.is_empty()
+            && self.requests.iter().all(|request| *request == RefreshRequest::full());
+        self.initial_full
     }
 
     /// Structural eligibility only: the caller separately verifies binary
