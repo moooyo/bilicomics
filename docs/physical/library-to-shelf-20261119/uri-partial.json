@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "run": "lib-t-1119-a599027a",
+  "status": "failed_batch_with_separately_recovered_first_only",
+  "source_date": "2026-11-19",
+  "route": "uri",
+  "original_report_success": false,
+  "original_report_lease_released": false,
+  "independent_restoration_and_exact_release": true,
+  "original_source_sha256": {
+    "report.json": "2b2604bec0f6d3666fa4dae4c94e29d7a249bb22d9e50d87b59c4b49a2945156",
+    "admission.json": "79be89ec7e638b2e02e6c81afed2c10da1467aa0a387b37ac9c7d892972acd72"
+  },
+  "recovery_source_sha256": {
+    "recovery-receipt.json": "e34fe8bc839c2016fd0328a1cd34eac146cf6f11391436dc0dbb82c838b13417",
+    "evidence/exact-lease-release.json": "d81290eb10f9abff8bf0921cc40c7eb832b082247d51155147b1633d764b5f38",
+    "outputs.tar.gz": "43ea62cf3eb4adc5d89c43d25778549c4b51d76ec3910e312430e5b5dbc53d86"
+  },
+  "runtime_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+  "package_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+  "application_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+  "package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+  "canonical_uri": "file:///mnt/us/documents/bilicomics.sh",
+  "first_completed": 1,
+  "planned_primary": 5,
+  "completed_primary": 0,
+  "distribution_available": false,
+  "first_in_batch_only": {
+    "case": "candidate-warmup",
+    "shelf_accepted_and_completed_marker": 5,
+    "ms": {
+      "native_uri_request_to": {
+        "process_enter": 4054.393,
+        "app_splash_send": 4346.979,
+        "ui_ready": 5751.09,
+        "shelf_send": 6480.657,
+        "shelf_driver_complete": 6845.891
+      },
+      "application_intervals": {
+        "process_enter_to_ui_ready": 1696.697,
+        "ui_ready_to_shelf_send": 729.566,
+        "shelf_send_to_driver_complete": 365.235
+      },
+      "shelf_frame_stages": {
+        "preceding_update_wait": 246.086,
+        "slint_render": 387.925,
+        "rgb_fingerprint": 55.942,
+        "framebuffer_write": 29.554,
+        "refresh_submit": 0.364,
+        "refresh_complete_wait": 365.228
+      }
+    },
+    "source_sha256": {
+      "recovery.json": "8b60741c9148e55f017f0b04cf56fc0821911125b579fbd3cf2603ddea68d70a",
+      "application.pid": "ea203380d39ba9ac2cbd2e565e354db701b2673b260ef9cb6642c6c9baaed608",
+      "lifecycle.jsonl": "9e01da625c3a25a83df6ef6279ae40f7f06a7ecc2541ad1b8fdc6b281a404ab0",
+      "performance.jsonl": "db8b44c9e46eb29904f7a0c2efd6e591c70f899226fe4eca340474a79b425ba7",
+      "final.json": "9d1339e6059a090f908701418760f37bc24638c640083bda66a745d2440e3012",
+      "request.json": "55c2bf82db6b8452ed26f765fb6c89305ead02a0f99e838178c1af39a0c4add9",
+      "native-stable-start.json": "14cd5fcf80413ef2fc642eb9d933de6cd89c2dae2c04c2fb1817024a27db18ab"
+    }
+  },
+  "scope": "Single retained fresh-process offline demo Shelf start on Scribe, no reboot or cache eviction. Candidate-01 stopped before request; remaining primary cases did not launch. No distribution or optimization estimate from this failure.",
+  "endpoints": "Kindle CLOCK_MONOTONIC before native file-URI dispatch, not a click. Initial app SEND, unique software ready, first accepted full Shelf SEND after Ready, end of checked driver wait for the same marker. No optical, complete-cover or input-ready endpoint."
+}

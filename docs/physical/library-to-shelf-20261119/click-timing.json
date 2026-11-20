@@ -1,0 +1,629 @@
+{
+  "schema_version": 1,
+  "run": "lib-t-1119-a709c5c7",
+  "route": "click",
+  "source_sha256": {
+    "report.json": "2275449c27a7794ab8c9eebfb87e459f8f5b7630354fd74e2d59241058a95562",
+    "evidence/lease-released.json": "64fd4fe8757c5b8cd87f3920cad268bd7326a6fdb8fbea202ca66b1a70d43bca",
+    "evidence/click-restore-recovery.stdout": "595432b5e93b4c9a6e4b8bf7958215d673b1568c7709ee28c173a8cf6c5f57d0",
+    "admission.json": "ff79272b72dabd0fc46ee3a525bed11c15686ddaf9c005de0464dfd1076fb6de",
+    "evidence/click-prepare-candidate-warmup.stdout": "d65c02f5eac0a690764b8efd2ecb755000ea00f6a4c4f7b5da31e8378e7bd735",
+    "evidence/click-prepare-candidate-01.stdout": "d65c02f5eac0a690764b8efd2ecb755000ea00f6a4c4f7b5da31e8378e7bd735",
+    "evidence/click-prepare-candidate-02.stdout": "d65c02f5eac0a690764b8efd2ecb755000ea00f6a4c4f7b5da31e8378e7bd735",
+    "evidence/click-prepare-candidate-03.stdout": "d65c02f5eac0a690764b8efd2ecb755000ea00f6a4c4f7b5da31e8378e7bd735",
+    "evidence/click-prepare-candidate-04.stdout": "d65c02f5eac0a690764b8efd2ecb755000ea00f6a4c4f7b5da31e8378e7bd735",
+    "evidence/click-prepare-candidate-05.stdout": "d65c02f5eac0a690764b8efd2ecb755000ea00f6a4c4f7b5da31e8378e7bd735"
+  },
+  "exact_lease_released_after_restoration": true,
+  "status": "complete",
+  "application_sha256": "04fc6f93b4327911ca1a3bb5200175c9f2e13fb21ac5e56280012ff44b6e2e59",
+  "package_sha256": "c57d5fc3674f1a0de448b85beb2552ee0959b83756c3e8f62afb559bf62a4882",
+  "runtime_commit": "530f1516c332931059c52161b52d64e86488b3f1",
+  "package_commit": "39fac822a982868078201e605e50bdacf1dcf3ed",
+  "controller_sha256": "945824e45cc11384051435b87dcedd13744e14e5b4300e44f3d40686c8e0fa6d",
+  "click_dispatch_sha256": "ecfaa3ec2582e6ea4d3afaf45e7983eead51635a1ad4c367b754bf6c0e0901d8",
+  "native_uri": "file:///mnt/us/documents/bilicomics.sh",
+  "distinct_application_pid_and_birth_pairs": 6,
+  "restoration": {
+    "native_restored": true,
+    "transport_closed": true,
+    "lease_released": true,
+    "same_boot": true,
+    "install_unchanged": true,
+    "catalog_restored": true,
+    "registration_unchanged": true,
+    "temporary_stage_removed": true,
+    "lighting_restored": true,
+    "input_roster_unchanged": true,
+    "original_native_tab_restored": true
+  },
+  "endpoints": {
+    "origin": "Kindle CLOCK_MONOTONIC around XTest button-1 down and up, before XTest send and after XSync. Primary origin: up_before. Not evdev, hardware touch, or a digitizer timestamp.",
+    "app_splash_send": "Initial accepted rendered application frame; native handler may have already shown feedback.",
+    "ui_ready": "Unique performance startup/ui_ready, with separate lifecycle ready and final Shelf route checks.",
+    "shelf_send": "Earliest accepted SEND after Slint renders at or after ui_ready, verified as a full 1860 by 2480 Gray8 replacement.",
+    "shelf_driver_complete": "End of the matching marker's successful driver wait, not optical completion."
+  },
+  "scope": "Single Scribe, new processes with retained caches, offline demo. First launch separated; no reboot or cache eviction. Not live-account, all-cover, optical, or input-ready timing. Includes diagnostic RGB fingerprinting.",
+  "statistics": "Milliseconds rounded after calculation in nanoseconds. Min, median, max are for the five repeated cases only; marginal medians are not additive.",
+  "first_in_batch": {
+    "case": "candidate-warmup",
+    "shelf_accepted_and_completed_marker": 5,
+    "ms": {
+      "xtest_down_before_to": {
+        "process_enter": 4367.699,
+        "app_splash_send": 4840.992,
+        "ui_ready": 6080.666,
+        "shelf_send": 7277.298,
+        "shelf_driver_complete": 7642.849
+      },
+      "xtest_down_after_to": {
+        "process_enter": 4367.116,
+        "app_splash_send": 4840.408,
+        "ui_ready": 6080.082,
+        "shelf_send": 7276.714,
+        "shelf_driver_complete": 7642.265
+      },
+      "xtest_up_before_to": {
+        "process_enter": 4316.888,
+        "app_splash_send": 4790.181,
+        "ui_ready": 6029.854,
+        "shelf_send": 7226.486,
+        "shelf_driver_complete": 7592.038
+      },
+      "xtest_up_after_to": {
+        "process_enter": 4315.957,
+        "app_splash_send": 4789.25,
+        "ui_ready": 6028.923,
+        "shelf_send": 7225.555,
+        "shelf_driver_complete": 7591.107
+      },
+      "input_brackets": {
+        "down_xsync": 0.584,
+        "up_xsync": 0.931,
+        "down_before_to_up_before": 50.811
+      },
+      "application_intervals": {
+        "process_enter_to_ui_ready": 1712.966,
+        "ui_ready_to_shelf_send": 1196.632,
+        "shelf_send_to_driver_complete": 365.551
+      },
+      "shelf_frame_stages": {
+        "preceding_update_wait": 300.117,
+        "slint_render": 808.493,
+        "rgb_fingerprint": 45.651,
+        "framebuffer_write": 29.695,
+        "refresh_submit": 0.336,
+        "refresh_complete_wait": 365.544
+      }
+    },
+    "source_sha256": {
+      "recovery.json": "d2e2e6961d1548b2390a5fa188cd86fd29146d0f3c82ebf39833d29eac991ae5",
+      "application.pid": "a226fbc619e01443121ef13344a26b4c7502a265041e744363b87eb13d396319",
+      "lifecycle.jsonl": "6137c078bc572a5bdf2e11c855f24d4e52d63fb09355aa6113284960f8559140",
+      "performance.jsonl": "216e03f149503d4481f8fed593d4c5947bfad5248a3aea1f9bb8c63a50a2275b",
+      "final.json": "877f3aba95d99f078e2ba25b4274a76179e70b3172c20a4e8e0837a546b7de31",
+      "request.json": "9317d82e38e016729ec4df66c7a167b5dadf6f3a8654eebbd4c5d1a50d4f1369",
+      "native-stable-start.json": "3eeb66391d480d4deaa507def9a0e2b34557d13437fa0d78adc57e4af0100f53",
+      "click.json": "d02edfae2554c680713a4e11329a541ce3486bf651d0bb88c29f67adf1f5aa6a",
+      "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da"
+    },
+    "final_logical_png_matches_archived_demo_shelf": true,
+    "library_tab_and_named_card_confirmed_before_input": true
+  },
+  "repeated_summary_ms": {
+    "xtest_down_before_to": {
+      "process_enter": {
+        "min": 3998.945,
+        "median": 4418.066,
+        "max": 4666.778
+      },
+      "app_splash_send": {
+        "min": 4263.377,
+        "median": 4685.287,
+        "max": 4940.089
+      },
+      "ui_ready": {
+        "min": 5478.334,
+        "median": 6727.184,
+        "max": 6975.206
+      },
+      "shelf_send": {
+        "min": 6242.314,
+        "median": 7190.038,
+        "max": 7447.148
+      },
+      "shelf_driver_complete": {
+        "min": 6608.08,
+        "median": 7555.477,
+        "max": 7812.937
+      }
+    },
+    "xtest_down_after_to": {
+      "process_enter": {
+        "min": 3998.503,
+        "median": 4417.682,
+        "max": 4666.288
+      },
+      "app_splash_send": {
+        "min": 4262.936,
+        "median": 4684.903,
+        "max": 4939.6
+      },
+      "ui_ready": {
+        "min": 5477.893,
+        "median": 6726.8,
+        "max": 6974.716
+      },
+      "shelf_send": {
+        "min": 6241.873,
+        "median": 7188.654,
+        "max": 7446.659
+      },
+      "shelf_driver_complete": {
+        "min": 6607.638,
+        "median": 7554.094,
+        "max": 7812.448
+      }
+    },
+    "xtest_up_before_to": {
+      "process_enter": {
+        "min": 3947.776,
+        "median": 4366.929,
+        "max": 4615.798
+      },
+      "app_splash_send": {
+        "min": 4212.208,
+        "median": 4634.15,
+        "max": 4889.109
+      },
+      "ui_ready": {
+        "min": 5427.165,
+        "median": 6676.047,
+        "max": 6924.225
+      },
+      "shelf_send": {
+        "min": 6191.145,
+        "median": 7137.205,
+        "max": 7396.168
+      },
+      "shelf_driver_complete": {
+        "min": 6556.91,
+        "median": 7502.645,
+        "max": 7761.957
+      }
+    },
+    "xtest_up_after_to": {
+      "process_enter": {
+        "min": 3946.565,
+        "median": 4365.714,
+        "max": 4615.117
+      },
+      "app_splash_send": {
+        "min": 4210.997,
+        "median": 4632.936,
+        "max": 4888.428
+      },
+      "ui_ready": {
+        "min": 5425.954,
+        "median": 6674.832,
+        "max": 6923.545
+      },
+      "shelf_send": {
+        "min": 6189.934,
+        "median": 7124.084,
+        "max": 7395.488
+      },
+      "shelf_driver_complete": {
+        "min": 6555.7,
+        "median": 7489.524,
+        "max": 7761.277
+      }
+    },
+    "input_brackets": {
+      "down_xsync": {
+        "min": 0.384,
+        "median": 0.489,
+        "max": 1.383
+      },
+      "up_xsync": {
+        "min": 0.681,
+        "median": 1.211,
+        "max": 13.121
+      },
+      "down_before_to_up_before": {
+        "min": 50.98,
+        "median": 51.169,
+        "max": 52.832
+      }
+    },
+    "application_intervals": {
+      "process_enter_to_ui_ready": {
+        "min": 1475.759,
+        "median": 2308.428,
+        "max": 2321.711
+      },
+      "ui_ready_to_shelf_send": {
+        "min": 402.071,
+        "median": 490.333,
+        "max": 763.98
+      },
+      "shelf_send_to_driver_complete": {
+        "min": 365.44,
+        "median": 365.632,
+        "max": 365.789
+      }
+    },
+    "shelf_frame_stages": {
+      "preceding_update_wait": {
+        "min": 0.003,
+        "median": 0.005,
+        "max": 336.846
+      },
+      "slint_render": {
+        "min": 309.069,
+        "median": 343.519,
+        "max": 404.077
+      },
+      "rgb_fingerprint": {
+        "min": 46.194,
+        "median": 51.345,
+        "max": 55.135
+      },
+      "framebuffer_write": {
+        "min": 28.285,
+        "median": 30.227,
+        "max": 32.573
+      },
+      "refresh_submit": {
+        "min": 0.158,
+        "median": 0.288,
+        "max": 0.614
+      },
+      "refresh_complete_wait": {
+        "min": 365.432,
+        "median": 365.627,
+        "max": 365.775
+      }
+    }
+  },
+  "repeated_samples": [
+    {
+      "case": "candidate-01",
+      "shelf_accepted_and_completed_marker": 6,
+      "ms": {
+        "xtest_down_before_to": {
+          "process_enter": 4666.778,
+          "app_splash_send": 4940.089,
+          "ui_ready": 6975.206,
+          "shelf_send": 7447.148,
+          "shelf_driver_complete": 7812.937
+        },
+        "xtest_down_after_to": {
+          "process_enter": 4666.288,
+          "app_splash_send": 4939.6,
+          "ui_ready": 6974.716,
+          "shelf_send": 7446.659,
+          "shelf_driver_complete": 7812.448
+        },
+        "xtest_up_before_to": {
+          "process_enter": 4615.798,
+          "app_splash_send": 4889.109,
+          "ui_ready": 6924.225,
+          "shelf_send": 7396.168,
+          "shelf_driver_complete": 7761.957
+        },
+        "xtest_up_after_to": {
+          "process_enter": 4615.117,
+          "app_splash_send": 4888.428,
+          "ui_ready": 6923.545,
+          "shelf_send": 7395.488,
+          "shelf_driver_complete": 7761.277
+        },
+        "input_brackets": {
+          "down_xsync": 0.489,
+          "up_xsync": 0.681,
+          "down_before_to_up_before": 50.98
+        },
+        "application_intervals": {
+          "process_enter_to_ui_ready": 2308.428,
+          "ui_ready_to_shelf_send": 471.943,
+          "shelf_send_to_driver_complete": 365.789
+        },
+        "shelf_frame_stages": {
+          "preceding_update_wait": 0.005,
+          "slint_render": 381.068,
+          "rgb_fingerprint": 51.345,
+          "framebuffer_write": 30.323,
+          "refresh_submit": 0.614,
+          "refresh_complete_wait": 365.775
+        }
+      },
+      "source_sha256": {
+        "recovery.json": "bf92c6d161be4c0abbedebcf00efc02313a06dbf93aae56594a6330e6306b6ba",
+        "application.pid": "2159d6d3a835617ae31072048b0c2a83839e79daa54e85fb55810953059306bb",
+        "lifecycle.jsonl": "1032962adbdc66fe60b5421bb4bba6089e38ba60c4d586f34c2c3c2556836361",
+        "performance.jsonl": "df40ed839dfcfd57e591781ef61bdd2cd8e2ed05c348ed928eba2ff46ca9ceb5",
+        "final.json": "765a19e907757339bc9ecf0702a705b601b9701a9fe05cb0f596cf8aca023d46",
+        "request.json": "8c70b13a15e0a2b1dbc845cc8b7660269fe213b75be869bbf66f03d070324bc3",
+        "native-stable-start.json": "5cec7431da3bb79f137deb3c0197142ef638561b3c7860fef746ac6f8921e49a",
+        "click.json": "006b019873c88782404ccf57040882f56b9fd8aebc8a941c3a0bc2e2ee64075a",
+        "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da"
+      },
+      "final_logical_png_matches_archived_demo_shelf": true,
+      "library_tab_and_named_card_confirmed_before_input": true
+    },
+    {
+      "case": "candidate-02",
+      "shelf_accepted_and_completed_marker": 5,
+      "ms": {
+        "xtest_down_before_to": {
+          "process_enter": 3998.945,
+          "app_splash_send": 4263.377,
+          "ui_ready": 5478.334,
+          "shelf_send": 6242.314,
+          "shelf_driver_complete": 6608.08
+        },
+        "xtest_down_after_to": {
+          "process_enter": 3998.503,
+          "app_splash_send": 4262.936,
+          "ui_ready": 5477.893,
+          "shelf_send": 6241.873,
+          "shelf_driver_complete": 6607.638
+        },
+        "xtest_up_before_to": {
+          "process_enter": 3947.776,
+          "app_splash_send": 4212.208,
+          "ui_ready": 5427.165,
+          "shelf_send": 6191.145,
+          "shelf_driver_complete": 6556.91
+        },
+        "xtest_up_after_to": {
+          "process_enter": 3946.565,
+          "app_splash_send": 4210.997,
+          "ui_ready": 5425.954,
+          "shelf_send": 6189.934,
+          "shelf_driver_complete": 6555.7
+        },
+        "input_brackets": {
+          "down_xsync": 0.442,
+          "up_xsync": 1.211,
+          "down_before_to_up_before": 51.169
+        },
+        "application_intervals": {
+          "process_enter_to_ui_ready": 1479.39,
+          "ui_ready_to_shelf_send": 763.98,
+          "shelf_send_to_driver_complete": 365.766
+        },
+        "shelf_frame_stages": {
+          "preceding_update_wait": 336.846,
+          "slint_render": 343.519,
+          "rgb_fingerprint": 51.927,
+          "framebuffer_write": 29.518,
+          "refresh_submit": 0.288,
+          "refresh_complete_wait": 365.757
+        }
+      },
+      "source_sha256": {
+        "recovery.json": "6b8640e47462d8e3fbd68837d2e5ffc60526d76af811d78132ca1cb31d0aea0e",
+        "application.pid": "8e57f8f7ae804e9bd381f83c5d7b393579c6b80be4ca803ac42364fbf662deca",
+        "lifecycle.jsonl": "20344d5fd5968436712c2b62fd2f2407d6e7d0aa4567a1413d5c4bbc1b326aa2",
+        "performance.jsonl": "b0b7d8f0015938a26fdff968d7a39b3149616ffb4b88e7af8a4c5c5e9bbef426",
+        "final.json": "442b6495138ca1fc6aa1c616a55ff9fd87016f6e7e0386c1d873b06edf7b07e9",
+        "request.json": "d0b763a978787d5914a6dd570d125e6a579f837d3bd3e4f80233933aa307d6c1",
+        "native-stable-start.json": "41a897acf9e9aa45e53cc8fb7e5c383a8e1653f295a3de8c57c2bd60ce85a3a4",
+        "click.json": "c882831fe57f318840981199b62af86f14a2d9cd189db74f30e9fc292ec47ac1",
+        "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da"
+      },
+      "final_logical_png_matches_archived_demo_shelf": true,
+      "library_tab_and_named_card_confirmed_before_input": true
+    },
+    {
+      "case": "candidate-03",
+      "shelf_accepted_and_completed_marker": 6,
+      "ms": {
+        "xtest_down_before_to": {
+          "process_enter": 4466.255,
+          "app_splash_send": 4732.211,
+          "ui_ready": 6787.967,
+          "shelf_send": 7190.038,
+          "shelf_driver_complete": 7555.477
+        },
+        "xtest_down_after_to": {
+          "process_enter": 4464.872,
+          "app_splash_send": 4730.828,
+          "ui_ready": 6786.584,
+          "shelf_send": 7188.654,
+          "shelf_driver_complete": 7554.094
+        },
+        "xtest_up_before_to": {
+          "process_enter": 4413.423,
+          "app_splash_send": 4679.379,
+          "ui_ready": 6735.134,
+          "shelf_send": 7137.205,
+          "shelf_driver_complete": 7502.645
+        },
+        "xtest_up_after_to": {
+          "process_enter": 4400.302,
+          "app_splash_send": 4666.258,
+          "ui_ready": 6722.013,
+          "shelf_send": 7124.084,
+          "shelf_driver_complete": 7489.524
+        },
+        "input_brackets": {
+          "down_xsync": 1.383,
+          "up_xsync": 13.121,
+          "down_before_to_up_before": 52.832
+        },
+        "application_intervals": {
+          "process_enter_to_ui_ready": 2321.711,
+          "ui_ready_to_shelf_send": 402.071,
+          "shelf_send_to_driver_complete": 365.44
+        },
+        "shelf_frame_stages": {
+          "preceding_update_wait": 0.003,
+          "slint_render": 309.069,
+          "rgb_fingerprint": 55.135,
+          "framebuffer_write": 32.573,
+          "refresh_submit": 0.158,
+          "refresh_complete_wait": 365.432
+        }
+      },
+      "source_sha256": {
+        "recovery.json": "84f6d94490b9c71850ec116e878e1a1c82709081e704b091030a0ff46593a91c",
+        "application.pid": "83e3a59501503ddc3b671009423466da38134615f26eaa5391e166ea8a48fa19",
+        "lifecycle.jsonl": "59fd10991beaf5baee6ef2399713ff1f40629c99aa509ca27740e077c17a4cc4",
+        "performance.jsonl": "056e68e063cef78c67fdcb44df197ed295329b4a91fb6c1d69e28624fb62818c",
+        "final.json": "74b7178805a89957c0fe06e602e0cd132e05681bbd4d20aba158dbae4ebbc8dc",
+        "request.json": "b39934c5fb94c056357d66a73e2befb4ac348205215636cdca0231675553c71f",
+        "native-stable-start.json": "4770a8d93bcf416b9aaab9a2b493fa3ecb80ef6bb021819884a298cf2c72b8bc",
+        "click.json": "3e7f71d9644167b071ff93e3a2af013dc72a845f96d0b17f57dc366ce252b0c0",
+        "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da"
+      },
+      "final_logical_png_matches_archived_demo_shelf": true,
+      "library_tab_and_named_card_confirmed_before_input": true
+    },
+    {
+      "case": "candidate-04",
+      "shelf_accepted_and_completed_marker": 6,
+      "ms": {
+        "xtest_down_before_to": {
+          "process_enter": 4418.066,
+          "app_splash_send": 4685.287,
+          "ui_ready": 6727.184,
+          "shelf_send": 7217.517,
+          "shelf_driver_complete": 7582.98
+        },
+        "xtest_down_after_to": {
+          "process_enter": 4417.682,
+          "app_splash_send": 4684.903,
+          "ui_ready": 6726.8,
+          "shelf_send": 7217.133,
+          "shelf_driver_complete": 7582.596
+        },
+        "xtest_up_before_to": {
+          "process_enter": 4366.929,
+          "app_splash_send": 4634.15,
+          "ui_ready": 6676.047,
+          "shelf_send": 7166.38,
+          "shelf_driver_complete": 7531.843
+        },
+        "xtest_up_after_to": {
+          "process_enter": 4365.714,
+          "app_splash_send": 4632.936,
+          "ui_ready": 6674.832,
+          "shelf_send": 7165.166,
+          "shelf_driver_complete": 7530.629
+        },
+        "input_brackets": {
+          "down_xsync": 0.384,
+          "up_xsync": 1.214,
+          "down_before_to_up_before": 51.137
+        },
+        "application_intervals": {
+          "process_enter_to_ui_ready": 2309.118,
+          "ui_ready_to_shelf_send": 490.333,
+          "shelf_send_to_driver_complete": 365.463
+        },
+        "shelf_frame_stages": {
+          "preceding_update_wait": 0.005,
+          "slint_render": 404.077,
+          "rgb_fingerprint": 46.618,
+          "framebuffer_write": 30.227,
+          "refresh_submit": 0.353,
+          "refresh_complete_wait": 365.451
+        }
+      },
+      "source_sha256": {
+        "recovery.json": "7d727fc42b175077cfa8da4c641df3c72816dd2e013d39ffd5735600fe48bc0d",
+        "application.pid": "5c867cffa1f854b1d92f90e214f39448a529e86252ce22c5622725aac373fb40",
+        "lifecycle.jsonl": "39555b1761934f895372ea1fc293d13513b4d4e0af5689b128cc752ddca833dd",
+        "performance.jsonl": "8202f05396a21d17566f5a075c9ac7f9dc765ead086b290fa79746dc44e0ece0",
+        "final.json": "514ce5c6b7145263df32e89584ae0ff8c88a0df9e9ef0d4384c772d38a626288",
+        "request.json": "c3b7498466201ee96e0727b402ef68c37299e7e2bcf0015caa24cfa504376240",
+        "native-stable-start.json": "307597872bf381f5fd125e10b78813daf7477a1c07cee894eaf4078237112f64",
+        "click.json": "fd0a25d8e705113e86c4fa37b1947f203dab1e2ae410334d7631fde49e8bc1f3",
+        "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da"
+      },
+      "final_logical_png_matches_archived_demo_shelf": true,
+      "library_tab_and_named_card_confirmed_before_input": true
+    },
+    {
+      "case": "candidate-05",
+      "shelf_accepted_and_completed_marker": 5,
+      "ms": {
+        "xtest_down_before_to": {
+          "process_enter": 4396.422,
+          "app_splash_send": 4658.797,
+          "ui_ready": 5872.181,
+          "shelf_send": 6595.472,
+          "shelf_driver_complete": 6961.105
+        },
+        "xtest_down_after_to": {
+          "process_enter": 4395.714,
+          "app_splash_send": 4658.089,
+          "ui_ready": 5871.473,
+          "shelf_send": 6594.764,
+          "shelf_driver_complete": 6960.397
+        },
+        "xtest_up_before_to": {
+          "process_enter": 4344.916,
+          "app_splash_send": 4607.291,
+          "ui_ready": 5820.674,
+          "shelf_send": 6543.966,
+          "shelf_driver_complete": 6909.599
+        },
+        "xtest_up_after_to": {
+          "process_enter": 4343.776,
+          "app_splash_send": 4606.152,
+          "ui_ready": 5819.535,
+          "shelf_send": 6542.827,
+          "shelf_driver_complete": 6908.459
+        },
+        "input_brackets": {
+          "down_xsync": 0.708,
+          "up_xsync": 1.14,
+          "down_before_to_up_before": 51.506
+        },
+        "application_intervals": {
+          "process_enter_to_ui_ready": 1475.759,
+          "ui_ready_to_shelf_send": 723.292,
+          "shelf_send_to_driver_complete": 365.632
+        },
+        "shelf_frame_stages": {
+          "preceding_update_wait": 333.906,
+          "slint_render": 312.587,
+          "rgb_fingerprint": 46.194,
+          "framebuffer_write": 28.285,
+          "refresh_submit": 0.172,
+          "refresh_complete_wait": 365.627
+        }
+      },
+      "final_framebuffer": {
+        "width": 1860,
+        "height": 2480,
+        "visible_gray8_sha256": "12ff9def5d77c72f473a4703635a192e9c79efaa71420605a5145bbc436dacc3",
+        "matches_qualified_offline_shelf": true,
+        "driver_complete_to_capture_request_ms": 2374.92,
+        "capture_bracket_ms": 707.083,
+        "scope": "Later read-only framebuffer memory from the last case, not an optical observation or timing endpoint."
+      },
+      "source_sha256": {
+        "recovery.json": "eee995bf3c504b17d45dfdb4283def9e9f2b72bcb55ff335aeb2adf6b089eeee",
+        "application.pid": "faa8fe8e002944b4d750039ab8b7dbc4c55d3516d6281ea56839e75015b9c680",
+        "lifecycle.jsonl": "ce6fe9c0349a47c382b3a9a30cebacadbe6b283ef466e74b7ffa7056c529b448",
+        "performance.jsonl": "8959a437d2a83c586ca0a1b511968f5ab6fe21e9c12f5ad003e4615fa5df4779",
+        "final.json": "53d373fc457a9a1306807994f5041b3487ba55fb2e877884195f2869a61ab113",
+        "request.json": "9a7651e2c15a33b7ecd0098b5bbe57ee19b43f04adc0d51ff3522beff7dfb400",
+        "native-stable-start.json": "4ff0e2d9c849aced4a3e26b0547de4eba2410fa35a5acba5c174d36d51f6a075",
+        "click.json": "2842f341f9f7e47cee7549696738bd86581ed2d887b1495db4c6a46f824dcf8f",
+        "qualified-capture-request.json": "abce77dadc78ab7db6e9fba37563cf5a875440fdd8cc4cdf41f46f04e4e487ca",
+        "qualified-capture-complete.json": "691556b2a5ad5d05ca904197ec8a4b34cdfb2e519d2d1e6ba9c9bc716d4a3a0a",
+        "qualified-frame.raw": "299a4d97e6217aa25ea40ae96c84553ec3cc79c24e840418808495254a591104",
+        "final.png": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da"
+      },
+      "final_logical_png_matches_archived_demo_shelf": true,
+      "library_tab_and_named_card_confirmed_before_input": true
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "scope": "Closed click-r2 device, same current binary, retained caches, synthetic offline Scribe data. Frame hashes only, no native screen or personal data.",
+  "clock": "Device CLOCK_MONOTONIC. Enter = observed lifecycle process_enter; ready = performance ui_ready. Shelf SEND ends at the checked accepted submit timestamp, not trace-record end.",
+  "final_frame_check": {
+    "all_six_final_png_sha256": "0a0df97df88bbb46149381fa1c995c945d81a8b6179c28ec66094cba100d19da",
+    "correct_display_size": [
+      1860,
+      2480
+    ],
+    "decoded_logical_rgb8_row_major_fnv1a64": "b235922f95c7e6ef",
+    "all_six_first_shelf_fingerprints_match": true,
+    "scope": "Same RGB fingerprint as the decoded final logical PNG; not byte-by-byte acquisition of that frame from the physical display, optical completion, or an all-cover milestone."
+  },
+  "steady_cases": [
+    {
+      "case": "candidate-01",
+      "warmup": false,
+      "source_sha256": {
+        "performance.jsonl": "df40ed839dfcfd57e591781ef61bdd2cd8e2ed05c348ed928eba2ff46ca9ceb5",
+        "lifecycle.jsonl": "1032962adbdc66fe60b5421bb4bba6089e38ba60c4d586f34c2c3c2556836361"
+      },
+      "route_stage_wall_us": 55,
+      "views_stage_wall_us": 16407,
+      "route_end_to_views_begin_ms": 820.250077,
+      "attachment_yields_in_route_views_gap": 1,
+      "enter_to_ready_ms": 2308.427846,
+      "enter_to_shelf_send_ms": 2780.370538,
+      "enter_to_shelf_driver_ms": 3146.159692,
+      "ready_to_shelf_send_ms": 471.942692,
+      "shelf_frame_sequence": 6,
+      "shelf_preceding_wait_ms": 0.004769,
+      "shelf_slint_render_ms": 381.068077,
+      "shelf_matches_final_rgb_fingerprint": true,
+      "intermediate": {
+        "sequence": 5,
+        "preceding_sequence": 4,
+        "both_rgb_fingerprints": "9351956920513297",
+        "waveform": "flashing full GC16",
+        "match_accepted_completed_marker": true,
+        "transaction_ms": 815.699924,
+        "stages_wall_ms": {
+          "preceding_update_wait": 350.07077,
+          "slint_render": 23.057384,
+          "rgb_fingerprint": 48.069077,
+          "framebuffer_write": 28.294462,
+          "refresh_submit": 0.214231,
+          "refresh_complete_wait": 365.930539
+        }
+      }
+    },
+    {
+      "case": "candidate-02",
+      "warmup": false,
+      "source_sha256": {
+        "performance.jsonl": "b0b7d8f0015938a26fdff968d7a39b3149616ffb4b88e7af8a4c5c5e9bbef426",
+        "lifecycle.jsonl": "20344d5fd5968436712c2b62fd2f2407d6e7d0aa4567a1413d5c4bbc1b326aa2"
+      },
+      "route_stage_wall_us": 49,
+      "views_stage_wall_us": 12965,
+      "route_end_to_views_begin_ms": 0.319615,
+      "attachment_yields_in_route_views_gap": 0,
+      "enter_to_ready_ms": 1479.389538,
+      "enter_to_shelf_send_ms": 2243.369231,
+      "enter_to_shelf_driver_ms": 2609.134769,
+      "ready_to_shelf_send_ms": 763.979693,
+      "shelf_frame_sequence": 5,
+      "shelf_preceding_wait_ms": 336.845846,
+      "shelf_slint_render_ms": 343.518923,
+      "shelf_matches_final_rgb_fingerprint": true,
+      "intermediate": null
+    },
+    {
+      "case": "candidate-03",
+      "warmup": false,
+      "source_sha256": {
+        "performance.jsonl": "056e68e063cef78c67fdcb44df197ed295329b4a91fb6c1d69e28624fb62818c",
+        "lifecycle.jsonl": "59fd10991beaf5baee6ef2399713ff1f40629c99aa509ca27740e077c17a4cc4"
+      },
+      "route_stage_wall_us": 51,
+      "views_stage_wall_us": 14069,
+      "route_end_to_views_begin_ms": 824.964462,
+      "attachment_yields_in_route_views_gap": 1,
+      "enter_to_ready_ms": 2321.711462,
+      "enter_to_shelf_send_ms": 2723.782308,
+      "enter_to_shelf_driver_ms": 3089.221924,
+      "ready_to_shelf_send_ms": 402.070846,
+      "shelf_frame_sequence": 6,
+      "shelf_preceding_wait_ms": 0.003384,
+      "shelf_slint_render_ms": 309.069308,
+      "shelf_matches_final_rgb_fingerprint": true,
+      "intermediate": {
+        "sequence": 5,
+        "preceding_sequence": 4,
+        "both_rgb_fingerprints": "9351956920513297",
+        "waveform": "flashing full GC16",
+        "match_accepted_completed_marker": true,
+        "transaction_ms": 822.390077,
+        "stages_wall_ms": {
+          "preceding_update_wait": 349.485923,
+          "slint_render": 30.881461,
+          "rgb_fingerprint": 45.930616,
+          "framebuffer_write": 29.771538,
+          "refresh_submit": 0.287539,
+          "refresh_complete_wait": 365.923385
+        }
+      }
+    },
+    {
+      "case": "candidate-04",
+      "warmup": false,
+      "source_sha256": {
+        "performance.jsonl": "8202f05396a21d17566f5a075c9ac7f9dc765ead086b290fa79746dc44e0ece0",
+        "lifecycle.jsonl": "39555b1761934f895372ea1fc293d13513b4d4e0af5689b128cc752ddca833dd"
+      },
+      "route_stage_wall_us": 51,
+      "views_stage_wall_us": 20004,
+      "route_end_to_views_begin_ms": 823.124846,
+      "attachment_yields_in_route_views_gap": 1,
+      "enter_to_ready_ms": 2309.118154,
+      "enter_to_shelf_send_ms": 2799.451231,
+      "enter_to_shelf_driver_ms": 3164.914385,
+      "ready_to_shelf_send_ms": 490.333077,
+      "shelf_frame_sequence": 6,
+      "shelf_preceding_wait_ms": 0.005154,
+      "shelf_slint_render_ms": 404.077154,
+      "shelf_matches_final_rgb_fingerprint": true,
+      "intermediate": {
+        "sequence": 5,
+        "preceding_sequence": 4,
+        "both_rgb_fingerprints": "9351956920513297",
+        "waveform": "flashing full GC16",
+        "match_accepted_completed_marker": true,
+        "transaction_ms": 817.238077,
+        "stages_wall_ms": {
+          "preceding_update_wait": 347.379923,
+          "slint_render": 27.411769,
+          "rgb_fingerprint": 46.441384,
+          "framebuffer_write": 29.897769,
+          "refresh_submit": 0.283538,
+          "refresh_complete_wait": 365.729461
+        }
+      }
+    },
+    {
+      "case": "candidate-05",
+      "warmup": false,
+      "source_sha256": {
+        "performance.jsonl": "8959a437d2a83c586ca0a1b511968f5ab6fe21e9c12f5ad003e4615fa5df4779",
+        "lifecycle.jsonl": "ce6fe9c0349a47c382b3a9a30cebacadbe6b283ef466e74b7ffa7056c529b448"
+      },
+      "route_stage_wall_us": 48,
+      "views_stage_wall_us": 11373,
+      "route_end_to_views_begin_ms": 0.631769,
+      "attachment_yields_in_route_views_gap": 0,
+      "enter_to_ready_ms": 1475.758769,
+      "enter_to_shelf_send_ms": 2199.050615,
+      "enter_to_shelf_driver_ms": 2564.682846,
+      "ready_to_shelf_send_ms": 723.291846,
+      "shelf_frame_sequence": 5,
+      "shelf_preceding_wait_ms": 333.906,
+      "shelf_slint_render_ms": 312.586615,
+      "shelf_matches_final_rgb_fingerprint": true,
+      "intermediate": null
+    }
+  ],
+  "warmup_separate": {
+    "case": "candidate-warmup",
+    "warmup": true,
+    "source_sha256": {
+      "performance.jsonl": "216e03f149503d4481f8fed593d4c5947bfad5248a3aea1f9bb8c63a50a2275b",
+      "lifecycle.jsonl": "6137c078bc572a5bdf2e11c855f24d4e52d63fb09355aa6113284960f8559140"
+    },
+    "route_stage_wall_us": 50,
+    "views_stage_wall_us": 32233,
+    "route_end_to_views_begin_ms": 0.867923,
+    "attachment_yields_in_route_views_gap": 0,
+    "enter_to_ready_ms": 1712.966462,
+    "enter_to_shelf_send_ms": 2909.598308,
+    "enter_to_shelf_driver_ms": 3275.149692,
+    "ready_to_shelf_send_ms": 1196.631846,
+    "shelf_frame_sequence": 5,
+    "shelf_preceding_wait_ms": 300.117,
+    "shelf_slint_render_ms": 808.493385,
+    "shelf_matches_final_rgb_fingerprint": true,
+    "intermediate": null
+  },
+  "descriptive_steady_group_enter_to_shelf_send_median_ms": {
+    "with_intermediate": 2780.370538,
+    "without_intermediate": 2221.209923
+  },
+  "with_minus_without_group_difference_ms": 559.160615,
+  "interpretation": "01/03/04 yielded between Route and Views and drew a complete GC16 matching the preceding startup RGB fingerprint. 02/05 advanced directly, then waited for the preceding marker in the actual shelf frame. These classifications were observed post hoc; neither the group difference nor the intermediate transaction wall time measures a causal, additive saving."
+}

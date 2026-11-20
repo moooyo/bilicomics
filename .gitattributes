@@ -79,3 +79,6 @@
 /docs/verification/native-library-entry-20261117/** -text
 /docs/physical/native-library-entry-20261117/** -text
 /docs/physical/native-library-entry-20261118/** -text
+
+# Keep the native card-click projections and their pinned evidence readers byte-exact.
+/docs/physical/library-to-shelf-20261119/** -text
