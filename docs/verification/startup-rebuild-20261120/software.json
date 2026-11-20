@@ -1,0 +1,59 @@
+{
+  "qualification": "Independent test-env rebuild, not an admission for physical measurement",
+  "passed": true,
+  "source_base_commit": "d81b529fd8f84790d91dfe3a8396853c296a8280",
+  "source_candidate_commit": "57265de60553ea97b01894592427d60c9008f850",
+  "armv7_build": true,
+  "archive_members": 49,
+  "package_checks": 20,
+  "rust": {
+    "lib": {
+      "passed": 882,
+      "failed": 0,
+      "ignored": 4
+    },
+    "bin": {
+      "passed": 18,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "shelf_startup_regressions": 6,
+  "launcher_cases": 152,
+  "watchdog_and_package_tests": 57,
+  "startup_cases": {
+    "pw5-normal": true,
+    "scribe-normal": true,
+    "pw5-error": true,
+    "scribe-error": true
+  },
+  "same_process_reader_after_sleep": true,
+  "production_settle_retained": true,
+  "final_shelf_vs_frozen_reference": [
+    {
+      "profile": "pw6",
+      "size": [
+        1264,
+        1680
+      ],
+      "route": "shelf",
+      "shelf_pages": 2,
+      "different_rgb_pixels": 0
+    },
+    {
+      "profile": "scribe",
+      "size": [
+        1860,
+        2480
+      ],
+      "route": "shelf",
+      "shelf_pages": 2,
+      "different_rgb_pixels": 0
+    }
+  ],
+  "physical_device_accessed": false,
+  "device_admission_issued": false,
+  "firmware_emulator_used": false,
+  "live_account_used": false,
+  "performance_measured": false
+}

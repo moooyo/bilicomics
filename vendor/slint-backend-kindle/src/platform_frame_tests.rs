@@ -6,6 +6,8 @@ use std::sync::{Arc, Mutex, mpsc};
 use crate::first_frame_signal::{FirstFrameSignalError, FirstFrameSignalHandle};
 use crate::framebuffer::{Framebuffer, RefreshSubmission};
 use crate::performance::{PerformanceFrameSample, PerformanceSampleKind, PerformanceTraceHandle, Recording};
+use crate::refresh::{PendingRefresh, RefreshArea, RefreshRequest, RefreshWaveform};
+use super::{DrawOrder, StartupDraw, render_with_settled_mapping};
 
 fn begin_recording() -> (Option<Recording>, Arc<Mutex<Vec<PerformanceFrameSample>>>) {
     let handle = PerformanceTraceHandle::default();
@@ -22,6 +24,101 @@ fn finish_recording(trace: &mut Option<Recording>, samples: &Arc<Mutex<Vec<Perfo
     let mut samples = samples.lock().unwrap();
     assert_eq!(samples.len(), 1);
     samples.pop().unwrap()
+}
+
+#[test]
+fn private_shelf_render_requires_only_full_gc16_and_an_outstanding_known_marker() {
+    let mut pending = PendingRefresh::default();
+    let framebuffer = Framebuffer::memory_for_test(1, 1, 1, 1, 0x55).unwrap();
+    let scene = StartupDraw { current: true, ..StartupDraw::default() };
+    framebuffer.fake_accept_update_for_test();
+    assert!(!pending.bind_initial_full());
+    assert_eq!(scene.order(&pending, &framebuffer), DrawOrder::WaitFirst);
+    pending.test_push(RefreshRequest::full());
+    assert!(pending.bind_initial_full());
+    pending.test_push(RefreshRequest::full());
+    assert_eq!(scene.order(&pending, &framebuffer), DrawOrder::WaitFirst);
+    assert!(pending.bind_initial_full());
+    assert_eq!(scene.order(&pending, &framebuffer), DrawOrder::PrivateRenderFirst);
+    assert_eq!(StartupDraw { initial: true, ..scene }.order(&pending, &framebuffer), DrawOrder::InitialFill);
+    for protected in [
+        StartupDraw { current: false, ..scene }, StartupDraw { lifecycle_forced: true, ..scene },
+        StartupDraw { rotation_changed: true, ..scene }, StartupDraw { dithering_changed: true, ..scene },
+        StartupDraw { hardware_y4: true, ..scene }, StartupDraw { bilevel: true, ..scene },
+    ] {
+        assert_eq!(protected.order(&pending, &framebuffer), DrawOrder::WaitFirst);
+    }
+    for waveform in [RefreshWaveform::Auto, RefreshWaveform::Du, RefreshWaveform::A2] {
+        let mut mixed = PendingRefresh::default();
+        mixed.test_push(RefreshRequest::full());
+        mixed.test_push(RefreshRequest { waveform, flashing: false, area: RefreshArea::Dirty });
+        assert!(!mixed.bind_initial_full());
+        assert_eq!(scene.order(&mixed, &framebuffer), DrawOrder::WaitFirst);
+    }
+    let mut overflow = PendingRefresh::default();
+    for _ in 0..64 { overflow.test_push(RefreshRequest::full()); }
+    assert!(!overflow.bind_initial_full());
+    assert_eq!(scene.order(&overflow, &framebuffer), DrawOrder::WaitFirst);
+    framebuffer.fake_complete_latest_update_for_test().unwrap();
+    assert_eq!(scene.order(&pending, &framebuffer), DrawOrder::WaitFirst);
+    let framebuffer = Framebuffer::memory_for_test(1, 1, 1, 1, 0x55).unwrap();
+    assert_eq!(scene.order(&pending, &framebuffer), DrawOrder::WaitFirst);
+    let accepted = framebuffer.fake_accept_update_for_test();
+    assert!(framebuffer.complete_replacement_checked(&accepted).is_err());
+    assert_eq!(scene.order(&pending, &framebuffer), DrawOrder::WaitFirst);
+}
+
+#[test]
+fn failed_preceding_wait_never_writes_or_submits_the_prepared_shelf() {
+    for order in [DrawOrder::PrivateRenderFirst, DrawOrder::InitialFill, DrawOrder::WaitFirst] {
+        let mut framebuffer = Framebuffer::memory_for_test(2, 1, 3, 1, 0x55).unwrap();
+        framebuffer.fake_accept_update_for_test();
+        let (mut trace, samples) = begin_recording();
+        let mut pixels = [slint::Rgb8Pixel::default(); 2];
+        let rendered = Cell::new(false);
+        let result = render_with_settled_mapping(order, &mut framebuffer, &mut pixels, &mut trace,
+            |pixels, trace| {
+                assert!(trace.as_ref().unwrap().sample.stages.preceding_update_wait.is_none());
+                rendered.set(true);
+                pixels[0].r = 0xff;
+            }, |_, _, _, _| panic!("unconfirmed previous marker must block mapping writes"));
+        assert!(result.is_err());
+        assert_eq!(rendered.get(), order == DrawOrder::PrivateRenderFirst);
+        assert_eq!(pixels[0].r, if rendered.get() { 0xff } else { 0 });
+        assert_eq!(framebuffer.mapped_bytes_for_test(), &[0x55; 3]);
+        assert_eq!(framebuffer.last_accepted_update_marker(), Some(1));
+        let sample = finish_recording(&mut trace, &samples);
+        assert_eq!(sample.completion_errno, Some(libc::ENOTTY));
+        assert_eq!(sample.accepted_update_marker, None);
+        assert!(sample.stages.framebuffer_write.is_none() && sample.stages.refresh_submit.is_none());
+    }
+}
+
+#[test]
+fn private_render_changes_only_rgb_order_and_still_requires_both_markers() {
+    for order in [DrawOrder::WaitFirst, DrawOrder::PrivateRenderFirst] {
+        let mut framebuffer = Framebuffer::memory_for_test(2, 1, 3, 1, 0x55).unwrap();
+        framebuffer.fake_accept_update_for_test();
+        framebuffer.fake_complete_latest_update_for_test().unwrap();
+        let (mut trace, samples) = begin_recording();
+        let mut pixels = [slint::Rgb8Pixel::default(); 2];
+        render_with_settled_mapping(order, &mut framebuffer, &mut pixels, &mut trace, |pixels, trace| {
+            assert_eq!(trace.as_ref().unwrap().sample.stages.preceding_update_wait.is_some(), order == DrawOrder::WaitFirst);
+            pixels[1].r = 0x31;
+            1
+        }, |framebuffer, pixels, index: usize, trace| {
+            assert!(trace.as_ref().unwrap().sample.stages.preceding_update_wait.is_some());
+            assert_eq!(framebuffer.last_completed_update_marker(), Some(1));
+            framebuffer.write_line(0, index..index + 1, &[pixels[index].r]);
+        }).unwrap();
+        assert_eq!(framebuffer.mapped_bytes_for_test(), &[0x55, 0x31, 0x55]);
+        let submission = framebuffer.fake_accept_update_for_test();
+        assert_eq!(submission.update_marker, Some(2));
+        assert!(super::complete_frame_update(&framebuffer, &submission, &mut trace).is_err());
+        let sample = finish_recording(&mut trace, &samples);
+        assert!(!sample.driver_completion_observed);
+        assert_eq!(framebuffer.last_completed_update_marker(), Some(1));
+    }
 }
 
 #[test]

@@ -1,0 +1,801 @@
+{
+  "run": "lib-p-adc0890e",
+  "source": {
+    "A": "d81b529fd8f84790d91dfe3a8396853c296a8280",
+    "B": "57265de60553ea97b01894592427d60c9008f850"
+  },
+  "scope": "Offline replay; no new launches or optical measurements.",
+  "ceiling": "Only for wait-then-render: min(previous wait, private render) on that trace, excluding the diagnostic fingerprint. Not an observed or predicted speedup.",
+  "warmups_excluded": [
+    "a00",
+    "b00"
+  ],
+  "all_cases_ms": {
+    "fingerprint": {
+      "min": 46.967,
+      "median": 51.835,
+      "max": 56.689
+    },
+    "fingerprint_cpu": {
+      "min": 46.909,
+      "median": 50.913,
+      "max": 55.324
+    },
+    "loading_send_to_ready": {
+      "min": 783.58,
+      "median": 802.788,
+      "max": 1252.49
+    },
+    "previous_wait": {
+      "min": 328.862,
+      "median": 332.306,
+      "max": 341.98
+    },
+    "previous_wait_cpu": {
+      "min": 0.041,
+      "median": 0.063,
+      "max": 0.132
+    },
+    "ready_to_render_start": {
+      "min": 330.2,
+      "median": 333.874,
+      "max": 343.12
+    },
+    "ready_to_send": {
+      "min": 705.656,
+      "median": 759.301,
+      "max": 876.462
+    },
+    "release_to_driver": {
+      "min": 6165.906,
+      "median": 6301.186,
+      "max": 6955.386
+    },
+    "release_to_rust": {
+      "min": 3911.026,
+      "median": 4044.709,
+      "max": 4440.769
+    },
+    "release_to_send": {
+      "min": 5799.58,
+      "median": 5934.613,
+      "max": 6589.82
+    },
+    "render": {
+      "min": 284.023,
+      "median": 345.642,
+      "max": 454.547
+    },
+    "render_cpu": {
+      "min": 179.932,
+      "median": 236.482,
+      "max": 286.182
+    },
+    "send_to_driver": {
+      "min": 365.566,
+      "median": 366.195,
+      "max": 367.248
+    },
+    "serial_render_wait_overlap_ceiling": {
+      "min": 284.023,
+      "median": 329.893,
+      "max": 340.435
+    },
+    "state_observed_minus_third_wait_start": {
+      "min": -33.586,
+      "median": -9.808,
+      "max": 11.574
+    },
+    "state_observed_to_ui_record": {
+      "min": 0.596,
+      "median": 14.693,
+      "max": 275.955
+    },
+    "write": {
+      "min": 28.675,
+      "median": 29.615,
+      "max": 30.417
+    },
+    "write_cpu": {
+      "min": 28.483,
+      "median": 29.536,
+      "max": 30.34
+    }
+  },
+  "by_loading_frames": {
+    "3_loading_frames": {
+      "cases": [
+        "a01",
+        "b01",
+        "b02",
+        "a02",
+        "a03",
+        "b04",
+        "a05",
+        "b06"
+      ],
+      "ms": {
+        "fingerprint": {
+          "min": 48.054,
+          "median": 52.017,
+          "max": 56.689
+        },
+        "fingerprint_cpu": {
+          "min": 47.572,
+          "median": 51.049,
+          "max": 55.324
+        },
+        "loading_send_to_ready": {
+          "min": 783.58,
+          "median": 792.932,
+          "max": 828.732
+        },
+        "previous_wait": {
+          "min": 329.378,
+          "median": 332.049,
+          "max": 333.485
+        },
+        "previous_wait_cpu": {
+          "min": 0.044,
+          "median": 0.067,
+          "max": 0.132
+        },
+        "ready_to_render_start": {
+          "min": 330.684,
+          "median": 333.497,
+          "max": 334.789
+        },
+        "ready_to_send": {
+          "min": 722.358,
+          "median": 772.811,
+          "max": 876.462
+        },
+        "release_to_driver": {
+          "min": 6165.906,
+          "median": 6242.243,
+          "max": 6459.089
+        },
+        "release_to_rust": {
+          "min": 3911.026,
+          "median": 4044.709,
+          "max": 4357.871
+        },
+        "release_to_send": {
+          "min": 5799.58,
+          "median": 5876.127,
+          "max": 6093.083
+        },
+        "render": {
+          "min": 308.992,
+          "median": 357.384,
+          "max": 454.547
+        },
+        "render_cpu": {
+          "min": 185.537,
+          "median": 241.033,
+          "max": 286.182
+        },
+        "send_to_driver": {
+          "min": 365.952,
+          "median": 366.231,
+          "max": 366.864
+        },
+        "serial_render_wait_overlap_ceiling": {
+          "min": 308.992,
+          "median": 331.026,
+          "max": 333.485
+        },
+        "state_observed_minus_third_wait_start": {
+          "min": -33.586,
+          "median": -13.149,
+          "max": -4.277
+        },
+        "state_observed_to_ui_record": {
+          "min": 0.596,
+          "median": 7.423,
+          "max": 25.808
+        },
+        "write": {
+          "min": 29.445,
+          "median": 29.746,
+          "max": 30.417
+        },
+        "write_cpu": {
+          "min": 29.242,
+          "median": 29.672,
+          "max": 30.34
+        }
+      }
+    },
+    "4_loading_frames": {
+      "cases": [
+        "b03",
+        "a04",
+        "b05",
+        "a06"
+      ],
+      "ms": {
+        "fingerprint": {
+          "min": 46.967,
+          "median": 51.281,
+          "max": 53.547
+        },
+        "fingerprint_cpu": {
+          "min": 46.909,
+          "median": 50.294,
+          "max": 52.259
+        },
+        "loading_send_to_ready": {
+          "min": 1205.357,
+          "median": 1218.756,
+          "max": 1252.49
+        },
+        "previous_wait": {
+          "min": 328.862,
+          "median": 340.68,
+          "max": 341.98
+        },
+        "previous_wait_cpu": {
+          "min": 0.041,
+          "median": 0.045,
+          "max": 0.062
+        },
+        "ready_to_render_start": {
+          "min": 330.2,
+          "median": 342.079,
+          "max": 343.12
+        },
+        "ready_to_send": {
+          "min": 705.656,
+          "median": 724.637,
+          "max": 848.196
+        },
+        "release_to_driver": {
+          "min": 6536.725,
+          "median": 6795.808,
+          "max": 6955.386
+        },
+        "release_to_rust": {
+          "min": 4010.914,
+          "median": 4148.907,
+          "max": 4440.769
+        },
+        "release_to_send": {
+          "min": 6170.789,
+          "median": 6429.08,
+          "max": 6589.82
+        },
+        "render": {
+          "min": 284.023,
+          "median": 308.3,
+          "max": 423.117
+        },
+        "render_cpu": {
+          "min": 179.932,
+          "median": 192.791,
+          "max": 284.906
+        },
+        "send_to_driver": {
+          "min": 365.566,
+          "median": 366.072,
+          "max": 367.248
+        },
+        "serial_render_wait_overlap_ceiling": {
+          "min": 284.023,
+          "median": 308.3,
+          "max": 340.435
+        },
+        "state_observed_minus_third_wait_start": {
+          "min": 1.71,
+          "median": 5.23,
+          "max": 11.574
+        },
+        "state_observed_to_ui_record": {
+          "min": 254.561,
+          "median": 263.864,
+          "max": 275.955
+        },
+        "write": {
+          "min": 28.675,
+          "median": 29.274,
+          "max": 30.079
+        },
+        "write_cpu": {
+          "min": 28.483,
+          "median": 28.974,
+          "max": 29.876
+        }
+      }
+    }
+  },
+  "pairs": [
+    {
+      "pair": 1,
+      "order": "AB",
+      "B_minus_A_ms": {
+        "release_to_rust": -28.72,
+        "loading_send_to_ready": 11.384,
+        "ready_to_send": -31.389,
+        "render": -36.593,
+        "previous_wait": -3.022,
+        "release_to_send": -49.331,
+        "release_to_driver": -49.431
+      }
+    },
+    {
+      "pair": 2,
+      "order": "BA",
+      "B_minus_A_ms": {
+        "release_to_rust": -446.845,
+        "loading_send_to_ready": 23.895,
+        "ready_to_send": 78.463,
+        "render": 76.447,
+        "previous_wait": -0.327,
+        "release_to_send": -293.504,
+        "release_to_driver": -293.183
+      }
+    },
+    {
+      "pair": 3,
+      "order": "AB",
+      "B_minus_A_ms": {
+        "release_to_rust": 11.104,
+        "loading_send_to_ready": 421.777,
+        "ready_to_send": -40.907,
+        "render": -51.879,
+        "previous_wait": 9.308,
+        "release_to_send": 362.55,
+        "release_to_driver": 361.742
+      }
+    },
+    {
+      "pair": 4,
+      "order": "BA",
+      "B_minus_A_ms": {
+        "release_to_rust": -386.929,
+        "loading_send_to_ready": -411.763,
+        "ready_to_send": 86.254,
+        "render": 90.92,
+        "previous_wait": -11.306,
+        "release_to_send": -668.076,
+        "release_to_driver": -666.779
+      }
+    },
+    {
+      "pair": 5,
+      "order": "AB",
+      "B_minus_A_ms": {
+        "release_to_rust": -24.665,
+        "loading_send_to_ready": 464.204,
+        "ready_to_send": 63.692,
+        "render": 54.049,
+        "previous_wait": 10.267,
+        "release_to_send": 510.397,
+        "release_to_driver": 511.463
+      }
+    },
+    {
+      "pair": 6,
+      "order": "BA",
+      "B_minus_A_ms": {
+        "release_to_rust": -333.301,
+        "loading_send_to_ready": -399.438,
+        "ready_to_send": 147.398,
+        "render": 131.768,
+        "previous_wait": 4.623,
+        "release_to_send": -532.98,
+        "release_to_driver": -532.908
+      }
+    }
+  ],
+  "cases": [
+    {
+      "case": "a01",
+      "pid": 24825,
+      "shelf_performance_line": 95,
+      "previous_marker": 3,
+      "shelf_marker": 4,
+      "loading_frames": 3,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 4109149923,
+        "release_to_send": 5884952769,
+        "release_to_driver": 6251005077,
+        "loading_send_to_ready": 786535846,
+        "ready_to_render_start": 334038462,
+        "ready_to_send": 757483769,
+        "send_to_driver": 366052308,
+        "state_observed_to_ui_record": 25807769,
+        "render": 345585000,
+        "render_cpu": 236162626,
+        "previous_wait": 332399231,
+        "previous_wait_cpu": 52616,
+        "fingerprint": 48054154,
+        "fingerprint_cpu": 47571770,
+        "write": 29445308,
+        "write_cpu": 29242153,
+        "serial_render_wait_overlap_ceiling": 332399231,
+        "state_observed_minus_third_wait_start": -33585692
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254224960117227,
+        "ui_record": 254224985924996,
+        "third_loading_wait_start": 254224993702919
+      }
+    },
+    {
+      "case": "b01",
+      "pid": 25354,
+      "shelf_performance_line": 95,
+      "previous_marker": 3,
+      "shelf_marker": 4,
+      "loading_frames": 3,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 4080429923,
+        "release_to_send": 5835621616,
+        "release_to_driver": 6201573923,
+        "loading_send_to_ready": 797919615,
+        "ready_to_render_start": 330684231,
+        "ready_to_send": 726094693,
+        "send_to_driver": 365952307,
+        "state_observed_to_ui_record": 16368000,
+        "render": 308991846,
+        "render_cpu": 214326310,
+        "previous_wait": 329377692,
+        "previous_wait_cpu": 44077,
+        "fingerprint": 56506923,
+        "fingerprint_cpu": 55088077,
+        "write": 29538154,
+        "write_cpu": 29447001,
+        "serial_render_wait_overlap_ceiling": 308991846,
+        "state_observed_minus_third_wait_start": -24383616
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254295881176077,
+        "ui_record": 254295897544077,
+        "third_loading_wait_start": 254295905559693
+      }
+    },
+    {
+      "case": "b02",
+      "pid": 25890,
+      "shelf_performance_line": 95,
+      "previous_marker": 3,
+      "shelf_marker": 4,
+      "loading_frames": 3,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 3911025616,
+        "release_to_send": 5799579847,
+        "release_to_driver": 6165906308,
+        "loading_send_to_ready": 807655462,
+        "ready_to_render_start": 333285846,
+        "ready_to_send": 800821385,
+        "send_to_driver": 366326461,
+        "state_observed_to_ui_record": 13018000,
+        "render": 385736462,
+        "render_cpu": 264596467,
+        "previous_wait": 331885000,
+        "previous_wait_cpu": 72384,
+        "fingerprint": 50914385,
+        "fingerprint_cpu": 50398462,
+        "write": 30417076,
+        "write_cpu": 30340231,
+        "serial_render_wait_overlap_ceiling": 331885000,
+        "state_observed_minus_third_wait_start": -18970154
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254362898266697,
+        "ui_record": 254362911284697,
+        "third_loading_wait_start": 254362917236851
+      }
+    },
+    {
+      "case": "a02",
+      "pid": 26384,
+      "shelf_performance_line": 95,
+      "previous_marker": 3,
+      "shelf_marker": 4,
+      "loading_frames": 3,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 4357871001,
+        "release_to_send": 6093083462,
+        "release_to_driver": 6459089462,
+        "loading_send_to_ready": 783760000,
+        "ready_to_render_start": 333708692,
+        "ready_to_send": 722358384,
+        "send_to_driver": 366006000,
+        "state_observed_to_ui_record": 6429154,
+        "render": 309289461,
+        "render_cpu": 185537162,
+        "previous_wait": 332212077,
+        "previous_wait_cpu": 132154,
+        "fingerprint": 49309154,
+        "fingerprint_cpu": 48554694,
+        "write": 29615539,
+        "write_cpu": 29378923,
+        "serial_render_wait_overlap_ceiling": 309289461,
+        "state_observed_minus_third_wait_start": -11569461
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254434418074086,
+        "ui_record": 254434424503240,
+        "third_loading_wait_start": 254434429643547
+      }
+    },
+    {
+      "case": "a03",
+      "pid": 26874,
+      "shelf_performance_line": 95,
+      "previous_marker": 3,
+      "shelf_marker": 4,
+      "loading_frames": 3,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 4005179923,
+        "release_to_send": 5808239308,
+        "release_to_driver": 6174982385,
+        "loading_send_to_ready": 783579693,
+        "ready_to_render_start": 334186154,
+        "ready_to_send": 761117615,
+        "send_to_driver": 366743077,
+        "state_observed_to_ui_record": 6603923,
+        "render": 345699769,
+        "render_cpu": 236800623,
+        "previous_wait": 332672230,
+        "previous_wait_cpu": 77462,
+        "fingerprint": 51025154,
+        "fingerprint_cpu": 50053076,
+        "write": 29876923,
+        "write_cpu": 29752768,
+        "serial_render_wait_overlap_ceiling": 332672230,
+        "state_observed_minus_third_wait_start": -11863000
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254499847834936,
+        "ui_record": 254499854438859,
+        "third_loading_wait_start": 254499859697936
+      }
+    },
+    {
+      "case": "b03",
+      "pid": 27405,
+      "shelf_performance_line": 96,
+      "previous_marker": 4,
+      "shelf_marker": 5,
+      "loading_frames": 4,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 4016283692,
+        "release_to_send": 6170789000,
+        "release_to_driver": 6536724539,
+        "loading_send_to_ready": 1205357077,
+        "ready_to_render_start": 343119616,
+        "ready_to_send": 720210385,
+        "send_to_driver": 365935539,
+        "state_observed_to_ui_record": 267666539,
+        "render": 293821154,
+        "render_cpu": 205049686,
+        "previous_wait": 341980462,
+        "previous_wait_cpu": 45846,
+        "fingerprint": 53546923,
+        "fingerprint_cpu": 52258771,
+        "write": 29277693,
+        "write_cpu": 29196000,
+        "serial_render_wait_overlap_ceiling": 293821154,
+        "state_observed_minus_third_wait_start": 2719692
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254569927096401,
+        "ui_record": 254570194762940,
+        "third_loading_wait_start": 254569924376709
+      }
+    },
+    {
+      "case": "b04",
+      "pid": 27945,
+      "shelf_performance_line": 95,
+      "previous_marker": 3,
+      "shelf_marker": 4,
+      "loading_frames": 3,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 4053839616,
+        "release_to_send": 5921743770,
+        "release_to_driver": 6288607308,
+        "loading_send_to_ready": 797578077,
+        "ready_to_render_start": 331172154,
+        "ready_to_send": 791910077,
+        "send_to_driver": 366863538,
+        "state_observed_to_ui_record": 1514846,
+        "render": 374943000,
+        "render_cpu": 245265916,
+        "previous_wait": 329618770,
+        "previous_wait_cpu": 68923,
+        "fingerprint": 55733000,
+        "fingerprint_cpu": 54433770,
+        "write": 29614615,
+        "write_cpu": 29624000,
+        "serial_render_wait_overlap_ceiling": 329618770,
+        "state_observed_minus_third_wait_start": -8046077
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254636111645713,
+        "ui_record": 254636113160559,
+        "third_loading_wait_start": 254636119691790
+      }
+    },
+    {
+      "case": "a04",
+      "pid": 28445,
+      "shelf_performance_line": 96,
+      "previous_marker": 4,
+      "shelf_marker": 5,
+      "loading_frames": 4,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 4440768924,
+        "release_to_send": 6589819539,
+        "release_to_driver": 6955386001,
+        "loading_send_to_ready": 1209341384,
+        "ready_to_render_start": 342277000,
+        "ready_to_send": 705656077,
+        "send_to_driver": 365566462,
+        "state_observed_to_ui_record": 275955308,
+        "render": 284022693,
+        "render_cpu": 179931843,
+        "previous_wait": 340924616,
+        "previous_wait_cpu": 41462,
+        "fingerprint": 49916847,
+        "fingerprint_cpu": 49159384,
+        "write": 29270769,
+        "write_cpu": 28751001,
+        "serial_render_wait_overlap_ceiling": 284022693,
+        "state_observed_minus_third_wait_start": 1710000
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254708340442871,
+        "ui_record": 254708616398179,
+        "third_loading_wait_start": 254708338732871
+      }
+    },
+    {
+      "case": "a05",
+      "pid": 29463,
+      "shelf_performance_line": 95,
+      "previous_marker": 3,
+      "shelf_marker": 4,
+      "loading_frames": 3,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 4035578385,
+        "release_to_send": 5867300231,
+        "release_to_driver": 6233481231,
+        "loading_send_to_ready": 788286308,
+        "ready_to_render_start": 332104000,
+        "ready_to_send": 784504000,
+        "send_to_driver": 366181000,
+        "state_observed_to_ui_record": 8241615,
+        "render": 369068923,
+        "render_cpu": 247481313,
+        "previous_wait": 330167847,
+        "previous_wait_cpu": 65616,
+        "fingerprint": 53008000,
+        "fingerprint_cpu": 51700078,
+        "write": 29900693,
+        "write_cpu": 29719538,
+        "serial_render_wait_overlap_ceiling": 330167847,
+        "state_observed_minus_third_wait_start": -14435769
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254773881059183,
+        "ui_record": 254773889300798,
+        "third_loading_wait_start": 254773895494952
+      }
+    },
+    {
+      "case": "b05",
+      "pid": 29989,
+      "shelf_performance_line": 96,
+      "previous_marker": 4,
+      "shelf_marker": 5,
+      "loading_frames": 4,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 4010913847,
+        "release_to_send": 6377697001,
+        "release_to_driver": 6744944616,
+        "loading_send_to_ready": 1252490077,
+        "ready_to_render_start": 341880693,
+        "ready_to_send": 848195847,
+        "send_to_driver": 367247615,
+        "state_observed_to_ui_record": 260060846,
+        "render": 423117461,
+        "render_cpu": 284905843,
+        "previous_wait": 340435154,
+        "previous_wait_cpu": 61846,
+        "fingerprint": 52644692,
+        "fingerprint_cpu": 51428000,
+        "write": 30078539,
+        "write_cpu": 29876077,
+        "serial_render_wait_overlap_ceiling": 340435154,
+        "state_observed_minus_third_wait_start": 7740539
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254844144025495,
+        "ui_record": 254844404086341,
+        "third_loading_wait_start": 254844136284956
+      }
+    },
+    {
+      "case": "b06",
+      "pid": 30550,
+      "shelf_performance_line": 95,
+      "previous_marker": 3,
+      "shelf_marker": 4,
+      "loading_frames": 3,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 3948230385,
+        "release_to_send": 5947482770,
+        "release_to_driver": 6313763847,
+        "loading_send_to_ready": 828732461,
+        "ready_to_render_start": 334789462,
+        "ready_to_send": 876462231,
+        "send_to_driver": 366281077,
+        "state_observed_to_ui_record": 596077,
+        "render": 454547077,
+        "render_cpu": 286181692,
+        "previous_wait": 333485000,
+        "previous_wait_cpu": 64384,
+        "fingerprint": 56689385,
+        "fingerprint_cpu": 55324229,
+        "write": 29876000,
+        "write_cpu": 29747077,
+        "serial_render_wait_overlap_ceiling": 333485000,
+        "state_observed_minus_third_wait_start": -4276770
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254911172906883,
+        "ui_record": 254911173502960,
+        "third_loading_wait_start": 254911177183653
+      }
+    },
+    {
+      "case": "a06",
+      "pid": 31322,
+      "shelf_performance_line": 96,
+      "previous_marker": 4,
+      "shelf_marker": 5,
+      "loading_frames": 4,
+      "order": "wait_then_render",
+      "ns": {
+        "release_to_rust": 4281531154,
+        "release_to_send": 6480462539,
+        "release_to_driver": 6846671385,
+        "loading_send_to_ready": 1228170461,
+        "ready_to_render_start": 330199616,
+        "ready_to_send": 729064462,
+        "send_to_driver": 366208846,
+        "state_observed_to_ui_record": 254561385,
+        "render": 322779307,
+        "render_cpu": 180532000,
+        "previous_wait": 328861846,
+        "previous_wait_cpu": 44923,
+        "fingerprint": 46967308,
+        "fingerprint_cpu": 46908615,
+        "write": 28674615,
+        "write_cpu": 28482847,
+        "serial_render_wait_overlap_ceiling": 322779307,
+        "state_observed_minus_third_wait_start": 11573923
+      },
+      "state_clocks_ns": {
+        "producer_observation": 254983015238349,
+        "ui_record": 254983269799734,
+        "third_loading_wait_start": 254983003664426
+      }
+    }
+  ]
+}

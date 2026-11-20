@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "dry_only": true,
+  "same_package": true,
+  "arms": [
+    "a00",
+    "b00",
+    "a01",
+    "b01",
+    "b02",
+    "a02",
+    "a03",
+    "b03",
+    "b04",
+    "a04",
+    "a05",
+    "b05",
+    "b06",
+    "a06"
+  ],
+  "foreign_document_preserved": true,
+  "foreign_install_preserved": true,
+  "canonical_entry_unchanged": true,
+  "weread_live_paths_and_index_drift_rejected": true,
+  "unrelated_index_preserved": true,
+  "one_shot_library_dispatch_checked_for_all_cases": true,
+  "lease_acquired": false,
+  "device_accessed": false
+}

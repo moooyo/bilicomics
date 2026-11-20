@@ -1,0 +1,10 @@
+test_ambiguous_and_longer_titles (__main__.NativeTargetTests.test_ambiguous_and_longer_titles) ... ok
+test_exact_card (__main__.NativeTargetTests.test_exact_card) ... ok
+test_navigation_only_does_not_read_card_labels (__main__.NativeTargetTests.test_navigation_only_does_not_read_card_labels) ... ok
+test_public_tab_and_pointer_recovery (__main__.NativeTargetTests.test_public_tab_and_pointer_recovery) ... ok
+test_timed_release_for_exact_card_only (__main__.NativeTargetTests.test_timed_release_for_exact_card_only) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 11.411s
+
+OK

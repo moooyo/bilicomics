@@ -4,7 +4,7 @@ Recorded: 2026-11-03 (Asia/Shanghai).
 
 Historical status: source review before the design was supplied. The user subsequently supplied the design and authorized implementation. See [implementation status](IMPLEMENTATION_STATUS.md) and [design provenance](DESIGN_SOURCE.md) for current work. The original preparation notes below retain their original scope and evidence boundaries.
 
-For the pending native Library startup comparison, use the [2026-11-20 session handoff](HANDOFF_STARTUP_20261120.md).
+Start with the [November 21 startup handoff](HANDOFF_STARTUP_20261121.md) for the installed Scribe baseline, measured source, and current device coordination. Its [six-pair report](physical/shelf-render-20261121/README.md) is distinct from the earlier [November 20 launcher/route comparison](HANDOFF_STARTUP_20261120.md).
 
 ## Request and current state
 

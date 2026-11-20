@@ -1,6 +1,38 @@
 # Startup optimization handoff: 2026-11-20
 
-**Next action: verify the candidate on `test-env`. Do not deploy it yet.**
+**Subsequent result (November 21):** the [first Shelf private-render comparison
+and normal-entry deployment](physical/shelf-render-20261121/README.md) passed.
+The earlier absence described below is historical: one lowercase BiliComics
+document and its production installation are now present on the shared Scribe.
+Do not roll them back to satisfy an older temporary-run preflight.
+
+**Current status: independent software verification and the new physical
+comparison are complete.** The [six-pair device report](physical/library-pairs-20261120/README.md)
+records a median paired change of −171 ms to driver completion (B faster
+in four of six pairs), not a demonstrated one-second gain. Native control
+and the original installation state were restored; the exact lease was released.
+No permanent BiliComics deployment or performance promotion was made.
+
+**WeRead protection for future device runs.** After this comparison, WeRead
+reported that its production deployment and normal Library launch passed and
+its lease was released. The single entry is `/mnt/us/documents/weread.sh`
+(the packaged `document-launcher.sh`); `/mnt/us/weread/launch.sh` is now the
+production supervisor, and `/mnt/us/weread/app/weread` was 95,137,176 bytes
+at deployment. WeRead reported that its app data was retained and that it did
+not change the BiliComics paths or shared registration. These are WeRead's
+observations, not a second BiliComics device check. At the next leased preflight,
+read the live state of these exact paths and preserve it throughout that batch.
+Do not treat the old supervisor absence or this recorded binary size as a
+requirement, or remove or roll back WeRead to match an earlier snapshot.
+
+The historical build workspace, selected package and private click workspace
+were not found on the rebuilt worker. See the
+[fresh-worker verification record](verification/startup-rebuild-20261120/README.md)
+before resuming. The retained-cache and paired-runner instructions below
+describe the historical-input path; a new build is not the package measured
+on November 19, and a missing lease is not device clearance.
+
+**Original handoff.**
 The operator requested a source merge to `main` so another session can continue.
 That merge is not a release or a performance result. The last session lost SSH
 access to `test-env` before a candidate build or regression run. No candidate

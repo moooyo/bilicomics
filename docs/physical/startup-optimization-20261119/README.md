@@ -1,10 +1,12 @@
 # Startup optimization candidate
 
-**Status: candidate source is in Git; build, regression, and device qualification are pending.** Start with the
-[2026-11-20 session handoff](../../HANDOFF_STARTUP_20261120.md). The previous
+**Status: the candidate passed independent build and software verification;
+the [six-pair physical comparison](../library-pairs-20261120/README.md) is complete.** See the
+[fresh-worker results](../../verification/startup-rebuild-20261120/README.md)
+and [session handoff](../../HANDOFF_STARTUP_20261120.md). The previous
 [native Library measurement](../library-to-shelf-20261119/README.md) is the
-baseline, not a result for these changes. No candidate speedup, install or
-release is claimed here.
+historical baseline, not a control observation for these changes. The measured
+benefit was mixed; no permanent installation or release is claimed.
 
 ## What changed
 
@@ -33,9 +35,11 @@ also cover an owned empty timer marker left by an interrupted launcher, without
 allowing unrelated or nonempty objects to be removed. The [real-reader harness](../../../scripts/verification/launcher_real_reader.py)
 also requires the production delay; it must not replace it with a mock.
 
-`test-env` became unreachable over SSH during preparation. The candidate tests,
-ARM build, and fresh Kindle A/B have **not** been verified. No local test was
-substituted, no device lease was acquired for this candidate, and the earlier
-physical and UI baselines have not been changed. Resume with remote regressions
-and package identity checks, then follow the [predeclared six-pair plan](PLAN.md).
-Only a completed and restored batch is eligible for the [paired report](project_pairs.py).
+`test-env` became unreachable over SSH during the original preparation. The
+rebuilt worker subsequently passed the ARM, desktop and fixture checks linked
+above. No local test was substituted, and the earlier physical and UI
+baselines have not been changed. The [predeclared six-pair plan](PLAN.md)
+subsequently ran with a freshly qualified native detector, independently
+rebuilt control, fixed canonical test entry and new admission. The
+[closed evidence report](../library-pairs-20261120/README.md) uses the same
+endpoint definition without rebinding the historical runner to different inputs.

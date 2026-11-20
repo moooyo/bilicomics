@@ -6,6 +6,8 @@ The user requested these changes on 2026-11-04: show the project name and startu
 
 The first application scene displays BiliComics, a Chinese startup label, a real preparation phase, and four discrete black-and-white activity segments. The indicator advances at approximately 400 ms intervals. It does not report an invented percentage or animate the whole screen.
 
+When startup opens a ready, unobscured Shelf on Kindle, its first complete frame may render into private RGB memory while the preceding panel update is still running. Mapped framebuffer writes must still wait for that update. The new Shelf update must also complete on its own accepted marker. Loading frames, Reader, sleep and wake do not take this path. See the [paired Scribe measurements](physical/shelf-render-20261121/README.md).
+
 A 22,040-byte, independently named font subset supplies this scene before the full CJK fonts are decompressed. The Kindle backend is installed once with this font before worker threads are created. The same application window and event loop remain in use throughout startup.
 
 Workers prepare the full fonts, credentials, SQLite state, catalog and transaction recovery, demo assets, pinyin dictionary, local availability snapshots, and initial cover pixels. Full-font registration and UI attachment then yield between stages. The startup scene is removed only after the prepared application is attached. Preparation failure stops activity and presents an exit action.

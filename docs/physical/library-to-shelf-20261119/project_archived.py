@@ -37,7 +37,7 @@ def project(case, item):
                           case["performance_selected_records"], case["request"]["monotonic_ns"], case["derived_endpoints"])
 
 
-def observed_times(final, life, perf, origin, archive=None):
+def observed_times(final, life, perf, origin, archive=None, *, private_shelf_render=False):
     require(final["backend"] == "kindle" and final["profile"] == "scribe" and final["demo"] is True
             and final["offline"] is True and final["route"] == "shelf" and final["startup"]["error"] is False
             and final["startup"]["booting"] is False and final["suspended"] is False, "Wrong final scene")
@@ -73,8 +73,16 @@ def observed_times(final, life, perf, origin, archive=None):
             and shelf["driver_completion_observed"] is True and shelf["completion_errno"] is None
             and shelf["panel_completion_observed"] is False, "Shelf completion is not bound to its SEND")
     stage_times = {k: bounds(shelf["stages"][k]) for k in FRAME_STAGES}
-    require(all(stage_times[a][1] <= stage_times[b][0] for a, b in zip(FRAME_STAGES, FRAME_STAGES[1:])),
-            "Overlapping Shelf stages")
+    ordered = (("slint_render", "rgb_fingerprint", "preceding_update_wait", "framebuffer_write",
+                "refresh_submit", "refresh_complete_wait") if private_shelf_render else FRAME_STAGES)
+    require(all(stage_times[a][1] <= stage_times[b][0] for a, b in zip(ordered, ordered[1:])),
+            "Invalid Shelf stage order or overlapping transactions")
+    if private_shelf_render:
+        preceding = [data for when, _, _, data, _ in frames if when < send]
+        previous_marker = shelf["preceding_update_marker"]
+        require(preceding and type(previous_marker) is int and previous_marker > 0 and
+                previous_marker == preceding[-1]["accepted_update_marker"] and previous_marker != marker and
+                shelf["initial_frame"] is False, "Unproven preceding update for private Shelf render")
     complete = stage_times["refresh_complete_wait"][1]
     require(origin < enter <= splash < ready < send <= complete <= recorded, "Invalid endpoint order")
     if archive is not None:
