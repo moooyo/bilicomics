@@ -1,0 +1,65 @@
+{
+  "scope": "Warmed offline ordinary desktop; time in ms. The full-window match is an observation upper bound. Presentation gate here is endpoint-only; pre-worker feedback and correctness are independent required gates.",
+  "measured_pairs": 6,
+  "definite_B_earlier": 6,
+  "definite_B_later": 0,
+  "overlap_or_touch": 0,
+  "both_order_groups_first_observation_earlier": true,
+  "presentation_gate_passed": true,
+  "arm_medians_ms": {
+    "A": {
+      "producer": 107.387,
+      "ui_record": 107.439,
+      "ready": 111.353,
+      "feedback_upper": 29.239,
+      "full_shelf_upper": 132.184,
+      "shelf_uncertainty": 9.768,
+      "ready_to_full_shelf_upper": 21.355
+    },
+    "B": {
+      "producer": 48.484,
+      "ui_record": 48.53,
+      "ready": 52.724,
+      "feedback_upper": 30.125,
+      "full_shelf_upper": 75.981,
+      "shelf_uncertainty": 8.45,
+      "ready_to_full_shelf_upper": 22.257
+    }
+  },
+  "median_paired_B_minus_A_ms": {
+    "all": {
+      "producer": -59.883,
+      "ui_record": -59.889,
+      "ready": -59.835,
+      "feedback_upper": 0.731,
+      "full_shelf_upper": -56.338,
+      "shelf_uncertainty": -1.051,
+      "ready_to_full_shelf_upper": 1.077
+    },
+    "AB": {
+      "producer": -57.929,
+      "ui_record": -57.946,
+      "ready": -57.666,
+      "feedback_upper": 2.52,
+      "full_shelf_upper": -54.576,
+      "shelf_uncertainty": -0.902,
+      "ready_to_full_shelf_upper": 2.528
+    },
+    "BA": {
+      "producer": -59.986,
+      "ui_record": -59.991,
+      "ready": -60.325,
+      "feedback_upper": -0.748,
+      "full_shelf_upper": -60.104,
+      "shelf_uncertainty": -1.648,
+      "ready_to_full_shelf_upper": -0.373
+    }
+  },
+  "observed_shelf_bracket_width_ms": {
+    "min": 7.614,
+    "max": 11.551
+  },
+  "all_14_title_and_activity_reads_before_workers": true,
+  "desktop_presentation_and_feedback_gates_passed": true,
+  "formal_provenance_feedback_and_presentation_passed": true
+}

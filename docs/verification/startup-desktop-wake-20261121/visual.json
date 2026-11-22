@@ -1,0 +1,52 @@
+{
+  "status": "four independent visual cases passed after one preflight failure",
+  "executable": "bilicomics-desktop-wake-20261121.XJ3f1e0e/bin/research/bilicomics",
+  "executable_bytes": 84784272,
+  "reference": "docs/uiux/baselines/2026-11-17-startup/raw/{profile}/candidate/{scenario}",
+  "scope": "Independent non-timing Xvfb desktop demo on test-env, private network namespace, 2x scale, 1800 ms controlled startup delay. Not part of the ordinary paired timing comparison; no Kindle, live account, or optical measurements.",
+  "mode": "Only the direct application child received BILICOMICS_DESKTOP_PRESENT_PROBE=wake. The successful run checked its executable identity and environment, its PID-owned X11 window, and the same process's UI-thread full-submit and post-submit events in each case.",
+  "measurements": {
+    "early_feedback": "Earliest exact X11 reads of the frozen startup title/loading label and initial activity rectangle. The two read-end offsets are milliseconds relative to the same process's workers_started observation; negative is before admission.",
+    "activity": "Each reported state is an exact read of the complete X11 activity region matching the frozen four-segment arrangement with the specified segment active. Only reads wholly within the 1800 ms worker interval are included, with consecutive duplicate states removed.",
+    "x11_shelf": "Differences count RGB pixels versus the frozen normal X11 Shelf on the first observation after Ready and three subsequent samples 1.50, 1.85 and 2.20 seconds after observing Ready. None is a first-presentation timestamp."
+  },
+  "attempts": [
+    {
+      "run": "bilicomics-desktop-wake-visual.ZbvTsiN4",
+      "result": "preflight failed before visual measurements",
+      "case": "pw6-normal",
+      "failure": "The observer's immediate read of the direct application child's /proc/PID/environ did not observe the selected key. It terminated the child before any snapshot, lifecycle or performance file existed. The instant Xvfb shutdown check also saw a still-exiting process; the private PID namespace subsequently closed.",
+      "usable_visual_or_timing_samples": 0,
+      "retry_change": "The new private run checked the executable identity and waited up to one second for a readable environment on the same unreaped child; it refused an observable wrong mode. Xvfb retirement was checked for up to two seconds. No formal timing case was rerun or replaced."
+    },
+    {
+      "run": "bilicomics-desktop-wake-visual-r2.SZj6boKF",
+      "result": "all four cases passed",
+      "common": {
+        "child_mode": "wake",
+        "logical_first_snapshot_before_workers": true,
+        "both_external_x11_reads_completed_before_workers": true,
+        "first_two_activity_snapshots_different_indicator_pixels": 1280,
+        "x11_activity_states_during_worker_delay": [0, 1, 2, 3, 0],
+        "full_submit_size_equals_profile_window": true,
+        "full_submit_before_workers": true,
+        "submit_and_turn_on_ui_thread": true,
+        "post_submit_requested_delay_ms": 16,
+        "post_submit_guard": {"workers_started_before": false, "window_alive": true, "booting": true, "suspended": false, "quitting": false, "cancelled": false, "driver_available": true, "will_drive": true},
+        "first_driver_source": "desktop_startup_fallback",
+        "actual_ui_worker_admission_source": "desktop_startup_fallback",
+        "public_render_notifier_registered": false,
+        "initial_logical_rgb_differences": 0,
+        "final_logical_rgb_differences": 0
+      },
+      "cases": [
+        {"profile": "pw6", "scenario": "normal", "size": [1264, 1680], "exit": 0, "route": "shelf", "ready_records": 1, "shelf_pages": 2, "title_and_activity_read_end_ms_relative_to_workers": [-14.940, -14.156], "observed_submit_to_turn_ms": 15.394, "x11_shelf_different_rgb_pixels": [0, 0, 0, 0]},
+        {"profile": "pw6", "scenario": "controlled_failure", "size": [1264, 1680], "exit": 1, "route": "startup", "ready_records": 0, "error_view_retained_indicator_hidden": true, "title_and_activity_read_end_ms_relative_to_workers": [-16.607, -15.737], "observed_submit_to_turn_ms": 16.122},
+        {"profile": "scribe", "scenario": "normal", "size": [1860, 2480], "exit": 0, "route": "shelf", "ready_records": 1, "shelf_pages": 2, "title_and_activity_read_end_ms_relative_to_workers": [-27.580, -27.006], "observed_submit_to_turn_ms": 15.854, "x11_shelf_different_rgb_pixels": [0, 0, 0, 0]},
+        {"profile": "scribe", "scenario": "controlled_failure", "size": [1860, 2480], "exit": 1, "route": "startup", "ready_records": 0, "error_view_retained_indicator_hidden": true, "title_and_activity_read_end_ms_relative_to_workers": [-26.985, -26.409], "observed_submit_to_turn_ms": 15.389}
+      ],
+      "no_live_app_or_xvfb_after_each_case": true
+    }
+  ],
+  "both_private_visual_workspaces_removed": true
+}

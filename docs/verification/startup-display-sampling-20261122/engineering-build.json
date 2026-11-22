@@ -1,0 +1,84 @@
+{
+  "schema": "bili-display-helper-engineering-build-public-v1",
+  "scope": "Full product engineering build only. No installed product change, Kindle access, native Shelf timing or physical qualification.",
+  "overlay_files": [
+    "src/native_presentation/portrait_writer.rs",
+    "src/platform/capture_cost.rs",
+    "src/platform/mod.rs",
+    "src/platform/native_capture.rs"
+  ],
+  "frozen_regular_files": 549,
+  "worker": {
+    "bytes": 426672,
+    "unchanged_sources": true,
+    "identical_to_install_zip": true
+  },
+  "host": {
+    "command": "cargo build --locked --offline --no-default-features --features kindle -j1 --bin bilicomics",
+    "compiled_bytes": 225338384,
+    "elapsed_seconds": 453.8,
+    "worker_guard_controls": [
+      "passed real display-helper permission refusal: scribe",
+      "passed real display-helper permission refusal: pw6"
+    ],
+    "sampled_host_resource_extrema_kib": {
+      "free_root_kib": 1975432,
+      "free_memory_kib": 5893400,
+      "free_swap_kib": 6227852,
+      "private_tree_kib": 557096
+    },
+    "target_at_export_kib": 2182524,
+    "retained_tmpfs_product_full_byte_match": true,
+    "utc": "2026-11-21T22:29:49.386468+00:00"
+  },
+  "arm": {
+    "command": "cargo zigbuild --locked --offline -j1 --release --target armv7-unknown-linux-musleabihf --no-default-features --features kindle --bin bilicomics",
+    "compiled_bytes": 74428464,
+    "elapsed_seconds": 1388.6,
+    "tool_versions": [
+      "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+      "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "cargo-zigbuild 0.24.0",
+      "0.15.2"
+    ],
+    "sampled_host_resource_extrema_kib": {
+      "free_root_kib": 1995260,
+      "free_memory_kib": 5466124,
+      "free_swap_kib": 6227852,
+      "private_tree_kib": 49460
+    },
+    "target_at_export_kib": 1742208,
+    "retained_tmpfs_product_full_byte_match": true,
+    "utc": "2026-11-21T23:03:10.735611+00:00"
+  },
+  "build_policy": {
+    "one_cpu_and_cargo_job": true,
+    "incremental": false,
+    "loopback_only": true,
+    "shared_build_lock": true,
+    "target_tmpfs_max_bytes": 3221225472,
+    "memory_max_bytes": 7516192768,
+    "swap_max_bytes": 2147483648,
+    "host_soft_high_bytes": 3221225472,
+    "arm_soft_high_bytes": [
+      3221225472,
+      4294967296,
+      6174015488
+    ],
+    "global_limits_kib": {
+      "free_root_kib": 1415578,
+      "free_memory_kib": 3145728,
+      "free_swap_kib": 1572864,
+      "private_tree_kib": 4194304
+    },
+    "arm_adjustments_utc": [
+      "2026-11-21T22:55:49.460321+00:00",
+      "2026-11-21T22:59:52.062490+00:00"
+    ]
+  },
+  "earlier_attempts": [
+    "Two x86 attempts stopped at the full-system RAM reserve and were not counted.",
+    "A subsequent complete x86 executable passed its two CLI guards but was not retained because the root-space export check refused publication. It did not qualify the reference.",
+    "The first ARM version check used an unsupported cargo subcommand and exited before Cargo compilation; no output from that attempt was used."
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "study": "Native Library card release to first rendered Shelf",
+  "date_local": "2026-11-21",
+  "timezone": "Asia/Shanghai",
+  "hardware": "Kindle Scribe, first generation",
+  "firmware": "5.19.5",
+  "application": "BiliComics 0.1.25, instrumented ARMv7 release, 74392336 bytes",
+  "origin": "Unique visible shipping Library card, automatic XTest button release bracketed on the device",
+  "clock": "CLOCK_MONOTONIC",
+  "units": "nanoseconds",
+  "route": "Single-use diagnostic launcher, normal Library dispatch, isolated offline demo preferences, naturally selected populated Shelf",
+  "samples": [
+    {
+      "ordinal": 1,
+      "release_bracket_width": 1124231,
+      "release_to_application_trace_header": [3684042539, 3685166770],
+      "trace_header_to_render": 2766447769,
+      "release_to_render": [6450490308, 6451614539],
+      "release_to_accepted_send": [6486666539, 6487790770],
+      "release_to_driver_completion": [6852572616, 6853696847],
+      "render_to_accepted_send": 36176231,
+      "accepted_send_to_driver_completion": 365906077,
+      "shelf_state": "ready",
+      "observed_render_sequence": 1,
+      "driver_marker": 7,
+      "natural_exit": true,
+      "native_restored_and_lease_released": true,
+      "return_path": "Owned recovery after native card mtime changed; document content and file identity reverified",
+      "release_time_local": "12:06:36"
+    },
+    {
+      "ordinal": 2,
+      "release_bracket_width": 1806923,
+      "release_to_application_trace_header": [3767765847, 3769572770],
+      "trace_header_to_render": 2958718231,
+      "release_to_render": [6726484078, 6728291001],
+      "release_to_accepted_send": [6758427539, 6760234462],
+      "release_to_driver_completion": [7124547232, 7126354155],
+      "render_to_accepted_send": 31943461,
+      "accepted_send_to_driver_completion": 366119693,
+      "shelf_state": "ready",
+      "observed_render_sequence": 1,
+      "driver_marker": 8,
+      "natural_exit": true,
+      "native_restored_and_lease_released": true,
+      "return_path": "Fully automatic",
+      "release_time_local": "12:11:52"
+    }
+  ],
+  "limitations": "Same diagnostic build, not a paired optimization comparison. No optical timing, cover-complete gate, user-input gate, live account, or PW6 physical measurement."
+}

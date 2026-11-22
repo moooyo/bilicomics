@@ -1,0 +1,59 @@
+{
+  "schema": "bili-display-host-product-qualification-v1",
+  "passed": true,
+  "complete_product_elf": true,
+  "unchanged_permit": true,
+  "only_hardware_inputs_synthetic": true,
+  "physical_device_accessed": false,
+  "collector_validated": true,
+  "host_elf_bytes": 225338384,
+  "profiles": {
+    "scribe": {
+      "passed": true,
+      "natural_stock_capture_result": "ready",
+      "natural_branch": "automatic-five",
+      "queries": 5,
+      "metadata_passes": 2,
+      "real_proc_reads_positive": true,
+      "live_getters_witnessed_all_three_process_births": true,
+      "owned_group_reaped": true,
+      "original_collector_read_decode_and_components": true
+    },
+    "pw6": {
+      "passed": true,
+      "natural_stock_capture_result": "ready",
+      "natural_branch": "fixed-three",
+      "queries": 3,
+      "metadata_passes": 2,
+      "real_proc_reads_positive": true,
+      "live_getters_witnessed_all_three_process_births": true,
+      "owned_group_reaped": true,
+      "original_collector_read_decode_and_components": true
+    }
+  },
+  "controls": {
+    "scribe-selector-off": {
+      "passed": true,
+      "stock_capture_succeeded": true,
+      "no_sidecar": true,
+      "owned_group_reaped": true
+    },
+    "scribe-revoke": {
+      "passed": true,
+      "scope": "withdrawn permission",
+      "stock_refused": true,
+      "no_sidecar": true,
+      "owned_group_reaped": true,
+      "only_first_getter_started": true
+    },
+    "pw6-timeout": {
+      "passed": true,
+      "scope": "delayed getter and original budgets",
+      "stock_refused": true,
+      "no_sidecar": true,
+      "owned_group_reaped": true,
+      "only_first_getter_started": true
+    }
+  },
+  "scope": "Full Linux x86-64 Kindle-feature product, original launcher functions and actual PID/session/permission checks. The private framebuffer substitutes only GET_VAR/GET_FIX on its own file, the private input inventory selects automatic/fixed behavior, and a separate executable supplies synthetic LIPC answers. The production collector raw read, decode and components operate on actual product bytes in a real host command interval; no card, UI retirement, firmware, release or physical sample is fabricated."
+}

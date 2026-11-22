@@ -14,6 +14,34 @@ Workers prepare the full fonts, credentials, SQLite state, catalog and transacti
 
 `--capture-startup <path>.png` records two actual software-rendered startup frames and metadata. The demonstration-only `--startup-delay-ms` option supplies a bounded slow-worker fixture; production startup does not introduce that delay. Scripted actions and bounded normal captures begin their clock at application readiness.
 
+### Primary startup metric: first Shelf render
+
+Start at release of the **ordinary Kindle Library card**, not a URI request, Rust process entry or software Ready. Stop when the **first Shelf frame in that launch finishes rendering** its normal layout, entries (or the appropriate empty state), and navigation. Cover placeholders qualify. A loading screen or a generic skeleton without those Shelf elements does not. Do not wait for cover completion or send a second tap to test input.
+
+Identify the qualifying scene without cover pixels and report, from the same card-release origin: software render completion (`render_end`), the accepted `SEND` for that frame, and driver completion for that same positive update marker if observed. Label missing timestamps rather than substituting `ui_ready`, an unrelated receipt or another launch. These are software and driver observations, not the instant the ink first became visible. Startup feedback and cover completion are separate secondary measurements. Do not ask the user to tap, record video or run scripts. See the [Kindle verification procedure](verification/startup-interactive-kindle-20261121/README.md).
+
+The [first render-only Scribe measurements](verification/startup-interactive-kindle-20261121/README.md#scribe-results) are approximately **6.451 s** and **6.727 s** from the automatically released native Library card to the software renderer's return. The same instrumented executable supplied both observations; these are not an optimization comparison.
+
+The [six-pair same-binary A/B](verification/startup-shelf-ab-20261121/README.md) isolated the private-render ordering on that metric: the default improved 4/6 pairs by a paired median of **14.8–17.3 ms**, below the predeclared five-win and 100 ms thresholds. The intended order really ran in every pair. Keep the installed behavior, but do not claim a material first-Shelf-render gain or use the historical complete-frame result in its place.
+
+The Library-parent candidate (B) removes a duplicate preflight; its worker still validates the current configuration before acquiring the display lock. Two Linux comparisons saved about 3 ms in that stage. The [November 21 Scribe series](verification/startup-library-admission-20261121/README.md) yielded no complete timed pairs. The [independent November 22 run](verification/startup-library-admission-20261122/README.md) completed all six: B reached the first Shelf render sooner in 3/6, with a paired median B−A of **+64.139 to +66.997 ms** (B slower). It did not meet the five-win and ≥100 ms improvement gate. The first launch in every pair was faster regardless of arm, so the observed difference does not establish an intrinsic regression. Do not roll out this change for speed; the installed launcher is unchanged.
+
+The [independent Scribe A/A](verification/startup-clock-aa-20261122/README.md) used the same launcher and application in both slots. All ten visits reached the normal Shelf and returned native control. Excluding two warmups, the eight launches had a median card-release-to-render time of **6.324215–6.325388 s**. The second launch was faster in 2/4 pairs (median second minus first: −42.734 to −40.089 ms). This is a baseline, not a speedup or a fixed advantage for the first launch.
+
+On the same device clock, median card release to the first BiliComics shim mark **after its route checks** was 437.3–438.4 ms; shim to application invocation was 3.220 s; just before invocation to Rust `main`, 19.0 ms; `main` to the trace header, 16.7 ms; and header to renderer return, 2.657 s. Do not add these medians. The launcher span includes the protected two-second power-observer settle and is not a savings estimate. The A/A did not time the UI's receipt of prepared state.
+
+The separate prepared-state study completed three ordinary Scribe visits. The worker's pre-send timestamp to the UI's first successful receive measured **0.082, 105.155 and 33.879 ms**: none reached the predeclared 250 ms. All three first Shelves rendered; no speedup comparison was made. Keep startup feedback and display waits unchanged. See the [per-visit evidence](verification/startup-prepared-handoff-20261122/README.md).
+
+In [three later Scribe visits](verification/startup-display-sampling-20261122/README.md), card release to the first complete Shelf render was **6.430–6.432 s** at the median. The native display helper took **300.502 ms**, including **213.896 ms** waiting in `poll`. All visits ran the same diagnostic binary; this is not an improvement or an optical measurement. Keep its live checks and stability samples. The [historical 410 ms](verification/startup-display-sampling-20261122/DEVICE_REPLAY.md) was grant to parent-observed success in a *different* launch series, inside a 480 ms median transaction. Subtracting the two would not measure the launcher's overhead.
+
+A [new three-visit capture](verification/startup-display-poll-20261122/README.md) classified each existing `poll` call. **81.5–90.1%** of poll time was before the helper had observed EOF on the output pipe; after EOF it spent only **20.195–42.504 ms**, including any remaining child execution. Keep the original poll interval and successful-exit check. The median card-release-to-Shelf render was **6.401–6.403 s** on this single diagnostic arm. It did not change or measure the effect of progressive covers.
+
+<a id="primary-startup-metric-interactive-shelf"></a>
+
+### Historical interactive and cover-complete measurements
+
+The earlier [desktop interactive-Shelf study](verification/startup-interactive-shelf-20261121/README.md) required a fresh click on the presented Shelf and a confirmed menu response in the same process: six successes, **180.376 ms median upper bound** from desktop launch. A separate zero-cover control also responded. The [6.802 s Scribe median](physical/shelf-render-20261121/README.md#device-results) instead measured native card release to driver confirmation of a complete offline Shelf; the [56.338 ms desktop improvement](verification/startup-desktop-wake-20261121/README.md#paired-results) also used a complete-frame endpoint. None is a measurement of the new primary render endpoint. The startup destination and Reader sleep/resume behavior are unchanged.
+
 ## Sleep and wake
 
 Sleep preserves the same application process, `ReadingState`, reader core, settings, page images, route, and source position. It does not close the reader, initialize a new application, or apply the ordinary `launch=shelf` preference.

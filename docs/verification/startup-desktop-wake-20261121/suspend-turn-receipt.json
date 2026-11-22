@@ -1,0 +1,44 @@
+{
+  "scope": "One untimed isolated desktop guest process. Not a Kindle test or a timing sample.",
+  "passed": true,
+  "required_cleanup": false,
+  "signals": {
+    "SIGUSR1": [
+      65686021475140,
+      65686021485620
+    ],
+    "SIGUSR2": [
+      65686037175798,
+      65686037185158
+    ]
+  },
+  "pid": 49,
+  "turn": {
+    "mode": "wake",
+    "delay_ms": 16,
+    "will_drive": false,
+    "workers_started_before": false,
+    "window_alive": true,
+    "booting": true,
+    "suspended": true,
+    "quitting": false,
+    "cancelled": false,
+    "driver_available": true,
+    "ui_thread": true
+  },
+  "exit_code": 0,
+  "ready_route": "shelf",
+  "marks_ns": {
+    "desktop_software_full_submit": 65686020756568,
+    "desktop_post_submit_turn": 65686036712091,
+    "workers_started": 65686037333774,
+    "font_worker_queued": 65686037340484,
+    "state_worker_queued": 65686037423953,
+    "ui_worker_gate": 65686037472151,
+    "ui_ready": 65686051730597,
+    "suspend": 65686024381045,
+    "resume": 65686037302085,
+    "ready": 65686051776496
+  },
+  "gate_source": "runtime_wakeup"
+}

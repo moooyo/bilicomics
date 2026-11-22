@@ -1,0 +1,499 @@
+{
+  "scope": "Same-application independent launcher-preflight comparison on one Scribe 5.19.5, ordinary native Library card and isolated offline Shelf. Header is the diagnostic writer start, not Rust process entry; aggregate medians are not additive or causal. Duration values in nanoseconds only. No cover, touch-response, or optical timing.",
+  "counts": {
+    "all_visits": 14,
+    "excluded_warmups": 2,
+    "measured_pairs": 6,
+    "distinct_application_processes": 14,
+    "native_boots": 1,
+    "natural_exits_and_exact_native_releases": 14,
+    "same_marker_driver_receipts_including_warmups": 14
+  },
+  "pair_details": [
+    {
+      "pair": 1,
+      "order": "AB",
+      "B_minus_A_ns": {
+        "card_to_trace_started": [
+          -39581154,
+          -37666384
+        ],
+        "trace_started_to_renderer": [
+          229510616,
+          229510616
+        ],
+        "card_to_renderer": [
+          189929462,
+          191844232
+        ],
+        "renderer_to_send": [
+          -32033232,
+          -32033232
+        ],
+        "send_to_same_marker_driver": [
+          -929307,
+          -929307
+        ],
+        "card_to_accepted_send": [
+          157896230,
+          159811000
+        ],
+        "card_to_same_marker_driver": [
+          156966923,
+          158881693
+        ]
+      }
+    },
+    {
+      "pair": 2,
+      "order": "BA",
+      "B_minus_A_ns": {
+        "card_to_trace_started": [
+          -69198539,
+          -66575538
+        ],
+        "trace_started_to_renderer": [
+          -186280077,
+          -186280077
+        ],
+        "card_to_renderer": [
+          -255478616,
+          -252855615
+        ],
+        "renderer_to_send": [
+          -94077,
+          -94077
+        ],
+        "send_to_same_marker_driver": [
+          957077,
+          957077
+        ],
+        "card_to_accepted_send": [
+          -255572693,
+          -252949692
+        ],
+        "card_to_same_marker_driver": [
+          -254615616,
+          -251992615
+        ]
+      }
+    },
+    {
+      "pair": 3,
+      "order": "AB",
+      "B_minus_A_ns": {
+        "card_to_trace_started": [
+          32096231,
+          34343384
+        ],
+        "trace_started_to_renderer": [
+          121933385,
+          121933385
+        ],
+        "card_to_renderer": [
+          154029616,
+          156276769
+        ],
+        "renderer_to_send": [
+          254077,
+          254077
+        ],
+        "send_to_same_marker_driver": [
+          2688154,
+          2688154
+        ],
+        "card_to_accepted_send": [
+          154283693,
+          156530846
+        ],
+        "card_to_same_marker_driver": [
+          156971847,
+          159219000
+        ]
+      }
+    },
+    {
+      "pair": 4,
+      "order": "BA",
+      "B_minus_A_ns": {
+        "card_to_trace_started": [
+          -22537462,
+          -19972538
+        ],
+        "trace_started_to_renderer": [
+          -42615,
+          -42615
+        ],
+        "card_to_renderer": [
+          -22580077,
+          -20015153
+        ],
+        "renderer_to_send": [
+          -6984693,
+          -6984693
+        ],
+        "send_to_same_marker_driver": [
+          -385845,
+          -385845
+        ],
+        "card_to_accepted_send": [
+          -29564770,
+          -26999846
+        ],
+        "card_to_same_marker_driver": [
+          -29950615,
+          -27385691
+        ]
+      }
+    },
+    {
+      "pair": 5,
+      "order": "AB",
+      "B_minus_A_ns": {
+        "card_to_trace_started": [
+          52954538,
+          56105769
+        ],
+        "trace_started_to_renderer": [
+          97903001,
+          97903001
+        ],
+        "card_to_renderer": [
+          150857539,
+          154008770
+        ],
+        "renderer_to_send": [
+          16987769,
+          16987769
+        ],
+        "send_to_same_marker_driver": [
+          -4850307,
+          -4850307
+        ],
+        "card_to_accepted_send": [
+          167845308,
+          170996539
+        ],
+        "card_to_same_marker_driver": [
+          162995001,
+          166146232
+        ]
+      }
+    },
+    {
+      "pair": 6,
+      "order": "BA",
+      "B_minus_A_ns": {
+        "card_to_trace_started": [
+          129123307,
+          131854385
+        ],
+        "trace_started_to_renderer": [
+          -162868077,
+          -162868077
+        ],
+        "card_to_renderer": [
+          -33744770,
+          -31013692
+        ],
+        "renderer_to_send": [
+          -74331154,
+          -74331154
+        ],
+        "send_to_same_marker_driver": [
+          5428231,
+          5428231
+        ],
+        "card_to_accepted_send": [
+          -108075924,
+          -105344846
+        ],
+        "card_to_same_marker_driver": [
+          -102647693,
+          -99916615
+        ]
+      }
+    }
+  ],
+  "arm_median_intervals_ns": {
+    "A": {
+      "card_to_trace_started": [
+        3672196000.5,
+        3673476962.0
+      ],
+      "trace_started_to_renderer": [
+        2736727038.5,
+        2736727038.5
+      ],
+      "card_to_renderer": [
+        6353262654.5,
+        6354408077.5
+      ],
+      "renderer_to_send": [
+        39665384.5,
+        39665384.5
+      ],
+      "send_to_same_marker_driver": [
+        364812500.0,
+        364812500.0
+      ],
+      "card_to_accepted_send": [
+        6425192308.0,
+        6426337731.0
+      ],
+      "card_to_same_marker_driver": [
+        6786357231.0,
+        6787502654.0
+      ]
+    },
+    "B": {
+      "card_to_trace_started": [
+        3682143577.0,
+        3683487269.5
+      ],
+      "trace_started_to_renderer": [
+        2745756500.5,
+        2745756500.5
+      ],
+      "card_to_renderer": [
+        6437517346.5,
+        6438780539.0
+      ],
+      "renderer_to_send": [
+        32875384.5,
+        32875384.5
+      ],
+      "send_to_same_marker_driver": [
+        365098116.0,
+        365098116.0
+      ],
+      "card_to_accepted_send": [
+        6477153385.0,
+        6478416577.5
+      ],
+      "card_to_same_marker_driver": [
+        6840472731.5,
+        6841735924.0
+      ]
+    }
+  },
+  "paired_groups": {
+    "all": {
+      "card_to_trace_started": {
+        "n_pairs": 6,
+        "B_faster": 3,
+        "B_slower": 3,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          4779384.5,
+          7185423.0
+        ]
+      },
+      "trace_started_to_renderer": {
+        "n_pairs": 6,
+        "B_faster": 3,
+        "B_slower": 3,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          48930193.0,
+          48930193.0
+        ]
+      },
+      "card_to_renderer": {
+        "n_pairs": 6,
+        "B_faster": 3,
+        "B_slower": 3,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          64138731.0,
+          66996808.5
+        ]
+      },
+      "renderer_to_send": {
+        "n_pairs": 6,
+        "B_faster": 4,
+        "B_slower": 2,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          -3539385.0,
+          -3539385.0
+        ]
+      },
+      "send_to_same_marker_driver": {
+        "n_pairs": 6,
+        "B_faster": 3,
+        "B_slower": 3,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          285616.0,
+          285616.0
+        ]
+      },
+      "card_to_accepted_send": {
+        "n_pairs": 6,
+        "B_faster": 3,
+        "B_slower": 3,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          62359461.5,
+          64765500.0
+        ]
+      },
+      "card_to_same_marker_driver": {
+        "n_pairs": 6,
+        "B_faster": 3,
+        "B_slower": 3,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          63508154.0,
+          65748001.0
+        ]
+      }
+    },
+    "AB": {
+      "card_to_trace_started": {
+        "n_pairs": 3,
+        "B_faster": 1,
+        "B_slower": 2,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          32096231,
+          34343384
+        ]
+      },
+      "trace_started_to_renderer": {
+        "n_pairs": 3,
+        "B_faster": 0,
+        "B_slower": 3,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          121933385,
+          121933385
+        ]
+      },
+      "card_to_renderer": {
+        "n_pairs": 3,
+        "B_faster": 0,
+        "B_slower": 3,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          154029616,
+          156276769
+        ]
+      },
+      "renderer_to_send": {
+        "n_pairs": 3,
+        "B_faster": 1,
+        "B_slower": 2,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          254077,
+          254077
+        ]
+      },
+      "send_to_same_marker_driver": {
+        "n_pairs": 3,
+        "B_faster": 2,
+        "B_slower": 1,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          -929307,
+          -929307
+        ]
+      },
+      "card_to_accepted_send": {
+        "n_pairs": 3,
+        "B_faster": 0,
+        "B_slower": 3,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          157896230,
+          159811000
+        ]
+      },
+      "card_to_same_marker_driver": {
+        "n_pairs": 3,
+        "B_faster": 0,
+        "B_slower": 3,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          156971847,
+          159219000
+        ]
+      }
+    },
+    "BA": {
+      "card_to_trace_started": {
+        "n_pairs": 3,
+        "B_faster": 2,
+        "B_slower": 1,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          -22537462,
+          -19972538
+        ]
+      },
+      "trace_started_to_renderer": {
+        "n_pairs": 3,
+        "B_faster": 3,
+        "B_slower": 0,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          -162868077,
+          -162868077
+        ]
+      },
+      "card_to_renderer": {
+        "n_pairs": 3,
+        "B_faster": 3,
+        "B_slower": 0,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          -33744770,
+          -31013692
+        ]
+      },
+      "renderer_to_send": {
+        "n_pairs": 3,
+        "B_faster": 3,
+        "B_slower": 0,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          -6984693,
+          -6984693
+        ]
+      },
+      "send_to_same_marker_driver": {
+        "n_pairs": 3,
+        "B_faster": 1,
+        "B_slower": 2,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          957077,
+          957077
+        ]
+      },
+      "card_to_accepted_send": {
+        "n_pairs": 3,
+        "B_faster": 3,
+        "B_slower": 0,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          -108075924,
+          -105344846
+        ]
+      },
+      "card_to_same_marker_driver": {
+        "n_pairs": 3,
+        "B_faster": 3,
+        "B_slower": 0,
+        "overlap": 0,
+        "median_B_minus_A_ns": [
+          -102647693,
+          -99916615
+        ]
+      }
+    }
+  },
+  "primary_threshold_passed": false
+}

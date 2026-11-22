@@ -23,6 +23,7 @@ const TERMINAL_RESERVE_BYTES: u64 = 1024;
 const SCHEMA_VERSION: u32 = 1;
 
 static REGISTRY: Registry = Registry::new();
+static SHELF_RENDER_REGISTRY: Registry = Registry::new();
 
 /// Configure this process once, creating a new private regular file.
 ///
@@ -37,12 +38,57 @@ pub fn enabled() -> bool {
     REGISTRY.enabled()
 }
 
+pub fn configure_shelf_render(path: &Path) -> io::Result<()> {
+    use std::io::Read;
+    let mut boot_id = String::new();
+    File::open("/proc/sys/kernel/random/boot_id")?.take(38).read_to_string(&mut boot_id)?;
+    SHELF_RENDER_REGISTRY.configure_with_header(path, MAX_TRACE_BYTES, &ShelfRenderHeader::new(path, &boot_id)?)
+}
+
+pub fn shelf_render_enabled() -> bool {
+    SHELF_RENDER_REGISTRY.enabled()
+}
+
+pub fn shelf_render<T: Serialize + ?Sized>(stage: &'static str, data: &T) {
+    SHELF_RENDER_REGISTRY.record(0, "startup", stage, data);
+}
+
+#[derive(Serialize)]
+struct ShelfRenderHeader<'a> {
+    schema: &'static str,
+    run_id: &'a str,
+    boot_id: &'a str,
+    clock: &'static str,
+}
+
+impl<'a> ShelfRenderHeader<'a> {
+    fn new(path: &'a Path, boot_id: &'a str) -> io::Result<Self> {
+        let run_id = path.file_name().and_then(|name| name.to_str()).and_then(|name| name.strip_suffix(".jsonl"))
+            .filter(|stem| stem.strip_prefix("bili-shelf-").is_some_and(|suffix| {
+                suffix.len() == 32 && suffix.bytes().all(lower_hex)
+            })).ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Invalid Shelf trace run identifier"))?;
+        let boot_id = boot_id.strip_suffix('\n').unwrap_or(boot_id);
+        if boot_id.len() != 36 || !boot_id.bytes().enumerate().all(|(index, byte)| {
+            if matches!(index, 8 | 13 | 18 | 23) { byte == b'-' } else { lower_hex(byte) }
+        }) {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid Shelf trace boot identifier"));
+        }
+        Ok(Self { schema: "kindle-shelf-render-log-v1", run_id, boot_id, clock: "CLOCK_MONOTONIC" })
+    }
+}
+
+fn lower_hex(byte: u8) -> bool {
+    byte.is_ascii_digit() || matches!(byte, b'a'..=b'f')
+}
+
 /// Close the optional sink after a final best-effort record. No writer thread
 /// is joined, but this serializes with an append that may already be in progress.
 /// Diagnostic I/O errors are retained in status rather than returned to shutdown.
 pub fn finish() {
-    if let Some(sink) = REGISTRY.sink.get() {
-        sink.stop(StopReason::Finished);
+    for registry in [&REGISTRY, &SHELF_RENDER_REGISTRY] {
+        if let Some(sink) = registry.sink.get() {
+            sink.stop(StopReason::Finished);
+        }
     }
 }
 
@@ -203,6 +249,14 @@ impl Registry {
     }
 
     fn configure(&self, path: &Path, max_bytes: u64) -> io::Result<()> {
+        #[derive(Serialize)]
+        struct Header { max_trace_bytes: u64, max_record_bytes: usize }
+        self.configure_with_header(path, max_bytes, &Header {
+            max_trace_bytes: max_bytes, max_record_bytes: MAX_RECORD_BYTES,
+        })
+    }
+
+    fn configure_with_header(&self, path: &Path, max_bytes: u64, header: &impl Serialize) -> io::Result<()> {
         // Serialize configuration before creating a file, so a losing caller
         // cannot leave an unused file at a different candidate pathname.
         let _configuration = self.configuration.lock()
@@ -221,11 +275,7 @@ impl Registry {
             return Err(io::Error::new(io::ErrorKind::InvalidInput, "Performance trace requires a regular file"));
         }
         let sink = Sink::new(file, max_bytes);
-        #[derive(Serialize)]
-        struct Header { max_trace_bytes: u64, max_record_bytes: usize }
-        sink.emit(0, "diagnostic", "trace_started", &Header {
-            max_trace_bytes: max_bytes, max_record_bytes: MAX_RECORD_BYTES,
-        });
+        sink.emit(0, "diagnostic", "trace_started", header);
         if !sink.active.load(Ordering::Acquire) {
             return Err(io::Error::other("Performance trace could not write its initial record"));
         }

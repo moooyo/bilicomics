@@ -1,0 +1,91 @@
+{
+  "source": "Candidate copied from the coordinator-supplied desktop output; frozen 2026-11-17 candidate normal/failure references.",
+  "scope": "Isolated Xvfb desktop offline demo; not a native driver receipt, real-panel timing or live account.",
+  "cases": [
+    {
+      "profile": "pw6",
+      "scenario": "normal",
+      "size": [
+        1264,
+        1680
+      ],
+      "exit": 0,
+      "route": "shelf",
+      "ready_records": 1,
+      "startup_before_workers": true,
+      "activity_during_preparation": true,
+      "indicator_pixels_changed": 1280,
+      "initial_snapshot_rgb_differences": 0,
+      "final_snapshot_rgb_differences": 0,
+      "shelf_pages": 2,
+      "first_observed_x11_difference_after_ready": 0,
+      "settled_x11_rgb_differences_at_1_50_1_85_2_20_s": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "profile": "pw6",
+      "scenario": "failure",
+      "size": [
+        1264,
+        1680
+      ],
+      "exit": 1,
+      "route": "startup",
+      "ready_records": 0,
+      "startup_before_workers": true,
+      "activity_during_preparation": true,
+      "indicator_pixels_changed": 1280,
+      "initial_snapshot_rgb_differences": 0,
+      "final_snapshot_rgb_differences": 0,
+      "shelf_pages": null,
+      "first_observed_x11_difference_after_ready": null,
+      "settled_x11_rgb_differences_at_1_50_1_85_2_20_s": []
+    },
+    {
+      "profile": "scribe",
+      "scenario": "normal",
+      "size": [
+        1860,
+        2480
+      ],
+      "exit": 0,
+      "route": "shelf",
+      "ready_records": 1,
+      "startup_before_workers": true,
+      "activity_during_preparation": true,
+      "indicator_pixels_changed": 1280,
+      "initial_snapshot_rgb_differences": 0,
+      "final_snapshot_rgb_differences": 0,
+      "shelf_pages": 2,
+      "first_observed_x11_difference_after_ready": 0,
+      "settled_x11_rgb_differences_at_1_50_1_85_2_20_s": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "profile": "scribe",
+      "scenario": "failure",
+      "size": [
+        1860,
+        2480
+      ],
+      "exit": 1,
+      "route": "startup",
+      "ready_records": 0,
+      "startup_before_workers": true,
+      "activity_during_preparation": true,
+      "indicator_pixels_changed": 1280,
+      "initial_snapshot_rgb_differences": 0,
+      "final_snapshot_rgb_differences": 0,
+      "shelf_pages": null,
+      "first_observed_x11_difference_after_ready": null,
+      "settled_x11_rgb_differences_at_1_50_1_85_2_20_s": []
+    }
+  ],
+  "checked_no_live_app_or_xvfb_after_every_case": true
+}

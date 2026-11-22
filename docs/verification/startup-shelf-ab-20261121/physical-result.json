@@ -1,0 +1,723 @@
+{
+  "schema": "bili-shelf-ab-analysis-v1",
+  "scope": "Scribe 5.19.5; ordinary native Library card to the first qualifying normal Shelf renderer return.",
+  "primary_endpoint": "renderer_return",
+  "warmups": [
+    {
+      "pair": 0,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "wait_then_render",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6735614308,
+          6736739000
+        ],
+        "accepted_send": [
+          6767845539,
+          6768970231
+        ],
+        "driver_completion": [
+          7133638308,
+          7134763000
+        ]
+      }
+    },
+    {
+      "pair": 0,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "render_then_wait",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6764807385,
+          6765970693
+        ],
+        "accepted_send": [
+          6796251385,
+          6797414693
+        ],
+        "driver_completion": [
+          7162336308,
+          7163499616
+        ]
+      }
+    }
+  ],
+  "warmups_included_in_primary_statistics": false,
+  "cases": [
+    {
+      "pair": 1,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "wait_then_render",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          7009159308,
+          7010259924
+        ],
+        "accepted_send": [
+          7042097693,
+          7043198309
+        ],
+        "driver_completion": [
+          7407744539,
+          7408845155
+        ]
+      }
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "render_then_wait",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6908067308,
+          6909309615
+        ],
+        "accepted_send": [
+          6940707078,
+          6941949385
+        ],
+        "driver_completion": [
+          7306444231,
+          7307686538
+        ]
+      }
+    },
+    {
+      "pair": 2,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "render_then_wait",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6897356462,
+          6898713924
+        ],
+        "accepted_send": [
+          6946001539,
+          6947359001
+        ],
+        "driver_completion": [
+          7311396308,
+          7312753770
+        ]
+      }
+    },
+    {
+      "pair": 2,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "wait_then_render",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6902411770,
+          6903886616
+        ],
+        "accepted_send": [
+          6936136001,
+          6937610847
+        ],
+        "driver_completion": [
+          7304309231,
+          7305784077
+        ]
+      }
+    },
+    {
+      "pair": 3,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "wait_then_render",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          7284226846,
+          7285352769
+        ],
+        "accepted_send": [
+          7315144616,
+          7316270539
+        ],
+        "driver_completion": [
+          7680690154,
+          7681816077
+        ]
+      }
+    },
+    {
+      "pair": 3,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "render_then_wait",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          7202484385,
+          7203680308
+        ],
+        "accepted_send": [
+          7276078000,
+          7277273923
+        ],
+        "driver_completion": [
+          7641416846,
+          7642612769
+        ]
+      }
+    },
+    {
+      "pair": 4,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "render_then_wait",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          7019728232,
+          7021416001
+        ],
+        "accepted_send": [
+          7093851539,
+          7095539308
+        ],
+        "driver_completion": [
+          7456648770,
+          7458336539
+        ]
+      }
+    },
+    {
+      "pair": 4,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "wait_then_render",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          7013176693,
+          7014666924
+        ],
+        "accepted_send": [
+          7061706231,
+          7063196462
+        ],
+        "driver_completion": [
+          7427351231,
+          7428841462
+        ]
+      }
+    },
+    {
+      "pair": 5,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "wait_then_render",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6659776462,
+          6661177000
+        ],
+        "accepted_send": [
+          6722823770,
+          6724224308
+        ],
+        "driver_completion": [
+          7088485539,
+          7089886077
+        ]
+      }
+    },
+    {
+      "pair": 5,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "render_then_wait",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6946496538,
+          6948074308
+        ],
+        "accepted_send": [
+          7031118462,
+          7032696232
+        ],
+        "driver_completion": [
+          7396584154,
+          7398161924
+        ]
+      }
+    },
+    {
+      "pair": 6,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "render_then_wait",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6927883462,
+          6928976847
+        ],
+        "accepted_send": [
+          6969426538,
+          6970519923
+        ],
+        "driver_completion": [
+          7334588077,
+          7335681462
+        ]
+      }
+    },
+    {
+      "pair": 6,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "actual_order_qualified": true,
+      "render_order": "wait_then_render",
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6954807308,
+          6955927001
+        ],
+        "accepted_send": [
+          7025925615,
+          7027045308
+        ],
+        "driver_completion": [
+          7381346462,
+          7382466155
+        ]
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "pair": 1,
+      "order": "AB",
+      "status": "complete",
+      "actual_order_qualified": true,
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            7009159308,
+            7010259924
+          ],
+          "B_ns": [
+            6908067308,
+            6909309615
+          ],
+          "B_minus_A_ns": [
+            -102192616,
+            -99849693
+          ],
+          "direction": "B-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            7042097693,
+            7043198309
+          ],
+          "B_ns": [
+            6940707078,
+            6941949385
+          ],
+          "B_minus_A_ns": [
+            -102491231,
+            -100148308
+          ],
+          "direction": "B-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            7407744539,
+            7408845155
+          ],
+          "B_ns": [
+            7306444231,
+            7307686538
+          ],
+          "B_minus_A_ns": [
+            -102400924,
+            -100058001
+          ],
+          "direction": "B-faster"
+        }
+      }
+    },
+    {
+      "pair": 2,
+      "order": "BA",
+      "status": "complete",
+      "actual_order_qualified": true,
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            6902411770,
+            6903886616
+          ],
+          "B_ns": [
+            6897356462,
+            6898713924
+          ],
+          "B_minus_A_ns": [
+            -6530154,
+            -3697846
+          ],
+          "direction": "B-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            6936136001,
+            6937610847
+          ],
+          "B_ns": [
+            6946001539,
+            6947359001
+          ],
+          "B_minus_A_ns": [
+            8390692,
+            11223000
+          ],
+          "direction": "A-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            7304309231,
+            7305784077
+          ],
+          "B_ns": [
+            7311396308,
+            7312753770
+          ],
+          "B_minus_A_ns": [
+            5612231,
+            8444539
+          ],
+          "direction": "A-faster"
+        }
+      }
+    },
+    {
+      "pair": 3,
+      "order": "AB",
+      "status": "complete",
+      "actual_order_qualified": true,
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            7284226846,
+            7285352769
+          ],
+          "B_ns": [
+            7202484385,
+            7203680308
+          ],
+          "B_minus_A_ns": [
+            -82868384,
+            -80546538
+          ],
+          "direction": "B-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            7315144616,
+            7316270539
+          ],
+          "B_ns": [
+            7276078000,
+            7277273923
+          ],
+          "B_minus_A_ns": [
+            -40192539,
+            -37870693
+          ],
+          "direction": "B-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            7680690154,
+            7681816077
+          ],
+          "B_ns": [
+            7641416846,
+            7642612769
+          ],
+          "B_minus_A_ns": [
+            -40399231,
+            -38077385
+          ],
+          "direction": "B-faster"
+        }
+      }
+    },
+    {
+      "pair": 4,
+      "order": "BA",
+      "status": "complete",
+      "actual_order_qualified": true,
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            7013176693,
+            7014666924
+          ],
+          "B_ns": [
+            7019728232,
+            7021416001
+          ],
+          "B_minus_A_ns": [
+            5061308,
+            8239308
+          ],
+          "direction": "A-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            7061706231,
+            7063196462
+          ],
+          "B_ns": [
+            7093851539,
+            7095539308
+          ],
+          "B_minus_A_ns": [
+            30655077,
+            33833077
+          ],
+          "direction": "A-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            7427351231,
+            7428841462
+          ],
+          "B_ns": [
+            7456648770,
+            7458336539
+          ],
+          "B_minus_A_ns": [
+            27807308,
+            30985308
+          ],
+          "direction": "A-faster"
+        }
+      }
+    },
+    {
+      "pair": 5,
+      "order": "AB",
+      "status": "complete",
+      "actual_order_qualified": true,
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            6659776462,
+            6661177000
+          ],
+          "B_ns": [
+            6946496538,
+            6948074308
+          ],
+          "B_minus_A_ns": [
+            285319538,
+            288297846
+          ],
+          "direction": "A-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            6722823770,
+            6724224308
+          ],
+          "B_ns": [
+            7031118462,
+            7032696232
+          ],
+          "B_minus_A_ns": [
+            306894154,
+            309872462
+          ],
+          "direction": "A-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            7088485539,
+            7089886077
+          ],
+          "B_ns": [
+            7396584154,
+            7398161924
+          ],
+          "B_minus_A_ns": [
+            306698077,
+            309676385
+          ],
+          "direction": "A-faster"
+        }
+      }
+    },
+    {
+      "pair": 6,
+      "order": "BA",
+      "status": "complete",
+      "actual_order_qualified": true,
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            6954807308,
+            6955927001
+          ],
+          "B_ns": [
+            6927883462,
+            6928976847
+          ],
+          "B_minus_A_ns": [
+            -28043539,
+            -25830461
+          ],
+          "direction": "B-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            7025925615,
+            7027045308
+          ],
+          "B_ns": [
+            6969426538,
+            6970519923
+          ],
+          "B_minus_A_ns": [
+            -57618770,
+            -55405692
+          ],
+          "direction": "B-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            7381346462,
+            7382466155
+          ],
+          "B_ns": [
+            7334588077,
+            7335681462
+          ],
+          "B_minus_A_ns": [
+            -47878078,
+            -45665000
+          ],
+          "direction": "B-faster"
+        }
+      }
+    }
+  ],
+  "nominal_intention_to_treat": {
+    "renderer_return": {
+      "n_pairs": 6,
+      "median_paired_B_minus_A_ns": [
+        -17286847,
+        -14764153
+      ],
+      "direction": "B-faster"
+    },
+    "accepted_send": {
+      "n_pairs": 6,
+      "median_paired_B_minus_A_ns": [
+        -15900924,
+        -13323846
+      ],
+      "direction": "B-faster"
+    },
+    "driver_completion": {
+      "n_pairs": 6,
+      "median_paired_B_minus_A_ns": [
+        -17393500,
+        -14816423
+      ],
+      "direction": "B-faster"
+    }
+  },
+  "actual_order_qualified_pairs_descriptive_only": {
+    "renderer_return": {
+      "n_pairs": 6,
+      "median_paired_B_minus_A_ns": [
+        -17286847,
+        -14764153
+      ],
+      "direction": "B-faster"
+    },
+    "accepted_send": {
+      "n_pairs": 6,
+      "median_paired_B_minus_A_ns": [
+        -15900924,
+        -13323846
+      ],
+      "direction": "B-faster"
+    },
+    "driver_completion": {
+      "n_pairs": 6,
+      "median_paired_B_minus_A_ns": [
+        -17393500,
+        -14816423
+      ],
+      "direction": "B-faster"
+    }
+  },
+  "actual_order_counts": {
+    "B_private_render_first": 6,
+    "B_wait_first_fallback": 0
+  },
+  "primary_threshold": {
+    "complete_six_pairs": true,
+    "B_faster_in_at_least_five_pairs": false,
+    "median_primary_improvement_at_least_100ms": false,
+    "actual_order_qualified_in_all_six_pairs": true,
+    "passes_predeclared_primary_threshold": false
+  },
+  "method": {
+    "pair_delta": "B_minus_A_interval = [B.lo - A.hi, B.hi - A.lo]",
+    "median": "Median the paired B-minus-A intervals; never subtract arm medians.",
+    "secondary_endpoints": "Accepted SEND and same-marker driver completion are reported separately.",
+    "B_fallback": "A B wait-then-render fallback remains in nominal results and is excluded only from the descriptive actual-order-qualified subset.",
+    "optical_or_clickability_claimed": false,
+    "screenshots_or_followup_input_used": false
+  }
+}

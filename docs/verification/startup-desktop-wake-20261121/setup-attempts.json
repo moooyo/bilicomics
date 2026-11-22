@@ -1,0 +1,25 @@
+{
+  "scope": "Untimed observer admission. These attempts are not warmups or paired measurements.",
+  "initial_attempt": {
+    "case": "check-a",
+    "result": "stopped_before_external_observation",
+    "reason": "An immediate post-Popen /proc/PID/environ read did not return the requested research mode.",
+    "application_trace_created": false,
+    "formal_trial_started": false
+  },
+  "diagnosis": {
+    "research_help_immediate_reads": 3,
+    "returned_environment_bytes": [0, 0, 0],
+    "control_sleep_immediate_reads_found_the_requested_test_key": true,
+    "error_interpretation": "An empty initial read cannot prove that a mode is absent."
+  },
+  "amendment": {
+    "identity_check": "Keep the executable inode check at launch. Verify the one requested environment key against a nonempty live procfs read after the X11 observations, plus each of the two application's actual mode records.",
+    "timing_window_changed": false,
+    "replaced_formal_cases": 0,
+    "stock_natural_positive_rechecked": true,
+    "initial_stock_evidence": "stock-initial-setup.json retains the initial observer output. Its environment-verification flag is not accepted as proof of absence because its immediate read could have been empty.",
+    "accepted_stock_evidence": "stock-diagnostics.json and stock-audit.json",
+    "accepted_research_qualifications": "wake-qualification.json"
+  }
+}

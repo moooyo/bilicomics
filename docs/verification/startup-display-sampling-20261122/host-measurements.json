@@ -1,0 +1,50 @@
+{
+  "schema": "bili-display-sampling-host-projection-v1",
+  "clock": "CLOCK_MONOTONIC",
+  "time_unit": "nanoseconds",
+  "scope": "Linux shell, real native read permit and command runner, mock device metadata and property getters; not Kindle timing.",
+  "pair_columns": ["order", "A_ns", "B_ns"],
+  "qualification_order": ["good", "inactive-first", "inactive-last", "bad-mode", "fail-mode", "timeout", "revoke"],
+  "diagnostic_columns": ["begin_to_go", "go_to_ready", "ready_to_reaped", "reaped_to_parsed", "go_to_helper_entry", "helper_elapsed", "helper_return_to_ready", "acquire", "all_rechecks", "getter_bodies", "process_identity_reads"],
+  "nested_columns": ["command_calls", "command_inclusive", "spawn", "command_guard_count", "command_guards", "per_visit_remainder", "helper_elapsed"],
+  "profiles": {
+    "scribe": {
+      "empty_exchange_ns": [49439, 48869, 47819, 70628, 44989, 51089],
+      "warmups_ns": [69336241, 69586223],
+      "pairs": [["AB", 68333667, 68104254], ["BA", 68244839, 67482341], ["AB", 67747252, 89238210], ["BA", 68713206, 66934575], ["AB", 68540641, 68135122], ["BA", 69390808, 69712260]],
+      "diagnostics": [
+        [24309842, 21568365, 21825408, 1270805, 4583588, 7499429, 9485348, 222794, 3400950, 59639, 288],
+        [24030939, 22088040, 21777290, 1345373, 3258182, 7096651, 11733207, 186115, 3696444, 67119, 288],
+        [22501500, 22454761, 22436392, 1226037, 4784213, 6123226, 11547322, 136206, 2278848, 62208, 288]
+      ],
+      "permit_acquisitions_per_diagnostic": 1,
+      "permit_rechecks_per_diagnostic": 31,
+      "metadata_samples_per_diagnostic": 2,
+      "getter_entries_per_diagnostic": 5,
+      "nested_command_diagnostics": [
+        [5, 25363544, 819820, 10, 819879, 23723845, 26806095],
+        [5, 3964553, 616444, 10, 1114382, 2233727, 6393940],
+        [5, 4680484, 681302, 10, 1208907, 2790275, 7046472]
+      ]
+    },
+    "pw6": {
+      "empty_exchange_ns": [69359, 73488, 45409, 111617, 61018, 60528],
+      "warmups_ns": [69666022, 67387593],
+      "pairs": [["AB", 69339270, 69294422], ["BA", 67873140, 68617100], ["AB", 68238271, 67657015], ["BA", 68006516, 71379177], ["AB", 68231220, 67199247], ["BA", 69760659, 67766812]],
+      "diagnostics": [
+        [22857761, 22223247, 22404753, 1241726, 3670492, 3957544, 14595211, 167965, 1908830, 29609, 216],
+        [23182581, 22053872, 22572938, 1394043, 3562906, 4986167, 13504799, 185654, 2554482, 36219, 216],
+        [23854024, 43718094, 22250096, 1726794, 3962314, 15424959, 24330821, 173985, 2551935, 43489, 216]
+      ],
+      "permit_acquisitions_per_diagnostic": 1,
+      "permit_rechecks_per_diagnostic": 23,
+      "metadata_samples_per_diagnostic": 2,
+      "getter_entries_per_diagnostic": 3,
+      "nested_command_diagnostics": [
+        [3, 2077793, 318311, 6, 464406, 1295076, 3362901],
+        [3, 4552799, 363951, 6, 554095, 3634753, 6128857],
+        [3, 1887390, 279083, 6, 469486, 1138821, 3297831]
+      ]
+    }
+  }
+}

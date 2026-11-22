@@ -1,0 +1,119 @@
+{
+  "schema": "bili-host-poll-state-v1",
+  "physical_device": false,
+  "libc": "0.2.191",
+  "clock": "Linux monotonic elapsed time (Rust Instant)",
+  "permission": "synthetic callback",
+  "cases": {
+    "open": {
+      "stock": {
+        "outcome": "parsed_Y8",
+        "run_ns": 120794745,
+        "context_checks": 3,
+        "getter_reaped": true
+      },
+      "split": {
+        "outcome": "parsed_Y8",
+        "run_ns": 131591549,
+        "context_checks": 3,
+        "getter_reaped": true,
+        "stdout_open": {
+          "calls": 14,
+          "elapsed_ns": 121220635
+        },
+        "after_eof": {
+          "calls": 1,
+          "elapsed_ns": 10071572
+        }
+      }
+    },
+    "eof": {
+      "stock": {
+        "outcome": "parsed_Y8",
+        "run_ns": 121681583,
+        "context_checks": 3,
+        "getter_reaped": true
+      },
+      "split": {
+        "outcome": "parsed_Y8",
+        "run_ns": 122427904,
+        "context_checks": 3,
+        "getter_reaped": true,
+        "stdout_open": {
+          "calls": 1,
+          "elapsed_ns": 1039343
+        },
+        "after_eof": {
+          "calls": 12,
+          "elapsed_ns": 120973371
+        }
+      }
+    },
+    "nonzero": {
+      "stock": {
+        "outcome": "rejected_exit",
+        "run_ns": 121683994,
+        "context_checks": 2,
+        "getter_reaped": true
+      },
+      "split": {
+        "outcome": "rejected_exit",
+        "run_ns": 122210200,
+        "context_checks": 2,
+        "getter_reaped": true,
+        "stdout_open": {
+          "calls": 1,
+          "elapsed_ns": 879837
+        },
+        "after_eof": {
+          "calls": 12,
+          "elapsed_ns": 120923283
+        }
+      }
+    },
+    "timeout": {
+      "stock": {
+        "outcome": "deadline",
+        "run_ns": 2000936809,
+        "context_checks": 20,
+        "getter_reaped": true
+      },
+      "split": {
+        "outcome": "deadline",
+        "run_ns": 2000353175,
+        "context_checks": 20,
+        "getter_reaped": true,
+        "stdout_open": {
+          "calls": 1,
+          "elapsed_ns": 340701
+        },
+        "after_eof": {
+          "calls": 199,
+          "elapsed_ns": 1998052220
+        }
+      }
+    },
+    "withdrawal": {
+      "stock": {
+        "outcome": "withdrawn",
+        "run_ns": 102371430,
+        "context_checks": 2,
+        "getter_reaped": true
+      },
+      "split": {
+        "outcome": "withdrawn",
+        "run_ns": 101654667,
+        "context_checks": 2,
+        "getter_reaped": true,
+        "stdout_open": {
+          "calls": 1,
+          "elapsed_ns": 360761
+        },
+        "after_eof": {
+          "calls": 10,
+          "elapsed_ns": 101007494
+        }
+      }
+    }
+  }
+}

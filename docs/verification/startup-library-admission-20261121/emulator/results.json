@@ -1,0 +1,193 @@
+{
+  "scope": "Loopback-only Linux launcher lifecycle fixture, actual host desktop executable and first externally matching non-cover X11 Shelf. Not Kindle card release, physical rendering, driver SEND or panel visibility.",
+  "series": "r1",
+  "application_bytes": 251368888,
+  "source_launcher_bytes": {
+    "A": 80185,
+    "B": 80710
+  },
+  "excluded_qualifications": [
+    {
+      "profile": "scribe",
+      "arm": "A",
+      "passed": true
+    },
+    {
+      "profile": "scribe",
+      "arm": "B",
+      "passed": true
+    },
+    {
+      "profile": "pw6",
+      "arm": "B",
+      "passed": true
+    },
+    {
+      "profile": "pw6",
+      "arm": "A",
+      "passed": true
+    }
+  ],
+  "formal_pairs": [
+    {
+      "pair": 1,
+      "order": "AB",
+      "a_ns": [
+        1040187723,
+        1047456212
+      ],
+      "b_ns": [
+        855220322,
+        864231076
+      ],
+      "b_minus_a_ns": [
+        -192235890,
+        -175956647
+      ],
+      "entry_b_minus_a_ns": [
+        -100329960,
+        -99267627
+      ],
+      "inference": "B earlier"
+    },
+    {
+      "pair": 2,
+      "order": "BA",
+      "a_ns": [
+        818954615,
+        825800034
+      ],
+      "b_ns": [
+        867397988,
+        873868356
+      ],
+      "b_minus_a_ns": [
+        41597954,
+        54913741
+      ],
+      "entry_b_minus_a_ns": [
+        39343149,
+        40464660
+      ],
+      "inference": "B later"
+    },
+    {
+      "pair": 3,
+      "order": "AB",
+      "a_ns": [
+        839343396,
+        845997490
+      ],
+      "b_ns": [
+        832483608,
+        840948487
+      ],
+      "b_minus_a_ns": [
+        -13513882,
+        1605091
+      ],
+      "entry_b_minus_a_ns": [
+        -5402415,
+        -4288173
+      ],
+      "inference": "unresolved"
+    },
+    {
+      "pair": 4,
+      "order": "BA",
+      "a_ns": [
+        834748812,
+        842888499
+      ],
+      "b_ns": [
+        857534104,
+        865619372
+      ],
+      "b_minus_a_ns": [
+        14645605,
+        30870560
+      ],
+      "entry_b_minus_a_ns": [
+        -4706853,
+        -3243869
+      ],
+      "inference": "B later"
+    },
+    {
+      "pair": 5,
+      "order": "AB",
+      "a_ns": [
+        840685453,
+        847632461
+      ],
+      "b_ns": [
+        838743622,
+        845592340
+      ],
+      "b_minus_a_ns": [
+        -8888839,
+        4906887
+      ],
+      "entry_b_minus_a_ns": [
+        -4120157,
+        -3085302
+      ],
+      "inference": "unresolved"
+    },
+    {
+      "pair": 6,
+      "order": "BA",
+      "a_ns": [
+        894099043,
+        901680433
+      ],
+      "b_ns": [
+        846469470,
+        853714848
+      ],
+      "b_minus_a_ns": [
+        -55210963,
+        -40384195
+      ],
+      "entry_b_minus_a_ns": [
+        -46615908,
+        -45526347
+      ],
+      "inference": "B earlier"
+    }
+  ],
+  "median_launch_to_shelf_ms": {
+    "A": [
+      840.014425,
+      846.814975
+    ],
+    "B": [
+      850.844896,
+      858.972962
+    ]
+  },
+  "median_paired_b_minus_a_ms": [
+    -11.20136,
+    3.255989
+  ],
+  "paired_order_medians_ms": {
+    "AB": [
+      -13.513882,
+      1.605091
+    ],
+    "BA": [
+      14.645605,
+      30.87056
+    ]
+  },
+  "paired_process_entry_median_b_minus_a_ms": [
+    -5.054634,
+    -3.766021
+  ],
+  "paired_classification": {
+    "B earlier": 2,
+    "B later": 2,
+    "unresolved": 2
+  },
+  "maximum_dispatch_bracket_ns": 866869
+}

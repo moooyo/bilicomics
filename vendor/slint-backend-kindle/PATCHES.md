@@ -1,5 +1,9 @@
 # Project-owned queued refresh patch
 
+## First Shelf render observation
+
+An opt-in, one-shot observer associates the application's non-cover Shelf state with the actual software-renderer return. It uses the returned dirty bounds, not a pending refresh request, and retains the first eligible observation even if its display submission later fails. An accepted full-window update and completion of its own nonzero marker are separate, optional observations. No extra panel wait, touch logging, image fingerprint or input injection is requested by this observer. A driver receipt does not measure optical settling. See the [startup measurement contract](../../docs/STARTUP_AND_SLEEP.md#primary-startup-metric-first-shelf-render).
+
 ## Initial full-frame background signal
 
 The accepted-submission boundary follows the reviewed startup sequence in

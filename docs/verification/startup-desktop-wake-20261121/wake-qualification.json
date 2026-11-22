@@ -1,0 +1,132 @@
+{
+  "scope": "Untimed populated ordinary Shelf qualification, not a warmup or paired sample.",
+  "same_formal_executable": true,
+  "cases": {
+    "check-a": {
+      "case": "check-a",
+      "selected_arm": "A",
+      "bootstrap_probe_mode": "observe",
+      "process_probe_environment_verified": true,
+      "pid": 51,
+      "feedback_sample_ns": [
+        65872317556739,
+        65872317814283
+      ],
+      "initial_activity_sample_ns": [
+        65872318211972,
+        65872318269331
+      ],
+      "wake": {
+        "pid": 51,
+        "process_enter_ns": 65872285560856,
+        "window_shown_ns": 65872300673351,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 65872380485912,
+        "driver_first_entry": {
+          "monotonic_ns": 65872380452253,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 65872380677478,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 65872380542630,
+        "state_worker_queued_ns": 65872380629249,
+        "font_worker_begin_ns": 65872380699597,
+        "state_worker_begin_ns": 65872380784125,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 65872306325566,
+          "mode": "observe",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 65872322350517,
+          "mode": "observe",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": false,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "check-b": {
+      "case": "check-b",
+      "selected_arm": "B",
+      "bootstrap_probe_mode": "wake",
+      "process_probe_environment_verified": true,
+      "pid": 51,
+      "feedback_sample_ns": [
+        65873826527721,
+        65873826800284
+      ],
+      "initial_activity_sample_ns": [
+        65873827110247,
+        65873827163435
+      ],
+      "wake": {
+        "pid": 51,
+        "process_enter_ns": 65873791909826,
+        "window_shown_ns": 65873809964065,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 65873832687344,
+        "driver_first_entry": {
+          "monotonic_ns": 65873832680454,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 65873832830150,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 65873832719823,
+        "state_worker_queued_ns": 65873832795401,
+        "font_worker_begin_ns": 65873832843900,
+        "state_worker_begin_ns": 65873832889858,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 65873816410590,
+          "mode": "wake",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 65873832650415,
+          "mode": "wake",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": true,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    }
+  }
+}

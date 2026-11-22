@@ -16,6 +16,30 @@ fn records(path: &Path) -> Vec<serde_json::Value> {
 }
 
 #[test]
+fn shelf_render_header_binds_only_validated_run_and_boot_identifiers() {
+    let directory = tempfile::tempdir().unwrap();
+    let run_id = "bili-shelf-0123456789abcdef0123456789abcdef";
+    let boot_id = "12345678-9abc-4def-8123-456789abcdef";
+    let path = directory.path().join(format!("{run_id}.jsonl"));
+    let boot_file = format!("{boot_id}\n");
+    let header = ShelfRenderHeader::new(&path, &boot_file).unwrap();
+    let registry = Registry::new();
+    registry.configure_with_header(&path, MAX_TRACE_BYTES, &header).unwrap();
+    registry.sink.get().unwrap().stop(StopReason::Finished);
+    let values = records(&path);
+    assert_eq!(values.len(), 2);
+    assert_eq!(values[0]["data"], serde_json::json!({"schema": "kindle-shelf-render-log-v1",
+        "run_id": run_id, "boot_id": boot_id, "clock": "CLOCK_MONOTONIC"}));
+    assert_eq!(values[1]["data"]["reason"], "finished");
+    for invalid in ["private.jsonl", "bili-shelf-0123456789abcdef0123456789abcdeF.jsonl",
+        "bili-shelf-0123456789abcdef0123456789abcdef.jsonl.bak"]
+    {
+        assert!(ShelfRenderHeader::new(Path::new(invalid), boot_id).is_err());
+    }
+    assert!(ShelfRenderHeader::new(&path, "arbitrary text").is_err());
+}
+
+#[test]
 fn disabled_and_finished_sinks_skip_serialization_and_operation_ids() {
     let registry = Registry::new();
     assert!(!registry.enabled());

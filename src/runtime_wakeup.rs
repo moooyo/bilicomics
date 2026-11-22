@@ -132,7 +132,7 @@ pub(crate) fn trace_moment() -> TraceMoment {
 }
 
 #[cfg(target_os = "linux")]
-fn monotonic_ns() -> Option<u64> {
+pub(crate) fn monotonic_ns() -> Option<u64> {
     let mut stamp = libc::timespec { tv_sec: 0, tv_nsec: 0 };
     // CLOCK_MONOTONIC shares the origin used by host-side timing probes.
     if unsafe { libc::clock_gettime(libc::CLOCK_MONOTONIC, &mut stamp) } != 0 {

@@ -1,0 +1,38 @@
+{
+  "host": "test-env",
+  "test_runtime": "Linux host, network-isolated Ubuntu, Kindle feature only",
+  "command": "cargo test --locked --offline --no-default-features --features kindle --bin bilicomics -j1 prepared_handoff",
+  "compiler_fields": [
+    "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+    "host: x86_64-unknown-linux-gnu",
+    "release: 1.99.1"
+  ],
+  "source_scope": "Private tmpfs worktree-input snapshot without .git or private account data",
+  "cargo_build_jobs": 1,
+  "incremental": false,
+  "network_namespace": "unshare --net",
+  "build_lock": "ubuntu-run --build",
+  "wall_seconds": 188.99,
+  "minimum_root_free_kib": 1817336,
+  "minimum_mem_available_kib": 4063580,
+  "peak_private_tmpfs_kib": 2046176,
+  "limits_kib": {
+    "minimum_root_free": 1048576,
+    "minimum_mem_available": 3145728,
+    "maximum_private_tmpfs": 4194304
+  },
+  "result_lines": [
+    "running 5 tests",
+    "test prepared_handoff::tests::prepared_handoff_keeps_the_first_receive_and_does_not_write_before_shelf ... ok",
+    "test prepared_handoff::tests::prepared_handoff_rejects_missing_reversed_or_unrecognized_first_observations ... ok",
+    "test prepared_handoff::tests::prepared_handoff_sidecar_contains_only_one_bound_public_record ... ok",
+    "test prepared_handoff::tests::prepared_handoff_writes_once_to_a_new_private_sidecar ... ok",
+    "test trace_tests::prepared_handoff_trace_is_native_and_separate_from_other_startup_instrumentation ... ok",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.00s"
+  ],
+  "cargo_status": 0,
+  "stopped_for": null,
+  "time_utc": "2026-11-21T20:40:47.973406+00:00",
+  "arm_target": false,
+  "physical_device_used": false
+}

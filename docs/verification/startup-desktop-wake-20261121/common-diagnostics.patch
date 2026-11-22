@@ -1,0 +1,77 @@
+diff --git a/src/main.rs b/src/main.rs
+index 0dc59ba..623a66d 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -284,7 +284,7 @@ struct StartupWorkers {
+ }
+ 
+ impl StartupWorkers {
+-    fn start(&self) {
++    fn start(&self) -> bool {
+         self.admission.start_once(|| {
+             record_startup_stage(self.trace_path.as_deref(), "workers_started", trace_moment(), None);
+             if let Some(covers) = self.covers.as_ref() {
+@@ -296,7 +296,7 @@ impl StartupWorkers {
+                     self.delay_ms, self.cancelled.clone(), self.sender.clone(), self.wake.clone(),
+                     self.trace_path.is_some());
+             }
+-        });
++        })
+     }
+ }
+ 
+@@ -751,13 +751,18 @@ fn run(arguments: Arguments) -> Result<()> {
+     let mut last_checkpoint_trace = None::<serde_json::Value>;
+     let mut performance_first_driver = true;
+     let mut performance_gate = None::<&'static str>;
+-    let driver = Rc::new(RefCell::new(move || {
++    let driver = Rc::new(RefCell::new(move |source: &'static str| {
+             // A pending cover must reach its checked full-frame completion
+             // before the suspended gate skips ordinary application work.
+             SignalBridge::poll_pending();
+             if performance_first_driver {
+                 performance_first_driver = false;
+-                bilicomics::performance::startup("driver_first_entry", &());
++                if bilicomics::performance::enabled() {
++                    bilicomics::performance::startup("driver_first_entry", &serde_json::json!({
++                        "source": source, "render_notifier_registered": rendering_notifier,
++                        "first_scene_rendered": first_rendered.load(Ordering::Acquire),
++                    }));
++                }
+             }
+             let Some(ui) = tick_ui.upgrade() else {
+                 return;
+@@ -808,8 +813,15 @@ fn run(arguments: Arguments) -> Result<()> {
+                         return;
+                     }
+                     record_performance_gate(&mut performance_gate, "prepare");
+-                    startup_workers.start();
++                    let admitted = startup_workers.start();
+                     startup_ui_turn.yield_now();
++                    if bilicomics::performance::enabled() {
++                        bilicomics::performance::startup("ui_worker_gate", &serde_json::json!({
++                            "source": source, "workers_admitted_by_ui": admitted,
++                            "render_notifier_registered": rendering_notifier,
++                            "first_scene_rendered": first_rendered.load(Ordering::Acquire),
++                        }));
++                    }
+                     // Yield this bootstrap turn before consuming even a very fast result.
+                     return;
+                 }
+@@ -1087,14 +1099,14 @@ fn run(arguments: Arguments) -> Result<()> {
+     let retry_wake = wake.clone();
+     ui.on_runtime_wakeup(move || {
+         if let Ok(mut drive) = notified_driver.try_borrow_mut() {
+-            (*drive)();
++            (*drive)("runtime_wakeup");
+         } else {
+             retry_wake.request();
+         }
+     });
+     timer.start(slint::TimerMode::Repeated, Duration::from_millis(80), move || {
+         if let Ok(mut drive) = driver.try_borrow_mut() {
+-            (*drive)();
++            (*drive)("maintenance_timer");
+         }
+     });
+ 

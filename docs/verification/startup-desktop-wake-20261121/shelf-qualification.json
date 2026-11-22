@@ -1,0 +1,143 @@
+{
+  "scope": "Untimed qualification only; none of these launches are timed samples.",
+  "empty_control_schema": {
+    "normal_exit": true,
+    "schema_from_control": true,
+    "isolated_network": true
+  },
+  "clock": {
+    "fixed_realtime_ns": 1795233600000000000,
+    "elapsed_child_monotonic_ns": 55233909,
+    "elapsed_child_thread_cpu_ns": 29745610,
+    "external_parent_realtime_and_monotonic_advanced": true
+  },
+  "seed": {
+    "synthetic_covers": 20,
+    "width": 320,
+    "height": 416,
+    "straight_rgba8": true,
+    "input_file_bytes": 173494,
+    "production_encoded_file_bytes": 610356,
+    "all_reencoded_pixels_equal": true,
+    "copied_signed_out_seed_before_mock_identity": true,
+    "no_network_or_real_identity": true
+  },
+  "positive_reference": {
+    "pid": 51,
+    "xid": 4194307,
+    "normal_exit": true,
+    "selected_arm": "A0",
+    "process_executable_matches": true,
+    "marker_codes_x11": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "marker_codes_logical": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "full_window_repeated": true,
+    "visible_root_crop_matches": true,
+    "route": "shelf",
+    "page": 1,
+    "pages": 2,
+    "prepared_covers": 10,
+    "resident_bytes": 5324800,
+    "attach_outcomes": [
+      "partial",
+      "success"
+    ],
+    "fixture_identity_present": true,
+    "matches_empty_control_login_prompt": null,
+    "bootstrap_probe_mode": null,
+    "probe_verification_scope": "Stock image qualification predating the post-confirmation environment check; no live mode claim."
+  },
+  "signed_out_negative": {
+    "pid": 51,
+    "xid": 4194307,
+    "normal_exit": true,
+    "selected_arm": "A0",
+    "process_executable_matches": true,
+    "marker_codes_x11": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "marker_codes_logical": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "full_window_repeated": true,
+    "visible_root_crop_matches": true,
+    "route": "shelf",
+    "page": 1,
+    "pages": 2,
+    "prepared_covers": 10,
+    "resident_bytes": 5324800,
+    "attach_outcomes": [
+      "partial",
+      "success"
+    ],
+    "fixture_identity_present": false,
+    "matches_empty_control_login_prompt": true,
+    "bootstrap_probe_mode": null,
+    "probe_verification_scope": "Stock image qualification predating the post-confirmation environment check; no live mode claim."
+  },
+  "natural_confirmations": {
+    "A": {
+      "pid": 51,
+      "xid": 4194307,
+      "selected_executable_matches": true,
+      "binary_bytes": 84784272,
+      "normal_exit": true,
+      "initial_activity_matched": true,
+      "first_and_confirming_full_window_matches": true,
+      "final_logical_rgb_matches": true,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800
+    },
+    "B": {
+      "pid": 51,
+      "xid": 4194307,
+      "selected_executable_matches": true,
+      "binary_bytes": 84784272,
+      "normal_exit": true,
+      "initial_activity_matched": true,
+      "first_and_confirming_full_window_matches": true,
+      "final_logical_rgb_matches": true,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800
+    }
+  }
+}

@@ -1,0 +1,621 @@
+{
+  "scope": "Formal same-ELF observe/wake comparison only; stock qualification is separate. A successful software-backend submit and a later callback are not X11 pixels or panel receipts. Use the independent crops and full-window brackets. The delay setting is not an observed saving.",
+  "sources": {
+    "A": "Shared research ELF; observe the first full software submit and its deferred turn without driving",
+    "B": "Same research ELF and deferred turn; wake the still-eligible desktop bootstrap driver"
+  },
+  "warmups_excluded_from_comparison": [
+    "a00",
+    "b00"
+  ],
+  "cases": [
+    {
+      "case": "a00",
+      "pid": 51,
+      "enter_ns": 66120857362597,
+      "settled_ns": 66121100323482,
+      "research_hook": {
+        "mode": "observe",
+        "submit_to_turn_ns": 15744839,
+        "submit_record_minus_title_read_end_ns": -11783720,
+        "submit_record_minus_activity_read_end_ns": -12157600,
+        "workers_minus_full_submit_record_ns": 73959222,
+        "submit_record_before_workers": true,
+        "turn_will_drive": false,
+        "turn_drove_worker_admission": false,
+        "expected_owner_observed": true
+      },
+      "first_driver": "maintenance_timer",
+      "admission_callback": "maintenance_timer",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 96295870,
+      "entry_to_workers_started_ns": 96351729,
+      "entry_to_ready_ns": 114833516,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 61801622,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        34176227
+      ],
+      "entry_to_shelf_bracket_ns": [
+        137197856,
+        146282534
+      ]
+    },
+    {
+      "case": "b00",
+      "pid": 90,
+      "enter_ns": 66122242176689,
+      "settled_ns": 66122411598403,
+      "research_hook": {
+        "mode": "wake",
+        "submit_to_turn_ns": 15929493,
+        "submit_record_minus_title_read_end_ns": -10212970,
+        "submit_record_minus_activity_read_end_ns": -10568820,
+        "workers_minus_full_submit_record_ns": 15957582,
+        "submit_record_before_workers": true,
+        "turn_will_drive": true,
+        "turn_drove_worker_admission": true,
+        "expected_owner_observed": true
+      },
+      "first_driver": "desktop_startup_fallback",
+      "admission_callback": "desktop_startup_fallback",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 35179552,
+      "entry_to_workers_started_ns": 35186521,
+      "entry_to_ready_ns": 50981278,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 5388762,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        29441909
+      ],
+      "entry_to_shelf_bracket_ns": [
+        63642935,
+        73523043
+      ]
+    },
+    {
+      "case": "a01",
+      "pid": 127,
+      "enter_ns": 66123568253143,
+      "settled_ns": 66123797598085,
+      "research_hook": {
+        "mode": "observe",
+        "submit_to_turn_ns": 16222135,
+        "submit_record_minus_title_read_end_ns": -10446033,
+        "submit_record_minus_activity_read_end_ns": -10922771,
+        "workers_minus_full_submit_record_ns": 73418895,
+        "submit_record_before_workers": true,
+        "turn_will_drive": false,
+        "turn_drove_worker_admission": false,
+        "expected_owner_observed": true
+      },
+      "first_driver": "maintenance_timer",
+      "admission_callback": "maintenance_timer",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 93258138,
+      "entry_to_workers_started_ns": 93305567,
+      "entry_to_ready_ns": 114245232,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 62496124,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        30332705
+      ],
+      "entry_to_shelf_bracket_ns": [
+        121834648,
+        133385253
+      ]
+    },
+    {
+      "case": "b01",
+      "pid": 164,
+      "enter_ns": 66124932299046,
+      "settled_ns": 66125104675704,
+      "research_hook": {
+        "mode": "wake",
+        "submit_to_turn_ns": 15425256,
+        "submit_record_minus_title_read_end_ns": -9838649,
+        "submit_record_minus_activity_read_end_ns": -10212820,
+        "workers_minus_full_submit_record_ns": 15481665,
+        "submit_record_before_workers": true,
+        "turn_will_drive": true,
+        "turn_drove_worker_admission": true,
+        "expected_owner_observed": true
+      },
+      "first_driver": "desktop_startup_fallback",
+      "admission_callback": "desktop_startup_fallback",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 37183581,
+      "entry_to_workers_started_ns": 37208140,
+      "entry_to_ready_ns": 54305833,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 5268845,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        31565124
+      ],
+      "entry_to_shelf_bracket_ns": [
+        65325092,
+        75973640
+      ]
+    },
+    {
+      "case": "b02",
+      "pid": 203,
+      "enter_ns": 66126262749247,
+      "settled_ns": 66126432958470,
+      "research_hook": {
+        "mode": "wake",
+        "submit_to_turn_ns": 16063310,
+        "submit_record_minus_title_read_end_ns": -9550537,
+        "submit_record_minus_activity_read_end_ns": -9908477,
+        "workers_minus_full_submit_record_ns": 16096589,
+        "submit_record_before_workers": true,
+        "turn_will_drive": true,
+        "turn_drove_worker_admission": true,
+        "expected_owner_observed": true
+      },
+      "first_driver": "desktop_startup_fallback",
+      "admission_callback": "desktop_startup_fallback",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 35235590,
+      "entry_to_workers_started_ns": 35242550,
+      "entry_to_ready_ns": 51186593,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 6188112,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        28696498
+      ],
+      "entry_to_shelf_bracket_ns": [
+        66418804,
+        74032510
+      ]
+    },
+    {
+      "case": "a02",
+      "pid": 240,
+      "enter_ns": 66127578326749,
+      "settled_ns": 66127809947884,
+      "research_hook": {
+        "mode": "observe",
+        "submit_to_turn_ns": 15203361,
+        "submit_record_minus_title_read_end_ns": -9477028,
+        "submit_record_minus_activity_read_end_ns": -9856048,
+        "workers_minus_full_submit_record_ns": 73310978,
+        "submit_record_before_workers": true,
+        "turn_will_drive": false,
+        "turn_drove_worker_admission": false,
+        "expected_owner_observed": true
+      },
+      "first_driver": "maintenance_timer",
+      "admission_callback": "maintenance_timer",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 92270074,
+      "entry_to_workers_started_ns": 92300473,
+      "entry_to_ready_ns": 112663753,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 63454930,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        28466523
+      ],
+      "entry_to_shelf_bracket_ns": [
+        127549533,
+        137065019
+      ]
+    },
+    {
+      "case": "a03",
+      "pid": 277,
+      "enter_ns": 66128956805263,
+      "settled_ns": 66129180700115,
+      "research_hook": {
+        "mode": "observe",
+        "submit_to_turn_ns": 16455550,
+        "submit_record_minus_title_read_end_ns": -10361205,
+        "submit_record_minus_activity_read_end_ns": -10721346,
+        "workers_minus_full_submit_record_ns": 73683569,
+        "submit_record_before_workers": true,
+        "turn_will_drive": false,
+        "turn_drove_worker_admission": false,
+        "expected_owner_observed": true
+      },
+      "first_driver": "maintenance_timer",
+      "admission_callback": "maintenance_timer",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 92190187,
+      "entry_to_workers_started_ns": 92278635,
+      "entry_to_ready_ns": 111926562,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 62962223,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        28956271
+      ],
+      "entry_to_shelf_bracket_ns": [
+        123866087,
+        132780819
+      ]
+    },
+    {
+      "case": "b03",
+      "pid": 314,
+      "enter_ns": 66130316022890,
+      "settled_ns": 66130492154583,
+      "research_hook": {
+        "mode": "wake",
+        "submit_to_turn_ns": 16389191,
+        "submit_record_minus_title_read_end_ns": -9245054,
+        "submit_record_minus_activity_read_end_ns": -9593755,
+        "workers_minus_full_submit_record_ns": 16427090,
+        "submit_record_before_workers": true,
+        "turn_will_drive": true,
+        "turn_drove_worker_admission": true,
+        "expected_owner_observed": true
+      },
+      "first_driver": "desktop_startup_fallback",
+      "admission_callback": "desktop_startup_fallback",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 38649653,
+      "entry_to_workers_started_ns": 38658013,
+      "entry_to_ready_ns": 54261055,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 6833335,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        31475977
+      ],
+      "entry_to_shelf_bracket_ns": [
+        73245680,
+        80961423
+      ]
+    },
+    {
+      "case": "b04",
+      "pid": 353,
+      "enter_ns": 66131631316608,
+      "settled_ns": 66131794093791,
+      "research_hook": {
+        "mode": "wake",
+        "submit_to_turn_ns": 16124248,
+        "submit_record_minus_title_read_end_ns": -10335066,
+        "submit_record_minus_activity_read_end_ns": -10688267,
+        "workers_minus_full_submit_record_ns": 16160727,
+        "submit_record_before_workers": true,
+        "turn_will_drive": true,
+        "turn_drove_worker_admission": true,
+        "expected_owner_observed": true
+      },
+      "first_driver": "desktop_startup_fallback",
+      "admission_callback": "desktop_startup_fallback",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 34591407,
+      "entry_to_workers_started_ns": 34599017,
+      "entry_to_ready_ns": 50001163,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 5472460,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        28773356
+      ],
+      "entry_to_shelf_bracket_ns": [
+        62248741,
+        71483835
+      ]
+    },
+    {
+      "case": "a04",
+      "pid": 390,
+      "enter_ns": 66132895601779,
+      "settled_ns": 66133124527173,
+      "research_hook": {
+        "mode": "observe",
+        "submit_to_turn_ns": 16695214,
+        "submit_record_minus_title_read_end_ns": -10673748,
+        "submit_record_minus_activity_read_end_ns": -11164715,
+        "workers_minus_full_submit_record_ns": 73871854,
+        "submit_record_before_workers": true,
+        "turn_will_drive": false,
+        "turn_drove_worker_admission": false,
+        "expected_owner_observed": true
+      },
+      "first_driver": "maintenance_timer",
+      "admission_callback": "maintenance_timer",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 92664114,
+      "entry_to_workers_started_ns": 92719733,
+      "entry_to_ready_ns": 109731678,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 62707139,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        29521627
+      ],
+      "entry_to_shelf_bracket_ns": [
+        121448419,
+        131587440
+      ]
+    },
+    {
+      "case": "a05",
+      "pid": 427,
+      "enter_ns": 66134281730710,
+      "settled_ns": 66134507858665,
+      "research_hook": {
+        "mode": "observe",
+        "submit_to_turn_ns": 15271231,
+        "submit_record_minus_title_read_end_ns": -9963346,
+        "submit_record_minus_activity_read_end_ns": -10307567,
+        "workers_minus_full_submit_record_ns": 73477424,
+        "submit_record_before_workers": true,
+        "turn_will_drive": false,
+        "turn_drove_worker_admission": false,
+        "expected_owner_observed": true
+      },
+      "first_driver": "maintenance_timer",
+      "admission_callback": "maintenance_timer",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 91352417,
+      "entry_to_workers_started_ns": 91400156,
+      "entry_to_ready_ns": 109060924,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 63169857,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        27886078
+      ],
+      "entry_to_shelf_bracket_ns": [
+        122922430,
+        131240859
+      ]
+    },
+    {
+      "case": "b05",
+      "pid": 464,
+      "enter_ns": 66135637751079,
+      "settled_ns": 66135809092042,
+      "research_hook": {
+        "mode": "wake",
+        "submit_to_turn_ns": 15576432,
+        "submit_record_minus_title_read_end_ns": -9826919,
+        "submit_record_minus_activity_read_end_ns": -10190590,
+        "workers_minus_full_submit_record_ns": 15612871,
+        "submit_record_before_workers": true,
+        "turn_will_drive": true,
+        "turn_drove_worker_admission": true,
+        "expected_owner_observed": true
+      },
+      "first_driver": "desktop_startup_fallback",
+      "admission_callback": "desktop_startup_fallback",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 40421317,
+      "entry_to_workers_started_ns": 40428467,
+      "entry_to_ready_ns": 56194884,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 5422281,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        34642515
+      ],
+      "entry_to_shelf_bracket_ns": [
+        68137349,
+        76665142
+      ]
+    },
+    {
+      "case": "b06",
+      "pid": 504,
+      "enter_ns": 66136955751448,
+      "settled_ns": 66137129330744,
+      "research_hook": {
+        "mode": "wake",
+        "submit_to_turn_ns": 16279415,
+        "submit_record_minus_title_read_end_ns": -9821800,
+        "submit_record_minus_activity_read_end_ns": -10313328,
+        "workers_minus_full_submit_record_ns": 16313684,
+        "submit_record_before_workers": true,
+        "turn_will_drive": true,
+        "turn_drove_worker_admission": true,
+        "expected_owner_observed": true
+      },
+      "first_driver": "desktop_startup_fallback",
+      "admission_callback": "desktop_startup_fallback",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 34865920,
+      "entry_to_workers_started_ns": 34873229,
+      "entry_to_ready_ns": 50454831,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 6000356,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        28381345
+      ],
+      "entry_to_shelf_bracket_ns": [
+        67616822,
+        75988489
+      ]
+    },
+    {
+      "case": "a06",
+      "pid": 541,
+      "enter_ns": 66138223819823,
+      "settled_ns": 66138447294365,
+      "research_hook": {
+        "mode": "observe",
+        "submit_to_turn_ns": 16193677,
+        "submit_record_minus_title_read_end_ns": -9715902,
+        "submit_record_minus_activity_read_end_ns": -10084192,
+        "workers_minus_full_submit_record_ns": 72314014,
+        "submit_record_before_workers": true,
+        "turn_will_drive": false,
+        "turn_drove_worker_admission": false,
+        "expected_owner_observed": true
+      },
+      "first_driver": "maintenance_timer",
+      "admission_callback": "maintenance_timer",
+      "notifier_registered": false,
+      "render_event_observed": false,
+      "first_driver_after_render": false,
+      "entry_to_first_driver_ns": 93065613,
+      "entry_to_workers_started_ns": 93104592,
+      "entry_to_ready_ns": 110779510,
+      "title_and_activity_observed_before_workers": true,
+      "title_and_activity_observed_before_state_queue": true,
+      "title_and_activity_observed_before_state_prepared": true,
+      "workers_minus_later_positive_read_end_ns": 62229822,
+      "entry_to_feedback_bracket_ns": [
+        0,
+        30506480
+      ],
+      "entry_to_shelf_bracket_ns": [
+        121232743,
+        131252437
+      ]
+    }
+  ],
+  "measured_callback_counts": {
+    "A": {
+      "first_driver": {
+        "maintenance_timer": 6
+      },
+      "admission_callback": {
+        "maintenance_timer": 6
+      }
+    },
+    "B": {
+      "first_driver": {
+        "desktop_startup_fallback": 6
+      },
+      "admission_callback": {
+        "desktop_startup_fallback": 6
+      }
+    }
+  },
+  "pairs": [
+    {
+      "number": 1,
+      "order": "AB",
+      "B_minus_A_shelf_bounds_ns": [
+        -68060161,
+        -45861008
+      ],
+      "B_minus_A_first_observed_shelf_ns": -57411613,
+      "classification": "B_earlier"
+    },
+    {
+      "number": 2,
+      "order": "BA",
+      "B_minus_A_shelf_bounds_ns": [
+        -70646215,
+        -53517023
+      ],
+      "B_minus_A_first_observed_shelf_ns": -63032509,
+      "classification": "B_earlier"
+    },
+    {
+      "number": 3,
+      "order": "AB",
+      "B_minus_A_shelf_bounds_ns": [
+        -59535139,
+        -42904664
+      ],
+      "B_minus_A_first_observed_shelf_ns": -51819396,
+      "classification": "B_earlier"
+    },
+    {
+      "number": 4,
+      "order": "BA",
+      "B_minus_A_shelf_bounds_ns": [
+        -69338699,
+        -49964584
+      ],
+      "B_minus_A_first_observed_shelf_ns": -60103605,
+      "classification": "B_earlier"
+    },
+    {
+      "number": 5,
+      "order": "AB",
+      "B_minus_A_shelf_bounds_ns": [
+        -63103510,
+        -46257288
+      ],
+      "B_minus_A_first_observed_shelf_ns": -54575717,
+      "classification": "B_earlier"
+    },
+    {
+      "number": 6,
+      "order": "BA",
+      "B_minus_A_shelf_bounds_ns": [
+        -63635615,
+        -45244254
+      ],
+      "B_minus_A_first_observed_shelf_ns": -55263948,
+      "classification": "B_earlier"
+    }
+  ],
+  "definite_B_earlier": 6,
+  "median_observed_upper_delta_ns_by_order": {
+    "AB": -54575717,
+    "BA": -60103605
+  },
+  "all_title_and_activity_reads_completed_before_workers": true,
+  "all_full_submit_records_before_workers": true,
+  "all_expected_callback_owners_observed": true,
+  "presentation_timing_gate_passed": true,
+  "formal_provenance_feedback_and_presentation_passed": true
+}

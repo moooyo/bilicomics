@@ -1,0 +1,9 @@
+{
+  "scope": "Stock populated desktop qualification only; not a formal case or timing endpoint.",
+  "pid": 51,
+  "first_driver": "maintenance_timer",
+  "admission_callback": "maintenance_timer",
+  "public_render_event_absent": true,
+  "title_and_activity_observed_before_workers": true,
+  "stock_maintenance_hypothesis_supported": true
+}

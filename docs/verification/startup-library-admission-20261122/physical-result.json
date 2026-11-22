@@ -1,0 +1,727 @@
+{
+  "schema": "bili-library-admission-analysis-v1",
+  "scope": "Scribe; ordinary native Library card to the first qualifying normal Shelf renderer return; A repeats parent and worker admission, B validates in the worker.",
+  "primary_endpoint": "renderer_return",
+  "warmups": [
+    {
+      "pair": 0,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6264097769,
+          6265267846
+        ],
+        "accepted_send": [
+          6314081231,
+          6315251308
+        ],
+        "driver_completion": [
+          6679652539,
+          6680822616
+        ]
+      }
+    },
+    {
+      "pair": 0,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6000943385,
+          6002258154
+        ],
+        "accepted_send": [
+          6070283462,
+          6071598231
+        ],
+        "driver_completion": [
+          6436119693,
+          6437434462
+        ]
+      }
+    }
+  ],
+  "warmups_included_in_primary_statistics": false,
+  "cases": [
+    {
+      "pair": 1,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6004920538,
+          6006374308
+        ],
+        "accepted_send": [
+          6065724231,
+          6067178001
+        ],
+        "driver_completion": [
+          6432143000,
+          6433596770
+        ]
+      }
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6196303770,
+          6196764770
+        ],
+        "accepted_send": [
+          6225074231,
+          6225535231
+        ],
+        "driver_completion": [
+          6590563693,
+          6591024693
+        ]
+      }
+    },
+    {
+      "pair": 2,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6420848769,
+          6422203000
+        ],
+        "accepted_send": [
+          6454179077,
+          6455533308
+        ],
+        "driver_completion": [
+          6819275462,
+          6820629693
+        ]
+      }
+    },
+    {
+      "pair": 2,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6675058615,
+          6676327385
+        ],
+        "accepted_send": [
+          6708483000,
+          6709751770
+        ],
+        "driver_completion": [
+          7072622308,
+          7073891078
+        ]
+      }
+    },
+    {
+      "pair": 3,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6326601924,
+          6327724385
+        ],
+        "accepted_send": [
+          6366527539,
+          6367650000
+        ],
+        "driver_completion": [
+          6728547539,
+          6729670000
+        ]
+      }
+    },
+    {
+      "pair": 3,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6481754001,
+          6482878693
+        ],
+        "accepted_send": [
+          6521933693,
+          6523058385
+        ],
+        "driver_completion": [
+          6886641847,
+          6887766539
+        ]
+      }
+    },
+    {
+      "pair": 4,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6470103539,
+          6471229001
+        ],
+        "accepted_send": [
+          6502524000,
+          6503649462
+        ],
+        "driver_completion": [
+          6867623847,
+          6868749309
+        ]
+      }
+    },
+    {
+      "pair": 4,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6491244154,
+          6492683616
+        ],
+        "accepted_send": [
+          6530649308,
+          6532088770
+        ],
+        "driver_completion": [
+          6896135000,
+          6897574462
+        ]
+      }
+    },
+    {
+      "pair": 5,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6301349308,
+          6303328385
+        ],
+        "accepted_send": [
+          6330303308,
+          6332282385
+        ],
+        "driver_completion": [
+          6696695923,
+          6698675000
+        ]
+      }
+    },
+    {
+      "pair": 5,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6454185924,
+          6455358078
+        ],
+        "accepted_send": [
+          6500127693,
+          6501299847
+        ],
+        "driver_completion": [
+          6861670001,
+          6862842155
+        ]
+      }
+    },
+    {
+      "pair": 6,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6347347000,
+          6348909693
+        ],
+        "accepted_send": [
+          6376949538,
+          6378512231
+        ],
+        "driver_completion": [
+          6742687615,
+          6744250308
+        ]
+      }
+    },
+    {
+      "pair": 6,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6379923385,
+          6381091770
+        ],
+        "accepted_send": [
+          6483857077,
+          6485025462
+        ],
+        "driver_completion": [
+          6844166923,
+          6845335308
+        ]
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "pair": 1,
+      "order": "AB",
+      "status": "complete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            6004920538,
+            6006374308
+          ],
+          "B_ns": [
+            6196303770,
+            6196764770
+          ],
+          "B_minus_A_ns": [
+            189929462,
+            191844232
+          ],
+          "direction": "A-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            6065724231,
+            6067178001
+          ],
+          "B_ns": [
+            6225074231,
+            6225535231
+          ],
+          "B_minus_A_ns": [
+            157896230,
+            159811000
+          ],
+          "direction": "A-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            6432143000,
+            6433596770
+          ],
+          "B_ns": [
+            6590563693,
+            6591024693
+          ],
+          "B_minus_A_ns": [
+            156966923,
+            158881693
+          ],
+          "direction": "A-faster"
+        }
+      }
+    },
+    {
+      "pair": 2,
+      "order": "BA",
+      "status": "complete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            6675058615,
+            6676327385
+          ],
+          "B_ns": [
+            6420848769,
+            6422203000
+          ],
+          "B_minus_A_ns": [
+            -255478616,
+            -252855615
+          ],
+          "direction": "B-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            6708483000,
+            6709751770
+          ],
+          "B_ns": [
+            6454179077,
+            6455533308
+          ],
+          "B_minus_A_ns": [
+            -255572693,
+            -252949692
+          ],
+          "direction": "B-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            7072622308,
+            7073891078
+          ],
+          "B_ns": [
+            6819275462,
+            6820629693
+          ],
+          "B_minus_A_ns": [
+            -254615616,
+            -251992615
+          ],
+          "direction": "B-faster"
+        }
+      }
+    },
+    {
+      "pair": 3,
+      "order": "AB",
+      "status": "complete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            6326601924,
+            6327724385
+          ],
+          "B_ns": [
+            6481754001,
+            6482878693
+          ],
+          "B_minus_A_ns": [
+            154029616,
+            156276769
+          ],
+          "direction": "A-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            6366527539,
+            6367650000
+          ],
+          "B_ns": [
+            6521933693,
+            6523058385
+          ],
+          "B_minus_A_ns": [
+            154283693,
+            156530846
+          ],
+          "direction": "A-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            6728547539,
+            6729670000
+          ],
+          "B_ns": [
+            6886641847,
+            6887766539
+          ],
+          "B_minus_A_ns": [
+            156971847,
+            159219000
+          ],
+          "direction": "A-faster"
+        }
+      }
+    },
+    {
+      "pair": 4,
+      "order": "BA",
+      "status": "complete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            6491244154,
+            6492683616
+          ],
+          "B_ns": [
+            6470103539,
+            6471229001
+          ],
+          "B_minus_A_ns": [
+            -22580077,
+            -20015153
+          ],
+          "direction": "B-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            6530649308,
+            6532088770
+          ],
+          "B_ns": [
+            6502524000,
+            6503649462
+          ],
+          "B_minus_A_ns": [
+            -29564770,
+            -26999846
+          ],
+          "direction": "B-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            6896135000,
+            6897574462
+          ],
+          "B_ns": [
+            6867623847,
+            6868749309
+          ],
+          "B_minus_A_ns": [
+            -29950615,
+            -27385691
+          ],
+          "direction": "B-faster"
+        }
+      }
+    },
+    {
+      "pair": 5,
+      "order": "AB",
+      "status": "complete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            6301349308,
+            6303328385
+          ],
+          "B_ns": [
+            6454185924,
+            6455358078
+          ],
+          "B_minus_A_ns": [
+            150857539,
+            154008770
+          ],
+          "direction": "A-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            6330303308,
+            6332282385
+          ],
+          "B_ns": [
+            6500127693,
+            6501299847
+          ],
+          "B_minus_A_ns": [
+            167845308,
+            170996539
+          ],
+          "direction": "A-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            6696695923,
+            6698675000
+          ],
+          "B_ns": [
+            6861670001,
+            6862842155
+          ],
+          "B_minus_A_ns": [
+            162995001,
+            166146232
+          ],
+          "direction": "A-faster"
+        }
+      }
+    },
+    {
+      "pair": 6,
+      "order": "BA",
+      "status": "complete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            6379923385,
+            6381091770
+          ],
+          "B_ns": [
+            6347347000,
+            6348909693
+          ],
+          "B_minus_A_ns": [
+            -33744770,
+            -31013692
+          ],
+          "direction": "B-faster"
+        },
+        "accepted_send": {
+          "A_ns": [
+            6483857077,
+            6485025462
+          ],
+          "B_ns": [
+            6376949538,
+            6378512231
+          ],
+          "B_minus_A_ns": [
+            -108075924,
+            -105344846
+          ],
+          "direction": "B-faster"
+        },
+        "driver_completion": {
+          "A_ns": [
+            6844166923,
+            6845335308
+          ],
+          "B_ns": [
+            6742687615,
+            6744250308
+          ],
+          "B_minus_A_ns": [
+            -102647693,
+            -99916615
+          ],
+          "direction": "B-faster"
+        }
+      }
+    }
+  ],
+  "paired_summary": {
+    "renderer_return": {
+      "n_pairs": 6,
+      "median_paired_B_minus_A_ns": [
+        64138731,
+        66996809
+      ],
+      "direction": "A-faster"
+    },
+    "accepted_send": {
+      "n_pairs": 6,
+      "median_paired_B_minus_A_ns": [
+        62359461,
+        64765500
+      ],
+      "direction": "A-faster"
+    },
+    "driver_completion": {
+      "n_pairs": 6,
+      "median_paired_B_minus_A_ns": [
+        63508154,
+        65748001
+      ],
+      "direction": "A-faster"
+    }
+  },
+  "paired_order_medians": {
+    "AB": {
+      "renderer_return": {
+        "n_pairs": 3,
+        "median_paired_B_minus_A_ns": [
+          154029616,
+          156276769
+        ],
+        "direction": "A-faster"
+      },
+      "accepted_send": {
+        "n_pairs": 3,
+        "median_paired_B_minus_A_ns": [
+          157896230,
+          159811000
+        ],
+        "direction": "A-faster"
+      },
+      "driver_completion": {
+        "n_pairs": 3,
+        "median_paired_B_minus_A_ns": [
+          156971847,
+          159219000
+        ],
+        "direction": "A-faster"
+      }
+    },
+    "BA": {
+      "renderer_return": {
+        "n_pairs": 3,
+        "median_paired_B_minus_A_ns": [
+          -33744770,
+          -31013692
+        ],
+        "direction": "B-faster"
+      },
+      "accepted_send": {
+        "n_pairs": 3,
+        "median_paired_B_minus_A_ns": [
+          -108075924,
+          -105344846
+        ],
+        "direction": "B-faster"
+      },
+      "driver_completion": {
+        "n_pairs": 3,
+        "median_paired_B_minus_A_ns": [
+          -102647693,
+          -99916615
+        ],
+        "direction": "B-faster"
+      }
+    }
+  },
+  "primary_threshold": {
+    "complete_six_pairs": true,
+    "B_faster_in_at_least_five_pairs": false,
+    "median_primary_improvement_at_least_100ms": false,
+    "passes_predeclared_primary_threshold": false
+  },
+  "method": {
+    "pair_delta": "B_minus_A_interval = [B.lo - A.hi, B.hi - A.lo]",
+    "median": "Median paired B-minus-A intervals; never subtract arm medians.",
+    "secondary_endpoints": "Accepted SEND and same-marker driver completion are reported separately.",
+    "render_order": "The existing trace may omit render_order; this is not a qualification failure.",
+    "optical_or_clickability_claimed": false,
+    "screenshots_or_followup_input_used": false,
+    "probe_failure_contract": "bili-native-probe-failure-v1 required for supported probe failures"
+  }
+}

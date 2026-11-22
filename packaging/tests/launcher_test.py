@@ -1200,6 +1200,37 @@ class LauncherLifecycleTests(unittest.TestCase):
         self.assertEqual(self.trace(), ["stop:statusbar", "start:statusbar", "xrefresh:"])
         self.assertFalse((self.root / "lock").exists())
 
+    def assert_library_preflights(self, expected_roles):
+        self.env.update(TEST_HOLD="1", TEST_PREFLIGHT_READS=str(self.root / "preflight-reads"))
+        real_sed, real_awk = shutil.which("sed"), shutil.which("awk")
+        self.assertTrue(real_sed and real_awk)
+        self.script(self.bin / "sed", 'case "${3:-}" in\n'
+                    '  "$BILICOMICS_HOME/data/device-profile") printf "profile:%s\\n" "$TEST_PREFLIGHT_ROLE" >>"$TEST_PREFLIGHT_READS" ;;\n'
+                    f'  "{self.root}/firmware") printf "firmware:%s\\n" "$TEST_PREFLIGHT_ROLE" >>"$TEST_PREFLIGHT_READS" ;;\n'
+                    f'esac\nexec "{real_sed}" "$@"')
+        self.script(self.bin / "awk", 'if [ "${6:-}" = "$BILICOMICS_HOME/data/device-allowlist" ]; then\n'
+                    '  printf "allowlist:%s\\n" "$TEST_PREFLIGHT_ROLE" >>"$TEST_PREFLIGHT_READS"\nfi\n'
+                    f'exec "{real_awk}" "$@"')
+        anchor = 'mkdir "$LOCK_DIR" 2>/dev/null || fail'
+        source = self.launcher.read_text()
+        self.assertEqual(source.count(anchor), 1)
+        self.assertEqual(source.count('set -eu\n'), 1)
+        self.launcher.write_text(source.replace('set -eu\n', 'set -eu\nexport TEST_PREFLIGHT_ROLE=${1:-background}\n').replace(
+            anchor, 'printf "lock:%s\\n" "$$" >>"$TEST_PREFLIGHT_READS"\n' + anchor))
+
+        def drive(child):
+            self.ready()
+            worker = self.wait_for_admission_worker(child)
+            expected = [f"{check}:{role}" for role in expected_roles for check in ("profile", "firmware", "allowlist")]
+            self.assertEqual(self.lines("preflight-reads"), [*expected, f"lock:{worker['pid']}"])
+            self.app_action("quit")
+
+        status, _, error = self.run_launcher(drive, admission="--library")
+        self.assertEqual(status, 0, error)
+
+    def test_library_preflights_before_the_display_lock(self):
+        self.assert_library_preflights(["--library", "--detached"])
+
     def test_library_entry_preserves_worker_failure_status(self):
         self.env["TEST_APP_EXIT"] = "7"
         status, _, error = self.run_launcher(admission="--library")

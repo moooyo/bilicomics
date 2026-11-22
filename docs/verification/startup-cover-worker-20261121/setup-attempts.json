@@ -1,0 +1,49 @@
+{
+  "scope": "Remote network-isolated Ubuntu software preparation; no Kindle or formal timing cases.",
+  "observer_rehearsal": {
+    "mock_owns_the_observed_window": true,
+    "recognized_splash_and_changed_indicator": true,
+    "rejected_a_matching_corner_with_an_incomplete_window": true,
+    "ignored_nonzero_depth_24_padding": true,
+    "accepted_a_matching_XGetImage_reply_spanning_readiness": true,
+    "poll_target_ns": 4000000
+  },
+  "preconditioning_attempts": [
+    {
+      "arm": "A",
+      "final_sidecar_mtime": "2026-11-21T08:01:28.356693756+08:00",
+      "application_exit": 0,
+      "admitted_as_seed": false,
+      "failure": "The observer checked the private PID namespace immediately after xvfb-run returned, while a child was still retiring. The seed receipt was not issued.",
+      "disposition": "Retained as a failed setup attempt, not used as data or a timing sample. Made the no-live-child check wait at most two seconds after exit. No sampled-stage clock was changed."
+    },
+    {
+      "arm": "A",
+      "receipt_mtime": "2026-11-21T08:01:53.423020449+08:00",
+      "application_exit": 0,
+      "fresh_isolated_data_directory": true,
+      "admitted_as_seed": true,
+      "final_logical_shelf_matches_reference": true,
+      "sqlite_checkpoint_truncate": [0, 0, 0],
+      "closed_synthetic_files": 37,
+      "no_sqlite_sidecars_links_or_live_children": true,
+      "included_in_timing_samples": false
+    }
+  ],
+  "original_batch_v1": {
+    "failed_case": "a00",
+    "completed_warmups": 0,
+    "completed_measured_pairs": 0,
+    "error": "Unexpected XImage layout",
+    "point_of_failure": "First application-window title sample; no complete positive observation.",
+    "disposition": "Stopped and preserved. No attempt was replaced. The untimed A-only format qualification belongs to a different admission."
+  },
+  "independent_v2_setup": {
+    "format_qualification": "x11-layout-qualification.json",
+    "mock_unsupported_layout_cases_rejected": true,
+    "typed_format_patch_reversed_to_v1_byte_for_byte": true,
+    "new_A_seed_receipt_mtime": "2026-11-21T08:23:59.936756274+08:00",
+    "new_seed_closed_synthetic_files": 37,
+    "format_qualification_or_seed_counted_as_warmups": false
+  }
+}

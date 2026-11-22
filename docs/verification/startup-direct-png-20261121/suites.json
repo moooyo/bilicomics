@@ -1,0 +1,108 @@
+{
+  "source": "B (build.json)",
+  "host": "test-env",
+  "target": "x86_64-unknown-linux-gnu",
+  "profile": "release",
+  "features": [
+    "desktop (default)",
+    "kindle"
+  ],
+  "cargo_jobs": 1,
+  "test_threads": 1,
+  "network": "isolated namespace with only loopback",
+  "kindle_hardware_accessed": false,
+  "tests": {
+    "seed-ignored-B": {
+      "started_utc": "2026-11-21T00:53:39+00:00",
+      "finished_utc": "2026-11-21T00:58:41+00:00",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 909,
+      "hit_record": "managed_startup_seed selected=10 direct=10 fallback=0 legacy_pixel_matches=10 rgba_bytes=5324800"
+    },
+    "targeted-a_partial_cover_batch_yields": {
+      "started_utc": "2026-11-21T00:57:43+00:00",
+      "finished_utc": "2026-11-21T00:57:44+00:00",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 909
+    },
+    "targeted-managed_startup_cover_": {
+      "started_utc": "2026-11-21T00:52:27+00:00",
+      "finished_utc": "2026-11-21T00:57:43+00:00",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 907
+    },
+    "targeted-metadata_defers_cover_inspection": {
+      "started_utc": "2026-11-21T00:57:44+00:00",
+      "finished_utc": "2026-11-21T00:57:44+00:00",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 909
+    },
+    "targeted-preparation_can_cross_the_worker_boundary_and_preserves_demo_isolation": {
+      "started_utc": "2026-11-21T00:57:44+00:00",
+      "finished_utc": "2026-11-21T00:57:44+00:00",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 909
+    },
+    "targeted-serial_and_split_preparation_preserve": {
+      "started_utc": "2026-11-21T00:57:44+00:00",
+      "finished_utc": "2026-11-21T00:57:44+00:00",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 909
+    },
+    "targeted-successful_local_publication_recovers_a_missing_offline_cover_immediately": {
+      "started_utc": "2026-11-21T00:57:44+00:00",
+      "finished_utc": "2026-11-21T00:57:44+00:00",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 909
+    },
+    "targeted-suspension_keeps_attachment_pending": {
+      "started_utc": "2026-11-21T00:57:44+00:00",
+      "finished_utc": "2026-11-21T00:57:45+00:00",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 909
+    },
+    "test-bin-B": {
+      "started_utc": "2026-11-21T00:57:53+00:00",
+      "finished_utc": "2026-11-21T00:58:40+00:00",
+      "passed": 18,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 0
+    },
+    "test-lib-B": {
+      "started_utc": "2026-11-21T00:57:45+00:00",
+      "finished_utc": "2026-11-21T00:57:53+00:00",
+      "passed": 904,
+      "failed": 0,
+      "ignored": 6,
+      "measured": 0,
+      "filtered_out": 0
+    }
+  },
+  "note": "The targeted cases are also in the full library suite and are not additive."
+}

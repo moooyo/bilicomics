@@ -28,6 +28,10 @@ portrait publication and power relay helpers keep their existing command lines.
 It collects `performance.jsonl` separately from the historical lifecycle trace.
 A physical run still requires a fresh exclusive handoff, lease and native return.
 
+For startup-only Kindle studies, `--shelf-render-trace /private/path/bili-shelf-<32-lowercase-hex-digits>.jsonl` uses a separate, content-free stream. Its header records the run ID, device boot ID and monotonic clock. For the first qualifying Shelf draw it can record `shelf_rendered`, `shelf_submitted` and `shelf_driver_completed`. The latter two are optional and refer only to that draw, never a later refresh. It does not enable the general profiler, wait for covers, record touch events or add a display wait. The [automated study](verification/startup-interactive-kindle-20261121/README.md) pairs it with the native Library card release from the same launch.
+
+For a same-binary comparison, add `--serial-shelf-render` only to the control arm. It requires `--kindle` and an active Shelf trace. The control waits before rendering; the default may render into private memory first, but still waits before writing the framebuffer. Read `shelf_rendered.data.render_order` to see which path actually ran: `wait_then_render`, `render_then_wait`, or `initial_fill`. A requested arm is not evidence that the order changed, and calling the wait does not prove that it blocked.
+
 Records contain static categories, opaque numeric identities and quantitative
 timing/geometry/resource fields. Do not add account names, comic or episode IDs,
 paths, URLs, credentials, raw errors, pixels or input coordinates to traces.
@@ -125,6 +129,32 @@ and execution, font registration/finish, per-face preparation, App preparation
 substeps, attachment stages and UI readiness. Face records contain an index and
 byte counts rather than filenames. Original readiness observations are preserved.
 The diagnostic does not change the first-scene-before-worker rule.
+
+`startup/ui_ready` is software readiness, **not** the [first Shelf render](STARTUP_AND_SLEEP.md#primary-startup-metric-first-shelf-render). From the ordinary native card release, report the qualifying frame's software `render_end`, its accepted SEND and, if observed, driver completion of that same marker as separate intervals. The normal Shelf layout, entries or empty state, and navigation identify the frame without cover pixels or an input probe; none of these logs observes the ink directly.
+
+`driver_first_entry.data.source` identifies the callback that first entered the UI
+driver: `maintenance_timer` or `runtime_wakeup`. The latter is a shared wake
+channel; it does not identify which subsystem requested the wake. `ui_worker_gate`
+records the source of the turn that actually crossed the bootstrap yield and
+whether that turn won `workers_admitted_by_ui`. On a native launch the first
+accepted-frame signal can already have started the workers. Both events carry
+`render_notifier_registered` and `first_scene_rendered`: these describe the Slint
+callback, **not** visibility on a display. For the actual admission time, use the
+producer timestamp in `workers_started.data.observed`; the UI gate record is written
+after that turn attempts admission. These two source observations are emitted at
+most once per launch, only when performance tracing is enabled.
+
+`startup/catalog_cache_maintenance` breaks down the non-demo startup worker's
+optional catalog cleanup. It is emitted once, on that worker, **after** the
+`state-cache-maintenance` parent span ends and the previous busy timeout has been
+restored or restoration attempted. The ordered `phases` contain wall and
+same-thread CPU microseconds for attempted work only. `recency_present` reports
+whether the saved recency row was found, not whether its JSON text was rewritten.
+`rows` on a successful DELETE or UPSERT is SQLite's direct affected-row count;
+it is not a storage write or sync count, and it is not a committed change when
+`committed` is false. `outcome` distinguishes `committed`, `busy` and `error`.
+Neither the tracing-disabled path nor a later UI maintenance retry takes these
+samples. No SQL statements, identifiers, payloads or paths are recorded.
 
 `startup-manager` and `download-recovery` operations use numeric parent links to
 show manager construction, installation, recovery admission/work and restoration.

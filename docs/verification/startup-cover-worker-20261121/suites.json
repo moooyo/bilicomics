@@ -1,0 +1,42 @@
+{
+  "startup_cache_keeps_the_worker_allocation_and_straight_rgba": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0
+  },
+  "startup_cover_retention_accepts_the_exact_budget_without_reading_past_overflow": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0
+  },
+  "a_partial_cover_batch_yields": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0
+  },
+  "serial_and_split_preparation_preserve": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0
+  },
+  "suspension_keeps_attachment_pending": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0
+  },
+  "cancellation_after_cover_work": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0
+  },
+  "lib": {
+    "passed": 903,
+    "failed": 0,
+    "ignored": 5
+  },
+  "bin": {
+    "passed": 18,
+    "failed": 0,
+    "ignored": 0
+  }
+}

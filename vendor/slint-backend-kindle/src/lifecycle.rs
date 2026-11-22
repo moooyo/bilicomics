@@ -1,7 +1,7 @@
 //! UI-thread display ownership for an external system screensaver lifecycle.
 
 use std::{
-    cell::{Cell, RefCell},
+    cell::{Cell, OnceCell, RefCell},
     os::fd::OwnedFd,
     path::{Path, PathBuf},
     rc::Rc,
@@ -18,6 +18,7 @@ use crate::{
     framebuffer::{Framebuffer, FramebufferLayout},
     portrait_events::NativePortraitObserver,
     refresh::PendingRefresh,
+    shelf_render_trace::{ShelfRenderCandidate, ShelfRenderSample, ShelfRenderScene, ShelfRenderTrace},
     touch::TouchInput,
 };
 
@@ -55,6 +56,7 @@ pub(crate) struct DisplayLifecycle {
     sleep_settled: Cell<bool>,
     initial_render_used: Cell<bool>,
     initial_render_check: Cell<Option<Box<dyn FnOnce() -> bool>>>,
+    shelf_render_trace: OnceCell<ShelfRenderTrace>,
     sleep_presentation: crate::sleep_presentation::SleepPresentationControl,
     pending: Arc<Mutex<PendingRefresh>>,
     wake: Arc<OwnedFd>,
@@ -207,6 +209,7 @@ impl DisplayLifecycleHandle {
                 sleep_settled: Cell::new(false),
                 initial_render_used: Cell::new(false),
                 initial_render_check: Cell::new(None),
+                shelf_render_trace: OnceCell::new(),
                 sleep_presentation: crate::sleep_presentation::SleepPresentationControl::default(),
                 pending,
                 wake,
@@ -230,6 +233,7 @@ impl DisplayLifecycleHandle {
         }
         let token = self.inner.sleep_presentation.request()?;
         self.retire_initial_render();
+        self.retire_shelf_render_trace();
         self.inner.window.request_redraw();
         crate::wakeup::poke(&self.inner.wake);
         Ok(token)
@@ -604,6 +608,7 @@ impl DisplayLifecycleHandle {
         if old_holding == holding && self.inner.native_scanout_orientation.get() == Some(scanout) {
             return Ok(false);
         }
+        self.retire_shelf_render_trace();
         // Validate the input borrow before invalidating a live pointer. The
         // transition/full-redraw gate prevents callbacks from polling input.
         let mut input = self.inner.state.input.try_borrow_mut()
@@ -770,6 +775,32 @@ impl DisplayLifecycleHandle {
         }
     }
 
+    /// Observe the first complete, unobscured startup Shelf display transaction.
+    /// Installing this before the event loop does not request or wait for updates.
+    pub fn observe_shelf_render(&self, scene: impl Fn() -> ShelfRenderScene + 'static,
+        emit: impl Fn(ShelfRenderSample) + 'static)
+    {
+        if self.inner.geometry.get().is_none() && !self.inner.quit.load(Ordering::SeqCst) {
+            let _ = self.inner.shelf_render_trace.set(ShelfRenderTrace::new(scene, emit));
+        }
+    }
+
+    pub(crate) fn retire_shelf_render_trace(&self) {
+        if let Some(trace) = self.inner.shelf_render_trace.get() {
+            trace.retire();
+        }
+    }
+
+    pub(crate) fn shelf_render_candidate(&self) -> Option<ShelfRenderCandidate> {
+        self.inner.shelf_render_trace.get()?.candidate()
+    }
+
+    pub(crate) fn emit_shelf_render(&self, sample: ShelfRenderSample) {
+        if let Some(trace) = self.inner.shelf_render_trace.get() {
+            trace.emit(sample);
+        }
+    }
+
     pub(crate) fn take_initial_render_permission(&self) -> bool {
         self.inner.initial_render_check.take().is_some_and(|check| check())
     }
@@ -785,6 +816,7 @@ impl DisplayLifecycleHandle {
     /// input-release/display-gate acknowledgement, not physical panel evidence.
     pub fn suspend(&self) -> Result<(), PlatformError> {
         self.retire_initial_render();
+        self.retire_shelf_render_trace();
         if self.inner.quit.load(Ordering::SeqCst) {
             return Err(failure("the Kindle event loop has terminated"));
         }
@@ -1049,6 +1081,7 @@ impl DisplayLifecycleHandle {
 
     pub(crate) fn release_event_loop_io(&self) {
         self.retire_initial_render();
+        self.retire_shelf_render_trace();
         self.inner.sleep_presentation.terminate();
         self.inner.resume_frame_pending.set(false);
         self.inner.resume_trace_path.borrow_mut().take();

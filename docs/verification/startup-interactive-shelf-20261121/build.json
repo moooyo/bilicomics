@@ -1,0 +1,80 @@
+{
+  "scope": "Fresh software build for the ordinary interactive Shelf baseline. No startup measurement, input demonstration, live account, or Kindle hardware result is derived from building an executable.",
+  "host": "test-env",
+  "target": "x86_64-unknown-linux-gnu",
+  "format": "ELF64 x86-64",
+  "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+  "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+  "release": {
+    "opt_level": 3,
+    "lto": "thin",
+    "codegen_units": 1,
+    "strip": true,
+    "cargo_jobs": 1,
+    "incremental": false,
+    "features": [
+      "desktop (default)",
+      "kindle"
+    ],
+    "network": "Isolated namespace, loopback only; offline Cargo.",
+    "target_directory": "Fresh private /work/target; no previously built application or research fork."
+  },
+  "source": {
+    "base": "9175002",
+    "input_scopes": [
+      ".cargo",
+      "Cargo.toml",
+      "Cargo.lock",
+      "README.md",
+      "THIRD_PARTY_NOTICES.md",
+      "build.rs",
+      "assets",
+      "packaging",
+      "scripts",
+      "src",
+      "tests",
+      "ui",
+      "vendor"
+    ],
+    "base_file_count": 619,
+    "current_source_overlay": [
+      "src/app/catalog.rs",
+      "src/app/startup.rs",
+      "src/main.rs",
+      "src/store.rs",
+      "src/store/catalog_cache_tests.rs",
+      "src/store/catalog_maintenance_trace.rs"
+    ],
+    "literal_file_count": 620,
+    "checkout_line_ending_differences_in_otherwise_unchanged_files": 172,
+    "verification": "The complete staged file roster and every file byte matched a separate literal working-tree archive both before and after the build. Literal checkout line endings, including Git-normalized files, were used. The existing catalog-tests overlay is test-only. No application or renderer source was changed for this baseline."
+  },
+  "application": {
+    "package": "bilicomics",
+    "artifact": "bilicomics",
+    "command": "cargo build --release --locked --offline -j1 --features kindle --bin bilicomics",
+    "queued_utc": "2026-11-21T02:36:05+00:00",
+    "started_utc": "2026-11-21T02:36:06+00:00",
+    "finished_utc": "2026-11-21T02:45:53+00:00",
+    "cargo_duration": "9m 47s",
+    "process_status": 0,
+    "size_bytes": 84731920
+  },
+  "fixture_helper": {
+    "source": [
+      "docs/verification/startup-direct-png-20261121/seed_profile.rs",
+      "docs/verification/startup-direct-png-20261121/seed-profile.Cargo.toml"
+    ],
+    "role": "Separate synthetic-only fixture preparation package. It uses the same frozen application library, with its own copied lockfile adding only the helper package; it is not the measured application.",
+    "package": "bilicomics-offline-seed-profile",
+    "artifact": "seed-profile",
+    "command": "cargo build --release --locked --offline -j1 --bin seed-profile",
+    "queued_utc": "2026-11-21T02:36:05+00:00",
+    "started_utc": "2026-11-21T02:45:54+00:00",
+    "finished_utc": "2026-11-21T02:49:26+00:00",
+    "cargo_duration": "3m 31s",
+    "process_status": 0,
+    "size_bytes": 3853872
+  },
+  "artifact_verification": "Both owner-only executables were atomically installed and compared byte-for-byte to their own Cargo output. Neither is a previously retained study executable."
+}

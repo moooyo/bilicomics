@@ -76,6 +76,23 @@ class CaseReplay(unittest.TestCase):
     def test_unchanged_copy(self):
         self.assertEqual(self.replay(), self.original)
 
+    def test_release_clock_is_opt_in_and_bound_to_the_same_click(self):
+        self.replay()
+        enriched = project_case(self.case, self.published, self.rgb, include_release_clock=True)
+        self.assertEqual(enriched.pop("release_monotonic_ns"), load(self.case / "click.json")["up_before_ns"])
+        self.assertEqual(enriched, self.original)
+
+    def test_third_loading_wait_cannot_begin_after_ready(self):
+        ready = next(row["monotonic_ns"] for row in self.perf if row["stage"] == "ui_ready")
+        loading = [row["data"] for row in self.perf[:self.original["shelf_performance_line"] - 1]
+                   if (row["kind"], row["stage"]) == ("native", "frame")
+                   and row["data"]["rendered"] and row["data"]["refresh_accepted"]]
+        wait = loading[2]["stages"]["preceding_update_wait"]
+        wait["started_monotonic_ns"] = ready + 1
+        wait["finished_monotonic_ns"] = ready + 1 + wait["wall_ns"]
+        with self.assertRaisesRegex(ValueError, "Third loading wait"):
+            self.replay()
+
     def test_wrong_pid(self):
         self.perf[0]["process_id"] += 1
         with self.assertRaisesRegex(ValueError, "different process"):

@@ -1,0 +1,188 @@
+{
+  "scope": "Independent non-timing stock desktop Scribe with synthetic ordinary offline data. The missing-image case is not delayed decoding, network latency or device qualification.",
+  "reference": "The closed signatures come from a verified populated ordinary R launch. Open ShelfMenu rows also match the reviewed 2026-11-14 Scribe filter capture after correcting only the 337 logical pixel resume-card offset.",
+  "geometry": {
+    "size": [
+      1860,
+      2480
+    ],
+    "regions_xywh": {
+      "shelf-bar": [
+        80,
+        70,
+        1692,
+        130
+      ],
+      "first-title": [
+        96,
+        632,
+        300,
+        50
+      ],
+      "closed-response": [
+        1040,
+        632,
+        716,
+        70
+      ],
+      "menu-response": [
+        1040,
+        632,
+        716,
+        70
+      ],
+      "menu-views": [
+        1040,
+        356,
+        716,
+        130
+      ]
+    },
+    "open_point": [
+      1708,
+      136
+    ],
+    "qualification_only_close_point": [
+      440,
+      140
+    ]
+  },
+  "cases": [
+    {
+      "case": "reference-no-click",
+      "same_owned_window": true,
+      "normal_exit": true,
+      "signed_in": true,
+      "catalog_titles_unchanged_before_launch": 20,
+      "ready_resident_covers": 10,
+      "visible_cover_codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "identical_labeled_placeholders": null,
+      "closed_populated_shelf_matched": true,
+      "empty_control_login_prompt_matched": false,
+      "withheld_floor_ms": 450,
+      "withheld_observations": 15,
+      "open_response_observed_while_withheld": false,
+      "button_pairs": 0,
+      "focus_at_click": [],
+      "owned_window_and_root_menu_response_after_click": null,
+      "opened_menu_still_visible_100ms_later": null,
+      "closed_after_outside_click": null,
+      "final_shelf_menu_open": false
+    },
+    {
+      "case": "cached-click",
+      "same_owned_window": true,
+      "normal_exit": true,
+      "signed_in": true,
+      "catalog_titles_unchanged_before_launch": 20,
+      "ready_resident_covers": 10,
+      "visible_cover_codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "identical_labeled_placeholders": null,
+      "closed_populated_shelf_matched": true,
+      "empty_control_login_prompt_matched": false,
+      "withheld_floor_ms": 450,
+      "withheld_observations": 14,
+      "open_response_observed_while_withheld": false,
+      "button_pairs": 2,
+      "focus_at_click": [
+        "pointer-root",
+        "pointer-root"
+      ],
+      "owned_window_and_root_menu_response_after_click": true,
+      "opened_menu_still_visible_100ms_later": true,
+      "closed_after_outside_click": true,
+      "final_shelf_menu_open": false
+    },
+    {
+      "case": "missing-click",
+      "same_owned_window": true,
+      "normal_exit": true,
+      "signed_in": true,
+      "catalog_titles_unchanged_before_launch": 20,
+      "ready_resident_covers": 0,
+      "visible_cover_codes": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "identical_labeled_placeholders": 10,
+      "closed_populated_shelf_matched": true,
+      "empty_control_login_prompt_matched": false,
+      "withheld_floor_ms": 450,
+      "withheld_observations": 15,
+      "open_response_observed_while_withheld": false,
+      "button_pairs": 2,
+      "focus_at_click": [
+        "pointer-root",
+        "pointer-root"
+      ],
+      "owned_window_and_root_menu_response_after_click": true,
+      "opened_menu_still_visible_100ms_later": true,
+      "closed_after_outside_click": true,
+      "final_shelf_menu_open": false
+    },
+    {
+      "case": "signed-out-no-click",
+      "same_owned_window": true,
+      "normal_exit": true,
+      "signed_in": false,
+      "catalog_titles_unchanged_before_launch": 20,
+      "ready_resident_covers": 10,
+      "visible_cover_codes": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "identical_labeled_placeholders": null,
+      "closed_populated_shelf_matched": false,
+      "empty_control_login_prompt_matched": true,
+      "withheld_floor_ms": 450,
+      "withheld_observations": 15,
+      "open_response_observed_while_withheld": false,
+      "button_pairs": 0,
+      "focus_at_click": [],
+      "owned_window_and_root_menu_response_after_click": null,
+      "opened_menu_still_visible_100ms_later": null,
+      "closed_after_outside_click": null,
+      "final_shelf_menu_open": false
+    }
+  ],
+  "isolated_xvfb_and_processes_retired": true,
+  "physical_device_used": false
+}

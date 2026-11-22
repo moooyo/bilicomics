@@ -1,0 +1,49 @@
+{
+  "schema": "bili-display-helper-arm-qualification-v1",
+  "passed": true,
+  "physical_device_accessed": false,
+  "device_lease_accessed": false,
+  "cargo_bin": "bilicomics",
+  "cross_target": "armv7-unknown-linux-musleabihf",
+  "static_elf32_arm_hard_float": true,
+  "application_bytes": 74428464,
+  "host_integration_passed": true,
+  "overlay_only": true,
+  "version_exit_code": 0,
+  "cli_version": "bilicomics 0.1.25",
+  "qemu": "qemu-arm version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)",
+  "loopback_only": true,
+  "worker": {
+    "bytes": 426672,
+    "unchanged_sources": true,
+    "identical_to_install_zip": true
+  },
+  "profiles": [
+    {
+      "profile": "scribe",
+      "native_exit_code": 1,
+      "missing_owned_snapshot_rejected": true,
+      "helper_exit_code": 1,
+      "helper_missing_permission_rejected": true,
+      "helper_cost_sidecar_created": false,
+      "native_framebuffer_available": false,
+      "native_input_available": false,
+      "shelf_rendered": false,
+      "shelf_trace_started": true,
+      "trace_record_count": 2
+    },
+    {
+      "profile": "pw6",
+      "native_exit_code": 1,
+      "missing_owned_snapshot_rejected": true,
+      "helper_exit_code": 1,
+      "helper_missing_permission_rejected": true,
+      "helper_cost_sidecar_created": false,
+      "native_framebuffer_available": false,
+      "native_input_available": false,
+      "shelf_rendered": false,
+      "shelf_trace_started": true,
+      "trace_record_count": 2
+    }
+  ]
+}

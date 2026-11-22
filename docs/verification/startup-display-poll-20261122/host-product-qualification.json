@@ -1,0 +1,59 @@
+{
+  "schema": "bili-display-poll-host-product-qualification-v1",
+  "passed": true,
+  "complete_product_elf": true,
+  "unchanged_permit": true,
+  "only_hardware_inputs_synthetic": true,
+  "physical_device_accessed": false,
+  "collector_validated": true,
+  "host_elf_bytes": 225345184,
+  "profiles": {
+    "scribe": {
+      "passed": true,
+      "natural_branch": "automatic-five",
+      "queries": 5,
+      "metadata_passes": 2,
+      "live_getters_witnessed_all_three_process_births": true,
+      "owned_group_reaped": true,
+      "controlled_getter_exercised_open_and_post_eof": true,
+      "both_poll_states_observed": true,
+      "poll_split_counts_sum": true,
+      "poll_split_elapsed_sum": true
+    },
+    "pw6": {
+      "passed": true,
+      "natural_branch": "fixed-three",
+      "queries": 3,
+      "metadata_passes": 2,
+      "live_getters_witnessed_all_three_process_births": true,
+      "owned_group_reaped": true,
+      "controlled_getter_exercised_open_and_post_eof": true,
+      "both_poll_states_observed": true,
+      "poll_split_counts_sum": true,
+      "poll_split_elapsed_sum": true
+    }
+  },
+  "controls": {
+    "scribe-selector-off": {
+      "passed": true,
+      "stock_capture_succeeded": true,
+      "no_sidecar": true,
+      "owned_group_reaped": true
+    },
+    "scribe-revoke": {
+      "passed": true,
+      "stock_refused": true,
+      "no_sidecar": true,
+      "only_first_getter_started": true,
+      "owned_group_reaped": true
+    },
+    "pw6-timeout": {
+      "passed": true,
+      "stock_refused": true,
+      "no_sidecar": true,
+      "only_first_getter_started": true,
+      "owned_group_reaped": true
+    }
+  },
+  "scope": "Full Linux x86-64 Kindle-feature capture CLI under original stock permission and process controls. Both real poll states appear in each positive record, and their counts and nanoseconds independently partition the same parent exactly. The synthetic mode getter delays before output and after closing stdout. These are functional host checks, not measurements of firmware, input, Shelf presentation or a physical visit."
+}

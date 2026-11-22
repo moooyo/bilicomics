@@ -1,0 +1,47 @@
+{
+  "scope": "Untimed A-only format qualification, not a warmup or paired sample.",
+  "pid": 49,
+  "xid": 4194307,
+  "window": [
+    "Depth: 32",
+    "Visual: 0x40",
+    "Visual Class: TrueColor",
+    "Map State: IsViewable"
+  ],
+  "first_mapped_title_layout": {
+    "width": 880,
+    "height": 240,
+    "format": 2,
+    "depth": 32,
+    "bits_per_pixel": 32,
+    "byte_order": 0,
+    "bytes_per_line": 3520,
+    "red_mask": 16711680,
+    "green_mask": 65280,
+    "blue_mask": 255
+  },
+  "complete_window_layout": {
+    "width": 1860,
+    "height": 2480,
+    "format": 2,
+    "depth": 32,
+    "bits_per_pixel": 32,
+    "byte_order": 0,
+    "bytes_per_line": 7440,
+    "red_mask": 16711680,
+    "green_mask": 65280,
+    "blue_mask": 255
+  },
+  "fourth_byte_masked_range": [
+    0,
+    0
+  ],
+  "fourth_byte_all_planes_range": [
+    255,
+    255
+  ],
+  "both_plane_masks_match_frozen_RGB": true,
+  "same_window_root_crop_matches": true,
+  "logical_final_matches": true,
+  "normal_exit": true
+}

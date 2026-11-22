@@ -1,0 +1,63 @@
+{
+  "schema": "bilicomics-off-device-arm-profile-gates-v1",
+  "recorded_utc": "2026-11-21T18:34:35.705112+00:00",
+  "provenance": "The three fixed members of the retained first-render ARM archive were compared with the extracted files before the temporary upload was removed. No new application build or second treatment executable.",
+  "programs": {
+    "bilicomics": {
+      "bytes": 74392336,
+      "static_elf32_arm_hard_float": true
+    },
+    "kindle-jpeg-worker": {
+      "bytes": 426672,
+      "static_elf32_arm_hard_float": true
+    },
+    "route-fs": {
+      "bytes": 24316,
+      "static_elf32_arm_hard_float": true
+    }
+  },
+  "jpeg_worker_matches_retained_install_zip": true,
+  "qemu": "qemu-arm version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)",
+  "private_ubuntu_network_namespace": true,
+  "only_loopback_present": true,
+  "kindle_framebuffer_present": false,
+  "kindle_input_present": false,
+  "physical_device_accessed": false,
+  "physical_lease_accessed": false,
+  "native_card_release_observed": false,
+  "framebuffer_or_optical_time_measured": false,
+  "sample_count": 2,
+  "samples": [
+    {
+      "profile": "scribe",
+      "configured_reference_geometry_px": [
+        1860,
+        2480
+      ],
+      "version": "bilicomics 0.1.25",
+      "version_exit_code": 0,
+      "native_launch_exit_code": 1,
+      "lifecycle_records": 1,
+      "process_entry_records": 1,
+      "ready_records": 0,
+      "refusal": "missing-owned-native-launcher-snapshot",
+      "shelf_rendered": false
+    },
+    {
+      "profile": "pw6",
+      "configured_reference_geometry_px": [
+        1264,
+        1680
+      ],
+      "version": "bilicomics 0.1.25",
+      "version_exit_code": 0,
+      "native_launch_exit_code": 1,
+      "lifecycle_records": 1,
+      "process_entry_records": 1,
+      "ready_records": 0,
+      "refusal": "missing-owned-native-launcher-snapshot",
+      "shelf_rendered": false
+    }
+  ],
+  "passed": true
+}

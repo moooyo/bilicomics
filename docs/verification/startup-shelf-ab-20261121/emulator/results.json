@@ -1,0 +1,56 @@
+{
+  "scope": "Offline test-env admission. Six fresh cases; no native card release, input injection, full firmware guest, Kindle device, driver signal or physical timing.",
+  "firmware_environment": "No suitable Scribe/Paperwhite 6 guest image and corresponding full-system QEMU identified in the checked image and toolchain locations on this rebuilt worker.",
+  "arm_user_mode": {
+    "executable_bytes": 74394400,
+    "qemu": "qemu-arm version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)",
+    "product_version": "bilicomics 0.1.25",
+    "profiles_and_argv": {
+      "scribe": [
+        "A",
+        "B"
+      ],
+      "pw6": [
+        "A",
+        "B"
+      ]
+    },
+    "arm_A": "--kindle --shelf-render-trace FILE --serial-shelf-render",
+    "arm_B": "--kindle --shelf-render-trace FILE",
+    "same_executable_path": true,
+    "paths_accepted_before_native_gate": 4,
+    "matched_process_entry_and_trace_header_footer": 4,
+    "expected_absent_launcher_guard_exit": 1,
+    "additional_parser_rejections": {
+      "missing_--kindle": 2,
+      "missing_--shelf-render-trace": 2,
+      "exit_status": 2,
+      "trace_created": false
+    },
+    "observed_native_draws": 0,
+    "physical_render_order_observed": false
+  },
+  "desktop": {
+    "executable_bytes": 251368888,
+    "profile": "debug",
+    "scope": "One common winit software renderer; the native branch switch is not a desktop A/B.",
+    "same_process_natural_shelf_and_clean_exit": true,
+    "synthetic_inputs": "Fresh offline design-demo data with its single saved Shelf preference; no --screen, no input.",
+    "matched_non_cover_window_regions": [
+      "active_shelf_navigation",
+      "filter_control",
+      "resume_title"
+    ],
+    "all_matching_regions_distinct_from_loading": true,
+    "checked_viewable_pid_owned_windows": {
+      "scribe": [
+        1860,
+        2480
+      ],
+      "pw6": [
+        1264,
+        1680
+      ]
+    }
+  }
+}

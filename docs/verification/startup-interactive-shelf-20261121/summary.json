@@ -1,0 +1,199 @@
+{
+  "scope": "Desktop host launch to an externally confirmed response on the same presented ordinary Shelf; no earliest-ready timestamp, cover-complete timing, native card or physical digitizer. The lower bound for response pixels is not a lower bound for interactivity.",
+  "excluded_warmups": [
+    "w00"
+  ],
+  "cases_ms": {
+    "s01": {
+      "launch_to_feedback_upper": 40.422,
+      "launch_to_initial_activity_upper": 41.061,
+      "launch_to_shelf_lower": 139.772,
+      "launch_to_shelf_upper": 145.804,
+      "launch_to_press": 146.446,
+      "shelf_to_press_probe_overhead": 0.643,
+      "press_confirmed_to_release_request": 16.178,
+      "press_to_release_return": 16.619,
+      "release_return_to_response": 24.268,
+      "launch_to_response_upper": 187.333,
+      "entry_to_response_upper": 185.113,
+      "press_to_response_upper": 40.887,
+      "launch_to_response_pixels_lower_not_readiness": 179.902,
+      "launch_to_first_window_response_read_end": 186.767
+    },
+    "s02": {
+      "launch_to_feedback_upper": 32.075,
+      "launch_to_initial_activity_upper": 32.71,
+      "launch_to_shelf_lower": 127.288,
+      "launch_to_shelf_upper": 132.988,
+      "launch_to_press": 133.976,
+      "shelf_to_press_probe_overhead": 0.988,
+      "press_confirmed_to_release_request": 16.228,
+      "press_to_release_return": 17.125,
+      "release_return_to_response": 31.966,
+      "launch_to_response_upper": 183.067,
+      "entry_to_response_upper": 181.015,
+      "press_to_response_upper": 49.091,
+      "launch_to_response_pixels_lower_not_readiness": 176.231,
+      "launch_to_first_window_response_read_end": 182.782
+    },
+    "s03": {
+      "launch_to_feedback_upper": 29.017,
+      "launch_to_initial_activity_upper": 29.615,
+      "launch_to_shelf_lower": 124.098,
+      "launch_to_shelf_upper": 129.814,
+      "launch_to_press": 130.397,
+      "shelf_to_press_probe_overhead": 0.584,
+      "press_confirmed_to_release_request": 16.188,
+      "press_to_release_return": 16.587,
+      "release_return_to_response": 17.425,
+      "launch_to_response_upper": 164.409,
+      "entry_to_response_upper": 163.17,
+      "press_to_response_upper": 34.012,
+      "launch_to_response_pixels_lower_not_readiness": 159.711,
+      "launch_to_first_window_response_read_end": 164.09
+    },
+    "s04": {
+      "launch_to_feedback_upper": 37.912,
+      "launch_to_initial_activity_upper": 38.566,
+      "launch_to_shelf_lower": 129.587,
+      "launch_to_shelf_upper": 135.347,
+      "launch_to_press": 135.96,
+      "shelf_to_press_probe_overhead": 0.613,
+      "press_confirmed_to_release_request": 16.177,
+      "press_to_release_return": 16.616,
+      "release_return_to_response": 14.5,
+      "launch_to_response_upper": 167.076,
+      "entry_to_response_upper": 164.59,
+      "press_to_response_upper": 31.116,
+      "launch_to_response_pixels_lower_not_readiness": 160.977,
+      "launch_to_first_window_response_read_end": 166.808
+    },
+    "s05": {
+      "launch_to_feedback_upper": 30.419,
+      "launch_to_initial_activity_upper": 31.041,
+      "launch_to_shelf_lower": 125.727,
+      "launch_to_shelf_upper": 132.534,
+      "launch_to_press": 133.109,
+      "shelf_to_press_probe_overhead": 0.575,
+      "press_confirmed_to_release_request": 16.197,
+      "press_to_release_return": 16.582,
+      "release_return_to_response": 30.726,
+      "launch_to_response_upper": 180.416,
+      "entry_to_response_upper": 178.747,
+      "press_to_response_upper": 47.307,
+      "launch_to_response_pixels_lower_not_readiness": 174.684,
+      "launch_to_first_window_response_read_end": 180.016
+    },
+    "s06": {
+      "launch_to_feedback_upper": 31.452,
+      "launch_to_initial_activity_upper": 32.119,
+      "launch_to_shelf_lower": 122.723,
+      "launch_to_shelf_upper": 128.902,
+      "launch_to_press": 129.5,
+      "shelf_to_press_probe_overhead": 0.598,
+      "press_confirmed_to_release_request": 16.173,
+      "press_to_release_return": 16.577,
+      "release_return_to_response": 34.259,
+      "launch_to_response_upper": 180.336,
+      "entry_to_response_upper": 179.087,
+      "press_to_response_upper": 50.836,
+      "launch_to_response_pixels_lower_not_readiness": 175.46,
+      "launch_to_first_window_response_read_end": 179.884
+    }
+  },
+  "distribution_ms": {
+    "launch_to_feedback_upper": {
+      "observed": 6,
+      "median": 31.764,
+      "min": 29.017,
+      "max": 40.422
+    },
+    "launch_to_initial_activity_upper": {
+      "observed": 6,
+      "median": 32.414,
+      "min": 29.615,
+      "max": 41.061
+    },
+    "launch_to_shelf_lower": {
+      "observed": 6,
+      "median": 126.507,
+      "min": 122.723,
+      "max": 139.772
+    },
+    "launch_to_shelf_upper": {
+      "observed": 6,
+      "median": 132.761,
+      "min": 128.902,
+      "max": 145.804
+    },
+    "launch_to_press": {
+      "observed": 6,
+      "median": 133.542,
+      "min": 129.5,
+      "max": 146.446
+    },
+    "shelf_to_press_probe_overhead": {
+      "observed": 6,
+      "median": 0.605,
+      "min": 0.575,
+      "max": 0.988
+    },
+    "press_confirmed_to_release_request": {
+      "observed": 6,
+      "median": 16.183,
+      "min": 16.173,
+      "max": 16.228
+    },
+    "press_to_release_return": {
+      "observed": 6,
+      "median": 16.602,
+      "min": 16.577,
+      "max": 17.125
+    },
+    "release_return_to_response": {
+      "observed": 6,
+      "median": 27.497,
+      "min": 14.5,
+      "max": 34.259
+    },
+    "launch_to_response_upper": {
+      "observed": 6,
+      "median": 180.376,
+      "min": 164.409,
+      "max": 187.333
+    },
+    "entry_to_response_upper": {
+      "observed": 6,
+      "median": 178.917,
+      "min": 163.17,
+      "max": 185.113
+    },
+    "press_to_response_upper": {
+      "observed": 6,
+      "median": 44.097,
+      "min": 31.116,
+      "max": 50.836
+    },
+    "launch_to_response_pixels_lower_not_readiness": {
+      "observed": 6,
+      "median": 175.072,
+      "min": 159.711,
+      "max": 179.902
+    },
+    "launch_to_first_window_response_read_end": {
+      "observed": 6,
+      "median": 179.95,
+      "min": 164.09,
+      "max": 186.767
+    }
+  },
+  "visual_controls": {
+    "scope": "Independent untimed controls; no-input nonmatches apply only within their observation windows.",
+    "qualified_cases": [
+      "reference-no-click",
+      "cached-click",
+      "missing-click",
+      "signed-out-no-click"
+    ]
+  }
+}

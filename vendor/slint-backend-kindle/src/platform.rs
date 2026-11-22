@@ -16,9 +16,10 @@ use crate::clipboard::{ClipboardKind, ClipboardStore};
 use crate::dithering::DitheringHandle;
 use crate::first_frame_signal::FirstFrameSignalHandle;
 use crate::lifecycle::DisplayLifecycleHandle;
-use crate::performance::{ClockSample, PerformanceSampleKind, PerformanceTraceHandle, Recording, observe_rgb_frame};
+use crate::performance::{ClockSample, PerformanceSampleKind, PerformanceTraceHandle, Recording, monotonic_ns, observe_rgb_frame};
 use crate::power::{arm_wakealarm, find_wakealarm, suspend_to_mem};
 use crate::refresh::{PendingRefresh, PhysicalRect, RefreshHandle};
+use crate::shelf_render_trace::{ShelfRenderOrder as DrawOrder, covers_window};
 use crate::touch::has_accelerometer;
 use crate::wakeup::{self, KindleEventLoopProxy, Queue, Wakeup};
 use crate::{OnWakeCallback, WakeSchedule};
@@ -316,6 +317,7 @@ impl Platform for KindlePlatform {
                     .map_err(|error| PlatformError::Other(error.to_string()))?.is_none()
                 && self.suspend_if_idle(wakealarm.as_deref(), &mut last_interaction)
             {
+                self.lifecycle.retire_shelf_render_trace();
                 continue;
             }
             if self.quit_flag.load(Ordering::SeqCst) {
@@ -491,6 +493,9 @@ impl Platform for KindlePlatform {
                 .unwrap_or(render_offset);
             let rotation_changed =
                 app_rotation != applied_rotation || native_render_offset != render_offset;
+            if !initial_fill && (force_full || rotation_changed) {
+                self.lifecycle.retire_shelf_render_trace();
+            }
             let (panel_width, panel_height) = geometry.expect("active framebuffer has geometry");
             if rotation_changed {
                 applied_rotation = app_rotation;
@@ -519,6 +524,7 @@ impl Platform for KindlePlatform {
             let mut did_draw = false;
             let mut initial_draw = false;
             let mut frame_trace = None;
+            let mut shelf_sample = None;
             let startup_draw = StartupDraw {
                 current: self.lifecycle.take_initial_render_permission(),
                 initial: initial_fill,
@@ -535,6 +541,7 @@ impl Platform for KindlePlatform {
                 let mut draw_error = None;
                 self.window.draw_if_needed(|renderer| {
                     did_draw = true;
+                    let shelf_candidate = self.lifecycle.shelf_render_candidate();
                     frame_trace = self.begin_frame_trace(frame_buffer, false, false,
                         full_repaint, (applied_rotation + render_offset) % 360,
                         black_and_white);
@@ -555,6 +562,17 @@ impl Platform for KindlePlatform {
                         );
                         let render_started = frame_trace.as_ref().map(|_| ClockSample::now());
                         let dirty = crate::frame_render::render_scene(renderer, pixels, width, full_repaint);
+                        if let Some(candidate) = shelf_candidate {
+                            let rendered_ns = monotonic_ns();
+                            let origin = dirty.bounding_box_origin();
+                            let size = dirty.bounding_box_size();
+                            let rendered = PhysicalRect { x: origin.x, y: origin.y, width: size.width, height: size.height };
+                            if covers_window(Some(rendered), panel_width, panel_height) {
+                                shelf_sample = Some(candidate.rendered(rendered_ns, order));
+                            } else {
+                                self.lifecycle.retire_shelf_render_trace();
+                            }
+                        }
                         if let Some(trace) = frame_trace.as_mut() {
                             trace.sample.rendered = true;
                             trace.sample.initial_frame = initial_draw;
@@ -622,6 +640,9 @@ impl Platform for KindlePlatform {
                 if did_draw && full_repaint && !binary_du_repaint {
                     let submit_started = frame_trace.as_ref().map(|_| ClockSample::now());
                     let submission = frame_buffer.refresh_full();
+                    if let Some(sample) = shelf_sample.as_mut() {
+                        sample.observe_submission(frame_buffer, submission, true);
+                    }
                     if let Some(trace) = frame_trace.as_mut() {
                         trace.sample.stages.refresh_submit = submit_started.map(ClockSample::finish);
                         trace.sample.refresh_region = Some(PhysicalRect { x: 0, y: 0,
@@ -665,6 +686,10 @@ impl Platform for KindlePlatform {
                     }
                     let submit_started = frame_trace.as_ref().map(|_| ClockSample::now());
                     let submission = frame_buffer.refresh_planned(refresh);
+                    if let Some(sample) = shelf_sample.as_mut() {
+                        sample.observe_submission(frame_buffer, submission, submission.software_dither_fallback
+                            || covers_window(Some(refresh.region), panel_width, panel_height));
+                    }
                     if let Some(trace) = frame_trace.as_mut() {
                         trace.sample.stages.refresh_submit = submit_started.map(ClockSample::finish);
                         trace.sample.refresh_region = Some(if submission.software_dither_fallback {
@@ -695,11 +720,17 @@ impl Platform for KindlePlatform {
                             sleep_pending: sleep_token.is_some(),
                         }, complete_frame_replacement)?;
                 }
+                if let Some(sample) = shelf_sample.as_mut() {
+                    sample.observe_driver_completion(frame_buffer);
+                }
                 if did_draw {
                     applied_dithering = dithering_revision;
                 }
                 Ok(())
             });
+            if let Some(sample) = shelf_sample {
+                self.lifecycle.emit_shelf_render(sample);
+            }
             match frame_result {
                 Ok(Ok(())) => {},
                 Ok(Err(error)) | Err(error) => {
@@ -825,9 +856,6 @@ mod binary_du_tests {
         assert!(!allowed(&pending, &pixels()));
     }
 }
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-enum DrawOrder { InitialFill, WaitFirst, PrivateRenderFirst }
 
 #[derive(Default)]
 struct StartupDraw {

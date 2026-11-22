@@ -1,0 +1,53 @@
+{
+  "source": {
+    "base": "9175002",
+    "control_overlay": [
+      "src/app/catalog.rs",
+      "src/store.rs",
+      "src/store/catalog_cache_tests.rs"
+    ],
+    "B_only": [
+      "src/app/covers.rs",
+      "src/app/covers/tests.rs",
+      "src/app/startup.rs"
+    ],
+    "compared_build_inputs": 633,
+    "control_binary_saved_before_source_switch": true
+  },
+  "host": "test-env",
+  "target": "x86_64-unknown-linux-gnu",
+  "kindle_hardware_accessed": false,
+  "profile": "release",
+  "features": [
+    "desktop (default)",
+    "kindle"
+  ],
+  "opt_level": 3,
+  "lto": "thin",
+  "codegen_units": 1,
+  "network": "loopback only",
+  "cargo_jobs": 1,
+  "work_target": "/work/target",
+  "command": "cargo build --release --locked --offline -j1 --features kindle --bin bilicomics",
+  "arms": {
+    "A": {
+      "process_status": 0,
+      "recompiled_bilicomics": true,
+      "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+      "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "file_size_bytes": 84766608,
+      "started_utc": "2026-11-21T00:34:18+00:00",
+      "finished_utc": "2026-11-21T00:44:37+00:00"
+    },
+    "B": {
+      "process_status": 0,
+      "recompiled_bilicomics": true,
+      "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+      "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "file_size_bytes": 84776208,
+      "started_utc": "2026-11-21T00:44:39+00:00",
+      "finished_utc": "2026-11-21T00:48:58+00:00"
+    }
+  },
+  "distinct_executable_bytes": true
+}

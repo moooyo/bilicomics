@@ -1,0 +1,8 @@
+{
+  "cases": 14,
+  "archive_files": 57,
+  "archive_bytes": 11285,
+  "selected_startup_events_per_case": 10,
+  "selected_lifecycle_events_per_case": 3,
+  "both_summaries_match_full_records_after_extraction": true
+}

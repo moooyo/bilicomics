@@ -1,0 +1,61 @@
+{
+  "schema": "bili-prepared-handoff-arm-qualification-public-v1",
+  "passed": true,
+  "scope": "Off-device qualification of the executable before the three physical visits. These checks do not measure Shelf rendering or handoff latency.",
+  "build": {
+    "cargo_bin": "bilicomics",
+    "target": "armv7-unknown-linux-musleabihf",
+    "profile": "release",
+    "static_elf32_arm_hard_float": true,
+    "application_bytes": 74406144,
+    "same_frozen_source_as_passing_x86_check": true,
+    "cargo_elapsed_seconds": 428,
+    "jobs": 1,
+    "incremental": false,
+    "rustc": "1.99.1",
+    "cargo_zigbuild": "0.24.0",
+    "zig": "0.15.2"
+  },
+  "worker": {
+    "rebuilt": false,
+    "unchanged_worker_and_codec_source_files": 7,
+    "bytes": 426672,
+    "identical_to_retained_install_package_member": true
+  },
+  "runtime": {
+    "qemu_arm_version": "8.2.2",
+    "loopback_only": true,
+    "native_framebuffer_available": false,
+    "native_input_available": false,
+    "physical_device_accessed": false,
+    "device_lease_accessed": false
+  },
+  "cli": {
+    "version": "bilicomics 0.1.25",
+    "version_exit_code": 0,
+    "missing_shelf_trace_rejected_exit_code": 2,
+    "conflicting_lifecycle_rejected_exit_code": 2
+  },
+  "profiles": [
+    {
+      "profile": "scribe",
+      "reference_geometry_px": [1860, 2480],
+      "prepared_handoff_cli_recognized": true,
+      "missing_owned_snapshot_rejected": true,
+      "native_exit_code": 1,
+      "shelf_trace_started": true,
+      "shelf_rendered": false,
+      "handoff_sidecar_created": false
+    },
+    {
+      "profile": "pw6",
+      "reference_geometry_px": [1264, 1680],
+      "prepared_handoff_cli_recognized": true,
+      "missing_owned_snapshot_rejected": true,
+      "native_exit_code": 1,
+      "shelf_trace_started": true,
+      "shelf_rendered": false,
+      "handoff_sidecar_created": false
+    }
+  ]
+}

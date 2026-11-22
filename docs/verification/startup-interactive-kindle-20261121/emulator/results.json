@@ -1,0 +1,92 @@
+{
+  "scope": "Offline test-env compatibility only; no native card release, input injection, optical observation, driver timing, physical Kindle, or live account.",
+  "firmware_guest": {
+    "current_matching_scribe_base_found": false,
+    "current_paperwhite_6_firmware_profile_found": false,
+    "scope_of_search": "Reviewed Scribe reference requirements, rebuilt toolchain, designated and standard local emulator and image locations; no firmware guest launched."
+  },
+  "arm_user_mode": {
+    "profiles": [
+      "scribe",
+      "pw6"
+    ],
+    "application_bytes": 74392336,
+    "measurements": {
+      "version": "bilicomics 0.1.25",
+      "qemu": "qemu-arm version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)",
+      "native_launch_exit": 1,
+      "process_entry_recorded": true,
+      "expected_missing_native_launcher_guard": true,
+      "native_framebuffer_or_input_available": false,
+      "shelf_rendered": false
+    }
+  },
+  "desktop_x11": {
+    "profile": "debug",
+    "application_bytes": 251365656,
+    "network": "Loopback only",
+    "sources": "Newly reviewed host application and stock Xvfb/winit; old images used only as visual references.",
+    "observations": {
+      "scribe": {
+        "geometry": [
+          1860,
+          2480
+        ],
+        "mapped_window_pid_verified": true,
+        "same_process_ready_route": "shelf",
+        "exit_status": 0,
+        "equal_non_cover_rgb_regions": [
+          "active_shelf_navigation",
+          "filter_control",
+          "resume_title"
+        ]
+      },
+      "pw6": {
+        "geometry": [
+          1264,
+          1680
+        ],
+        "mapped_window_pid_verified": true,
+        "same_process_ready_route": "shelf",
+        "exit_status": 0,
+        "equal_non_cover_rgb_regions": [
+          "active_shelf_navigation",
+          "filter_control",
+          "resume_title"
+        ]
+      }
+    }
+  },
+  "default_shelf_and_cleanup": {
+    "profile": "scribe",
+    "screen_override": false,
+    "demo_offline": true,
+    "fresh_input_sent": false,
+    "same_process_ready_route": "shelf",
+    "exit_status": 0,
+    "non_cover_rgb_regions_match": true,
+    "revised_route_cleanup_verified_on_same_tree": true,
+    "initial_preferences_rows": 1,
+    "route_preparer_seed_statements_reused": true,
+    "runtime_directories": [
+      "data/demo",
+      "data/demo/fixtures",
+      "data/demo/fixtures/covers",
+      "data/demo/fixtures/pages"
+    ],
+    "runtime_leaf_categories": {
+      "data/demo/fixtures/*.json": 2,
+      "data/demo/fixtures/covers/*.png": 30,
+      "data/demo/fixtures/pages/*.png": 3,
+      "data/demo/fixtures/*.png": 1,
+      "data/demo/state.sqlite3": 1,
+      "data/device-allowlist": 1,
+      "data/device-profile": 1
+    },
+    "expected_bundled_leaf_count": 36,
+    "materialized_bundled_leaf_count": 36,
+    "no_unlisted_bundled_leaf": true,
+    "raw_route_clean_tree_verify_exit": 0,
+    "physical_route_operations_executed": false
+  }
+}

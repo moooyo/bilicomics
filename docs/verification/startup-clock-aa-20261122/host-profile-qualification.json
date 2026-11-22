@@ -1,0 +1,62 @@
+{
+  "scope": "Two independent loopback-only test-env functional launches. This is real host-shell and window evidence, not a native Library release, a Kindle render, or performance evidence for the current ARM executable.",
+  "inputs": {
+    "stock_library_launcher_bytes": 80185,
+    "aa_launcher_transform": "aa_runner.case_files; the shim's /mnt/us/RUN install root is redirected to its isolated fixture root",
+    "clock_helper_host_bytes": 16688,
+    "desktop_elf": "Retained 2026-11-16 CPU resize-cache study application (c49d711), BiliComics 0.1.25, ELF64 x86-64",
+    "desktop_elf_bytes": 241479976,
+    "native_services": "Existing packaging lifecycle test double, private lock and firmware profile; no network interface except loopback",
+    "timebase": "CLOCK_MONOTONIC in a single host namespace",
+    "scene": "Fresh synthetic design-demo data with the saved Shelf preference; no route override, clicks, private account, or artwork requirement"
+  },
+  "positive_cases": [
+    {
+      "model": "scribe",
+      "geometry": [1860, 2480],
+      "source_is_retained_stock": true,
+      "one_live_shell_and_birth": true,
+      "real_clock_wrapper_before_app_exec": true,
+      "app_preinvoke_and_real_rust_main_pid_match": true,
+      "actual_window_pid_matches_main": true,
+      "non_cover_rgb_regions": ["active_shelf_navigation", "filter_control", "resume_title"],
+      "normal_local_target": "shelf",
+      "deltas_ns": {
+        "dispatch_bracket_width": 489976,
+        "shim_to_app_preinvoke": 461813670,
+        "app_preinvoke_to_rust_main": 25685648,
+        "rust_main_to_observed_x11_shelf": [921983644, 928372241]
+      },
+      "fake_native_restore_and_natural_exit": true,
+      "card_release": null,
+      "native_shelf_rendered": null,
+      "native_update_submitted": null,
+      "native_update_completed": null,
+      "passed": true
+    },
+    {
+      "model": "pw6",
+      "geometry": [1264, 1680],
+      "source_is_retained_stock": true,
+      "one_live_shell_and_birth": true,
+      "real_clock_wrapper_before_app_exec": true,
+      "app_preinvoke_and_real_rust_main_pid_match": true,
+      "actual_window_pid_matches_main": true,
+      "non_cover_rgb_regions": ["active_shelf_navigation", "filter_control", "resume_title"],
+      "normal_local_target": "shelf",
+      "deltas_ns": {
+        "dispatch_bracket_width": 544416,
+        "shim_to_app_preinvoke": 447243132,
+        "app_preinvoke_to_rust_main": 7765831,
+        "rust_main_to_observed_x11_shelf": [937235833, 943323699]
+      },
+      "fake_native_restore_and_natural_exit": true,
+      "card_release": null,
+      "native_shelf_rendered": null,
+      "native_update_submitted": null,
+      "native_update_completed": null,
+      "passed": true
+    }
+  ],
+  "evidence_boundary": "The real mark wrapper execs the retained shell or the fixture app adapter without a fork. Only that adapter substitutes a desktop exec for the native main application; the PID is followed across it into the actual ELF. The marked launcher still starts and waits for its real worker. The per-model host observations are single qualification cases, not comparative timings."
+}

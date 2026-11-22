@@ -1,0 +1,76 @@
+{
+  "schema": "bili-clock-aa-identical-arm-guard-v1",
+  "collected_utc": "2026-11-21T20:22:22.183838+00:00",
+  "runtime": "qemu-arm version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)",
+  "same_retained_binary_bytes": 74392336,
+  "identical_seed_bytes": 12288,
+  "trials": [
+    {
+      "profile": "scribe",
+      "repeat_role": "reference",
+      "reference_geometry_px": [
+        1860,
+        2480
+      ],
+      "version": "bilicomics 0.1.25",
+      "version_status": 0,
+      "native_status": 1,
+      "process_enter_records": 1,
+      "ready_records": 0,
+      "non_cover_shelf_render_events": 0,
+      "expected_refusal": "missing-owned-native-launcher-snapshot"
+    },
+    {
+      "profile": "scribe",
+      "repeat_role": "repeat",
+      "reference_geometry_px": [
+        1860,
+        2480
+      ],
+      "version": "bilicomics 0.1.25",
+      "version_status": 0,
+      "native_status": 1,
+      "process_enter_records": 1,
+      "ready_records": 0,
+      "non_cover_shelf_render_events": 0,
+      "expected_refusal": "missing-owned-native-launcher-snapshot"
+    },
+    {
+      "profile": "pw6",
+      "repeat_role": "reference",
+      "reference_geometry_px": [
+        1264,
+        1680
+      ],
+      "version": "bilicomics 0.1.25",
+      "version_status": 0,
+      "native_status": 1,
+      "process_enter_records": 1,
+      "ready_records": 0,
+      "non_cover_shelf_render_events": 0,
+      "expected_refusal": "missing-owned-native-launcher-snapshot"
+    },
+    {
+      "profile": "pw6",
+      "repeat_role": "repeat",
+      "reference_geometry_px": [
+        1264,
+        1680
+      ],
+      "version": "bilicomics 0.1.25",
+      "version_status": 0,
+      "native_status": 1,
+      "process_enter_records": 1,
+      "ready_records": 0,
+      "non_cover_shelf_render_events": 0,
+      "expected_refusal": "missing-owned-native-launcher-snapshot"
+    }
+  ],
+  "passed": true,
+  "scope": "Repeated ARM user-mode admission only. The same native executable and identical synthetic Shelf input have no launcher-owned output snapshot, framebuffer or input node. Reference profile dimensions are not measurements of actual frames. No X11, system firmware, device, card clock, panel timing or measurement of either A/A launcher occurred.",
+  "physical_device_accessed": false,
+  "device_lease_accessed": false,
+  "only_loopback_present": true,
+  "framebuffer_available": false,
+  "evdev_available": false
+}

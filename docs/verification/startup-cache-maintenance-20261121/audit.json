@@ -1,0 +1,20 @@
+{
+  "scope": "Independent offline replay on test-env, not additional launches or an end-to-end startup benchmark.",
+  "formal_cases": 14,
+  "excluded_warmups": 2,
+  "measured_pairs": 6,
+  "same_executable_both_conditions": true,
+  "raw_case_performance_lifecycle_and_final_records_agree_with_projection": true,
+  "ordinary_byte_comparison_after_delivery_round_trip": {
+    "profile_runner.py": true,
+    "summarize_cache_profile.py": true,
+    "projection.json": true
+  },
+  "projection_field_allowlist_checked": true,
+  "raw_and_minimal_replay_produce_identical_stages_markdown": true,
+  "in_memory_negative_controls_rejected": [
+    "missing measured case f03",
+    "recency UPSERT counts exchanged between f03 and r03",
+    "r04 marked uncommitted with unchanged timing values"
+  ]
+}

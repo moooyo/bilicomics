@@ -1,0 +1,28 @@
+{
+  "scope": "Independent read-only replay on test-env. No launch, input or Kindle use during the audit.",
+  "formal_launches": 7,
+  "excluded_warmups": ["w00"],
+  "measured_cases": 6,
+  "failed_or_replaced_formal_cases": 0,
+  "origin": "Host CLOCK_MONOTONIC immediately before Popen. The child entry is a separate lifecycle observation.",
+  "normal_launch": "Onboarded synthetic offline profile with stored launch=shelf; no --screen, --demo, scripted actions, --performance-trace or --ui-trace in the timed executable arguments.",
+  "input_evidence": "One synthetic primary button down/up from the observer in each private Xvfb; same process, topmost target, focus, server button mask transitions, closed state before, distinct menu pixels afterward and final open-menu state checked. No in-app handling timestamp.",
+  "endpoint": "Upper bound: first exact menu-response crop in the owned window corroborated by the root crop. The stable later confirmation is not the endpoint; no cover-completion or physical-display timing.",
+  "audit_delivery": {
+    "results_seed_visual_receipt_and_timed_runner_roundtrip_byte_equal": true,
+    "visual_runner_source_difference": "Only its opening module documentation string was expanded after execution; all following source text agreed.",
+    "raw_and_minimal_replay_and_returned_summary_byte_equal": true,
+    "summary_utf8_bytes": 6396,
+    "negative_and_missing_cover_qualifications_excluded_from_all_timings": true
+  },
+  "rejected_in_memory_counterexamples": [
+    "missing measured case",
+    "missing server button-down confirmation",
+    "foreign or unconfirmed topmost click target",
+    "pre-click crop substituted for a response",
+    "closed final menu despite a reported visible response",
+    "response appears during the no-input control",
+    "missing-cover control still has ten resident covers"
+  ],
+  "accepted_in_memory_missing_secondary_observations": "Removing one case's loading observations and prior non-Shelf miss retained all six primary samples; the feedback count became five and that case's Shelf lower bound fell back to the host launch origin."
+}

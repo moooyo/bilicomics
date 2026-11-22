@@ -1,0 +1,147 @@
+diff --git a/src/main.rs b/src/main.rs
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -300,6 +300,46 @@ impl StartupWorkers {
+     }
+ }
+ 
++#[cfg(all(feature = "desktop", target_os = "linux"))]
++#[derive(Clone, Copy, PartialEq, Eq, serde::Serialize)]
++#[serde(rename_all = "snake_case")]
++enum DesktopPresentMode {
++    Observe,
++    Wake,
++}
++
++#[cfg(all(feature = "desktop", target_os = "linux"))]
++fn desktop_present_mode(kindle: bool, rendering_notifier: bool) -> Result<Option<DesktopPresentMode>> {
++    if kindle || rendering_notifier { return Ok(None); }
++    match std::env::var_os("BILICOMICS_DESKTOP_PRESENT_PROBE").as_deref() {
++        None => Ok(None),
++        Some(value) if value == "observe" => Ok(Some(DesktopPresentMode::Observe)),
++        Some(value) if value == "wake" => Ok(Some(DesktopPresentMode::Wake)),
++        _ => bail!("Unknown desktop software presentation probe mode"),
++    }
++}
++
++#[cfg(all(feature = "desktop", target_os = "linux"))]
++#[derive(Clone, Copy, serde::Serialize)]
++struct DesktopPostSubmitTurn {
++    workers_started_before: bool,
++    window_alive: bool,
++    booting: bool,
++    suspended: bool,
++    quitting: bool,
++    cancelled: bool,
++    driver_available: bool,
++    ui_thread: bool,
++}
++
++#[cfg(all(feature = "desktop", target_os = "linux"))]
++impl DesktopPostSubmitTurn {
++    fn should_drive(self, mode: DesktopPresentMode) -> bool {
++        mode == DesktopPresentMode::Wake && self.ui_thread && self.window_alive && self.booting
++            && self.driver_available && !self.workers_started_before && !self.suspended && !self.quitting && !self.cancelled
++    }
++}
++
+ fn main() -> std::process::ExitCode {
+     runtime_wakeup::initialize_trace_clock();
+     let result = run(Arguments::parse());
+@@ -751,6 +791,8 @@ fn run(arguments: Arguments) -> Result<()> {
+     let mut last_checkpoint_trace = None::<serde_json::Value>;
+     let mut performance_first_driver = true;
+     let mut performance_gate = None::<&'static str>;
++    #[cfg(all(feature = "desktop", target_os = "linux"))]
++    let probe_admission = startup_workers.admission.clone();
+     let driver = Rc::new(RefCell::new(move |source: &'static str| {
+             // A pending cover must reach its checked full-frame completion
+             // before the suspended gate skips ordinary application work.
+@@ -1095,6 +1137,8 @@ fn run(arguments: Arguments) -> Result<()> {
+                 let _ = slint::quit_event_loop();
+             }
+         }));
++    #[cfg(all(feature = "desktop", target_os = "linux"))]
++    let probe_driver = Rc::downgrade(&driver);
+     let notified_driver = driver.clone();
+     let retry_wake = wake.clone();
+     ui.on_runtime_wakeup(move || {
+@@ -1117,6 +1161,49 @@ fn run(arguments: Arguments) -> Result<()> {
+     }
+     let _ = platform.request_refresh(RefreshReason::EnterScreen);
+     record_startup_stage(arguments.lifecycle_trace.as_deref(), "window_shown", trace_moment(), None);
++    #[cfg(all(feature = "desktop", target_os = "linux"))]
++    if let Some(mode) = desktop_present_mode(arguments.kindle, rendering_notifier)? {
++        use slint::winit_030::WinitWindowAccessor;
++        let probe_ui = ui.as_weak();
++        let probe_control = Rc::downgrade(&control);
++        let probe_cancelled = cancelled.clone();
++        let owner = std::thread::current().id();
++        let registered = ui.window().on_first_full_software_presented(move |width, height| {
++            let ui_thread = std::thread::current().id() == owner;
++            if bilicomics::performance::enabled() {
++                bilicomics::performance::startup("desktop_software_full_submit", &serde_json::json!({
++                    "mode": mode, "width": width, "height": height, "ui_thread": ui_thread,
++                }));
++            }
++            slint::Timer::single_shot(Duration::from_millis(16), move || {
++                let window = probe_ui.upgrade();
++                let control = probe_control.upgrade();
++                let driver = probe_driver.upgrade();
++                let mut drive = driver.as_ref().and_then(|driver| driver.try_borrow_mut().ok());
++                let state = DesktopPostSubmitTurn {
++                    workers_started_before: probe_admission.started(), window_alive: window.is_some(),
++                    booting: window.as_ref().is_some_and(|window| window.global::<ShellModel>().get_booting()),
++                    suspended: control.as_ref().is_none_or(|control| control.suspended.get()),
++                    quitting: control.as_ref().is_none_or(|control| control.quitting.get()),
++                    cancelled: probe_cancelled.load(Ordering::Acquire), driver_available: drive.is_some(),
++                    ui_thread: std::thread::current().id() == owner,
++                };
++                let will_drive = state.should_drive(mode);
++                if bilicomics::performance::enabled() {
++                    #[derive(serde::Serialize)]
++                    struct Sample {
++                        mode: DesktopPresentMode, delay_ms: u64, will_drive: bool,
++                        #[serde(flatten)] state: DesktopPostSubmitTurn,
++                    }
++                    bilicomics::performance::startup("desktop_post_submit_turn", &Sample { mode, delay_ms: 16, will_drive, state });
++                }
++                if will_drive && let Some(drive) = drive.as_mut() { (**drive)("desktop_startup_fallback"); }
++            });
++        });
++        if !registered && bilicomics::performance::enabled() {
++            bilicomics::performance::startup("desktop_submit_probe_unavailable", &serde_json::json!({"mode": mode}));
++        }
++    }
+     let loop_result = slint::run_event_loop();
+     wake.stop();
+     timer.stop();
+@@ -1715,6 +1802,28 @@ fn default_data_dir() -> Result<PathBuf> {
+ mod trace_tests {
+     use super::*;
+ 
++    #[cfg(all(feature = "desktop", target_os = "linux"))]
++    #[test]
++    fn desktop_post_submit_is_wake_only_and_fails_closed_for_each_guard() {
++        let eligible = DesktopPostSubmitTurn { workers_started_before: false, window_alive: true,
++            booting: true, suspended: false, quitting: false, cancelled: false, driver_available: true, ui_thread: true };
++        assert!(eligible.should_drive(DesktopPresentMode::Wake));
++        assert!(!eligible.should_drive(DesktopPresentMode::Observe));
++        for state in [
++            DesktopPostSubmitTurn { workers_started_before: true, ..eligible },
++            DesktopPostSubmitTurn { window_alive: false, ..eligible },
++            DesktopPostSubmitTurn { booting: false, ..eligible },
++            DesktopPostSubmitTurn { suspended: true, ..eligible },
++            DesktopPostSubmitTurn { quitting: true, ..eligible },
++            DesktopPostSubmitTurn { cancelled: true, ..eligible },
++            DesktopPostSubmitTurn { driver_available: false, ..eligible },
++            DesktopPostSubmitTurn { ui_thread: false, ..eligible },
++        ] {
++            assert!(!state.should_drive(DesktopPresentMode::Wake));
++            assert!(!state.should_drive(DesktopPresentMode::Observe));
++        }
++    }
++
+     #[test]
+     fn serial_startup_control_requires_both_isolated_fixture_flags() {
+         assert!(Arguments::try_parse_from(["bilicomics", "--serial-startup-preparation"]).is_err());

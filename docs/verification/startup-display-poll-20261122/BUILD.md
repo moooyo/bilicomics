@@ -1,0 +1,31 @@
+# Building the poll-split measurement executable
+
+This private study builds the full `bilicomics` binary twice: an x86-64 Linux Kindle-feature build for functional controls, and a static ARMv7 hard-float release for the Kindle route. Neither build replaces the installed application. Build or emulator success is not evidence of a rendered Shelf, a physical display update or improved startup performance.
+
+## Source and artifact identity
+
+The Windows working tree supplied the production Rust/Slint inputs, the two native codec probe files and the spatial-dither fixtures. Do not substitute the older installation ZIP's source tree: it does not contain the current Shelf trace. The [build driver](build_poll_engineering.py) checks that the previous four measurement files regenerate byte for byte from these inputs against the retained prior overlay. This verifies the relevant anchors, not the identity of a deleted historical build tree. Both new compilers consume the same frozen workspace: 548 stock files become 549, with changes restricted to the [four generated Rust paths](stage_overlay.py). The other 545 stock files retain their identities throughout the build. The new binary accepts `BILICOMICS_DISPLAY_POLL_RUN`; the previous display-cost selector is not enabled. The getter and permit sources match the archived installation build, and the seven JPEG-worker and codec inputs match as well. The worker is extracted from the installation ZIP and independently compared with the archived worker bytes.
+
+## Resource bounds
+
+Each compilation takes the standard `ubuntu-run --build` lock, one CPU and one Cargo job. Cargo uses the frozen lockfile, offline mode, no incremental output and a private network namespace. The source, toolchain and shared Cargo/Zig caches are read-only in that namespace; cache writes go to private overlays. The build target is a separate 3 GiB tmpfs. The systemd scope uses a 5.75 GiB soft limit, a 7 GiB hard limit and a 2 GiB swap limit. A host-side watchdog samples available memory, swap and root space every half second, stopping the individual scope rather than consuming the shared host's reserves. The completed ELF is exported to a separate restricted tmpfs file and byte-compared before the isolated target disappears. Publication to the build workspace requires another space check and full comparison.
+
+## Qualification gates
+
+The host binary must pass the normal version check and reject the two permissionless `--capture-native-display` invocations (`scribe` and `pw6`). A separate [full-product fixture](product_fixture/) must accept both guarded observations and pass its refusal controls; a source-only microfixture cannot substitute for it. The [ARM qualifier](qualify_poll_arm.py) checks the new build and host-product tickets, static ARM program headers and both real `qemu-arm` profile invocations. It enables the new selector and requires the capture helper to reject absent native-read ownership with an empty output directory. The ordinary application must separately refuse missing native-launcher evidence; its trace contains only `trace_started` and `trace_stopped`, with no sidecar or Shelf milestone. This distinguishes a successful software guard from an emulated Kindle display. No physical lease is needed for any of these checks.
+
+## Observed results
+
+| Gate | Observation |
+| --- | --- |
+| [Two full builds](engineering-build.json) | x86-64: 225,345,184 bytes, 182.7 s. ARMv7 release: 74,427,360 bytes, 437.285 s from scope startup to exit. Times are for compilation, not application startup. |
+| [Linux product case and controls](host-product-qualification.json) | Both profiles observed both real poll states. Each pair summed exactly to its parent in calls and nanoseconds. Selector-off, revocation and timeout passed. The x86 ELF was retired after the fixture completed. |
+| [ARM/QEMU](arm-qualification.json) | Both profiles rejected missing helper/launcher ownership and produced no render or poll sidecar. The shipping worker was 426,672 bytes. |
+
+The ARM compile and in-namespace full-byte export comparison completed once. The original source check **refused publication** because five private Zig cache leaves appeared under the underlying `target/` directory (222 bytes of file data). No original input changed. The [independent export recheck](recheck_arm_export.py) tied the named ELF and completion log to a single successful systemd invocation, required the exact cache-file locations, types and data, checked all 549 original input identities, and repeated the byte comparisons from a fresh stream of all 548 stock files and the two four-file generated overlays. The ELF passed another full comparison at publication; it was not rebuilt. The watchdog's numerical minima were not persisted after the first source check refused, so the ARM report omits them rather than reconstructing them from later system readings. The systemd scope itself recorded both memory peaks.
+
+A no-build namespace check reproduced the original discrepancy: a process that stayed in `/work` before the new bind mount could still reach the underlying private `target/` through its relative working directory; the absolute path used the bounded tmpfs. The build driver now enters `/work` **after** the mounts. A repeat with the corrected shell resolved both paths to the same private tmpfs and left no underlying probe marker. Future runs also retain the compile/watchdog record before the separate source postflight.
+
+## Cleanup after the three visits
+
+The device operator confirmed individual restoration, closure and release for all three visits. The closed collector projection and its independent arithmetic archive were saved separately before cleanup. The build owner then removed the two engineering ELF copies, the compiled source workspace, the temporary old-overlay reproduction and the empty tmpfs export directory. The private build root fell from 123,116 KiB to 340 KiB (**122,776 KiB reclaimed**). All 11 qualification and build-record files, the four generated Rust sources and the small study-driver snapshots were retained unchanged. This build cleanup did not access the Kindle, the shared lease, the separate visit harness or the protected installation package.

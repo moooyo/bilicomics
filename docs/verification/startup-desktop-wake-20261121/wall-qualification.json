@@ -1,0 +1,6 @@
+{
+  "fixed_realtime_ns": 1795233600000000000,
+  "elapsed_child_monotonic_ns": 55233909,
+  "elapsed_child_thread_cpu_ns": 29745610,
+  "external_parent_realtime_and_monotonic_advanced": true
+}

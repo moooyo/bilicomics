@@ -270,12 +270,12 @@ impl CatalogState {
         if !["all", "updated", "downloaded", "finished"].contains(&state.saved.filter.as_str()) { state.saved.filter = "all".into(); }
         state.saved.shelf_page = state.saved.shelf_page.max(1);
         state.saved.store_page = state.saved.store_page.max(1);
-        state.comics = store.load_comics(account)?;
-        let shelf = store.load_catalog(account, "shelf")?;
+        let (comics, shelf) = store.load_comics_with_shelf(account)?;
+        state.comics = comics;
         let shelf_initialized = store.preference::<bool>(account, "catalog_shelf_initialized")?.unwrap_or(false);
         state.shelf_ids = if shelf.is_empty() && !shelf_initialized {
             state.comics.iter().filter(|comic| comic.favorite).map(|comic| comic.id.clone()).collect()
-        } else { shelf.iter().map(|comic| comic.id.clone()).collect() };
+        } else { shelf };
         state.history_comics = store.load_catalog(account, "history")?;
         state.store_comics = store.load_catalog(account, &store_scope(&state.saved.category))?;
         state.categories = store.preference(account, "catalog_categories")?.unwrap_or_default();
@@ -1563,6 +1563,21 @@ mod snapshot_tests {
         domain::{ImageIndex, PageDescriptor},
         store::{DownloadRecord, DownloadStatus, PageReceipt},
     };
+
+    #[test]
+    fn prepared_shelf_falls_back_to_favorites_only_before_initialization() -> Result<()> {
+        let directory = tempfile::tempdir()?;
+        let mut store = Store::open(directory.path().join("state.sqlite3"))?;
+        store.save_comic("account", &Comic { id: "favorite".into(), favorite: true, ..Default::default() })?;
+        let prepare = |store: &Store| CatalogState::prepare(store, "account", None).map(|state| state.shelf_ids);
+        assert_eq!(prepare(&store)?, BTreeSet::from(["favorite".to_owned()]));
+        store.save_catalog("account", "shelf", &[Comic { id: "member".into(), ..Default::default() }])?;
+        assert_eq!(prepare(&store)?, BTreeSet::from(["member".to_owned()]));
+        store.save_catalog("account", "shelf", &[])?;
+        store.set_preference("account", "catalog_shelf_initialized", &true)?;
+        assert!(prepare(&store)?.is_empty());
+        Ok(())
+    }
 
     fn scanned_state(store: &Store, account: &str) -> Result<CatalogState> {
         let mut state = CatalogState::prepare(store, account, None)?;

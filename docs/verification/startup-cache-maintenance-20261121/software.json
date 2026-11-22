@@ -1,0 +1,121 @@
+{
+  "host": "test-env",
+  "target": "x86_64-unknown-linux-gnu",
+  "scope": "Linux desktop software verification only; no physical Kindle, live account, firmware or timing experiment.",
+  "profile": "release",
+  "features": [
+    "desktop (default)",
+    "kindle"
+  ],
+  "cargo_jobs": 1,
+  "cargo_incremental": false,
+  "test_threads": 1,
+  "network": "Isolated namespace with only loopback; Cargo --locked --offline.",
+  "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+  "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+  "source": {
+    "base": "9175002",
+    "control_overlay": [
+      "src/app/catalog.rs",
+      "src/main.rs",
+      "src/store.rs",
+      "src/store/catalog_cache_tests.rs"
+    ],
+    "control_build_files": 633,
+    "diagnostic_product_overlay": [
+      "src/app/startup.rs",
+      "src/store.rs",
+      "src/store/catalog_maintenance_trace.rs"
+    ],
+    "test_only_overlay": "src/store/catalog_cache_tests.rs",
+    "final_build_files": 634
+  },
+  "build": {
+    "control_library_prewarm": {
+      "queued_utc": "2026-11-21T01:56:33+00:00",
+      "started_utc": "2026-11-21T01:56:33+00:00",
+      "shared_lock_wait_seconds": 0,
+      "cargo_duration": "7m 18s",
+      "process_status": 0
+    },
+    "fixture_helper": {
+      "queued_utc": "2026-11-21T01:56:33+00:00",
+      "started_utc": "2026-11-21T02:03:52+00:00",
+      "shared_lock_wait_seconds": 439,
+      "cargo_duration": "3m 27s",
+      "process_status": 0,
+      "finished_utc": "2026-11-21T02:07:20+00:00",
+      "bytes": 3853872
+    },
+    "study_binary": {
+      "queued_utc": "2026-11-21T01:59:23+00:00",
+      "started_utc": "2026-11-21T02:07:20+00:00",
+      "shared_lock_wait_seconds": 477,
+      "cargo_duration": "4m 17s",
+      "process_status": 0,
+      "finished_utc": "2026-11-21T02:11:38+00:00",
+      "bytes": 84793360
+    }
+  },
+  "build_scope": "Both fixture inputs use the same formal study executable; the retained control library and synthetic-only helper are not measured applications. No Winit fork or direct-PNG candidate.",
+  "verification": {
+    "queued_utc": "2026-11-21T02:02:23+00:00",
+    "submitted_to_build_lock_utc": "2026-11-21T02:11:38+00:00",
+    "finished_utc": "2026-11-21T02:17:46+00:00",
+    "results": {
+      "targeted_catalog": {
+        "passed": 10,
+        "failed": 0,
+        "ignored": 1,
+        "measured": 0,
+        "filtered_out": 896,
+        "process_status": 0,
+        "started_utc": "2026-11-21T02:11:38+00:00",
+        "finished_utc": "2026-11-21T02:16:52+00:00",
+        "harness": "bilicomics-1b8dd49c1797cdab",
+        "harness_bytes": 129326512,
+        "test_duration": "0.06s",
+        "cases": {
+          "cache_cleanup_rolls_back_all_metadata_when_storage_rejects_a_delete": "ok",
+          "combined_shelf_read_preserves_order_progress_payload_ids_and_account_membership": "ok",
+          "combined_shelf_read_propagates_corrupt_comics_anchors_and_indices": "ok",
+          "compare_warm_catalog_shelf_reads": "ignored",
+          "detail_retention_preserves_complete_active_chapter_lists": "ok",
+          "evicted_comic_ids_exclude_active_results_and_all_durable_owners": "ok",
+          "legacy_cache_cleanup_is_bounded_and_keeps_noncache_namespaces": "ok",
+          "observed_maintenance_distinguishes_existing_recency_rewrite_noop_and_invalid_payload": "ok",
+          "optional_cache_maintenance_never_waits_for_a_writer_and_restores_connection_policy": "ok",
+          "replacing_an_active_query_reclaims_its_old_excess_without_truncating_the_current_query": "ok",
+          "transient_scopes_are_bounded_even_when_a_favorite_appears_in_every_search": "ok"
+        }
+      },
+      "library": {
+        "passed": 902,
+        "failed": 0,
+        "ignored": 5,
+        "measured": 0,
+        "filtered_out": 0,
+        "process_status": 0,
+        "started_utc": "2026-11-21T02:16:52+00:00",
+        "finished_utc": "2026-11-21T02:17:01+00:00",
+        "harness": "bilicomics-1b8dd49c1797cdab",
+        "harness_bytes": 129326512,
+        "test_duration": "8.31s"
+      },
+      "main_binary": {
+        "passed": 18,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0,
+        "process_status": 0,
+        "started_utc": "2026-11-21T02:17:01+00:00",
+        "finished_utc": "2026-11-21T02:17:46+00:00",
+        "harness": "bilicomics-ca6b162a96a8694c",
+        "harness_bytes": 1657792,
+        "test_duration": "0.03s"
+      }
+    },
+    "note": "The targeted catalog cases are a subset of the full library suite. The ignored catalog case is a pre-existing warm benchmark."
+  }
+}

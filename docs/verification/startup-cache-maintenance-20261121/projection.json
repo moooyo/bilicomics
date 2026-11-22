@@ -1,0 +1,1653 @@
+{
+  "schema": "ordinary-cache-maintenance-profile-v1",
+  "scope": "Same ordinary executable, different representations of the same recency; not an optimization or display endpoint.",
+  "clock": "CLOCK_MONOTONIC and worker thread CPU",
+  "phase_cost_unit": "microseconds",
+  "event_stamp_unit": "nanoseconds",
+  "schedule": [
+    "f00",
+    "r00",
+    "f01",
+    "r01",
+    "r02",
+    "f02",
+    "f03",
+    "r03",
+    "r04",
+    "f04",
+    "f05",
+    "r05",
+    "r06",
+    "f06"
+  ],
+  "excluded_warmups": [
+    "f00",
+    "r00"
+  ],
+  "cases": {
+    "f00": {
+      "case": "f00",
+      "scenario": "f",
+      "pid": 50,
+      "worker_tid": 58,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68185756035739,
+      "state_prepared_ns": 68185867509021,
+      "ui_ready_ns": 68185871316833,
+      "parent": {
+        "begin_ns": 68185855971046,
+        "end_ns": 68185863462705,
+        "outcome": "success",
+        "wall_us": 7489,
+        "cpu_us": 812
+      },
+      "maintenance": {
+        "record_ns": 68185863469764,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 38,
+            "cpu_us": 31,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 7,
+            "cpu_us": 7,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 44,
+            "cpu_us": 44,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 249,
+            "cpu_us": 249,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 56,
+            "cpu_us": 56,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 28,
+            "cpu_us": 28,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 6,
+            "cpu_us": 6,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 17,
+            "cpu_us": 17,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 11,
+            "cpu_us": 12,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 16,
+            "cpu_us": 16,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 28,
+            "cpu_us": 28,
+            "rows": 1
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 6958,
+            "cpu_us": 289,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "r00": {
+      "case": "r00",
+      "scenario": "r",
+      "pid": 77,
+      "worker_tid": 85,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68186961330571,
+      "state_prepared_ns": 68187060669494,
+      "ui_ready_ns": 68187064479486,
+      "parent": {
+        "begin_ns": 68187055924185,
+        "end_ns": 68187056375894,
+        "outcome": "success",
+        "wall_us": 449,
+        "cpu_us": 443
+      },
+      "maintenance": {
+        "record_ns": 68187056381594,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 8,
+            "cpu_us": 8,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 3,
+            "cpu_us": 3,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 19,
+            "cpu_us": 19,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 253,
+            "cpu_us": 248,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 51,
+            "cpu_us": 51,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 21,
+            "cpu_us": 21,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 5,
+            "cpu_us": 5,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 13,
+            "cpu_us": 13,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 9,
+            "cpu_us": 9,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 14,
+            "cpu_us": 14,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 24,
+            "cpu_us": 24,
+            "rows": 0
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 5,
+            "cpu_us": 5,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "f01": {
+      "case": "f01",
+      "scenario": "f",
+      "pid": 104,
+      "worker_tid": 111,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68188190096860,
+      "state_prepared_ns": 68188297205604,
+      "ui_ready_ns": 68188300973368,
+      "parent": {
+        "begin_ns": 68188285619551,
+        "end_ns": 68188292921584,
+        "outcome": "success",
+        "wall_us": 7300,
+        "cpu_us": 691
+      },
+      "maintenance": {
+        "record_ns": 68188292928084,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 7,
+            "cpu_us": 7,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 2,
+            "cpu_us": 2,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 24,
+            "cpu_us": 24,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 209,
+            "cpu_us": 210,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 49,
+            "cpu_us": 49,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 19,
+            "cpu_us": 19,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 5,
+            "cpu_us": 5,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 13,
+            "cpu_us": 13,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 9,
+            "cpu_us": 9,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 52,
+            "cpu_us": 46,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 29,
+            "cpu_us": 29,
+            "rows": 1
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 6850,
+            "cpu_us": 247,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "r01": {
+      "case": "r01",
+      "scenario": "r",
+      "pid": 131,
+      "worker_tid": 138,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68189404674433,
+      "state_prepared_ns": 68189510727775,
+      "ui_ready_ns": 68189514844040,
+      "parent": {
+        "begin_ns": 68189505945568,
+        "end_ns": 68189506420896,
+        "outcome": "success",
+        "wall_us": 473,
+        "cpu_us": 466
+      },
+      "maintenance": {
+        "record_ns": 68189506426415,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 7,
+            "cpu_us": 7,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 2,
+            "cpu_us": 2,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 37,
+            "cpu_us": 37,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 242,
+            "cpu_us": 235,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 51,
+            "cpu_us": 51,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 24,
+            "cpu_us": 24,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 5,
+            "cpu_us": 5,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 13,
+            "cpu_us": 13,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 8,
+            "cpu_us": 8,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 14,
+            "cpu_us": 14,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 27,
+            "cpu_us": 27,
+            "rows": 0
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 10,
+            "cpu_us": 10,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "r02": {
+      "case": "r02",
+      "scenario": "r",
+      "pid": 158,
+      "worker_tid": 166,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68190617851504,
+      "state_prepared_ns": 68190717495100,
+      "ui_ready_ns": 68190721185685,
+      "parent": {
+        "begin_ns": 68190712631414,
+        "end_ns": 68190713130412,
+        "outcome": "success",
+        "wall_us": 496,
+        "cpu_us": 490
+      },
+      "maintenance": {
+        "record_ns": 68190713136202,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 8,
+            "cpu_us": 8,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 3,
+            "cpu_us": 3,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 30,
+            "cpu_us": 30,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 229,
+            "cpu_us": 229,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 51,
+            "cpu_us": 51,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 31,
+            "cpu_us": 31,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 20,
+            "cpu_us": 20,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 27,
+            "cpu_us": 27,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 10,
+            "cpu_us": 10,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 17,
+            "cpu_us": 17,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 26,
+            "cpu_us": 26,
+            "rows": 0
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 5,
+            "cpu_us": 5,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "f02": {
+      "case": "f02",
+      "scenario": "f",
+      "pid": 185,
+      "worker_tid": 193,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68191835536969,
+      "state_prepared_ns": 68191950079531,
+      "ui_ready_ns": 68191954875489,
+      "parent": {
+        "begin_ns": 68191936303215,
+        "end_ns": 68191944226231,
+        "outcome": "success",
+        "wall_us": 7919,
+        "cpu_us": 936
+      },
+      "maintenance": {
+        "record_ns": 68191944236802,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 9,
+            "cpu_us": 9,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 4,
+            "cpu_us": 4,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 25,
+            "cpu_us": 25,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 278,
+            "cpu_us": 279,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 64,
+            "cpu_us": 64,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 31,
+            "cpu_us": 31,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 7,
+            "cpu_us": 7,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 19,
+            "cpu_us": 19,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 13,
+            "cpu_us": 13,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 20,
+            "cpu_us": 20,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 34,
+            "cpu_us": 34,
+            "rows": 1
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 7375,
+            "cpu_us": 393,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "f03": {
+      "case": "f03",
+      "scenario": "f",
+      "pid": 212,
+      "worker_tid": 219,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68193054997257,
+      "state_prepared_ns": 68193161328841,
+      "ui_ready_ns": 68193165509965,
+      "parent": {
+        "begin_ns": 68193148630217,
+        "end_ns": 68193156518335,
+        "outcome": "success",
+        "wall_us": 7884,
+        "cpu_us": 948
+      },
+      "maintenance": {
+        "record_ns": 68193156536675,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 7,
+            "cpu_us": 7,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 2,
+            "cpu_us": 2,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 26,
+            "cpu_us": 26,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 225,
+            "cpu_us": 225,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 50,
+            "cpu_us": 50,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 24,
+            "cpu_us": 24,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 33,
+            "cpu_us": 27,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 38,
+            "cpu_us": 38,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 13,
+            "cpu_us": 13,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 17,
+            "cpu_us": 17,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 27,
+            "cpu_us": 27,
+            "rows": 1
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 7377,
+            "cpu_us": 450,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "r03": {
+      "case": "r03",
+      "scenario": "r",
+      "pid": 239,
+      "worker_tid": 247,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68194217186434,
+      "state_prepared_ns": 68194318492867,
+      "ui_ready_ns": 68194322958753,
+      "parent": {
+        "begin_ns": 68194312043502,
+        "end_ns": 68194313189843,
+        "outcome": "success",
+        "wall_us": 1143,
+        "cpu_us": 1119
+      },
+      "maintenance": {
+        "record_ns": 68194313198783,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 9,
+            "cpu_us": 9,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 38,
+            "cpu_us": 35,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 111,
+            "cpu_us": 111,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 512,
+            "cpu_us": 513,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 103,
+            "cpu_us": 103,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 52,
+            "cpu_us": 52,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 15,
+            "cpu_us": 15,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 38,
+            "cpu_us": 38,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 89,
+            "cpu_us": 72,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 69,
+            "cpu_us": 70,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 45,
+            "cpu_us": 45,
+            "rows": 0
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 5,
+            "cpu_us": 5,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "r04": {
+      "case": "r04",
+      "scenario": "r",
+      "pid": 266,
+      "worker_tid": 274,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68195432893299,
+      "state_prepared_ns": 68195531906831,
+      "ui_ready_ns": 68195535622056,
+      "parent": {
+        "begin_ns": 68195526613387,
+        "end_ns": 68195527099135,
+        "outcome": "success",
+        "wall_us": 483,
+        "cpu_us": 471
+      },
+      "maintenance": {
+        "record_ns": 68195527108475,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 8,
+            "cpu_us": 8,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 3,
+            "cpu_us": 3,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 20,
+            "cpu_us": 20,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 210,
+            "cpu_us": 210,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 53,
+            "cpu_us": 53,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 20,
+            "cpu_us": 20,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 4,
+            "cpu_us": 4,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 13,
+            "cpu_us": 13,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 8,
+            "cpu_us": 8,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 72,
+            "cpu_us": 62,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 33,
+            "cpu_us": 33,
+            "rows": 0
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 6,
+            "cpu_us": 6,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "f04": {
+      "case": "f04",
+      "scenario": "f",
+      "pid": 293,
+      "worker_tid": 301,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68196655430290,
+      "state_prepared_ns": 68196761944889,
+      "ui_ready_ns": 68196765575816,
+      "parent": {
+        "begin_ns": 68196750192081,
+        "end_ns": 68196757319608,
+        "outcome": "success",
+        "wall_us": 7125,
+        "cpu_us": 630
+      },
+      "maintenance": {
+        "record_ns": 68196757325778,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 8,
+            "cpu_us": 8,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 3,
+            "cpu_us": 3,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 21,
+            "cpu_us": 21,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 208,
+            "cpu_us": 208,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 50,
+            "cpu_us": 50,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 24,
+            "cpu_us": 24,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 4,
+            "cpu_us": 4,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 12,
+            "cpu_us": 12,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 8,
+            "cpu_us": 8,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 14,
+            "cpu_us": 14,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 26,
+            "cpu_us": 26,
+            "rows": 1
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 6722,
+            "cpu_us": 226,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "f05": {
+      "case": "f05",
+      "scenario": "f",
+      "pid": 320,
+      "worker_tid": 327,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68197909543550,
+      "state_prepared_ns": 68198019553610,
+      "ui_ready_ns": 68198023513348,
+      "parent": {
+        "begin_ns": 68198009880957,
+        "end_ns": 68198016044759,
+        "outcome": "success",
+        "wall_us": 6160,
+        "cpu_us": 809
+      },
+      "maintenance": {
+        "record_ns": 68198016055379,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 6,
+            "cpu_us": 6,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 3,
+            "cpu_us": 3,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 25,
+            "cpu_us": 25,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 295,
+            "cpu_us": 285,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 59,
+            "cpu_us": 59,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 28,
+            "cpu_us": 28,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 8,
+            "cpu_us": 8,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 20,
+            "cpu_us": 20,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 13,
+            "cpu_us": 13,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 20,
+            "cpu_us": 20,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 27,
+            "cpu_us": 27,
+            "rows": 1
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 5622,
+            "cpu_us": 282,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "r05": {
+      "case": "r05",
+      "scenario": "r",
+      "pid": 347,
+      "worker_tid": 355,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68199161147714,
+      "state_prepared_ns": 68199261401064,
+      "ui_ready_ns": 68199265311864,
+      "parent": {
+        "begin_ns": 68199255815767,
+        "end_ns": 68199256389222,
+        "outcome": "success",
+        "wall_us": 569,
+        "cpu_us": 560
+      },
+      "maintenance": {
+        "record_ns": 68199256400622,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 8,
+            "cpu_us": 8,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 4,
+            "cpu_us": 4,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 29,
+            "cpu_us": 29,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 312,
+            "cpu_us": 303,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 59,
+            "cpu_us": 59,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 32,
+            "cpu_us": 32,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 7,
+            "cpu_us": 7,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 20,
+            "cpu_us": 20,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 13,
+            "cpu_us": 13,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 20,
+            "cpu_us": 20,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 24,
+            "cpu_us": 24,
+            "rows": 0
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 6,
+            "cpu_us": 6,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "r06": {
+      "case": "r06",
+      "scenario": "r",
+      "pid": 374,
+      "worker_tid": 382,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68200357202273,
+      "state_prepared_ns": 68200458229943,
+      "ui_ready_ns": 68200461826030,
+      "parent": {
+        "begin_ns": 68200452468360,
+        "end_ns": 68200452944119,
+        "outcome": "success",
+        "wall_us": 473,
+        "cpu_us": 473
+      },
+      "maintenance": {
+        "record_ns": 68200452949048,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 6,
+            "cpu_us": 6,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 3,
+            "cpu_us": 3,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 21,
+            "cpu_us": 21,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 248,
+            "cpu_us": 249,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 54,
+            "cpu_us": 54,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 27,
+            "cpu_us": 28,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 7,
+            "cpu_us": 7,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 19,
+            "cpu_us": 20,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 13,
+            "cpu_us": 13,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 19,
+            "cpu_us": 19,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 24,
+            "cpu_us": 24,
+            "rows": 0
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 4,
+            "cpu_us": 4,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    },
+    "f06": {
+      "case": "f06",
+      "scenario": "f",
+      "pid": 401,
+      "worker_tid": 408,
+      "same_executable": true,
+      "row_hypothesis_matches": true,
+      "ready_covers": 10,
+      "resident_bytes": 5324800,
+      "final_marker_count": 10,
+      "process_enter_ns": 68201575213319,
+      "state_prepared_ns": 68201681404427,
+      "ui_ready_ns": 68201685151010,
+      "parent": {
+        "begin_ns": 68201669077591,
+        "end_ns": 68201676742896,
+        "outcome": "success",
+        "wall_us": 7662,
+        "cpu_us": 834
+      },
+      "maintenance": {
+        "record_ns": 68201676749375,
+        "outcome": "committed",
+        "committed": true,
+        "recency_present": true,
+        "timeout_restored": true,
+        "phases": [
+          {
+            "stage": "timeout_setup",
+            "ok": true,
+            "wall_us": 10,
+            "cpu_us": 10,
+            "rows": null
+          },
+          {
+            "stage": "begin_immediate",
+            "ok": true,
+            "wall_us": 3,
+            "cpu_us": 3,
+            "rows": null
+          },
+          {
+            "stage": "recency",
+            "ok": true,
+            "wall_us": 28,
+            "cpu_us": 28,
+            "rows": null
+          },
+          {
+            "stage": "durable",
+            "ok": true,
+            "wall_us": 305,
+            "cpu_us": 306,
+            "rows": 20
+          },
+          {
+            "stage": "delete_scopes",
+            "ok": true,
+            "wall_us": 70,
+            "cpu_us": 70,
+            "rows": 0
+          },
+          {
+            "stage": "eviction_candidates",
+            "ok": true,
+            "wall_us": 25,
+            "cpu_us": 25,
+            "rows": 0
+          },
+          {
+            "stage": "delete_details",
+            "ok": true,
+            "wall_us": 6,
+            "cpu_us": 6,
+            "rows": 0
+          },
+          {
+            "stage": "delete_members",
+            "ok": true,
+            "wall_us": 17,
+            "cpu_us": 17,
+            "rows": 0
+          },
+          {
+            "stage": "delete_comics",
+            "ok": true,
+            "wall_us": 11,
+            "cpu_us": 11,
+            "rows": 0
+          },
+          {
+            "stage": "reconcile",
+            "ok": true,
+            "wall_us": 17,
+            "cpu_us": 17,
+            "rows": null
+          },
+          {
+            "stage": "recency_upsert",
+            "ok": true,
+            "wall_us": 29,
+            "cpu_us": 29,
+            "rows": 1
+          },
+          {
+            "stage": "commit",
+            "ok": true,
+            "wall_us": 7105,
+            "cpu_us": 278,
+            "rows": null
+          }
+        ]
+      },
+      "semantics_preserved": true,
+      "expected_final_representation": true
+    }
+  }
+}

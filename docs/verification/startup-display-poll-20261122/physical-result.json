@@ -1,0 +1,56 @@
+{
+  "schema": "bili-display-poll-public-summary-v1",
+  "scope": "Three visits with the same instrumented implementation on one Kindle Scribe (2022), firmware 5.19.5, from the ordinary native Library card to a complete populated offline Shelf. Not A/B or optical timing.",
+  "clock": "CLOCK_MONOTONIC",
+  "planned": 3,
+  "observed": 3,
+  "counts_by_query_branch": {"automatic-five": 3, "fixed-three": 0},
+  "per_visit": [
+    {
+      "ordinal": 1,
+      "card_to_shelf_renderer_interval_ns": [6676270539, 6677633847],
+      "card_to_accepted_send_interval_ns": [6721377231, 6722740539],
+      "card_to_same_marker_driver_interval_ns": [7086228539, 7087591847],
+      "helper_elapsed_ns": 294616154,
+      "poll": {"count": 24, "elapsed_ns": 203601617},
+      "stdout_open": {"count": 22, "elapsed_ns": 183406233},
+      "after_eof": {"count": 2, "elapsed_ns": 20195384}
+    },
+    {
+      "ordinal": 2,
+      "card_to_shelf_renderer_interval_ns": [6371414847, 6372489847],
+      "card_to_accepted_send_interval_ns": [6410030539, 6411105539],
+      "card_to_same_marker_driver_interval_ns": [6775227924, 6776302924],
+      "helper_elapsed_ns": 308328077,
+      "poll": {"count": 27, "elapsed_ns": 229614690},
+      "stdout_open": {"count": 23, "elapsed_ns": 187110613},
+      "after_eof": {"count": 4, "elapsed_ns": 42504077}
+    },
+    {
+      "ordinal": 3,
+      "card_to_shelf_renderer_interval_ns": [6401206847, 6402831308],
+      "card_to_accepted_send_interval_ns": [6470772154, 6472396615],
+      "card_to_same_marker_driver_interval_ns": [6833141770, 6834766231],
+      "helper_elapsed_ns": 311513308,
+      "poll": {"count": 27, "elapsed_ns": 207601461},
+      "stdout_open": {"count": 24, "elapsed_ns": 176115230},
+      "after_eof": {"count": 3, "elapsed_ns": 31486231}
+    }
+  ],
+  "median": {
+    "card_to_shelf_renderer_interval_ns": [6401206847, 6402831308],
+    "card_to_accepted_send_interval_ns": [6470772154, 6472396615],
+    "card_to_same_marker_driver_interval_ns": [6833141770, 6834766231],
+    "helper_elapsed_ns": 308328077,
+    "poll": {"count": 27, "elapsed_ns": 207601461},
+    "stdout_open": {"count": 23, "elapsed_ns": 183406233},
+    "after_eof": {"count": 3, "elapsed_ns": 31486231},
+    "per_visit_stdout_open_share_of_poll_wall": {"numerator": 176115230, "denominator": 207601461}
+  },
+  "decision_check": {
+    "visits_with_stdout_open_strict_wall_majority": 3,
+    "visits_with_at_least_100ms_after_eof": 0,
+    "unit": "Visits, not independent devices. Classify by the descriptor passed to each existing poll. Counts and elapsed times partition the parent per visit, not necessarily in the median row. A post-EOF wait is not proof of a late exit notification."
+  },
+  "return": {"normal_exits": 3, "stock_and_navigation_restored": 3, "connections_closed_and_exact_lease_released": 3, "daily_installation_changed": false}
+}

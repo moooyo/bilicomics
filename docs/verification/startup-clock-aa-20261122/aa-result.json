@@ -1,0 +1,1550 @@
+{
+  "scope": "Identical treatment; positional differences and cadence are descriptive, not a speedup or a device-contention measurement.",
+  "closed_visits": 10,
+  "warmups_excluded": 2,
+  "complete_measured_pairs": 4,
+  "unpaired_measured_visits": 0,
+  "complete_series": true,
+  "measured_visits": [
+    {
+      "pair": 1,
+      "label": "A",
+      "position": 1,
+      "durations_ns": {
+        "card_to_launch_entry": [
+          502794154,
+          504437769
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          3224265462,
+          3224265462
+        ],
+        "pre_app_invocation_to_rust_main": [
+          31634923,
+          31634923
+        ],
+        "rust_main_to_header": [
+          16912923,
+          16912923
+        ],
+        "card_to_header": [
+          3775607462,
+          3777251077
+        ],
+        "header_to_renderer": [
+          2944746693,
+          2944746693
+        ],
+        "card_to_renderer": [
+          6720354155,
+          6721997770
+        ],
+        "header_to_state_producer": [
+          1728224539,
+          1728224539
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          1216522154,
+          1216522154
+        ],
+        "renderer_to_send": [
+          30357615,
+          30357615
+        ],
+        "send_to_driver": [
+          365683769,
+          365683769
+        ],
+        "card_to_send": [
+          6750711770,
+          6752355385
+        ],
+        "card_to_driver": [
+          7116395539,
+          7118039154
+        ]
+      }
+    },
+    {
+      "pair": 1,
+      "label": "B",
+      "position": 2,
+      "durations_ns": {
+        "card_to_launch_entry": [
+          601008923,
+          602196154
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          3154859770,
+          3154859770
+        ],
+        "pre_app_invocation_to_rust_main": [
+          32497769,
+          32497769
+        ],
+        "rust_main_to_header": [
+          16039846,
+          16039846
+        ],
+        "card_to_header": [
+          3804406308,
+          3805593539
+        ],
+        "header_to_renderer": [
+          2949931539,
+          2949931539
+        ],
+        "card_to_renderer": [
+          6754337847,
+          6755525078
+        ],
+        "header_to_state_producer": [
+          1705816231,
+          1705816231
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          1244115308,
+          1244115308
+        ],
+        "renderer_to_send": [
+          42794615,
+          42794615
+        ],
+        "send_to_driver": [
+          365894308,
+          365894308
+        ],
+        "card_to_send": [
+          6797132462,
+          6798319693
+        ],
+        "card_to_driver": [
+          7163026770,
+          7164214001
+        ]
+      }
+    },
+    {
+      "pair": 2,
+      "label": "B",
+      "position": 1,
+      "durations_ns": {
+        "card_to_launch_entry": [
+          409407154,
+          410518154
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          3203122846,
+          3203122846
+        ],
+        "pre_app_invocation_to_rust_main": [
+          18487846,
+          18487846
+        ],
+        "rust_main_to_header": [
+          18587847,
+          18587847
+        ],
+        "card_to_header": [
+          3649605693,
+          3650716693
+        ],
+        "header_to_renderer": [
+          2643010000,
+          2643010000
+        ],
+        "card_to_renderer": [
+          6292615693,
+          6293726693
+        ],
+        "header_to_state_producer": [
+          1594857230,
+          1594857230
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          1048152770,
+          1048152770
+        ],
+        "renderer_to_send": [
+          45810692,
+          45810692
+        ],
+        "send_to_driver": [
+          365139846,
+          365139846
+        ],
+        "card_to_send": [
+          6338426385,
+          6339537385
+        ],
+        "card_to_driver": [
+          6703566231,
+          6704677231
+        ]
+      }
+    },
+    {
+      "pair": 2,
+      "label": "A",
+      "position": 2,
+      "durations_ns": {
+        "card_to_launch_entry": [
+          364307538,
+          365439923
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          3264006231,
+          3264006231
+        ],
+        "pre_app_invocation_to_rust_main": [
+          19452846,
+          19452846
+        ],
+        "rust_main_to_header": [
+          25898385,
+          25898385
+        ],
+        "card_to_header": [
+          3673665000,
+          3674797385
+        ],
+        "header_to_renderer": [
+          2671947077,
+          2671947077
+        ],
+        "card_to_renderer": [
+          6345612077,
+          6346744462
+        ],
+        "header_to_state_producer": [
+          1614725692,
+          1614725692
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          1057221385,
+          1057221385
+        ],
+        "renderer_to_send": [
+          83903923,
+          83903923
+        ],
+        "send_to_driver": [
+          365660231,
+          365660231
+        ],
+        "card_to_send": [
+          6429516000,
+          6430648385
+        ],
+        "card_to_driver": [
+          6795176231,
+          6796308616
+        ]
+      }
+    },
+    {
+      "pair": 3,
+      "label": "A",
+      "position": 1,
+      "durations_ns": {
+        "card_to_launch_entry": [
+          452837077,
+          453961385
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          3222829846,
+          3222829846
+        ],
+        "pre_app_invocation_to_rust_main": [
+          12812616,
+          12812616
+        ],
+        "rust_main_to_header": [
+          14299923,
+          14299923
+        ],
+        "card_to_header": [
+          3702779462,
+          3703903770
+        ],
+        "header_to_renderer": [
+          2716867846,
+          2716867846
+        ],
+        "card_to_renderer": [
+          6419647308,
+          6420771616
+        ],
+        "header_to_state_producer": [
+          1710794538,
+          1710794538
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          1006073308,
+          1006073308
+        ],
+        "renderer_to_send": [
+          34461000,
+          34461000
+        ],
+        "send_to_driver": [
+          365667846,
+          365667846
+        ],
+        "card_to_send": [
+          6454108308,
+          6455232616
+        ],
+        "card_to_driver": [
+          6819776154,
+          6820900462
+        ]
+      }
+    },
+    {
+      "pair": 3,
+      "label": "B",
+      "position": 2,
+      "durations_ns": {
+        "card_to_launch_entry": [
+          421740770,
+          422862616
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          3250697230,
+          3250697230
+        ],
+        "pre_app_invocation_to_rust_main": [
+          29419462,
+          29419462
+        ],
+        "rust_main_to_header": [
+          27346308,
+          27346308
+        ],
+        "card_to_header": [
+          3729203770,
+          3730325616
+        ],
+        "header_to_renderer": [
+          2561524692,
+          2561524692
+        ],
+        "card_to_renderer": [
+          6290728462,
+          6291850308
+        ],
+        "header_to_state_producer": [
+          1653255231,
+          1653255231
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          908269461,
+          908269461
+        ],
+        "renderer_to_send": [
+          37675692,
+          37675692
+        ],
+        "send_to_driver": [
+          365714924,
+          365714924
+        ],
+        "card_to_send": [
+          6328404154,
+          6329526000
+        ],
+        "card_to_driver": [
+          6694119078,
+          6695240924
+        ]
+      }
+    },
+    {
+      "pair": 4,
+      "label": "B",
+      "position": 1,
+      "durations_ns": {
+        "card_to_launch_entry": [
+          470107077,
+          471320692
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          3162242616,
+          3162242616
+        ],
+        "pre_app_invocation_to_rust_main": [
+          16286231,
+          16286231
+        ],
+        "rust_main_to_header": [
+          16268846,
+          16268846
+        ],
+        "card_to_header": [
+          3664904770,
+          3666118385
+        ],
+        "header_to_renderer": [
+          2637913692,
+          2637913692
+        ],
+        "card_to_renderer": [
+          6302818462,
+          6304032077
+        ],
+        "header_to_state_producer": [
+          1670727615,
+          1670727615
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          967186077,
+          967186077
+        ],
+        "renderer_to_send": [
+          32498462,
+          32498462
+        ],
+        "send_to_driver": [
+          365290538,
+          365290538
+        ],
+        "card_to_send": [
+          6335316924,
+          6336530539
+        ],
+        "card_to_driver": [
+          6700607462,
+          6701821077
+        ]
+      }
+    },
+    {
+      "pair": 4,
+      "label": "A",
+      "position": 2,
+      "durations_ns": {
+        "card_to_launch_entry": [
+          376842538,
+          378086615
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          3217926769,
+          3217926769
+        ],
+        "pre_app_invocation_to_rust_main": [
+          17810847,
+          17810847
+        ],
+        "rust_main_to_header": [
+          16521538,
+          16521538
+        ],
+        "card_to_header": [
+          3629101692,
+          3630345769
+        ],
+        "header_to_renderer": [
+          2557122923,
+          2557122923
+        ],
+        "card_to_renderer": [
+          6186224615,
+          6187468692
+        ],
+        "header_to_state_producer": [
+          1576537077,
+          1576537077
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          980585846,
+          980585846
+        ],
+        "renderer_to_send": [
+          66553154,
+          66553154
+        ],
+        "send_to_driver": [
+          364610539,
+          364610539
+        ],
+        "card_to_send": [
+          6252777769,
+          6254021846
+        ],
+        "card_to_driver": [
+          6617388308,
+          6618632385
+        ]
+      }
+    }
+  ],
+  "measured_pairs": [
+    {
+      "pair": 1,
+      "order": "AB",
+      "second_minus_first_ns": {
+        "card_to_launch_entry": [
+          96571154,
+          99402000
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          -69405692,
+          -69405692
+        ],
+        "pre_app_invocation_to_rust_main": [
+          862846,
+          862846
+        ],
+        "rust_main_to_header": [
+          -873077,
+          -873077
+        ],
+        "card_to_header": [
+          27155231,
+          29986077
+        ],
+        "header_to_renderer": [
+          5184846,
+          5184846
+        ],
+        "card_to_renderer": [
+          32340077,
+          35170923
+        ],
+        "header_to_state_producer": [
+          -22408308,
+          -22408308
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          27593154,
+          27593154
+        ],
+        "renderer_to_send": [
+          12437000,
+          12437000
+        ],
+        "send_to_driver": [
+          210539,
+          210539
+        ],
+        "card_to_send": [
+          44777077,
+          47607923
+        ],
+        "card_to_driver": [
+          44987616,
+          47818462
+        ]
+      }
+    },
+    {
+      "pair": 2,
+      "order": "BA",
+      "second_minus_first_ns": {
+        "card_to_launch_entry": [
+          -46210616,
+          -43967231
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          60883385,
+          60883385
+        ],
+        "pre_app_invocation_to_rust_main": [
+          965000,
+          965000
+        ],
+        "rust_main_to_header": [
+          7310538,
+          7310538
+        ],
+        "card_to_header": [
+          22948307,
+          25191692
+        ],
+        "header_to_renderer": [
+          28937077,
+          28937077
+        ],
+        "card_to_renderer": [
+          51885384,
+          54128769
+        ],
+        "header_to_state_producer": [
+          19868462,
+          19868462
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          9068615,
+          9068615
+        ],
+        "renderer_to_send": [
+          38093231,
+          38093231
+        ],
+        "send_to_driver": [
+          520385,
+          520385
+        ],
+        "card_to_send": [
+          89978615,
+          92222000
+        ],
+        "card_to_driver": [
+          90499000,
+          92742385
+        ]
+      }
+    },
+    {
+      "pair": 3,
+      "order": "AB",
+      "second_minus_first_ns": {
+        "card_to_launch_entry": [
+          -32220615,
+          -29974461
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          27867384,
+          27867384
+        ],
+        "pre_app_invocation_to_rust_main": [
+          16606846,
+          16606846
+        ],
+        "rust_main_to_header": [
+          13046385,
+          13046385
+        ],
+        "card_to_header": [
+          25300000,
+          27546154
+        ],
+        "header_to_renderer": [
+          -155343154,
+          -155343154
+        ],
+        "card_to_renderer": [
+          -130043154,
+          -127797000
+        ],
+        "header_to_state_producer": [
+          -57539307,
+          -57539307
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          -97803847,
+          -97803847
+        ],
+        "renderer_to_send": [
+          3214692,
+          3214692
+        ],
+        "send_to_driver": [
+          47078,
+          47078
+        ],
+        "card_to_send": [
+          -126828462,
+          -124582308
+        ],
+        "card_to_driver": [
+          -126781384,
+          -124535230
+        ]
+      }
+    },
+    {
+      "pair": 4,
+      "order": "BA",
+      "second_minus_first_ns": {
+        "card_to_launch_entry": [
+          -94478154,
+          -92020462
+        ],
+        "launch_entry_to_pre_app_invocation": [
+          55684153,
+          55684153
+        ],
+        "pre_app_invocation_to_rust_main": [
+          1524616,
+          1524616
+        ],
+        "rust_main_to_header": [
+          252692,
+          252692
+        ],
+        "card_to_header": [
+          -37016693,
+          -34559001
+        ],
+        "header_to_renderer": [
+          -80790769,
+          -80790769
+        ],
+        "card_to_renderer": [
+          -117807462,
+          -115349770
+        ],
+        "header_to_state_producer": [
+          -94190538,
+          -94190538
+        ],
+        "state_producer_to_ui_observation": null,
+        "state_producer_to_renderer": [
+          13399769,
+          13399769
+        ],
+        "renderer_to_send": [
+          34054692,
+          34054692
+        ],
+        "send_to_driver": [
+          -679999,
+          -679999
+        ],
+        "card_to_send": [
+          -83752770,
+          -81295078
+        ],
+        "card_to_driver": [
+          -84432769,
+          -81975077
+        ]
+      }
+    }
+  ],
+  "groups": {
+    "all": {
+      "card_to_launch_entry": {
+        "pairs": 4,
+        "median_first_ns": [
+          461472077.0,
+          462641038.5
+        ],
+        "median_second_ns": [
+          399291654.0,
+          400474615.5
+        ],
+        "median_second_minus_first_ns": [
+          -39215615.5,
+          -36970846.0
+        ],
+        "second_earlier": 3,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "launch_entry_to_pre_app_invocation": {
+        "pairs": 4,
+        "median_first_ns": [
+          3212976346.0,
+          3212976346.0
+        ],
+        "median_second_ns": [
+          3234311999.5,
+          3234311999.5
+        ],
+        "median_second_minus_first_ns": [
+          41775768.5,
+          41775768.5
+        ],
+        "second_earlier": 1,
+        "second_later": 3,
+        "indeterminate": 0
+      },
+      "pre_app_invocation_to_rust_main": {
+        "pairs": 4,
+        "median_first_ns": [
+          17387038.5,
+          17387038.5
+        ],
+        "median_second_ns": [
+          24436154.0,
+          24436154.0
+        ],
+        "median_second_minus_first_ns": [
+          1244808.0,
+          1244808.0
+        ],
+        "second_earlier": 0,
+        "second_later": 4,
+        "indeterminate": 0
+      },
+      "rust_main_to_header": {
+        "pairs": 4,
+        "median_first_ns": [
+          16590884.5,
+          16590884.5
+        ],
+        "median_second_ns": [
+          21209961.5,
+          21209961.5
+        ],
+        "median_second_minus_first_ns": [
+          3781615.0,
+          3781615.0
+        ],
+        "second_earlier": 1,
+        "second_later": 3,
+        "indeterminate": 0
+      },
+      "card_to_header": {
+        "pairs": 4,
+        "median_first_ns": [
+          3683842116.0,
+          3685011077.5
+        ],
+        "median_second_ns": [
+          3701434385.0,
+          3702561500.5
+        ],
+        "median_second_minus_first_ns": [
+          24124153.5,
+          26368923.0
+        ],
+        "second_earlier": 1,
+        "second_later": 3,
+        "indeterminate": 0
+      },
+      "header_to_renderer": {
+        "pairs": 4,
+        "median_first_ns": [
+          2679938923.0,
+          2679938923.0
+        ],
+        "median_second_ns": [
+          2616735884.5,
+          2616735884.5
+        ],
+        "median_second_minus_first_ns": [
+          -37802961.5,
+          -37802961.5
+        ],
+        "second_earlier": 2,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "card_to_renderer": {
+        "pairs": 4,
+        "median_first_ns": [
+          6361232885.0,
+          6362401846.5
+        ],
+        "median_second_ns": [
+          6318170269.5,
+          6319297385.0
+        ],
+        "median_second_minus_first_ns": [
+          -42733692.5,
+          -40089423.5
+        ],
+        "second_earlier": 2,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "header_to_state_producer": {
+        "pairs": 4,
+        "median_first_ns": [
+          1690761076.5,
+          1690761076.5
+        ],
+        "median_second_ns": [
+          1633990461.5,
+          1633990461.5
+        ],
+        "median_second_minus_first_ns": [
+          -39973807.5,
+          -39973807.5
+        ],
+        "second_earlier": 3,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "state_producer_to_ui_observation": {
+        "pairs": 0,
+        "median_first_ns": null,
+        "median_second_ns": null,
+        "median_second_minus_first_ns": null,
+        "second_earlier": 0,
+        "second_later": 0,
+        "indeterminate": 0
+      },
+      "state_producer_to_renderer": {
+        "pairs": 4,
+        "median_first_ns": [
+          1027113039.0,
+          1027113039.0
+        ],
+        "median_second_ns": [
+          1018903615.5,
+          1018903615.5
+        ],
+        "median_second_minus_first_ns": [
+          11234192.0,
+          11234192.0
+        ],
+        "second_earlier": 1,
+        "second_later": 3,
+        "indeterminate": 0
+      },
+      "renderer_to_send": {
+        "pairs": 4,
+        "median_first_ns": [
+          33479731.0,
+          33479731.0
+        ],
+        "median_second_ns": [
+          54673884.5,
+          54673884.5
+        ],
+        "median_second_minus_first_ns": [
+          23245846.0,
+          23245846.0
+        ],
+        "second_earlier": 0,
+        "second_later": 4,
+        "indeterminate": 0
+      },
+      "send_to_driver": {
+        "pairs": 4,
+        "median_first_ns": [
+          365479192.0,
+          365479192.0
+        ],
+        "median_second_ns": [
+          365687577.5,
+          365687577.5
+        ],
+        "median_second_minus_first_ns": [
+          128808.5,
+          128808.5
+        ],
+        "second_earlier": 1,
+        "second_later": 3,
+        "indeterminate": 0
+      },
+      "card_to_send": {
+        "pairs": 4,
+        "median_first_ns": [
+          6396267346.5,
+          6397385000.5
+        ],
+        "median_second_ns": [
+          6378960077.0,
+          6380087192.5
+        ],
+        "median_second_minus_first_ns": [
+          -19487846.5,
+          -16843577.5
+        ],
+        "second_earlier": 2,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "card_to_driver": {
+        "pairs": 4,
+        "median_first_ns": [
+          6761671192.5,
+          6762788846.5
+        ],
+        "median_second_ns": [
+          6744647654.5,
+          6745774770.0
+        ],
+        "median_second_minus_first_ns": [
+          -19722576.5,
+          -17078307.5
+        ],
+        "second_earlier": 2,
+        "second_later": 2,
+        "indeterminate": 0
+      }
+    },
+    "AB": {
+      "card_to_launch_entry": {
+        "pairs": 2,
+        "median_first_ns": [
+          477815615.5,
+          479199577.0
+        ],
+        "median_second_ns": [
+          511374846.5,
+          512529385.0
+        ],
+        "median_second_minus_first_ns": [
+          32175269.5,
+          34713769.5
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "launch_entry_to_pre_app_invocation": {
+        "pairs": 2,
+        "median_first_ns": [
+          3223547654.0,
+          3223547654.0
+        ],
+        "median_second_ns": [
+          3202778500.0,
+          3202778500.0
+        ],
+        "median_second_minus_first_ns": [
+          -20769154.0,
+          -20769154.0
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "pre_app_invocation_to_rust_main": {
+        "pairs": 2,
+        "median_first_ns": [
+          22223769.5,
+          22223769.5
+        ],
+        "median_second_ns": [
+          30958615.5,
+          30958615.5
+        ],
+        "median_second_minus_first_ns": [
+          8734846.0,
+          8734846.0
+        ],
+        "second_earlier": 0,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "rust_main_to_header": {
+        "pairs": 2,
+        "median_first_ns": [
+          15606423.0,
+          15606423.0
+        ],
+        "median_second_ns": [
+          21693077.0,
+          21693077.0
+        ],
+        "median_second_minus_first_ns": [
+          6086654.0,
+          6086654.0
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "card_to_header": {
+        "pairs": 2,
+        "median_first_ns": [
+          3739193462.0,
+          3740577423.5
+        ],
+        "median_second_ns": [
+          3766805039.0,
+          3767959577.5
+        ],
+        "median_second_minus_first_ns": [
+          26227615.5,
+          28766115.5
+        ],
+        "second_earlier": 0,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "header_to_renderer": {
+        "pairs": 2,
+        "median_first_ns": [
+          2830807269.5,
+          2830807269.5
+        ],
+        "median_second_ns": [
+          2755728115.5,
+          2755728115.5
+        ],
+        "median_second_minus_first_ns": [
+          -75079154.0,
+          -75079154.0
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "card_to_renderer": {
+        "pairs": 2,
+        "median_first_ns": [
+          6570000731.5,
+          6571384693.0
+        ],
+        "median_second_ns": [
+          6522533154.5,
+          6523687693.0
+        ],
+        "median_second_minus_first_ns": [
+          -48851538.5,
+          -46313038.5
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "header_to_state_producer": {
+        "pairs": 2,
+        "median_first_ns": [
+          1719509538.5,
+          1719509538.5
+        ],
+        "median_second_ns": [
+          1679535731.0,
+          1679535731.0
+        ],
+        "median_second_minus_first_ns": [
+          -39973807.5,
+          -39973807.5
+        ],
+        "second_earlier": 2,
+        "second_later": 0,
+        "indeterminate": 0
+      },
+      "state_producer_to_ui_observation": {
+        "pairs": 0,
+        "median_first_ns": null,
+        "median_second_ns": null,
+        "median_second_minus_first_ns": null,
+        "second_earlier": 0,
+        "second_later": 0,
+        "indeterminate": 0
+      },
+      "state_producer_to_renderer": {
+        "pairs": 2,
+        "median_first_ns": [
+          1111297731.0,
+          1111297731.0
+        ],
+        "median_second_ns": [
+          1076192384.5,
+          1076192384.5
+        ],
+        "median_second_minus_first_ns": [
+          -35105346.5,
+          -35105346.5
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "renderer_to_send": {
+        "pairs": 2,
+        "median_first_ns": [
+          32409307.5,
+          32409307.5
+        ],
+        "median_second_ns": [
+          40235153.5,
+          40235153.5
+        ],
+        "median_second_minus_first_ns": [
+          7825846.0,
+          7825846.0
+        ],
+        "second_earlier": 0,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "send_to_driver": {
+        "pairs": 2,
+        "median_first_ns": [
+          365675807.5,
+          365675807.5
+        ],
+        "median_second_ns": [
+          365804616.0,
+          365804616.0
+        ],
+        "median_second_minus_first_ns": [
+          128808.5,
+          128808.5
+        ],
+        "second_earlier": 0,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "card_to_send": {
+        "pairs": 2,
+        "median_first_ns": [
+          6602410039.0,
+          6603794000.5
+        ],
+        "median_second_ns": [
+          6562768308.0,
+          6563922846.5
+        ],
+        "median_second_minus_first_ns": [
+          -41025692.5,
+          -38487192.5
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "card_to_driver": {
+        "pairs": 2,
+        "median_first_ns": [
+          6968085846.5,
+          6969469808.0
+        ],
+        "median_second_ns": [
+          6928572924.0,
+          6929727462.5
+        ],
+        "median_second_minus_first_ns": [
+          -40896884.0,
+          -38358384.0
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      }
+    },
+    "BA": {
+      "card_to_launch_entry": {
+        "pairs": 2,
+        "median_first_ns": [
+          439757115.5,
+          440919423.0
+        ],
+        "median_second_ns": [
+          370575038.0,
+          371763269.0
+        ],
+        "median_second_minus_first_ns": [
+          -70344385.0,
+          -67993846.5
+        ],
+        "second_earlier": 2,
+        "second_later": 0,
+        "indeterminate": 0
+      },
+      "launch_entry_to_pre_app_invocation": {
+        "pairs": 2,
+        "median_first_ns": [
+          3182682731.0,
+          3182682731.0
+        ],
+        "median_second_ns": [
+          3240966500.0,
+          3240966500.0
+        ],
+        "median_second_minus_first_ns": [
+          58283769.0,
+          58283769.0
+        ],
+        "second_earlier": 0,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "pre_app_invocation_to_rust_main": {
+        "pairs": 2,
+        "median_first_ns": [
+          17387038.5,
+          17387038.5
+        ],
+        "median_second_ns": [
+          18631846.5,
+          18631846.5
+        ],
+        "median_second_minus_first_ns": [
+          1244808.0,
+          1244808.0
+        ],
+        "second_earlier": 0,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "rust_main_to_header": {
+        "pairs": 2,
+        "median_first_ns": [
+          17428346.5,
+          17428346.5
+        ],
+        "median_second_ns": [
+          21209961.5,
+          21209961.5
+        ],
+        "median_second_minus_first_ns": [
+          3781615.0,
+          3781615.0
+        ],
+        "second_earlier": 0,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "card_to_header": {
+        "pairs": 2,
+        "median_first_ns": [
+          3657255231.5,
+          3658417539.0
+        ],
+        "median_second_ns": [
+          3651383346.0,
+          3652571577.0
+        ],
+        "median_second_minus_first_ns": [
+          -7034193.0,
+          -4683654.5
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "header_to_renderer": {
+        "pairs": 2,
+        "median_first_ns": [
+          2640461846.0,
+          2640461846.0
+        ],
+        "median_second_ns": [
+          2614535000.0,
+          2614535000.0
+        ],
+        "median_second_minus_first_ns": [
+          -25926846.0,
+          -25926846.0
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "card_to_renderer": {
+        "pairs": 2,
+        "median_first_ns": [
+          6297717077.5,
+          6298879385.0
+        ],
+        "median_second_ns": [
+          6265918346.0,
+          6267106577.0
+        ],
+        "median_second_minus_first_ns": [
+          -32961039.0,
+          -30610500.5
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "header_to_state_producer": {
+        "pairs": 2,
+        "median_first_ns": [
+          1632792422.5,
+          1632792422.5
+        ],
+        "median_second_ns": [
+          1595631384.5,
+          1595631384.5
+        ],
+        "median_second_minus_first_ns": [
+          -37161038.0,
+          -37161038.0
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "state_producer_to_ui_observation": {
+        "pairs": 0,
+        "median_first_ns": null,
+        "median_second_ns": null,
+        "median_second_minus_first_ns": null,
+        "second_earlier": 0,
+        "second_later": 0,
+        "indeterminate": 0
+      },
+      "state_producer_to_renderer": {
+        "pairs": 2,
+        "median_first_ns": [
+          1007669423.5,
+          1007669423.5
+        ],
+        "median_second_ns": [
+          1018903615.5,
+          1018903615.5
+        ],
+        "median_second_minus_first_ns": [
+          11234192.0,
+          11234192.0
+        ],
+        "second_earlier": 0,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "renderer_to_send": {
+        "pairs": 2,
+        "median_first_ns": [
+          39154577.0,
+          39154577.0
+        ],
+        "median_second_ns": [
+          75228538.5,
+          75228538.5
+        ],
+        "median_second_minus_first_ns": [
+          36073961.5,
+          36073961.5
+        ],
+        "second_earlier": 0,
+        "second_later": 2,
+        "indeterminate": 0
+      },
+      "send_to_driver": {
+        "pairs": 2,
+        "median_first_ns": [
+          365215192.0,
+          365215192.0
+        ],
+        "median_second_ns": [
+          365135385.0,
+          365135385.0
+        ],
+        "median_second_minus_first_ns": [
+          -79807.0,
+          -79807.0
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "card_to_send": {
+        "pairs": 2,
+        "median_first_ns": [
+          6336871654.5,
+          6338033962.0
+        ],
+        "median_second_ns": [
+          6341146884.5,
+          6342335115.5
+        ],
+        "median_second_minus_first_ns": [
+          3112922.5,
+          5463461.0
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      },
+      "card_to_driver": {
+        "pairs": 2,
+        "median_first_ns": [
+          6702086846.5,
+          6703249154.0
+        ],
+        "median_second_ns": [
+          6706282269.5,
+          6707470500.5
+        ],
+        "median_second_minus_first_ns": [
+          3033115.5,
+          5383654.0
+        ],
+        "second_earlier": 1,
+        "second_later": 1,
+        "indeterminate": 0
+      }
+    }
+  },
+  "adjacent_measured_releases": [
+    {
+      "from_pair": 1,
+      "to_pair": 1,
+      "kind": "within_pair",
+      "release_to_release_ns": [
+        175859880472,
+        175862711318
+      ]
+    },
+    {
+      "from_pair": 1,
+      "to_pair": 2,
+      "kind": "between_pairs",
+      "release_to_release_ns": [
+        886605250899,
+        886607549130
+      ]
+    },
+    {
+      "from_pair": 2,
+      "to_pair": 2,
+      "kind": "within_pair",
+      "release_to_release_ns": [
+        175213544549,
+        175215787934
+      ]
+    },
+    {
+      "from_pair": 2,
+      "to_pair": 3,
+      "kind": "between_pairs",
+      "release_to_release_ns": [
+        1290375224384,
+        1290377481077
+      ]
+    },
+    {
+      "from_pair": 3,
+      "to_pair": 3,
+      "kind": "within_pair",
+      "release_to_release_ns": [
+        166168257702,
+        166170503856
+      ]
+    },
+    {
+      "from_pair": 3,
+      "to_pair": 4,
+      "kind": "between_pairs",
+      "release_to_release_ns": [
+        171294827549,
+        171297163010
+      ]
+    },
+    {
+      "from_pair": 4,
+      "to_pair": 4,
+      "kind": "within_pair",
+      "release_to_release_ns": [
+        195994354397,
+        195996812089
+      ]
+    }
+  ],
+  "release_cadence": {
+    "within_pair": {
+      "count": 4,
+      "median_ns": [
+        175536712510.5,
+        175539249626.0
+      ],
+      "min_lower_ns": 166168257702,
+      "max_upper_ns": 195996812089
+    },
+    "between_pairs": {
+      "count": 3,
+      "median_ns": [
+        886605250899,
+        886607549130
+      ],
+      "min_lower_ns": 171294827549,
+      "max_upper_ns": 1290377481077
+    }
+  }
+}

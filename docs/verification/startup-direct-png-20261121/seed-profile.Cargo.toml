@@ -1,0 +1,24 @@
+[package]
+name = "bilicomics-offline-seed-profile"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[[bin]]
+name = "seed-profile"
+path = "seed_profile.rs"
+
+[dependencies]
+anyhow = "1"
+bilicomics = { path = "/work/control-source", features = ["kindle"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
+rusqlite = { version = "0.37", features = ["bundled"] }
+tokio = { version = "1", features = ["rt"] }
+
+[patch.crates-io]
+zune-jpeg = { path = "/work/control-source/vendor/zune-jpeg" }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

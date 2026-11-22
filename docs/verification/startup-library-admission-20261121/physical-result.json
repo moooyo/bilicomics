@@ -1,0 +1,449 @@
+{
+  "schema": "bili-library-admission-analysis-v1",
+  "scope": "Scribe; ordinary native Library card to the first qualifying normal Shelf renderer return; A repeats parent and worker admission, B validates in the worker.",
+  "primary_endpoint": "renderer_return",
+  "warmups": [
+    {
+      "pair": 0,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6273165462,
+          6274389462
+        ],
+        "accepted_send": [
+          6306974846,
+          6308198846
+        ],
+        "driver_completion": [
+          6671427692,
+          6672651692
+        ]
+      }
+    },
+    {
+      "pair": 0,
+      "arm": "B",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6293243616,
+          6294498308
+        ],
+        "accepted_send": [
+          6327178693,
+          6328433385
+        ],
+        "driver_completion": [
+          6689787077,
+          6691041769
+        ]
+      }
+    }
+  ],
+  "warmups_included_in_primary_statistics": false,
+  "cases": [
+    {
+      "pair": 1,
+      "arm": "A",
+      "status": "qualified",
+      "reason": null,
+      "nominal_primary_eligible": true,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": [
+          6257773924,
+          6259164462
+        ],
+        "accepted_send": [
+          6290060770,
+          6291451308
+        ],
+        "driver_completion": [
+          6655255539,
+          6656646077
+        ]
+      }
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "status": "pre-click-navigation-failure",
+      "reason": "native-navigation-failed-before-activation",
+      "nominal_primary_eligible": false,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": null,
+        "accepted_send": null,
+        "driver_completion": null
+      },
+      "native_card_clicked": false,
+      "candidate_application_started": false
+    },
+    {
+      "pair": 2,
+      "arm": "B",
+      "status": "not-started",
+      "reason": "batch-not-present",
+      "nominal_primary_eligible": false,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": null,
+        "accepted_send": null,
+        "driver_completion": null
+      }
+    },
+    {
+      "pair": 2,
+      "arm": "A",
+      "status": "not-started",
+      "reason": "batch-not-present",
+      "nominal_primary_eligible": false,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": null,
+        "accepted_send": null,
+        "driver_completion": null
+      }
+    },
+    {
+      "pair": 3,
+      "arm": "A",
+      "status": "not-started",
+      "reason": "batch-not-present",
+      "nominal_primary_eligible": false,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": null,
+        "accepted_send": null,
+        "driver_completion": null
+      }
+    },
+    {
+      "pair": 3,
+      "arm": "B",
+      "status": "not-started",
+      "reason": "batch-not-present",
+      "nominal_primary_eligible": false,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": null,
+        "accepted_send": null,
+        "driver_completion": null
+      }
+    },
+    {
+      "pair": 4,
+      "arm": "B",
+      "status": "not-started",
+      "reason": "batch-not-present",
+      "nominal_primary_eligible": false,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": null,
+        "accepted_send": null,
+        "driver_completion": null
+      }
+    },
+    {
+      "pair": 4,
+      "arm": "A",
+      "status": "not-started",
+      "reason": "batch-not-present",
+      "nominal_primary_eligible": false,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": null,
+        "accepted_send": null,
+        "driver_completion": null
+      }
+    },
+    {
+      "pair": 5,
+      "arm": "A",
+      "status": "not-started",
+      "reason": "batch-not-present",
+      "nominal_primary_eligible": false,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": null,
+        "accepted_send": null,
+        "driver_completion": null
+      }
+    },
+    {
+      "pair": 5,
+      "arm": "B",
+      "status": "not-started",
+      "reason": "batch-not-present",
+      "nominal_primary_eligible": false,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": null,
+        "accepted_send": null,
+        "driver_completion": null
+      }
+    },
+    {
+      "pair": 6,
+      "arm": "B",
+      "status": "not-started",
+      "reason": "batch-not-present",
+      "nominal_primary_eligible": false,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": null,
+        "accepted_send": null,
+        "driver_completion": null
+      }
+    },
+    {
+      "pair": 6,
+      "arm": "A",
+      "status": "not-started",
+      "reason": "batch-not-present",
+      "nominal_primary_eligible": false,
+      "render_order": null,
+      "observed_endpoints_ns": {
+        "renderer_return": null,
+        "accepted_send": null,
+        "driver_completion": null
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "pair": 1,
+      "order": "AB",
+      "status": "incomplete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": [
+            6257773924,
+            6259164462
+          ],
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "accepted_send": {
+          "A_ns": [
+            6290060770,
+            6291451308
+          ],
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "driver_completion": {
+          "A_ns": [
+            6655255539,
+            6656646077
+          ],
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        }
+      }
+    },
+    {
+      "pair": 2,
+      "order": "BA",
+      "status": "incomplete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "accepted_send": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "driver_completion": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        }
+      }
+    },
+    {
+      "pair": 3,
+      "order": "AB",
+      "status": "incomplete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "accepted_send": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "driver_completion": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        }
+      }
+    },
+    {
+      "pair": 4,
+      "order": "BA",
+      "status": "incomplete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "accepted_send": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "driver_completion": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        }
+      }
+    },
+    {
+      "pair": 5,
+      "order": "AB",
+      "status": "incomplete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "accepted_send": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "driver_completion": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        }
+      }
+    },
+    {
+      "pair": 6,
+      "order": "BA",
+      "status": "incomplete",
+      "endpoints": {
+        "renderer_return": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "accepted_send": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        },
+        "driver_completion": {
+          "A_ns": null,
+          "B_ns": null,
+          "B_minus_A_ns": null,
+          "direction": "unavailable"
+        }
+      }
+    }
+  ],
+  "paired_summary": {
+    "renderer_return": {
+      "n_pairs": 0,
+      "median_paired_B_minus_A_ns": null,
+      "direction": "unavailable"
+    },
+    "accepted_send": {
+      "n_pairs": 0,
+      "median_paired_B_minus_A_ns": null,
+      "direction": "unavailable"
+    },
+    "driver_completion": {
+      "n_pairs": 0,
+      "median_paired_B_minus_A_ns": null,
+      "direction": "unavailable"
+    }
+  },
+  "paired_order_medians": {
+    "AB": {
+      "renderer_return": {
+        "n_pairs": 0,
+        "median_paired_B_minus_A_ns": null,
+        "direction": "unavailable"
+      },
+      "accepted_send": {
+        "n_pairs": 0,
+        "median_paired_B_minus_A_ns": null,
+        "direction": "unavailable"
+      },
+      "driver_completion": {
+        "n_pairs": 0,
+        "median_paired_B_minus_A_ns": null,
+        "direction": "unavailable"
+      }
+    },
+    "BA": {
+      "renderer_return": {
+        "n_pairs": 0,
+        "median_paired_B_minus_A_ns": null,
+        "direction": "unavailable"
+      },
+      "accepted_send": {
+        "n_pairs": 0,
+        "median_paired_B_minus_A_ns": null,
+        "direction": "unavailable"
+      },
+      "driver_completion": {
+        "n_pairs": 0,
+        "median_paired_B_minus_A_ns": null,
+        "direction": "unavailable"
+      }
+    }
+  },
+  "primary_threshold": {
+    "complete_six_pairs": false,
+    "B_faster_in_at_least_five_pairs": null,
+    "median_primary_improvement_at_least_100ms": null,
+    "passes_predeclared_primary_threshold": null
+  },
+  "method": {
+    "pair_delta": "B_minus_A_interval = [B.lo - A.hi, B.hi - A.lo]",
+    "median": "Median paired B-minus-A intervals; never subtract arm medians.",
+    "secondary_endpoints": "Accepted SEND and same-marker driver completion are reported separately.",
+    "render_order": "The existing trace may omit render_order; this is not a qualification failure.",
+    "optical_or_clickability_claimed": false,
+    "screenshots_or_followup_input_used": false
+  }
+}

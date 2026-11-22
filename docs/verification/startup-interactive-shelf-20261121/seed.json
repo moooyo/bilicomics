@@ -1,0 +1,20 @@
+{
+  "product_written_recency": true,
+  "canonical_repeat_upsert_rows": 0,
+  "same_semantic_input": true,
+  "stored_launch_shelf": true,
+  "onboarded": true,
+  "private_fixture": true,
+  "terminal_cover_codes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ]
+}

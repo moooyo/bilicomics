@@ -1,0 +1,72 @@
+{
+  "host": "test-env",
+  "target": "x86_64-unknown-linux-gnu",
+  "profile": "release",
+  "cargo_jobs": 1,
+  "test_threads": 1,
+  "kindle_hardware_accessed": false,
+  "network": "isolated namespace with only loopback",
+  "results": {
+    "stock-bin": {
+      "passed": 18,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 0,
+      "process_status": 0,
+      "started_or_queued_utc": "2026-11-21T01:26:11+00:00",
+      "finished_utc": "2026-11-21T01:31:03+00:00"
+    },
+    "research-bin": {
+      "passed": 19,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 0,
+      "process_status": 0,
+      "started_or_queued_utc": "2026-11-21T01:37:55+00:00",
+      "finished_utc": "2026-11-21T01:37:56+00:00"
+    },
+    "research-lib": {
+      "passed": 901,
+      "failed": 0,
+      "ignored": 5,
+      "measured": 0,
+      "filtered_out": 0,
+      "process_status": 0,
+      "started_or_queued_utc": "2026-11-21T01:37:56+00:00",
+      "finished_utc": "2026-11-21T01:43:23+00:00"
+    },
+    "targeted-desktop_post_submit_is_wake_only_and_fails_closed_for_each_guard": {
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 18,
+      "process_status": 0,
+      "started_or_queued_utc": "2026-11-21T01:37:08+00:00",
+      "finished_utc": "2026-11-21T01:37:55+00:00"
+    },
+    "targeted-early_and_fallback_admission_start_exactly_once": {
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 18,
+      "process_status": 0,
+      "started_or_queued_utc": "2026-11-21T01:37:55+00:00",
+      "finished_utc": "2026-11-21T01:37:55+00:00"
+    },
+    "targeted-early_admission_does_not_remove_the_original_ui_yield": {
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 18,
+      "process_status": 0,
+      "started_or_queued_utc": "2026-11-21T01:37:55+00:00",
+      "finished_utc": "2026-11-21T01:37:55+00:00"
+    }
+  },
+  "note": "Stock and research are distinct configurations. The three targeted cases are also in the full research binary suite. Backend standalone guard tests are recorded separately."
+}

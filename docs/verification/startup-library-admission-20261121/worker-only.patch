@@ -1,0 +1,73 @@
+--- stock
++++ worker-only
+@@ -43,16 +43,17 @@
+-[ -x "$APP_DIR/bilicomics" ] || fail 'The application executable is missing.'
+-[ -r "$PROFILE_FILE" ] || fail 'Configure data/device-profile before launching.'
+-[ -r "$ALLOWLIST_FILE" ] || fail 'Configure data/device-allowlist before launching.'
+-
+-PROFILE=$(sed -n '1{s/\r$//;p;}' "$PROFILE_FILE")
+-case "$PROFILE" in
+-    pw5|pw6|scribe|scribe2025) ;;
+-    *) fail 'Unknown configured device profile.' ;;
+-esac
+-
+-[ -r /etc/prettyversion.txt ] || fail 'Kindle firmware information is unavailable.'
+-FIRMWARE=$(sed -n 's/^Kindle[[:space:]]*\([0-9][0-9.]*\).*$/\1/p' /etc/prettyversion.txt | head -n 1)
+-[ -n "$FIRMWARE" ] || fail 'The firmware version could not be determined.'
+-
+-# Match two literal fields; do not evaluate configuration as shell code.
+-if ! awk -v profile="$PROFILE" -v firmware="$FIRMWARE" '
++check_launch_inputs() {
++    [ -x "$APP_DIR/bilicomics" ] || fail 'The application executable is missing.'
++    [ -r "$PROFILE_FILE" ] || fail 'Configure data/device-profile before launching.'
++    [ -r "$ALLOWLIST_FILE" ] || fail 'Configure data/device-allowlist before launching.'
++
++    PROFILE=$(sed -n '1{s/\r$//;p;}' "$PROFILE_FILE")
++    case "$PROFILE" in
++        pw5|pw6|scribe|scribe2025) ;;
++        *) fail 'Unknown configured device profile.' ;;
++    esac
++
++    [ -r /etc/prettyversion.txt ] || fail 'Kindle firmware information is unavailable.'
++    FIRMWARE=$(sed -n 's/^Kindle[[:space:]]*\([0-9][0-9.]*\).*$/\1/p' /etc/prettyversion.txt | head -n 1)
++    [ -n "$FIRMWARE" ] || fail 'The firmware version could not be determined.'
++
++    # Match two literal fields; do not evaluate configuration as shell code.
++    if ! awk -v profile="$PROFILE" -v firmware="$FIRMWARE" '
+@@ -64 +65,20 @@
+-    fail "The configured profile/firmware combination has not been accepted: $PROFILE $FIRMWARE."
++        fail "The configured profile/firmware combination has not been accepted: $PROFILE $FIRMWARE."
++    fi
++
++    BILICOMICS_APPROVED_PROFILE=$PROFILE
++    BILICOMICS_APPROVED_FIRMWARE=$FIRMWARE
++    export BILICOMICS_APPROVED_PROFILE BILICOMICS_APPROVED_FIRMWARE
++
++    [ -c /dev/fb0 ] || fail 'The framebuffer is unavailable.'
++    [ -r /dev/fb0 ] && [ -w /dev/fb0 ] || fail 'Framebuffer read/write access is required.'
++
++    mkdir -p "$DATA_DIR/logs" "$DATA_DIR/fonts"
++}
++
++if [ "${1:-}" = '--detached' ] && [ "${BILICOMICS_LIBRARY_PREFLIGHT_STDERR:-}" = 1 ]; then
++    if [ -L /proc/self/fd/8 ]; then exec 2>&8; fi
++    exec 8>&-
++    check_launch_inputs
++    exec 2>/dev/null
++elif [ "${1:-}" != '--library' ]; then
++    check_launch_inputs
+@@ -66,9 +86 @@
+-
+-BILICOMICS_APPROVED_PROFILE=$PROFILE
+-BILICOMICS_APPROVED_FIRMWARE=$FIRMWARE
+-export BILICOMICS_APPROVED_PROFILE BILICOMICS_APPROVED_FIRMWARE
+-
+-[ -c /dev/fb0 ] || fail 'The framebuffer is unavailable.'
+-[ -r /dev/fb0 ] && [ -w /dev/fb0 ] || fail 'Framebuffer read/write access is required.'
+-
+-mkdir -p "$DATA_DIR/logs" "$DATA_DIR/fonts"
++unset BILICOMICS_LIBRARY_PREFLIGHT_STDERR
+@@ -142 +154,2 @@
+-        setsid sh "$SCRIPT_PATH" --detached >/dev/null 2>&1 </dev/null &
++        if [ ! -L /proc/self/fd/2 ]; then exec 2>/dev/null; fi
++        BILICOMICS_LIBRARY_PREFLIGHT_STDERR=1 setsid sh "$SCRIPT_PATH" --detached 8>&2 >/dev/null 2>&1 </dev/null &

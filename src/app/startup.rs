@@ -141,7 +141,13 @@ impl App {
         }
         let cache_maintenance_pending = if demo.is_none() {
             let span = startup_span("state-cache-maintenance");
-            let pending = match store.try_prune_catalog_cache(&account, &[]) {
+            let mut trace = span.as_ref().map(|_| crate::store::CatalogMaintenanceTrace::default());
+            let result = if let Some(trace) = trace.as_mut() {
+                store.try_prune_catalog_cache_observed(&account, &[], trace)
+            } else {
+                store.try_prune_catalog_cache(&account, &[])
+            };
+            let pending = match result {
                 Ok(Some(_)) => false,
                 Ok(None) => true,
                 Err(error) => {
@@ -150,6 +156,7 @@ impl App {
                 }
             };
             finish_startup_span("state-cache-maintenance", span, if pending { "partial" } else { "success" });
+            if let Some(trace) = trace { performance::startup("catalog_cache_maintenance", &trace); }
             pending
         } else { false };
         let mut catalog = startup_step("state-catalog", || CatalogState::prepare(&store, &account, demo.as_deref()))?;
@@ -266,12 +273,54 @@ impl App {
     pub fn starts_on_shelf(&self) -> bool { self.start_screen() == "shelf" }
 
     pub fn plain_shelf_is_visible(ui: &AppWindow) -> bool {
-        let shell = ui.global::<ShellModel>();
         let catalog = ui.global::<CatalogModel>();
+        Self::shelf_surface_is_visible(ui) && catalog.get_shelf_state() == "ready"
+            && !catalog.get_shelf_menu_open()
+    }
+
+    fn shelf_surface_is_visible(ui: &AppWindow) -> bool {
+        let shell = ui.global::<ShellModel>();
         shell.get_route() == "shelf" && !shell.get_booting() && !shell.get_startup_error()
             && !shell.get_suspended() && shell.get_toast().is_empty()
-            && catalog.get_shelf_state() == "ready" && !catalog.get_shelf_menu_open()
             && !ui.global::<AuthModel>().get_net_visible() && !ui.global::<crate::ui::SleepScreenModel>().get_active()
+    }
+
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    pub fn shelf_render_scene(ui: &AppWindow) -> slint_backend_kindle::ShelfRenderScene {
+        use slint_backend_kindle::{ShelfRenderScene, ShelfState};
+        let shell = ui.global::<ShellModel>();
+        if shell.get_startup_error() || shell.get_suspended() { return ShelfRenderScene::Other; }
+        if shell.get_booting() { return ShelfRenderScene::Booting; }
+        if shell.get_route() != "shelf" { return ShelfRenderScene::Other; }
+        let catalog = ui.global::<CatalogModel>();
+        if !Self::shelf_surface_is_visible(ui) || catalog.get_shelf_menu_open() {
+            return ShelfRenderScene::Blocked;
+        }
+        match catalog.get_shelf_state().as_str() {
+            "ready" if Self::shelf_has_projected_content(ui) => ShelfRenderScene::Shelf(ShelfState::Ready),
+            "empty" => ShelfRenderScene::Shelf(ShelfState::Empty),
+            "signed-out" => ShelfRenderScene::Shelf(ShelfState::SignedOut),
+            _ => ShelfRenderScene::Blocked,
+        }
+    }
+
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    fn shelf_has_projected_content(ui: &AppWindow) -> bool {
+        use slint::Model;
+        let catalog = ui.global::<CatalogModel>();
+        if catalog.get_shelf_count_label().is_empty() { return false; }
+        let filter = catalog.get_shelf_filter();
+        let items = catalog.get_shelf_items();
+        let shown = items.row_count();
+        let titled_entry = (0..shown).any(|index| items.row_data(index).is_some_and(|item| !item.title.trim().is_empty()));
+        let titled_resume = catalog.get_has_resume() && (ui.global::<Theme>().get_scribe() || filter == "all")
+            && !catalog.get_resume().title.trim().is_empty();
+        let filtered_empty = shown == 0 && match filter.as_str() {
+            "finished" | "updated" => true,
+            "downloaded" => catalog.get_local_download_count() >= 0,
+            _ => false,
+        };
+        titled_entry || titled_resume || filtered_empty
     }
 
     /// Coalesce cheap stages while keeping UI mutation on this thread.
@@ -628,6 +677,58 @@ mod tests {
             assert!(!App::plain_shelf_is_visible(ui));
             shell.set_startup_error(false);
             assert!(App::plain_shelf_is_visible(ui));
+            Ok(())
+        })
+    }
+
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    #[test]
+    fn shelf_render_scene_accepts_projected_ready_empty_and_signed_out_but_no_overlay() -> Result<()> {
+        use slint_backend_kindle::{ShelfRenderScene, ShelfState};
+        with_final_attachment(|app, ui| {
+            let shell = ui.global::<ShellModel>();
+            let catalog = ui.global::<CatalogModel>();
+            assert!(!app.advance_startup_with_budget(Duration::ZERO)?);
+            assert!(app.advance_startup_with_budget(Duration::ZERO)?);
+            assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Booting);
+            shell.set_booting(false);
+            let rows = catalog.get_shelf_items();
+            let mut placeholder = rows.row_data(0).expect("the projected Shelf has a real entry");
+            placeholder.cover = slint::Image::default();
+            catalog.set_shelf_state("ready".into());
+            catalog.set_shelf_items(model(Vec::new()));
+            catalog.set_has_resume(false);
+            assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Blocked);
+            catalog.set_shelf_filter("downloaded".into());
+            catalog.set_local_download_count(-1);
+            assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Blocked);
+            catalog.set_local_download_count(0);
+            assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Shelf(ShelfState::Ready));
+            catalog.set_shelf_filter("all".into());
+            catalog.set_shelf_items(model(vec![placeholder]));
+            for (value, state) in [("ready", ShelfState::Ready), ("empty", ShelfState::Empty),
+                ("signed-out", ShelfState::SignedOut)]
+            {
+                catalog.set_shelf_state(value.into());
+                assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Shelf(state));
+                catalog.set_shelf_menu_open(true);
+                assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Blocked);
+                catalog.set_shelf_menu_open(false);
+            }
+            catalog.set_shelf_state("syncing".into());
+            assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Blocked);
+            catalog.set_shelf_state("ready".into());
+            ui.global::<AuthModel>().set_net_visible(true);
+            assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Blocked);
+            ui.global::<AuthModel>().set_net_visible(false);
+            shell.set_toast("fixture".into());
+            assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Blocked);
+            shell.set_toast("".into());
+            ui.global::<crate::ui::SleepScreenModel>().set_active(true);
+            assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Blocked);
+            ui.global::<crate::ui::SleepScreenModel>().set_active(false);
+            shell.set_route("reader".into());
+            assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Other);
             Ok(())
         })
     }

@@ -1,0 +1,111 @@
+{
+  "source": {
+    "base": {
+      "base": "9175002",
+      "catalog_overlay": [
+        "src/app/catalog.rs",
+        "src/store.rs",
+        "src/store/catalog_cache_tests.rs"
+      ],
+      "common_diagnostics": [
+        "src/main.rs"
+      ],
+      "build_files": 633,
+      "source_kind": "working tree, frozen before candidate overlay"
+    },
+    "application_patch": "app-submit-probe.patch (fallback-preserving v2)",
+    "backend_patch": "winit-submit.patch",
+    "apply_mode": "patch --batch --forward -p1 --fuzz=0, dry run then apply",
+    "research_product_changes": [
+      "Cargo.lock",
+      "Cargo.toml",
+      "src/main.rs"
+    ],
+    "research_backend_changes": [
+      "lib.rs",
+      "renderer/sw.rs",
+      "renderer/sw_submit.rs"
+    ],
+    "added_crate_sources": "entire pinned 1.17.1 registry crate, copied before patching",
+    "licenses_unchanged": true,
+    "registry_modified": false,
+    "all_package_versions_unchanged": true,
+    "stock_input_files_compared": 633,
+    "same_research_executable_for": [
+      "observe",
+      "wake"
+    ],
+    "process_only_selector": "BILICOMICS_DESKTOP_PRESENT_PROBE",
+    "stock_unchanged": true
+  },
+  "private_crate": {
+    "package": "i-slint-backend-winit",
+    "version": "1.17.1",
+    "origin": "registry+https://github.com/rust-lang/crates.io-index",
+    "license_expression": "GPL-3.0-only OR LicenseRef-Slint-Royalty-free-2.0 OR LicenseRef-Slint-Software-3.0",
+    "included_license_files": [
+      "LICENSES/GPL-3.0-only.txt",
+      "LICENSES/LicenseRef-Slint-Royalty-free-2.0.md",
+      "LICENSES/LicenseRef-Slint-Software-3.0.md"
+    ],
+    "upstream_files_copied_before_patch": 35,
+    "all_copy_bytes_equal_before_patch": true,
+    "registry_modified": false,
+    "research_source": "separate from the stock and control source"
+  },
+  "host": "test-env",
+  "target": "x86_64-unknown-linux-gnu",
+  "kindle_hardware_accessed": false,
+  "profile": "release",
+  "opt_level": 3,
+  "lto": "thin",
+  "codegen_units": 1,
+  "network": "loopback only",
+  "cargo_jobs": 1,
+  "shared_build_lock": true,
+  "private_target": "/work/target",
+  "executables": {
+    "stock_A0": {
+      "file": "bin/A0/bilicomics",
+      "size_bytes": 84768656,
+      "features": [
+        "desktop (default)",
+        "kindle"
+      ],
+      "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+      "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "process_status": 0,
+      "started_or_queued_utc": "2026-11-21T01:14:38+00:00",
+      "finished_utc": "2026-11-21T01:24:42+00:00"
+    },
+    "seed_profile": {
+      "file": "bin/seed-profile",
+      "size_bytes": 3853872,
+      "features": [
+        "desktop (default)",
+        "kindle"
+      ],
+      "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+      "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "process_status": 0,
+      "started_or_queued_utc": "2026-11-21T01:14:38+00:00",
+      "finished_utc": "2026-11-21T01:28:15+00:00"
+    },
+    "research": {
+      "file": "bin/research/bilicomics",
+      "size_bytes": 84784272,
+      "features": [
+        "desktop (default)",
+        "kindle",
+        "slint/unstable-winit-030"
+      ],
+      "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+      "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "process_status": 0,
+      "started_or_queued_utc": "2026-11-21T01:27:41+00:00",
+      "finished_utc": "2026-11-21T01:35:46+00:00"
+    }
+  },
+  "research_copies_byte_identical": true,
+  "research_different_from_stock": true
+}

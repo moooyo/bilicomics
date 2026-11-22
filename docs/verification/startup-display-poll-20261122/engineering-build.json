@@ -1,0 +1,67 @@
+{
+  "schema": "bili-display-poll-engineering-build-public-v1",
+  "scope": "Full off-device product build and source verification. Not a startup duration, physical visit or production installation.",
+  "stock_regular_files": 548,
+  "frozen_regular_files": 549,
+  "overlay_files": [
+    "src/native_presentation/portrait_writer.rs",
+    "src/platform/capture_cost.rs",
+    "src/platform/mod.rs",
+    "src/platform/native_capture.rs"
+  ],
+  "unchanged_stock_regular_files": 545,
+  "previous_overlay_regenerated_byte_for_byte": true,
+  "worker": {
+    "bytes": 426672,
+    "unchanged_sources": true,
+    "identical_to_install_zip": true
+  },
+  "host": {
+    "command": "cargo build --locked --offline --no-default-features --features kindle -j1 --bin bilicomics",
+    "compiled_bytes": 225345184,
+    "elapsed_seconds": 182.7,
+    "target_at_export_kib": 3104708,
+    "sampled_host_resource_extrema_kib": {
+      "free_root_kib": 1721332,
+      "free_memory_kib": 4774968,
+      "free_swap_kib": 8321780
+    },
+    "real_cli_permission_refusals": ["scribe", "pw6"],
+    "retained_tmpfs_product_full_byte_match": true,
+    "retired_after_full_product_fixture": true
+  },
+  "arm": {
+    "command": "cargo zigbuild --locked --offline -j1 --release --target armv7-unknown-linux-musleabihf --no-default-features --features kindle --bin bilicomics",
+    "compiled_bytes": 74427360,
+    "elapsed_seconds": 437.285,
+    "elapsed_source": "systemd scope start to successful deactivation",
+    "tool_versions": ["rustc 1.99.1", "cargo 1.99.1", "cargo-zigbuild 0.24.0", "zig 0.15.2"],
+    "target_at_export_kib": 2666032,
+    "sampled_host_resource_extrema_kib": null,
+    "systemd_cpu_usage_ns": 431567123000,
+    "systemd_memory_peak_bytes": 6176178176,
+    "systemd_swap_peak_bytes": 1588580352,
+    "retained_tmpfs_product_full_byte_match": true,
+    "initial_source_postflight": "refused",
+    "initial_cause": "Five additional Zig cache files under the build's private target directory, not application inputs.",
+    "extra_private_cache_files": 5,
+    "extra_private_cache_data_bytes": 222,
+    "frozen_inputs_unchanged": 549,
+    "fresh_stock_files_compared": 548,
+    "both_four_file_overlays_regenerated": true,
+    "new_compilation_after_recheck": false,
+    "postflight_result": "Verified the original one-scope build, complete checked output and independent source replay before issue. The original watchdog extrema were not persisted."
+  },
+  "build_policy": {
+    "one_cpu_and_cargo_job": true,
+    "incremental": false,
+    "loopback_only": true,
+    "shared_build_lock": true,
+    "shared_cache_lower_layers_read_only": true,
+    "target_tmpfs_max_bytes": 3221225472,
+    "memory_high_bytes": 6174015488,
+    "memory_max_bytes": 7516192768,
+    "swap_max_bytes": 2147483648,
+    "global_limits_kib": {"free_root_kib": 1415578, "free_memory_kib": 3145728, "free_swap_kib": 1572864}
+  }
+}

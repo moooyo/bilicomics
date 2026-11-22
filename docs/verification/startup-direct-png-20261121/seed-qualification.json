@@ -1,0 +1,37 @@
+{
+  "scope": "Independent offline fixture setup on test-env, not a timing sample or test of live authentication",
+  "helper_build": {
+    "control_source": "9175002 plus the three catalog inputs used for arm A",
+    "standalone_package": true,
+    "target": "x86_64-unknown-linux-gnu",
+    "profile": "release",
+    "cargo_jobs": 1,
+    "offline_locked": true,
+    "changed_formal_binaries": false
+  },
+  "refusals_observed": ["outside the loopback-only network namespace", "missing run-specific fixture directory"],
+  "encoding": {
+    "method": "image::codecs::png::PngEncoder::new(...).write_image(..., ExtendedColorType::Rgba8)",
+    "images": 20,
+    "size": [320, 416],
+    "full_rgba_equal_for_every_image": true,
+    "input_bytes_total": 173494,
+    "encoded_bytes_total": 610356
+  },
+  "positive_identity": {
+    "ordinary_session_validation": true,
+    "closed_in_process_fixture_requests": 1,
+    "private_session_saved_and_reloaded": true,
+    "live_requests": 0
+  },
+  "negative_input": "Copied after encoding, before establishing the synthetic identity; same catalog and covers",
+  "control_qualification": {
+    "visible_markers_x11_positive_negative": [10, 0],
+    "visible_markers_logical_positive_negative": [10, 0],
+    "negative_matches_empty_signed_out_reference": true,
+    "resident_covers_each": 10,
+    "resident_rgba_bytes_each": 5324800
+  },
+  "physical_device_accessed": false,
+  "session_or_database_exported": false
+}

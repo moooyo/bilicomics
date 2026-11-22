@@ -1,0 +1,62 @@
+{
+  "scope": "Warmed offline ordinary desktop; time in ms. The full-window match is an observation upper bound.",
+  "measured_pairs": 6,
+  "definite_B_earlier": 0,
+  "definite_B_later": 2,
+  "overlap_or_touch": 4,
+  "both_order_groups_first_observation_earlier": false,
+  "presentation_gate_passed": false,
+  "arm_medians_ms": {
+    "A": {
+      "producer": 106.554,
+      "ui_record": 106.643,
+      "ready": 110.744,
+      "feedback_upper": 28.74,
+      "full_shelf_upper": 132.559,
+      "shelf_uncertainty": 9.345,
+      "ready_to_full_shelf_upper": 24.159
+    },
+    "B": {
+      "producer": 106.699,
+      "ui_record": 106.735,
+      "ready": 109.411,
+      "feedback_upper": 28.533,
+      "full_shelf_upper": 136.71,
+      "shelf_uncertainty": 9.911,
+      "ready_to_full_shelf_upper": 26.4
+    }
+  },
+  "median_paired_B_minus_A_ms": {
+    "all": {
+      "producer": 1.121,
+      "ui_record": 1.103,
+      "ready": -0.168,
+      "feedback_upper": 0.092,
+      "full_shelf_upper": 3.496,
+      "shelf_uncertainty": 0.612,
+      "ready_to_full_shelf_upper": 1.802
+    },
+    "AB": {
+      "producer": 4.414,
+      "ui_record": 4.482,
+      "ready": 3.886,
+      "feedback_upper": 4.484,
+      "full_shelf_upper": 11.329,
+      "shelf_uncertainty": -1.919,
+      "ready_to_full_shelf_upper": 3.264
+    },
+    "BA": {
+      "producer": -0.786,
+      "ui_record": -0.825,
+      "ready": -2.311,
+      "feedback_upper": -0.168,
+      "full_shelf_upper": 0.74,
+      "shelf_uncertainty": 2.012,
+      "ready_to_full_shelf_upper": 0.341
+    }
+  },
+  "observed_shelf_bracket_width_ms": {
+    "min": 8.502,
+    "max": 12.28
+  }
+}

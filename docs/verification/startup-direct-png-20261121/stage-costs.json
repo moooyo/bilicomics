@@ -1,0 +1,291 @@
+{
+  "scope": "Warmed offline desktop; thread CPU in two measured stages, not end-to-end time or proof of a codec branch.",
+  "sources": {
+    "A": "9175002 + retained catalog inputs; control startup path",
+    "B": "same source and release settings as A + managed startup PNG direct decode candidate"
+  },
+  "route": "shelf",
+  "warmups_excluded": [
+    "a00",
+    "b00"
+  ],
+  "resident_covers": 10,
+  "cases": {
+    "a01": {
+      "pid": 134,
+      "process_enter_ns": 63453502961708,
+      "ui_ready_ns": 63453614971381,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 3904,
+        "worker_cpu_us": 3883,
+        "ui_attach_wall_us": 990,
+        "ui_attach_cpu_us": 981,
+        "combined_cpu_us": 4864
+      }
+    },
+    "b01": {
+      "pid": 171,
+      "process_enter_ns": 63454824511838,
+      "ui_ready_ns": 63454940407523,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 4934,
+        "worker_cpu_us": 4875,
+        "ui_attach_wall_us": 22,
+        "ui_attach_cpu_us": 22,
+        "combined_cpu_us": 4897
+      }
+    },
+    "b02": {
+      "pid": 209,
+      "process_enter_ns": 63456134946989,
+      "ui_ready_ns": 63456244064255,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 3700,
+        "worker_cpu_us": 3664,
+        "ui_attach_wall_us": 14,
+        "ui_attach_cpu_us": 14,
+        "combined_cpu_us": 3678
+      }
+    },
+    "a02": {
+      "pid": 245,
+      "process_enter_ns": 63457471394693,
+      "ui_ready_ns": 63457582977247,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 3849,
+        "worker_cpu_us": 3821,
+        "ui_attach_wall_us": 1414,
+        "ui_attach_cpu_us": 1401,
+        "combined_cpu_us": 5222
+      }
+    },
+    "a03": {
+      "pid": 283,
+      "process_enter_ns": 63458771335849,
+      "ui_ready_ns": 63458877717375,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 3489,
+        "worker_cpu_us": 3231,
+        "ui_attach_wall_us": 929,
+        "ui_attach_cpu_us": 922,
+        "combined_cpu_us": 4153
+      }
+    },
+    "b03": {
+      "pid": 320,
+      "process_enter_ns": 63460089726680,
+      "ui_ready_ns": 63460204173191,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 4135,
+        "worker_cpu_us": 4092,
+        "ui_attach_wall_us": 20,
+        "ui_attach_cpu_us": 20,
+        "combined_cpu_us": 4112
+      }
+    },
+    "b04": {
+      "pid": 358,
+      "process_enter_ns": 63461416225855,
+      "ui_ready_ns": 63461524516852,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 3953,
+        "worker_cpu_us": 3916,
+        "ui_attach_wall_us": 15,
+        "ui_attach_cpu_us": 15,
+        "combined_cpu_us": 3931
+      }
+    },
+    "a04": {
+      "pid": 395,
+      "process_enter_ns": 63462729950542,
+      "ui_ready_ns": 63462837842330,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 3507,
+        "worker_cpu_us": 3459,
+        "ui_attach_wall_us": 975,
+        "ui_attach_cpu_us": 968,
+        "combined_cpu_us": 4427
+      }
+    },
+    "a05": {
+      "pid": 432,
+      "process_enter_ns": 63464055303797,
+      "ui_ready_ns": 63464165743830,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 4416,
+        "worker_cpu_us": 4338,
+        "ui_attach_wall_us": 1312,
+        "ui_attach_cpu_us": 1290,
+        "combined_cpu_us": 5628
+      }
+    },
+    "b05": {
+      "pid": 470,
+      "process_enter_ns": 63465363321019,
+      "ui_ready_ns": 63465473025381,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 3931,
+        "worker_cpu_us": 3891,
+        "ui_attach_wall_us": 15,
+        "ui_attach_cpu_us": 15,
+        "combined_cpu_us": 3906
+      }
+    },
+    "b06": {
+      "pid": 507,
+      "process_enter_ns": 63466697465992,
+      "ui_ready_ns": 63466806202248,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 4107,
+        "worker_cpu_us": 4071,
+        "ui_attach_wall_us": 21,
+        "ui_attach_cpu_us": 21,
+        "combined_cpu_us": 4092
+      }
+    },
+    "a06": {
+      "pid": 544,
+      "process_enter_ns": 63468000977037,
+      "ui_ready_ns": 63468112024544,
+      "resident_bytes": 5324800,
+      "ui_batches": 2,
+      "costs": {
+        "worker_wall_us": 3767,
+        "worker_cpu_us": 3734,
+        "ui_attach_wall_us": 928,
+        "ui_attach_cpu_us": 919,
+        "combined_cpu_us": 4653
+      }
+    }
+  },
+  "pairs": [
+    {
+      "pair": 1,
+      "order": "AB",
+      "B_minus_A": {
+        "worker_wall_us": 1030,
+        "worker_cpu_us": 992,
+        "ui_attach_wall_us": -968,
+        "ui_attach_cpu_us": -959,
+        "combined_cpu_us": 33
+      }
+    },
+    {
+      "pair": 2,
+      "order": "BA",
+      "B_minus_A": {
+        "worker_wall_us": -149,
+        "worker_cpu_us": -157,
+        "ui_attach_wall_us": -1400,
+        "ui_attach_cpu_us": -1387,
+        "combined_cpu_us": -1544
+      }
+    },
+    {
+      "pair": 3,
+      "order": "AB",
+      "B_minus_A": {
+        "worker_wall_us": 646,
+        "worker_cpu_us": 861,
+        "ui_attach_wall_us": -909,
+        "ui_attach_cpu_us": -902,
+        "combined_cpu_us": -41
+      }
+    },
+    {
+      "pair": 4,
+      "order": "BA",
+      "B_minus_A": {
+        "worker_wall_us": 446,
+        "worker_cpu_us": 457,
+        "ui_attach_wall_us": -960,
+        "ui_attach_cpu_us": -953,
+        "combined_cpu_us": -496
+      }
+    },
+    {
+      "pair": 5,
+      "order": "AB",
+      "B_minus_A": {
+        "worker_wall_us": -485,
+        "worker_cpu_us": -447,
+        "ui_attach_wall_us": -1297,
+        "ui_attach_cpu_us": -1275,
+        "combined_cpu_us": -1722
+      }
+    },
+    {
+      "pair": 6,
+      "order": "BA",
+      "B_minus_A": {
+        "worker_wall_us": 340,
+        "worker_cpu_us": 337,
+        "ui_attach_wall_us": -907,
+        "ui_attach_cpu_us": -898,
+        "combined_cpu_us": -561
+      }
+    }
+  ],
+  "arm_medians": {
+    "A": {
+      "worker_wall_us": 3808.0,
+      "worker_cpu_us": 3777.5,
+      "ui_attach_wall_us": 982.5,
+      "ui_attach_cpu_us": 974.5,
+      "combined_cpu_us": 4758.5
+    },
+    "B": {
+      "worker_wall_us": 4030.0,
+      "worker_cpu_us": 3993.5,
+      "ui_attach_wall_us": 17.5,
+      "ui_attach_cpu_us": 17.5,
+      "combined_cpu_us": 4011.5
+    }
+  },
+  "paired_medians_B_minus_A": {
+    "all": {
+      "worker_wall_us": 393.0,
+      "worker_cpu_us": 397.0,
+      "ui_attach_wall_us": -964.0,
+      "ui_attach_cpu_us": -956.0,
+      "combined_cpu_us": -528.5
+    },
+    "AB": {
+      "worker_wall_us": 646,
+      "worker_cpu_us": 861,
+      "ui_attach_wall_us": -968,
+      "ui_attach_cpu_us": -959,
+      "combined_cpu_us": -41
+    },
+    "BA": {
+      "worker_wall_us": 340,
+      "worker_cpu_us": 337,
+      "ui_attach_wall_us": -960,
+      "ui_attach_cpu_us": -953,
+      "combined_cpu_us": -561
+    }
+  },
+  "pairs_with_lower_combined_cpu": 5
+}

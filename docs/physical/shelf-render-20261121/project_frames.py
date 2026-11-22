@@ -40,7 +40,7 @@ def shelf_order(stages):
     return "render_then_wait"
 
 
-def project_case(path, published, expected_rgb):
+def project_case(path, published, expected_rgb, *, include_release_clock=False):
     final, click = (load(path / leaf) for leaf in ("final.json", "click.json"))
     perf, life = (records(path / leaf) for leaf in ("performance.jsonl", "lifecycle.jsonl"))
     pid = final["process_id"]
@@ -122,10 +122,14 @@ def project_case(path, published, expected_rgb):
     third_wait = None
     if len(loading) >= 3:
         third_wait = bounds(loading[2]["stages"]["preceding_update_wait"])[0]
+        require(splash <= third_wait <= ready, "Third loading wait is outside startup feedback")
         metrics["state_observed_minus_third_wait_start"] = published_ns - third_wait
-    return {"case": path.name, "pid": pid, "shelf_performance_line": line, "previous_marker": prior_marker,
+    case = {"case": path.name, "pid": pid, "shelf_performance_line": line, "previous_marker": prior_marker,
             "shelf_marker": marker, "loading_frames": len(loading), "order": order, "ns": metrics,
             "state_clocks_ns": {"producer_observation": published_ns, "ui_record": consumed, "third_loading_wait_start": third_wait}}
+    if include_release_clock:
+        case["release_monotonic_ns"] = origin
+    return case
 
 
 def ms(nanoseconds):
@@ -141,7 +145,7 @@ def distribution(samples):
     return result
 
 
-def project(batch, report):
+def project(batch, report, *, include_release_clock=False):
     admission, released = (load(batch / leaf) for leaf in ("admission.json", "released.json"))
     require(admission["dry_only"] is False and not (batch / "failure.json").exists() and (batch / "uninstalled").is_file()
             and released["ok"] is True and released["state"] == "released" and released["owner_thread"] == admission["owner"]
@@ -152,7 +156,8 @@ def project(batch, report):
     schedule = [arm + f"{pair:02}" for pair in range(7) for arm in ("ab" if pair == 0 or pair % 2 else "ba")]
     require(schedule == admission["schedule"] == report["schedule"] and set(report["cases"]) == set(schedule)
             and report["warmups_excluded"] == schedule[:2], "Invalid paired schedule")
-    cases = [project_case(batch / name, report["cases"][name], report["common_shelf_rgb_fingerprint"]) for name in schedule[2:]]
+    cases = [project_case(batch / name, report["cases"][name], report["common_shelf_rgb_fingerprint"],
+                          include_release_clock=include_release_clock) for name in schedule[2:]]
     require(len({case["pid"] for case in cases}) == len(cases), "Reused measured process")
     groups = {f"{count}_loading_frames": [case for case in cases if case["loading_frames"] == count]
               for count in sorted({case["loading_frames"] for case in cases})}
@@ -174,5 +179,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("batch", type=Path, help="Closed case directory, optionally unpacked from the allowlisted archive")
     parser.add_argument("paired_result", type=Path)
+    parser.add_argument("--include-release-clock", action="store_true", help="Include the checked same-case monotonic click origin for pre-ready analysis")
     args = parser.parse_args()
-    print(json.dumps(project(args.batch, load(args.paired_result)), indent=2))
+    print(json.dumps(project(args.batch, load(args.paired_result), include_release_clock=args.include_release_clock), indent=2))

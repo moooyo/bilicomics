@@ -1,0 +1,719 @@
+{
+  "schema": "ordinary-shelf-interaction-v1",
+  "clock": "CLOCK_MONOTONIC",
+  "poll_interval_ns": 4000000,
+  "schedule": [
+    "w00",
+    "s01",
+    "s02",
+    "s03",
+    "s04",
+    "s05",
+    "s06"
+  ],
+  "excluded_warmups": [
+    "w00"
+  ],
+  "cases": {
+    "w00": {
+      "pid": 53,
+      "xid": 4194307,
+      "feedback": {
+        "last_negative_ns": null,
+        "title_ns": [
+          70216247210495,
+          70216247576855
+        ],
+        "activity_ns": [
+          70216248158871,
+          70216248212229
+        ]
+      },
+      "shelf": {
+        "bar_ns": [
+          70216347253407,
+          70216347472442
+        ],
+        "title_ns": [
+          70216347781463,
+          70216347842922
+        ],
+        "root_bar_ns": [
+          70216347890901,
+          70216348083726
+        ],
+        "root_title_ns": [
+          70216348308680,
+          70216348364619
+        ],
+        "last_negative_ns": [
+          70216343169673,
+          70216343772387
+        ]
+      },
+      "input": {
+        "point": [
+          1708,
+          136
+        ],
+        "focus": "pointer-root",
+        "press_ns": [
+          70216348954094,
+          70216349063671
+        ],
+        "release_ns": [
+          70216365266383,
+          70216365601264
+        ],
+        "pid_xid_verified": true,
+        "topmost_target_verified": true,
+        "server_press_verified": true,
+        "server_release_verified": true,
+        "hold_target_ms": 16
+      },
+      "response": {
+        "prepress_closed_ns": [
+          70216348410317,
+          70216348492715
+        ],
+        "prepress_root_closed_ns": [
+          70216348566713,
+          70216348644181
+        ],
+        "last_negative_ns": [
+          70216394455031,
+          70216394615097
+        ],
+        "first_match_ns": [
+          70216398583565,
+          70216398779289
+        ],
+        "root_match_ns": [
+          70216399070673,
+          70216399153870
+        ],
+        "confirmation_ns": [
+          70216479370823,
+          70216479581598
+        ]
+      },
+      "case": "w00",
+      "launcher_ns": 70216216941765,
+      "process_enter_ns": 70216218797846,
+      "final": {
+        "route": "shelf",
+        "normal_exit": true,
+        "menu_open": true,
+        "offline": true,
+        "demo": false,
+        "profile": "scribe",
+        "backend": "desktop-software",
+        "shelf_page": 1,
+        "shelf_pages": 2,
+        "ready_covers": 10,
+        "resident_bytes": 5324800,
+        "lifecycle_ready_ns": 70216321534980
+      }
+    },
+    "s01": {
+      "pid": 95,
+      "xid": 4194307,
+      "feedback": {
+        "last_negative_ns": null,
+        "title_ns": [
+          70217867875578,
+          70217868299358
+        ],
+        "activity_ns": [
+          70217868878282,
+          70217868937851
+        ]
+      },
+      "shelf": {
+        "bar_ns": [
+          70217971831590,
+          70217972187261
+        ],
+        "title_ns": [
+          70217972959301,
+          70217973091837
+        ],
+        "root_bar_ns": [
+          70217973177846,
+          70217973378280
+        ],
+        "root_title_ns": [
+          70217973617704,
+          70217973680392
+        ],
+        "last_negative_ns": [
+          70217967648578,
+          70217968100986
+        ]
+      },
+      "input": {
+        "point": [
+          1708,
+          136
+        ],
+        "focus": "pointer-root",
+        "press_ns": [
+          70217974323266,
+          70217974421143
+        ],
+        "release_ns": [
+          70217990599326,
+          70217990941877
+        ],
+        "pid_xid_verified": true,
+        "topmost_target_verified": true,
+        "server_press_verified": true,
+        "server_release_verified": true,
+        "hold_target_ms": 16
+      },
+      "response": {
+        "prepress_closed_ns": [
+          70217973735791,
+          70217973819118
+        ],
+        "prepress_root_closed_ns": [
+          70217973894056,
+          70217973971364
+        ],
+        "last_negative_ns": [
+          70218007779144,
+          70218008084595
+        ],
+        "first_match_ns": [
+          70218011922647,
+          70218014643597
+        ],
+        "root_match_ns": [
+          70218015042446,
+          70218015209943
+        ],
+        "confirmation_ns": [
+          70218095472044,
+          70218095790156
+        ]
+      },
+      "case": "s01",
+      "launcher_ns": 70217827876889,
+      "process_enter_ns": 70217830096861,
+      "final": {
+        "route": "shelf",
+        "normal_exit": true,
+        "menu_open": true,
+        "offline": true,
+        "demo": false,
+        "profile": "scribe",
+        "backend": "desktop-software",
+        "shelf_page": 1,
+        "shelf_pages": 2,
+        "ready_covers": 10,
+        "resident_bytes": 5324800,
+        "lifecycle_ready_ns": 70217938588006
+      }
+    },
+    "s02": {
+      "pid": 139,
+      "xid": 4194307,
+      "feedback": {
+        "last_negative_ns": null,
+        "title_ns": [
+          70219497829552,
+          70219498264071
+        ],
+        "activity_ns": [
+          70219498829837,
+          70219498898975
+        ]
+      },
+      "shelf": {
+        "bar_ns": [
+          70219597619861,
+          70219598053000
+        ],
+        "title_ns": [
+          70219598343802,
+          70219598484458
+        ],
+        "root_bar_ns": [
+          70219598538168,
+          70219598836820
+        ],
+        "root_title_ns": [
+          70219599074853,
+          70219599176891
+        ],
+        "last_negative_ns": [
+          70219593477027,
+          70219593849148
+        ]
+      },
+      "input": {
+        "point": [
+          1708,
+          136
+        ],
+        "focus": "pointer-root",
+        "press_ns": [
+          70219600164655,
+          70219600328941
+        ],
+        "release_ns": [
+          70219616556664,
+          70219617289944
+        ],
+        "pid_xid_verified": true,
+        "topmost_target_verified": true,
+        "server_press_verified": true,
+        "server_release_verified": true,
+        "hold_target_ms": 16
+      },
+      "response": {
+        "prepress_closed_ns": [
+          70219599221539,
+          70219599346566
+        ],
+        "prepress_root_closed_ns": [
+          70219599420014,
+          70219599558721
+        ],
+        "last_negative_ns": [
+          70219642420156,
+          70219642620412
+        ],
+        "first_match_ns": [
+          70219646516922,
+          70219648970768
+        ],
+        "root_match_ns": [
+          70219649094625,
+          70219649255620
+        ],
+        "confirmation_ns": [
+          70219729422635,
+          70219729923092
+        ]
+      },
+      "case": "s02",
+      "launcher_ns": 70219466188967,
+      "process_enter_ns": 70219468240254,
+      "final": {
+        "route": "shelf",
+        "normal_exit": true,
+        "menu_open": true,
+        "offline": true,
+        "demo": false,
+        "profile": "scribe",
+        "backend": "desktop-software",
+        "shelf_page": 1,
+        "shelf_pages": 2,
+        "ready_covers": 10,
+        "resident_bytes": 5324800,
+        "lifecycle_ready_ns": 70219573718387
+      }
+    },
+    "s03": {
+      "pid": 181,
+      "xid": 4194307,
+      "feedback": {
+        "last_negative_ns": null,
+        "title_ns": [
+          70221089493573,
+          70221089972471
+        ],
+        "activity_ns": [
+          70221090516466,
+          70221090570035
+        ]
+      },
+      "shelf": {
+        "bar_ns": [
+          70221189178115,
+          70221189458147
+        ],
+        "title_ns": [
+          70221190193388,
+          70221190257787
+        ],
+        "root_bar_ns": [
+          70221190306735,
+          70221190465921
+        ],
+        "root_title_ns": [
+          70221190707505,
+          70221190768883
+        ],
+        "last_negative_ns": [
+          70221185053311,
+          70221185358573
+        ]
+      },
+      "input": {
+        "point": [
+          1708,
+          136
+        ],
+        "focus": "pointer-root",
+        "press_ns": [
+          70221191352508,
+          70221191448706
+        ],
+        "release_ns": [
+          70221207636789,
+          70221207939591
+        ],
+        "pid_xid_verified": true,
+        "topmost_target_verified": true,
+        "server_press_verified": true,
+        "server_release_verified": true,
+        "hold_target_ms": 16
+      },
+      "response": {
+        "prepress_closed_ns": [
+          70221190814812,
+          70221190900381
+        ],
+        "prepress_root_closed_ns": [
+          70221190972989,
+          70221191059706
+        ],
+        "last_negative_ns": [
+          70221220666123,
+          70221220860889
+        ],
+        "first_match_ns": [
+          70221224820836,
+          70221225045731
+        ],
+        "root_match_ns": [
+          70221225246745,
+          70221225364302
+        ],
+        "confirmation_ns": [
+          70221305679662,
+          70221306190490
+        ]
+      },
+      "case": "s03",
+      "launcher_ns": 70221060955289,
+      "process_enter_ns": 70221062193896,
+      "final": {
+        "route": "shelf",
+        "normal_exit": true,
+        "menu_open": true,
+        "offline": true,
+        "demo": false,
+        "profile": "scribe",
+        "backend": "desktop-software",
+        "shelf_page": 1,
+        "shelf_pages": 2,
+        "ready_covers": 10,
+        "resident_bytes": 5324800,
+        "lifecycle_ready_ns": 70221164234917
+      }
+    },
+    "s04": {
+      "pid": 224,
+      "xid": 4194307,
+      "feedback": {
+        "last_negative_ns": null,
+        "title_ns": [
+          70222717984864,
+          70222718483242
+        ],
+        "activity_ns": [
+          70222719070796,
+          70222719137445
+        ]
+      },
+      "shelf": {
+        "bar_ns": [
+          70222814346492,
+          70222814652534
+        ],
+        "title_ns": [
+          70222815302767,
+          70222815377945
+        ],
+        "root_bar_ns": [
+          70222815426074,
+          70222815606159
+        ],
+        "root_title_ns": [
+          70222815845973,
+          70222815918441
+        ],
+        "last_negative_ns": [
+          70222810158100,
+          70222810754724
+        ]
+      },
+      "input": {
+        "point": [
+          1708,
+          136
+        ],
+        "focus": "pointer-root",
+        "press_ns": [
+          70222816531295,
+          70222816629613
+        ],
+        "release_ns": [
+          70222832806666,
+          70222833147318
+        ],
+        "pid_xid_verified": true,
+        "topmost_target_verified": true,
+        "server_press_verified": true,
+        "server_release_verified": true,
+        "hold_target_ms": 16
+      },
+      "response": {
+        "prepress_closed_ns": [
+          70222815964020,
+          70222816061937
+        ],
+        "prepress_root_closed_ns": [
+          70222816135955,
+          70222816212574
+        ],
+        "last_negative_ns": [
+          70222841548201,
+          70222841685347
+        ],
+        "first_match_ns": [
+          70222845764952,
+          70222847379321
+        ],
+        "root_match_ns": [
+          70222847532837,
+          70222847647734
+        ],
+        "confirmation_ns": [
+          70222927896516,
+          70222928333985
+        ]
+      },
+      "case": "s04",
+      "launcher_ns": 70222680571598,
+      "process_enter_ns": 70222683058084,
+      "final": {
+        "route": "shelf",
+        "normal_exit": true,
+        "menu_open": true,
+        "offline": true,
+        "demo": false,
+        "profile": "scribe",
+        "backend": "desktop-software",
+        "shelf_page": 1,
+        "shelf_pages": 2,
+        "ready_covers": 10,
+        "resident_bytes": 5324800,
+        "lifecycle_ready_ns": 70222789845173
+      }
+    },
+    "s05": {
+      "pid": 269,
+      "xid": 4194307,
+      "feedback": {
+        "last_negative_ns": null,
+        "title_ns": [
+          70224351798620,
+          70224352215398
+        ],
+        "activity_ns": [
+          70224352783304,
+          70224352836563
+        ]
+      },
+      "shelf": {
+        "bar_ns": [
+          70224451640127,
+          70224453430850
+        ],
+        "title_ns": [
+          70224453747613,
+          70224453811101
+        ],
+        "root_bar_ns": [
+          70224453859060,
+          70224454035915
+        ],
+        "root_title_ns": [
+          70224454262949,
+          70224454330337
+        ],
+        "last_negative_ns": [
+          70224447522653,
+          70224447812766
+        ]
+      },
+      "input": {
+        "point": [
+          1708,
+          136
+        ],
+        "focus": "pointer-root",
+        "press_ns": [
+          70224454904873,
+          70224454994790
+        ],
+        "release_ns": [
+          70224471191393,
+          70224471486626
+        ],
+        "pid_xid_verified": true,
+        "topmost_target_verified": true,
+        "server_press_verified": true,
+        "server_release_verified": true,
+        "hold_target_ms": 16
+      },
+      "response": {
+        "prepress_closed_ns": [
+          70224454380856,
+          70224454458734
+        ],
+        "prepress_root_closed_ns": [
+          70224454529093,
+          70224454602471
+        ],
+        "last_negative_ns": [
+          70224496480482,
+          70224496756255
+        ],
+        "first_match_ns": [
+          70224500579066,
+          70224501811734
+        ],
+        "root_match_ns": [
+          70224502118186,
+          70224502212284
+        ],
+        "confirmation_ns": [
+          70224582424217,
+          70224582727350
+        ]
+      },
+      "case": "s05",
+      "launcher_ns": 70224321796022,
+      "process_enter_ns": 70224323465720,
+      "final": {
+        "route": "shelf",
+        "normal_exit": true,
+        "menu_open": true,
+        "offline": true,
+        "demo": false,
+        "profile": "scribe",
+        "backend": "desktop-software",
+        "shelf_page": 1,
+        "shelf_pages": 2,
+        "ready_covers": 10,
+        "resident_bytes": 5324800,
+        "lifecycle_ready_ns": 70224430062123
+      }
+    },
+    "s06": {
+      "pid": 311,
+      "xid": 4194307,
+      "feedback": {
+        "last_negative_ns": null,
+        "title_ns": [
+          70225980943085,
+          70225981342624
+        ],
+        "activity_ns": [
+          70225981944849,
+          70225982009487
+        ]
+      },
+      "shelf": {
+        "bar_ns": [
+          70226076796615,
+          70226077805929
+        ],
+        "title_ns": [
+          70226078161390,
+          70226078240087
+        ],
+        "root_bar_ns": [
+          70226078290456,
+          70226078484231
+        ],
+        "root_title_ns": [
+          70226078720655,
+          70226078792544
+        ],
+        "last_negative_ns": [
+          70226072613602,
+          70226073047861
+        ]
+      },
+      "input": {
+        "point": [
+          1708,
+          136
+        ],
+        "focus": "pointer-root",
+        "press_ns": [
+          70226079390548,
+          70226079486455
+        ],
+        "release_ns": [
+          70226095659798,
+          70226095967621
+        ],
+        "pid_xid_verified": true,
+        "topmost_target_verified": true,
+        "server_press_verified": true,
+        "server_release_verified": true,
+        "hold_target_ms": 16
+      },
+      "response": {
+        "prepress_closed_ns": [
+          70226078837673,
+          70226078918660
+        ],
+        "prepress_root_closed_ns": [
+          70226078991658,
+          70226079066786
+        ],
+        "last_negative_ns": [
+          70226125350694,
+          70226125517469
+        ],
+        "first_match_ns": [
+          70226129539876,
+          70226129774799
+        ],
+        "root_match_ns": [
+          70226130106451,
+          70226130226978
+        ],
+        "confirmation_ns": [
+          70226210433322,
+          70226210745723
+        ]
+      },
+      "case": "s06",
+      "launcher_ns": 70225949890695,
+      "process_enter_ns": 70225951140112,
+      "final": {
+        "route": "shelf",
+        "normal_exit": true,
+        "menu_open": true,
+        "offline": true,
+        "demo": false,
+        "profile": "scribe",
+        "backend": "desktop-software",
+        "shelf_page": 1,
+        "shelf_pages": 2,
+        "ready_covers": 10,
+        "resident_bytes": 5324800,
+        "lifecycle_ready_ns": 70226055087724
+      }
+    }
+  }
+}

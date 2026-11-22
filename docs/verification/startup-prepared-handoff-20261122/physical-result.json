@@ -1,0 +1,68 @@
+{
+  "schema": "bili-prepared-handoff-observations-v1",
+  "threshold_ns": 250000000,
+  "planned_visits": 3,
+  "eligible_observations": 3,
+  "at_or_above_threshold": 0,
+  "answer": "not-observed-in-three",
+  "visits": [
+    {
+      "ordinal": 1,
+      "status": "observed",
+      "receive_source": "runtime_wakeup",
+      "producer_to_ui_receive_ns": 82308,
+      "at_least_250_ms": false,
+      "card_to_shelf_renderer_interval_ns": [
+        6339278077,
+        6341025923
+      ],
+      "card_to_accepted_send_interval_ns": [
+        6380367923,
+        6382115769
+      ],
+      "card_to_same_marker_driver_interval_ns": [
+        6743111539,
+        6744859385
+      ]
+    },
+    {
+      "ordinal": 2,
+      "status": "observed",
+      "receive_source": "runtime_wakeup",
+      "producer_to_ui_receive_ns": 105155462,
+      "at_least_250_ms": false,
+      "card_to_shelf_renderer_interval_ns": [
+        6372219077,
+        6373380077
+      ],
+      "card_to_accepted_send_interval_ns": [
+        6406253077,
+        6407414077
+      ],
+      "card_to_same_marker_driver_interval_ns": [
+        6770941077,
+        6772102077
+      ]
+    },
+    {
+      "ordinal": 3,
+      "status": "observed",
+      "receive_source": "runtime_wakeup",
+      "producer_to_ui_receive_ns": 33878923,
+      "at_least_250_ms": false,
+      "card_to_shelf_renderer_interval_ns": [
+        6264939231,
+        6266057770
+      ],
+      "card_to_accepted_send_interval_ns": [
+        6305699000,
+        6306817539
+      ],
+      "card_to_same_marker_driver_interval_ns": [
+        6670714308,
+        6671832847
+      ]
+    }
+  ],
+  "scope": "One diagnostic build and offline Shelf seed. The gap is not a saving, an optical delay or proof of a lost wake."
+}

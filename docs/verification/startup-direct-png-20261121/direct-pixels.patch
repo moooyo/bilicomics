@@ -1,0 +1,382 @@
+diff --git a/src/app/covers.rs b/src/app/covers.rs
+index 8b4a1bc..a6a084f 100644
+--- a/src/app/covers.rs
++++ b/src/app/covers.rs
+@@ -24,8 +24,9 @@ pub(super) fn cached_cover_path(data_dir: &Path, url: &str) -> PathBuf {
+     data_dir.join("covers").join(format!("{}.png", hex_digest(url.as_bytes())))
+ }
+ 
+-pub(super) fn read_cached_cover(data_dir: &Path, url: &str) -> anyhow::Result<Option<(Vec<u8>, u32, u32)>> {
+-    disk::read_cover(data_dir, &format!("{}.png", hex_digest(url.as_bytes())))
++pub(super) fn read_startup_cover(data_dir: &Path, url: &str, remaining: usize) -> anyhow::Result<Option<startup::StartupCoverPixels>> {
++    disk::read_cover_bytes(data_dir, &format!("{}.png", hex_digest(url.as_bytes())))?
++        .map(|encoded| startup::decode_managed_startup_cover(encoded, remaining)).transpose()
+ }
+ 
+ pub(super) fn read_sleep_cover(data_dir: &Path, name: &str) -> anyhow::Result<Option<Vec<u8>>> {
+@@ -447,9 +448,13 @@ impl App {
+             }
+             return;
+         }
+-        self.cover_sequence = self.cover_sequence.wrapping_add(1);
+-        let bytes = rgba.len();
+         let pixels = slint::SharedPixelBuffer::<slint::Rgba8Pixel>::clone_from_slice(&rgba, width, height);
++        self.remember_cover_pixels(id, path, pixels);
++    }
++
++    pub(super) fn remember_cover_pixels(&mut self, id: String, path: PathBuf, pixels: slint::SharedPixelBuffer<slint::Rgba8Pixel>) {
++        let bytes = pixels.as_bytes().len();
++        self.cover_sequence = self.cover_sequence.wrapping_add(1);
+         let key = (self.account.clone(), id.clone());
+         self.cover_state.published(&id, if self.demo.is_none() { path.file_name().and_then(|name| name.to_str()) } else { None }, Instant::now());
+         self.cover_failed.remove(&id);
+diff --git a/src/app/covers/tests.rs b/src/app/covers/tests.rs
+index 97a481e..9858043 100644
+--- a/src/app/covers/tests.rs
++++ b/src/app/covers/tests.rs
+@@ -398,5 +398,9 @@ fn successful_local_publication_recovers_a_missing_offline_cover_immediately() -
+     let (decoded, width, height) = disk::read_cover(directory.path(), &name)?.expect("Published cover");
+     assert_eq!((width, height), (2, 2));
+     assert_eq!(decoded, rgba);
++    let url = "https://fixture.invalid/cover.png?token=exact";
++    let Some(startup::StartupCoverPixels::Direct(pixels)) = read_startup_cover(directory.path(), url, rgba.len())?
++        else { anyhow::bail!("The managed writer did not produce a directly decodable cover") };
++    assert_eq!(pixels.as_bytes(), rgba);
+     Ok(())
+ }
+diff --git a/src/app/startup.rs b/src/app/startup.rs
+index 4820aff..49a9959 100644
+--- a/src/app/startup.rs
++++ b/src/app/startup.rs
+@@ -8,7 +8,7 @@ const MAX_STARTUP_COVER_BYTES: u64 = 8 * 1024 * 1024;
+ const STARTUP_COVER_MEMORY: usize = 16 * 1024 * 1024;
+ const COVER_ATTACH_BUDGET: usize = 4 * 1024 * 1024;
+ 
+-/// No Slint object or callback is constructed on the preparation worker.
++/// No Slint image, window or callback is constructed on the preparation worker.
+ /// The metadata connection moves to its single UI-thread owner at attachment.
+ pub struct PreparedApp {
+     options: AppOptions,
+@@ -57,9 +57,18 @@ pub(super) enum AttachStage {
+ pub(super) struct PreparedCover {
+     comic_id: String,
+     path: PathBuf,
+-    rgba: Vec<u8>,
+-    width: u32,
+-    height: u32,
++    pixels: StartupCoverPixels,
++}
++
++pub(super) enum StartupCoverPixels {
++    Raw((Vec<u8>, u32, u32)),
++    Direct(slint::SharedPixelBuffer<slint::Rgba8Pixel>),
++}
++
++impl StartupCoverPixels {
++    fn byte_len(&self) -> usize {
++        match self { Self::Raw((rgba, _, _)) => rgba.len(), Self::Direct(pixels) => pixels.as_bytes().len() }
++    }
+ }
+ 
+ fn startup_screen<'a>(requested: &'a str, preferences: &Preferences, has_resume: bool) -> &'a str {
+@@ -310,11 +319,14 @@ impl App {
+         let result = (|| {
+             match stage {
+                 AttachStage::Covers => {
+-                    let mut copied = 0;
+-                    while copied < COVER_ATTACH_BUDGET {
++                    let mut attached_bytes = 0;
++                    while attached_bytes < COVER_ATTACH_BUDGET {
+                         let Some(cover) = self.startup_covers.pop_front() else { break; };
+-                        copied += cover.rgba.len();
+-                        self.remember_cover(cover.comic_id, cover.path, cover.rgba, cover.width, cover.height);
++                        attached_bytes += cover.pixels.byte_len();
++                        match cover.pixels {
++                            StartupCoverPixels::Raw((rgba, width, height)) => self.remember_cover(cover.comic_id, cover.path, rgba, width, height),
++                            StartupCoverPixels::Direct(pixels) => self.remember_cover_pixels(cover.comic_id, cover.path, pixels),
++                        }
+                     }
+                     if self.startup_covers.is_empty() { self.startup_stage = Some(AttachStage::Catalog); }
+                 }
+@@ -446,13 +458,15 @@ fn prepare_covers(data_dir: &Path, comics: &[Comic], demo: Option<&DemoData>) ->
+     for comic in comics.iter().take(covers::COVER_METADATA_LIMIT) {
+         let path = demo.and_then(|demo| demo.covers.get(&comic.id)).cloned()
+             .unwrap_or_else(|| covers::cached_cover_path(data_dir, &comic.cover_url));
+-        let decoded = if demo.is_some() { decode_cover(&path) }
+-            else { covers::read_cached_cover(data_dir, &comic.cover_url) };
++        let remaining = STARTUP_COVER_MEMORY - retained_bytes;
++        let decoded = if demo.is_some() { decode_cover(&path).map(|result| result.map(StartupCoverPixels::Raw)) }
++            else { covers::read_startup_cover(data_dir, &comic.cover_url, remaining) };
+         match decoded {
+-            Ok(Some((rgba, width, height))) => {
+-                if retained_bytes + rgba.len() > STARTUP_COVER_MEMORY { break; }
+-                retained_bytes += rgba.len();
+-                prepared.push_back(PreparedCover { comic_id: comic.id.clone(), path, rgba, width, height });
++            Ok(Some(pixels)) => {
++                let bytes = pixels.byte_len();
++                if bytes > remaining { break; }
++                retained_bytes += bytes;
++                prepared.push_back(PreparedCover { comic_id: comic.id.clone(), path, pixels });
+             }
+             Ok(None) => {}
+             Err(_) => { failed.insert(comic.id.clone()); }
+@@ -487,22 +501,51 @@ pub(super) fn decode_cover(path: &Path) -> Result<Option<(Vec<u8>, u32, u32)>> {
+     decode_cover_bytes(encoded).map(Some)
+ }
+ 
+-pub(super) fn decode_cover_bytes(encoded: Vec<u8>) -> Result<(Vec<u8>, u32, u32)> {
+-    anyhow::ensure!(encoded.len() as u64 <= MAX_STARTUP_COVER_BYTES, "Cover data exceeds its byte limit");
+-    let mut reader = image::ImageReader::new(Cursor::new(encoded)).with_guessed_format()?;
++fn cover_limits() -> image::Limits {
+     let mut limits = image::Limits::default();
+     limits.max_image_width = Some(4096);
+     limits.max_image_height = Some(4096);
+     limits.max_alloc = Some(64 * 1024 * 1024);
+-    reader.limits(limits);
+-    let decoded = reader.decode()?;
++    limits
++}
++
++pub(super) fn decode_managed_startup_cover(encoded: Vec<u8>, remaining: usize) -> Result<StartupCoverPixels> {
++    use image::ImageDecoder;
++    if !encoded.starts_with(b"\x89PNG\r\n\x1a\n\0\0\0\rIHDR") || encoded.get(24..29) != Some(&[8, 6, 0, 0, 0]) {
++        return decode_cover_bytes(encoded).map(StartupCoverPixels::Raw);
++    }
++    anyhow::ensure!(encoded.len() as u64 <= MAX_STARTUP_COVER_BYTES, "Cover data exceeds its byte limit");
++    let mut limits = cover_limits();
++    let mut decoder = image::codecs::png::PngDecoder::with_limits(Cursor::new(encoded), limits.clone())?;
++    let bytes = decoder.total_bytes();
++    limits.reserve(bytes)?;
++    decoder.set_limits(limits)?;
++    let (width, height) = decoder.dimensions();
++    if (1..=480).contains(&width) && (1..=640).contains(&height) && bytes <= remaining as u64
++        && decoder.color_type() == image::ColorType::Rgba8 && !decoder.is_apng()? {
++        anyhow::ensure!(bytes == u64::from(width) * u64::from(height) * 4, "Invalid prepared cover pixel count");
++        let mut pixels = slint::SharedPixelBuffer::<slint::Rgba8Pixel>::new(width, height);
++        decoder.read_image(pixels.make_mut_bytes())?;
++        return Ok(StartupCoverPixels::Direct(pixels));
++    }
++    Ok(StartupCoverPixels::Raw(cover_rgba(image::DynamicImage::from_decoder(decoder)?)))
++}
++
++pub(super) fn decode_cover_bytes(encoded: Vec<u8>) -> Result<(Vec<u8>, u32, u32)> {
++    anyhow::ensure!(encoded.len() as u64 <= MAX_STARTUP_COVER_BYTES, "Cover data exceeds its byte limit");
++    let mut reader = image::ImageReader::new(Cursor::new(encoded)).with_guessed_format()?;
++    reader.limits(cover_limits());
++    Ok(cover_rgba(reader.decode()?))
++}
++
++fn cover_rgba(decoded: image::DynamicImage) -> (Vec<u8>, u32, u32) {
+     let rgba = if decoded.width() > 480 || decoded.height() > 640 {
+         decoded.thumbnail(480, 640).into_rgba8()
+     } else {
+         decoded.into_rgba8()
+     };
+     let (width, height) = rgba.dimensions();
+-    Ok((rgba.into_raw(), width, height))
++    (rgba.into_raw(), width, height)
+ }
+ 
+ #[cfg(not(windows))]
+@@ -730,8 +773,13 @@ mod tests {
+     }
+ 
+     fn cover_snapshot(prepared: &PreparedApp) -> Vec<(String, PathBuf, Vec<u8>, (u32, u32))> {
+-        prepared.covers.iter().map(|cover| (cover.comic_id.clone(), cover.path.clone(),
+-            cover.rgba.clone(), (cover.width, cover.height))).collect()
++        prepared.covers.iter().map(|cover| {
++            let (rgba, width, height) = match &cover.pixels {
++                StartupCoverPixels::Raw(raw) => raw.clone(),
++                StartupCoverPixels::Direct(pixels) => (pixels.as_bytes().to_vec(), pixels.width(), pixels.height()),
++            };
++            (cover.comic_id.clone(), cover.path.clone(), rgba, (width, height))
++        }).collect()
+     }
+ 
+     #[test]
+@@ -748,6 +796,14 @@ mod tests {
+         assert_eq!(prepared.resume_comic.as_deref(), Some("28601"));
+         assert!(prepared.demo.is_some());
+         assert!(!directory.path().join("account").exists());
++        let mut fixture = prepared.demo.as_deref().unwrap().clone();
++        let comic = &fixture.comics[0];
++        let path = prepared.data_dir.join("isolated-rgba.png");
++        std::fs::write(&path, encoded_cover(1, 1, [17, 83, 149, 37])?)?;
++        fixture.covers.insert(comic.id.clone(), path);
++        let (covers, failed) = prepare_covers(&prepared.data_dir, std::slice::from_ref(comic), Some(&fixture));
++        assert!(failed.is_empty());
++        assert!(matches!(covers[0].pixels, StartupCoverPixels::Raw(_)));
+         Ok(())
+     }
+ 
+@@ -799,6 +855,145 @@ mod tests {
+         Ok(())
+     }
+ 
++    #[test]
++    #[ignore = "Qualify a disposable, marked copy of the isolated managed-cover timing fixture"]
++    fn managed_startup_seed_uses_direct_for_all_ten_covers() -> Result<()> {
++        let data_dir = PathBuf::from(std::env::var_os("BILICOMICS_SYNTHETIC_COVER_DIR").context("Missing synthetic cover directory")?);
++        let metadata = std::fs::symlink_metadata(&data_dir)?;
++        anyhow::ensure!(data_dir.is_absolute() && metadata.is_dir(), "Expected a private synthetic directory");
++        #[cfg(unix)] {
++            use std::os::unix::fs::PermissionsExt;
++            anyhow::ensure!(metadata.permissions().mode() & 0o077 == 0, "The synthetic directory must be private");
++        }
++        let marker = data_dir.join(".managed-startup-test-fixture");
++        anyhow::ensure!(std::fs::symlink_metadata(&marker)?.is_file()
++            && std::fs::read(marker)? == b"synthetic-managed-covers-v1\n", "Missing synthetic fixture marker");
++        let database = data_dir.join("state.sqlite3");
++        anyhow::ensure!(std::fs::symlink_metadata(&database)?.is_file(), "Missing synthetic database");
++        let store = Store::open(database)?;
++        let account = "bili_424242";
++        anyhow::ensure!(store.preference::<String>("device", "last_account")?.as_deref() == Some(account)
++            && store.latest_anchor(account)?.is_none(), "Unexpected synthetic account fixture");
++        let catalog = CatalogState::prepare(&store, account, None)?;
++        let comics = catalog.startup_cover_comics("shelf", true, None, false);
++        let (covers, failed) = prepare_covers(&data_dir, &comics, None);
++        anyhow::ensure!(failed.is_empty() && comics.len() == 10 && covers.len() == comics.len(), "Incomplete synthetic Shelf");
++        let mut bytes = 0;
++        for (cover, comic) in covers.iter().zip(&comics) {
++            let StartupCoverPixels::Direct(pixels) = &cover.pixels else { anyhow::bail!("A selected cover used fallback") };
++            let name = cover.path.file_name().and_then(|name| name.to_str()).context("Missing managed name")?;
++            let encoded = covers::read_sleep_cover(&data_dir, name)?.context("Missing synthetic cover")?;
++            let (rgba, width, height) = decode_cover_bytes(encoded)?;
++            anyhow::ensure!(cover.comic_id == comic.id && (width, height) == (320, 416)
++                && (pixels.width(), pixels.height()) == (width, height) && pixels.as_bytes() == rgba,
++                "Direct cover pixels differ from the original decoder");
++            bytes += pixels.as_bytes().len();
++        }
++        assert_eq!(bytes, 5_324_800);
++        eprintln!("managed_startup_seed selected={} direct={} fallback=0 legacy_pixel_matches={} rgba_bytes={bytes}",
++            comics.len(), covers.len(), covers.len());
++        Ok(())
++    }
++
++    #[test]
++    fn managed_startup_cover_keeps_worker_pixels_and_straight_alpha_on_ui_attachment() -> Result<()> {
++        use image::ImageEncoder;
++        let directory = tempfile::tempdir()?;
++        let (options, comics) = startup_cover_fixture(directory.path())?;
++        let path = covers::cached_cover_path(directory.path(), &comics[0].cover_url);
++        let source = [17, 83, 149, 0, 68, 102, 136, 37, 255, 0, 127, 255, 0, 255, 64, 128];
++        image::codecs::png::PngEncoder::new(std::fs::File::create(&path)?)
++            .write_image(&source, 2, 2, image::ExtendedColorType::Rgba8)?;
++        let prepared = std::thread::spawn(move || App::prepare(options)).join()
++            .map_err(|_| anyhow::anyhow!("Startup cover worker panicked"))??;
++        assert_eq!(prepared.covers.len(), 1);
++        let StartupCoverPixels::Direct(worker_pixels) = &prepared.covers[0].pixels else { anyhow::bail!("Expected direct managed cover") };
++        let worker_pixels = worker_pixels.clone();
++        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
++        let client = BiliClient::new(None, directory.path())?;
++        let mut app = super::super::test_support::app(directory.path(), DeviceProfile::Paperwhite5,
++            client, runtime.handle().clone())?;
++        app.account = prepared.account;
++        app.startup_covers = prepared.covers;
++        app.startup_stage = Some(AttachStage::Covers);
++        assert!(!app.advance_startup_stage()?);
++        let cached = &app.cover_images[&(app.account.clone(), comics[0].id.clone())];
++        let actual = cached.image.to_rgba8().unwrap();
++        assert_eq!(actual.as_bytes().as_ptr(), worker_pixels.as_bytes().as_ptr());
++        assert_eq!(actual.as_bytes(), source);
++        assert_eq!((actual.width(), actual.height(), cached.bytes), (2, 2, source.len()));
++        assert_eq!(app.cover_files.get(&comics[0].id), Some(&path));
++        Ok(())
++    }
++
++    fn tiny_cover_png(depth: u8, color: u8, extra: &[(&[u8; 4], &[u8])], scanline: &[u8]) -> Result<Vec<u8>> {
++        use std::io::Write;
++        fn chunk(output: &mut Vec<u8>, kind: &[u8; 4], payload: &[u8]) {
++            output.extend_from_slice(&(payload.len() as u32).to_be_bytes());
++            output.extend_from_slice(kind);
++            output.extend_from_slice(payload);
++            let mut crc = crc32fast::Hasher::new();
++            crc.update(kind);
++            crc.update(payload);
++            output.extend_from_slice(&crc.finalize().to_be_bytes());
++        }
++        let mut png = b"\x89PNG\r\n\x1a\n".to_vec();
++        chunk(&mut png, b"IHDR", &[0, 0, 0, 1, 0, 0, 0, 1, depth, color, 0, 0, 0]);
++        for (kind, payload) in extra { chunk(&mut png, kind, payload); }
++        let mut compressed = flate2::write::ZlibEncoder::new(Vec::new(), flate2::Compression::fast());
++        compressed.write_all(scanline)?;
++        chunk(&mut png, b"IDAT", &compressed.finish()?);
++        chunk(&mut png, b"IEND", &[]);
++        Ok(png)
++    }
++
++    #[test]
++    fn managed_startup_cover_fallback_matches_legacy_pixels_for_conversions_animation_and_resizing() -> Result<()> {
++        let mut frame = [0; 26];
++        frame[7] = 1;
++        frame[11] = 1;
++        let pngs = [
++            tiny_cover_png(8, 2, &[], &[0, 7, 11, 13])?,
++            tiny_cover_png(16, 6, &[], &[0, 0, 9, 0, 17, 0, 64, 255, 255])?,
++            tiny_cover_png(8, 3, &[(b"PLTE", &[31, 47, 127]), (b"tRNS", &[93])], &[0, 0])?,
++            tiny_cover_png(8, 6, &[(b"acTL", &[0, 0, 0, 1, 0, 0, 0, 0]), (b"fcTL", &frame)], &[0, 7, 11, 13, 37])?,
++            encoded_cover(481, 641, [7, 11, 13, 37])?,
++        ];
++        for encoded in pngs {
++            let expected = decode_cover_bytes(encoded.clone())?;
++            let StartupCoverPixels::Raw(actual) = decode_managed_startup_cover(encoded, STARTUP_COVER_MEMORY)?
++                else { anyhow::bail!("Expected the original cover conversion path") };
++            assert_eq!(actual, expected);
++        }
++        Ok(())
++    }
++
++    #[test]
++    fn managed_startup_cover_budget_keeps_exact_retained_bytes_and_validates_the_next_file() -> Result<()> {
++        let directory = tempfile::tempdir()?;
++        std::fs::create_dir(directory.path().join("covers"))?;
++        let comics: Vec<_> = (0..35).map(|index| Comic { id: index.to_string(),
++            cover_url: format!("https://fixture.invalid/{index}.png"), ..Comic::default() }).collect();
++        let encoded = encoded_cover(256, 512, [17, 83, 149, 37])?;
++        for comic in &comics[..32] {
++            std::fs::write(covers::cached_cover_path(directory.path(), &comic.cover_url), &encoded)?;
++        }
++        let small = encoded_cover(1, 1, [17; 4])?;
++        let idat = small.windows(4).position(|bytes| bytes == b"IDAT").unwrap();
++        let damaged = &small[..idat + 4];
++        assert!(decode_managed_startup_cover(damaged.to_vec(), STARTUP_COVER_MEMORY).is_err());
++        std::fs::write(covers::cached_cover_path(directory.path(), &comics[32].cover_url), damaged)?;
++        std::fs::write(covers::cached_cover_path(directory.path(), &comics[33].cover_url), &small)?;
++        std::fs::write(covers::cached_cover_path(directory.path(), &comics[34].cover_url), b"Not read")?;
++        let (prepared, failed) = prepare_covers(directory.path(), &comics, None);
++        assert!(prepared.iter().all(|cover| matches!(cover.pixels, StartupCoverPixels::Direct(_))));
++        assert_eq!(prepared.iter().map(|cover| cover.pixels.byte_len()).sum::<usize>(), STARTUP_COVER_MEMORY);
++        assert_eq!(prepared.iter().map(|cover| &cover.comic_id).collect::<Vec<_>>(),
++            comics[..32].iter().map(|comic| &comic.id).collect::<Vec<_>>());
++        assert_eq!(failed, BTreeSet::from([comics[32].id.clone()]));
++        Ok(())
++    }
++
+     #[test]
+     fn a_partial_cover_batch_yields_before_consuming_the_remaining_attachment() -> Result<()> {
+         let directory = tempfile::tempdir()?;
+@@ -807,17 +1002,18 @@ mod tests {
+         let mut app = super::super::test_support::app(directory.path(), DeviceProfile::Paperwhite5,
+             client, runtime.handle().clone())?;
+         app.startup_stage = Some(AttachStage::Covers);
+-        for (id, width, height) in [("first", 1024, 1024), ("remaining", 1, 1)] {
+-            app.startup_covers.push_back(PreparedCover {
+-                comic_id: id.into(), path: directory.path().join(format!("{id}.png")),
+-                rgba: vec![255; width as usize * height as usize * 4], width, height,
+-            });
++        for index in 0..8 {
++            let pixels = if index % 2 == 0 { StartupCoverPixels::Direct(slint::SharedPixelBuffer::new(256, 512)) }
++                else { StartupCoverPixels::Raw((vec![255; 256 * 512 * 4], 256, 512)) };
++            app.startup_covers.push_back(PreparedCover { comic_id: index.to_string(), path: directory.path().join(format!("{index}.png")), pixels });
+         }
++        app.startup_covers.push_back(PreparedCover { comic_id: "remaining".into(), path: directory.path().join("remaining.png"),
++            pixels: StartupCoverPixels::Raw((vec![255; 4], 1, 1)) });
+         assert!(!app.advance_startup()?);
+         assert!(matches!(app.startup_stage, Some(AttachStage::Covers)));
+         assert_eq!(app.startup_covers.len(), 1);
+         assert_eq!(app.startup_covers[0].comic_id, "remaining");
+-        assert_eq!(app.cover_images.len(), 1);
++        assert_eq!(app.cover_images.len(), 8);
+         Ok(())
+     }
+ 

@@ -32,6 +32,7 @@ mod portrait_pose;
 mod power;
 mod refresh;
 mod resume_trace;
+mod shelf_render_trace;
 mod sleep_presentation;
 mod touch;
 mod wakeup;
@@ -47,6 +48,7 @@ pub use performance::{
 pub use refresh::{
     PhysicalRect, RefreshArea, RefreshError, RefreshHandle, RefreshRequest, RefreshWaveform,
 };
+pub use shelf_render_trace::{ShelfRenderOrder, ShelfRenderSample, ShelfRenderScene, ShelfRenderSubmission, ShelfState};
 
 use platform::KindlePlatform;
 use slint::platform::WindowAdapter;

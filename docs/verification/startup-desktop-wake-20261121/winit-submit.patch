@@ -1,0 +1,228 @@
+--- a/lib.rs
++++ b/lib.rs
+@@ -71,6 +71,10 @@
+     pub trait WinitCompatibleRenderer: std::any::Any {
+         fn render(&self, window: &i_slint_core::api::Window) -> Result<DrawOutcome, PlatformError>;
+ 
++        fn on_first_full_software_presented(&self, _callback: Box<dyn FnOnce(u32, u32)>) -> bool {
++            false
++        }
++
+         fn as_core_renderer(&self) -> &dyn i_slint_core::renderer::Renderer;
+         // Got WindowEvent::Occluded
+         fn occluded(&self, _: bool) {}
+@@ -93,6 +97,8 @@
+     #[cfg(feature = "renderer-software")]
+     pub(crate) mod sw;
++    #[cfg(feature = "renderer-software")]
++    mod sw_submit;
+ }
+ 
+ #[cfg(enable_accesskit)]
+ mod accesskit;
+@@ -973,6 +979,13 @@
+     /// Returns true if a [`winit::window::Window`] exists for this window. This is the case if the window is
+     /// backed by this winit backend.
+     fn has_winit_window(&self) -> bool;
++    /// Registers a one-shot observer for the first full-window software buffer submitted successfully.
++    /// Receives the physical width and height, not confirmation of compositor or display completion.
++    /// Returns false for an unsupported backend, duplicate registration, or an already submitted full buffer.
++    fn on_first_full_software_presented(
++        &self,
++        callback: impl FnOnce(u32, u32) + 'static,
++    ) -> bool;
+     /// Invokes the specified callback with a reference to the [`winit::window::Window`] that exists for this Slint window
+     /// and returns `Some(T)`; otherwise `None`.
+     fn with_winit_window<T>(&self, callback: impl FnOnce(&winit::window::Window) -> T)
+@@ -1046,6 +1059,17 @@
+             .is_some_and(|adapter| adapter.winit_window().is_some())
+     }
+ 
++    fn on_first_full_software_presented(
++        &self,
++        callback: impl FnOnce(u32, u32) + 'static,
++    ) -> bool {
++        i_slint_core::window::WindowInner::from_pub(self)
++            .window_adapter()
++            .internal(i_slint_core::InternalToken)
++            .and_then(|wa| (wa as &dyn core::any::Any).downcast_ref::<WinitWindowAdapter>())
++            .is_some_and(|adapter| adapter.renderer().on_first_full_software_presented(Box::new(callback)))
++    }
++
+     fn with_winit_window<T>(
+         &self,
+         callback: impl FnOnce(&winit::window::Window) -> T,
+--- a/renderer/sw.rs
++++ b/renderer/sw.rs
+@@ -18,7 +18,9 @@
+ use super::WinitCompatibleRenderer;
++use super::sw_submit::{FirstFullPresent, SubmittedDamage};
+ 
+ pub struct WinitSoftwareRenderer {
+     renderer: SoftwareRenderer,
++    first_full_present: FirstFullPresent,
+     _context: RefCell<Option<softbuffer::Context<Arc<winit::window::Window>>>>,
+     surface: RefCell<
+         Option<softbuffer::Surface<Arc<winit::window::Window>, Arc<winit::window::Window>>>,
+@@ -76,26 +78,28 @@
+     ) -> Result<Box<dyn WinitCompatibleRenderer>, PlatformError> {
+         Ok(Box::new(Self {
+             renderer: SoftwareRenderer::new(),
++            first_full_present: FirstFullPresent::default(),
+             _context: RefCell::new(None),
+             surface: RefCell::new(None),
+         }))
+     }
+-}
+ 
+-impl super::WinitCompatibleRenderer for WinitSoftwareRenderer {
+-    fn render(&self, window: &i_slint_core::api::Window) -> Result<DrawOutcome, PlatformError> {
++    fn render_and_present(
++        &self,
++        window: &i_slint_core::api::Window,
++    ) -> Result<Option<SubmittedDamage>, PlatformError> {
+         let size = window.size();
+ 
+         let Some((width, height)) = size.width.try_into().ok().zip(size.height.try_into().ok())
+         else {
+             // Nothing to render
+-            return Ok(DrawOutcome::Success);
++            return Ok(None);
+         };
+ 
+         let mut borrowed_surface = self.surface.borrow_mut();
+         let Some(surface) = borrowed_surface.as_mut() else {
+             // Nothing to render
+-            return Ok(DrawOutcome::Success);
++            return Ok(None);
+         };
+ 
+         let winit_window = surface.window().clone();
+@@ -162,10 +166,26 @@
+                     y: pos.y as u32,
+                 }])
+                 .map_err(|e| format!("Error presenting softbuffer buffer: {e}"))?;
++            return Ok(Some(SubmittedDamage {
++                drawable: (width.get(), height.get()),
++                origin: (pos.x, pos.y),
++                extent: (w.get(), h.get()),
++            }));
+         }
++        Ok(None)
++    }
++}
++
++impl super::WinitCompatibleRenderer for WinitSoftwareRenderer {
++    fn render(&self, window: &i_slint_core::api::Window) -> Result<DrawOutcome, PlatformError> {
++        self.first_full_present.finish(self.render_and_present(window))?;
+         Ok(DrawOutcome::Success)
+     }
+ 
++    fn on_first_full_software_presented(&self, callback: Box<dyn FnOnce(u32, u32)>) -> bool {
++        self.first_full_present.register(callback)
++    }
++
+     fn as_core_renderer(&self) -> &dyn i_slint_core::renderer::Renderer {
+         &self.renderer
+     }
+--- /dev/null
++++ b/renderer/sw_submit.rs
+@@ -0,0 +1,98 @@
++use std::cell::RefCell;
++
++#[derive(Default)]
++enum Observer {
++    #[default]
++    Unregistered,
++    Armed(Box<dyn FnOnce(u32, u32)>),
++    Submitted,
++}
++
++#[derive(Default)]
++pub(crate) struct FirstFullPresent(RefCell<Observer>);
++
++#[derive(Clone, Copy)]
++pub(crate) struct SubmittedDamage {
++    pub(crate) drawable: (u32, u32),
++    pub(crate) origin: (i32, i32),
++    pub(crate) extent: (u32, u32),
++}
++
++impl FirstFullPresent {
++    pub(crate) fn register(&self, callback: Box<dyn FnOnce(u32, u32)>) -> bool {
++        let mut state = self.0.borrow_mut();
++        if !matches!(*state, Observer::Unregistered) {
++            return false;
++        }
++        *state = Observer::Armed(callback);
++        true
++    }
++
++    pub(crate) fn finish<E>(&self, submitted: Result<Option<SubmittedDamage>, E>) -> Result<(), E> {
++        let Some(damage) = submitted? else { return Ok(()) };
++        let (width, height) = damage.drawable;
++        if width != 0 && height != 0 && damage.origin == (0, 0) && damage.extent == damage.drawable {
++            let previous = self.0.replace(Observer::Submitted);
++            if let Observer::Armed(callback) = previous {
++                callback(width, height);
++            }
++        }
++        Ok(())
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use std::{cell::Cell, rc::Rc};
++
++    const FULL: SubmittedDamage = SubmittedDamage { drawable: (1860, 2480), origin: (0, 0), extent: (1860, 2480) };
++
++    #[test]
++    fn only_a_successful_nonempty_full_submit_consumes_the_observer() -> Result<(), &'static str> {
++        let sensor = Rc::new(FirstFullPresent::default());
++        let weak = Rc::downgrade(&sensor);
++        let seen = Rc::new(Cell::new(None));
++        let captured = seen.clone();
++        assert!(sensor.register(Box::new(move |width, height| {
++            assert!(!weak.upgrade().unwrap().register(Box::new(|_, _| unreachable!())));
++            captured.set(Some((width, height)));
++        })));
++        assert!(!sensor.register(Box::new(|_, _| unreachable!())));
++        assert_eq!(sensor.finish(Err("submit error")), Err("submit error"));
++        sensor.finish::<&str>(Ok(None))?;
++        for damage in [
++            SubmittedDamage { drawable: (0, 2480), extent: (0, 2480), ..FULL },
++            SubmittedDamage { drawable: (1860, 0), extent: (1860, 0), ..FULL },
++            SubmittedDamage { extent: (0, 0), ..FULL },
++            SubmittedDamage { extent: (1859, 2480), ..FULL },
++            SubmittedDamage { extent: (1860, 2479), ..FULL },
++            SubmittedDamage { extent: (1861, 2480), ..FULL },
++            SubmittedDamage { origin: (-1, 0), ..FULL },
++            SubmittedDamage { origin: (0, 1), ..FULL },
++        ] {
++            sensor.finish::<&str>(Ok(Some(damage)))?;
++            assert_eq!(seen.get(), None);
++        }
++        sensor.finish::<&str>(Ok(Some(FULL)))?;
++        assert_eq!(seen.take(), Some(FULL.drawable));
++        sensor.finish::<&str>(Ok(Some(FULL)))?;
++        assert_eq!(seen.get(), None);
++        Ok(())
++    }
++
++    #[test]
++    fn another_renderer_cannot_notify_this_window_or_register_after_its_own_submit() -> Result<(), &'static str> {
++        let owned = FirstFullPresent::default();
++        let other = FirstFullPresent::default();
++        let seen = Rc::new(Cell::new(false));
++        let captured = seen.clone();
++        assert!(owned.register(Box::new(move |_, _| captured.set(true))));
++        other.finish::<&str>(Ok(Some(FULL)))?;
++        assert!(!seen.get());
++        assert!(!other.register(Box::new(|_, _| unreachable!())));
++        owned.finish::<&str>(Ok(Some(FULL)))?;
++        assert!(seen.get());
++        Ok(())
++    }
++}

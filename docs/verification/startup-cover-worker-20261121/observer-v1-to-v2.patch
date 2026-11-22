@@ -1,0 +1,27 @@
+--- a/desktop_pairs.py
++++ b/desktop_pairs.py
+@@ -55,6 +55,11 @@
+     return Image.frombytes('RGB', size, payload, 'raw', 'BGRX').tobytes()
+ 
+ 
++def known_layout(layout, size):
++    width, height = size
++    return layout in [(width, height, 2, depth, 32, 0, 4 * width, 0xff0000, 0xff00, 0xff) for depth in (24, 32)]
++
++
+ class XImage(ctypes.Structure):
+     _fields_ = [(name, ctypes.c_int) for name in ('width', 'height', 'xoffset', 'format')] + [('data', ctypes.c_void_p)] + [
+         (name, ctypes.c_int) for name in ('byte_order', 'bitmap_unit', 'bitmap_bit_order', 'bitmap_pad', 'depth', 'bytes_per_line', 'bits_per_pixel')
+@@ -88,9 +93,9 @@
+         require(capture, 'Window XGetImage failed')
+         try:
+             data = capture.contents
+-            require((data.width, data.height, data.format, data.depth, data.bits_per_pixel, data.byte_order,
+-                     data.bytes_per_line, data.red_mask, data.green_mask, data.blue_mask) ==
+-                    (width, height, 2, 24, 32, 0, 4 * width, 0xff0000, 0xff00, 0xff), 'Unexpected XImage layout')
++            layout = (data.width, data.height, data.format, data.depth, data.bits_per_pixel, data.byte_order,
++                      data.bytes_per_line, data.red_mask, data.green_mask, data.blue_mask)
++            require(known_layout(layout, (width, height)), f'Unexpected XImage layout: {layout}')
+             return (start, end), visible_rgb(ctypes.string_at(data.data, width * height * 4), (width, height))
+         finally:
+             self.api.XDestroyImage(capture)

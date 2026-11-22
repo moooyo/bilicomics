@@ -1,0 +1,1148 @@
+{
+  "clock": "CLOCK_MONOTONIC",
+  "sample_interval_ns": 4000000,
+  "schedule": [
+    "a00",
+    "b00",
+    "a01",
+    "b01",
+    "b02",
+    "a02",
+    "a03",
+    "b03",
+    "b04",
+    "a04",
+    "a05",
+    "b05",
+    "b06",
+    "a06"
+  ],
+  "sources": {
+    "A": "9175002 + retained catalog inputs; control startup path",
+    "B": "same source and release settings as A + managed startup PNG direct decode candidate"
+  },
+  "warmups_excluded": [
+    "a00",
+    "b00"
+  ],
+  "cases": {
+    "a00": {
+      "case": "a00",
+      "pid": 51,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63450789945012,
+        63450789945012
+      ],
+      "feedback_sample_ns": [
+        63450835570210,
+        63450835913832
+      ],
+      "last_non_shelf_sample_ns": [
+        63450922814488,
+        63450923131341
+      ],
+      "first_exact_shelf_sample_ns": [
+        63450928919675,
+        63450933736143
+      ],
+      "second_exact_shelf_sample_ns": [
+        63451022059653,
+        63451029181213
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 25,
+      "full_xgetimage_intervals_ns": [
+        4816468,
+        7121560
+      ],
+      "poll_median_ns": 4073268,
+      "poll_max_before_match_ns": 13436571,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63450794173765,
+        "producer_ns": 63450906955669,
+        "ui_record_ns": 63450907010218,
+        "ready_ns": 63450909600972,
+        "attach_gap_ns": 40409,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          41740067
+        ],
+        "enter_to_shelf_bracket_ns": [
+          128640723,
+          139562378
+        ],
+        "feedback_sample_to_producer_ns": [
+          71041837,
+          71385459
+        ],
+        "producer_to_ui_ns": 54549,
+        "ui_to_ready_ns": 2590754,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 4620,
+          "cpu_us": 4547
+        },
+        "attach-covers": {
+          "wall_us": 1046,
+          "cpu_us": 1039
+        }
+      }
+    },
+    "b00": {
+      "case": "b00",
+      "pid": 92,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63452123019721,
+        63452123019721
+      ],
+      "feedback_sample_ns": [
+        63452176762425,
+        63452177124746
+      ],
+      "last_non_shelf_sample_ns": [
+        63452280450138,
+        63452280604134
+      ],
+      "first_exact_shelf_sample_ns": [
+        63452285309606,
+        63452289639226
+      ],
+      "second_exact_shelf_sample_ns": [
+        63452377702744,
+        63452384750536
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 29,
+      "full_xgetimage_intervals_ns": [
+        4329620,
+        7047792
+      ],
+      "poll_median_ns": 4083857,
+      "poll_max_before_match_ns": 10884745,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63452138331045,
+        "producer_ns": 63452258328757,
+        "ui_record_ns": 63452258368046,
+        "ready_ns": 63452260992489,
+        "attach_gap_ns": 1043843,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          38793701
+        ],
+        "enter_to_shelf_bracket_ns": [
+          142119093,
+          151308181
+        ],
+        "feedback_sample_to_producer_ns": [
+          81204011,
+          81566332
+        ],
+        "producer_to_ui_ns": 39289,
+        "ui_to_ready_ns": 2624443,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3669,
+          "cpu_us": 3530
+        },
+        "attach-covers": {
+          "wall_us": 15,
+          "cpu_us": 15
+        }
+      }
+    },
+    "a01": {
+      "case": "a01",
+      "pid": 134,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63453500901350,
+        63453500901350
+      ],
+      "feedback_sample_ns": [
+        63453531504428,
+        63453531881138
+      ],
+      "last_non_shelf_sample_ns": [
+        63453626980928,
+        63453627203082
+      ],
+      "first_exact_shelf_sample_ns": [
+        63453631545443,
+        63453635503763
+      ],
+      "second_exact_shelf_sample_ns": [
+        63453724345990,
+        63453728136135
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 27,
+      "full_xgetimage_intervals_ns": [
+        3958320,
+        3790145
+      ],
+      "poll_median_ns": 4083946,
+      "poll_max_before_match_ns": 11024052,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63453502961708,
+        "producer_ns": 63453611321073,
+        "ui_record_ns": 63453611365591,
+        "ready_ns": 63453614971381,
+        "attach_gap_ns": 1058723,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28919430
+        ],
+        "enter_to_shelf_bracket_ns": [
+          124019220,
+          132542055
+        ],
+        "feedback_sample_to_producer_ns": [
+          79439935,
+          79816645
+        ],
+        "producer_to_ui_ns": 44518,
+        "ui_to_ready_ns": 3605790,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3904,
+          "cpu_us": 3883
+        },
+        "attach-covers": {
+          "wall_us": 990,
+          "cpu_us": 981
+        }
+      }
+    },
+    "b01": {
+      "case": "b01",
+      "pid": 171,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63454822120409,
+        63454822120409
+      ],
+      "feedback_sample_ns": [
+        63454857528125,
+        63454857914835
+      ],
+      "last_non_shelf_sample_ns": [
+        63454961980289,
+        63454962245762
+      ],
+      "first_exact_shelf_sample_ns": [
+        63454966871946,
+        63454971532898
+      ],
+      "second_exact_shelf_sample_ns": [
+        63455061810060,
+        63455066256378
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 29,
+      "full_xgetimage_intervals_ns": [
+        4660952,
+        4446318
+      ],
+      "poll_median_ns": 4106147,
+      "poll_max_before_match_ns": 12037746,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63454824511838,
+        "producer_ns": 63454937284742,
+        "ui_record_ns": 63454937397769,
+        "ready_ns": 63454940407523,
+        "attach_gap_ns": 1072373,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          33402997
+        ],
+        "enter_to_shelf_bracket_ns": [
+          137468451,
+          147021060
+        ],
+        "feedback_sample_to_producer_ns": [
+          79369907,
+          79756617
+        ],
+        "producer_to_ui_ns": 113027,
+        "ui_to_ready_ns": 3009754,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 4934,
+          "cpu_us": 4875
+        },
+        "attach-covers": {
+          "wall_us": 22,
+          "cpu_us": 22
+        }
+      }
+    },
+    "b02": {
+      "case": "b02",
+      "pid": 209,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63456133615062,
+        63456133615062
+      ],
+      "feedback_sample_ns": [
+        63456161521078,
+        63456161903358
+      ],
+      "last_non_shelf_sample_ns": [
+        63456257687631,
+        63456257852827
+      ],
+      "first_exact_shelf_sample_ns": [
+        63456263151364,
+        63456269539992
+      ],
+      "second_exact_shelf_sample_ns": [
+        63456361099722,
+        63456367956709
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 27,
+      "full_xgetimage_intervals_ns": [
+        6388628,
+        6856987
+      ],
+      "poll_median_ns": 4084727,
+      "poll_max_before_match_ns": 12499135,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63456134946989,
+        "producer_ns": 63456241266636,
+        "ui_record_ns": 63456241300665,
+        "ready_ns": 63456244064255,
+        "attach_gap_ns": 1041793,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          26956369
+        ],
+        "enter_to_shelf_bracket_ns": [
+          122740642,
+          134593003
+        ],
+        "feedback_sample_to_producer_ns": [
+          79363278,
+          79745558
+        ],
+        "producer_to_ui_ns": 34029,
+        "ui_to_ready_ns": 2763590,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3700,
+          "cpu_us": 3664
+        },
+        "attach-covers": {
+          "wall_us": 14,
+          "cpu_us": 14
+        }
+      }
+    },
+    "a02": {
+      "case": "a02",
+      "pid": 245,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63457469649367,
+        63457469649367
+      ],
+      "feedback_sample_ns": [
+        63457500153027,
+        63457500508029
+      ],
+      "last_non_shelf_sample_ns": [
+        63457600555934,
+        63457600894445
+      ],
+      "first_exact_shelf_sample_ns": [
+        63457605266695,
+        63457610396196
+      ],
+      "second_exact_shelf_sample_ns": [
+        63457701775429,
+        63457708844240
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 28,
+      "full_xgetimage_intervals_ns": [
+        5129501,
+        7068811
+      ],
+      "poll_median_ns": 4112091,
+      "poll_max_before_match_ns": 10915464,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63457471394693,
+        "producer_ns": 63457578500361,
+        "ui_record_ns": 63457578572879,
+        "ready_ns": 63457582977247,
+        "attach_gap_ns": 1147621,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          29113336
+        ],
+        "enter_to_shelf_bracket_ns": [
+          129161241,
+          139001503
+        ],
+        "feedback_sample_to_producer_ns": [
+          77992332,
+          78347334
+        ],
+        "producer_to_ui_ns": 72518,
+        "ui_to_ready_ns": 4404368,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3849,
+          "cpu_us": 3821
+        },
+        "attach-covers": {
+          "wall_us": 1414,
+          "cpu_us": 1401
+        }
+      }
+    },
+    "a03": {
+      "case": "a03",
+      "pid": 283,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63458769726790,
+        63458769726790
+      ],
+      "feedback_sample_ns": [
+        63458800219070,
+        63458800606841
+      ],
+      "last_non_shelf_sample_ns": [
+        63458891357720,
+        63458891584935
+      ],
+      "first_exact_shelf_sample_ns": [
+        63458897570884,
+        63458901778467
+      ],
+      "second_exact_shelf_sample_ns": [
+        63458991777676,
+        63458998553295
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 26,
+      "full_xgetimage_intervals_ns": [
+        4207583,
+        6775619
+      ],
+      "poll_median_ns": 4069557,
+      "poll_max_before_match_ns": 11226298,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63458771335849,
+        "producer_ns": 63458874199363,
+        "ui_record_ns": 63458874241392,
+        "ready_ns": 63458877717375,
+        "attach_gap_ns": 1061343,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          29270992
+        ],
+        "enter_to_shelf_bracket_ns": [
+          120021871,
+          130442618
+        ],
+        "feedback_sample_to_producer_ns": [
+          73592522,
+          73980293
+        ],
+        "producer_to_ui_ns": 42029,
+        "ui_to_ready_ns": 3475983,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3489,
+          "cpu_us": 3231
+        },
+        "attach-covers": {
+          "wall_us": 929,
+          "cpu_us": 922
+        }
+      }
+    },
+    "b03": {
+      "case": "b03",
+      "pid": 320,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63460088356544,
+        63460088356544
+      ],
+      "feedback_sample_ns": [
+        63460123464808,
+        63460123782800
+      ],
+      "last_non_shelf_sample_ns": [
+        63460222996496,
+        63460223410886
+      ],
+      "first_exact_shelf_sample_ns": [
+        63460227592850,
+        63460231498001
+      ],
+      "second_exact_shelf_sample_ns": [
+        63460319462290,
+        63460325222845
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 28,
+      "full_xgetimage_intervals_ns": [
+        3905151,
+        5760555
+      ],
+      "poll_median_ns": 4083517,
+      "poll_max_before_match_ns": 11544578,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63460089726680,
+        "producer_ns": 63460200959422,
+        "ui_record_ns": 63460201042850,
+        "ready_ns": 63460204173191,
+        "attach_gap_ns": 1066533,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          34056120
+        ],
+        "enter_to_shelf_bracket_ns": [
+          133269816,
+          141771321
+        ],
+        "feedback_sample_to_producer_ns": [
+          77176622,
+          77494614
+        ],
+        "producer_to_ui_ns": 83428,
+        "ui_to_ready_ns": 3130341,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 4135,
+          "cpu_us": 4092
+        },
+        "attach-covers": {
+          "wall_us": 20,
+          "cpu_us": 20
+        }
+      }
+    },
+    "b04": {
+      "case": "b04",
+      "pid": 358,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63461414040490,
+        63461414040490
+      ],
+      "feedback_sample_ns": [
+        63461444185549,
+        63461444625638
+      ],
+      "last_non_shelf_sample_ns": [
+        63461540072220,
+        63461540293864
+      ],
+      "first_exact_shelf_sample_ns": [
+        63461545074794,
+        63461549114462
+      ],
+      "second_exact_shelf_sample_ns": [
+        63461637860981,
+        63461644110224
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 27,
+      "full_xgetimage_intervals_ns": [
+        4039668,
+        6249243
+      ],
+      "poll_median_ns": 4082268,
+      "poll_max_before_match_ns": 10684060,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63461416225855,
+        "producer_ns": 63461521704563,
+        "ui_record_ns": 63461521780291,
+        "ready_ns": 63461524516852,
+        "attach_gap_ns": 1047763,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28399783
+        ],
+        "enter_to_shelf_bracket_ns": [
+          123846365,
+          132888607
+        ],
+        "feedback_sample_to_producer_ns": [
+          77078925,
+          77519014
+        ],
+        "producer_to_ui_ns": 75728,
+        "ui_to_ready_ns": 2736561,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3953,
+          "cpu_us": 3916
+        },
+        "attach-covers": {
+          "wall_us": 15,
+          "cpu_us": 15
+        }
+      }
+    },
+    "a04": {
+      "case": "a04",
+      "pid": 395,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63462727836706,
+        63462727836706
+      ],
+      "feedback_sample_ns": [
+        63462758139661,
+        63462758510332
+      ],
+      "last_non_shelf_sample_ns": [
+        63462853250281,
+        63462853357769
+      ],
+      "first_exact_shelf_sample_ns": [
+        63462858526298,
+        63462862099188
+      ],
+      "second_exact_shelf_sample_ns": [
+        63462950705551,
+        63462957815822
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 27,
+      "full_xgetimage_intervals_ns": [
+        3572890,
+        7110271
+      ],
+      "poll_median_ns": 4072867,
+      "poll_max_before_match_ns": 10453137,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63462729950542,
+        "producer_ns": 63462834262821,
+        "ui_record_ns": 63462834307910,
+        "ready_ns": 63462837842330,
+        "attach_gap_ns": 1058865,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28559790
+        ],
+        "enter_to_shelf_bracket_ns": [
+          123299739,
+          132148646
+        ],
+        "feedback_sample_to_producer_ns": [
+          75752489,
+          76123160
+        ],
+        "producer_to_ui_ns": 45089,
+        "ui_to_ready_ns": 3534420,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3507,
+          "cpu_us": 3459
+        },
+        "attach-covers": {
+          "wall_us": 975,
+          "cpu_us": 968
+        }
+      }
+    },
+    "a05": {
+      "case": "a05",
+      "pid": 432,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63464053719277,
+        63464053719277
+      ],
+      "feedback_sample_ns": [
+        63464083299910,
+        63464083626733
+      ],
+      "last_non_shelf_sample_ns": [
+        63464182633424,
+        63464182745851
+      ],
+      "first_exact_shelf_sample_ns": [
+        63464189800443,
+        63464194913294
+      ],
+      "second_exact_shelf_sample_ns": [
+        63464283288693,
+        63464289317161
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 28,
+      "full_xgetimage_intervals_ns": [
+        5112851,
+        6028468
+      ],
+      "poll_median_ns": 4081182,
+      "poll_max_before_match_ns": 10150613,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63464055303797,
+        "producer_ns": 63464161306132,
+        "ui_record_ns": 63464161410719,
+        "ready_ns": 63464165743830,
+        "attach_gap_ns": 1099402,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28322936
+        ],
+        "enter_to_shelf_bracket_ns": [
+          127329627,
+          139609497
+        ],
+        "feedback_sample_to_producer_ns": [
+          77679399,
+          78006222
+        ],
+        "producer_to_ui_ns": 104587,
+        "ui_to_ready_ns": 4333111,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 4416,
+          "cpu_us": 4338
+        },
+        "attach-covers": {
+          "wall_us": 1312,
+          "cpu_us": 1290
+        }
+      }
+    },
+    "b05": {
+      "case": "b05",
+      "pid": 470,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63465361499695,
+        63465361499695
+      ],
+      "feedback_sample_ns": [
+        63465391607745,
+        63465391987866
+      ],
+      "last_non_shelf_sample_ns": [
+        63465487187203,
+        63465487488635
+      ],
+      "first_exact_shelf_sample_ns": [
+        63465493343598,
+        63465497457144
+      ],
+      "second_exact_shelf_sample_ns": [
+        63465586071868,
+        63465590288431
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 27,
+      "full_xgetimage_intervals_ns": [
+        4113546,
+        4216563
+      ],
+      "poll_median_ns": 4079747,
+      "poll_max_before_match_ns": 10393128,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63465363321019,
+        "producer_ns": 63465470399137,
+        "ui_record_ns": 63465470436696,
+        "ready_ns": 63465473025381,
+        "attach_gap_ns": 1042424,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28666847
+        ],
+        "enter_to_shelf_bracket_ns": [
+          123866184,
+          134136125
+        ],
+        "feedback_sample_to_producer_ns": [
+          78411271,
+          78791392
+        ],
+        "producer_to_ui_ns": 37559,
+        "ui_to_ready_ns": 2588685,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3931,
+          "cpu_us": 3891
+        },
+        "attach-covers": {
+          "wall_us": 15,
+          "cpu_us": 15
+        }
+      }
+    },
+    "b06": {
+      "case": "b06",
+      "pid": 507,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63466696112446,
+        63466696112446
+      ],
+      "feedback_sample_ns": [
+        63466725104535,
+        63466725466405
+      ],
+      "last_non_shelf_sample_ns": [
+        63466824752949,
+        63466825316166
+      ],
+      "first_exact_shelf_sample_ns": [
+        63466831957757,
+        63466836293059
+      ],
+      "second_exact_shelf_sample_ns": [
+        63466925340491,
+        63466931738689
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 28,
+      "full_xgetimage_intervals_ns": [
+        4335302,
+        6398198
+      ],
+      "poll_median_ns": 4084982,
+      "poll_max_before_match_ns": 9647787,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63466697465992,
+        "producer_ns": 63466802928100,
+        "ui_record_ns": 63466803043358,
+        "ready_ns": 63466806202248,
+        "attach_gap_ns": 1069583,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28000413
+        ],
+        "enter_to_shelf_bracket_ns": [
+          127286957,
+          138827067
+        ],
+        "feedback_sample_to_producer_ns": [
+          77461695,
+          77823565
+        ],
+        "producer_to_ui_ns": 115258,
+        "ui_to_ready_ns": 3158890,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 4107,
+          "cpu_us": 4071
+        },
+        "attach-covers": {
+          "wall_us": 21,
+          "cpu_us": 21
+        }
+      }
+    },
+    "a06": {
+      "case": "a06",
+      "pid": 544,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        63467999469855,
+        63467999469855
+      ],
+      "feedback_sample_ns": [
+        63468028780765,
+        63468029145876
+      ],
+      "last_non_shelf_sample_ns": [
+        63468124743234,
+        63468125059565
+      ],
+      "first_exact_shelf_sample_ns": [
+        63468129408336,
+        63468133552462
+      ],
+      "second_exact_shelf_sample_ns": [
+        63468222644462,
+        63468230072724
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 27,
+      "full_xgetimage_intervals_ns": [
+        4144126,
+        7428262
+      ],
+      "poll_median_ns": 4086857,
+      "poll_max_before_match_ns": 10047347,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 63468000977037,
+        "producer_ns": 63468108336158,
+        "ui_record_ns": 63468108385587,
+        "ready_ns": 63468112024544,
+        "attach_gap_ns": 1081034,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28168839
+        ],
+        "enter_to_shelf_bracket_ns": [
+          123766197,
+          132575425
+        ],
+        "feedback_sample_to_producer_ns": [
+          79190282,
+          79555393
+        ],
+        "producer_to_ui_ns": 49429,
+        "ui_to_ready_ns": 3638957,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3767,
+          "cpu_us": 3734
+        },
+        "attach-covers": {
+          "wall_us": 928,
+          "cpu_us": 919
+        }
+      }
+    }
+  },
+  "pairs": [
+    {
+      "pair": 1,
+      "order": "AB",
+      "B_minus_A_shelf_bounds_ns": [
+        4926396,
+        23001840
+      ],
+      "B_minus_A_first_observed_shelf_ns": 14479005,
+      "B_minus_A_worker_cpu_us": 992,
+      "B_minus_A_ui_attach_cpu_us": -959
+    },
+    {
+      "pair": 2,
+      "order": "BA",
+      "B_minus_A_shelf_bounds_ns": [
+        -16260861,
+        5431762
+      ],
+      "B_minus_A_first_observed_shelf_ns": -4408500,
+      "B_minus_A_worker_cpu_us": -157,
+      "B_minus_A_ui_attach_cpu_us": -1387
+    },
+    {
+      "pair": 3,
+      "order": "AB",
+      "B_minus_A_shelf_bounds_ns": [
+        2827198,
+        21749450
+      ],
+      "B_minus_A_first_observed_shelf_ns": 11328703,
+      "B_minus_A_worker_cpu_us": 861,
+      "B_minus_A_ui_attach_cpu_us": -902
+    },
+    {
+      "pair": 4,
+      "order": "BA",
+      "B_minus_A_shelf_bounds_ns": [
+        -8302281,
+        9588868
+      ],
+      "B_minus_A_first_observed_shelf_ns": 739961,
+      "B_minus_A_worker_cpu_us": 457,
+      "B_minus_A_ui_attach_cpu_us": -953
+    },
+    {
+      "pair": 5,
+      "order": "AB",
+      "B_minus_A_shelf_bounds_ns": [
+        -15743313,
+        6806498
+      ],
+      "B_minus_A_first_observed_shelf_ns": -5473372,
+      "B_minus_A_worker_cpu_us": -447,
+      "B_minus_A_ui_attach_cpu_us": -1275
+    },
+    {
+      "pair": 6,
+      "order": "BA",
+      "B_minus_A_shelf_bounds_ns": [
+        -5288468,
+        15060870
+      ],
+      "B_minus_A_first_observed_shelf_ns": 6251642,
+      "B_minus_A_worker_cpu_us": 337,
+      "B_minus_A_ui_attach_cpu_us": -898
+    }
+  ]
+}

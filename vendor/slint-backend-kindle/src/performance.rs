@@ -285,6 +285,10 @@ impl ClockSample {
     }
 }
 
+pub(crate) fn monotonic_ns() -> Option<u64> {
+    clock_ns(libc::CLOCK_MONOTONIC)
+}
+
 fn difference(start: Option<u64>, end: Option<u64>) -> Option<u64> {
     end?.checked_sub(start?)
 }

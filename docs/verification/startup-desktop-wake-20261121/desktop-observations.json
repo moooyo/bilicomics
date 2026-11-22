@@ -1,0 +1,1904 @@
+{
+  "clock": "CLOCK_MONOTONIC",
+  "sample_interval_ns": 4000000,
+  "schedule": [
+    "a00",
+    "b00",
+    "a01",
+    "b01",
+    "b02",
+    "a02",
+    "a03",
+    "b03",
+    "b04",
+    "a04",
+    "a05",
+    "b05",
+    "b06",
+    "a06"
+  ],
+  "sources": {
+    "A": "Shared research ELF; observe the first full software submit and its deferred turn without driving",
+    "B": "Same research ELF and deferred turn; wake the still-eligible desktop bootstrap driver"
+  },
+  "warmups_excluded": [
+    "a00",
+    "b00"
+  ],
+  "cases": {
+    "a00": {
+      "case": "a00",
+      "pid": 51,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66120847440560,
+        66120847440560
+      ],
+      "feedback_sample_ns": [
+        66120891205402,
+        66120891538824
+      ],
+      "last_non_shelf_sample_ns": [
+        66120994560453,
+        66120994763247
+      ],
+      "first_exact_shelf_sample_ns": [
+        66120999109416,
+        66121003645131
+      ],
+      "second_exact_shelf_sample_ns": [
+        66121092504632,
+        66121100323482
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 29,
+      "full_xgetimage_intervals_ns": [
+        4535715,
+        7818850
+      ],
+      "poll_median_ns": 4075576,
+      "poll_max_before_match_ns": 13409018,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66120857362597,
+        "producer_ns": 66120968509078,
+        "ui_record_ns": 66120968543357,
+        "ready_ns": 66120972196113,
+        "attach_gap_ns": 1070632,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          34176227
+        ],
+        "enter_to_shelf_bracket_ns": [
+          137197856,
+          146282534
+        ],
+        "feedback_sample_to_producer_ns": [
+          76970254,
+          77303676
+        ],
+        "producer_to_ui_ns": 34279,
+        "ui_to_ready_ns": 3652756,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3291,
+          "cpu_us": 3262
+        },
+        "attach-covers": {
+          "wall_us": 917,
+          "cpu_us": 907
+        }
+      },
+      "initial_activity_sample_ns": [
+        66120891851715,
+        66120891912704
+      ],
+      "bootstrap_probe_mode": "observe",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 51,
+        "process_enter_ns": 66120857362597,
+        "window_shown_ns": 66120873183632,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66120953714326,
+        "driver_first_entry": {
+          "monotonic_ns": 66120953658467,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66120954144994,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66120953798424,
+        "state_worker_queued_ns": 66120953979929,
+        "font_worker_begin_ns": 66120954157684,
+        "state_worker_begin_ns": 66120954321481,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66120879755104,
+          "mode": "observe",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66120895499943,
+          "mode": "observe",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": false,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "b00": {
+      "case": "b00",
+      "pid": 90,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66122240396944,
+        66122240396944
+      ],
+      "feedback_sample_ns": [
+        66122271313375,
+        66122271618598
+      ],
+      "last_non_shelf_sample_ns": [
+        66122305819624,
+        66122306284572
+      ],
+      "first_exact_shelf_sample_ns": [
+        66122311507858,
+        66122315699732
+      ],
+      "second_exact_shelf_sample_ns": [
+        66122404131513,
+        66122411598403
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 12,
+      "full_xgetimage_intervals_ns": [
+        4191874,
+        7466890
+      ],
+      "poll_median_ns": 4076350,
+      "poll_max_before_match_ns": 11360289,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66122242176689,
+        "producer_ns": 66122289420052,
+        "ui_record_ns": 66122289454652,
+        "ready_ns": 66122293157967,
+        "attach_gap_ns": 1059573,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          29441909
+        ],
+        "enter_to_shelf_bracket_ns": [
+          63642935,
+          73523043
+        ],
+        "feedback_sample_to_producer_ns": [
+          17801454,
+          18106677
+        ],
+        "producer_to_ui_ns": 34600,
+        "ui_to_ready_ns": 3703315,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3154,
+          "cpu_us": 3127
+        },
+        "attach-covers": {
+          "wall_us": 923,
+          "cpu_us": 914
+        }
+      },
+      "initial_activity_sample_ns": [
+        66122271910030,
+        66122271974448
+      ],
+      "bootstrap_probe_mode": "wake",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 90,
+        "process_enter_ns": 66122242176689,
+        "window_shown_ns": 66122254590113,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66122277363210,
+        "driver_first_entry": {
+          "monotonic_ns": 66122277356241,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66122277478307,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66122277389800,
+        "state_worker_queued_ns": 66122277442928,
+        "font_worker_begin_ns": 66122277531957,
+        "state_worker_begin_ns": 66122277615285,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66122261405628,
+          "mode": "wake",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66122277335121,
+          "mode": "wake",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": true,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "a01": {
+      "case": "a01",
+      "pid": 127,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66123566749471,
+        66123566749471
+      ],
+      "feedback_sample_ns": [
+        66123598320865,
+        66123598585848
+      ],
+      "last_non_shelf_sample_ns": [
+        66123690087791,
+        66123690275576
+      ],
+      "first_exact_shelf_sample_ns": [
+        66123697367445,
+        66123701638396
+      ],
+      "second_exact_shelf_sample_ns": [
+        66123792768229,
+        66123797598085
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 26,
+      "full_xgetimage_intervals_ns": [
+        4270951,
+        4829856
+      ],
+      "poll_median_ns": 4110104,
+      "poll_max_before_match_ns": 12219168,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66123568253143,
+        "producer_ns": 66123678523246,
+        "ui_record_ns": 66123678611474,
+        "ready_ns": 66123682498375,
+        "attach_gap_ns": 1058793,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          30332705
+        ],
+        "enter_to_shelf_bracket_ns": [
+          121834648,
+          133385253
+        ],
+        "feedback_sample_to_producer_ns": [
+          79937398,
+          80202381
+        ],
+        "producer_to_ui_ns": 88228,
+        "ui_to_ready_ns": 3886901,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 5293,
+          "cpu_us": 5206
+        },
+        "attach-covers": {
+          "wall_us": 988,
+          "cpu_us": 983
+        }
+      },
+      "initial_activity_sample_ns": [
+        66123598977668,
+        66123599062586
+      ],
+      "bootstrap_probe_mode": "observe",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 127,
+        "process_enter_ns": 66123568253143,
+        "window_shown_ns": 66123580968068,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66123661558710,
+        "driver_first_entry": {
+          "monotonic_ns": 66123661511281,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66123661933281,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66123661634208,
+        "state_worker_queued_ns": 66123661812614,
+        "font_worker_begin_ns": 66123661976000,
+        "state_worker_begin_ns": 66123662225323,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66123588139815,
+          "mode": "observe",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66123604361950,
+          "mode": "observe",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": false,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "b01": {
+      "case": "b01",
+      "pid": 164,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66124930959300,
+        66124930959300
+      ],
+      "feedback_sample_ns": [
+        66124963529749,
+        66124963864170
+      ],
+      "last_non_shelf_sample_ns": [
+        66124997624138,
+        66124997821532
+      ],
+      "first_exact_shelf_sample_ns": [
+        66125003256244,
+        66125008272686
+      ],
+      "second_exact_shelf_sample_ns": [
+        66125096910122,
+        66125104675704
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 12,
+      "full_xgetimage_intervals_ns": [
+        5016442,
+        7765582
+      ],
+      "poll_median_ns": 4068801,
+      "poll_max_before_match_ns": 9058909,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66124932299046,
+        "producer_ns": 66124981856390,
+        "ui_record_ns": 66124981919228,
+        "ready_ns": 66124986604879,
+        "attach_gap_ns": 1112662,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          31565124
+        ],
+        "enter_to_shelf_bracket_ns": [
+          65325092,
+          75973640
+        ],
+        "feedback_sample_to_producer_ns": [
+          17992220,
+          18326641
+        ],
+        "producer_to_ui_ns": 62838,
+        "ui_to_ready_ns": 4685651,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3700,
+          "cpu_us": 3655
+        },
+        "attach-covers": {
+          "wall_us": 1426,
+          "cpu_us": 1410
+        }
+      },
+      "initial_activity_sample_ns": [
+        66124964171452,
+        66124964238341
+      ],
+      "bootstrap_probe_mode": "wake",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 164,
+        "process_enter_ns": 66124932299046,
+        "window_shown_ns": 66124944827506,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66124969507186,
+        "driver_first_entry": {
+          "monotonic_ns": 66124969482627,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66124969711030,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66124969548985,
+        "state_worker_queued_ns": 66124969648152,
+        "font_worker_begin_ns": 66124969798798,
+        "state_worker_begin_ns": 66124969812318,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66124954025521,
+          "mode": "wake",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66124969450777,
+          "mode": "wake",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": true,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "b02": {
+      "case": "b02",
+      "pid": 203,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66126261229876,
+        66126261229876
+      ],
+      "feedback_sample_ns": [
+        66126291187721,
+        66126291445745
+      ],
+      "last_non_shelf_sample_ns": [
+        66126329168051,
+        66126329483603
+      ],
+      "first_exact_shelf_sample_ns": [
+        66126333944949,
+        66126336781757
+      ],
+      "second_exact_shelf_sample_ns": [
+        66126426128055,
+        66126432958470
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 13,
+      "full_xgetimage_intervals_ns": [
+        2836808,
+        6830415
+      ],
+      "poll_median_ns": 4073416,
+      "poll_max_before_match_ns": 10364625,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66126262749247,
+        "producer_ns": 66126310160726,
+        "ui_record_ns": 66126310188225,
+        "ready_ns": 66126313935840,
+        "attach_gap_ns": 1071552,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28696498
+        ],
+        "enter_to_shelf_bracket_ns": [
+          66418804,
+          74032510
+        ],
+        "feedback_sample_to_producer_ns": [
+          18714981,
+          18973005
+        ],
+        "producer_to_ui_ns": 27499,
+        "ui_to_ready_ns": 3747615,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 2930,
+          "cpu_us": 2910
+        },
+        "attach-covers": {
+          "wall_us": 1062,
+          "cpu_us": 1055
+        }
+      },
+      "initial_activity_sample_ns": [
+        66126291751377,
+        66126291803685
+      ],
+      "bootstrap_probe_mode": "wake",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 203,
+        "process_enter_ns": 66126262749247,
+        "window_shown_ns": 66126275404365,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66126297991797,
+        "driver_first_entry": {
+          "monotonic_ns": 66126297984837,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66126298151233,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66126298043536,
+        "state_worker_queued_ns": 66126298113424,
+        "font_worker_begin_ns": 66126298250800,
+        "state_worker_begin_ns": 66126298290299,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66126281895208,
+          "mode": "wake",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66126297958518,
+          "mode": "wake",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": true,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "a02": {
+      "case": "a02",
+      "pid": 240,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66127576144385,
+        66127576144385
+      ],
+      "feedback_sample_ns": [
+        66127606532148,
+        66127606793272
+      ],
+      "last_non_shelf_sample_ns": [
+        66127705876282,
+        66127706143155
+      ],
+      "first_exact_shelf_sample_ns": [
+        66127712261138,
+        66127715391768
+      ],
+      "second_exact_shelf_sample_ns": [
+        66127803912649,
+        66127809947884
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 28,
+      "full_xgetimage_intervals_ns": [
+        3130630,
+        6035235
+      ],
+      "poll_median_ns": 4082330,
+      "poll_max_before_match_ns": 10803874,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66127578326749,
+        "producer_ns": 66127686375039,
+        "ui_record_ns": 66127686461077,
+        "ready_ns": 66127690990502,
+        "attach_gap_ns": 1076602,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28466523
+        ],
+        "enter_to_shelf_bracket_ns": [
+          127549533,
+          137065019
+        ],
+        "feedback_sample_to_producer_ns": [
+          79581767,
+          79842891
+        ],
+        "producer_to_ui_ns": 86038,
+        "ui_to_ready_ns": 4529425,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 5042,
+          "cpu_us": 4983
+        },
+        "attach-covers": {
+          "wall_us": 1445,
+          "cpu_us": 1431
+        }
+      },
+      "initial_activity_sample_ns": [
+        66127607120474,
+        66127607172292
+      ],
+      "bootstrap_probe_mode": "observe",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 240,
+        "process_enter_ns": 66127578326749,
+        "window_shown_ns": 66127590748062,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66127670627222,
+        "driver_first_entry": {
+          "monotonic_ns": 66127670596823,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66127670866106,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66127670683871,
+        "state_worker_queued_ns": 66127670818587,
+        "font_worker_begin_ns": 66127671084360,
+        "state_worker_begin_ns": 66127671259656,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66127597316244,
+          "mode": "observe",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66127612519605,
+          "mode": "observe",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": false,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "a03": {
+      "case": "a03",
+      "pid": 277,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66128955404120,
+        66128955404120
+      ],
+      "feedback_sample_ns": [
+        66128985505801,
+        66128985761534
+      ],
+      "last_non_shelf_sample_ns": [
+        66129080671350,
+        66129080996272
+      ],
+      "first_exact_shelf_sample_ns": [
+        66129085723251,
+        66129089586082
+      ],
+      "second_exact_shelf_sample_ns": [
+        66129177481668,
+        66129180700115
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 27,
+      "full_xgetimage_intervals_ns": [
+        3862831,
+        3218447
+      ],
+      "poll_median_ns": 4074036,
+      "poll_max_before_match_ns": 10507981,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66128956805263,
+        "producer_ns": 66129064666879,
+        "ui_record_ns": 66129064722657,
+        "ready_ns": 66129068731825,
+        "attach_gap_ns": 1071863,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28956271
+        ],
+        "enter_to_shelf_bracket_ns": [
+          123866087,
+          132780819
+        ],
+        "feedback_sample_to_producer_ns": [
+          78905345,
+          79161078
+        ],
+        "producer_to_ui_ns": 55778,
+        "ui_to_ready_ns": 4009168,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 5095,
+          "cpu_us": 5026
+        },
+        "attach-covers": {
+          "wall_us": 1001,
+          "cpu_us": 996
+        }
+      },
+      "initial_activity_sample_ns": [
+        66128986069257,
+        66128986121675
+      ],
+      "bootstrap_probe_mode": "observe",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 277,
+        "process_enter_ns": 66128956805263,
+        "window_shown_ns": 66128968499265,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66129049083898,
+        "driver_first_entry": {
+          "monotonic_ns": 66129048995450,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66129049455248,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66129049163695,
+        "state_worker_queued_ns": 66129049341221,
+        "font_worker_begin_ns": 66129049680582,
+        "state_worker_begin_ns": 66129049704041,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66128975400329,
+          "mode": "observe",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66128991855879,
+          "mode": "observe",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": false,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "b03": {
+      "case": "b03",
+      "pid": 314,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66130313941903,
+        66130313941903
+      ],
+      "feedback_sample_ns": [
+        66130347258773,
+        66130347498867
+      ],
+      "last_non_shelf_sample_ns": [
+        66130389268570,
+        66130389454745
+      ],
+      "first_exact_shelf_sample_ns": [
+        66130394027148,
+        66130396984313
+      ],
+      "second_exact_shelf_sample_ns": [
+        66130484955566,
+        66130492154583
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 14,
+      "full_xgetimage_intervals_ns": [
+        2957165,
+        7199017
+      ],
+      "poll_median_ns": 4068221,
+      "poll_max_before_match_ns": 9512968,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66130316022890,
+        "producer_ns": 66130365955395,
+        "ui_record_ns": 66130365994014,
+        "ready_ns": 66130370283945,
+        "attach_gap_ns": 1106732,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          31475977
+        ],
+        "enter_to_shelf_bracket_ns": [
+          73245680,
+          80961423
+        ],
+        "feedback_sample_to_producer_ns": [
+          18456528,
+          18696622
+        ],
+        "producer_to_ui_ns": 38619,
+        "ui_to_ready_ns": 4289931,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 2983,
+          "cpu_us": 2965
+        },
+        "attach-covers": {
+          "wall_us": 1373,
+          "cpu_us": 1361
+        }
+      },
+      "initial_activity_sample_ns": [
+        66130347796109,
+        66130347847568
+      ],
+      "bootstrap_probe_mode": "wake",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 314,
+        "process_enter_ns": 66130316022890,
+        "window_shown_ns": 66130329348720,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66130354680903,
+        "driver_first_entry": {
+          "monotonic_ns": 66130354672543,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66130354894248,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66130354725982,
+        "state_worker_queued_ns": 66130354834289,
+        "font_worker_begin_ns": 66130354913017,
+        "state_worker_begin_ns": 66130354958596,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66130338253813,
+          "mode": "wake",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66130354643004,
+          "mode": "wake",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": true,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "b04": {
+      "case": "b04",
+      "pid": 353,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66131629674741,
+        66131629674741
+      ],
+      "feedback_sample_ns": [
+        66131659835500,
+        66131660089964
+      ],
+      "last_non_shelf_sample_ns": [
+        66131693565349,
+        66131693716595
+      ],
+      "first_exact_shelf_sample_ns": [
+        66131699158056,
+        66131702800443
+      ],
+      "second_exact_shelf_sample_ns": [
+        66131790574702,
+        66131794093791
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 12,
+      "full_xgetimage_intervals_ns": [
+        3642387,
+        3519089
+      ],
+      "poll_median_ns": 4072475,
+      "poll_max_before_match_ns": 7798481,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66131631316608,
+        "producer_ns": 66131677600887,
+        "ui_record_ns": 66131677637046,
+        "ready_ns": 66131681317771,
+        "attach_gap_ns": 1058113,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28773356
+        ],
+        "enter_to_shelf_bracket_ns": [
+          62248741,
+          71483835
+        ],
+        "feedback_sample_to_producer_ns": [
+          17510923,
+          17765387
+        ],
+        "producer_to_ui_ns": 36159,
+        "ui_to_ready_ns": 3680725,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3358,
+          "cpu_us": 3341
+        },
+        "attach-covers": {
+          "wall_us": 932,
+          "cpu_us": 924
+        }
+      },
+      "initial_activity_sample_ns": [
+        66131660394417,
+        66131660443165
+      ],
+      "bootstrap_probe_mode": "wake",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 353,
+        "process_enter_ns": 66131631316608,
+        "window_shown_ns": 66131642899773,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66131665915625,
+        "driver_first_entry": {
+          "monotonic_ns": 66131665908015,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66131666084441,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66131665944924,
+        "state_worker_queued_ns": 66131666014732,
+        "font_worker_begin_ns": 66131666086041,
+        "state_worker_begin_ns": 66131666124750,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66131649754898,
+          "mode": "wake",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66131665879146,
+          "mode": "wake",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": true,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "a04": {
+      "case": "a04",
+      "pid": 390,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66132894304423,
+        66132894304423
+      ],
+      "feedback_sample_ns": [
+        66132924746866,
+        66132925123406
+      ],
+      "last_non_shelf_sample_ns": [
+        66133017050198,
+        66133017221704
+      ],
+      "first_exact_shelf_sample_ns": [
+        66133023297478,
+        66133027189219
+      ],
+      "second_exact_shelf_sample_ns": [
+        66133117796906,
+        66133124527173
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 26,
+      "full_xgetimage_intervals_ns": [
+        3891741,
+        6730267
+      ],
+      "poll_median_ns": 4109205,
+      "poll_max_before_match_ns": 10938081,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66132895601779,
+        "producer_ns": 66133001665491,
+        "ui_record_ns": 66133001708890,
+        "ready_ns": 66133005333457,
+        "attach_gap_ns": 1057993,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          29521627
+        ],
+        "enter_to_shelf_bracket_ns": [
+          121448419,
+          131587440
+        ],
+        "feedback_sample_to_producer_ns": [
+          76542085,
+          76918625
+        ],
+        "producer_to_ui_ns": 43399,
+        "ui_to_ready_ns": 3624567,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3607,
+          "cpu_us": 3576
+        },
+        "attach-covers": {
+          "wall_us": 955,
+          "cpu_us": 935
+        }
+      },
+      "initial_activity_sample_ns": [
+        66132925530875,
+        66132925614373
+      ],
+      "bootstrap_probe_mode": "observe",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 390,
+        "process_enter_ns": 66132895601779,
+        "window_shown_ns": 66132907672842,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66132988321512,
+        "driver_first_entry": {
+          "monotonic_ns": 66132988265893,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66132988736082,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66132988401530,
+        "state_worker_queued_ns": 66132988618484,
+        "font_worker_begin_ns": 66132988748951,
+        "state_worker_begin_ns": 66132988788740,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66132914449658,
+          "mode": "observe",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66132931144872,
+          "mode": "observe",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": false,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "a05": {
+      "case": "a05",
+      "pid": 427,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66134280300447,
+        66134280300447
+      ],
+      "feedback_sample_ns": [
+        66134309356524,
+        66134309616788
+      ],
+      "last_non_shelf_sample_ns": [
+        66134404653140,
+        66134404861465
+      ],
+      "first_exact_shelf_sample_ns": [
+        66134409278553,
+        66134412971569
+      ],
+      "second_exact_shelf_sample_ns": [
+        66134501295773,
+        66134507858665
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 27,
+      "full_xgetimage_intervals_ns": [
+        3693016,
+        6562892
+      ],
+      "poll_median_ns": 4080406,
+      "poll_max_before_match_ns": 9456958,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66134281730710,
+        "producer_ns": 66134386980422,
+        "ui_record_ns": 66134387080970,
+        "ready_ns": 66134390791634,
+        "attach_gap_ns": 1058453,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          27886078
+        ],
+        "enter_to_shelf_bracket_ns": [
+          122922430,
+          131240859
+        ],
+        "feedback_sample_to_producer_ns": [
+          77363634,
+          77623898
+        ],
+        "producer_to_ui_ns": 100548,
+        "ui_to_ready_ns": 3710664,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3349,
+          "cpu_us": 3317
+        },
+        "attach-covers": {
+          "wall_us": 997,
+          "cpu_us": 991
+        }
+      },
+      "initial_activity_sample_ns": [
+        66134309911891,
+        66134309961009
+      ],
+      "bootstrap_probe_mode": "observe",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 427,
+        "process_enter_ns": 66134281730710,
+        "window_shown_ns": 66134293173558,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66134373130866,
+        "driver_first_entry": {
+          "monotonic_ns": 66134373083127,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66134373513676,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66134373213294,
+        "state_worker_queued_ns": 66134373385339,
+        "font_worker_begin_ns": 66134373566325,
+        "state_worker_begin_ns": 66134373665082,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66134299653442,
+          "mode": "observe",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66134314924673,
+          "mode": "observe",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": false,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "b05": {
+      "case": "b05",
+      "pid": 464,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66135635631043,
+        66135635631043
+      ],
+      "feedback_sample_ns": [
+        66135672125910,
+        66135672393594
+      ],
+      "last_non_shelf_sample_ns": [
+        66135705888428,
+        66135706100503
+      ],
+      "first_exact_shelf_sample_ns": [
+        66135711511615,
+        66135714416221
+      ],
+      "second_exact_shelf_sample_ns": [
+        66135802848162,
+        66135809092042
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 12,
+      "full_xgetimage_intervals_ns": [
+        2904606,
+        6243880
+      ],
+      "poll_median_ns": 4074306,
+      "poll_max_before_match_ns": 8741987,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66135637751079,
+        "producer_ns": 66135690235759,
+        "ui_record_ns": 66135690273048,
+        "ready_ns": 66135693945963,
+        "attach_gap_ns": 1063193,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          34642515
+        ],
+        "enter_to_shelf_bracket_ns": [
+          68137349,
+          76665142
+        ],
+        "feedback_sample_to_producer_ns": [
+          17842165,
+          18109849
+        ],
+        "producer_to_ui_ns": 37289,
+        "ui_to_ready_ns": 3672915,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3101,
+          "cpu_us": 3078
+        },
+        "attach-covers": {
+          "wall_us": 888,
+          "cpu_us": 880
+        }
+      },
+      "initial_activity_sample_ns": [
+        66135672705036,
+        66135672757265
+      ],
+      "bootstrap_probe_mode": "wake",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 464,
+        "process_enter_ns": 66135637751079,
+        "window_shown_ns": 66135655391908,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66135678179546,
+        "driver_first_entry": {
+          "monotonic_ns": 66135678172396,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66135678310723,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66135678209006,
+        "state_worker_queued_ns": 66135678272954,
+        "font_worker_begin_ns": 66135678319133,
+        "state_worker_begin_ns": 66135678356892,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66135662566675,
+          "mode": "wake",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66135678143107,
+          "mode": "wake",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": true,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "b06": {
+      "case": "b06",
+      "pid": 504,
+      "xid": 4194307,
+      "selected_arm": "B",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66136954229746,
+        66136954229746
+      ],
+      "feedback_sample_ns": [
+        66136983870050,
+        66136984132793
+      ],
+      "last_non_shelf_sample_ns": [
+        66137023368270,
+        66137023565446
+      ],
+      "first_exact_shelf_sample_ns": [
+        66137027971503,
+        66137031739937
+      ],
+      "second_exact_shelf_sample_ns": [
+        66137122477140,
+        66137129330744
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 13,
+      "full_xgetimage_intervals_ns": [
+        3768434,
+        6853604
+      ],
+      "poll_median_ns": 4136804,
+      "poll_max_before_match_ns": 10315086,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66136955751448,
+        "producer_ns": 66137002678570,
+        "ui_record_ns": 66137002720658,
+        "ready_ns": 66137006206279,
+        "attach_gap_ns": 1059722,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          28381345
+        ],
+        "enter_to_shelf_bracket_ns": [
+          67616822,
+          75988489
+        ],
+        "feedback_sample_to_producer_ns": [
+          18545777,
+          18808520
+        ],
+        "producer_to_ui_ns": 42088,
+        "ui_to_ready_ns": 3485621,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3063,
+          "cpu_us": 3040
+        },
+        "attach-covers": {
+          "wall_us": 893,
+          "cpu_us": 887
+        }
+      },
+      "initial_activity_sample_ns": [
+        66136984548353,
+        66136984624321
+      ],
+      "bootstrap_probe_mode": "wake",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 504,
+        "process_enter_ns": 66136955751448,
+        "window_shown_ns": 66136967593146,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66136990624677,
+        "driver_first_entry": {
+          "monotonic_ns": 66136990617368,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66136990748624,
+          "source": "desktop_startup_fallback",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66136990651597,
+        "state_worker_queued_ns": 66136990711105,
+        "font_worker_begin_ns": 66136990826372,
+        "state_worker_begin_ns": 66136990906050,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66136974310993,
+          "mode": "wake",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66136990590408,
+          "mode": "wake",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": true,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    },
+    "a06": {
+      "case": "a06",
+      "pid": 541,
+      "xid": 4194307,
+      "selected_arm": "A",
+      "process_executable_matches": true,
+      "last_no_feedback_sample_ns": [
+        66138222522075,
+        66138222522075
+      ],
+      "feedback_sample_ns": [
+        66138253986032,
+        66138254326303
+      ],
+      "last_non_shelf_sample_ns": [
+        66138345052566,
+        66138345185573
+      ],
+      "first_exact_shelf_sample_ns": [
+        66138351739216,
+        66138355072260
+      ],
+      "second_exact_shelf_sample_ns": [
+        66138442785881,
+        66138447294365
+      ],
+      "activity_states": [
+        "initial"
+      ],
+      "polls": 26,
+      "full_xgetimage_intervals_ns": [
+        3333044,
+        4508484
+      ],
+      "poll_median_ns": 4075556,
+      "poll_max_before_match_ns": 11111456,
+      "visible_marker_count": 10,
+      "ready_resident_covers": 10,
+      "ready_resident_bytes": 5324800,
+      "final_logical_rgb_matches": true,
+      "stages": {
+        "process_ns": 66138223819823,
+        "producer_ns": 66138330733012,
+        "ui_record_ns": 66138330780431,
+        "ready_ns": 66138334599333,
+        "attach_gap_ns": 1079662,
+        "attach_outcomes": [
+          "partial",
+          "success"
+        ],
+        "enter_to_feedback_bracket_ns": [
+          0,
+          30506480
+        ],
+        "enter_to_shelf_bracket_ns": [
+          121232743,
+          131252437
+        ],
+        "feedback_sample_to_producer_ns": [
+          76406709,
+          76746980
+        ],
+        "producer_to_ui_ns": 47419,
+        "ui_to_ready_ns": 3818902,
+        "startup_activity_pulses": 0,
+        "state-covers": {
+          "wall_us": 3738,
+          "cpu_us": 3702
+        },
+        "attach-covers": {
+          "wall_us": 1146,
+          "cpu_us": 1134
+        }
+      },
+      "initial_activity_sample_ns": [
+        66138254641584,
+        66138254694593
+      ],
+      "bootstrap_probe_mode": "observe",
+      "process_probe_environment_verified": true,
+      "wake": {
+        "pid": 541,
+        "process_enter_ns": 66138223819823,
+        "window_shown_ns": 66138236493288,
+        "first_scene_rendered_ns": null,
+        "workers_started_ns": 66138316924415,
+        "driver_first_entry": {
+          "monotonic_ns": 66138316885436,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false
+        },
+        "ui_worker_gate": {
+          "monotonic_ns": 66138317209867,
+          "source": "maintenance_timer",
+          "render_notifier_registered": false,
+          "first_scene_rendered": false,
+          "workers_admitted_by_ui": true
+        },
+        "font_worker_queued_ns": 66138316994793,
+        "state_worker_queued_ns": 66138317163568,
+        "font_worker_begin_ns": 66138317362293,
+        "state_worker_begin_ns": 66138317371363,
+        "desktop_software_full_submit": {
+          "monotonic_ns": 66138244610401,
+          "mode": "observe",
+          "width": 1860,
+          "height": 2480,
+          "ui_thread": true
+        },
+        "desktop_post_submit_turn": {
+          "monotonic_ns": 66138260804078,
+          "mode": "observe",
+          "delay_ms": 16,
+          "workers_started_before": false,
+          "window_alive": true,
+          "booting": true,
+          "suspended": false,
+          "quitting": false,
+          "cancelled": false,
+          "driver_available": true,
+          "will_drive": false,
+          "ui_thread": true
+        },
+        "visible_before_workers_started": true,
+        "visible_before_state_worker_queued": true,
+        "visible_before_state_prepared": true
+      }
+    }
+  },
+  "pairs": [
+    {
+      "pair": 1,
+      "order": "AB",
+      "B_minus_A_shelf_bounds_ns": [
+        -68060161,
+        -45861008
+      ],
+      "B_minus_A_first_observed_shelf_ns": -57411613,
+      "B_minus_A_worker_cpu_us": -1551,
+      "B_minus_A_ui_attach_cpu_us": 427
+    },
+    {
+      "pair": 2,
+      "order": "BA",
+      "B_minus_A_shelf_bounds_ns": [
+        -70646215,
+        -53517023
+      ],
+      "B_minus_A_first_observed_shelf_ns": -63032509,
+      "B_minus_A_worker_cpu_us": -2073,
+      "B_minus_A_ui_attach_cpu_us": -376
+    },
+    {
+      "pair": 3,
+      "order": "AB",
+      "B_minus_A_shelf_bounds_ns": [
+        -59535139,
+        -42904664
+      ],
+      "B_minus_A_first_observed_shelf_ns": -51819396,
+      "B_minus_A_worker_cpu_us": -2061,
+      "B_minus_A_ui_attach_cpu_us": 365
+    },
+    {
+      "pair": 4,
+      "order": "BA",
+      "B_minus_A_shelf_bounds_ns": [
+        -69338699,
+        -49964584
+      ],
+      "B_minus_A_first_observed_shelf_ns": -60103605,
+      "B_minus_A_worker_cpu_us": -235,
+      "B_minus_A_ui_attach_cpu_us": -11
+    },
+    {
+      "pair": 5,
+      "order": "AB",
+      "B_minus_A_shelf_bounds_ns": [
+        -63103510,
+        -46257288
+      ],
+      "B_minus_A_first_observed_shelf_ns": -54575717,
+      "B_minus_A_worker_cpu_us": -239,
+      "B_minus_A_ui_attach_cpu_us": -111
+    },
+    {
+      "pair": 6,
+      "order": "BA",
+      "B_minus_A_shelf_bounds_ns": [
+        -63635615,
+        -45244254
+      ],
+      "B_minus_A_first_observed_shelf_ns": -55263948,
+      "B_minus_A_worker_cpu_us": -662,
+      "B_minus_A_ui_attach_cpu_us": -247
+    }
+  ]
+}

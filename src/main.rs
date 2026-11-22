@@ -30,6 +30,10 @@ use slint::{ComponentHandle, Model};
 mod runtime_wakeup;
 mod sleep_cover_runtime;
 mod startup_admission;
+#[cfg(all(feature = "kindle", target_os = "linux"))]
+mod prepared_handoff;
+#[cfg(all(feature = "kindle", target_os = "linux"))]
+mod shelf_render_trace;
 use runtime_wakeup::{RuntimeWake, StartupContinuation, TraceMoment, trace_moment};
 use sleep_cover_runtime::{CoverProgress, SleepCoverRuntime};
 use startup_admission::{
@@ -88,6 +92,15 @@ struct Arguments {
     /// Record bounded diagnostic stage timing in a new private JSONL file.
     #[arg(long, hide = true, conflicts_with_all = ["relay_power_events", "capture_native_display", "probe_native_portrait_framebuffer", "publish_native_portrait_orientation"])]
     performance_trace: Option<PathBuf>,
+    /// Record the first qualifying native Shelf draw and framebuffer submission.
+    #[arg(long, hide = true, requires = "kindle", conflicts_with_all = ["actions", "performance_trace", "relay_power_events", "capture_native_display", "probe_native_portrait_framebuffer", "publish_native_portrait_orientation"])]
+    shelf_render_trace: Option<PathBuf>,
+    /// Save the software startup State producer and receive clocks after a successful Shelf run.
+    #[arg(long, hide = true, requires_all = ["kindle", "shelf_render_trace"], conflicts_with = "lifecycle_trace")]
+    prepared_handoff_trace: Option<PathBuf>,
+    /// Keep the native startup Shelf on the wait-before-render path for diagnostics.
+    #[arg(long, hide = true, requires_all = ["kindle", "shelf_render_trace"])]
+    serial_shelf_render: bool,
     /// Relay bounded native power records without initializing application services.
     #[arg(long, hide = true)]
     relay_power_events: bool,
@@ -284,7 +297,7 @@ struct StartupWorkers {
 }
 
 impl StartupWorkers {
-    fn start(&self) {
+    fn start(&self) -> bool {
         self.admission.start_once(|| {
             record_startup_stage(self.trace_path.as_deref(), "workers_started", trace_moment(), None);
             if let Some(covers) = self.covers.as_ref() {
@@ -296,7 +309,7 @@ impl StartupWorkers {
                     self.delay_ms, self.cancelled.clone(), self.sender.clone(), self.wake.clone(),
                     self.trace_path.is_some());
             }
-        });
+        })
     }
 }
 
@@ -350,6 +363,16 @@ fn run(arguments: Arguments) -> Result<()> {
         } else if let Err(error) = bilicomics::performance::configure(path) {
             eprintln!("bilicomics: performance diagnostics unavailable: {:?}", error.kind());
         }
+    }
+    if let Some(path) = arguments.shelf_render_trace.as_deref() {
+        if arguments.lifecycle_trace.as_deref() == Some(path) {
+            eprintln!("bilicomics: Shelf render diagnostics disabled because output files overlap");
+        } else if let Err(error) = bilicomics::performance::configure_shelf_render(path) {
+            eprintln!("bilicomics: Shelf render diagnostics unavailable: {:?}", error.kind());
+        }
+    }
+    if arguments.serial_shelf_render && !bilicomics::performance::shelf_render_enabled() {
+        bail!("Serial Shelf rendering requires active Shelf render diagnostics");
     }
     if arguments.kindle && arguments.landscape {
         bail!(
@@ -482,6 +505,21 @@ fn run(arguments: Arguments) -> Result<()> {
     ui.global::<ShellModel>().set_landscape(arguments.landscape);
     ui.global::<ShellModel>().set_demo(arguments.demo);
     ui.global::<ShellModel>().set_booting(true);
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    let handoff = arguments.prepared_handoff_trace.as_deref()
+        .zip(arguments.shelf_render_trace.as_deref())
+        .filter(|_| bilicomics::performance::shelf_render_enabled())
+        .and_then(|(sidecar, shelf_trace)| match prepared_handoff::PreparedHandoff::new(sidecar, shelf_trace) {
+            Ok(handoff) => Some(Rc::new(handoff)),
+            Err(error) => {
+                eprintln!("bilicomics: prepared handoff diagnostics unavailable: {:?}", error.kind());
+                None
+            }
+        });
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    if let Some(backend) = native_backend.as_ref() && bilicomics::performance::shelf_render_enabled() {
+        shelf_render_trace::install(&backend.lifecycle_handle(), &ui, handoff.clone());
+    }
     Fonts::register_bootstrap(&ui)?;
     bilicomics::performance::startup("bootstrap_font_registered", &());
     let wake = RuntimeWake::new(ui.as_weak());
@@ -675,6 +713,8 @@ fn run(arguments: Arguments) -> Result<()> {
     let startup_capture = arguments.capture_startup.clone();
     let startup_delay = arguments.startup_delay_ms.unwrap_or_default();
     let startup_trace = arguments.lifecycle_trace.clone();
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    let tick_handoff = handoff.clone();
     let overlap_startup_preparation = if arguments.serial_startup_preparation {
         false
     } else {
@@ -751,13 +791,18 @@ fn run(arguments: Arguments) -> Result<()> {
     let mut last_checkpoint_trace = None::<serde_json::Value>;
     let mut performance_first_driver = true;
     let mut performance_gate = None::<&'static str>;
-    let driver = Rc::new(RefCell::new(move || {
+    let driver = Rc::new(RefCell::new(move |source: &'static str| {
             // A pending cover must reach its checked full-frame completion
             // before the suspended gate skips ordinary application work.
             SignalBridge::poll_pending();
             if performance_first_driver {
                 performance_first_driver = false;
-                bilicomics::performance::startup("driver_first_entry", &());
+                if bilicomics::performance::enabled() {
+                    bilicomics::performance::startup("driver_first_entry", &serde_json::json!({
+                        "source": source, "render_notifier_registered": rendering_notifier,
+                        "first_scene_rendered": first_rendered.load(Ordering::Acquire),
+                    }));
+                }
             }
             let Some(ui) = tick_ui.upgrade() else {
                 return;
@@ -808,8 +853,15 @@ fn run(arguments: Arguments) -> Result<()> {
                         return;
                     }
                     record_performance_gate(&mut performance_gate, "prepare");
-                    startup_workers.start();
+                    let admitted = startup_workers.start();
                     startup_ui_turn.yield_now();
+                    if bilicomics::performance::enabled() {
+                        bilicomics::performance::startup("ui_worker_gate", &serde_json::json!({
+                            "source": source, "workers_admitted_by_ui": admitted,
+                            "render_notifier_registered": rendering_notifier,
+                            "first_scene_rendered": first_rendered.load(Ordering::Acquire),
+                        }));
+                    }
                     // Yield this bootstrap turn before consuming even a very fast result.
                     return;
                 }
@@ -825,6 +877,10 @@ fn run(arguments: Arguments) -> Result<()> {
                             record_startup_stage(startup_trace.as_deref(), "font_decoded", moment, None);
                         }
                         StartupEvent::State(value, moment) => {
+                            #[cfg(all(feature = "kindle", target_os = "linux"))]
+                            if let Some(handoff) = tick_handoff.as_ref() {
+                                handoff.observe(moment.monotonic_ns, source, runtime_wakeup::monotonic_ns);
+                            }
                             prepared = Some(value);
                             record_startup_stage(startup_trace.as_deref(), "state_prepared", moment, None);
                         }
@@ -945,7 +1001,10 @@ fn run(arguments: Arguments) -> Result<()> {
                         ready_at = Some(Instant::now());
                         let _ = tick_platform.request_refresh(RefreshReason::EnterScreen);
                         #[cfg(all(feature = "kindle", target_os = "linux"))]
-                        if let Some(backend) = native_backend.as_ref() && shelf_startup && App::plain_shelf_is_visible(&ui) {
+                        if let Some(backend) = native_backend.as_ref()
+                            && shelf_startup && App::plain_shelf_is_visible(&ui)
+                            && !arguments.serial_shelf_render
+                        {
                             let window = ui.as_weak();
                             backend.lifecycle_handle().allow_initial_render_ahead_if(move ||
                                 window.upgrade().is_some_and(|ui| App::plain_shelf_is_visible(&ui)));
@@ -1087,14 +1146,14 @@ fn run(arguments: Arguments) -> Result<()> {
     let retry_wake = wake.clone();
     ui.on_runtime_wakeup(move || {
         if let Ok(mut drive) = notified_driver.try_borrow_mut() {
-            (*drive)();
+            (*drive)("runtime_wakeup");
         } else {
             retry_wake.request();
         }
     });
     timer.start(slint::TimerMode::Repeated, Duration::from_millis(80), move || {
         if let Ok(mut drive) = driver.try_borrow_mut() {
-            (*drive)();
+            (*drive)("maintenance_timer");
         }
     });
 
@@ -1148,6 +1207,12 @@ fn run(arguments: Arguments) -> Result<()> {
     final_receipts?;
     if !failures.borrow().is_empty() {
         bail!("{}", failures.borrow().join("\n"));
+    }
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    if let Some((handoff, path)) = handoff.zip(arguments.prepared_handoff_trace.as_deref())
+        && let Err(error) = handoff.write(path)
+    {
+        eprintln!("bilicomics: prepared handoff diagnostics unavailable: {:?}", error.kind());
     }
     Ok(())
 }
@@ -1702,6 +1767,49 @@ fn default_data_dir() -> Result<PathBuf> {
 #[cfg(test)]
 mod trace_tests {
     use super::*;
+
+    #[test]
+    fn prepared_handoff_trace_is_native_and_separate_from_other_startup_instrumentation() {
+        let path = "bili-shelf-0123456789abcdef0123456789abcdef.prepared-handoff.json";
+        assert!(Arguments::try_parse_from(["bilicomics", "--prepared-handoff-trace", path]).is_err());
+        assert!(Arguments::try_parse_from(["bilicomics", "--kindle", "--prepared-handoff-trace", path]).is_err());
+        for conflict in ["--actions", "--performance-trace", "--lifecycle-trace"] {
+            assert!(Arguments::try_parse_from(["bilicomics", "--kindle", "--prepared-handoff-trace", path,
+                "--shelf-render-trace", "shelf.jsonl", conflict, "other.jsonl"]).is_err());
+        }
+        let arguments = Arguments::try_parse_from(["bilicomics", "--kindle", "--demo", "--offline",
+            "--prepared-handoff-trace", path, "--shelf-render-trace", "shelf.jsonl"]).unwrap();
+        assert_eq!(arguments.prepared_handoff_trace.as_deref(), Some(Path::new(path)));
+    }
+
+    #[test]
+    fn shelf_render_trace_requires_native_display_and_excludes_scripted_or_general_diagnostics() {
+        assert!(Arguments::try_parse_from(["bilicomics", "--shelf-render-trace", "shelf.jsonl"]).is_err());
+        for conflict in ["--actions", "--performance-trace"] {
+            assert!(Arguments::try_parse_from(["bilicomics", "--kindle", "--shelf-render-trace", "shelf.jsonl",
+                conflict, "other.jsonl"]).is_err());
+        }
+        let arguments = Arguments::try_parse_from(["bilicomics", "--kindle", "--demo", "--offline",
+            "--shelf-render-trace", "shelf.jsonl"]).unwrap();
+        assert_eq!(arguments.shelf_render_trace.as_deref(), Some(Path::new("shelf.jsonl")));
+        assert!(!arguments.serial_shelf_render);
+    }
+
+    #[test]
+    fn serial_shelf_render_requires_native_shelf_diagnostics() {
+        assert!(!Arguments::try_parse_from(["bilicomics"]).unwrap().serial_shelf_render);
+        for missing in [
+            &["bilicomics", "--serial-shelf-render"][..],
+            &["bilicomics", "--serial-shelf-render", "--kindle"],
+            &["bilicomics", "--serial-shelf-render", "--shelf-render-trace", "shelf.jsonl"],
+        ] {
+            assert!(Arguments::try_parse_from(missing).is_err());
+        }
+        let arguments = Arguments::try_parse_from([
+            "bilicomics", "--kindle", "--shelf-render-trace", "shelf.jsonl", "--serial-shelf-render",
+        ]).unwrap();
+        assert!(arguments.serial_shelf_render);
+    }
 
     #[test]
     fn serial_startup_control_requires_both_isolated_fixture_flags() {

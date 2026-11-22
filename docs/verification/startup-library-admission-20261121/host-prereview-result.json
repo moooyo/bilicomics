@@ -1,0 +1,226 @@
+{
+  "scope": "Linux host fixture: launch of sh launch.sh --library to detached pre-lock success receipt; no native card, app, framebuffer I/O or Shelf time.",
+  "clock": "host CLOCK_MONOTONIC",
+  "native_card_to_shelf_render": null,
+  "native_same_frame_accepted_send": null,
+  "controlled_tools_outside_timing": {
+    "valid": {
+      "A": {
+        "entry_calls": [
+          "profile",
+          "firmware",
+          "allowlist",
+          "prepare_dirs"
+        ],
+        "worker_calls": [
+          "profile",
+          "firmware",
+          "allowlist",
+          "prepare_dirs"
+        ],
+        "worker_entered": true,
+        "status": 0,
+        "prelock_worker_receipt": true
+      },
+      "B": {
+        "entry_calls": [],
+        "worker_calls": [
+          "profile",
+          "firmware",
+          "allowlist",
+          "prepare_dirs"
+        ],
+        "worker_entered": true,
+        "status": 0,
+        "prelock_worker_receipt": true
+      }
+    },
+    "unknown-profile": {
+      "A": {
+        "entry_calls": [
+          "profile"
+        ],
+        "worker_calls": [],
+        "worker_entered": false,
+        "status": 1,
+        "prelock_worker_receipt": false
+      },
+      "B": {
+        "entry_calls": [],
+        "worker_calls": [
+          "profile"
+        ],
+        "worker_entered": true,
+        "status": 1,
+        "prelock_worker_receipt": false
+      }
+    },
+    "malformed-firmware": {
+      "A": {
+        "entry_calls": [
+          "profile",
+          "firmware"
+        ],
+        "worker_calls": [],
+        "worker_entered": false,
+        "status": 1,
+        "prelock_worker_receipt": false
+      },
+      "B": {
+        "entry_calls": [],
+        "worker_calls": [
+          "profile",
+          "firmware"
+        ],
+        "worker_entered": true,
+        "status": 1,
+        "prelock_worker_receipt": false
+      }
+    },
+    "unaccepted-firmware": {
+      "A": {
+        "entry_calls": [
+          "profile",
+          "firmware",
+          "allowlist"
+        ],
+        "worker_calls": [],
+        "worker_entered": false,
+        "status": 1,
+        "prelock_worker_receipt": false
+      },
+      "B": {
+        "entry_calls": [],
+        "worker_calls": [
+          "profile",
+          "firmware",
+          "allowlist"
+        ],
+        "worker_entered": true,
+        "status": 1,
+        "prelock_worker_receipt": false
+      }
+    },
+    "missing-executable": {
+      "A": {
+        "entry_calls": [],
+        "worker_calls": [],
+        "worker_entered": false,
+        "status": 1,
+        "prelock_worker_receipt": false
+      },
+      "B": {
+        "entry_calls": [],
+        "worker_calls": [],
+        "worker_entered": true,
+        "status": 1,
+        "prelock_worker_receipt": false
+      }
+    }
+  },
+  "blocks": [
+    {
+      "warmups_excluded_ns": {
+        "A": 10695097,
+        "B": 6918537
+      },
+      "pairs": [
+        {
+          "order": "AB",
+          "A_ns": 10306107,
+          "B_ns": 7132201,
+          "B_minus_A_ns": -3173906
+        },
+        {
+          "order": "BA",
+          "A_ns": 10546671,
+          "B_ns": 7171310,
+          "B_minus_A_ns": -3375361
+        },
+        {
+          "order": "AB",
+          "A_ns": 11073348,
+          "B_ns": 7188420,
+          "B_minus_A_ns": -3884928
+        },
+        {
+          "order": "BA",
+          "A_ns": 10708917,
+          "B_ns": 7108242,
+          "B_minus_A_ns": -3600675
+        },
+        {
+          "order": "AB",
+          "A_ns": 10303798,
+          "B_ns": 8122405,
+          "B_minus_A_ns": -2181393
+        },
+        {
+          "order": "BA",
+          "A_ns": 11493457,
+          "B_ns": 8997712,
+          "B_minus_A_ns": -2495745
+        }
+      ],
+      "B_faster": 6,
+      "median_paired_B_minus_A_ns": -3274633.5,
+      "ordered_paired_B_minus_A_medians_ns": {
+        "AB": -3173906,
+        "BA": -3375361
+      },
+      "passes_host_gate": true
+    },
+    {
+      "warmups_excluded_ns": {
+        "A": 11114957,
+        "B": 9585557
+      },
+      "pairs": [
+        {
+          "order": "AB",
+          "A_ns": 11626703,
+          "B_ns": 8004098,
+          "B_minus_A_ns": -3622605
+        },
+        {
+          "order": "BA",
+          "A_ns": 11038238,
+          "B_ns": 7403605,
+          "B_minus_A_ns": -3634633
+        },
+        {
+          "order": "AB",
+          "A_ns": 10975510,
+          "B_ns": 7259618,
+          "B_minus_A_ns": -3715892
+        },
+        {
+          "order": "BA",
+          "A_ns": 10591741,
+          "B_ns": 6969966,
+          "B_minus_A_ns": -3621775
+        },
+        {
+          "order": "AB",
+          "A_ns": 10442634,
+          "B_ns": 7373485,
+          "B_minus_A_ns": -3069149
+        },
+        {
+          "order": "BA",
+          "A_ns": 11013229,
+          "B_ns": 7345287,
+          "B_minus_A_ns": -3667942
+        }
+      ],
+      "B_faster": 6,
+      "median_paired_B_minus_A_ns": -3628619.0,
+      "ordered_paired_B_minus_A_medians_ns": {
+        "AB": -3622605,
+        "BA": -3634633
+      },
+      "passes_host_gate": true
+    }
+  ],
+  "passes_both_host_gates": true
+}

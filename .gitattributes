@@ -85,3 +85,5 @@
 
 # Keep the paired comparison plan, readers and source-only handoff templates portable.
 /docs/physical/startup-optimization-20261119/** -text
+
+/docs/verification/startup-*/*.patch text eol=lf whitespace=-blank-at-eol,-blank-at-eof

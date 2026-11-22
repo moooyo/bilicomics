@@ -1,0 +1,119 @@
+{
+  "scope": "Post-hoc stage attribution from the closed v2 desktop trial, synthetic offline Scribe demo only. All 12 measured processes and neither warmup are shown. This is the application demo database seeding span, not the separate untimed seed preconditioning run.",
+  "measurement": "wall_us and cpu_us are the duration measurements from the successful end record on the same worker; begin/end event timestamps use CLOCK_MONOTONIC and include trace-emission overhead. A wall/CPU difference does not identify I/O or scheduler causes.",
+  "stage": "state-demo-seed",
+  "warmups_excluded": [
+    "a00",
+    "b00"
+  ],
+  "cases": [
+    {
+      "case": "a01",
+      "pid": 151,
+      "worker_tid": 168,
+      "begin_monotonic_ns": 61398437145323,
+      "end_monotonic_ns": 61398488452433,
+      "wall_us": 51299,
+      "cpu_us": 7507
+    },
+    {
+      "case": "b01",
+      "pid": 191,
+      "worker_tid": 208,
+      "begin_monotonic_ns": 61399806466038,
+      "end_monotonic_ns": 61399859478788,
+      "wall_us": 53006,
+      "cpu_us": 6307
+    },
+    {
+      "case": "b02",
+      "pid": 230,
+      "worker_tid": 246,
+      "begin_monotonic_ns": 61401121369595,
+      "end_monotonic_ns": 61401170419448,
+      "wall_us": 49039,
+      "cpu_us": 6335
+    },
+    {
+      "case": "a02",
+      "pid": 269,
+      "worker_tid": 286,
+      "begin_monotonic_ns": 61402450172617,
+      "end_monotonic_ns": 61402501745011,
+      "wall_us": 51564,
+      "cpu_us": 7409
+    },
+    {
+      "case": "a03",
+      "pid": 308,
+      "worker_tid": 324,
+      "begin_monotonic_ns": 61403817973407,
+      "end_monotonic_ns": 61403872555032,
+      "wall_us": 54570,
+      "cpu_us": 9025
+    },
+    {
+      "case": "b03",
+      "pid": 347,
+      "worker_tid": 363,
+      "begin_monotonic_ns": 61405123664209,
+      "end_monotonic_ns": 61405175726822,
+      "wall_us": 52055,
+      "cpu_us": 6968
+    },
+    {
+      "case": "b04",
+      "pid": 386,
+      "worker_tid": 403,
+      "begin_monotonic_ns": 61406455791544,
+      "end_monotonic_ns": 61407127837631,
+      "wall_us": 672035,
+      "cpu_us": 6790
+    },
+    {
+      "case": "a04",
+      "pid": 426,
+      "worker_tid": 443,
+      "begin_monotonic_ns": 61408423699944,
+      "end_monotonic_ns": 61408469976742,
+      "wall_us": 46270,
+      "cpu_us": 5717
+    },
+    {
+      "case": "a05",
+      "pid": 466,
+      "worker_tid": 486,
+      "begin_monotonic_ns": 61409758807969,
+      "end_monotonic_ns": 61409812479743,
+      "wall_us": 53663,
+      "cpu_us": 8712
+    },
+    {
+      "case": "b05",
+      "pid": 508,
+      "worker_tid": 528,
+      "begin_monotonic_ns": 61411088183627,
+      "end_monotonic_ns": 61411142314301,
+      "wall_us": 54123,
+      "cpu_us": 7788
+    },
+    {
+      "case": "b06",
+      "pid": 550,
+      "worker_tid": 566,
+      "begin_monotonic_ns": 61412433584831,
+      "end_monotonic_ns": 61412483605401,
+      "wall_us": 50010,
+      "cpu_us": 5767
+    },
+    {
+      "case": "a06",
+      "pid": 589,
+      "worker_tid": 605,
+      "begin_monotonic_ns": 61413809717227,
+      "end_monotonic_ns": 61414056561854,
+      "wall_us": 246837,
+      "cpu_us": 14066
+    }
+  ]
+}
