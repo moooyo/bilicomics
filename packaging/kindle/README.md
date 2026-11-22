@@ -11,6 +11,7 @@ documents/bilicomics.sh
 bilicomics/launch.sh
 bilicomics/app/bilicomics
 bilicomics/app/kindle-jpeg-worker
+bilicomics/assets/bilicomics-library-cover.png
 bilicomics/data/device-profile
 bilicomics/data/device-allowlist
 notices/backend/
@@ -18,7 +19,9 @@ notices/pinyin/
 notices/aidoku-native-library-entry/
 ```
 
-Stage `document-launcher.sh` as `documents/bilicomics.sh` and `launch.sh` as `bilicomics/launch.sh`. The document invokes the installed canonical launcher; it does not contain another supervisor copy. Its title remains the source launcher's `BiliComics for Kindle`. It adds no icon, `DontUseFBInk` declaration, scanner request, or handler registration. Keep exactly one indexed BiliComics document. Before updating any existing installation, retain that document's exact path spelling and scanner-visible metadata rather than adding an uppercase/lowercase alternative.
+Stage `document-launcher.sh` as `documents/bilicomics.sh` and `launch.sh` as `bilicomics/launch.sh`. The document invokes the installed canonical launcher; it does not contain another supervisor copy. Its title remains `BiliComics for Kindle`. Its [`# Icon:` header](https://kindlemodding.org/kindle-dev/scriptlets.html) points to `/mnt/us/bilicomics/assets/bilicomics-library-cover.png`, the 600 × 800 grayscale adaptation of the [project logo](../../assets/branding/README.md).
+
+Install the cover before copying or updating the document so that the native Scriptlet scanner can read it when indexing. Existing installations should update the same `documents/bilicomics.sh` entry and let the ordinary scanner refresh it; do not add another card or edit the catalog directly. The header does not change the handler registration, `DontUseFBInk` policy, or launch command.
 
 The 2026-11-17 read-only inventory found neither `/mnt/us/documents/bilicomics.sh` nor `/mnt/us/documents/BiliComics.sh`, no index row for either path, and no canonical BiliComics application, JPEG worker or launcher. The lowercase path is therefore the source-defined new-installation entry, not preservation of an existing device title or cover. A temporary physical qualification must use the same formal document and metadata for both admission variants and restore the original absent state afterward. Package creation does not authorize permanent device installation.
 
@@ -82,7 +85,7 @@ The event FIFO remains responsive while acknowledgements and native unlock check
 
 `manifest.draft.json` uses a provisional independent package identity and the reference KPM manifest shape. Its `kindlehf` platform label is packaging metadata, not a device compatibility result. This directory does not create, publish, or verify a release package, update channel, or application license.
 
-An entry-only delivery may reuse an already qualified application and JPEG worker without rebuilding Rust. `scripts/verification/rebundle_launcher.py` requires the exact base archive, application, worker and original binary-source-manifest digests. It accepts either the complete frozen pre-Library file set or the complete current set, never a partial hybrid. Only the canonical launcher, this README, the top-level third-party notice, the one document and its three entry-provenance notices come from the selected current source. Existing member permissions/timestamps and all other payload bytes are retained. The new archive and sidecar must then pass `verify_package.py` against those same selected binaries; rebuilding or successful repackaging alone does not establish device behavior.
+An entry-only delivery may reuse an already qualified application and JPEG worker without rebuilding Rust. `scripts/verification/rebundle_launcher.py` requires the exact base archive, application, worker and original binary-source-manifest digests. It accepts either the complete frozen pre-Library file set or the complete current set, never a partial hybrid. Only the canonical launcher, this README, the top-level third-party notice, the one document, its cover, and its three entry-provenance notices come from the selected current source. Existing member permissions/timestamps and all other payload bytes are retained. The new archive and sidecar must then pass `verify_package.py` against those same selected binaries; rebuilding or successful repackaging alone does not establish device behavior.
 
 The retained entry-lifetime source and original license are documented in [the Aidoku implementation reference](../../docs/research/aidoku-native-library-entry-20261117/README.md). Its package notice group contains only the original license, provenance manifest and reference README. Prototype handlers, research evidence and upstream timing numbers are not BiliComics package inputs or acceptance results.
 

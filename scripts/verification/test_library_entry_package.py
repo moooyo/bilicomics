@@ -18,12 +18,13 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 import zipfile
+import zlib
 
 from rebundle_launcher import base_entries, rebundle
 from run_suite import SOURCE_TREES, manifest_text
 from verify_package import (ALLOWED_FILES, EXECUTABLE_FILES, FIXED_TIMESTAMP,
-                            LEGACY_ALLOWED_FILES, LIBRARY_DOCUMENT,
-                            LIBRARY_DOCUMENT_SOURCE, LIBRARY_ENTRY_COMMIT,
+                            LEGACY_ALLOWED_FILES, LIBRARY_COVER, LIBRARY_COVER_SOURCE,
+                            LIBRARY_DOCUMENT, LIBRARY_DOCUMENT_SOURCE, LIBRARY_ENTRY_COMMIT,
                             LIBRARY_ENTRY_NOTICES, LIBRARY_ENTRY_PREFIX,
                             LIBRARY_ENTRY_REFERENCE, LIBRARY_ENTRY_REVIEWED_MAIN,
                             LIBRARY_ENTRY_SOURCES, SPATIAL_DITHER_NOTICES,
@@ -39,8 +40,9 @@ APPLICATION = "bilicomics/app/bilicomics"
 JPEG_WORKER = "bilicomics/app/kindle-jpeg-worker"
 LAUNCHER = "bilicomics/launch.sh"
 LIBRARY_COMMAND = b"exec sh /mnt/us/bilicomics/launch.sh --library"
+LIBRARY_ICON = b"# Icon: /mnt/us/bilicomics/assets/bilicomics-library-cover.png"
 DOCUMENT_FIXTURE = (b"#!/bin/sh\n# Name: BiliComics for Kindle\n"
-                    + LIBRARY_COMMAND + b"\n")
+                    + LIBRARY_ICON + b"\n" + LIBRARY_COMMAND + b"\n")
 
 
 def digest(value):
@@ -55,6 +57,18 @@ def arm_header_fixture(label, machine=40):
     return bytes(value) + label
 
 
+def png_fixture(width, height, *, bit_depth=8, color_type=0, transparency=b""):
+    def chunk(kind, data):
+        return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
+
+    channels = 3 if color_type == 2 else 1
+    row = b"\0" * (1 + (width * channels * bit_depth + 7) // 8)
+    header = struct.pack(">IIBBBBB", width, height, bit_depth, color_type, 0, 0, 0)
+    return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", header)
+            + (chunk(b"tRNS", transparency) if transparency else b"")
+            + chunk(b"IDAT", zlib.compress(row * height)) + chunk(b"IEND", b""))
+
+
 class LibraryPackageFixture(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory(prefix="bilicomics-library-package-")
@@ -65,6 +79,7 @@ class LibraryPackageFixture(unittest.TestCase):
         self.source.mkdir()
         self.archive = self.root / "candidate.zip"
         self.document_source = self.source / LIBRARY_DOCUMENT_SOURCE
+        self.cover_source = self.source / LIBRARY_COVER_SOURCE
         self.write_source(LIBRARY_DOCUMENT_SOURCE, DOCUMENT_FIXTURE)
         self.write_source("src/main.rs", b"fn main() {}\n")
         for name in set(LIBRARY_ENTRY_NOTICES) | set(LIBRARY_ENTRY_SOURCES):
@@ -74,6 +89,7 @@ class LibraryPackageFixture(unittest.TestCase):
             "README.md": "packaging/kindle/README.md",
             "THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.md",
             LIBRARY_DOCUMENT: LIBRARY_DOCUMENT_SOURCE,
+            LIBRARY_COVER: LIBRARY_COVER_SOURCE,
             **{LIBRARY_ENTRY_PREFIX + name: LIBRARY_ENTRY_REFERENCE + "/" + name
                for name in LIBRARY_ENTRY_NOTICES},
         }
@@ -121,8 +137,11 @@ class LibraryPackageFixture(unittest.TestCase):
             path.with_suffix(".manifest.json").write_text(json.dumps(sidecar) + "\n", encoding="utf-8")
         return sidecar
 
+    def document_members(self, document=DOCUMENT_FIXTURE):
+        return {LIBRARY_DOCUMENT: document, LIBRARY_COVER: self.packaging[LIBRARY_COVER]}
+
     def check_document(self, members=None):
-        self.write_archive({LIBRARY_DOCUMENT: DOCUMENT_FIXTURE} if members is None else members)
+        self.write_archive(self.document_members() if members is None else members)
         report = {"checks": []}
         with zipfile.ZipFile(self.archive) as archive:
             check_library_document(archive, self.source, report)
@@ -143,8 +162,11 @@ class LibraryDocumentPackageTests(LibraryPackageFixture):
         self.assertEqual(LIBRARY_DOCUMENT, "documents/bilicomics.sh")
         self.assertEqual([line for line in lines[:6] if line.startswith(b"# Name:")],
                          [b"# Name: BiliComics for Kindle"])
+        self.assertEqual(lines[2], LIBRARY_ICON)
+        self.assertEqual([line for line in lines if line.lstrip().lower().startswith(b"# icon:")],
+                         [LIBRARY_ICON])
         self.assertNotIn(b"dontusefbink", content.lower())
-        self.assertFalse(any(line.lstrip().lower().startswith((b"# icon:", b"# author:")) for line in lines))
+        self.assertFalse(any(line.lstrip().lower().startswith(b"# author:") for line in lines))
         self.assertEqual(lines[-1], LIBRARY_COMMAND)
         self.assertEqual(lines.count(LIBRARY_COMMAND), 1)
         for line in lines:
@@ -160,6 +182,9 @@ class LibraryDocumentPackageTests(LibraryPackageFixture):
         check = report["checks"][0]
         self.assertEqual(check["name"], "formal_library_document_source")
         self.assertEqual(check["document"], LIBRARY_DOCUMENT)
+        self.assertEqual(check["cover"], LIBRARY_COVER)
+        self.assertEqual(check["cover_source"], LIBRARY_COVER_SOURCE)
+        self.assertEqual(check["cover_dimensions"], [600, 800])
         self.assertEqual(check["argument"], "--library")
         self.assertIs(check["shared_handler_changed"], False)
 
@@ -169,7 +194,7 @@ class LibraryDocumentPackageTests(LibraryPackageFixture):
                         DOCUMENT_FIXTURE + b"\n", DOCUMENT_FIXTURE + b"\0"):
             with self.subTest(content=content):
                 with self.assertRaisesRegex(ValueError, "Library document differs from the selected thin-wrapper source"):
-                    self.check_document({LIBRARY_DOCUMENT: content})
+                    self.check_document(self.document_members(content))
 
     def test_source_cannot_rebind_the_entry_to_a_noncanonical_invocation(self):
         for content in (DOCUMENT_FIXTURE.replace(b"--library", b"--detached"),
@@ -189,10 +214,64 @@ class LibraryDocumentPackageTests(LibraryPackageFixture):
                     self.check_document({LIBRARY_DOCUMENT: content})
 
     def test_the_document_namespace_cannot_be_missing_or_contain_an_alias(self):
-        for members in ({}, {LIBRARY_DOCUMENT: DOCUMENT_FIXTURE,
-                             "documents/unexpected-entry.sh": DOCUMENT_FIXTURE}):
+        cover = {LIBRARY_COVER: self.packaging[LIBRARY_COVER]}
+        for members in (cover, {**self.document_members(), "documents/unexpected-entry.sh": DOCUMENT_FIXTURE}):
             with self.subTest(paths=sorted(members)):
                 with self.assertRaisesRegex(ValueError, "exactly the selected Library document"):
+                    self.check_document(members)
+
+    def test_only_the_canonical_third_line_icon_declaration_is_accepted(self):
+        for label, content in (
+            ("missing", DOCUMENT_FIXTURE.replace(LIBRARY_ICON + b"\n", b"")),
+            ("wrong path", DOCUMENT_FIXTURE.replace(LIBRARY_ICON, b"# Icon: /mnt/us/bilicomics/alternate.png")),
+            ("data URI", DOCUMENT_FIXTURE.replace(LIBRARY_ICON, b"# Icon: data:image/png;base64,AAAA")),
+            ("displaced", DOCUMENT_FIXTURE.replace(LIBRARY_ICON, b"\n" + LIBRARY_ICON)),
+            ("duplicate", DOCUMENT_FIXTURE.replace(LIBRARY_ICON, LIBRARY_ICON + b"\n" + LIBRARY_ICON)),
+            ("ambiguous duplicate", DOCUMENT_FIXTURE.replace(
+                LIBRARY_ICON, LIBRARY_ICON + b"\n # iCoN : /tmp/alternate.png")),
+        ):
+            with self.subTest(label=label):
+                self.document_source.write_bytes(content)
+                with self.assertRaisesRegex(ValueError, "must declare exactly one canonical Icon header on line 3"):
+                    self.check_document(self.document_members(content))
+
+    def test_the_archive_cover_cannot_be_missing_or_staged_at_another_path(self):
+        document = {LIBRARY_DOCUMENT: DOCUMENT_FIXTURE}
+        for members in (document, {**document, "bilicomics/assets/alternate-cover.png": self.packaging[LIBRARY_COVER]}):
+            with self.subTest(paths=sorted(members)):
+                with self.assertRaisesRegex(ValueError, "must contain exactly one Library cover"):
+                    self.check_document(members)
+
+    def test_duplicate_cover_members_are_rejected(self):
+        self.write_archive(self.document_members())
+        with zipfile.ZipFile(self.archive, "a") as archive:
+            with self.assertWarnsRegex(UserWarning, "Duplicate name"):
+                archive.writestr(LIBRARY_COVER, self.packaging[LIBRARY_COVER])
+        with zipfile.ZipFile(self.archive) as archive:
+            with self.assertRaisesRegex(ValueError, "must contain exactly one Library cover"):
+                check_library_document(archive, self.source, {"checks": []})
+
+    def test_the_selected_cover_source_must_be_a_regular_file(self):
+        self.cover_source.unlink()
+        with self.assertRaisesRegex(ValueError, "selected Library cover source is unavailable"):
+            self.check_document()
+        self.cover_source.symlink_to(self.repository / LIBRARY_COVER_SOURCE)
+        with self.assertRaisesRegex(ValueError, "selected Library cover source is unavailable"):
+            self.check_document()
+
+    def test_matching_source_and_archive_must_contain_an_opaque_grayscale_cover(self):
+        for label, cover in (
+            ("wrong size", png_fixture(800, 600)),
+            ("wrong depth", png_fixture(600, 800, bit_depth=4)),
+            ("RGB", png_fixture(600, 800, color_type=2)),
+            ("grayscale with transparency", png_fixture(600, 800, transparency=b"\0\0")),
+            ("truncated", self.packaging[LIBRARY_COVER][:-1]),
+            ("not a PNG", b"Not a PNG.\n"),
+        ):
+            with self.subTest(label=label):
+                self.cover_source.write_bytes(cover)
+                members = {**self.document_members(), LIBRARY_COVER: cover}
+                with self.assertRaisesRegex(ValueError, "Library cover must be an opaque 600 x 800 8-bit grayscale PNG"):
                     self.check_document(members)
 
 
@@ -287,6 +366,11 @@ class LibraryFullPackageGuardTests(LibraryPackageFixture):
         members[LIBRARY_DOCUMENT] = DOCUMENT_FIXTURE.replace(b"--library", b"--detached")
         self.assert_full_checker_rejects(members, "Library document differs from the selected thin-wrapper source")
 
+    def test_full_checker_reaches_cover_binding_with_a_recomputed_zip_manifest(self):
+        members = self.complete_members()
+        members[LIBRARY_COVER] = png_fixture(600, 800)
+        self.assert_full_checker_rejects(members, "Library cover differs from the selected source")
+
     def test_full_checker_reaches_notice_binding_with_a_recomputed_zip_manifest(self):
         members = self.complete_members()
         members[LIBRARY_ENTRY_PREFIX + "README.md"] = b"Replaced notice.\n"
@@ -359,8 +443,10 @@ class LibraryEntryRebundleTests(LibraryPackageFixture):
                 self.assertEqual(output[name], content)
             document_mode = (archive.getinfo(LIBRARY_DOCUMENT).external_attr >> 16) & 0xFFFF
             self.assertEqual(stat.S_IMODE(document_mode), 0o755)
+            cover_mode = (archive.getinfo(LIBRARY_COVER).external_attr >> 16) & 0xFFFF
+            self.assertEqual(stat.S_IMODE(cover_mode), 0o644)
         self.assertEqual(report["base_schema"], schema)
-        self.assertEqual(report["output_schema"], "library-entry-v1")
+        self.assertEqual(report["output_schema"], "library-entry-cover-v2")
         self.assertEqual(report["base_entry_count"], len(members))
         self.assertEqual(report["output_entry_count"], len(ALLOWED_FILES))
         self.assertEqual(report["added_entries"], sorted(set(self.packaging) - set(members)))
@@ -381,19 +467,20 @@ class LibraryEntryRebundleTests(LibraryPackageFixture):
         self.assertEqual(json.loads(arguments.provenance_output.read_bytes()), report)
         self.assertEqual(report["output_archive_sha256"], digest(self.archive.read_bytes()))
 
-    def test_legacy_package_adds_the_document_and_notices_without_rebuilding(self):
+    def test_legacy_package_adds_the_document_cover_and_notices_without_rebuilding(self):
         self.assert_refreshed_package(self.base_members(), "pre-library-entry-v1")
 
     def test_current_schema_refreshes_selected_packaging_without_duplicate_documents(self):
-        self.assert_refreshed_package(self.base_members(ALLOWED_FILES), "library-entry-v1")
+        self.assert_refreshed_package(self.base_members(ALLOWED_FILES), "library-entry-cover-v2")
 
     def test_identical_current_packaging_counts_all_existing_entries_as_retained(self):
         members = self.base_members(ALLOWED_FILES)
         members.update(self.packaging)
-        self.assert_refreshed_package(members, "library-entry-v1")
+        self.assert_refreshed_package(members, "library-entry-cover-v2")
 
     def test_partial_upgrades_are_not_a_supported_package_schema(self):
-        for additions in ({LIBRARY_DOCUMENT}, {LIBRARY_ENTRY_PREFIX + name for name in LIBRARY_ENTRY_NOTICES}):
+        notices = {LIBRARY_ENTRY_PREFIX + name for name in LIBRARY_ENTRY_NOTICES}
+        for additions in ({LIBRARY_DOCUMENT}, {LIBRARY_COVER}, notices, notices | {LIBRARY_DOCUMENT}):
             with self.subTest(additions=sorted(additions)):
                 members = self.base_members(LEGACY_ALLOWED_FILES | additions)
                 with self.assertRaisesRegex(ValueError, "not an exact supported package schema"):

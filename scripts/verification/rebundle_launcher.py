@@ -16,20 +16,22 @@ import zipfile
 
 from run_suite import SOURCE_TREES, manifest_text
 from verify_package import (ALLOWED_FILES, EXECUTABLE_FILES, FIXED_TIMESTAMP,
-                            LEGACY_ALLOWED_FILES, LIBRARY_DOCUMENT,
-                            LIBRARY_DOCUMENT_SOURCE, LIBRARY_ENTRY_NOTICES,
-                            LIBRARY_ENTRY_PREFIX, LIBRARY_ENTRY_REFERENCE)
+                            LEGACY_ALLOWED_FILES, LIBRARY_COVER, LIBRARY_COVER_SOURCE,
+                            LIBRARY_DOCUMENT, LIBRARY_DOCUMENT_SOURCE,
+                            LIBRARY_ENTRY_NOTICES, LIBRARY_ENTRY_PREFIX,
+                            LIBRARY_ENTRY_REFERENCE)
 
 
 LAUNCHER = "bilicomics/launch.sh"
 BINARY = "bilicomics/app/bilicomics"
 JPEG_WORKER = "bilicomics/app/kindle-jpeg-worker"
 LEGACY_SCHEMA = "pre-library-entry-v1"
-CURRENT_SCHEMA = "library-entry-v1"
+CURRENT_SCHEMA = "library-entry-cover-v2"
 PACKAGING_SOURCES = {
     LAUNCHER: "packaging/kindle/launch.sh",
     "README.md": "packaging/kindle/README.md",
     "THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.md",
+    LIBRARY_COVER: LIBRARY_COVER_SOURCE,
     LIBRARY_DOCUMENT: LIBRARY_DOCUMENT_SOURCE,
     **{LIBRARY_ENTRY_PREFIX + name: LIBRARY_ENTRY_REFERENCE + "/" + name
        for name in LIBRARY_ENTRY_NOTICES},

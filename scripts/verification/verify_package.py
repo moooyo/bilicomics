@@ -65,6 +65,8 @@ LEGACY_ALLOWED_FILES = frozenset({
 })
 LIBRARY_DOCUMENT = "documents/bilicomics.sh"
 LIBRARY_DOCUMENT_SOURCE = "packaging/kindle/document-launcher.sh"
+LIBRARY_COVER = "bilicomics/assets/bilicomics-library-cover.png"
+LIBRARY_COVER_SOURCE = "packaging/kindle/bilicomics-library-cover.png"
 LIBRARY_ENTRY_NOTICES = ("LICENSE.AIDOKU", "README.md", "UPSTREAM_FILES.json")
 LIBRARY_ENTRY_PREFIX = "notices/aidoku-native-library-entry/"
 LIBRARY_ENTRY_REFERENCE = "docs/research/aidoku-native-library-entry-20261117"
@@ -87,7 +89,7 @@ LIBRARY_ENTRY_SOURCES = {
         "packaging/tests/launcher_test.py", "b6187e35fd90855802bc1b539da1b194af63c8e0", 77385,
         "0bd97720b442ae927e28ce3acd669269aa33e88bef7b3d48c1839db0072de763"),
 }
-ALLOWED_FILES = LEGACY_ALLOWED_FILES | {LIBRARY_DOCUMENT} | {
+ALLOWED_FILES = LEGACY_ALLOWED_FILES | {LIBRARY_DOCUMENT, LIBRARY_COVER} | {
     LIBRARY_ENTRY_PREFIX + name for name in LIBRARY_ENTRY_NOTICES
 }
 EXECUTABLE_FILES = {"bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker",
@@ -283,9 +285,28 @@ def check_startup_sequence_notices(archive, app_root, report):
            scope="Item 1 source/license reference only; no final adoption, performance or device claim")
 
 
+def library_cover_has_expected_format(content):
+    header = b"\x89PNG\r\n\x1a\n" + struct.pack(">I4sIIBBBBB", 13, b"IHDR", 600, 800, 8, 0, 0, 0, 0)
+    if len(content) < 33 or not content.startswith(header):
+        return False
+    offset = len(header) + 4
+    has_image_data = False
+    while offset + 12 <= len(content):
+        chunk_size, chunk_type = struct.unpack_from(">I4s", content, offset)
+        offset += chunk_size + 12
+        if offset > len(content) or chunk_type in (b"tRNS", b"IHDR"):
+            return False
+        if chunk_type == b"IDAT" and chunk_size:
+            has_image_data = True
+        if chunk_type == b"IEND":
+            return has_image_data and chunk_size == 0 and offset == len(content)
+    return False
+
+
 def check_library_document(archive, app_root, report):
-    """Bind the single formal document to its selected thin-wrapper source."""
-    documents = [name for name in archive.namelist() if name.startswith("documents/")]
+    """Bind the formal Library document and its cover to the selected sources."""
+    names = archive.namelist()
+    documents = [name for name in names if name.startswith("documents/")]
     require(documents == [LIBRARY_DOCUMENT], "The archive must contain exactly the selected Library document")
     source = app_root / LIBRARY_DOCUMENT_SOURCE
     require(source.is_file() and not source.is_symlink(), "The selected Library document source is unavailable")
@@ -293,13 +314,26 @@ def check_library_document(archive, app_root, report):
     require(expected.startswith(b"#!/bin/sh\n") and expected.endswith(b"\n")
             and b"\r" not in expected and b"\0" not in expected,
             "The selected Library document is not a normalized LF POSIX shell script")
+    lines = expected.splitlines()
+    icon_header = f"# Icon: /mnt/us/{LIBRARY_COVER}".encode("ascii")
+    icon_lines = [line for line in lines if re.match(rb"\s*#\s*icon\s*:", line, re.IGNORECASE)]
+    require(lines[2:3] == [icon_header] and icon_lines == [icon_header],
+            "The selected Library document must declare exactly one canonical Icon header on line 3")
     command = b"exec sh /mnt/us/bilicomics/launch.sh --library"
-    require(expected.splitlines()[-1] == command and expected.splitlines().count(command) == 1,
+    require(lines[-1] == command and lines.count(command) == 1,
             "The selected Library document must invoke the canonical launcher with --library")
     content = archive.read(LIBRARY_DOCUMENT)
     require(content == expected, "The Library document differs from the selected thin-wrapper source")
+    require(names.count(LIBRARY_COVER) == 1, "The archive must contain exactly one Library cover")
+    cover_source = app_root / LIBRARY_COVER_SOURCE
+    require(cover_source.is_file() and not cover_source.is_symlink(), "The selected Library cover source is unavailable")
+    cover = archive.read(LIBRARY_COVER)
+    require(cover == cover_source.read_bytes(), "The Library cover differs from the selected source")
+    require(library_cover_has_expected_format(cover),
+            "The Library cover must be an opaque 600 x 800 8-bit grayscale PNG")
     record(report, "formal_library_document_source", document=LIBRARY_DOCUMENT,
            source=LIBRARY_DOCUMENT_SOURCE, sha256=hashlib.sha256(content).hexdigest(),
+           cover=LIBRARY_COVER, cover_source=LIBRARY_COVER_SOURCE, cover_dimensions=[600, 800],
            launcher="/mnt/us/bilicomics/launch.sh", argument="--library",
            shared_handler_changed=False,
            scope="Package source binding only; native indexed-document behavior requires separate qualification")

@@ -14,7 +14,7 @@ cargo zigbuild --locked --offline --release --target armv7-unknown-linux-musleab
     cat artifacts/verification/kindle-build.log; exit 1;
 }
 STAGING="$ROOT/kindle-package"
-mkdir -p "$STAGING/bilicomics/app" "$STAGING/bilicomics/data" "$STAGING/documents"
+mkdir -p "$STAGING/bilicomics/app" "$STAGING/bilicomics/assets" "$STAGING/bilicomics/data" "$STAGING/documents"
 mkdir -p "$STAGING/notices/backend" "$STAGING/notices/fonts" "$STAGING/notices/pinyin" "$STAGING/notices/protocol"
 mkdir -p "$STAGING/notices/jpeg"
 mkdir -p "$STAGING/notices/image-triangle"
@@ -26,6 +26,7 @@ mkdir -p "$STAGING/notices/aidoku-native-library-entry"
 cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/bilicomics" "$STAGING/bilicomics/app/bilicomics"
 cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/kindle-jpeg-worker" "$STAGING/bilicomics/app/kindle-jpeg-worker"
 cp packaging/kindle/launch.sh "$STAGING/bilicomics/launch.sh"
+install -m 644 packaging/kindle/bilicomics-library-cover.png "$STAGING/bilicomics/assets/bilicomics-library-cover.png"
 cp packaging/kindle/document-launcher.sh "$STAGING/documents/bilicomics.sh"
 cp packaging/kindle/device-allowlist.example "$STAGING/bilicomics/data/device-allowlist"
 printf '%s\n' pw5 > "$STAGING/bilicomics/data/device-profile"
@@ -75,7 +76,8 @@ output = pathlib.Path(sys.argv[2])
 manifest = []
 allowed = [
     "README.md", "THIRD_PARTY_NOTICES.md", "bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker",
-    "bilicomics/launch.sh", "documents/bilicomics.sh", "bilicomics/data/device-allowlist", "bilicomics/data/device-profile",
+    "bilicomics/launch.sh", "documents/bilicomics.sh", "bilicomics/assets/bilicomics-library-cover.png",
+    "bilicomics/data/device-allowlist", "bilicomics/data/device-profile",
     "notices/Cargo.lock", "notices/backend/LICENSE-MIT", "notices/backend/LICENSE-APACHE",
     "notices/backend/UPSTREAM_REVISION", "notices/backend/PATCHES.md",
     "notices/fonts/OFL.txt", "notices/fonts/NotoSansCJK-LICENSE.txt",
