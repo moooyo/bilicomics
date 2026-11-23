@@ -48,6 +48,8 @@ mod fast_mode_tests;
 mod spatial_render_tests;
 #[cfg(test)]
 mod cpu_resize_tests;
+#[cfg(test)]
+mod rgb_gray_tests;
 mod triangle;
 
 pub const MAX_ENCODED_BYTES: u64 = crate::image_integrity::MAX_ENCODED_BYTES;
@@ -1572,6 +1574,7 @@ fn prepare_gray_source(proof: &ValidatedImage,
     let grayscale = match decoded {
         // A grayscale source already has exactly the required opaque pixels.
         image::DynamicImage::ImageLuma8(grayscale) => grayscale,
+        image::DynamicImage::ImageRgb8(rgb) => rgb8_to_gray(&rgb, is_cancelled)?,
         decoded => {
             let (width, height) = decoded.dimensions();
             let mut grayscale = GrayImage::new(width, height);
@@ -1589,6 +1592,22 @@ fn prepare_gray_source(proof: &ValidatedImage,
     let grayscale = Arc::new(grayscale);
     resources.insert_source(proof, grayscale.clone());
     Some(ValidatedGraySource { proof: proof.clone(), pixels: grayscale })
+}
+
+fn rgb8_to_gray(source: &image::RgbImage, is_cancelled: &dyn Fn() -> bool) -> Option<GrayImage> {
+    let (width, height) = source.dimensions();
+    let mut grayscale = GrayImage::new(width, height);
+    if width == 0 || height == 0 { return Some(grayscale); }
+    let width = width as usize;
+    let output: &mut [u8] = grayscale.as_mut();
+    for (row, (input, output)) in source.as_raw().chunks_exact(width * 3)
+        .zip(output.chunks_exact_mut(width)).enumerate() {
+        if row % 32 == 0 && is_cancelled() { return None; }
+        for (rgb, gray) in input.chunks_exact(3).zip(output) {
+            *gray = ((54 * u32::from(rgb[0]) + 183 * u32::from(rgb[1]) + 19 * u32::from(rgb[2]) + 128) / 256) as u8;
+        }
+    }
+    Some(grayscale)
 }
 
 /// A fit preset changes one selected source view, never its reading-region count.
