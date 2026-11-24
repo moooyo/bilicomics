@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-23",
+  "device": "scribe",
+  "firmware": "5.19.5",
+  "scope": "reader-rgb8-cpu-stage",
+  "native_same_boot": true,
+  "lease_released": true,
+  "owner_and_token_checked": true,
+  "application_launches": 0,
+  "card_input": false,
+  "observation": {
+    "schema": "bili-reader-rgb8-stage-v1",
+    "width": 1920,
+    "height": 2560,
+    "warmup_pairs": 2,
+    "bytes_equal": true,
+    "cancellation_verified": true,
+    "timed_pairs": [
+      {"ordinal": 1, "order": "AB", "generic_ns": 198286385, "rows_ns": 38036154},
+      {"ordinal": 2, "order": "BA", "generic_ns": 199601154, "rows_ns": 38038846},
+      {"ordinal": 3, "order": "AB", "generic_ns": 199437615, "rows_ns": 39208616},
+      {"ordinal": 4, "order": "BA", "generic_ns": 197321000, "rows_ns": 38555231},
+      {"ordinal": 5, "order": "AB", "generic_ns": 197695307, "rows_ns": 37414385},
+      {"ordinal": 6, "order": "BA", "generic_ns": 196786000, "rows_ns": 37087615},
+      {"ordinal": 7, "order": "AB", "generic_ns": 196874231, "rows_ns": 37629615},
+      {"ordinal": 8, "order": "BA", "generic_ns": 197147077, "rows_ns": 37685538},
+      {"ordinal": 9, "order": "AB", "generic_ns": 196905077, "rows_ns": 37442693},
+      {"ordinal": 10, "order": "BA", "generic_ns": 197384385, "rows_ns": 37282076},
+      {"ordinal": 11, "order": "AB", "generic_ns": 197048077, "rows_ns": 37436539},
+      {"ordinal": 12, "order": "BA", "generic_ns": 196523076, "rows_ns": 37525384}
+    ]
+  }
+}

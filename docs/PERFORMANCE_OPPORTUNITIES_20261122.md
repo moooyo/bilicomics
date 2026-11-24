@@ -1,0 +1,41 @@
+# Kindle performance decisions and next steps
+
+This note records the November 22–23 decisions. Software fixtures, physical Scribe observations, and the installed update are separate results. A Scribe or PW6 software frame does not establish firmware or hardware support.
+
+## Scribe startup studies
+
+The [first-Shelf contract](STARTUP_AND_SLEEP.md#primary-startup-metric-first-shelf-render) starts at the native Library card release and stops at the first normal Shelf renderer return. In the [November 22 stock-launcher A/A](verification/startup-clock-aa-20261122/README.md), the eight measured offline visits had medians of **6.3242–6.3254 s** to render, **6.3840–6.3851 s** to accepted SEND, and **6.7494–6.7505 s** to driver completion for that marker. The release brackets are not confidence intervals; none of these endpoints measures optical visibility. The launcher interval includes the required two-second power-observer settle, not time available to save.
+
+| Study | Finding and decision |
+| --- | --- |
+| First-Shelf text and glyphs | In three ordinary Scribe visits, constructing glyph images on cache miss took 198–213 ms, versus 11–13 ms for painting the masks. In three separate visits, outline generation took 168–246 ms and scaler setup took 5–28 ms. Pixel-identical scaler reuse did not meet the timing gate; skipping covered titles did not improve the original translucent-cover workload. Keep the current renderer. |
+| Cover preparation and display | In three ordinary Scribe visits, the cover gate stayed closed for 141–266 ms after metadata joined, nearly all within the first accepted loading transaction. A later display transaction occupied 64–86% of the attached-to-Ready interval; the two UI cover steps took 12–15 ms. These intervals are not recoverable decode time. Deferred covers were earlier in only 2/6 desktop pairs; keep the ordering, attachment limits, PNG configuration and checked display waits. |
+| Earlier cover admission | The guarded read-only candidate passed Linux and ARM/QEMU software pixel comparisons. The study notes report that the original physical campaign stopped for feasibility after its first two closed candidate visits each reused zero covers; no physical paired timing result was retained. Replay of a separate unopened plan recorded zero attempted visits. The coarse-timestamp FUSE control was synthetic and does not establish the physical cause. Keep the stock gate. |
+| Transient startup label | The coalescing candidate removed an 880 × 96 partial redraw in the fast case at both software sizes; the slow case still showed the label after the 120 ms not-ready threshold. The [Scribe comparison](verification/startup-attach-feedback-20261123/native/analysis/physical-projection.json) favored the candidate in all five completed pairs by a median of 280–284 ms to first render. The sixth pair was incomplete, and there was no native witness that a refresh disappeared. Retain as a candidate, not a product change. |
+| Catalog rereads | Reusing validated chapter lengths saved a paired median of 2.277 ms in the large-library Linux fixture, below the 5 ms gate. Keep the existing catalog path. |
+
+Do not infer a speedup by comparing medians from the separate single-arm startup series or from the direct-launch diagnostic. The [startup decision register](verification/startup-decisions-20261121/README.md) also separates the older cover-complete improvement from the first-render endpoint.
+
+## Session storage
+
+On the normal Scribe user-storage path, an initialized 20-book offline synthetic account reached the first Shelf in **0/3** visits; two attempts directly identified the session directory being exposed as `0777` on FUSE. With only the synthetic session moved to a private temporary mount, **3/3** reached the first Shelf. The medians were **5.6958–5.6970 s** to render, **5.7329–5.7340 s** to accepted SEND, and **6.0959–6.0970 s** to matching driver completion. The private mount was diagnostic, not a persistent solution or a startup speedup.
+
+Do not relocate the installed session to `/var/local`. The [read-only Scribe observation](verification/kindle-session-startup-20261122/physical-parent-probe.json) found a writable ext3 mount with a non-root owner and mode `2775`. The relocation candidate stopped before card release; it supplies no startup timing. The normal `DATA_DIRECTORY/account/private/session.json` location and the existing Linux FAT/exFAT exception remain unchanged.
+
+Keep the Unix guard that checks the actual owner and mode of the opened directory and temporary file before writing. The [recorded Linux checks](verification/kindle-session-startup-20261122/retained-guard-software.json) passed 27 session and 3 app tests in each of two configurations. The [isolated FUSE result](verification/kindle-session-startup-20261122/retained-guard-fuse.json) reported a successful `chmod` but unchanged public permissions; the write was refused and an existing synthetic session was preserved. These checks do not qualify the guard on a physical Kindle, fix persistent login on the FUSE mount, or migrate any sessions.
+
+## Reader RGB8 deployment
+
+The [contiguous RGB8 conversion](../src/reader.rs#L1597) is already on `main` in `c3b3cf4`. It keeps the same integer luma and cancellation behavior, including the existing paths for grayscale and transparent inputs.
+
+- **Linux:** From encoded color JPEG bytes to a complete RGBA Reader frame, the production candidate was faster in 6/6 pairs by a paired median of 15.003 ms, with identical frame bytes and anchors. This excludes Reader input and display.
+- **Physical Scribe:** In the [isolated RGB8-to-Gray8 comparison](verification/reader-rgb8-arm-20261123/physical-result.json), all 12 resident-buffer pairs matched byte for byte, with a paired median reduction of **159.655 ms**. The comparison excludes file I/O, JPEG decoding, Reader input and display. It is not a full page-turn measurement.
+- **Installed Scribe:** The [November 23 deployment](verification/reader-rgb8-release-20261123/deployment-result.json) retained a `0.1.25` application based on the previously installed first-Shelf build (`b267e3d`) plus the RGB8 change. Only the application ELF was replaced. The launcher, JPEG worker, Library document and daily data were unchanged. The isolated smoke and [software checks](verification/reader-rgb8-release-20261123/software-result.json) do not retime the native Library route or qualify PW6 hardware.
+
+Keep the existing final-pixel buffer conversion. Writing to the Slint buffer directly matched the pixels but was earlier in only 4/8 Linux pairs at Scribe size in either mode and in none at PW6 size. It did not meet the latency gate.
+
+## Next measurements
+
+- **Cold color page turns:** measure actual Reader input release through the complete target frame, accepted SEND, and matching driver completion where available. The existing [application navigation marker](PERFORMANCE_DIAGNOSTICS.md#reader-operation-path) starts after input. Separate Normal/Bayer8 and Fast, cold misses and warm hits, single turns and bursts. Keep cancelled or unshown targets in the counts, and do not add a blocking wait or refresh to produce a sample. Preserve anchors, final pixels, Fast's single nonflashing DU update and grayscale overlays.
+- **In-flight prediction:** first count ready hits, exact-target predictions already running, true misses and superseded requests under independently paced input. If the in-flight case is common, test promoting only that worker. Preserve foreground fallback, identity and settings checks, and cancellation on a newer turn. Do not add speculative workers or another full-frame slot.
+- **Startup:** for any new candidate, check identical first-Shelf entries, order and navigation, eventual cover pixels and bounded refreshes on `test-env` at both sizes. Include empty, missing/corrupt cover and navigation-away cases. A promising result warrants the [six alternating Scribe pairs](verification/startup-shelf-ab-20261121/PLAN.md) with at least five wins and a median paired first-render gain of at least 100 ms. Measure the two matching driver endpoints separately and verify that the proposed mechanism occurred. Keep the stock preflight, power-observer settle and framebuffer barriers.

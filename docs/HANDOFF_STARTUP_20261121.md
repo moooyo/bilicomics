@@ -46,6 +46,8 @@ retain the original ordering.
 
 ## Installed state to preserve
 
+**November 23 executable-only update:** the daily Scribe application now includes the [verified RGB8 grayscale conversion](PERFORMANCE_OPPORTUNITIES_20261122.md#reader-rgb8-deployment), based on the previously installed first-Shelf build. The launcher, JPEG worker, Library document, and daily data remain unchanged. The executable has the same installation path and is now 74,345,312 bytes. The November 21 timing and ordinary-entry smoke records still describe the earlier binary.
+
 The [separate ordinary-entry smoke test](physical/shelf-render-20261121/rollout-result.json)
 verified the production arguments, lifecycle-ready record, framebuffer and
 input descriptors on the same Scribe. It ended with a managed exit. It did

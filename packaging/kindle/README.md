@@ -27,7 +27,7 @@ The 2026-11-17 read-only inventory found neither `/mnt/us/documents/bilicomics.s
 
 The application and JPEG worker must be the selected Linux ARM Kindle builds, rather than Windows or desktop executables. The reference build target is `armv7-unknown-linux-musleabihf`; target buildability and device acceptance must be established separately for this application.
 
-Executables belong under `bilicomics/app/`; the canonical launcher belongs under `bilicomics/`; retained source and resource notices belong under `notices/`. Persistent metadata, cache, account material, logs, and device configuration belong under `/mnt/us/bilicomics/data/`. Updating an existing installation must preserve its data directory, including its device profile and acceptance allowlist. The archive's commented allowlist and default reference profile are for a new development installation, not replacements for an existing operator configuration. Do not include real account material, downloaded comics, operator logs, or acceptance configuration in development archives.
+Executables belong under `bilicomics/app/`; the canonical launcher belongs under `bilicomics/`; retained source and resource notices belong under `notices/`. Catalog metadata, downloads, cached pages and covers, the account session, logs and device configuration remain under `/mnt/us/bilicomics/data/` for a normal installation. Updates preserve this directory; the archive's commented allowlist and default reference profile are for a new installation, not replacements for an operator's configuration. Never include credentials, downloaded comics, operator logs or device-specific acceptance configuration in a development archive.
 
 Keep the original backend licenses, upstream revision, and patch history in the staged notices. Preserve the AOSP PinyinIME notice with the dictionary. Font and other resource notices must also accompany any resources actually bundled by the application.
 
@@ -36,6 +36,14 @@ Keep the original backend licenses, upstream revision, and patch history in the 
 ```sh
 bilicomics --kindle --device PROFILE --data-dir DATA_DIRECTORY
 ```
+
+## Installed account session
+
+The current non-demo application uses `DATA_DIRECTORY/account/private/session.json`. With the stock launcher this is `/mnt/us/bilicomics/data/account/private/session.json`; a custom data directory has its own session. This file is runtime state, never an archive member. An app-only update preserves it, a successful sign-out clears the selected session, and removing the Library card alone does not clear it. There is no automatic data-purge hook.
+
+Before writing credential bytes, the Unix session store checks the actual ownership and modes of the opened directory and empty temporary file after requesting private permissions. A successful `chmod` does not override that check. The existing Linux FAT/exFAT exception for mount-level mode bits still requires ownership by the effective user. It does not apply to the tested Kindle user-storage FUSE mount, and the check does not make that mount private or fix persistent sign-in there.
+
+The [internal-storage proposal](../../docs/PERFORMANCE_OPPORTUNITIES_20261122.md#session-storage) was not adopted: the physical Scribe's `/var/local` was an ext3 mount with a non-root owner and mode `2775`, which did not meet the proposed trust requirements. The package does not provision an internal credential directory or migrate any sessions.
 
 ## Model and firmware gate
 

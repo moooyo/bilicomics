@@ -1,0 +1,21 @@
+{
+  "schema": "bili-retained-ordinary-session-software-v1",
+  "passed": true,
+  "tested_source": "351cf66 with the separately accepted RGB8 path, the ordinary SessionFile permission recheck, and its application regression. The rejected native persistent-storage selector and its startup integration were absent.",
+  "execution": "Linux x86-64, one build job and one CPU. Separate, freshly built libtest executables for the two configurations used the same isolated, offline dependency cache and the actual product modules.",
+  "tests": [
+    {"cargo_flags": ["--no-default-features"], "source_session_passed": 27, "app_startup_session_passed": 3, "failed": 0, "ignored_in_selected_filters": 0},
+    {"cargo_flags": ["--no-default-features", "--features", "kindle"], "source_session_passed": 27, "app_startup_session_passed": 3, "failed": 0, "ignored_in_selected_filters": 0}
+  ],
+  "new_checked_cases": [
+    "session_private_mode_requires_ownership_even_when_permission_bits_are_unavailable",
+    "successful_permission_call_that_leaves_public_bits_writes_no_credential_bytes",
+    "rejected_permission_change_does_not_unlink_a_replaced_temporary_name",
+    "rejected_logout_preserves_the_live_session_and_restart_rejects_unsafe_storage"
+  ],
+  "software_frames": [
+    {"profile":"scribe","size":[1860,2480],"visible_titles_and_five_bit_cover_codes_in_order":10,"whole_frame":true,"ordinary_offline":true,"runtime_completed":true},
+    {"profile":"pw6","size":[1264,1680],"visible_titles_and_five_bit_cover_codes_in_order":6,"whole_frame":true,"ordinary_offline":true,"runtime_completed":true}
+  ],
+  "scope": "The same selected tests were run in two different configurations, not sixty distinct tests. The no-Kindle build did not run Winit. The two full frames are real Slint software renders from independent fresh synthetic account copies, not native Kindle card starts or E Ink updates. No final ARM build, firmware run, device visit, optical measurement or speed improvement is claimed. The archived candidate's tests are separate."
+}

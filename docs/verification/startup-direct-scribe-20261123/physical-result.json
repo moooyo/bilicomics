@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-23",
+  "device": "scribe",
+  "firmware": "5.19.5",
+  "scope": "isolated-direct-shelf",
+  "state": "software-shelf-observed",
+  "terminal": {"exit_code": 0, "timed_out": false},
+  "native_same_boot": true,
+  "lease_released": true,
+  "owner_and_token_checked": true,
+  "card_input": false,
+  "timing": {
+    "clock": "CLOCK_MONOTONIC",
+    "route": "isolated-direct-supervisor",
+    "supervisor_to_app_preinvoke_ns": 3014739231,
+    "from_supervisor_invocation_ns": {
+      "software_shelf_render": 4511329308,
+      "accepted_shelf_send": 4721924154,
+      "matching_shelf_driver_completion": 5087554770
+    },
+    "from_app_preinvoke_ns": {
+      "software_shelf_render": 1496590077,
+      "accepted_shelf_send": 1707184923,
+      "matching_shelf_driver_completion": 2072815539
+    },
+    "native_card_to_shelf_claimed": false,
+    "optical_completion_claimed": false
+  }
+}

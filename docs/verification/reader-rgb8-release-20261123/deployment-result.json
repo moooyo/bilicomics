@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-23",
+  "scope": "reader-rgb8-daily-executable-update",
+  "device": "scribe",
+  "firmware": "5.19.5",
+  "state": "installed",
+  "source_base": "b267e3d29c25403e5cb2d0be281bd4f347a9d642",
+  "version": "0.1.25",
+  "application_bytes": 74345312,
+  "target": "/mnt/us/bilicomics/app/bilicomics",
+  "isolated_smoke": {
+    "route": "shelf",
+    "native_epdc_mode": "Y8",
+    "same_process_ui_ready": true,
+    "natural_exit": true,
+    "display_timing_measured": false
+  },
+  "atomic_same_volume_replacement": true,
+  "canonical_readback_bytes_equal": true,
+  "canonical_version_check_passed": true,
+  "launcher_worker_and_library_document_unchanged": true,
+  "daily_data_accessed": false,
+  "daily_ui_launched": false,
+  "native_card_input": false,
+  "owned_stages_removed": true,
+  "native_same_boot": true,
+  "lease_released": true,
+  "owner_and_token_checked": true
+}

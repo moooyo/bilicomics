@@ -1,0 +1,12 @@
+{
+  "scope": "A direct public SessionFile API check on the final retained Linux library. This is a synthetic host filesystem control, not Kindle firmware, installed account storage, an application launch, or a timing measurement.",
+  "program": "retained_fuse_probe.rs",
+  "binary_binding": "The independent build owner confirmed the exact retained-source Kindle-feature Linux rlib. Only the standalone probe was compiled with rustc --extern; neither the product nor its dependencies were rebuilt for this control.",
+  "isolation": {"test_env": true, "fresh_private_mount_namespace": true, "isolated_network_namespace": true, "interfaces": ["lo"], "synthetic_credentials_only": true, "kindle_access": false},
+  "private_control": {"observed_filesystem": "xfs", "statfs_magic_hex": "58465342", "save_and_load": true, "replace_and_load": true, "clear_and_observe_absence": true},
+  "public_mode_fixture": {"driver": "preinstalled fuse2fs", "image_format": "ext2", "image_bytes": 8388608, "mount_options": ["umask=000", "attr_timeout=0", "entry_timeout=0"], "observed_filesystem": "fuseblk", "statfs_magic_hex": "65735546", "directory_chmod_0700_returned_success": true, "observed_mode_after_chmod": "0777"},
+  "attempt_without_previous_session": {"source_error_code": "session_directory_permissions_invalid", "directory_entries_after_attempt": 0},
+  "attempt_with_previous_synthetic_session": {"source_error_code": "session_directory_permissions_invalid", "previous_bytes_unchanged": true, "previous_device_inode_size_mtime_unchanged": true, "remaining_temporary_files": 0},
+  "limits": "This real FUSE experiment stops at the directory guard, not the later file guard. The separate unit test injects a successful protection call that leaves a public file and checks that its held descriptor is still zero bytes. No claim of optical performance, exact Kindle FUSE implementation, accepted persistent login on a shared mount, or package integrity is made.",
+  "completion": {"probe_exit": 0, "ordinary_unmount_confirmed": true, "fuse_daemon_waited": true, "private_input_image_session_and_probe_deleted": true}
+}

@@ -52,12 +52,15 @@ Profiles are `pw5`, `pw6`, `scribe`, and `scribe2025`. Routes are `welcome`, `lo
 
 `--demo` uses a separate `demo/` data directory and embedded fictional design fixtures. Its source client rejects network operations; it never uses a real session or performs an upstream purchase. Missing design pages are explicitly fixture substitutions rather than acquired comic content.
 
-Normal execution uses the per-user `bilicomics` data directory; `--data-dir` overrides it. On Kindle, the launcher uses `/mnt/us/bilicomics/data`.
+Normal execution uses the per-user `bilicomics` data directory; `--data-dir` overrides it. On Kindle the launcher uses `/mnt/us/bilicomics/data`, including `account/private` for the ordinary session. A volume that presents credentials as public can prevent signed-in startup; the application does not move the session to a different volume. See the [Kindle storage policy](packaging/kindle/README.md#installed-account-session).
 
 ## Handoff
 
 | Document | Contents |
 | --- | --- |
+| [Scribe startup studies](docs/PERFORMANCE_OPPORTUNITIES_20261122.md#scribe-startup-studies) | Native first-Shelf timing, display and glyph costs, and the evidence for keeping current cover ordering, text rendering, and catalog behavior. |
+| [Kindle session storage](docs/PERFORMANCE_OPPORTUNITIES_20261122.md#session-storage) | The ordinary synthetic Shelf reached the first render in 0/3 launches on user storage and 3/3 with only the session on a private temporary mount. Keep the permission check, not the proposed session relocation. |
+| [RGB8 reader deployment (2026-11-23)](docs/PERFORMANCE_OPPORTUNITIES_20261122.md#reader-rgb8-deployment) | The normal Scribe installation now includes the byte-equivalent RGB8 conversion. The isolated conversion stage was faster; the complete page turn was not measured. |
 | [Current startup handoff (2026-11-21)](docs/HANDOFF_STARTUP_20261121.md) | Source revision, installed Scribe baseline, outstanding device coordination, and where to resume without touching the Kindle. |
 | [Startup optimization handoff (2026-11-20)](docs/HANDOFF_STARTUP_20261120.md) | [Rebuilt-worker software checks](docs/verification/startup-rebuild-20261120/README.md) passed. In the [native Library comparison](docs/physical/library-pairs-20261120/README.md), the candidate was faster in four of six pairs; no one-second gain or permanent installation is claimed. |
 | [First Shelf render and deployment (2026-11-21)](docs/physical/shelf-render-20261121/README.md) | On one Scribe, all six native Library pairs reached driver-confirmed complete Shelf sooner: 585 ms median paired improvement, with identical pixels. The selected application is installed and its ordinary Library entry was smoke-tested separately. |
