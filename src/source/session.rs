@@ -783,7 +783,9 @@ impl SessionFile {
                     return Err(SourceError::storage("session_directory_permissions_failed"));
                 }
             }
-        } else if metadata.mode() & 0o077 != 0 && !is_fat_volume(&directory) {
+        }
+        let current = if create { directory.metadata().map_err(|_| SourceError::storage("session_directory_metadata_failed"))? } else { metadata };
+        if !owned_private_mode(current.uid(), unsafe { libc::geteuid() }, current.mode(), || is_fat_volume(&directory)) {
             return Err(SourceError::storage("session_directory_permissions_invalid"));
         }
         Ok(Some(directory))
@@ -802,8 +804,7 @@ impl SessionFile {
         }
         let file = unsafe { File::from_raw_fd(descriptor) };
         let metadata = file.metadata().map_err(|_| SourceError::storage("session_metadata_failed"))?;
-        if !metadata.is_file() || metadata.uid() != unsafe { libc::geteuid() }
-            || (metadata.mode() & 0o077 != 0 && !is_fat_volume(&file)) {
+        if !metadata.is_file() || !owned_private_mode(metadata.uid(), unsafe { libc::geteuid() }, metadata.mode(), || is_fat_volume(&file)) {
             return Err(SourceError::storage("session_file_permissions_invalid"));
         }
         Ok(Some(file))
@@ -811,7 +812,15 @@ impl SessionFile {
 
     #[cfg(unix)]
     fn save_unix(&self, bytes: &[u8]) -> Result<()> {
-        use std::os::{fd::{AsRawFd, FromRawFd}, unix::fs::PermissionsExt};
+        self.save_unix_using(bytes, |file| {
+            use std::os::unix::fs::PermissionsExt;
+            file.set_permissions(fs::Permissions::from_mode(0o600))
+        })
+    }
+
+    #[cfg(unix)]
+    fn save_unix_using(&self, bytes: &[u8], protect: impl FnOnce(&File) -> std::io::Result<()>) -> Result<()> {
+        use std::os::{fd::{AsRawFd, FromRawFd}, unix::fs::MetadataExt};
         let directory = self.directory_unix(true)?.ok_or_else(|| SourceError::storage("session_directory_missing"))?;
         let temporary = temporary_name();
         let temporary_c = std::ffi::CString::new(temporary).map_err(|_| SourceError::storage("session_name_invalid"))?;
@@ -819,23 +828,36 @@ impl SessionFile {
         let descriptor = unsafe { libc::openat(directory.as_raw_fd(), temporary_c.as_ptr(),
             libc::O_WRONLY | libc::O_CREAT | libc::O_EXCL | libc::O_CLOEXEC | libc::O_NOFOLLOW, 0o600) };
         if descriptor < 0 { return Err(SourceError::storage("session_temporary_create_failed")); }
+        let mut file = unsafe { File::from_raw_fd(descriptor) };
+        let mut published = false;
         let result = (|| {
-            let mut file = unsafe { File::from_raw_fd(descriptor) };
-            if let Err(error) = file.set_permissions(fs::Permissions::from_mode(0o600)) {
+            if let Err(error) = protect(&file) {
                 if !permission_mode_unavailable(&file, &error) {
                     return Err(SourceError::storage("session_file_permissions_failed"));
                 }
             }
+            let metadata = file.metadata().map_err(|_| SourceError::storage("session_metadata_failed"))?;
+            if !metadata.is_file() || metadata.nlink() != 1 || !owned_private_mode(metadata.uid(), unsafe { libc::geteuid() }, metadata.mode(), || is_fat_volume(&file)) {
+                return Err(SourceError::storage("session_file_permissions_invalid"));
+            }
             file.write_all(bytes).map_err(|_| SourceError::storage("session_write_failed"))?;
             file.sync_all().map_err(|_| SourceError::storage("session_sync_failed"))?;
-            drop(file);
             if unsafe { libc::renameat(directory.as_raw_fd(), temporary_c.as_ptr(), directory.as_raw_fd(), final_c.as_ptr()) } != 0 {
                 return Err(SourceError::storage("session_publish_failed"));
             }
+            published = true;
             // Publication already happened; a failed directory sync needs read-back reconciliation.
             self.sync_directory(&directory).map_err(|_| SourceError::storage("session_publish_sync_unknown"))
         })();
-        if result.is_err() { unsafe { libc::unlinkat(directory.as_raw_fd(), temporary_c.as_ptr(), 0); } }
+        if result.is_err() && !published {
+            let mut metadata = std::mem::MaybeUninit::<libc::stat>::uninit();
+            if unsafe { libc::fstatat(directory.as_raw_fd(), temporary_c.as_ptr(), metadata.as_mut_ptr(), libc::AT_SYMLINK_NOFOLLOW) } == 0 {
+                let named = unsafe { metadata.assume_init() };
+                if file.metadata().is_ok_and(|saved| saved.dev() == named.st_dev as u64 && saved.ino() == named.st_ino as u64) {
+                    unsafe { libc::unlinkat(directory.as_raw_fd(), temporary_c.as_ptr(), 0); }
+                }
+            }
+        }
         result
     }
 
@@ -900,6 +922,11 @@ fn temporary_name() -> String {
     format!(".session-{}-{stamp}-{}.pending", std::process::id(), NEXT.fetch_add(1, Ordering::Relaxed))
 }
 fn is_temporary_name(name: &str) -> bool { name.starts_with(".session-") && name.ends_with(".pending") }
+
+#[cfg(unix)]
+fn owned_private_mode(actual_owner: u32, owner: u32, mode: u32, fat: impl FnOnce() -> bool) -> bool {
+    actual_owner == owner && (mode & 0o077 == 0 || fat())
+}
 
 #[cfg(unix)]
 fn permission_mode_unavailable(file: &File, error: &std::io::Error) -> bool {
@@ -1283,6 +1310,57 @@ mod tests {
         file.clear().unwrap();
         fs::remove_dir(&file.directory).unwrap();
         fs::remove_dir(directory).unwrap();
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn session_private_mode_requires_ownership_even_when_permission_bits_are_unavailable() {
+        assert!(owned_private_mode(42, 42, 0o100600, || panic!("Private files need no filesystem exception")));
+        assert!(!owned_private_mode(17, 42, 0o100600, || true));
+        assert!(!owned_private_mode(17, 42, 0o40777, || true));
+        assert!(!owned_private_mode(42, 42, 0o100644, || false));
+        assert!(!owned_private_mode(42, 42, 0o40775, || false));
+        assert!(owned_private_mode(42, 42, 0o100666, || true));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn successful_permission_call_that_leaves_public_bits_writes_no_credential_bytes() {
+        use std::os::unix::fs::PermissionsExt;
+        let directory = tempfile::tempdir().unwrap();
+        let file = SessionFile::new(directory.path());
+        let original = AuthSession::from_cookie_text_at("SESSDATA=fixture; DedeUserID=42", 1000).unwrap()
+            .with_identity(AccountIdentity { id: "42".into(), ..Default::default() }, 1000).unwrap();
+        file.save(&original).unwrap();
+        let mut observed = None;
+        let error = file.save_unix_using(b"synthetic rejected update", |temp| {
+            observed = Some(temp.try_clone()?);
+            temp.set_permissions(fs::Permissions::from_mode(0o644))
+        }).unwrap_err();
+        assert_eq!(error.code, "session_file_permissions_invalid");
+        assert_eq!(observed.unwrap().metadata().unwrap().len(), 0);
+        assert_eq!(file.load_at(1000).unwrap(), Some(original));
+        assert_eq!(fs::read_dir(&file.directory).unwrap().count(), 1);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn rejected_permission_change_does_not_unlink_a_replaced_temporary_name() {
+        use std::os::unix::fs::PermissionsExt;
+        let directory = tempfile::tempdir().unwrap();
+        let file = SessionFile::new(directory.path());
+        let mut replaced = None;
+        let error = file.save_unix_using(b"synthetic rejected update", |temp| {
+            let name = fs::read_dir(&file.directory)?.next().unwrap()?.path();
+            fs::rename(&name, directory.path().join("original-empty"))?;
+            fs::write(&name, b"not the opened temporary object")?;
+            replaced = Some(name);
+            temp.set_permissions(fs::Permissions::from_mode(0o644))
+        }).unwrap_err();
+        assert_eq!(error.code, "session_file_permissions_invalid");
+        assert!(!file.path().exists());
+        assert_eq!(fs::metadata(directory.path().join("original-empty")).unwrap().len(), 0);
+        assert_eq!(fs::read(replaced.unwrap()).unwrap(), b"not the opened temporary object");
     }
 
     #[cfg(unix)]
