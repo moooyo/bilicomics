@@ -759,7 +759,7 @@ mod tests {
     fn native_viewport_is_separate_from_the_desktop_design_geometry() {
         let profile = DeviceProfile::Paperwhite6;
         let control = Arc::new(FakeControl {
-            native_viewport: Some((1272, 1696)),
+            native_viewport: Some(profile.native_framebuffer_size()),
             ..Default::default()
         });
         let native = Platform::with_control(profile, true, control.clone());
@@ -772,7 +772,7 @@ mod tests {
         assert_eq!(desktop.logical_viewport_size(), (632, 840));
         assert_eq!(desktop.scale_factor(), 1.0);
         assert_eq!(profile.logical_size(), (632, 840));
-        assert_eq!(profile.physical_size(), (1264, 1680));
+        assert_eq!(profile.native_framebuffer_size(), (1272, 1696));
     }
 
     #[test]

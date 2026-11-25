@@ -1,5 +1,15 @@
 # UI/UX baselines
 
+The [2026-11-25 design handoff walkthrough](baselines/2026-11-25-design-handoff/README.md)
+records all 215 redesigned Paperwhite 6 and Scribe states. Its
+[review supplement](baselines/2026-11-25-design-handoff-review/README.md) records
+subsequent corrections and separates application walkthroughs, presentation
+fixtures, and firmware-emulator results. The original captures remain unchanged.
+The [Paperwhite 6 native geometry record](../verification/pw6-native-geometry-20261125/README.md)
+explains why its native framebuffer is larger than the design captures.
+The [Scribe physical smoke](../physical/handoff-scribe-20261125/README.md)
+records a separate offline run of the redesigned UI, including sleep continuity.
+
 The [2026-11-17 startup comparison](baselines/2026-11-17-startup/README.md)
 preserves startup, loading, error, and unchanged final shelf pixels before and
 after the startup optimization. Its automated desktop checks passed; human
@@ -8,11 +18,11 @@ and does not establish physical-device support or startup performance.
 An additional [assistant visual inspection](baselines/2026-11-17-startup/assistant-visual-review.md)
 records six original candidate frames without changing the frozen export.
 
-Use the reviewed [2026-11-16 software grayscale settings update](baselines/2026-11-16-spatial-dither/README.md)
-for the current Off/Bayer8/Floyd-Steinberg defaults and per-comic settings.
-It preserves twenty-four original settings captures plus four quiet Fast pages
-at the updated physical raster resolution, with exact source/executable
-identities and independent automated/human review records.
+The reviewed [2026-11-16 software grayscale settings update](baselines/2026-11-16-spatial-dither/README.md)
+records the Off/Bayer8/Floyd-Steinberg behavior before the November handoff
+changed the layout. It preserves twenty-four original settings captures plus
+four quiet Fast pages at physical raster resolution, with exact source and
+executable identities and independent automated and human review records.
 
 Use the reviewed [2026-11-16 persistent fast reading update](baselines/2026-11-16-fast-mode/README.md)
 as the earlier Normal/Fast implementation record. It preserves twenty native-resolution
@@ -38,11 +48,11 @@ without a server or a Codex conversation. Its 13 selected states use reduced
 previews; the complete native-resolution images are under each baseline's
 `raw/` directory.
 
-These snapshots record the implemented UI. The
-[downloaded v2 design](../DESIGN_SOURCE.md) and subsequently approved
-[header and reader changes](../UI_REFINEMENT_20261113.md) remain the design
-requirements. Preserving a screenshot does not approve every current behavior
-or establish physical-device compatibility.
+These snapshots record the implemented UI at their respective dates. Use the
+[current handoff](../DESIGN_SOURCE.md) for presentation and interaction changes;
+use earlier baselines and [the prior refinement](../UI_REFINEMENT_20261113.md)
+for historical comparison. Preserving a screenshot does not approve every
+current behavior or establish physical-device compatibility.
 
 ## Use in subsequent iterations
 
@@ -54,11 +64,18 @@ or establish physical-device compatibility.
    derivatives and are unsuitable for exact pixel comparisons.
 4. Preserve the existing baseline. Store a new reviewed snapshot under a new
    date/version directory and update this index. Keep the executable identity,
-   source revision, capture scope, image hashes, and state metadata together.
+   source revision, capture scope, and state metadata together.
 
-## Capture the same scenes
+## Reproduce the current walkthrough
 
-The reusable runner is
+Use the replay, pointer and fixture runners listed in the
+[November handoff walkthrough](baselines/2026-11-25-design-handoff/README.md).
+The older pixel-coordinate runners describe their frozen layouts rather than
+current controls; the handoff pointer runner covers the current reading settings.
+
+## Reproduce the historical November 14 baseline
+
+The historical runner is
 [`capture_uiux_baseline.py`](../../scripts/verification/capture_uiux_baseline.py).
 It uses the existing XTest pointer adapter and profile geometry, runs the real
 Rust/Slint executable at scale factor 2, and requires a new output directory.

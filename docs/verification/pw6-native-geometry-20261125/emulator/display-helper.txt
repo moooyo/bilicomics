@@ -1,0 +1,2 @@
+bilicomics: native display geometry: expected=1272x1696, actual=1272x1696, offset=0,0, scale=2
+bilicomics: native display geometry: expected=1272x1696, actual=1272x1696, offset=0,0, scale=2

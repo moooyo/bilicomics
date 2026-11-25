@@ -1,0 +1,53 @@
+{
+  "run": "bili-ks-ui-5707cfdb91874e32",
+  "source_revision_base": "32380fc",
+  "working_tree_snapshot": true,
+  "arm_binary_bytes": 74940168,
+  "test_env_scribe_5_20_1_navigation_passed": true,
+  "physical": {
+    "firmware": "5.19.5",
+    "native_geometry": {
+      "width": 1860,
+      "height": 2480,
+      "bits_per_pixel": 8,
+      "line_length": 1872,
+      "rotate": 1
+    },
+    "navigation_and_sleep_passed": true,
+    "directory_return_page": 18,
+    "page_before_sleep": 19,
+    "page_after_wake": 19,
+    "page_after_next_intent": 20,
+    "same_process_and_anchor": true,
+    "identical_framebuffer_pixels_on_wake": true,
+    "custom_sleep_cover_retained_by_launcher_after_review": true,
+    "sleep_cover_frame_captured": false,
+    "launcher_event_order": [
+      "sleep_event",
+      "lifecycle_ack_suspend",
+      "cover_sleep_retained",
+      "cover_wake_barrier",
+      "lifecycle_ack_resume",
+      "native_released"
+    ]
+  },
+  "cleanup": {
+    "native_restored": true,
+    "installed_paths_unchanged": true,
+    "test_staging_removed": true,
+    "lease_released_at_utc": "2026-11-25T07:41:57.992676+00:00",
+    "exact_owner_and_token_checked": true,
+    "owned_connections_closed": true,
+    "private_lease_token_removed": true
+  },
+  "scope": {
+    "app_navigation": "scheduled application intents",
+    "system_sleep_and_wake": "native powerd requests",
+    "finger_input": false,
+    "optical_panel_visibility": false,
+    "startup_timing": false,
+    "ordinary_native_library_card": false,
+    "live_account": false,
+    "physical_paperwhite6": false
+  }
+}

@@ -756,8 +756,32 @@ impl Store {
         Ok(())
     }
 
-    /// Project the global wake state and retained-comic error badge without
-    /// materializing chapter payloads or rebuilding the downloads view.
+    /// Count active retained comic groups without materializing chapter payloads.
+    /// The wake state still includes non-retained reader tasks.
+    pub(crate) fn download_queue_activity(&self, account: &str, deferred_comics: &[&str]) -> Result<(bool, u32)> {
+        validate_key(account)?;
+        self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM downloads WHERE account_key=?1 AND status='running'),
+                (SELECT COUNT(*) FROM (
+                    SELECT json_extract(payload,'$.comic_id') FROM downloads WHERE account_key=?1
+                        AND status IN ('running','queued') AND json_extract(payload,'$.retained')=1
+                    UNION SELECT value FROM json_each(?2)))",
+            params![account, to_json(&deferred_comics)?], |row| Ok((row.get(0)?, row.get(1)?)))
+            .context("Read active retained download group count")
+    }
+
+    /// Read the episode's retained scheduling state through the episode index.
+    pub(crate) fn episode_download_pending(&self, account: &str, episode: &str) -> Result<bool> {
+        validate_key(account)?;
+        validate_key(episode)?;
+        self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM downloads WHERE account_key=?1 AND episode_id=?2
+             AND status IN ('queued','running','paused') AND json_extract(payload,'$.retained')=1)",
+            params![account, episode], |row| row.get(0))
+            .context("Read retained episode queue state")
+    }
+
+    /// Project the global wake state and retained-comic failure count.
     pub fn download_activity(&self, account: &str) -> Result<(bool, u32)> {
         validate_key(account)?;
         self.connection.query_row(

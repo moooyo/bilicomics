@@ -66,12 +66,14 @@ fn anchor(app: &App) -> ReadingAnchor {
 
 #[test]
 fn directory_capacity_matches_both_portraits_and_stays_bounded_after_resize() {
-    assert_eq!(chapter_capacity((930, 1240), true), 14);
-    assert_eq!(chapter_capacity((632, 840), false), 10);
-    assert_eq!(chapter_capacity((1240, 930), true), 9);
-    assert_eq!(chapter_capacity((840, 632), false), 6);
-    assert_eq!(chapter_capacity((320, 200), false), 1);
-    assert_eq!(chapter_capacity((930, u32::MAX), true), 64);
+    assert_eq!(chapter_capacity((930, 1240), true, false), 14);
+    assert_eq!(chapter_capacity((632, 840), false, false), 10);
+    assert_eq!(chapter_capacity((1240, 930), true, false), 9);
+    assert_eq!(chapter_capacity((840, 632), false, false), 6);
+    assert_eq!(chapter_capacity((632, 840), false, true), 9);
+    assert_eq!(chapter_capacity((930, 1240), true, true), 14);
+    assert_eq!(chapter_capacity((320, 200), false, false), 1);
+    assert_eq!(chapter_capacity((930, u32::MAX), true, false), 64);
 }
 
 #[tokio::test]
@@ -128,6 +130,10 @@ async fn directory_filters_sorting_and_locate_keep_access_and_local_evidence_dis
     let selection = app.reader_directory_selection(app.reading.as_ref().unwrap(), 10);
     assert_eq!(selection.episodes.len(), 20);
     assert!(selection.episodes.iter().all(|episode| !episode.read && episode.id != CURRENT));
+    app.reader_action("toc", "next")?;
+    app.reader_action("toc", "locate")?;
+    let state = app.reading.as_ref().unwrap();
+    assert_eq!((state.directory.filter.as_str(), state.directory.page), ("unread", 2));
 
     app.reader_action("toc", "filter:readable")?;
     let selection = app.reader_directory_selection(app.reading.as_ref().unwrap(), 10);
@@ -149,8 +155,8 @@ async fn directory_filters_sorting_and_locate_keep_access_and_local_evidence_dis
     app.reader_action("toc", "locate")?;
     let state = app.reading.as_ref().unwrap();
     assert_eq!(state.directory.filter, "all");
-    assert!(!state.directory.descending);
-    assert_eq!(state.directory.page, 2);
+    assert!(state.directory.descending);
+    assert_eq!(state.directory.page, 3);
     assert!(app.reader_directory_page(state, 10)?.rows.iter().any(|row| row.current));
     Ok(())
 }
@@ -221,7 +227,7 @@ async fn all_named_fits_persist_and_reload_without_changing_the_source_page_or_r
         assert_eq!(stored.fit, fit);
         let defaults: Preferences = app.store.preference(&app.account, "preferences")?
             .context("Persist the default fit")?;
-        assert_eq!(defaults.fit, fit);
+        assert_eq!(defaults.fit, Preferences::default().fit, "Per-comic fit must not replace the account default");
         drop(app);
 
         let mut reopened = super::super::test_support::app(directory.path(), DeviceProfile::Paperwhite6,
@@ -229,7 +235,7 @@ async fn all_named_fits_persist_and_reload_without_changing_the_source_page_or_r
         reopened.preferences = reopened.store.preference(&reopened.account, "preferences")?.unwrap();
         reopened.begin_reader(COMIC, CURRENT)?;
         assert_eq!(reopened.reading.as_ref().unwrap().saved.fit, fit);
-        assert_eq!(reopened.preferences.fit, fit);
+        assert_eq!(reopened.preferences.fit, Preferences::default().fit);
     }
     Ok(())
 }

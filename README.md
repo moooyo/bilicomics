@@ -27,16 +27,12 @@ Startup presents the project name and a low-frequency activity indicator before 
 
 ## Design preview
 
-The [frozen UI/UX baseline](docs/uiux/README.md) preserves 51 native-resolution
-Paperwhite 6 and Scribe screenshots from version 0.1.25, with an offline viewer,
-scene indexes, and repeatable remote capture instructions for future iterations.
-The [JPEG settings update](docs/uiux/baselines/2026-11-15-jpeg-acceleration/README.md)
-adds six reviewed settings captures while preserving the original baseline.
-The [persistent fast reading update](docs/uiux/baselines/2026-11-16-fast-mode/README.md)
-adds twenty Normal/Fast settings and binary-page captures in both orientations.
-The [software grayscale settings update](docs/uiux/baselines/2026-11-16-spatial-dither/README.md)
-preserves the current Off/Bayer8/Floyd-Steinberg controls and physical-resolution
-Fast pages in twenty-eight original captures.
+The [November design handoff walkthrough](docs/uiux/baselines/2026-11-25-design-handoff/README.md)
+indexes 215 Paperwhite 6 and Scribe states. The
+[review supplement](docs/uiux/baselines/2026-11-25-design-handoff-review/README.md)
+records subsequent corrections and their verification. The [UI/UX baseline index](docs/uiux/README.md)
+keeps earlier implementation captures and the offline viewer available for
+comparison, including the JPEG, Fast reading, and software grayscale updates.
 
 After building on the remote worker, use the actual Cargo target directory:
 

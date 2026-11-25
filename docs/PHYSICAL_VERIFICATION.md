@@ -1,5 +1,8 @@
 # Physical device verification: 2026-11-05
 
+For the November 25 redesign, see the separate
+[Scribe physical smoke run](physical/handoff-scribe-20261125/README.md).
+
 The retained evidence supports the specific offline demonstration checks below on one first-generation Kindle Scribe running firmware `5.19.5`. This is a limited physical result for a frozen development candidate. Later changes, including the subsequent immersive-reader UI work, do not inherit this acceptance.
 
 The first reader run retained an inconclusive first post-wake tap because it coincided with the configured four-minute exit window. A separate reader run subsequently established the post-wake finger interaction. The original inconclusive result remains part of this report.

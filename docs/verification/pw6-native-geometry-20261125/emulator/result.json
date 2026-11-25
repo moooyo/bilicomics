@@ -1,0 +1,22 @@
+{
+  "profile": "pw6",
+  "physical_device": false,
+  "live_account": false,
+  "synthetic_model_identity": false,
+  "passed": false,
+  "binary_bytes": 74940168,
+  "compressed_bytes": 52508730,
+  "sleep_requested": false,
+  "logical_viewport": [
+    636,
+    848
+  ],
+  "expected_framebuffer": [
+    1272,
+    1696
+  ],
+  "firmware": "Kindle 5.20.1 (~~otaVersion~~)",
+  "deployed": true,
+  "error": "Launcher exited before Shelf (1)",
+  "private_qemu_stopped": true
+}

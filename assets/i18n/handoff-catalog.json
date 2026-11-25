@@ -1,0 +1,18 @@
+{
+  "cat_enter_search": "输入搜索词",
+  "cat_id_placeholder": "输入漫画 ID",
+  "cat_local_matches": "本机匹配",
+  "cat_result_finished": "已完结 · {count} 话",
+  "cat_result_serial": "连载中 · {count} 话",
+  "cat_search_comic_id": "漫画 ID",
+  "cat_shelf_demo_sync_clock": "16:20",
+  "cat_shelf_episode_position": "第 {episode} 话",
+  "cat_shelf_episode_progress": "{read} / {total} 话",
+  "cat_shelf_not_started": "未开始",
+  "cat_shelf_page_position": "{page}/{total}",
+  "cat_shelf_read_complete": "已读完",
+  "cat_shelf_syncing_title": "正在同步书架…",
+  "cat_store_finished": "完结",
+  "cat_store_minimum_count": "{count} 部以上",
+  "cat_store_total_count": "共 {count} 部"
+}

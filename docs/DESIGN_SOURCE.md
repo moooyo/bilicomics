@@ -9,7 +9,29 @@ viewer from application version 0.1.25. This is the implementation record for
 future comparisons; the design reference and subsequent approvals below
 retain their own authority and provenance.
 
-## Current reference: v2
+## Current reference: November 2026 UI handoff
+
+The user supplied `bilicomics-design-handoff.zip` on 2026-11-25 and asked to
+implement its full Paperwhite 6 and Scribe flows. The archive identifies the
+2026-11-23 optimized canvas and `c3b3cf4` as its code comparison point. Its
+`SPEC.md`, `STATES.md`, two HTML prototypes, and 215 PNGs define the current
+presentation. Geometry is given in logical pixels at a scale factor of two.
+The prototypes were inspected as text, not executed or embedded. The archive
+remains external to the repository.
+
+The Paperwhite 6 reference canvas is 632 × 840 logical pixels (1264 × 1680
+at 2×) and remains unchanged for desktop comparisons. The stock 5.20.1
+Sangria device tree specifies a 1272 × 1696 native display; the native backend
+uses the corresponding 636 × 848 logical viewport. Design captures are not
+used as native framebuffer expectations. See the
+[Paperwhite 6 geometry verification](verification/pw6-native-geometry-20261125/README.md).
+
+The handoff supersedes older layout instructions, such as the borderless
+account exit and the location of the reader fit control. The Rust controllers
+still determine entitlements, balance, downloads, and hardware capabilities;
+the prototype's mock transactions are not part of the product.
+
+## Historical reference: v2
 
 On 2026-11-04 the user supplied the v2 self-contained HTML from Downloads and requested an implementation walkthrough and corrections. The 2,831,763-byte file has SHA-256 `62425b5a36df75457fd1769667b5fe88ef06a9d7c6c566a9608a12549aa88414`.
 

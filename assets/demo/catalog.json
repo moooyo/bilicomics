@@ -7,6 +7,11 @@
     "selected_episode_id": 2860113,
     "episode_title": "好天气",
     "chapter_label": "第 13 话 · 好天气",
+    "late_episode_id": 2860128,
+    "late_ranges": [
+      {"key": "single", "start_ordinal": 28, "end_ordinal": 28, "count": 1, "coin_price": 32, "coupon_eligible": true, "coupon_count": 1},
+      {"key": "batch:1", "start_ordinal": 28, "end_ordinal": 32, "count": 5, "coin_price": 150, "original_coin_price": 160}
+    ],
     "wallet": {
       "coins": 1280,
       "coupons": 2
@@ -128,6 +133,7 @@
       ],
       "description": "翻过第七座山，替远方的人送一封迟到的信。每到一个驿站，信上的地址就会变一次。",
       "cover_file": "covers/cover-28601.png",
+      "sleep_cover_file": "covers/cover-28601-detail.png",
       "read_subtitle": "第12话 · 18/45",
       "list_read_subtitle": "第12话 · 18/45 · 共 32 话",
       "total_episodes": 32,
@@ -218,6 +224,9 @@
       "status": "已完结",
       "background_css": "radial-gradient(circle at 50% 112%, #000 0 32%, #888 32.5% 46%, #ddd 46.5% 60%, #fff 60.5%)",
       "read_episode": 60,
+      "read_episode_title": "星期五",
+      "read_page": 1,
+      "read_pages": 1,
       "downloaded_pw": false
     },
     {
@@ -1435,7 +1444,82 @@
       "downloaded_pages": null,
       "page_count": null,
       "coin_price": 32
-    }
+    },
+    {
+      "id": 2860801,
+      "comic_id": 28608,
+      "ordinal": 1,
+      "title": "种子",
+      "access": "owned",
+      "read": true,
+      "downloaded": true,
+      "page_count": 1,
+      "entitlement_simulated": true
+    },
+    {
+      "id": 2860802,
+      "comic_id": 28608,
+      "ordinal": 2,
+      "title": "发芽",
+      "access": "owned",
+      "read": true,
+      "downloaded": true,
+      "page_count": 1,
+      "entitlement_simulated": true
+    },
+    {"id": 2860401, "comic_id": 28604, "ordinal": 1, "title": "风从海上来", "read": true, "access": "owned", "downloaded": true, "page_count": 1},
+    {"id": 2860460, "comic_id": 28604, "ordinal": 60, "title": "星期五", "read": true, "access": "owned", "downloaded": true, "page_count": 1},
+    {"id": 2860201, "comic_id": 28602, "ordinal": 1, "title": "河的对岸", "read": true, "access": "free"},
+    {"id": 2860202, "comic_id": 28602, "ordinal": 2, "title": "旧邮局", "read": true, "access": "free"},
+    {"id": 2860203, "comic_id": 28602, "ordinal": 3, "title": "山的另一边", "read": false, "access": "free", "page_count": 30, "known_current_only": true, "entitlement_simulated": true},
+    {"id": 2860204, "comic_id": 28602, "ordinal": 4, "title": "一封没有地址的信", "read": false, "access": "owned", "downloaded": true},
+    {"id": 2860205, "comic_id": 28602, "ordinal": 5, "title": "顺着风走", "read": false, "access": "owned", "downloaded": true},
+    {"id": 2860206, "comic_id": 28602, "ordinal": 6, "title": "夜行的旅人", "read": false, "access": "owned"},
+    {"id": 2860207, "comic_id": 28602, "ordinal": 7, "title": "雨停以前", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860208, "comic_id": 28602, "ordinal": 8, "title": "好天气", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860209, "comic_id": 28602, "ordinal": 9, "title": "海边的车站", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860210, "comic_id": 28602, "ordinal": 10, "title": "未寄出的明信片", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860211, "comic_id": 28602, "ordinal": 11, "title": "穿过森林", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860212, "comic_id": 28602, "ordinal": 12, "title": "远方的灯", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860213, "comic_id": 28602, "ordinal": 13, "title": "潮汐之间", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860214, "comic_id": 28602, "ordinal": 14, "title": "无人站台", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860215, "comic_id": 28602, "ordinal": 15, "title": "雨后的山路", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860216, "comic_id": 28602, "ordinal": 16, "title": "一张旧地图", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860217, "comic_id": 28602, "ordinal": 17, "title": "最后的邮袋", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860218, "comic_id": 28602, "ordinal": 18, "title": "归途", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860219, "comic_id": 28602, "ordinal": 19, "title": "风吹来的答案", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860220, "comic_id": 28602, "ordinal": 20, "title": "新的一封信", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860221, "comic_id": 28602, "ordinal": 21, "title": "月光下的列车", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860222, "comic_id": 28602, "ordinal": 22, "title": "越过雪线", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860223, "comic_id": 28602, "ordinal": 23, "title": "等待春天", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2860224, "comic_id": 28602, "ordinal": 24, "title": "山海之间", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870401, "comic_id": 28704, "ordinal": 1, "title": "河的对岸", "read": false, "access": "free"},
+    {"id": 2870402, "comic_id": 28704, "ordinal": 2, "title": "旧邮局", "read": false, "access": "free"},
+    {"id": 2870403, "comic_id": 28704, "ordinal": 3, "title": "山的另一边", "read": false, "access": "free"},
+    {"id": 2870404, "comic_id": 28704, "ordinal": 4, "title": "一封没有地址的信", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870405, "comic_id": 28704, "ordinal": 5, "title": "顺着风走", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870406, "comic_id": 28704, "ordinal": 6, "title": "夜行的旅人", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870407, "comic_id": 28704, "ordinal": 7, "title": "雨停以前", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870408, "comic_id": 28704, "ordinal": 8, "title": "好天气", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870409, "comic_id": 28704, "ordinal": 9, "title": "海边的车站", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870410, "comic_id": 28704, "ordinal": 10, "title": "未寄出的明信片", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870411, "comic_id": 28704, "ordinal": 11, "title": "穿过森林", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870412, "comic_id": 28704, "ordinal": 12, "title": "远方的灯", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870413, "comic_id": 28704, "ordinal": 13, "title": "潮汐之间", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870414, "comic_id": 28704, "ordinal": 14, "title": "无人站台", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870415, "comic_id": 28704, "ordinal": 15, "title": "雨后的山路", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870416, "comic_id": 28704, "ordinal": 16, "title": "一张旧地图", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870417, "comic_id": 28704, "ordinal": 17, "title": "最后的邮袋", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870418, "comic_id": 28704, "ordinal": 18, "title": "归途", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870419, "comic_id": 28704, "ordinal": 19, "title": "风吹来的答案", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870420, "comic_id": 28704, "ordinal": 20, "title": "新的一封信", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870421, "comic_id": 28704, "ordinal": 21, "title": "月光下的列车", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870422, "comic_id": 28704, "ordinal": 22, "title": "越过雪线", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870423, "comic_id": 28704, "ordinal": 23, "title": "等待春天", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870424, "comic_id": 28704, "ordinal": 24, "title": "山海之间", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870425, "comic_id": 28704, "ordinal": 25, "title": "灯还亮着", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870426, "comic_id": 28704, "ordinal": 26, "title": "向北走", "read": false, "access": "locked", "coin_price": 32},
+    {"id": 2870427, "comic_id": 28704, "ordinal": 27, "title": "送达", "read": false, "access": "locked", "coin_price": 32}
   ],
   "download_summary": {
     "cache_mb": 250
@@ -1446,17 +1530,19 @@
       "comic_id": 28607,
       "title": "最后的纸鹤",
       "kind": "error",
-      "downloaded_mb": 9,
-      "completed_summary": "尚无完整章节",
-      "task_label": "第 21 话",
-      "percent": 43,
-      "error": "存储写入失败，已保存 12 / 28 张",
-      "progress_label": "",
+      "downloaded_mb": 18,
+      "task_orders": [
+        21
+      ],
+      "saved_pages": 12,
+      "total_pages": 28,
+      "failure_code": "storage_write",
       "chapter_rows": [
         {
-          "chapter": "第 21 话",
-          "title": "折痕",
-          "value": "12 / 28 张"
+          "order": 21,
+          "title": "纸鹤的去向",
+          "saved_pages": 12,
+          "total_pages": 28
         }
       ]
     },
@@ -1465,32 +1551,32 @@
       "comic_id": 28602,
       "title": "深海回声",
       "kind": "active",
-      "downloaded_mb": 72,
-      "completed_summary": "已下载 3 话 · 72 MB",
-      "task_label": "第 4–8 话",
-      "percent": 40,
-      "error": "",
-      "progress_label": "2 / 5 话 · 86 / 215 张",
+      "downloaded_mb": 86,
+      "task_orders": [
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "saved_pages": 86,
+      "total_pages": 215,
       "chapter_rows": [
         {
-          "chapter": "第 6 话",
-          "title": "回声",
-          "value": "24 / 52 张"
+          "order": 4,
+          "title": "深水区",
+          "mb": 38
         },
         {
-          "chapter": "第 5 话",
-          "title": "无光之处",
-          "value": "28.6 MB"
+          "order": 5,
+          "title": "回声定位",
+          "mb": 41
         },
         {
-          "chapter": "第 4 话",
-          "title": "海底车站",
-          "value": "31.2 MB"
-        },
-        {
-          "chapter": "第 1–3 话",
-          "title": "",
-          "value": "72 MB"
+          "order": 6,
+          "title": "浮上来",
+          "saved_pages": 7,
+          "total_pages": 43
         }
       ]
     },
@@ -1500,55 +1586,33 @@
       "title": "雪线来信",
       "kind": "queued",
       "downloaded_mb": 0,
-      "completed_summary": "尚无完整章节",
-      "task_label": "第 8 话",
-      "percent": 0,
-      "error": "",
-      "progress_label": "0 / 38 张",
-      "chapter_rows": [
-        {
-          "chapter": "第 8 话",
-          "title": "最后一班车",
-          "value": "等待"
-        }
-      ]
+      "task_orders": [
+        8
+      ],
+      "saved_pages": 0,
+      "total_pages": 38
     },
     {
       "key": "shan",
       "comic_id": 28601,
       "title": "山海邮差",
       "kind": "done",
-      "downloaded_mb": 286,
-      "completed_summary": "已下载 12 话 · 286 MB",
-      "task_label": "",
-      "percent": 0,
-      "error": "",
-      "progress_label": "",
+      "downloaded_mb": 72,
       "chapter_rows": [
         {
-          "chapter": "第 12 话",
-          "title": "雨停以前",
-          "value": "25.3 MB"
-        },
-        {
-          "chapter": "第 11 话",
-          "title": "夜行的旅人",
-          "value": "22.7 MB"
-        },
-        {
-          "chapter": "第 10 话",
+          "order": 10,
           "title": "顺着风走",
-          "value": "24.1 MB"
+          "mb": 24
         },
         {
-          "chapter": "第 9 话",
-          "title": "一封没有地址的信",
-          "value": "23.8 MB"
+          "order": 11,
+          "title": "夜行的旅人",
+          "mb": 24
         },
         {
-          "chapter": "第 1–8 话",
-          "title": "",
-          "value": "190.1 MB"
+          "order": 12,
+          "title": "雨停以前",
+          "mb": 24
         }
       ]
     },
@@ -1558,32 +1622,23 @@
       "title": "星期五的猫",
       "kind": "done",
       "downloaded_mb": 812,
-      "completed_summary": "全 60 话 · 812 MB · 已完结",
-      "task_label": "",
-      "percent": 0,
-      "error": "",
-      "progress_label": "",
-      "chapter_rows": [
-        {
-          "chapter": "第 60 话",
-          "title": "星期五",
-          "value": "15.8 MB"
-        },
-        {
-          "chapter": "第 59 话",
-          "title": "告别",
-          "value": "14.0 MB"
-        },
-        {
-          "chapter": "第 58 话",
-          "title": "雨天的屋顶",
-          "value": "13.2 MB"
-        },
-        {
-          "chapter": "第 1–57 话",
-          "title": "",
-          "value": "769.0 MB"
-        }
+      "chapter_count": 60,
+      "last_chapter_title": "星期五",
+      "chapter_titles": [
+        "风从海上来",
+        "出发之前",
+        "靠岸",
+        "迷路的风",
+        "灯下",
+        "河的对岸",
+        "旧邮局",
+        "山的另一边",
+        "一封没有地址的信",
+        "顺着风走",
+        "夜行的旅人",
+        "雨停以前",
+        "好天气",
+        "海边的车站"
       ]
     },
     {
@@ -1592,16 +1647,21 @@
       "title": "云端灯塔",
       "kind": "done",
       "downloaded_mb": 64,
-      "completed_summary": "已下载 3 话 · 64 MB",
-      "task_label": "",
-      "percent": 0,
-      "error": "",
-      "progress_label": "",
       "chapter_rows": [
         {
-          "chapter": "第 1–3 话",
-          "title": "",
-          "value": "64 MB"
+          "order": 1,
+          "title": "第一盏灯",
+          "mb": 22
+        },
+        {
+          "order": 2,
+          "title": "云上的路",
+          "mb": 21
+        },
+        {
+          "order": 3,
+          "title": "飞鸟的方向",
+          "mb": 21
         }
       ]
     },
@@ -1611,21 +1671,16 @@
       "title": "静星花园",
       "kind": "done",
       "downloaded_mb": 41,
-      "completed_summary": "已下载 2 话 · 41 MB",
-      "task_label": "",
-      "percent": 0,
-      "error": "",
-      "progress_label": "",
       "chapter_rows": [
         {
-          "chapter": "第 2 话",
-          "title": "发芽",
-          "value": "20.6 MB"
+          "order": 1,
+          "title": "种子",
+          "mb": 20
         },
         {
-          "chapter": "第 1 话",
-          "title": "种子",
-          "value": "20.4 MB"
+          "order": 2,
+          "title": "发芽",
+          "mb": 21
         }
       ]
     },
@@ -1635,16 +1690,16 @@
       "title": "夜行列车",
       "kind": "done",
       "downloaded_mb": 38,
-      "completed_summary": "已下载 2 话 · 38 MB",
-      "task_label": "",
-      "percent": 0,
-      "error": "",
-      "progress_label": "",
       "chapter_rows": [
         {
-          "chapter": "第 1–2 话",
-          "title": "",
-          "value": "38 MB"
+          "order": 1,
+          "title": "第一站",
+          "mb": 19
+        },
+        {
+          "order": 2,
+          "title": "深夜的站台",
+          "mb": 19
         }
       ]
     }

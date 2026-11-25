@@ -1,0 +1,74 @@
+{
+  "reference": {
+    "archive": "bilicomics-design-handoff.zip",
+    "visual_pairs_reviewed": 215,
+    "overview_sheets_reviewed": 24,
+    "profiles": {"pw6": 111, "scribe": 104},
+    "pixel_equality_claimed": false
+  },
+  "desktop": {
+    "host": "test-env",
+    "base_revision": "32380fce736d4b45d84f0b738640f4efccc0e402",
+    "working_tree_snapshot": true,
+    "run": "bilicomics-handoff-followup.r70ZE7/candidate.Get0DC",
+    "executable_bytes": 257102872,
+    "renderer": "Slint software under private Xvfb, scale factor 2",
+    "pointer_flows_passed": 10,
+    "pointer_observations": 24,
+    "scribe_search_row_hit_and_read_button_preserved_query": true,
+    "fast_and_cpu_dither_pointer_profiles": ["pw6", "scribe"],
+    "replay_checks_passed": 175,
+    "replay_checks_failed": 0,
+    "focused_replay_checks_passed": 16,
+    "dimension_matched_reference_pairs": 215,
+    "paired_capture_scopes": {"application_intents": 151, "pointer": 10, "presentation_fixtures": 54},
+    "scribe_shelf_second_page": {"page": 2, "pages": 2, "toast_visible": false},
+    "landscape_settings_and_directory_checks_passed": 4,
+    "library": {"passed": 901, "failed": 0, "ignored": 7},
+    "integration": {"production_flow": 2, "download_batching": 1, "sleep_ui": 1, "presentation_fixture": 1},
+    "launcher_sleep_fixtures_passed": 3,
+    "native_signing_retested": false
+  },
+  "firmware_preview_before_review_corrections": {
+    "qemu_version": "11.0.2",
+    "firmware": "5.20.1",
+    "run": "bilicomics-handoff-followup.r70ZE7/firmware-c",
+    "arm_executable_bytes": 74194848,
+    "scribe": {
+      "synthetic_model_identity": true,
+      "framebuffer_pixels": [1860, 2480],
+      "passed": true,
+      "native_restored": true,
+      "walkthrough": ["Shelf", "Reader page 18", "Reader menu", "Directory", "Return to page 18", "Reader settings", "Account", "Exit"]
+    },
+    "pw6": {
+      "passed": false,
+      "phase": "Native display admission before Shelf",
+      "expected_framebuffer_pixels": [1264, 1680],
+      "observed_framebuffer_pixels": [1272, 1696],
+      "shelf_rendered": false,
+      "product_guard_changed": false
+    }
+  },
+  "firmware_final_navigation": {
+    "run": "bchf-nav.TwgqOS/final",
+    "arm_executable_bytes": 74940168,
+    "scribe_passed": true,
+    "native_restored": true,
+    "result": "firmware-final/navigation/result.json"
+  },
+  "firmware_final_sleep_attempt": {
+    "run": "bchf.XT1rKe/final",
+    "arm_executable_bytes": 74940168,
+    "scribe_returned_from_directory_on_page_18": true,
+    "firmware_suspend_observed": false,
+    "wake_tested": false,
+    "result": "firmware-final/sleep-attempt/result.json"
+  },
+  "scope": {
+    "live_account": false,
+    "physical_device": false,
+    "physical_ink_timing": false,
+    "all_firmware_guests_disposable": true
+  }
+}

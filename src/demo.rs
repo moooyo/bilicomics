@@ -342,6 +342,11 @@ fn mark_fixture(mut value: Value) -> Result<Value> {
     Ok(value)
 }
 
+pub(crate) fn sleep_artwork(comic: &Comic) -> Option<&'static [u8]> {
+    let name = comic.extra["sleep_cover_file"].as_str()?;
+    embedded(name).ok()
+}
+
 fn embedded(name: &str) -> Result<&'static [u8]> {
     DEMO_ASSETS.iter().find_map(|(key, bytes)| (*key == name).then_some(*bytes))
         .with_context(|| format!("Missing embedded demo asset: {name}"))
@@ -521,20 +526,20 @@ mod tests {
     }
 
     #[test]
-    fn another_known_current_episode_is_readable_without_inventing_unknown_catalogs() -> Result<()> {
+    fn alternate_demo_directories_preserve_their_own_anchor_and_access() -> Result<()> {
         let directory = tempfile::tempdir()?;
         let demo = load(directory.path())?;
         let detail = demo.details.iter().find(|detail| detail.comic.id == "28602").unwrap();
-        assert_eq!(detail.episodes.len(), 1);
-        let episode = &detail.episodes[0];
+        assert_eq!(detail.episodes.len(), 24);
+        let episode = &detail.episodes[2];
         assert_eq!(episode.id, "2860203");
-        assert_eq!(episode.title, crate::i18n::format("common_chapter", &[("episode", "3".into())]));
+        assert_ne!(episode.title, demo.details[0].episodes[2].title);
         assert_eq!(detail.comic.last_episode_id.as_deref(), Some("2860203"));
-        assert!(detail.comic.latest_episode_id.is_none());
+        assert_eq!(detail.comic.latest_episode_id.as_deref(), Some("2860224"));
         assert_eq!(detail.comic.extra["read_page"], 7);
         assert!(episode.readable_at(0));
         assert_eq!(episode.extra["entitlement_simulated"], true);
-        assert_eq!(detail.extra["episodes_provided"], false);
+        assert_eq!(detail.extra["episodes_provided"], true);
         let index = demo.indices.iter().find(|index| index.episode_id == episode.id).unwrap();
         assert_eq!(index.images.len(), 30);
         assert_eq!(demo.pages[&episode.id].len(), 30);
@@ -545,8 +550,10 @@ mod tests {
         assert!(unknown.episodes.is_empty());
         assert!(unknown.comic.last_episode_id.is_none());
         assert!(!demo.indices.iter().any(|index| index.episode_id.starts_with("28606")));
-        assert!(demo.details.iter().filter(|detail| detail.comic.id != "28601")
-            .all(|detail| detail.episodes.len() <= 1));
+        let store_book = demo.details.iter().find(|detail| detail.comic.id == "28704").unwrap();
+        assert_eq!(store_book.episodes.len(), 27);
+        assert_eq!(store_book.episodes.iter().filter(|episode| episode.readable_at(0)).count(), 3);
+        assert!(store_book.comic.last_episode_id.is_none());
         Ok(())
     }
 

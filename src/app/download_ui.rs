@@ -15,21 +15,28 @@ pub(super) struct DownloadState {
     sleep: Option<DownloadSleepSnapshot>,
     sleep_retry_at: Option<Instant>,
     page: usize,
+    chapter_page: usize,
+    window_height: u32,
     selecting: bool,
     selected: BTreeSet<String>,
     sheet: Option<String>,
     demo_paused: BTreeSet<String>,
     demo_removed: BTreeSet<String>,
-    demo_queued: BTreeSet<String>,
+    demo_enqueued: BTreeMap<String, BTreeMap<String, f64>>,
+    demo_retried: BTreeSet<String>,
     demo_cancelled: BTreeSet<String>,
     demo_priority: BTreeMap<String, u64>,
     demo_priority_sequence: u64,
     wake: Option<WakeGuard>,
-    free: String,
 }
 
 impl DownloadState {
-    pub(super) fn set_free_space(&mut self, bytes: u64) { self.free = format_bytes(bytes); }
+    pub(super) fn close_overlays(&mut self) {
+        self.selecting = false;
+        self.selected.clear();
+        self.sheet = None;
+        self.chapter_page = 0;
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -98,6 +105,7 @@ struct DownloadRow {
     task_title: String,
     task_note: String,
     task_has_bar: bool,
+    has_bar: bool,
     can_read: bool,
     priority: u64,
     progress: f32,
@@ -107,6 +115,43 @@ struct DownloadRow {
     paused: bool,
     bytes: u64,
     chapters: Vec<DownloadChapterItem>,
+}
+
+impl DownloadRow {
+    fn has_task(&self) -> bool { self.error || self.active || self.queued || self.paused }
+
+    fn describe_task(&mut self, label: String, saved: u64, total: u64, failure: String) {
+        let pages = (total > 0).then(|| page_count_label("dl_page_count", saved, total));
+        self.progress = if total == 0 { 0.0 } else { saved as f32 / total as f32 };
+        self.task_has_bar = !self.error && (self.active || self.paused);
+        self.has_bar = self.task_has_bar || self.error && total > 0;
+        if self.error {
+            self.status = i18n::text("dl_failed");
+            self.task_title = i18n::format("dl_failed_episode", &[("episode", label.clone())]);
+            let mut subtitle = vec![label, failure.clone()];
+            let mut note = vec![failure];
+            if let Some(pages) = pages {
+                subtitle.push(pages);
+                note.push(page_count_label("dl_saved_pages", saved, total));
+            }
+            self.subtitle = subtitle.join(" · ");
+            self.task_note = note.join(" · ");
+        } else if self.active || self.paused {
+            self.status = if self.paused { i18n::text("dl_paused") }
+                else { i18n::format("dl_progress_value", &[("percent", format!("{:.0}", self.progress * 100.0))]) };
+            self.task_title = i18n::format(if self.paused { "dl_paused_episode" } else { "dl_downloading_episode" },
+                &[("episode", label.clone())]);
+            self.subtitle = pages.as_ref().map_or_else(|| label.clone(), |pages| format!("{label} · {pages}"));
+            self.task_note = pages.unwrap_or_else(|| i18n::text("dl_not_started"));
+        } else if self.queued {
+            self.status = i18n::text("dl_queued");
+            self.task_title = i18n::format("dl_queued_episode", &[("episode", label.clone())]);
+            self.subtitle = pages.filter(|_| saved > 0).map_or_else(|| label.clone(), |pages| format!("{label} · {pages}"));
+        } else {
+            self.status = i18n::text(if self.can_read { "dl_offline_ready" } else { "dl_cancelled" });
+            self.subtitle = self.summary.clone();
+        }
+    }
 }
 
 fn recovery_span(trace: Option<Operation>, stage: &'static str) -> Option<Span> {
@@ -295,29 +340,44 @@ impl App {
         self.download_ui.pending_controls = controls;
         self.download_ui.deferred = self.store.preference(&self.account, "queued_download_intents")?.unwrap_or_default();
         self.download_ui.deferred_priorities = self.store.preference(&self.account, "queued_download_priorities")?.unwrap_or_default();
-        self.download_ui.free = i18n::text("common_unknown");
-        if self.demo.is_some() {
-            self.download_ui.free = i18n::text(if self.is_scribe() { "dl_fixture_free_sc" } else { "dl_fixture_free_pw" });
-        }
-        let (_, failed) = self.download_activity()?;
-        self.project_download_badge(failed);
+        let (_, pending) = self.download_activity()?;
+        self.project_download_badge(pending);
         Ok(())
     }
 
-    fn download_activity(&self) -> Result<(bool, u32)> {
-        let Some(demo) = &self.demo else { return self.store.download_activity(&self.account); };
-        let failed = demo.fixture["downloads"].as_array().into_iter().flatten().filter(|value| {
-            let id = value["comic_id"].as_u64().unwrap_or_default().to_string();
-            value["kind"].as_str() == Some("error") && !self.download_ui.demo_removed.contains(&id)
-                && !self.download_ui.demo_cancelled.contains(&id) && !self.download_ui.demo_queued.contains(&id)
-        }).count();
-        Ok((false, failed.try_into().unwrap_or(u32::MAX)))
+    fn download_activity(&self) -> Result<(bool, usize)> {
+        if let Some(demo) = &self.demo {
+            let active = demo.fixture["downloads"].as_array().into_iter().flatten().filter(|value| {
+                let id = value["comic_id"].as_u64().unwrap_or_default().to_string();
+                !self.download_ui.demo_enqueued.contains_key(&id)
+                    && matches!(self.demo_seed_status(&id, value), DownloadStatus::Queued | DownloadStatus::Running)
+            }).count();
+            let enqueued = self.download_ui.demo_enqueued.keys().filter(|id| !self.download_ui.demo_paused.contains(*id)).count();
+            return Ok((false, active + enqueued));
+        }
+        let deferred = self.download_ui.deferred.iter().filter(|intent| intent.retain && !intent.paused)
+            .map(|intent| intent.comic_id.as_str()).collect::<Vec<_>>();
+        self.store.download_queue_activity(&self.account, &deferred).map(|(running, pending)| (running, pending as usize))
     }
 
-    fn project_download_badge(&self, failed: u32) {
+    fn project_download_badge(&self, pending: usize) {
         if let Some(ui) = self.ui.upgrade() {
-            ui.global::<ShellModel>().set_pending(failed.min(i32::MAX as u32) as i32);
+            ui.global::<ShellModel>().set_pending(pending.min(i32::MAX as usize) as i32);
         }
+    }
+
+    pub(super) fn episode_download_queued(&self, episode_id: &str) -> bool {
+        if let Some(demo) = &self.demo {
+            return self.download_ui.demo_enqueued.values().any(|episodes| episodes.contains_key(episode_id))
+                || demo.fixture["downloads"].as_array().into_iter().flatten().any(|value| {
+                    let comic = value["comic_id"].as_u64().unwrap_or_default();
+                    matches!(self.demo_seed_status(&comic.to_string(), value), DownloadStatus::Running | DownloadStatus::Queued | DownloadStatus::Paused)
+                        && value["task_orders"].as_array().into_iter().flatten().filter_map(|value| value.as_u64())
+                            .any(|order| demo_episode_id(comic, order) == episode_id)
+                });
+        }
+        self.download_ui.deferred.iter().any(|intent| intent.retain && intent.episode_id == episode_id)
+            || self.store.episode_download_pending(&self.account, episode_id).unwrap_or(false)
     }
 
     pub(super) fn enqueue_episode(&mut self, episode_id: &str, retain: bool) -> Result<()> {
@@ -330,9 +390,12 @@ impl App {
         let detail = self.catalog.detail.clone().context("No comic is selected for acquisition")?;
         let episode = detail.episodes.iter().find(|episode| episode.id == episode_id).context("Episode is absent from the current catalog")?;
         if !episode.readable_at(now()) { self.open_purchase(episode_id)?; return Ok(false); }
+        if retain && self.episode_download_queued(episode_id) { return Ok(true); }
         if self.demo.is_some() {
-            self.download_ui.demo_queued.insert(detail.comic.id.clone());
-            self.toast("common_download_queued");
+            if retain {
+                self.download_ui.demo_enqueued.entry(detail.comic.id.clone()).or_default().insert(episode.id.clone(), episode.order);
+                self.toast("common_download_queued");
+            }
             return Ok(true);
         }
         if !self.require_network("downloads", if retain { "enqueue" } else { "enqueue-prefetch" }, episode_id) { return Ok(false); }
@@ -391,72 +454,100 @@ impl App {
             let _ = self.platform.request_refresh(RefreshReason::Progress);
         }
         if reader_changed { self.reader_page_ready()?; }
-        if enforce_limit && self.enforce_cache_limit().is_err() { self.toast("common_storage_error"); }
-        let (active, failed) = self.download_activity()?;
-        self.project_download_badge(failed);
+        if enforce_limit {
+            if self.enforce_cache_limit().is_err() { self.toast("common_storage_error"); }
+            self.invalidate_account_storage();
+        }
+        let (active, pending) = self.download_activity()?;
+        self.project_download_badge(pending);
         if active && self.platform.capabilities().keep_awake && self.download_ui.wake.is_none() {
             self.download_ui.wake = self.platform.hold_awake_deferred().ok();
         }
         if !active { self.download_ui.wake = None; }
+        if self.route == "downloads" && self.ui.upgrade().is_some_and(|ui| self.download_window_height(&ui) != self.download_ui.window_height) {
+            self.view_dirty.mark(super::View::Downloads);
+        }
         Ok(())
+    }
+
+    fn demo_seed_status(&self, id: &str, seed: &serde_json::Value) -> DownloadStatus {
+        if self.download_ui.demo_removed.contains(id) || self.download_ui.demo_cancelled.contains(id) {
+            return DownloadStatus::Cancelled;
+        }
+        let status = if self.download_ui.demo_retried.contains(id) { DownloadStatus::Queued }
+            else { match seed["kind"].as_str() {
+                Some("active") => DownloadStatus::Running,
+                Some("queued") => DownloadStatus::Queued,
+                Some("error") => DownloadStatus::Failed,
+                _ => DownloadStatus::Completed,
+            }};
+        if self.download_ui.demo_paused.contains(id) && matches!(status, DownloadStatus::Running | DownloadStatus::Queued) {
+            DownloadStatus::Paused
+        } else { status }
+    }
+
+    pub(super) fn demo_manual_download_usage(&self) -> Option<u64> { self.demo_download_bytes(false) }
+
+    pub(super) fn demo_removed_download_bytes(&self) -> u64 { self.demo_download_bytes(true).unwrap_or_default() }
+
+    fn demo_download_bytes(&self, removed: bool) -> Option<u64> {
+        let demo = self.demo.as_ref()?;
+        Some(demo.fixture["downloads"].as_array().into_iter().flatten().filter(|value| {
+            let id = value["comic_id"].as_u64().unwrap_or_default().to_string();
+            self.download_ui.demo_removed.contains(&id) == removed
+        }).map(demo_storage_bytes).sum())
+    }
+
+    fn demo_download_rows(&self, demo: &DemoData) -> Vec<DownloadRow> {
+        let mut rows = Vec::new();
+        for seed in demo.fixture["downloads"].as_array().into_iter().flatten() {
+            let id = seed["comic_id"].as_u64().unwrap_or_default().to_string();
+            if self.download_ui.demo_removed.contains(&id) { continue; }
+            let status = self.demo_seed_status(&id, seed);
+            let bytes = demo_storage_bytes(seed);
+            if status == DownloadStatus::Cancelled && bytes == 0 { continue; }
+            let (chapters, complete) = demo_download_chapters(seed);
+            let mut row = DownloadRow { id, title: seed["title"].as_str().unwrap_or_default().into(),
+                error: status == DownloadStatus::Failed, active: status == DownloadStatus::Running,
+                queued: status == DownloadStatus::Queued, paused: status == DownloadStatus::Paused,
+                can_read: complete > 0, bytes, chapters, ..Default::default() };
+            let mut orders = if row.has_task() {
+                seed["task_orders"].as_array().into_iter().flatten().filter_map(|value| value.as_f64()).collect()
+            } else { Vec::new() };
+            let (saved, total) = if row.has_task() { demo_page_counts(seed) } else { (0, 0) };
+            if let Some(added) = self.download_ui.demo_enqueued.get(&row.id) {
+                if !row.error { orders.extend(added.values().copied()); }
+                if self.download_ui.demo_paused.contains(&row.id) { row.paused = !row.active; }
+                else { row.queued = true; }
+            }
+            row.priority = self.download_ui.demo_priority.get(&row.id).copied().unwrap_or_default();
+            row.summary = download_summary(complete, format_design_bytes(bytes), row.has_task());
+            row.describe_task(download_episode_scope(orders), saved, total,
+                download_failure_message(seed["failure_code"].as_str().unwrap_or_default()));
+            rows.push(row);
+        }
+        for (id, episodes) in &self.download_ui.demo_enqueued {
+            if rows.iter().any(|row| &row.id == id) { continue; }
+            let Some(comic) = demo.comics.iter().find(|comic| &comic.id == id) else { continue; };
+            let paused = self.download_ui.demo_paused.contains(id);
+            let mut row = DownloadRow { id: id.clone(), title: comic.title.clone(), queued: !paused, paused,
+                priority: self.download_ui.demo_priority.get(id).copied().unwrap_or_default(),
+                summary: i18n::text("dl_no_complete_episodes"), ..Default::default() };
+            row.describe_task(download_episode_scope(episodes.values().copied().collect()), 0, 0, String::new());
+            rows.push(row);
+        }
+        rows
     }
 
     fn download_rows(&self) -> Result<Vec<DownloadRow>> {
         if let Some(demo) = &self.demo {
-            let mut rows = Vec::new();
-            for value in demo.fixture["downloads"].as_array().into_iter().flatten() {
-                let id = value["comic_id"].as_u64().unwrap_or_default().to_string();
-                if self.download_ui.demo_removed.contains(&id) { continue; }
-                let original_kind = value["kind"].as_str().unwrap_or("done");
-                let cancelled = self.download_ui.demo_cancelled.contains(&id);
-                if cancelled && value["downloaded_mb"].as_f64().unwrap_or_default() <= 0.0 { continue; }
-                let retried = self.download_ui.demo_queued.contains(&id);
-                let kind = if cancelled { "done" } else if retried { "queued" } else { original_kind };
-                let paused = !cancelled && self.download_ui.demo_paused.contains(&id) && matches!(kind, "active" | "queued");
-                let queued = kind == "queued" && !paused;
-                let active = kind == "active" && !paused;
-                let error = kind == "error";
-                let percent = value["percent"].as_f64().unwrap_or_default() as f32;
-                let status = if cancelled && original_kind == "error" { i18n::text("dl_cancelled") }
-                    else if paused { i18n::text("dl_paused") } else if error { i18n::text("common_download_failed") }
-                    else if queued { i18n::text("dl_queued") } else if active { i18n::format("dl_progress_value", &[("percent", format!("{percent:.0}"))]) }
-                    else { i18n::text("dl_offline_ready") };
-                let task_label = value["task_label"].as_str().unwrap_or_default().to_owned();
-                let summary = value["completed_summary"].as_str().unwrap_or_default().to_owned();
-                let subtitle = if error {
-                    [value["task_label"].as_str().unwrap_or_default(), value["error"].as_str().unwrap_or_default()].join(" · ")
-                } else if kind == "queued" {
-                    i18n::format(if retried && original_kind == "error" { "dl_requeued_episode" } else { "dl_waiting_episode" }, &[("episode", task_label.clone())])
-                } else if kind == "active" {
-                    [summary.clone(), i18n::format("dl_downloading_episode", &[("episode", task_label.clone())])].join(" · ")
-                } else { value["completed_summary"].as_str().unwrap_or_default().to_owned() };
-                let task_title = if error { i18n::format("dl_failed_episode", &[("episode", task_label.clone())]) }
-                    else if kind == "active" { format!("{}{}", i18n::format("dl_downloading_episode", &[("episode", task_label.clone())]), if paused { format!(" · {}", i18n::text("dl_paused")) } else { String::new() }) }
-                    else { format!("{} · {task_label}", i18n::text("dl_queued")) };
-                let task_note = if error {
-                    format!("{}{}", value["error"].as_str().unwrap_or_default(), i18n::text("dl_retry_missing_note"))
-                } else if kind == "active" {
-                    [value["progress_label"].as_str().unwrap_or_default().to_owned(), i18n::text("dl_sleep_resume_note")].join(" · ")
-                } else { i18n::text("dl_queue_wait_note") };
-                let chapters = value["chapter_rows"].as_array().into_iter().flatten().enumerate().map(|(index, chapter)| DownloadChapterItem {
-                    id: index.to_string().into(), number: chapter["chapter"].as_str().unwrap_or_default().into(),
-                    title: chapter["title"].as_str().unwrap_or_default().into(), size: chapter["value"].as_str().unwrap_or_default().into(),
-                }).collect();
-                let bytes = (value["downloaded_mb"].as_f64().unwrap_or_default() * 1_000_000.0) as u64;
-                let priority = self.download_ui.demo_priority.get(&id).copied().unwrap_or_default();
-                rows.push(DownloadRow { id, title: value["title"].as_str().unwrap_or_default().into(), status, subtitle, summary,
-                    task_title, task_note, task_has_bar: kind == "active", can_read: bytes > 0,
-                    priority,
-                    progress: percent / 100.0, error, active, queued, paused,
-                    bytes,
-                    chapters, ..Default::default() });
-            }
+            let mut rows = self.demo_download_rows(demo);
             sort_download_rows(&mut rows);
             return Ok(rows);
         }
         let mut groups = BTreeMap::<String, Vec<DownloadRecord>>::new();
         for record in self.store.downloads(&self.account)? {
-            if record.status != DownloadStatus::Cancelled && record.retained {
+            if record.retained && (record.status != DownloadStatus::Cancelled || record.completed_pages > 0) {
                 groups.entry(record.comic_id.clone()).or_default().push(record);
             }
         }
@@ -471,138 +562,166 @@ impl App {
         }
         let mut rows = Vec::new();
         for (id, records) in groups {
-            let error = records.iter().any(|record| record.status == DownloadStatus::Failed);
-            let active = records.iter().any(|record| record.status == DownloadStatus::Running);
-            let queued = records.iter().any(|record| record.status == DownloadStatus::Queued);
-            let paused = !active && !queued && records.iter().any(|record| record.status == DownloadStatus::Paused);
-            let bytes = records.iter().map(|record| record.bytes).sum::<u64>();
-            let completed = records.iter().map(|record| record.completed_pages).sum::<u32>();
-            let total = records.iter().map(|record| record.total_pages).sum::<u32>();
-            let percent = if total > 0 { completed as f32 / total as f32 } else { 0.0 };
+            let has = |status| records.iter().any(|record| record.status == status);
+            let active = has(DownloadStatus::Running);
+            let queued = has(DownloadStatus::Queued);
+            let paused = !active && !queued && has(DownloadStatus::Paused);
+            let error = has(DownloadStatus::Failed);
             let detail = self.store.load_detail(&self.account, &id)?;
-            let episode_label = |record: &DownloadRecord| detail.as_ref().and_then(|detail| detail.episodes.iter().find(|episode| episode.id == record.episode_id))
-                .map(|episode| i18n::format("dl_episode_number", &[("number", display_order(episode.order))]))
-                .unwrap_or_else(|| if record.title.is_empty() { i18n::text("dl_current_episode") } else { record.title.clone() });
-            let status = if error { i18n::text("common_download_failed") }
-                else if active { i18n::format("dl_progress_value", &[("percent", format!("{:.0}", percent * 100.0))]) }
-                else if queued { i18n::text("dl_queued") } else if paused { i18n::text("dl_paused") }
-                else { i18n::text("dl_offline_ready") };
-            let completed_records: Vec<_> = records.iter().filter(|record| record.status == DownloadStatus::Completed).collect();
-            let completed_episodes: BTreeSet<_> = completed_records.iter().map(|record| record.episode_id.as_str()).collect();
-            let completed_bytes = completed_records.iter().map(|record| record.bytes).sum::<u64>();
-            let summary = if completed_episodes.is_empty() { i18n::text("dl_no_complete_episodes") }
-                else { i18n::format("dl_completed_summary", &[("count", completed_episodes.len().to_string()), ("size", format_bytes(completed_bytes))]) };
-            let selected_task = records.iter().find(|record| record.status == DownloadStatus::Failed)
-                .or_else(|| records.iter().find(|record| record.status == DownloadStatus::Running))
-                .or_else(|| records.iter().find(|record| matches!(record.status, DownloadStatus::Queued | DownloadStatus::Paused)));
-            let label = selected_task.map(&episode_label).unwrap_or_default();
-            let failure = selected_task.and_then(|record| record.error_code.as_deref()).map(download_failure_message).unwrap_or_default();
-            let partial = selected_task.map(|record| i18n::format("dl_saved_pages", &[("count", record.completed_pages.to_string()),
-                ("total", if record.total_pages > 0 { record.total_pages.to_string() } else { i18n::text("common_unknown") })])).unwrap_or_default();
-            let task_title = if error { i18n::format("dl_failed_episode", &[("episode", label.clone())]) }
-                else if active || paused { format!("{}{}", i18n::format("dl_downloading_episode", &[("episode", label.clone())]), if paused { format!(" · {}", i18n::text("dl_paused")) } else { String::new() }) }
-                else { format!("{} · {label}", i18n::text("dl_queued")) };
-            let task_note = if error { format!("{}{}", [failure.clone(), partial.clone()].into_iter().filter(|value| !value.is_empty()).collect::<Vec<_>>().join("，"), i18n::text("dl_retry_missing_note")) }
-                else if active || paused { [i18n::format("dl_local_count", &[("count", completed.to_string()),
-                    ("total", if total > 0 { total.to_string() } else { i18n::text("common_unknown") }), ("size", format_bytes(bytes))]), i18n::text("dl_sleep_resume_note")].join(" · ") }
-                else { i18n::text("dl_queue_wait_note") };
-            let subtitle = if error { [label, failure, partial].into_iter().filter(|value| !value.is_empty()).collect::<Vec<_>>().join(" · ") }
-                else if active || paused { [summary.clone(), task_title.clone()].join(" · ") }
-                else if queued { i18n::format("dl_waiting_episode", &[("episode", label)]) }
-                else { summary.clone() };
-            let chapters = records.iter().filter(|record| record.completed_pages > 0).map(|record| DownloadChapterItem {
-                id: record.episode_id.clone().into(), number: episode_label(record).into(),
+            let order_by_id: BTreeMap<_, _> = detail.iter().flat_map(|detail| &detail.episodes)
+                .map(|episode| (episode.id.as_str(), episode.order)).collect();
+            let order = |record: &DownloadRecord| order_by_id.get(record.episode_id.as_str()).copied();
+            let mut local = BTreeMap::<&str, &DownloadRecord>::new();
+            for record in records.iter().filter(|record| record.completed_pages > 0) {
+                let episode = record.episode_id.as_str();
+                if local.get(episode).is_none_or(|previous| local_chapter_rank(record) > local_chapter_rank(previous)) {
+                    local.insert(episode, record);
+                }
+            }
+            let mut local: Vec<_> = local.into_values().collect();
+            local.sort_by(|left, right| order(left).unwrap_or(f64::INFINITY).total_cmp(&order(right).unwrap_or(f64::INFINITY))
+                .then_with(|| left.episode_id.cmp(&right.episode_id)));
+            let complete = local.iter().filter(|record| record.status == DownloadStatus::Completed).count();
+            let chapters = local.iter().map(|record| DownloadChapterItem {
+                id: record.episode_id.clone().into(), number: order(record).map(episode_number).unwrap_or_default().into(),
                 title: record.title.clone().into(), size: if record.status == DownloadStatus::Completed { format_bytes(record.bytes) }
-                    else { i18n::format("dl_page_count", &[("count", record.completed_pages.to_string()), ("total", if record.total_pages > 0 { record.total_pages.to_string() } else { i18n::text("common_unknown") })]) }.into(),
+                    else { page_count_label("dl_page_count", record.completed_pages.into(), record.total_pages.into()) }.into(),
             }).collect();
-            let priority = records.iter().filter(|record| matches!(record.status, DownloadStatus::Running | DownloadStatus::Queued))
+            let bytes = records.iter().fold(0_u64, |total, record| total.saturating_add(record.bytes));
+            let priority = records.iter().filter(|record| matches!(record.status, DownloadStatus::Queued | DownloadStatus::Running))
                 .map(|record| record.priority).max().unwrap_or_default();
-            rows.push(DownloadRow { id, title: records.first().map(|record| record.comic_title.clone()).unwrap_or_default(), status,
-                subtitle, summary, task_title, task_note, task_has_bar: !error && (active || paused && total > 0), can_read: completed > 0,
-                priority, progress: percent, error, active, queued, paused, bytes, chapters });
+            let mut row = DownloadRow { id, title: records.first().map(|record| record.comic_title.clone()).unwrap_or_default(),
+                error, active, queued, paused, can_read: complete > 0, bytes, chapters, priority, ..Default::default() };
+            row.summary = download_summary(complete, format_bytes(bytes), row.has_task());
+            let tasks: Vec<_> = records.iter().filter(|record| if error { record.status == DownloadStatus::Failed }
+                else if active { matches!(record.status, DownloadStatus::Running | DownloadStatus::Queued) }
+                else if queued { record.status == DownloadStatus::Queued }
+                else { paused && record.status == DownloadStatus::Paused }).collect();
+            let orders = tasks.iter().filter_map(|record| order(record)).collect::<Vec<_>>();
+            let label = if orders.is_empty() { tasks.first().filter(|record| !record.title.is_empty())
+                .map_or_else(|| i18n::text("dl_current_episode"), |record| record.title.clone()) }
+                else { download_episode_scope(orders) };
+            let (saved, total) = tasks.iter().fold((0_u64, 0_u64), |(saved, total), record|
+                (saved + u64::from(record.completed_pages), total + u64::from(record.total_pages)));
+            let failure = tasks.first().and_then(|record| record.error_code.as_deref()).map(download_failure_message)
+                .unwrap_or_else(|| i18n::text("common_download_failed"));
+            row.describe_task(label, saved, total, failure);
+            rows.push(row);
         }
         sort_download_rows(&mut rows);
         Ok(rows)
     }
 
+    pub(super) fn close_download_overlays(&mut self) {
+        self.download_ui.close_overlays();
+        if let Some(ui) = self.ui.upgrade() {
+            let model = ui.global::<DownloadModel>();
+            model.set_selecting(false);
+            model.set_selected_count(0);
+            reset_download_sheet(&model);
+        }
+    }
+
     pub(super) fn refresh_download_view(&mut self, ui: &AppWindow) -> Result<()> {
+        self.schedule_storage_summary();
         let rows = self.download_rows()?;
-        let per_page = if self.is_scribe() { 8 } else { 6 };
+        let scribe = self.is_scribe();
+        let height = self.download_window_height(ui);
+        self.download_ui.window_height = height;
+        let per_page = download_list_capacity(scribe, height, rows.len());
         let pages = rows.len().div_ceil(per_page).max(1);
         self.download_ui.page = self.download_ui.page.min(pages - 1);
-        let visible = rows.iter().skip(self.download_ui.page * per_page).take(per_page).cloned().collect::<Vec<_>>();
+        self.download_ui.selected.retain(|id| rows.iter().any(|row| &row.id == id));
+        if rows.is_empty() { self.download_ui.selecting = false; }
         let mut items = Vec::new();
-        for row in visible {
-            let comic = self.store.comic(&self.account, &row.id)?.unwrap_or_else(|| Comic { id: row.id.clone(), title: row.title.clone(), ..Default::default() });
-            items.push(DownloadItem { id: row.id.clone().into(), title: row.title.into(), cover: self.cover_image(&comic),
-                status: row.status.into(), subtitle: row.subtitle.into(), progress: row.progress,
-                error: row.error, active: row.active, has_bar: row.task_has_bar,
+        for row in rows.iter().skip(self.download_ui.page * per_page).take(per_page) {
+            let comic = self.download_comic(row)?;
+            items.push(DownloadItem { id: row.id.clone().into(), title: row.title.clone().into(), cover: self.cover_image(&comic),
+                status: row.status.clone().into(), subtitle: row.subtitle.clone().into(), progress: row.progress,
+                error: row.error, active: row.active && !row.error, has_bar: row.has_bar,
                 selected: self.download_ui.selected.contains(&row.id) });
         }
         let model = ui.global::<DownloadModel>();
         model.set_items(super::model(items));
         model.set_selecting(self.download_ui.selecting);
-        model.set_selected_count(self.download_ui.selected.len() as i32);
-        model.set_selection_label(i18n::format("dl_selected_count", &[("count", self.download_ui.selected.len().to_string())]).into());
-        let removal = self.selected_removal_estimate(&rows).ok().flatten();
-        model.set_remove_label(if self.download_ui.selected.is_empty() { tr("dl_remove_short") }
-            else if let Some(bytes) = removal { i18n::format(if self.is_scribe() && self.demo.is_some() { "dl_remove_release" }
-                else if self.demo.is_some() || !self.is_scribe() { "dl_remove_size" } else { "dl_remove_estimate" }, &[("size", format_design_bytes(bytes))]).into() }
-            else { tr("dl_remove_selected") });
+        let selected_count = self.download_ui.selected.len();
+        model.set_selected_count(selected_count as i32);
+        model.set_selection_label(i18n::format("dl_selected_count", &[("count", selected_count.to_string())]).into());
+        model.set_remove_label(if selected_count == 0 { tr("dl_remove_short") }
+            else if let Ok(bytes) = self.selected_removal_estimate(&rows) {
+                let size = if self.demo.is_some() { format_design_bytes(bytes) } else { format_bytes(bytes) };
+                i18n::format("dl_remove_release", &[("size", size)]).into()
+            } else { tr("dl_remove_selected") });
         model.set_smart_label(i18n::format("dl_smart_value", &[("state", i18n::text(if self.preferences.smart { "acct_on" } else { "acct_off" }))]).into());
         model.set_page(self.download_ui.page as i32 + 1);
         model.set_page_count(pages as i32);
-        model.set_storage_free(i18n::format("dl_runtime_free_space", &[("size", self.download_ui.free.clone())]).into());
         let active = rows.iter().filter(|row| row.active || row.queued).count();
         let paused = rows.iter().filter(|row| row.paused).count();
         let failed = rows.iter().filter(|row| row.error).count();
+        self.project_download_badge(active);
         let (has_controls, all_paused) = global_download_controls(&rows);
         model.set_has_active(has_controls);
         model.set_all_paused(all_paused);
-        let cache_bytes = self.demo.as_ref().and_then(|demo| demo.fixture["download_summary"]["cache_mb"].as_u64()).unwrap_or_default().saturating_mul(1_000_000);
-        let total_bytes = rows.iter().map(|row| row.bytes).sum::<u64>().saturating_add(cache_bytes);
-        let mut status = Vec::new();
-        if active > 0 {
-            status.push(i18n::format("dl_status_active", &[("count", active.to_string())]));
-        } else if paused > 0 {
-            status.push(i18n::format("dl_status_paused", &[("count", paused.to_string())]));
-        }
-        if failed > 0 {
-            status.push(i18n::format("dl_status_failed", &[("count", failed.to_string())]));
-        }
-        model.set_status_summary(if status.is_empty() { i18n::text("dl_status_idle") } else { status.join(" · ") }.into());
-        let summary = i18n::format("dl_storage_summary", &[
-            ("count", rows.len().to_string()), ("size", if self.demo.is_some() { format_design_bytes(total_bytes) } else { format_bytes(total_bytes) }),
-        ]);
-        let summary = if !self.download_ui.free.is_empty() {
-            format!("{summary} · {}", i18n::format("dl_runtime_free_space", &[("size", self.download_ui.free.clone())]))
-        } else { summary };
-        model.set_summary(summary.into());
-        let selected = self.download_ui.sheet.as_ref().and_then(|id| rows.iter().find(|row| row.id == *id)).cloned();
-        model.set_sheet_open(selected.is_some());
+        let status: Vec<_> = [("dl_status_active", active), ("dl_status_paused", paused), ("dl_status_failed", failed)]
+            .into_iter().filter(|(_, count)| *count > 0)
+            .map(|(key, count)| i18n::format(key, &[("count", count.to_string())])).collect();
+        model.set_status_summary(if status.is_empty() { i18n::text("dl_title") } else { status.join(" · ") }.into());
+        let (used, free) = self.download_storage_labels();
+        model.set_summary(if rows.is_empty() { i18n::format("dl_storage_remaining", &[("free", free)]) }
+            else { i18n::format("dl_storage_summary", &[("count", rows.len().to_string()), ("size", used), ("free", free)]) }.into());
+        let selected = self.download_ui.sheet.as_ref().and_then(|id| rows.iter().find(|row| &row.id == id));
         if let Some(row) = selected {
-            let comic = self.store.comic(&self.account, &row.id)?.unwrap_or_default();
-            model.set_sheet_id(row.id.into()); model.set_sheet_title(row.title.into());
-            model.set_sheet_summary(row.summary.clone().into()); model.set_sheet_cover(self.cover_image(&comic));
-            model.set_chapters(super::model(row.chapters));
-            model.set_task_visible(row.error || row.active || row.queued || row.paused);
+            let comic = self.download_comic(row)?;
+            model.set_sheet_id(row.id.clone().into());
+            model.set_sheet_title(row.title.clone().into());
+            model.set_sheet_summary(row.summary.clone().into());
+            model.set_sheet_cover(self.cover_image(&comic));
+            let capacity = download_chapter_capacity(scribe, height, row.has_task());
+            let chapter_pages = row.chapters.len().div_ceil(capacity).max(1);
+            self.download_ui.chapter_page = self.download_ui.chapter_page.min(chapter_pages - 1);
+            model.set_chapter_page(self.download_ui.chapter_page as i32 + 1);
+            model.set_chapter_page_count(chapter_pages as i32);
+            model.set_chapters(super::model(row.chapters.iter().skip(self.download_ui.chapter_page * capacity).take(capacity).cloned().collect()));
+            model.set_task_visible(row.has_task());
             model.set_task_has_bar(row.task_has_bar);
-            model.set_task_title(row.task_title.into()); model.set_task_note(row.task_note.into());
+            model.set_task_title(row.task_title.clone().into());
+            model.set_task_note(row.task_note.clone().into());
             model.set_task_progress(row.progress);
-            model.set_task_primary(tr(if row.error { "dl_retry" } else if row.active { "dl_pause" } else if row.queued { "dl_priority" } else { "dl_resume" }));
+            let prioritized = row.queued && !row.error && !row.active && is_prioritized(row, &rows);
+            model.set_task_primary(tr(if row.error { "dl_retry" } else if row.active { "dl_pause" }
+                else if prioritized { "dl_prioritized" } else if row.queued { "dl_priority" } else { "dl_resume" }));
+            model.set_task_primary_enabled(!prioritized);
             model.set_task_primary_action(if row.error { "retry" } else if row.active { "pause" } else if row.queued { "priority" } else { "resume" }.into());
             model.set_task_secondary(tr(if row.error { "dl_release_space" } else { "common_cancel" }));
-            model.set_task_secondary_action(if row.error { "storage" } else { "cancel" }.into());
+            model.set_task_secondary_action(if row.error { "storage" } else if row.queued && !row.active { "cancel-queued" } else { "cancel" }.into());
             model.set_can_read(row.can_read);
             model.set_remove_current_label(tr(if row.bytes > 0 { "dl_remove_all_downloads" } else { "dl_cancel_download" }));
+            model.set_remove_current_action(if row.bytes > 0 { "remove-current" } else { "cancel-current" }.into());
+            model.set_sheet_open(true);
+        } else {
+            self.download_ui.sheet = None;
+            self.download_ui.chapter_page = 0;
+            reset_download_sheet(&model);
         }
         Ok(())
     }
 
-    fn selected_removal_estimate(&self, rows: &[DownloadRow]) -> Result<Option<u64>> {
-        if self.download_ui.selected.is_empty() { return Ok(Some(0)); }
+    fn download_comic(&self, row: &DownloadRow) -> Result<Comic> {
+        Ok(self.store.comic(&self.account, &row.id)?.unwrap_or_else(|| Comic { id: row.id.clone(), title: row.title.clone(), ..Default::default() }))
+    }
+
+    fn download_window_height(&self, ui: &AppWindow) -> u32 {
+        let height = ui.window().size().height;
+        let scale = ui.window().scale_factor();
+        if height > 0 && scale.is_finite() && scale > 0.0 { return (height as f32 / scale).round() as u32; }
+        let (width, height) = self.platform.logical_viewport_size();
+        if self.options.landscape { width } else { height }
+    }
+
+    fn selected_removal_estimate(&self, rows: &[DownloadRow]) -> Result<u64> {
+        if self.download_ui.selected.is_empty() { return Ok(0); }
         if self.demo.is_some() {
-            return Ok(Some(rows.iter().filter(|row| self.download_ui.selected.contains(&row.id)).map(|row| row.bytes).sum()));
+            return Ok(rows.iter().filter(|row| self.download_ui.selected.contains(&row.id)).map(|row| row.bytes).sum());
         }
         let records = self.store.downloads(&self.account)?;
         let mut objects = BTreeMap::<String, (u64, BTreeSet<String>)>::new();
@@ -614,7 +733,7 @@ impl App {
                 entry.1.insert(record.comic_id.clone());
             }
         }
-        Ok(Some(removable_object_bytes(&objects, &self.download_ui.selected)))
+        Ok(removable_object_bytes(&objects, &self.download_ui.selected))
     }
 
     pub(super) fn download_action(&mut self, action: &str, value: &str) -> Result<()> {
@@ -622,17 +741,28 @@ impl App {
             "enqueue" => self.enqueue_episode(value, true)?,
             "enqueue-prefetch" => self.enqueue_episode(value, false)?,
             "select" => { self.download_ui.selecting = true; self.download_ui.selected.clear(); }
-            "cancel-select" => { self.download_ui.selecting = false; self.download_ui.selected.clear(); }
-            "toggle-item" => {
+            "cancel-select" => self.download_ui.close_overlays(),
+            "toggle-item" if self.download_ui.selecting => {
                 if !self.download_ui.selected.remove(value) { self.download_ui.selected.insert(value.to_owned()); }
             }
-            "open" => self.download_ui.sheet = Some(value.into()),
-            "sheet-close" => self.download_ui.sheet = None,
-            "page" => self.download_ui.page = self.download_ui.page.saturating_add_signed(value.parse::<isize>().unwrap_or_default()),
+            "open" if !self.download_ui.selecting => {
+                self.download_ui.sheet = Some(value.into());
+                self.download_ui.chapter_page = 0;
+            }
+            "sheet-close" => { self.download_ui.sheet = None; self.download_ui.chapter_page = 0; }
+            "page" if self.download_ui.sheet.is_none() => {
+                self.download_ui.page = self.download_ui.page.saturating_add_signed(value.parse::<isize>().unwrap_or_default());
+            }
+            "chapter-page" if self.download_ui.sheet.is_some() => {
+                self.download_ui.chapter_page = self.download_ui.chapter_page.saturating_add_signed(value.parse::<isize>().unwrap_or_default());
+            }
+            "store" => self.navigate("store"),
             "smart-settings" => { self.navigate("account"); self.account_action("section", "download")?; }
             "toggle-all" => {
                 let rows = self.download_rows()?;
-                let pause = rows.iter().any(|row| row.active || row.queued);
+                let (has_controls, all_paused) = global_download_controls(&rows);
+                if !has_controls { return Ok(()); }
+                let pause = !all_paused;
                 if !pause && (!self.require_network("downloads", "toggle-all", "") || !self.require_session()) { return Ok(()); }
                 if self.demo.is_some() {
                     for row in rows.iter().filter(|row| row.active || row.queued || row.paused) {
@@ -644,90 +774,166 @@ impl App {
                         if pause && matches!(record.status, DownloadStatus::Running | DownloadStatus::Queued) { self.apply_download_control(&record.id, "pause")?; }
                         else if !pause && record.status == DownloadStatus::Paused { self.apply_download_control(&record.id, "resume")?; }
                     }
+                    for intent in self.download_ui.deferred.iter_mut().filter(|intent| intent.retain) { intent.paused = pause; }
+                    self.store.set_preference(&self.account, "queued_download_intents", &self.download_ui.deferred)?;
+                    self.flush_deferred_downloads()?;
                 }
-                for intent in &mut self.download_ui.deferred { intent.paused = pause; }
-                self.store.set_preference(&self.account, "queued_download_intents", &self.download_ui.deferred)?;
-                self.flush_deferred_downloads()?;
             }
+            "retry-item" => self.retry_download_group(value)?,
             "task" => {
+                let Some(id) = self.download_ui.sheet.clone() else { return Ok(()); };
                 if value == "storage" {
-                    self.download_ui.sheet = None; self.navigate("account"); self.account_action("section", "storage")?;
-                    return Ok(());
+                    self.navigate("account"); self.account_action("section", "storage")?;
+                } else if value == "retry" {
+                    self.retry_download_group(&id)?;
+                } else if value != "resume" || self.require_network("downloads", "task", value) && self.require_session() {
+                    self.control_download_group(&id, value)?;
+                    if value == "cancel-queued" { self.download_ui.sheet = None; }
                 }
-                if matches!(value, "resume" | "retry")
-                    && (!self.require_network("downloads", "task", value) || !self.require_session()) { return Ok(()); }
-                if let Some(id) = self.download_ui.sheet.clone() {
-                    if self.demo.is_some() {
-                        match value {
-                            "pause" => { self.download_ui.demo_paused.insert(id.clone()); }
-                            "resume" | "retry" => {
-                                self.download_ui.demo_cancelled.remove(&id);
-                                self.download_ui.demo_paused.remove(&id);
-                                if value == "retry" { self.download_ui.demo_queued.insert(id.clone()); }
-                            }
-                            "priority" => {
-                                self.download_ui.demo_priority_sequence = self.download_ui.demo_priority_sequence.checked_add(1).context("Preview priority overflow")?;
-                                self.download_ui.demo_priority.insert(id.clone(), self.download_ui.demo_priority_sequence);
-                            }
-                            "cancel" => {
-                                self.download_ui.demo_queued.remove(&id); self.download_ui.demo_paused.remove(&id);
-                                self.download_ui.demo_cancelled.insert(id.clone());
-                            }
-                            _ => {}
-                        }
-                    } else {
-                        for record in self.store.downloads(&self.account)?.iter().filter(|record| record.comic_id == id && record.retained) {
-                            match value {
-                                "pause" if matches!(record.status, DownloadStatus::Running | DownloadStatus::Queued) => self.apply_download_control(&record.id, "pause")?,
-                                "resume" if record.status == DownloadStatus::Paused => self.apply_download_control(&record.id, "resume")?,
-                                "retry" if record.status == DownloadStatus::Failed => self.apply_download_control(&record.id, "retry")?,
-                                "priority" if matches!(record.status, DownloadStatus::Queued | DownloadStatus::Running) => self.apply_download_control(&record.id, "priority")?,
-                                "cancel" if matches!(record.status, DownloadStatus::Running | DownloadStatus::Queued | DownloadStatus::Paused | DownloadStatus::Failed) => self.apply_download_control(&record.id, "cancel")?,
-                                _ => {}
-                            }
-                        }
-                    }
-                    if self.demo.is_none() {
-                        if value == "priority" {
-                            let next = self.download_ui.deferred_priorities.values().copied().max().unwrap_or_default()
-                                .checked_add(1).context("Deferred priority overflow")?;
-                            for intent in self.download_ui.deferred.iter().filter(|intent| intent.comic_id == id && intent.retain && !intent.paused) {
-                                self.download_ui.deferred_priorities.insert(intent.episode_id.clone(), next);
-                            }
-                            self.store.set_preference(&self.account, "queued_download_priorities", &self.download_ui.deferred_priorities)?;
-                        }
-                        if value == "cancel" { self.download_ui.deferred.retain(|intent| intent.comic_id != id); }
-                        else { for intent in self.download_ui.deferred.iter_mut().filter(|intent| intent.comic_id == id) { if value == "pause" { intent.paused = true; } else if value == "resume" { intent.paused = false; } } }
-                        self.store.set_preference(&self.account, "queued_download_intents", &self.download_ui.deferred)?;
-                        self.flush_deferred_downloads()?;
-                    }
-                }
+            }
+            "cancel-current" => {
+                if let Some(id) = self.download_ui.sheet.take() { self.control_download_group(&id, "cancel")?; }
             }
             "remove-current" => {
                 if let Some(id) = self.download_ui.sheet.take() { self.remove_download_groups(vec![id])?; }
             }
-            "remove-selected" => {
+            "remove-selected" if self.download_ui.selecting && !self.download_ui.selected.is_empty() => {
                 let ids = self.download_ui.selected.iter().cloned().collect();
                 self.remove_download_groups(ids)?;
-                self.download_ui.selected.clear(); self.download_ui.selecting = false;
+                self.download_ui.close_overlays();
             }
             "read" => {
-                if let Some(id) = self.download_ui.sheet.take() { self.open_reader_for_comic(&id)?; }
+                if let Some(id) = self.download_ui.sheet.clone() { self.read_download_group(&id)?; }
             }
             _ => {}
         }
         Ok(())
     }
 
+    fn retry_download_group(&mut self, comic_id: &str) -> Result<()> {
+        if self.require_network("downloads", "retry-item", comic_id) && self.require_session() {
+            self.control_download_group(comic_id, "retry")?;
+        }
+        Ok(())
+    }
+
+    fn control_download_group(&mut self, comic_id: &str, action: &str) -> Result<()> {
+        if let Some(demo) = &self.demo {
+            let seed = demo.fixture["downloads"].as_array().into_iter().flatten()
+                .find(|seed| seed["comic_id"].as_u64().is_some_and(|id| id.to_string() == comic_id));
+            match action {
+                "pause" => { self.download_ui.demo_paused.insert(comic_id.into()); }
+                "resume" => { self.download_ui.demo_paused.remove(comic_id); }
+                "retry" if seed.is_some_and(|seed| self.demo_seed_status(comic_id, seed) == DownloadStatus::Failed) => {
+                    self.download_ui.demo_retried.insert(comic_id.into());
+                }
+                "priority" => {
+                    self.download_ui.demo_priority_sequence = self.download_ui.demo_priority_sequence.checked_add(1).context("Preview priority overflow")?;
+                    self.download_ui.demo_priority.insert(comic_id.into(), self.download_ui.demo_priority_sequence);
+                }
+                "cancel" | "cancel-queued" => {
+                    if seed.is_some_and(|seed| seed["kind"].as_str() != Some("done")) {
+                        self.download_ui.demo_cancelled.insert(comic_id.into());
+                    }
+                    self.download_ui.demo_enqueued.remove(comic_id);
+                    self.download_ui.demo_retried.remove(comic_id);
+                    self.download_ui.demo_paused.remove(comic_id);
+                    self.download_ui.demo_priority.remove(comic_id);
+                }
+                _ => {}
+            }
+            return Ok(());
+        }
+        for record in self.store.downloads(&self.account)?.iter().filter(|record| record.comic_id == comic_id && record.retained) {
+            let eligible = match action {
+                "pause" => matches!(record.status, DownloadStatus::Running | DownloadStatus::Queued),
+                "resume" => record.status == DownloadStatus::Paused,
+                "retry" => record.status == DownloadStatus::Failed,
+                "priority" => matches!(record.status, DownloadStatus::Queued | DownloadStatus::Running),
+                "cancel-queued" => record.status == DownloadStatus::Queued,
+                "cancel" => matches!(record.status, DownloadStatus::Queued | DownloadStatus::Running | DownloadStatus::Paused | DownloadStatus::Failed),
+                _ => false,
+            };
+            if eligible { self.apply_download_control(&record.id, action)?; }
+        }
+        if action == "priority" {
+            let next = self.download_ui.deferred_priorities.values().copied().max().unwrap_or_default()
+                .checked_add(1).context("Deferred priority overflow")?;
+            for intent in self.download_ui.deferred.iter().filter(|intent| intent.comic_id == comic_id && intent.retain && !intent.paused) {
+                self.download_ui.deferred_priorities.insert(intent.episode_id.clone(), next);
+            }
+            self.store.set_preference(&self.account, "queued_download_priorities", &self.download_ui.deferred_priorities)?;
+        } else if matches!(action, "cancel" | "cancel-queued") {
+            let priorities = &mut self.download_ui.deferred_priorities;
+            self.download_ui.deferred.retain(|intent| {
+                let cancel = intent.comic_id == comic_id && intent.retain && (action == "cancel" || !intent.paused);
+                if cancel { priorities.remove(&intent.episode_id); }
+                !cancel
+            });
+            self.store.set_preference(&self.account, "queued_download_priorities", &self.download_ui.deferred_priorities)?;
+        } else if matches!(action, "pause" | "resume") {
+            for intent in self.download_ui.deferred.iter_mut().filter(|intent| intent.comic_id == comic_id && intent.retain) {
+                intent.paused = action == "pause";
+            }
+        }
+        self.store.set_preference(&self.account, "queued_download_intents", &self.download_ui.deferred)?;
+        self.flush_deferred_downloads()
+    }
+
+    fn read_download_group(&mut self, comic_id: &str) -> Result<()> {
+        if self.demo.is_some() {
+            if !self.download_rows()?.iter().any(|row| row.id == comic_id && row.can_read) { return Ok(()); }
+            let current = self.first_demo_offline_episode(comic_id)?;
+            if let Some(episode) = current { self.open_episode(comic_id, &episode)?; }
+            else { self.open_reader_for_comic(comic_id)?; }
+            return Ok(());
+        }
+        let Some(detail) = self.store.load_detail(&self.account, comic_id)? else {
+            self.toast("common_no_download"); return Ok(());
+        };
+        let anchor = self.store.load_anchor(&self.account, comic_id)?;
+        let source = self.store.downloads(&self.account)?;
+        let complete = |episode: &Episode| source.iter().find(|record| record.comic_id == comic_id
+            && record.episode_id == episode.id && record.retained && record.status == DownloadStatus::Completed);
+        let readable = now();
+        let current = anchor.as_ref().and_then(|anchor| {
+            let episode = detail.episodes.iter().find(|episode| episode.id == anchor.episode_id && episode.readable_at(readable))?;
+            source.iter().find(|record| record.comic_id == comic_id && record.episode_id == episode.id && record.revision == anchor.revision
+                && record.retained && record.status == DownloadStatus::Completed).or_else(|| complete(episode))
+        });
+        let selected = current.or_else(|| detail.episodes.iter().filter(|episode| episode.readable_at(readable))
+            .filter_map(|episode| complete(episode).map(|record| (episode.order, record)))
+            .min_by(|left, right| left.0.total_cmp(&right.0)).map(|(_, record)| record));
+        if let Some(record) = selected { self.open_offline_episode(comic_id, &record.episode_id, &record.revision)?; }
+        else { self.toast("common_no_download"); }
+        Ok(())
+    }
+
+    fn first_demo_offline_episode(&self, comic_id: &str) -> Result<Option<String>> {
+        let Some(detail) = self.store.load_detail(&self.account, comic_id)? else { return Ok(None); };
+        let anchor = self.store.load_anchor(&self.account, comic_id)?;
+        let available = |episode: &&Episode| episode.readable_at(now()) && self.reader_episode_downloaded(episode);
+        let preferred = anchor.as_ref().and_then(|anchor| detail.episodes.iter().find(|episode| episode.id == anchor.episode_id))
+            .filter(available).or_else(|| detail.episodes.iter().find(available));
+        Ok(preferred.map(|episode| episode.id.clone()))
+    }
+
     fn remove_download_groups(&mut self, ids: Vec<String>) -> Result<()> {
         if self.is_suspended() { return Ok(()); }
         if self.demo.is_some() {
-            self.download_ui.demo_removed.extend(ids);
+            for id in ids {
+                self.control_download_group(&id, "cancel")?;
+                self.download_ui.demo_removed.insert(id);
+            }
             return Ok(());
         }
         let records = self.store.downloads(&self.account)?.into_iter().filter(|record| ids.contains(&record.comic_id)).collect::<Vec<_>>();
-        self.download_ui.deferred.retain(|intent| !ids.contains(&intent.comic_id));
+        let priorities = &mut self.download_ui.deferred_priorities;
+        self.download_ui.deferred.retain(|intent| {
+            if ids.contains(&intent.comic_id) { priorities.remove(&intent.episode_id); false } else { true }
+        });
         self.store.set_preference(&self.account, "queued_download_intents", &self.download_ui.deferred)?;
+        self.store.set_preference(&self.account, "queued_download_priorities", &self.download_ui.deferred_priorities)?;
         if self.downloads.is_none() { self.toast("dl_background_busy"); return Ok(()); }
         let admission = match self.begin_job("download-remove", false) {
             Ok(admission) => admission,
@@ -751,6 +957,7 @@ impl App {
         }, move |app, result| {
             let manager = owner.lock().unwrap_or_else(std::sync::PoisonError::into_inner).take();
             app.invalidate_catalog_local_state();
+            app.invalidate_account_storage();
             if let Some(manager) = manager {
                 if app.restore_download_manager(manager).is_err() { app.toast("common_storage_error"); }
             } else {
@@ -779,18 +986,26 @@ impl App {
         { return Ok(()); }
         if let Some(manager) = &mut self.downloads {
             match action {
-                "pause" => manager.pause(task)?, "cancel" => manager.cancel(task)?,
+                "pause" => manager.pause(task)?,
+                "cancel" | "cancel-queued" => manager.cancel_unfinished_retained(task, action == "cancel-queued")?,
                 "resume" => { manager.resume(task)?; }, "retry" => { manager.retry(task)?; },
                 "priority" => manager.prioritize(task)?, _ => {}
             }
         } else {
+            if matches!(action, "cancel" | "cancel-queued") {
+                // A borrowed manager may still be publishing a completed chapter. Replay under its publication lock.
+                if !self.download_ui.pending_controls.iter().any(|(id, pending)| id == task && pending == action) {
+                    self.download_ui.pending_controls.push((task.to_owned(), action.to_owned()));
+                }
+                return Ok(());
+            }
             if action == "priority" {
                 self.download_ui.pending_controls.push((task.to_owned(), action.to_owned()));
                 self.store.prioritize_download(&self.account, task)?;
                 return Ok(());
             }
             let status = match action {
-                "pause" => DownloadStatus::Paused, "cancel" => DownloadStatus::Cancelled,
+                "pause" => DownloadStatus::Paused,
                 "resume" | "retry" => DownloadStatus::Queued, _ => return Ok(())
             };
             self.store.update_download_state(&self.account, task, status, None, now())?;
@@ -1044,7 +1259,113 @@ where F: FnMut(&str, &str) -> Result<bool> {
     (deferred, Ok(()))
 }
 
+fn reset_download_sheet(model: &DownloadModel<'_>) {
+    if !model.get_sheet_open() && model.get_sheet_id().is_empty() { return; }
+    model.set_sheet_open(false);
+    model.set_sheet_id("".into());
+    model.set_chapter_page(1);
+    model.set_chapter_page_count(1);
+    model.set_chapters(ModelRc::default());
+    model.set_task_visible(false);
+    model.set_task_primary_action("".into());
+    model.set_task_secondary_action("".into());
+    model.set_can_read(false);
+}
+
+// Keep the portrait limits while fitting complete rows in smaller or landscape viewports.
+fn download_list_capacity(scribe: bool, height: u32, groups: usize) -> usize {
+    let (insets, row, pager, limit) = if scribe { (32 + 80 + 72 + 64, 108, 64 + 12, 9) }
+        else { (28 + 64 + 56 + 48, 80, 52 + 8, 8) };
+    let available = height.saturating_sub(insets);
+    let unpaged = (available / row).clamp(1, limit) as usize;
+    if groups <= unpaged { unpaged }
+    else { (available.saturating_sub(pager) / row).clamp(1, limit - 1) as usize }
+}
+
+fn download_chapter_capacity(scribe: bool, height: u32, has_task: bool) -> usize {
+    let (status, panel, fixed, row, task, limit) = if scribe { (32, 840, 176 + 56 + 98, 64, 202 + 16, 7) }
+        else { (28, 612, 120 + 44 + 78, 52, 149 + 12, 6) };
+    let available = height.saturating_sub(status).min(panel).saturating_sub(fixed + if has_task { task } else { 0 });
+    (available / row).clamp(1, if has_task { 4 } else { limit }) as usize
+}
+
+fn demo_storage_bytes(seed: &serde_json::Value) -> u64 {
+    seed["downloaded_mb"].as_u64().unwrap_or_default().saturating_mul(1024 * 1024)
+}
+
+fn demo_episode_id(comic: u64, order: u64) -> String { format!("{comic}{order:02}") }
+
+fn demo_page_counts(seed: &serde_json::Value) -> (u64, u64) {
+    (seed["saved_pages"].as_u64().unwrap_or_default(), seed["total_pages"].as_u64().unwrap_or_default())
+}
+
+fn demo_download_chapters(seed: &serde_json::Value) -> (Vec<DownloadChapterItem>, usize) {
+    let comic = seed["comic_id"].as_u64().unwrap_or_default();
+    if let Some(count) = seed["chapter_count"].as_u64().filter(|count| *count > 0) {
+        let bytes_per_chapter = demo_storage_bytes(seed) / count;
+        let size = format!("{} MB", (bytes_per_chapter as f64 / (1024.0 * 1024.0)).round() as u64);
+        let mut chapters = Vec::new();
+        let titles = seed["chapter_titles"].as_array().filter(|titles| !titles.is_empty());
+        for order in 1..=count {
+            let title = (order == count).then(|| seed["last_chapter_title"].as_str()).flatten()
+                .or_else(|| titles.and_then(|titles| titles[(order as usize - 1) % titles.len()].as_str())).unwrap_or_default();
+            chapters.push(DownloadChapterItem { id: demo_episode_id(comic, order).into(), number: episode_number(order as f64).into(),
+                title: title.into(), size: size.clone().into() });
+        }
+        return (chapters, count as usize);
+    }
+    let mut chapters = Vec::new();
+    let mut complete = 0;
+    for chapter in seed["chapter_rows"].as_array().into_iter().flatten() {
+        let Some(order) = chapter["order"].as_u64() else { continue; };
+        let size = if let Some(mb) = chapter["mb"].as_u64() {
+            complete += 1;
+            format!("{mb} MB")
+        } else {
+            let (saved, total) = demo_page_counts(chapter);
+            if saved == 0 { continue; }
+            page_count_label("dl_page_count", saved, total)
+        };
+        chapters.push(DownloadChapterItem { id: demo_episode_id(comic, order).into(), number: episode_number(order as f64).into(),
+            title: chapter["title"].as_str().unwrap_or_default().into(), size: size.into() });
+    }
+    (chapters, complete)
+}
+
+fn local_chapter_rank(record: &DownloadRecord) -> (bool, i64, u32) {
+    (record.status == DownloadStatus::Completed, record.updated_at, record.completed_pages)
+}
+
+fn download_summary(count: usize, size: String, has_task: bool) -> String {
+    if count == 0 { i18n::text("dl_no_complete_episodes") }
+    else { i18n::format(if has_task { "dl_completed_summary" } else { "dl_chapter_summary" }, &[("count", count.to_string()), ("size", size)]) }
+}
+
+fn episode_number(order: f64) -> String { i18n::format("dl_episode_number", &[("number", display_order(order))]) }
+
+fn download_episode_scope(mut orders: Vec<f64>) -> String {
+    orders.retain(|order| order.is_finite());
+    orders.sort_by(f64::total_cmp);
+    orders.dedup();
+    match orders.as_slice() {
+        [] => i18n::text("dl_current_episode"),
+        [order] => episode_number(*order),
+        _ if orders.windows(2).all(|pair| pair[1] - pair[0] == 1.0) => i18n::format("dl_episode_range", &[
+            ("first", display_order(orders[0])), ("last", display_order(orders[orders.len() - 1])),
+        ]),
+        _ => i18n::format("dl_episode_number", &[("number", orders.into_iter().map(display_order).collect::<Vec<_>>().join(&i18n::text("dl_episode_separator")))]),
+    }
+}
+
+fn page_count_label(key: &str, saved: u64, total: u64) -> String {
+    i18n::format(key, &[("count", saved.to_string()), ("total", if total > 0 { total.to_string() } else { i18n::text("common_unknown") })])
+}
+
 fn row_priority(row: &DownloadRow) -> u8 { if row.error { 0 } else if row.active { 1 } else if row.queued { 2 } else if row.paused { 3 } else { 4 } }
+
+fn is_prioritized(row: &DownloadRow, rows: &[DownloadRow]) -> bool {
+    row.priority > 0 && !rows.iter().any(|other| other.queued && !other.error && !other.active && other.priority > row.priority)
+}
 
 fn sort_download_rows(rows: &mut [DownloadRow]) {
     rows.sort_by(|left, right| row_priority(left).cmp(&row_priority(right)).then_with(|| right.priority.cmp(&left.priority)));
@@ -1071,9 +1392,11 @@ fn download_failure_message(code: &str) -> String {
     else { i18n::text("common_download_failed") }
 }
 
-fn format_design_bytes(bytes: u64) -> String {
-    if bytes >= 1_000_000_000 { format!("{:.2} GB", bytes as f64 / 1_000_000_000.0) }
-    else { format!("{} MB", bytes / 1_000_000) }
+pub(super) fn format_design_bytes(bytes: u64) -> String {
+    const MIB: u64 = 1024 * 1024;
+    const GIB: u64 = 1024 * MIB;
+    if bytes >= GIB { format!("{:.2} GB", bytes as f64 / GIB as f64) }
+    else { format!("{} MB", bytes / MIB) }
 }
 
 pub(super) fn format_bytes(bytes: u64) -> String {
@@ -1187,6 +1510,44 @@ mod lifecycle_tests {
         let (remaining, result) = replay_download_controls(pending, |task, _| { applied.push(task.to_owned()); Ok(true) });
         assert!(result.is_ok() && remaining.is_empty());
         assert_eq!(applied, vec!["first", "blocked", "last"]);
+    }
+
+    #[test]
+    fn queue_badge_counts_retained_comics_including_deferred_work() -> Result<()> {
+        let directory = tempfile::tempdir()?;
+        let store = Store::open(directory.path().join("state.sqlite3"))?;
+        let account = "fixture-account";
+        for (id, comic, status, retained) in [
+            ("queued-1", "comic-1", DownloadStatus::Queued, true),
+            ("queued-2", "comic-1", DownloadStatus::Queued, true),
+            ("reader-task", "comic-2", DownloadStatus::Running, false),
+            ("paused-task", "comic-3", DownloadStatus::Paused, true),
+        ] {
+            store.save_download(account, &DownloadRecord { id: id.into(), comic_id: comic.into(), episode_id: id.into(),
+                revision: "revision-1".into(), status, retained, ..Default::default() })?;
+        }
+        assert_eq!(store.download_queue_activity(account, &["comic-1", "comic-4", "comic-4"])?, (true, 2));
+        assert!(store.episode_download_pending(account, "paused-task")?);
+        assert!(!store.episode_download_pending(account, "reader-task")?);
+        Ok(())
+    }
+
+    #[test]
+    fn list_pagination_leaves_room_for_the_navigation_gap_and_whole_rows() {
+        assert_eq!(download_list_capacity(false, 840, 8), 8);
+        assert_eq!(download_list_capacity(false, 840, 9), 7);
+        assert_eq!(download_list_capacity(true, 1240, 9), 9);
+        assert_eq!(download_list_capacity(true, 1240, 10), 8);
+        assert_eq!(download_list_capacity(false, 632, 8), 4);
+    }
+
+    #[test]
+    fn chapter_capacity_reserves_the_task_card_and_footer() {
+        assert_eq!(download_chapter_capacity(false, 840, false), 6);
+        assert_eq!(download_chapter_capacity(false, 840, true), 4);
+        assert_eq!(download_chapter_capacity(true, 1240, false), 7);
+        assert_eq!(download_chapter_capacity(true, 1240, true), 4);
+        assert_eq!(download_chapter_capacity(false, 632, true), 3);
     }
 
     #[test]

@@ -19,8 +19,8 @@ use bilicomics::{
     platform::{self, DeviceProfile, Platform, RefreshReason},
     power_events::{PowerAck, PowerEvent, SignalBridge},
     ui::{
-        AccountModel, AppWindow, AuthModel, CatalogModel, DownloadModel, ReaderModel, ShellModel,
-        Theme,
+        AccountModel, AppWindow, AuthModel, CatalogModel, DownloadModel, PurchaseModel, ReaderModel,
+        ShellModel, SleepScreenModel, Theme,
     },
 };
 use clap::Parser;
@@ -1606,6 +1606,9 @@ fn ui_state(ui: &AppWindow) -> serde_json::Value {
     let catalog = ui.global::<CatalogModel>();
     let downloads = ui.global::<DownloadModel>();
     let reader = ui.global::<ReaderModel>();
+    let shell = ui.global::<ShellModel>();
+    let auth = ui.global::<AuthModel>();
+    let purchase = ui.global::<PurchaseModel>();
     let candidates = catalog.get_candidates();
     let candidates = (0..candidates.row_count())
         .filter_map(|index| candidates.row_data(index))
@@ -1622,11 +1625,22 @@ fn ui_state(ui: &AppWindow) -> serde_json::Value {
             "order": chapter.order.as_str(), "current": chapter.current,
             "read": chapter.read, "readable": chapter.readable, "downloaded": chapter.downloaded,
         })).collect::<Vec<_>>();
-    serde_json::json!({
-        "route": ui.global::<ShellModel>().get_route().as_str(),
-        "toast": ui.global::<ShellModel>().get_toast().as_str(),
-        "account": {
+    let auth_state = serde_json::json!({
+        "step": auth.get_step(), "phase": auth.get_phase().as_str(),
+        "net_visible": auth.get_net_visible(), "net_phase": auth.get_net_phase().as_str(),
+        "return_route": auth.get_return_route().as_str(),
+    });
+    let purchase_state = serde_json::json!({
+        "phase": purchase.get_phase().as_str(), "selected_range": purchase.get_selected_range().as_str(),
+        "payment": purchase.get_payment().as_str(), "included": purchase.get_included().row_count(),
+        "sufficient": purchase.get_sufficient(), "can_read": purchase.get_result_can_read(), "back": purchase.get_back_label().as_str(),
+    });
+    let account_state = serde_json::json!({
             "section": ui.global::<AccountModel>().get_section().as_str(),
+            "fit": ui.global::<AccountModel>().get_fit().as_str(),
+            "dialog": ui.global::<AccountModel>().get_local_dialog().as_str(),
+            "recharge_visible": ui.global::<AccountModel>().get_recharge_visible(),
+            "recharge_phase": ui.global::<AccountModel>().get_recharge_phase().as_str(),
             "refresh_mode": ui.global::<AccountModel>().get_refresh_mode().as_str(),
             "refresh_mode_note": ui.global::<AccountModel>().get_refresh_mode_note().as_str(),
             "dither": ui.global::<AccountModel>().get_dither(),
@@ -1638,9 +1652,8 @@ fn ui_state(ui: &AppWindow) -> serde_json::Value {
                 "reason": bilicomics::native_media::availability().reason(),
                 "note": ui.global::<AccountModel>().get_jpeg_acceleration_note().as_str(),
             },
-        },
-        "native_media": bilicomics::native_media::statistics(),
-        "catalog": {
+    });
+    let catalog_state = serde_json::json!({
             "shelf_view": catalog.get_shelf_view().as_str(), "shelf_menu": catalog.get_shelf_menu_open(),
             "shelf_page": catalog.get_shelf_page(), "shelf_pages": catalog.get_shelf_pages(),
             "query": catalog.get_query().as_str(), "composition": catalog.get_composition().as_str(),
@@ -1648,10 +1661,16 @@ fn ui_state(ui: &AppWindow) -> serde_json::Value {
             "candidate_pages": catalog.get_candidate_pages(), "candidates": candidates,
             "detail_id": catalog.get_detail().id.as_str(), "download_selecting": catalog.get_download_selecting(),
             "episode_page": catalog.get_episode_page(), "episode_pages": catalog.get_episode_pages(),
-            "episode_filter": catalog.get_episode_filter().as_str(), "selection_count": catalog.get_selection_count(),
-            "selection_size": catalog.get_selection_size().as_str()
-        },
-        "downloads": {
+            "episode_filter": catalog.get_episode_filter().as_str(), "episode_descending": catalog.get_episode_descending(),
+            "selection_count": catalog.get_selection_count(),
+            "detail_back": catalog.get_detail_back_label().as_str(), "locate_visible": catalog.get_detail_locate_visible(),
+            "page_selected": catalog.get_detail_page_selected(), "can_select_page": catalog.get_detail_can_select_page(),
+            "shelf_state": catalog.get_shelf_state().as_str(), "shelf_filter": catalog.get_shelf_filter().as_str(),
+            "store_page": catalog.get_store_page(), "store_pages": catalog.get_store_pages(), "category_picker": catalog.get_category_picker_open(),
+            "search_state": catalog.get_search_state().as_str(), "search_results": catalog.get_search_items().row_count(),
+            "search_page": catalog.get_search_page(), "numeric": catalog.get_numeric()
+    });
+    let download_state = serde_json::json!({
             "status_summary": downloads.get_status_summary().as_str(),
             "summary": downloads.get_summary().as_str(), "selecting": downloads.get_selecting(),
             "all_paused": downloads.get_all_paused(), "has_active": downloads.get_has_active(),
@@ -1659,10 +1678,13 @@ fn ui_state(ui: &AppWindow) -> serde_json::Value {
             "task_primary_action": downloads.get_task_primary_action().as_str(),
             "task_secondary_action": downloads.get_task_secondary_action().as_str(),
             "can_read": downloads.get_can_read(), "selected_count": downloads.get_selected_count(),
+            "page": downloads.get_page(), "page_count": downloads.get_page_count(),
+            "chapter_page": downloads.get_chapter_page(), "chapter_page_count": downloads.get_chapter_page_count(),
             "items": items
-        },
-        "reader": {
-            "fit": reader.get_fit().as_str(),
+    });
+    let reader_state = serde_json::json!({
+            "fit": reader.get_fit().as_str(), "direction": reader.get_direction().as_str(),
+            "return_label": reader.get_return_label().as_str(), "download_state": reader.get_download_state().as_str(),
             "refresh_mode": reader.get_refresh_mode().as_str(),
             "refresh_mode_note": reader.get_refresh_mode_note().as_str(),
             "presented_fast_mode": reader.get_presented_fast_mode(),
@@ -1687,8 +1709,15 @@ fn ui_state(ui: &AppWindow) -> serde_json::Value {
             "thumbnail_count": ui.global::<ReaderModel>().get_thumbnails().row_count(),
             "panel": ui.global::<ReaderModel>().get_panel_index(),
             "strip_screen": ui.global::<ReaderModel>().get_strip_screen(),
-            "transition": ui.global::<ReaderModel>().get_transition()
-        }
+            "transition": reader.get_transition()
+    });
+    serde_json::json!({
+        "route": shell.get_route().as_str(), "toast": shell.get_toast().as_str(),
+        "online": shell.get_online(), "download_badge": shell.get_pending(),
+        "sleep_cover_visible": ui.global::<SleepScreenModel>().get_active(),
+        "native_media": bilicomics::native_media::statistics(),
+        "account": account_state, "catalog": catalog_state, "downloads": download_state,
+        "reader": reader_state, "auth": auth_state, "purchase": purchase_state,
     })
 }
 

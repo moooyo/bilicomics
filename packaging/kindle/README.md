@@ -47,11 +47,11 @@ The [internal-storage proposal](../../docs/PERFORMANCE_OPPORTUNITIES_20261122.md
 
 ## Model and firmware gate
 
-Copy `device-profile.example` into the runtime data directory as `device-profile` only for an explicitly selected acceptance run. Supported geometry identifiers in the source are `pw5`, `pw6`, `scribe`, and `scribe2025`; identifiers select reference geometries rather than certify hardware compatibility.
+Copy `device-profile.example` into the runtime data directory as `device-profile` only for an explicitly selected acceptance run. The source defines `pw5`, `pw6`, `scribe`, and `scribe2025`. These identifiers specify the expected native framebuffer and do not certify hardware compatibility.
 
 The runtime `device-allowlist` contains exact two-field entries, `profile firmware`, added only after the relevant supervised acceptance decision. The repository example intentionally includes no entry. The launcher reads the actual firmware from `/etc/prettyversion.txt` and parses both configuration files as data, never as shell commands.
 
-Only after an exact match does the launcher export `BILICOMICS_APPROVED_PROFILE` and `BILICOMICS_APPROVED_FIRMWARE`. Native initialization requires those values and rejects a framebuffer whose visible resolution or panning offsets differ from the selected reference geometry. No experimental display geometry override from the reference project is enabled in BiliComics.
+Only after an exact match does the launcher export `BILICOMICS_APPROVED_PROFILE` and `BILICOMICS_APPROVED_FIRMWARE`. Native initialization requires those values, an exact match to the profile's visible framebuffer dimensions, and zero panning offsets. For `pw6`, the expected native framebuffer is 1272 × 1696, independent of the 1264 × 1680 desktop design captures. No experimental display geometry override from the reference project is enabled in BiliComics.
 
 ## Display ownership, sleep, and exit
 

@@ -1,0 +1,21 @@
+{
+  "handoff_pending_tasks": " 项进行中",
+  "handoff_back_detail": "详情",
+  "handoff_back_directory": "目录",
+  "handoff_back_reader": "阅读",
+  "handoff_return_reading": "返回阅读",
+  "handoff_batch_download": "批量下载",
+  "handoff_select_page": "本页全选",
+  "handoff_unselect_page": "取消本页",
+  "handoff_detail_chapters": "章节",
+  "handoff_detail_description": "简介",
+  "handoff_detail_empty": "没有符合条件的章节",
+  "handoff_not_started": "未开始",
+  "handoff_unavailable": "不可用",
+  "handoff_queued": "排队中",
+  "handoff_serializing": "连载中",
+  "handoff_select_chapter": "选择章节",
+  "handoff_chapter_state": "{status} · {count} 话",
+  "handoff_chapter_position": "第 {episode} 话 · {page} / {total}",
+  "handoff_chapter_position_unknown": "第 {episode} 话"
+}

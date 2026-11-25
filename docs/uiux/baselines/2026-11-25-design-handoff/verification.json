@@ -1,0 +1,37 @@
+{
+  "reference": {
+    "archive": "bilicomics-design-handoff.zip",
+    "canvas_date": "2026-11-23",
+    "reference_images": 215
+  },
+  "desktop_source": {
+    "base_revision": "32380fce736d4b45d84f0b738640f4efccc0e402",
+    "working_tree_snapshot": true,
+    "run": "bilicomics-ui-handoff-20261125.Yy6SLU",
+    "executable_bytes": 257084248,
+    "host": "test-env",
+    "renderer": "Slint winit software under private Xvfb"
+  },
+  "walkthrough": {
+    "profiles": {"pw6": 111, "scribe": 104},
+    "dimension_matched_design_states": 215,
+    "application_replay_images": 151,
+    "pointer_selected_images": 10,
+    "presentation_fixture_images": 54,
+    "application_replay_checks_passed_after_network_replay": 171,
+    "pointer_flows_passed": 8,
+    "pointer_observations": 24,
+    "pixel_equality_claimed": false,
+    "live_account_used": false,
+    "physical_device_used": false
+  },
+  "tests": {
+    "library_passed": 901,
+    "library_ignored": 7,
+    "production_flow_passed": 2,
+    "download_batching_passed": 1,
+    "sleep_ui_passed": 1,
+    "exceptional_presentation_passed": 1,
+    "native_signing_ignored": 5
+  }
+}

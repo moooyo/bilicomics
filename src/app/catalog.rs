@@ -4,7 +4,9 @@ use std::{
     time::{Duration, Instant},
 };
 
-use anyhow::{Context, Result};
+use anyhow::Result;
+#[cfg(test)]
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use slint::ComponentHandle;
 
@@ -21,6 +23,7 @@ use crate::{
 
 const SHELF_BATCH: u32 = 100;
 const SEARCH_BATCH: u32 = 100;
+const SEARCH_PER_PAGE: usize = 5;
 const MAX_SHELF_BATCHES: u32 = 20;
 const AUTH_RETURN_LIFETIME: Duration = Duration::from_secs(600);
 const LOCAL_SCAN_INTERVAL: Duration = Duration::from_secs(30);
@@ -316,20 +319,19 @@ impl CatalogState {
             "search" => self.comics.iter().take(6).cloned().collect(),
             "shelf" => {
                 let mut shelf: Vec<_> = self.comics.iter().filter(|comic| self.shelf_ids.contains(&comic.id))
-                    .filter(|comic| !demo || scribe || comic.extra["shelf_order"].as_u64().is_some_and(|order| order < 12))
-                    .filter(|comic| (!scribe && self.saved.filter != "all") || Some(comic.id.as_str()) != resume)
+                    .filter(|comic| !show_shelf_resume(scribe, &self.saved.filter) || Some(comic.id.as_str()) != resume)
                     .filter(|comic| match self.saved.filter.as_str() {
                         "updated" => comic.extra["updated"].as_bool().unwrap_or(false),
                         "downloaded" => self.local_snapshot.downloaded_comics.contains(&comic.id),
-                        "finished" => comic.finished,
+                        "finished" => catalog_finished(comic, demo),
                         _ => true,
                     }).cloned().collect();
                 if demo { shelf.sort_by_key(|comic| comic.extra["shelf_order"].as_u64().unwrap_or(u64::MAX)); }
-                let per_page = match (scribe, self.saved.view.as_str()) {
-                    (true, "list") => 6, (true, _) => 10, (false, "list") => 7, _ => 6,
-                };
+                let per_page = shelf_page_size(scribe, &self.saved.view);
                 let mut visible = page_slice(&shelf, self.saved.shelf_page.min(page_count(shelf.len(), per_page)), per_page);
-                if let Some(comic) = resume.and_then(|id| self.comics.iter().find(|comic| comic.id == id)) {
+                if let Some(comic) = resume.filter(|_| show_shelf_resume(scribe, &self.saved.filter))
+                    .and_then(|id| self.comics.iter().find(|comic| comic.id == id))
+                {
                     visible.push(comic.clone());
                 }
                 visible
@@ -455,7 +457,7 @@ impl App {
         self.catalog.selecting = true;
         self.catalog.detail_filter = "all".into();
         self.catalog.detail_descending = false;
-        if let Some(position) = first { self.catalog.detail_page = position / if self.is_scribe() { 9 } else { 7 } + 1; }
+        if let Some(position) = first { self.catalog.detail_page = position / self.chapter_page_capacity() + 1; }
         self.catalog.status.clear();
         self.toast("cat_login_reconfirm");
     }
@@ -475,92 +477,76 @@ impl App {
         }
     }
 
+    pub(super) fn close_catalog_popovers(&mut self) {
+        self.catalog.shelf_menu = false;
+        self.catalog.category_picker = false;
+    }
+
     fn refresh_catalog_shelf_view(&mut self, ui: &AppWindow) -> Result<()> {
         let presentation = ui.global::<CatalogModel>();
-        let resume_id = self.catalog_resume_id()?;
-        let mut shelf: Vec<Comic> = self.catalog.comics.iter()
+        let resume = self.catalog_resume_id()?.and_then(|id| {
+            self.catalog.comics.iter().find(|comic| comic.id == id).cloned()
+        });
+        let resume_id = resume.as_ref().map(|comic| comic.id.as_str());
+        let mut shelf: Vec<_> = self.catalog.comics.iter()
             .filter(|comic| self.catalog.shelf_ids.contains(&comic.id)).cloned().collect();
         if self.demo.is_some() {
             shelf.sort_by_key(|comic| comic.extra["shelf_order"].as_u64().unwrap_or(u64::MAX));
-            if !self.is_scribe() { shelf.retain(|comic| comic.extra["shelf_order"].as_u64().is_some_and(|order| order < 12)); }
         } else {
             for comic in &mut shelf {
-                if let Some(anchor) = self.store.load_anchor(&self.account, &comic.id)? { comic.last_read_at = comic.last_read_at.max(anchor.updated_at); }
+                if let Some(anchor) = self.store.load_anchor(&self.account, &comic.id)? {
+                    comic.last_read_at = comic.last_read_at.max(anchor.updated_at);
+                }
             }
             shelf.sort_by(|left, right| right.last_read_at.cmp(&left.last_read_at)
                 .then_with(|| right.updated_at.cmp(&left.updated_at)));
         }
-        if self.is_scribe() { shelf.retain(|comic| Some(&comic.id) != resume_id.as_ref()); }
-        let full_shelf_count = shelf.len();
-        let filter_counts = [
-            full_shelf_count,
-            shelf.iter().filter(|comic| comic.extra["updated"].as_bool().unwrap_or(false)).count(),
-            shelf.iter().filter(|comic| self.comic_has_download(comic)).count(),
-            shelf.iter().filter(|comic| comic.finished).count(),
-        ];
         let inventory_pending = !self.catalog.local_snapshot.checked_all;
-        presentation.set_filter_counts(model(filter_counts.into_iter().enumerate().map(|(index, count)| {
-            if index == 2 && inventory_pending { tr("common_unknown") }
-            else { i18n::format("cat_comic_count", &[("count", count.to_string())]).into() }
-        }).collect()));
+        let filter_counts = ["all", "updated", "downloaded", "finished"].into_iter().map(|filter| {
+            if filter == "downloaded" && inventory_pending { return tr("common_unknown"); }
+            let count = shelf.iter().filter(|comic| self.shelf_entry_visible(comic, filter, resume_id)).count();
+            i18n::format("cat_comic_count", &[("count", count.to_string())]).into()
+        }).collect();
+        presentation.set_filter_counts(model(filter_counts));
         let local_downloads = if self.demo.is_some() && !self.is_scribe() {
             self.catalog.comics.iter().filter(|comic| self.comic_has_download(comic)).count()
         } else { self.catalog.local_snapshot.downloaded_comics.len() };
         presentation.set_local_download_count(if inventory_pending { -1 } else { local_downloads.try_into().unwrap_or(i32::MAX) });
-        presentation.set_shelf_offline(self.options.offline && !self.online);
-        let filter = self.catalog.saved.filter.clone();
-        shelf.retain(|comic| match filter.as_str() {
-            "updated" => comic.extra["updated"].as_bool().unwrap_or(false),
-            "downloaded" => self.comic_has_download(comic),
-            "finished" => comic.finished,
-            _ => true,
-        });
-        if filter == "all" { shelf.retain(|comic| Some(&comic.id) != resume_id.as_ref()); }
-        let shelf_per = self.shelf_per_page();
-        let shelf_pages = page_count(shelf.len(), shelf_per);
-        let presented_page = self.catalog.saved.shelf_page.clamp(1, shelf_pages);
-        if filter != "downloaded" || !inventory_pending { self.catalog.saved.shelf_page = presented_page; }
-        let visible_shelf = page_slice(&shelf, presented_page, shelf_per);
-        let mut shelf_views = Vec::with_capacity(visible_shelf.len());
-        for comic in visible_shelf { shelf_views.push(self.shelf_comic_view(&comic)); }
-        presentation.set_shelf_items(model(shelf_views));
-        presentation.set_shelf_view(self.catalog.saved.view.clone().into());
-        presentation.set_shelf_filter(filter.clone().into());
-        presentation.set_shelf_menu_open(self.catalog.shelf_menu);
-        presentation.set_shelf_page(presented_page as i32);
-        presentation.set_shelf_pages((shelf_pages + usize::from(self.catalog.shelf_has_more)) as i32);
+
         let authenticated = self.demo.is_some() || self.client.session()
             .and_then(|session| session.account_key().map(str::to_owned)).is_some();
         let state = if !authenticated { "signed-out" }
-            else if self.catalog.shelf_syncing && full_shelf_count == 0 { "syncing" }
-            else if full_shelf_count == 0 && resume_id.is_none() { "empty" } else { "ready" };
-        presentation.set_shelf_state(state.into());
-        if self.catalog.status.is_empty() && state == "syncing" {
-            presentation.set_status_message(tr("cat_first_sync_message"));
-        }
-        let count_key = if self.catalog.shelf_has_more { "cat_loaded_count" }
-            else if filter != "all" { "cat_filtered_count" } else { "cat_remaining_count" };
-        presentation.set_shelf_count_label(if filter == "downloaded" && inventory_pending { tr("cat_local_download_checking") }
-            else { i18n::format(count_key, &[
-            ("count", shelf.len().to_string()), ("total", full_shelf_count.to_string()),
-        ]).into() });
-        presentation.set_sync_label(if self.demo.is_some() && self.catalog.last_sync > 0 {
-                let count = self.catalog.comics.iter().filter(|comic| self.catalog.shelf_ids.contains(&comic.id))
-                    .filter(|comic| self.is_scribe() || comic.extra["shelf_order"].as_u64().is_some_and(|order| order < 12)).count();
-                i18n::format("cat_just_synced", &[("count", count.to_string())]).into()
-            } else if self.demo.is_some() { tr("cat_demo_sync_time") }
-            else if self.catalog.last_sync > 0 {
-                let time = chrono::DateTime::from_timestamp(self.catalog.last_sync, 0)
-                    .map(|time| (time + chrono::Duration::hours(8)).format("%H:%M").to_string()).unwrap_or_default();
-                i18n::format("cat_sync_time", &[("time", time)]).into()
-            } else { tr("cat_not_synced") });
-        if let Some(id) = resume_id {
-            if let Some(comic) = self.catalog.comics.iter().find(|comic| comic.id == id).cloned() {
-                let resume = self.resume_comic_view(&comic)?;
-                presentation.set_resume(resume);
-                presentation.set_has_resume(true);
-            } else { presentation.set_has_resume(false); }
+            else if shelf.is_empty() && resume.is_none() {
+                if self.catalog.shelf_syncing { "syncing" } else { "empty" }
+            } else { "ready" };
+        let filter = self.catalog.saved.filter.clone();
+        shelf.retain(|comic| self.shelf_entry_visible(comic, &filter, resume_id));
+        let per_page = self.shelf_per_page();
+        let pages = page_count(shelf.len(), per_page);
+        let page = self.catalog.saved.shelf_page.clamp(1, pages);
+        if filter != "downloaded" || !inventory_pending { self.catalog.saved.shelf_page = page; }
+        let visible = if state == "ready" { page_slice(&shelf, page, per_page) } else { Vec::new() };
+        let views = visible.iter().map(|comic| self.shelf_comic_view(comic)).collect();
+        presentation.set_shelf_items(model(views));
+        presentation.set_shelf_view(self.catalog.saved.view.clone().into());
+        presentation.set_shelf_filter(filter.clone().into());
+        presentation.set_shelf_menu_open(self.catalog.shelf_menu);
+        presentation.set_shelf_page(page as i32);
+        presentation.set_shelf_pages((pages + usize::from(self.catalog.shelf_has_more)) as i32);
+        let count_label = if filter == "downloaded" && inventory_pending { tr("cat_local_download_checking") }
+            else { i18n::format("cat_remaining_count", &[("count", shelf.len().to_string())]).into() };
+        presentation.set_shelf_count_label(count_label);
+        let sync_clock = chrono::DateTime::from_timestamp(self.catalog.last_sync, 0)
+            .filter(|_| self.catalog.last_sync > 0)
+            .map(|time| (time + chrono::Duration::hours(8)).format("%H:%M").to_string());
+        presentation.set_sync_label(sync_clock.map_or_else(|| {
+            if self.demo.is_some() { tr("cat_shelf_demo_sync_clock") } else { "".into() }
+        }, Into::into));
+        if let Some(comic) = resume.filter(|_| state == "ready" && show_shelf_resume(self.is_scribe(), &filter)) {
+            presentation.set_resume(self.resume_comic_view(&comic));
+            presentation.set_has_resume(true);
         } else { presentation.set_has_resume(false); }
+        presentation.set_shelf_state(state.into());
         Ok(())
     }
 
@@ -575,6 +561,7 @@ impl App {
             let mut item = self.comic_view(&comic);
             item.meta = self.catalog_status(&comic).into();
             item.in_shelf = self.catalog.shelf_ids.contains(&comic.id);
+            item.badge = if self.store_tile_network_required(&comic.id) { tr("cat_network_required") } else { "".into() };
             store_views.push(item);
         }
         presentation.set_store_items(model(store_views));
@@ -587,12 +574,10 @@ impl App {
         }));
         presentation.set_categories(model(categories));
         presentation.set_category_label(self.catalog.saved.category_label.clone().into());
-        let category_key = if self.options.offline { "cat_saved_recommendations" }
-            else if self.catalog.saved.category == "all" { "cat_recommendation_count" } else { "cat_category_count" };
-        presentation.set_category_meta(i18n::format(category_key, &[("count", self.catalog.store_comics.len().to_string())]).into());
-        if self.is_scribe() && !self.options.offline && !self.catalog.store_comics.is_empty() {
-            presentation.set_category_meta(format!("{} · {}", i18n::format(category_key, &[("count", self.catalog.store_comics.len().to_string())]), i18n::text("cat_saved_browsable")).into());
-        }
+        presentation.set_category_filtered(self.catalog.saved.category != "all");
+        // Category responses only expose a continuation flag, not a server-side total.
+        let count_key = if self.catalog.store_has_more { "cat_store_minimum_count" } else { "cat_store_total_count" };
+        presentation.set_category_meta(i18n::format(count_key, &[("count", self.catalog.store_comics.len().to_string())]).into());
         presentation.set_category_picker_open(self.catalog.category_picker);
         Ok(())
     }
@@ -602,7 +587,9 @@ impl App {
         presentation.set_query(self.catalog.input.query.clone().into());
         presentation.set_composition(self.catalog.input.composition.clone().into());
         presentation.set_keyboard_visible(self.catalog.keyboard);
-        presentation.set_search_state(if self.catalog.search_loading { "loading" } else if self.catalog.keyboard { "recent" } else { "results" }.into());
+        presentation.set_search_state(if self.catalog.keyboard { "recent" }
+            else if self.catalog.search_loading { "loading" }
+            else if self.catalog.submitted_query.is_empty() { "idle" } else { "results" }.into());
         if self.catalog.keyboard {
             self.refresh_catalog_search_input(ui)
         } else {
@@ -622,37 +609,49 @@ impl App {
         presentation.set_latin(self.catalog.input.language == InputLanguage::English);
         presentation.set_numeric(self.catalog.input.language == InputLanguage::Numeric);
         presentation.set_history(model(self.catalog.history.iter().take(if self.is_scribe() { 5 } else { 4 }).map(|entry| SearchHistoryItem {
-            query: entry.query.clone().into(), meta: entry.count.map(|count| i18n::format("cat_comic_count", &[("count", count.to_string())])).unwrap_or_default().into(),
+            query: entry.query.clone().into(),
+            meta: if is_comic_id_query(&entry.query) { tr("cat_search_comic_id") }
+                else { entry.count.map(|count| i18n::format("cat_comic_count", &[("count", count.to_string())])).unwrap_or_default().into() },
         }).collect()));
-        let suggestion_query = self.catalog.input.query.trim().to_lowercase();
-        let suggestions: Vec<Comic> = if suggestion_query.is_empty() { Vec::new() } else {
-            self.catalog.comics.iter().filter(|comic| matches_query(comic, &suggestion_query)).take(6).cloned().collect()
-        };
-        let suggestion_views = suggestions.iter().map(|comic| self.comic_view(comic)).collect();
-        presentation.set_suggestions(model(suggestion_views));
+        let input = &self.catalog.input;
+        let mut queries = BTreeSet::new();
+        if input.language != InputLanguage::Numeric {
+            queries.insert(format!("{}{}", input.query, input.composition).trim().to_lowercase());
+            queries.extend(candidate_pool.iter().take(candidate_limit).map(|candidate| {
+                format!("{}{}", input.query, candidate.text).trim().to_lowercase()
+            }));
+            queries.retain(|query| !query.is_empty());
+        }
+        let suggestions = self.catalog.comics.iter()
+            .filter(|comic| self.catalog.shelf_ids.contains(&comic.id) && queries.iter().any(|query| matches_query(comic, query)))
+            .take(6).map(|comic| ComicItem { id: comic.id.clone().into(), title: comic.title.clone().into(), ..Default::default() })
+            .collect();
+        presentation.set_suggestions(model(suggestions));
         Ok(())
     }
 
     fn refresh_catalog_search_results(&mut self, ui: &AppWindow) -> Result<()> {
         let presentation = ui.global::<CatalogModel>();
-        let search_per = if self.is_scribe() { 5 } else { 5 };
-        let search_pages = page_count(self.catalog.results.len(), search_per);
+        let search_pages = page_count(self.catalog.results.len(), SEARCH_PER_PAGE);
         self.catalog.search_page = self.catalog.search_page.clamp(1, search_pages);
-        let search_comics = page_slice(&self.catalog.results, self.catalog.search_page, search_per);
+        let search_comics = page_slice(&self.catalog.results, self.catalog.search_page, SEARCH_PER_PAGE);
         let mut search_views = Vec::with_capacity(search_comics.len());
         for comic in search_comics {
             let mut item = self.comic_view(&comic);
-            item.subtitle = if self.is_scribe() { join_nonempty(&[&comic.author, &comic.genre, &self.status_only(&comic)]) }
-                else { join_nonempty(&[&comic.author, &comic.genre]) }.into();
-            item.meta = self.status_only(&comic).into();
-            item.read_label = self.continue_label(&comic).into();
+            let finished = catalog_finished(&comic, self.demo.is_some());
+            item.meta = if comic.chapter_count > 0 {
+                i18n::format(if finished { "cat_result_finished" } else { "cat_result_serial" }, &[("count", comic.chapter_count.to_string())])
+            } else if finished { i18n::text("cat_finished") } else { self.status_only(&comic) }.into();
+            let has_progress = self.store.load_anchor(&self.account, &comic.id)?.is_some() || comic.last_episode_id.is_some();
+            let can_continue = has_progress && (!finished || self.restart_episode(&comic.id)?.is_none());
+            item.read_label = tr(if can_continue { "cat_continue_reading" } else { "cat_read_first" });
             item.in_shelf = self.catalog.shelf_ids.contains(&comic.id);
             search_views.push(item);
         }
         presentation.set_search_items(model(search_views));
         presentation.set_search_page(self.catalog.search_page as i32);
         presentation.set_search_pages((search_pages + usize::from(self.catalog.search_has_more)) as i32);
-        presentation.set_search_result_label(i18n::format(if self.catalog.search_has_more { "cat_search_loaded_label" } else { "cat_search_result_label" }, &[
+        presentation.set_search_result_label(i18n::format("cat_search_result_label", &[
             ("query", self.catalog.submitted_query.clone()), ("count", self.catalog.results.len().to_string()),
         ]).into());
         presentation.set_empty_search_title(i18n::format("cat_no_results_query", &[("query", self.catalog.submitted_query.clone())]).into());
@@ -660,51 +659,106 @@ impl App {
     }
 
     fn refresh_catalog_detail_view(&mut self, ui: &AppWindow) -> Result<()> {
+        let current = self.catalog.detail.as_ref().map(|detail| self.detail_current_episode(detail)).transpose()?.flatten();
+        self.refresh_chapter_book(ui, current.as_deref(), None, None)
+    }
+
+    pub(super) fn refresh_chapter_book(&mut self, ui: &AppWindow, current: Option<&str>,
+        position: Option<(usize, usize)>, directory: Option<(usize, &str, bool)>) -> Result<()> {
         let presentation = ui.global::<CatalogModel>();
+        presentation.set_detail_back_label(self.destination_label(&self.detail_origin).into());
+        presentation.set_detail_loading(directory.is_none() && self.catalog.detail_loading);
+        let (page, filter, descending) = directory.map(|(page, filter, descending)| (page, filter.to_owned(), descending))
+            .unwrap_or_else(|| (self.catalog.detail_page, self.catalog.detail_filter.clone(), self.catalog.detail_descending));
+        let mut rows = Vec::new();
         if let Some(detail) = self.catalog.detail.clone() {
             let mut item = self.comic_view(&detail.comic);
-            if self.demo.is_some() {
-                let variant = self.data_dir.join("fixtures").join("covers").join(format!("cover-{}-detail.png", detail.comic.id));
-                if variant.is_file() { item.cover = super::load_image(&variant); }
-            }
-            item.subtitle = join_nonempty(&[&detail.comic.author, &detail.comic.genre]).into();
-            item.meta = if self.demo.is_some() { i18n::format("cat_updating_to", &[("episode", display_order(detail.comic.latest_order))]) }
-                else { self.status_only(&detail.comic) }.into();
-            item.read_label = self.continue_label(&detail.comic).into();
+            item.meta = i18n::format("handoff_chapter_state", &[
+                ("status", i18n::text(if detail.comic.finished { "cat_finished" } else { "handoff_serializing" })),
+                ("count", detail.episodes.len().max(detail.comic.chapter_count as usize).to_string())]).into();
+            let episode = current.and_then(|id| detail.episodes.iter().find(|episode| episode.id == id));
+            let anchor = self.store.load_anchor(&self.account, &detail.comic.id)?;
+            let position = position.or_else(|| {
+                let anchor = anchor.as_ref().filter(|anchor| current == Some(anchor.episode_id.as_str()))?;
+                let index = self.store.load_index(&self.account, &anchor.episode_id, Some(&anchor.revision)).ok().flatten()
+                    .or_else(|| self.store.load_index(&self.account, &anchor.episode_id, None).ok().flatten())?;
+                Some((anchor.page_index + 1, index.images.len()))
+            });
+            item.subtitle = match (episode, position) {
+                (Some(episode), Some((page, total))) => i18n::format("handoff_chapter_position", &[
+                    ("episode", display_order(episode.order)), ("page", page.to_string()), ("total", total.to_string())]),
+                (Some(episode), None) => i18n::format("handoff_chapter_position_unknown", &[("episode", display_order(episode.order))]),
+                _ => i18n::text("handoff_not_started"),
+            }.into();
+            item.read_label = tr(if current.is_some() && self.restart_episode_for_detail(&detail).is_none() { "cat_continue_reading" } else { "cat_read_first" });
             item.in_shelf = self.catalog.shelf_ids.contains(&detail.comic.id);
             presentation.set_detail(item);
-            presentation.set_detail_genres(model(detail.comic.genre.split(['/', '·']).map(str::trim).filter(|genre| !genre.is_empty()).take(2).map(Into::into).collect()));
-            presentation.set_detail_id_label(i18n::format("cat_comic_id", &[("id", detail.comic.id.clone())]).into());
             presentation.set_detail_total(detail.episodes.len() as i32);
-            let episode_rows = self.filtered_episodes(&detail)?;
-            let per = if self.is_scribe() { 9 } else { 7 };
-            let pages = page_count(episode_rows.len(), per);
-            self.catalog.detail_page = self.catalog.detail_page.clamp(1, pages);
-            let rows = page_slice(&episode_rows, self.catalog.detail_page, per).iter().map(|episode| self.episode_view(&detail, episode)).collect::<Result<Vec<_>>>()?;
-            presentation.set_episodes(model(rows));
-            presentation.set_episode_page(self.catalog.detail_page as i32);
+            let timestamp = now();
+            presentation.set_detail_unread(detail.episodes.iter().filter(|episode| !episode.read && current != Some(episode.id.as_str())).count() as i32);
+            presentation.set_detail_readable(detail.episodes.iter().filter(|episode| episode.readable_at(timestamp)).count() as i32);
+            presentation.set_detail_downloaded(detail.episodes.iter().filter(|episode| self.reader_episode_downloaded(episode)).count() as i32);
+            let per = self.chapter_page_capacity();
+            let episodes = self.chapter_episodes(&detail, current, &filter, descending);
+            let pages = page_count(episodes.len(), per);
+            let page = page.clamp(1, pages);
+            if directory.is_none() { self.catalog.detail_page = page; }
+            rows = page_slice(&episodes, page, per).iter().map(|episode| {
+                let mut item = self.episode_view_at(episode, current, position)?;
+                item.selected = self.catalog.selected.contains(&episode.id) && !item.downloaded && !item.queued;
+                Ok(item)
+            }).collect::<Result<Vec<_>>>()?;
+            presentation.set_episode_page(page as i32);
             presentation.set_episode_pages(pages as i32);
+            let current_page = current.and_then(|id| episodes.iter().position(|episode| episode.id == id))
+                .map(|position| position / per + 1);
+            presentation.set_detail_locate_visible(current_page.is_some_and(|target| target != page));
         } else {
             self.catalog.detail_page = 1;
             presentation.set_detail(ComicItem::default());
-            presentation.set_episodes(model(Vec::new()));
-            presentation.set_detail_id_label("".into());
             presentation.set_detail_total(0);
-            presentation.set_detail_genres(model(Vec::new()));
+            presentation.set_detail_unread(0);
+            presentation.set_detail_readable(0);
+            presentation.set_detail_downloaded(0);
             presentation.set_episode_page(1);
             presentation.set_episode_pages(1);
+            presentation.set_detail_locate_visible(false);
         }
-        presentation.set_episode_filter(self.catalog.detail_filter.clone().into());
-        presentation.set_episode_descending(self.catalog.detail_descending);
+        let eligible = |row: &&EpisodeItem| row.readable && !row.downloaded && !row.queued;
+        let can_select = rows.iter().any(|row| eligible(&row));
+        presentation.set_detail_can_select_page(can_select);
+        presentation.set_detail_page_selected(can_select && rows.iter().filter(eligible).all(|row| row.selected));
+        presentation.set_episodes(model(rows));
+        presentation.set_episode_filter(filter.into());
+        presentation.set_episode_descending(descending);
         presentation.set_download_selecting(self.catalog.selecting);
         presentation.set_selection_count(self.catalog.selected.len() as i32);
-        presentation.set_selection_size(self.selection_size_label()?.into());
         Ok(())
+    }
+
+    pub(super) fn detail_selection_active(&self) -> bool { self.catalog.selecting }
+
+    pub(super) fn close_detail_selection(&mut self) {
+        self.catalog.selecting = false;
+        self.catalog.selected.clear();
     }
 
     pub(super) fn catalog_action(&mut self, action: &str, value: &str) -> Result<()> {
         if matches!(action, "detail.download" | "detail.select-page" | "episode.select") {
             self.catalog.auth_detail_pending = None;
+        }
+        if self.reader_directory_open() {
+            match action {
+                "detail.back" | "detail.read" => return self.reader_action("menu", "close"),
+                "detail.locate" => return self.reader_action("toc", "locate"),
+                "episode.sort" => return self.reader_action("toc", "sort"),
+                "episode.filter" => return self.reader_action("toc", &format!("filter:{value}")),
+                "episode.page" => return self.reader_action("toc", if page_delta(value) < 0 { "previous" } else { "next" }),
+                "episode.open" if !self.catalog.selecting && self.catalog.detail.as_ref().is_some_and(|detail|
+                    detail.episodes.iter().any(|episode| episode.id == value && episode.readable_at(now()))) =>
+                    return self.reader_action("episode", value),
+                _ => {}
+            }
         }
         match action {
             "navigate" => {
@@ -712,17 +766,16 @@ impl App {
                 self.navigate(value);
             }
             "comic.open" => {
-                if self.catalog_tile_network_required(value) && !self.require_network("catalog", action, value) { return Ok(()); }
+                if (self.store_tile_network_required(value) || self.shelf_tile_network_required(value))
+                    && !self.require_network("catalog", action, value)
+                { return Ok(()); }
                 self.open_detail(value)?;
             }
             "comic.cover" => {
-                if self.catalog_tile_network_required(value) && !self.require_network("catalog", action, value) { return Ok(()); }
-                let comic = self.catalog.comics.iter().find(|comic| comic.id == value).cloned().or(self.store.comic(&self.account, value)?);
-                let has_history = self.store.load_anchor(&self.account, value)?.is_some()
-                    || comic.as_ref().is_some_and(|comic| comic.last_episode_id.is_some()
-                        || comic.extra["read_episode"].as_f64().is_some_and(|episode| episode > 0.0));
-                if has_history { self.open_reader_for_comic(value)?; } else { self.open_detail(value)?; }
+                if self.shelf_tile_network_required(value) && !self.require_network("catalog", action, value) { return Ok(()); }
+                self.open_reader_for_comic(value)?;
             }
+            "comic.read" if self.route == "search" => self.read_catalog_comic(value)?,
             "comic.read" => self.open_reader_for_comic(value)?,
             "shelf.menu" => self.catalog.shelf_menu = match value { "close" => false, "open" => true, _ => !self.catalog.shelf_menu },
             "shelf.view" if ["grid", "list"].contains(&value) => {
@@ -746,10 +799,11 @@ impl App {
                 let category = if value == "all" { Some(("all".to_owned(), i18n::text("cat_all_recommendations"))) }
                     else { self.catalog.categories.iter().find(|entry| entry.id == value).map(|entry| (entry.id.clone(), entry.name.clone())) };
                 if let Some((id, label)) = category {
+                    self.catalog.category_picker = false;
                     let cached = self.store.load_catalog(&self.account, &store_scope(&id))?;
-                    if self.options.offline && cached.is_empty() && !self.require_network("catalog", action, value) { return Ok(()); }
+                    if self.demo.is_none() && self.options.offline && cached.is_empty() && !self.require_network("catalog", action, value) { return Ok(()); }
                     self.catalog.saved.category = id; self.catalog.saved.category_label = label; self.catalog.saved.store_page = 1;
-                    self.catalog.category_picker = false; self.catalog.store_comics = cached;
+                    self.catalog.store_comics = cached;
                     self.catalog.store_has_more = false; self.catalog.store_loading = false;
                     self.invalidate("catalog:store"); self.persist_catalog_view()?; self.load_store();
                 }
@@ -760,13 +814,17 @@ impl App {
                 else { self.catalog.saved.store_page = change_page(self.catalog.saved.store_page, value, pages); self.persist_catalog_view()?; }
             }
             "search.open" => {
-                if !self.require_network("catalog", action, value) { return Ok(()); }
                 self.catalog.keyboard = true; self.catalog.id_input = false; self.catalog.status.clear(); self.navigate("search");
             }
             "search.keyboard" => {
-                if value == "show" { self.catalog.keyboard = true; self.invalidate("catalog:search"); self.catalog.search_loading = false; }
-                else if !self.catalog.input.query.trim().is_empty() || !self.catalog.input.composition.is_empty() {
-                    self.catalog.input.commit_raw(); self.run_catalog_search()?;
+                if value == "show" {
+                    self.catalog.keyboard = true;
+                    self.invalidate("catalog:search"); self.catalog.search_loading = false;
+                } else if !self.catalog.input.query.trim().is_empty() || !self.catalog.input.composition.is_empty() {
+                    self.catalog.input.commit_first(); self.run_catalog_search()?;
+                } else {
+                    self.catalog.keyboard = false;
+                    self.clear_catalog_search_results();
                 }
             }
             "search.key" => {
@@ -782,40 +840,44 @@ impl App {
                 self.catalog.input.press(if page_delta(value) < 0 { "candidate-prev" } else { "candidate-next" });
             }
             "search.clear" => {
-                self.catalog.input.clear(); self.catalog.keyboard = true; self.catalog.id_input = false;
-                self.catalog.status.clear(); self.catalog.search_loading = false; self.catalog.search_has_more = false;
-                self.catalog.search_page = 1; self.catalog.results.clear(); self.catalog.submitted_query.clear();
-                self.invalidate("catalog:search");
+                self.catalog.input.clear(); self.catalog.keyboard = true;
+                self.clear_catalog_search_results();
             }
             "search.history" => { self.catalog.input.set_query(value); self.catalog.id_input = false; self.run_catalog_search()?; }
             "search.history.clear" => { self.catalog.history.clear(); self.persist_search_history()?; }
             "search.by-id" => {
                 if is_comic_id_query(self.catalog.input.query.trim()) {
-                    let id = self.catalog.input.query.clone(); self.open_detail(&id)?;
+                    self.run_catalog_search()?;
                 } else {
-                    self.catalog.id_input = true; self.catalog.input.clear(); self.catalog.input.language = InputLanguage::Numeric;
-                    self.catalog.keyboard = true; self.toast("cat_enter_comic_id");
+                    self.catalog.id_input = true; self.catalog.input.clear();
+                    if self.catalog.input.language != InputLanguage::Numeric { self.catalog.input.press("numeric"); }
+                    self.catalog.keyboard = true;
+                    self.clear_catalog_search_results();
                 }
             }
             "search.page" => {
-                let pages = page_count(self.catalog.results.len(), 5);
+                let pages = page_count(self.catalog.results.len(), SEARCH_PER_PAGE);
                 if page_delta(value) > 0 && self.catalog.search_page >= pages && self.catalog.search_has_more { self.load_more_search(); }
                 else { self.catalog.search_page = change_page(self.catalog.search_page, value, pages); }
             }
             "detail.back" => self.go_back()?,
+            "detail.read" => self.read_catalog_comic(value)?,
             "detail.favorite" => self.change_catalog_favorite(value)?,
             "detail.download" => match value {
-                "cancel" => { self.catalog.selecting = false; self.catalog.selected.clear(); }
+                "cancel" => self.close_detail_selection(),
                 "confirm" => {
                     if self.catalog.selected.is_empty() || !self.require_session() || !self.require_network("catalog", action, value) { return Ok(()); }
                     let selected: Vec<_> = self.catalog.selected.iter().cloned().collect();
                     let available: BTreeSet<_> = self.catalog.detail.as_ref().map(|detail| detail.episodes.iter().map(|episode| episode.id.clone()).collect()).unwrap_or_default();
                     for id in selected {
                         if !available.contains(&id) { self.toast("cat_selection_changed"); return Ok(()); }
-                        if !self.try_enqueue_episode(&id, true)? { return Ok(()); }
+                        let retained = self.catalog.detail.as_ref().and_then(|detail| detail.episodes.iter().find(|episode| episode.id == id))
+                            .is_some_and(|episode| self.reader_episode_downloaded(episode));
+                        if !retained && !self.episode_download_queued(&id) && !self.try_enqueue_episode(&id, true)? { return Ok(()); }
                         self.catalog.selected.remove(&id);
                     }
-                    if self.catalog.selected.is_empty() { self.catalog.selecting = false; self.navigate("downloads"); }
+                    self.close_detail_selection();
+                    self.navigate("downloads");
                 }
                 _ => {
                     if self.require_network("catalog", action, value) && self.catalog.detail.is_some() {
@@ -823,11 +885,16 @@ impl App {
                     }
                 }
             },
-            "detail.select-page" => {
+            "detail.select-page" if self.catalog.selecting => {
                 if let Some(detail) = &self.catalog.detail {
-                    let rows = self.filtered_episodes(detail)?;
-                    for episode in page_slice(&rows, self.catalog.detail_page, if self.is_scribe() { 9 } else { 7 }) {
-                        if episode.readable_at(now()) { self.catalog.selected.insert(episode.id); }
+                    let (rows, page) = if let Some((current, page, filter, descending)) = self.reader_directory_context() {
+                        (self.chapter_episodes(detail, Some(current), filter, descending), page)
+                    } else { (self.filtered_episodes(detail)?, self.catalog.detail_page) };
+                    let selected: Vec<_> = page_slice(&rows, page, self.chapter_page_capacity()).iter()
+                        .filter(|episode| self.episode_selectable(episode)).map(|episode| episode.id.clone()).collect();
+                    let clear = selected.iter().all(|id| self.catalog.selected.contains(id));
+                    for id in selected {
+                        if clear { self.catalog.selected.remove(&id); } else { self.catalog.selected.insert(id); }
                     }
                 }
             }
@@ -839,20 +906,25 @@ impl App {
             "episode.sort" => { self.catalog.detail_descending = !self.catalog.detail_descending; self.catalog.detail_page = 1; }
             "episode.page" => {
                 if let Some(detail) = &self.catalog.detail {
-                    let pages = page_count(self.filtered_episodes(detail)?.len(), if self.is_scribe() { 9 } else { 7 });
+                    let pages = page_count(self.filtered_episodes(detail)?.len(), self.chapter_page_capacity());
                     self.catalog.detail_page = change_page(self.catalog.detail_page, value, pages);
                 }
             }
-            "episode.select" => {
-                if self.catalog.detail.as_ref().and_then(|detail| detail.episodes.iter().find(|episode| episode.id == value)).is_some_and(|episode| episode.readable_at(now())) {
+            "episode.select" if self.catalog.selecting => {
+                if self.catalog.detail.as_ref().and_then(|detail| detail.episodes.iter().find(|episode| episode.id == value)).is_some_and(|episode| self.episode_selectable(episode)) {
                     if !self.catalog.selected.remove(value) { self.catalog.selected.insert(value.into()); }
+                }
+            }
+            "episode.enqueue" => {
+                if self.catalog.detail.as_ref().and_then(|detail| detail.episodes.iter().find(|episode| episode.id == value)).is_some_and(|episode| self.episode_selectable(episode)) {
+                    self.try_enqueue_episode(value, true)?;
                 }
             }
             "episode.open" => {
                 if let Some(episode) = self.catalog.detail.as_ref().and_then(|detail| detail.episodes.iter().find(|episode| episode.id == value)).cloned() {
                     if episode.readable_at(now()) { self.open_episode(&episode.comic_id, &episode.id)?; }
                     else if matches!(episode.access, EpisodeAccess::Locked | EpisodeAccess::Temporary) {
-                        if self.require_network("catalog", action, value) && self.require_session() { self.open_purchase(&episode.id)?; }
+                        self.open_purchase(&episode.id)?;
                     } else { self.toast("cat_access_unknown"); }
                 }
             }
@@ -910,7 +982,11 @@ impl App {
             let mut comics: Vec<_> = demo.comics.iter().filter(|comic| comic.extra["store_order"].as_u64().is_some()).cloned().collect();
             comics.sort_by_key(|comic| comic.extra["store_order"].as_u64().unwrap_or(u64::MAX));
             comics.truncate(if self.is_scribe() { 20 } else { 18 });
-            if selected != "all" { comics.retain(|comic| genre.as_ref().is_some_and(|genre| comic.genre.contains(genre))); }
+            if selected != "all" {
+                comics.retain(|comic| genre.as_deref().is_some_and(|genre| {
+                    comic.genre.split(['/', '·']).any(|label| label.trim() == genre)
+                }));
+            }
             self.catalog.store_comics = comics; self.catalog.store_has_more = false;
             return;
         }
@@ -941,6 +1017,7 @@ impl App {
             if app.catalog.saved.category != category { return; }
             match result {
                 Ok((mut comics, has_more)) => {
+                    deduplicate_catalog_comics(&mut comics);
                     for comic in &mut comics { comic.favorite = app.catalog.shelf_ids.contains(&comic.id); }
                     if app.store.save_catalog(&app.account, &store_scope(&category), &comics).is_err() { app.toast("common_storage_error"); return; }
                     merge_comics(&mut app.catalog.comics, &comics);
@@ -983,7 +1060,7 @@ impl App {
                     merge_comics(&mut app.catalog.comics, std::slice::from_ref(&detail.comic));
                     if app.catalog.detail.as_ref().is_none_or(|current| current.comic.id == id) {
                         app.catalog.detail = Some(detail);
-                        if app.locate_catalog_episode().is_err() { app.toast("common_storage_error"); }
+                        if !app.reader_directory_open() && app.locate_catalog_episode().is_err() { app.toast("common_storage_error"); }
                         app.catalog.status.clear();
                         app.apply_catalog_auth_return();
                     }
@@ -996,21 +1073,28 @@ impl App {
         Ok(())
     }
 
+    fn clear_catalog_search_results(&mut self) {
+        self.catalog.status.clear(); self.catalog.search_loading = false; self.catalog.search_has_more = false;
+        self.catalog.search_page = 1; self.catalog.results.clear(); self.catalog.submitted_query.clear();
+        self.invalidate("catalog:search");
+    }
+
     fn run_catalog_search(&mut self) -> Result<()> {
         let query = self.catalog.input.query.trim().to_owned();
         if query.is_empty() { return Ok(()); }
-        if self.catalog.id_input {
+        if self.catalog.id_input || is_comic_id_query(&query) {
             let Some(id) = normalize_comic_id(&query) else { self.toast("cat_invalid_comic_id"); return Ok(()); };
+            let history_query = format!("mc{id}");
+            self.catalog.input.set_query(history_query.as_str());
             self.catalog.id_input = false;
+            self.remember_search_query(&history_query)?;
             return self.open_detail(&id);
         }
-        if is_comic_id_query(&query) { return self.open_detail(&query); }
-        if !self.require_network("catalog", "search.key", "enter") { return Ok(()); }
         if query.len() > 300 { self.toast("cat_search_too_long"); return Ok(()); }
-        self.catalog.keyboard = false; self.catalog.search_page = 1; self.catalog.submitted_query = query.clone(); self.catalog.status.clear();
-        self.catalog.history.retain(|entry| entry.query != query);
-        self.catalog.history.insert(0, HistoryEntry { query: query.clone(), count: None });
-        self.catalog.history.truncate(20); self.persist_search_history()?;
+        if self.demo.is_none() && !self.require_network("catalog", "search.key", "enter") { return Ok(()); }
+        self.clear_catalog_search_results();
+        self.catalog.keyboard = false; self.catalog.submitted_query = query.clone();
+        self.remember_search_query(&query)?;
         if let Some(demo) = &self.demo {
             let normalized = query.to_lowercase();
             let mut matches: Vec<_> = demo.comics.iter().filter(|comic| matches_query(comic, &normalized)).cloned().collect();
@@ -1027,9 +1111,11 @@ impl App {
             if app.catalog.submitted_query != query { return; }
             match result {
                 Ok(mut comics) => {
+                    let has_more = comics.len() == SEARCH_BATCH as usize;
+                    deduplicate_catalog_comics(&mut comics);
                     for comic in &mut comics { comic.favorite = app.catalog.shelf_ids.contains(&comic.id); }
                     if app.store.save_catalog(&app.account, &search_scope(&query), &comics).is_err() { app.toast("common_storage_error"); return; }
-                    app.catalog.search_has_more = comics.len() == SEARCH_BATCH as usize;
+                    app.catalog.search_has_more = has_more;
                     app.catalog.search_server_page = 1;
                     merge_comics(&mut app.catalog.comics, &comics);
                     app.catalog.results = comics;
@@ -1126,7 +1212,7 @@ impl App {
         if id.is_empty() || self.catalog.favorite_pending.contains(&id) { return Ok(()); }
         let favorite = !self.catalog.shelf_ids.contains(&id);
         if self.demo.is_some() { return self.apply_catalog_favorite(&id, favorite); }
-        if !self.require_network("catalog", "detail.favorite", &id) || !self.require_session() { return Ok(()); }
+        if !self.require_session() || !self.require_network("catalog", "detail.favorite", &id) { return Ok(()); }
         let client = self.client.bound_to_account(&self.account)?;
         self.catalog.favorite_pending.insert(id.clone());
         let requested = id.clone();
@@ -1157,20 +1243,22 @@ impl App {
         Ok(())
     }
 
-    fn shelf_per_page(&self) -> usize {
-        match (self.is_scribe(), self.catalog.saved.view.as_str()) { (true, "list") => 6, (true, _) => 10, (false, "list") => 7, _ => 6 }
+    fn shelf_per_page(&self) -> usize { shelf_page_size(self.is_scribe(), &self.catalog.saved.view) }
+
+    fn shelf_entry_visible(&self, comic: &Comic, filter: &str, resume_id: Option<&str>) -> bool {
+        (!show_shelf_resume(self.is_scribe(), filter) || Some(comic.id.as_str()) != resume_id)
+            && match filter {
+                "updated" => comic.extra["updated"].as_bool().unwrap_or(false),
+                "downloaded" => self.comic_has_download(comic),
+                "finished" => catalog_finished(comic, self.demo.is_some()),
+                _ => true,
+            }
     }
 
     fn visible_shelf_count(&self) -> Result<usize> {
         let resume = self.catalog_resume_id()?;
-        Ok(self.catalog.comics.iter().filter(|comic| self.catalog.shelf_ids.contains(&comic.id))
-            .filter(|comic| self.demo.is_none() || self.is_scribe() || comic.extra["shelf_order"].as_u64().is_some_and(|order| order < 12))
-            .filter(|comic| !self.is_scribe() || Some(&comic.id) != resume.as_ref())
-            .filter(|comic| match self.catalog.saved.filter.as_str() {
-            "updated" => comic.extra["updated"].as_bool().unwrap_or(false),
-            "downloaded" => self.comic_has_download(comic), "finished" => comic.finished,
-            _ => Some(&comic.id) != resume.as_ref(),
-        }).count())
+        Ok(self.catalog.comics.iter().filter(|comic| self.catalog.shelf_ids.contains(&comic.id)
+            && self.shelf_entry_visible(comic, &self.catalog.saved.filter, resume.as_deref())).count())
     }
 
     fn catalog_resume_id(&self) -> Result<Option<String>> {
@@ -1180,81 +1268,83 @@ impl App {
     }
 
     fn shelf_comic_view(&mut self, comic: &Comic) -> ComicItem {
-        let mut view = self.comic_view(comic);
-        view.meta = self.reading_label(comic, self.catalog.saved.view == "list").into();
-        view.in_shelf = self.catalog.shelf_ids.contains(&comic.id);
-        view.downloaded = self.comic_has_download(comic);
-        if !self.is_scribe() && self.options.offline && !self.online {
-            let count = self.catalog.local_snapshot.episode_comics.iter().filter(|(episode, owner)| *owner == &comic.id
-                && self.catalog.local_snapshot.episodes.get(*episode).is_some_and(|local| local.retained)).count();
-            view.meta = if !self.catalog.local_snapshot.checked_all { i18n::text("cat_local_download_checking") }
-                else if count > 0 { i18n::format("cat_offline_chapters", &[("count", count.to_string())]) }
-                else if view.downloaded { i18n::text("cat_offline_available") } else { i18n::text("cat_network_required") }.into();
-            if self.demo.is_some() && comic.extra["offline_cover_cached_pw"].as_bool() == Some(false) { view.cover = slint::Image::default(); }
+        let reading = self.shelf_reading(comic, false);
+        ComicItem {
+            id: comic.id.clone().into(), title: comic.title.clone().into(), cover: self.cover_image(comic),
+            progress: reading.fraction(), meta: reading.caption.into(),
+            badge: if comic.extra["updated"].as_bool().unwrap_or(false) { tr("cat_updated") } else { "".into() },
+            downloaded: self.comic_has_download(comic), in_shelf: true,
+            ..Default::default()
         }
-        let order = self.store.load_anchor(&self.account, &comic.id).ok().flatten()
-            .and_then(|anchor| self.store.load_detail(&self.account, &comic.id).ok().flatten()
-                .and_then(|detail| detail.episodes.iter().find(|episode| episode.id == anchor.episode_id).map(|episode| episode.order)))
-            .or_else(|| comic.extra["read_episode"].as_f64());
-        if let Some(order) = order.filter(|_| comic.chapter_count > 0) { view.progress = (order / f64::from(comic.chapter_count)).clamp(0.0, 1.0) as f32; }
-        view
     }
 
-    fn resume_comic_view(&mut self, comic: &Comic) -> Result<ComicItem> {
-        let mut view = self.comic_view(comic);
-        view.read_label = i18n::text(if self.demo.is_some() { "cat_demo_resume_time" } else { "cat_continue_reading" }).into();
-        view.meta = self.reading_label(comic, false).into();
-        view.subtitle = self.reading_label(comic, false).into();
-        if let Some(anchor) = self.store.load_anchor(&self.account, &comic.id)? {
-            let detail = self.store.load_detail(&self.account, &comic.id)?;
-            let episode = detail.as_ref().and_then(|detail| detail.episodes.iter().find(|episode| episode.id == anchor.episode_id));
-            if let Some(episode) = episode {
-                view.subtitle = i18n::format("cat_chapter_title", &[("episode", display_order(episode.order)), ("title", episode.title.clone())]).into();
-                let count = self.store.load_index(&self.account, &episode.id, Some(&anchor.revision))?.map(|index| index.images.len());
-                if self.is_scribe() {
-                    view.meta = i18n::format("cat_page_count", &[("page", (anchor.page_index + 1).to_string()), ("total", count.map_or_else(|| "?".into(), |count| count.to_string()))]).into();
-                }
-            }
+    fn resume_comic_view(&mut self, comic: &Comic) -> ComicItem {
+        let reading = self.shelf_reading(comic, true);
+        let meta = if reading.total == 0 { "".into() } else {
+            i18n::format("cat_shelf_episode_progress", &[("read", reading.read.to_string()), ("total", reading.total.to_string())]).into()
+        };
+        ComicItem {
+            id: comic.id.clone().into(), title: comic.title.clone().into(), cover: self.cover_image(comic),
+            progress: reading.fraction(), subtitle: reading.caption.into(), meta,
+            ..Default::default()
         }
-        if self.demo.is_some() {
-            if let Some(raw) = self.demo.as_ref().map(|demo| &demo.fixture["continue_reading"]) {
-                if raw["comic_id"].as_u64().map(|id| id.to_string()) == Some(comic.id.clone()) {
-                    view.description = raw["summary"].as_str().unwrap_or_default().into();
-                }
-            }
-        }
-        Ok(view)
     }
 
-    fn reading_label(&self, comic: &Comic, list: bool) -> String {
-        if self.demo.is_some() {
-            let unchanged = self.store.load_anchor(&self.account, &comic.id).ok().flatten().is_none_or(|anchor| {
-                comic.extra["read_page"].as_u64() == Some(anchor.page_index as u64 + 1)
-                    && comic.last_episode_id.as_ref().is_some_and(|id| *id == anchor.episode_id)
-            });
-            if unchanged {
-                if let Some(value) = comic.extra[if list { "list_read_subtitle" } else { "read_subtitle" }].as_str() { return deduplicate_chapter_total(value); }
-            }
+    fn shelf_reading(&self, comic: &Comic, show_title: bool) -> ShelfReading {
+        let anchor = self.store.load_anchor(&self.account, &comic.id).ok().flatten();
+        let current_id = anchor.as_ref().map(|anchor| anchor.episode_id.as_str())
+            .or(comic.last_episode_id.as_deref())
+            .or_else(|| self.catalog.history_comics.iter().find(|entry| entry.id == comic.id)
+                .and_then(|entry| entry.last_episode_id.as_deref()));
+        let demo = self.demo.is_some();
+        let fixture_order = demo.then(|| comic.extra["read_episode"].as_f64()).flatten().filter(|order| *order > 0.0);
+        if current_id.is_none() && fixture_order.is_none() {
+            return ShelfReading { caption: i18n::text("cat_shelf_not_started"), read: 0, total: comic.chapter_count as usize };
         }
-        if let Ok(Some(anchor)) = self.store.load_anchor(&self.account, &comic.id) {
-            let order = self.store.load_detail(&self.account, &comic.id).ok().flatten()
-                .and_then(|detail| detail.episodes.iter().find(|episode| episode.id == anchor.episode_id).map(|episode| episode.order));
-            let total = self.store.load_index(&self.account, &anchor.episode_id, Some(&anchor.revision)).ok().flatten().map(|index| index.images.len());
-            let label = i18n::format("cat_read_position", &[("episode", order.map(display_order).unwrap_or_else(|| "?".into())),
-                ("page", (anchor.page_index + 1).to_string()), ("total", total.map_or_else(|| "?".into(), |count| count.to_string()))]);
-            return if list && comic.chapter_count > 0 { format!("{label} · {}", i18n::format("cat_total_chapters", &[("count", comic.chapter_count.to_string())])) } else { label };
-        }
-        i18n::text("common_no_reading")
-    }
 
-    fn continue_label(&self, comic: &Comic) -> String {
-        let episode = self.store.load_anchor(&self.account, &comic.id).ok().flatten().map(|anchor| anchor.episode_id)
-            .or_else(|| comic.last_episode_id.clone());
-        let order = episode.and_then(|id| self.store.load_detail(&self.account, &comic.id).ok().flatten()
-            .and_then(|detail| detail.episodes.iter().find(|episode| episode.id == id).map(|episode| episode.order)))
-            .or_else(|| comic.extra["read_episode"].as_f64()).filter(|order| *order > 0.0);
-        order.map(|order| i18n::format(if self.is_scribe() { "cat_continue_episode" } else { "cat_continue_episode_pw" }, &[("episode", display_order(order))]))
-            .unwrap_or_else(|| i18n::text("cat_read_first"))
+        let detail = self.store.load_detail(&self.account, &comic.id).ok().flatten();
+        let episodes = detail.as_ref().map_or(&[][..], |detail| detail.episodes.as_slice());
+        let total = (comic.chapter_count as usize).max(episodes.len())
+            .max(detail.as_ref().map_or(0, |detail| detail.comic.chapter_count as usize));
+        let current = current_id.and_then(|id| episodes.iter().find(|episode| episode.id == id));
+        // Count the known read chapters and the current one, not the current chapter's ordinal.
+        // A jump to a late chapter does not mark any intervening chapter as read.
+        let finished_on_device = anchor.as_ref().filter(|anchor| anchor.finished)
+            .map(|anchor| anchor.episode_id.as_str());
+        let finished = episodes.iter().filter(|episode| episode.read || Some(episode.id.as_str()) == finished_on_device).count();
+        let current_unread = current.is_none_or(|episode| !episode.read && Some(episode.id.as_str()) != finished_on_device);
+        let fixture_complete = demo && comic.finished && fixture_order.is_some_and(|order| order >= total as f64)
+            && comic.extra["read_pages"].as_u64().is_none_or(|pages| comic.extra["read_page"].as_u64().is_some_and(|page| page >= pages));
+        let complete = total > 0 && (fixture_complete || comic.finished && finished >= total);
+        let read = if complete { total } else { (finished + usize::from(current_unread)).min(total) };
+
+        let order = current.map(|episode| episode.order).filter(|order| *order > 0.0).or(fixture_order);
+        let page_numbers = if let Some(anchor) = &anchor {
+            let count = self.store.load_index(&self.account, &anchor.episode_id, Some(&anchor.revision))
+                .ok().flatten().map(|index| index.images.len());
+            Some((anchor.page_index.saturating_add(1), count))
+        } else if demo {
+            comic.extra["read_page"].as_u64().filter(|page| *page > 0)
+                .map(|page| (page as usize, comic.extra["read_pages"].as_u64().map(|total| total as usize)))
+        } else { None };
+        let caption = if !show_title && complete {
+            let complete = i18n::text("cat_shelf_read_complete");
+            if self.is_scribe() { complete } else {
+                let chapters = i18n::format("cat_total_chapters", &[("count", total.to_string())]);
+                join_nonempty(&[&complete, &chapters])
+            }
+        } else if !show_title && let (Some(order), Some((page, total))) = (order, page_numbers) {
+            i18n::format("cat_read_position", &[("episode", display_order(order)), ("page", page.to_string()),
+                ("total", total.map_or_else(|| "?".into(), |total| total.to_string()))])
+        } else {
+            let chapter = order.map(|order| i18n::format("cat_shelf_episode_position", &[("episode", display_order(order))])).unwrap_or_default();
+            let title = current.map(|episode| episode.title.as_str()).filter(|title| *title != chapter.as_str()).unwrap_or_default();
+            let pages = page_numbers.map(|(page, total)| i18n::format("cat_shelf_page_position", &[("page", page.to_string()),
+                ("total", total.map_or_else(|| "?".into(), |total| total.to_string()))])).unwrap_or_default();
+            let position = join_nonempty(&[&chapter, if show_title { title } else { "" }, &pages]);
+            if position.is_empty() { i18n::text("cat_continue_reading") } else { position }
+        };
+        ShelfReading { caption, read, total }
     }
 
     fn status_only(&self, comic: &Comic) -> String {
@@ -1270,55 +1360,98 @@ impl App {
 
     fn catalog_status(&self, comic: &Comic) -> String {
         let genre = comic.genre.split(['/', '·']).map(str::trim).find(|genre| !genre.is_empty()).unwrap_or_default();
-        let status = if self.is_scribe() && !comic.finished && comic.chapter_count > 0 {
-            i18n::format("cat_store_serial", &[("count", comic.chapter_count.to_string())])
-        } else { self.status_only(comic) };
+        let status = if catalog_finished(comic, self.demo.is_some()) { i18n::text("cat_store_finished") }
+            else if comic.chapter_count > 0 { i18n::format("cat_store_serial", &[("count", comic.chapter_count.to_string())]) }
+            else { self.status_only(comic) };
         join_nonempty(&[genre, &status])
     }
 
-    fn catalog_tile_network_required(&self, comic_id: &str) -> bool {
-        if !self.options.offline || self.online { return false; }
-        // An unfinished inventory cannot prove that cached content is missing.
-        // Let the existing local detail/reader path validate the selected item.
-        self.route == "store" || self.route == "shelf" && self.catalog.local_snapshot.checked_all
-            && self.catalog.comics.iter()
-            .find(|comic| comic.id == comic_id).is_none_or(|comic| !self.comic_has_download(comic))
+    fn store_tile_network_required(&self, comic_id: &str) -> bool {
+        self.route == "store" && self.options.offline && !self.online
+            && !self.store.load_detail(&self.account, comic_id).is_ok_and(|detail| {
+                detail.is_some_and(|detail| !detail.episodes.is_empty())
+            })
     }
 
-    fn filtered_episodes(&self, detail: &ComicDetail) -> Result<Vec<Episode>> {
-        let anchor = self.store.load_anchor(&self.account, &detail.comic.id)?;
-        let mut episodes: Vec<_> = detail.episodes.iter().filter(|episode| match self.catalog.detail_filter.as_str() {
-            "unread" => !episode.read && anchor.as_ref().is_none_or(|anchor| anchor.episode_id != episode.id),
-            "readable" => episode.readable_at(now()),
-            "downloaded" => self.local_episode(episode).is_ok_and(|status| status.retained),
+    fn shelf_tile_network_required(&self, comic_id: &str) -> bool {
+        // An unfinished inventory cannot prove that cached content is missing.
+        // Let the existing local detail/reader path validate the selected item.
+        self.route == "shelf" && self.options.offline && !self.online && self.catalog.local_snapshot.checked_all
+            && self.catalog.comics.iter().find(|comic| comic.id == comic_id)
+                .is_none_or(|comic| !self.comic_has_download(comic))
+    }
+
+    fn read_catalog_comic(&mut self, comic_id: &str) -> Result<()> {
+        if let Some(id) = self.restart_episode(comic_id)? {
+            self.open_episode_from_start(comic_id, &id)
+        } else { self.open_reader_for_comic(comic_id) }
+    }
+
+    fn restart_episode(&self, comic_id: &str) -> Result<Option<String>> {
+        Ok(self.reader_cached_detail(comic_id)?.as_ref().and_then(|detail|
+            self.restart_episode_for_detail(detail).map(|episode| episode.id.clone())))
+    }
+
+    fn restart_episode_for_detail<'a>(&self, detail: &'a ComicDetail) -> Option<&'a Episode> {
+        if !self.detail_fully_read(detail) { return None; }
+        let timestamp = now();
+        detail.episodes.iter().filter(|episode| episode.readable_at(timestamp))
+            .min_by(|left, right| left.order.total_cmp(&right.order).then_with(|| left.id.cmp(&right.id)))
+    }
+
+    fn detail_fully_read(&self, detail: &ComicDetail) -> bool {
+        let comic = &detail.comic;
+        if !comic.finished || detail.episodes.is_empty() { return false; }
+        if self.demo.is_some() && comic.extra["read_episode"].as_f64().is_some_and(|order| order >= f64::from(comic.chapter_count))
+            && comic.extra["read_pages"].as_u64().is_none_or(|total| comic.extra["read_page"].as_u64().is_some_and(|page| page >= total)) {
+            return true;
+        }
+        if detail.episodes.len() < comic.chapter_count as usize { return false; }
+        let finished = self.store.load_anchor(&self.account, &comic.id).ok().flatten().filter(|anchor| anchor.finished);
+        detail.episodes.iter().all(|episode| episode.read || finished.as_ref().is_some_and(|anchor| anchor.episode_id == episode.id))
+    }
+
+    fn detail_current_episode(&self, detail: &ComicDetail) -> Result<Option<String>> {
+        Ok(self.store.load_anchor(&self.account, &detail.comic.id)?.map(|anchor| anchor.episode_id)
+            .or_else(|| detail.comic.last_episode_id.clone())
+            .filter(|id| detail.episodes.iter().any(|episode| episode.id == *id)))
+    }
+
+    pub(super) fn chapter_episodes<'a>(&self, detail: &'a ComicDetail, current: Option<&str>,
+        filter: &str, descending: bool) -> Vec<&'a Episode> {
+        let timestamp = now();
+        let mut episodes: Vec<_> = detail.episodes.iter().filter(|episode| match filter {
+            "unread" => !episode.read && current != Some(episode.id.as_str()),
+            "readable" => episode.readable_at(timestamp),
+            "downloaded" => self.reader_episode_downloaded(episode),
             _ => true,
-        }).cloned().collect();
-        if self.catalog.detail_descending { episodes.reverse(); }
-        Ok(episodes)
+        }).collect();
+        episodes.sort_by(|left, right| left.order.total_cmp(&right.order).then_with(|| left.id.cmp(&right.id)));
+        if descending { episodes.reverse(); }
+        episodes
+    }
+
+    fn filtered_episodes<'a>(&self, detail: &'a ComicDetail) -> Result<Vec<&'a Episode>> {
+        let current = self.detail_current_episode(detail)?;
+        Ok(self.chapter_episodes(detail, current.as_deref(), &self.catalog.detail_filter, self.catalog.detail_descending))
     }
 
     fn locate_catalog_episode(&mut self) -> Result<()> {
         let Some(detail) = &self.catalog.detail else { return Ok(()); };
-        let current = self.store.load_anchor(&self.account, &detail.comic.id)?.map(|anchor| anchor.episode_id)
-            .or_else(|| detail.comic.last_episode_id.clone());
-        self.catalog.detail_filter = "all".into(); self.catalog.detail_descending = false;
-        self.catalog.detail_page = current.and_then(|id| detail.episodes.iter().position(|episode| episode.id == id))
-            .map_or(1, |position| position / if self.is_scribe() { 9 } else { 7 } + 1);
+        let current = self.detail_current_episode(detail)?;
+        let episodes = self.chapter_episodes(detail, current.as_deref(), &self.catalog.detail_filter, self.catalog.detail_descending);
+        if let Some(position) = current.and_then(|id| episodes.iter().position(|episode| episode.id == id)) {
+            self.catalog.detail_page = position / self.chapter_page_capacity() + 1;
+        }
         Ok(())
     }
 
-    pub(super) fn episode_view(&self, detail: &ComicDetail, episode: &Episode) -> Result<EpisodeItem> {
-        let anchor = self.store.load_anchor(&self.account, &detail.comic.id)?;
-        let current = anchor.as_ref().map_or_else(|| self.demo.is_some() && episode.extra["current"].as_bool().unwrap_or(false), |anchor| anchor.episode_id == episode.id);
+    pub(super) fn episode_view_at(&self, episode: &Episode, current: Option<&str>,
+        position: Option<(usize, usize)>) -> Result<EpisodeItem> {
+        let timestamp = now();
+        let current = current == Some(episode.id.as_str());
         let local = self.local_episode(episode)?;
-        let changed_demo_position = self.demo.is_some() && current && anchor.as_ref().is_some_and(|anchor|
-            episode.extra["current"].as_bool() != Some(true) || episode.extra["page_count"].as_u64().is_some()
-                && detail.comic.extra["read_page"].as_u64() != Some(anchor.page_index as u64 + 1));
-        let reading = if self.demo.is_some() && !changed_demo_position {
-            episode.extra[if self.is_scribe() { "read_label_sc" } else { "read_label_pw" }].as_str().unwrap_or_default().to_owned()
-        } else if let Some(anchor) = anchor.filter(|anchor| anchor.episode_id == episode.id) {
-            i18n::format("cat_episode_read_position", &[("page", (anchor.page_index + 1).to_string()), ("total", if local.total > 0 { local.total.to_string() } else { "?".into() })])
-        } else { i18n::text(if episode.read { "cat_read" } else { "cat_unread" }) };
+        let readable = episode.readable_at(timestamp);
         let access = if self.demo.is_some() { episode.extra["access_label"].as_str().map(str::to_owned) } else { None }.unwrap_or_else(|| match episode.access {
             EpisodeAccess::Free => i18n::text("cat_free"), EpisodeAccess::Owned => i18n::text("cat_owned"),
             EpisodeAccess::Temporary => episode.expires_at.and_then(|timestamp| chrono::DateTime::from_timestamp(timestamp, 0))
@@ -1327,16 +1460,23 @@ impl App {
             EpisodeAccess::Locked => episode.pay_gold.map(|price| i18n::format("cat_coin_price", &[("amount", display_order(price))])).unwrap_or_else(|| i18n::text("common_locked")),
             EpisodeAccess::Unavailable => i18n::text("cat_unavailable"), EpisodeAccess::Unknown => i18n::text("common_unknown"),
         });
-        let storage = if self.demo.is_some() {
-            episode.extra[if self.is_scribe() { "download_label_sc" } else { "download_label_pw" }].as_str().unwrap_or_default().to_owned()
-        } else if !local.known { i18n::text("common_unknown") }
-        else if local.retained { i18n::text("cat_downloaded") }
-        else if local.present > 0 { i18n::format("cat_cached_pages", &[("count", local.present.to_string()), ("total", local.total.to_string())]) }
-        else if self.is_scribe() { "—".into() } else { i18n::text("cat_not_downloaded") };
+        let storage = if local.retained { i18n::text("cat_downloaded") }
+            else if local.present > 0 { i18n::format("cat_cached_pages", &[("count", local.present.to_string()), ("total", local.total.to_string())]) }
+            else { String::new() };
+        let reading = if let Some((page, total)) = position.filter(|_| current) { format!("{page} / {total}") }
+            else { i18n::text(if episode.read { "cat_read" } else { "cat_unread" }) };
+        let reading = join_nonempty(&[&reading,
+            if readable && episode.access == EpisodeAccess::Temporary { &access } else { "" },
+            if !local.retained { &storage } else { "" }]);
         Ok(EpisodeItem { id: episode.id.clone().into(), order: display_order(episode.order).into(), title: episode.title.clone().into(),
-            reading: reading.into(), access: access.into(), storage: storage.trim_start_matches(['\u{2713}', ' ']).into(), readable: episode.readable_at(now()),
+            reading: reading.into(), access: access.into(), storage: storage.into(), readable,
             selected: self.catalog.selected.contains(&episode.id), current, downloaded: local.retained,
-            temporary: episode.access == EpisodeAccess::Temporary, locked: episode.access == EpisodeAccess::Locked })
+            queued: self.episode_download_queued(&episode.id), temporary: episode.access == EpisodeAccess::Temporary,
+            locked: episode.access == EpisodeAccess::Locked })
+    }
+
+    fn episode_selectable(&self, episode: &Episode) -> bool {
+        episode.readable_at(now()) && !self.reader_episode_downloaded(episode) && !self.episode_download_queued(&episode.id)
     }
 
     fn local_episode(&self, episode: &Episode) -> Result<LocalEpisode> {
@@ -1471,25 +1611,14 @@ impl App {
         });
     }
 
-    fn selection_size_label(&self) -> Result<String> {
-        if self.catalog.selected.is_empty() { return Ok(i18n::text(if self.is_scribe() { "cat_select_chapters_hint" } else { "cat_cross_page_selection" })); }
-        if self.demo.is_some() { return Ok(i18n::format("cat_estimated_size", &[("size", format!("{:.0}", self.catalog.selected.len() as f64 * 15.4))])); }
-        let mut known_bytes = 0u64;
-        let mut known_episodes = 0usize;
-        if let Some(detail) = &self.catalog.detail {
-            for episode in &detail.episodes {
-                let local = self.local_episode(episode)?;
-                if local.retained { known_bytes = known_bytes.saturating_add(local.bytes); known_episodes += 1; }
-            }
-        }
-        if known_episodes > 0 {
-            let estimate = known_bytes as f64 / known_episodes as f64 * self.catalog.selected.len() as f64 / 1024.0 / 1024.0;
-            Ok(i18n::format("cat_estimated_size", &[("size", format!("{estimate:.0}"))]))
-        } else { Ok(i18n::text("cat_size_unknown")) }
-    }
-
     fn persist_catalog_view(&self) -> Result<()> { self.store.set_preference(&self.account, "catalog_view", &self.catalog.saved) }
     fn persist_search_history(&self) -> Result<()> { self.store.set_preference(&self.account, "search_history", &self.catalog.history) }
+    fn remember_search_query(&mut self, query: &str) -> Result<()> {
+        self.catalog.history.retain(|entry| entry.query != query);
+        self.catalog.history.insert(0, HistoryEntry { query: query.into(), count: None });
+        self.catalog.history.truncate(20);
+        self.persist_search_history()
+    }
     fn finish_search_history(&mut self) -> Result<()> {
         if let Some(entry) = self.catalog.history.iter_mut().find(|entry| entry.query == self.catalog.submitted_query) {
             entry.count = if self.catalog.search_has_more { None } else { Some(self.catalog.results.len()) };
@@ -1524,14 +1653,30 @@ fn is_comic_id_query(value: &str) -> bool {
     value.get(..2).is_some_and(|prefix| prefix.eq_ignore_ascii_case("mc")) && normalize_comic_id(value).is_some()
 }
 
-fn deduplicate_chapter_total(value: &str) -> String {
-    let mut parts = value.split(" · ");
-    let mut label = parts.next().unwrap_or_default().to_owned();
-    for part in parts {
-        if part.starts_with('\u{5171}') && label.contains(part) { continue; }
-        label.push_str(" · "); label.push_str(part);
-    }
-    label
+struct ShelfReading {
+    caption: String,
+    read: usize,
+    total: usize,
+}
+
+impl ShelfReading {
+    fn fraction(&self) -> f32 { self.read as f32 / self.total.max(1) as f32 }
+}
+
+fn show_shelf_resume(scribe: bool, filter: &str) -> bool { scribe || filter == "all" }
+
+fn shelf_page_size(scribe: bool, view: &str) -> usize {
+    match (view, scribe) { ("list", _) => 8, (_, true) => 18, _ => 6 }
+}
+
+fn catalog_finished(comic: &Comic, demo: bool) -> bool {
+    comic.finished || demo && comic.extra["status"].as_str()
+        .is_some_and(|status| status.starts_with(i18n::text("cat_finished").as_str()))
+}
+
+fn deduplicate_catalog_comics(comics: &mut Vec<Comic>) {
+    let mut seen = BTreeSet::new();
+    comics.retain(|comic| seen.insert(comic.id.clone()));
 }
 
 fn matches_query(comic: &Comic, normalized: &str) -> bool {
@@ -1890,8 +2035,6 @@ mod snapshot_tests {
         assert!(!is_comic_id_query("mcloud"));
         assert!(!is_comic_id_query("mc0"));
         assert!(!is_comic_id_query("\u{6f2b}\u{753b}"));
-        assert_eq!(deduplicate_chapter_total("\u{5df2}\u{8bfb}\u{5b8c} · \u{5171} 60 \u{8bdd} · \u{5171} 60 \u{8bdd}"),
-            "\u{5df2}\u{8bfb}\u{5b8c} · \u{5171} 60 \u{8bdd}");
     }
 
     #[test]

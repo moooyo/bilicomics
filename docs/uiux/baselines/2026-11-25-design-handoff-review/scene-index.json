@@ -1,0 +1,1306 @@
+[
+  {
+    "profile": "pw6",
+    "state": "account-online",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-purchases",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-recharge-qr",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-recharge",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-recharged",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-recharges",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-refreshed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-signedout",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-signout",
+    "same_dimensions": true,
+    "scope": "XTest pointer"
+  },
+  {
+    "profile": "pw6",
+    "state": "account",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-about-acted",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-about",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-account",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-display-fast",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-display-jpeg",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-display",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-download",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-picker-rpol",
+    "same_dimensions": true,
+    "scope": "XTest pointer"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-picker",
+    "same_dimensions": true,
+    "scope": "XTest pointer"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-reading",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-storage-clean",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-storage",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-system",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-bought",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-desc",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-dl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-other",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-other2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-sel-all",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "supplemental_capture": "raw/pw6/detail-sel-all.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-sel-dl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-sel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-sel0",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-signedout",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-unfollowed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "directory-unread",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "supplemental_capture": "raw/pw6/directory-unread.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "directory",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-done-only",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-empty",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-paused",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-queued-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-removed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-retried",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sel0",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sheet-active",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sheet-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sheet-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sheet-task",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sheet",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "light-extreme",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "login-from-detail",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "login-success",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "supplemental_capture": "raw/pw6/login-success.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "login",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "network-checking",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "network-failed",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "network-ok",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "network",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-b5",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-coupon",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-done",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-late",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-low",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-pending",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-submitting",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-display-jpeg",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-display-normal",
+    "same_dimensions": true,
+    "scope": "XTest pointer"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-display",
+    "same_dimensions": true,
+    "scope": "XTest pointer"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-fast",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-layout",
+    "same_dimensions": true,
+    "scope": "XTest pointer"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-light",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu-ep13-q",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu-ep13",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu-fromdetail",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu-other",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu-rtl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "supplemental_capture": "raw/pw6/reader-menu.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-original",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-panel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "search-empty",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "search-numeric",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "search-results",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "supplemental_capture": "raw/pw6/search-results.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "search-typing",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "search",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-empty",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-filter",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-list",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "supplemental_capture": "raw/pw6/shelf-p2.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-signedout",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-syncing",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-upd",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "sleep",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "supplemental_capture": "raw/pw6/sleep.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "startup-error",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "startup",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "store-genre-picked",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "store-genre",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "store-online",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "store-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "store-p3",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "store",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "welcome-expired",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "welcome-prefs-skip",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "pw6",
+    "state": "welcome-prefs",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "welcome-scanned",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "pw6",
+    "state": "welcome",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-purchases",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-recharge-qr",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-recharge",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-recharged",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-recharges",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-refreshed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-signedout",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-signout",
+    "same_dimensions": true,
+    "scope": "XTest pointer"
+  },
+  {
+    "profile": "scribe",
+    "state": "account",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-about-acted",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-about",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-account",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-display-fast",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-display-jpeg",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-download",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-picker-conc",
+    "same_dimensions": true,
+    "scope": "XTest pointer"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-picker",
+    "same_dimensions": true,
+    "scope": "XTest pointer"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-storage",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-system",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-bought",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-desc",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-dl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-other",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-other2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-sel-all",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "supplemental_capture": "raw/scribe/detail-sel-all.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-sel-dl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-sel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-sel0",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-signedout",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-unfollowed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "directory-unread",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "supplemental_capture": "raw/scribe/directory-unread.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "directory",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-done-only",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-empty",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-paused",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-queued-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-removed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-retried",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sel0",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sheet-active",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sheet-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sheet-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sheet-task",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sheet",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "light-extreme",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "login-from-detail",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "login-success",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "supplemental_capture": "raw/scribe/login-success.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "login",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "network-checking",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "network-failed",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "network-ok",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "network",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-b5",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-coupon",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-done",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-late",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-low",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-pending",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-submitting",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-fast",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-light",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu-ep13-q",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu-ep13",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu-fromdetail",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu-other",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu-rtl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "supplemental_capture": "raw/scribe/reader-menu.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-original",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-panel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-settings-fast",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-settings-jpeg",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-settings",
+    "same_dimensions": true,
+    "scope": "XTest pointer"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "search-empty",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "search-numeric",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "search-results",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "supplemental_capture": "raw/scribe/search-results.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "search-typing",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "search",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-empty",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-filter",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-list",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "supplemental_capture": "raw/scribe/shelf-p2.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-signedout",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-syncing",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-upd",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "sleep",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "supplemental_capture": "raw/scribe/sleep.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "startup-error",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "startup",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "store-genre-picked",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "store-online",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "store-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "store",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "welcome-expired",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "welcome-prefs-skip",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  },
+  {
+    "profile": "scribe",
+    "state": "welcome-prefs",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "welcome-scanned",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation"
+  },
+  {
+    "profile": "scribe",
+    "state": "welcome",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb"
+  }
+]

@@ -121,7 +121,7 @@ pub(super) struct NativeControl {
 impl NativeControl {
     pub fn new(profile: DeviceProfile) -> Result<Self, PlatformError> {
         validate_native_launch_approval(profile)?;
-        let expected = profile.physical_size();
+        let expected = profile.native_framebuffer_size();
         let native_viewport = validate_framebuffer(expected)?;
         eprintln!(
             "bilicomics: native display geometry: expected={}x{}, actual={}x{}, offset=0,0, scale=2",
@@ -307,30 +307,28 @@ mod tests {
             DeviceProfile::Scribe,
             DeviceProfile::Scribe2025,
         ] {
+            let expected = profile.native_framebuffer_size();
             assert_eq!(
-                validate_framebuffer_info(
-                    &framebuffer_info(profile.physical_size(), (0, 0)),
-                    profile.physical_size(),
-                )
-                .unwrap(),
-                profile.physical_size(),
+                validate_framebuffer_info(&framebuffer_info(expected, (0, 0)), expected).unwrap(),
+                expected,
             );
         }
     }
 
     #[test]
-    fn visible_geometry_is_checked_independently_of_virtual_framebuffer_height() {
+    fn paperwhite6_accepts_native_visible_size_and_rejects_the_design_canvas() {
+        let expected = DeviceProfile::Paperwhite6.native_framebuffer_size();
+        // The virtual framebuffer is taller than the visible display.
         let information = framebuffer_info((1272, 1696), (0, 0));
-        assert_eq!(
-            validate_framebuffer_info(&information, (1272, 1696)).unwrap(),
-            (1272, 1696),
-        );
-        let error = validate_framebuffer_info(&information, (1264, 1680)).unwrap_err();
+        assert_eq!(validate_framebuffer_info(&information, expected).unwrap(), (1272, 1696));
+
+        let information = framebuffer_info((1264, 1680), (0, 0));
+        let error = validate_framebuffer_info(&information, expected).unwrap_err();
         assert!(matches!(
             error,
             PlatformError::GeometryMismatch {
-                expected: (1264, 1680),
-                actual: (1272, 1696),
+                expected: (1272, 1696),
+                actual: (1264, 1680),
             },
         ));
     }

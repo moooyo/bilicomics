@@ -8,15 +8,17 @@ component KeyCap inherits Rectangle {
     in property <bool> primary;
     in property <bool> backspace;
     in property <bool> functional;
+    in property <bool> heavy-frame: root.primary || root.backspace;
     callback clicked();
     min-width: 0px;
     preferred-width: 0px;
     horizontal-stretch: 1;
     background: root.primary || touch.pressed ? Theme.ink : Theme.paper;
     border-color: Theme.ink;
-    border-width: 1.5px;
+    border-width: root.heavy-frame ? 2px : 1px;
     accessible-role: button;
     accessible-label: root.label;
+    accessible-action-default => { root.clicked(); }
     if !root.backspace: Text {
         x: 0px;
         y: 0px;
@@ -31,10 +33,10 @@ component KeyCap inherits Rectangle {
         vertical-alignment: center;
     }
     if root.backspace: Path {
-        x: (parent.width - 26px) / 2;
-        y: (parent.height - 26px) / 2;
-        width: 26px;
-        height: 26px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        width: Theme.scribe ? 26px : 24px;
+        height: self.width;
         viewbox-width: 24;
         viewbox-height: 24;
         stroke: touch.pressed ? Theme.paper : Theme.ink;
@@ -70,7 +72,7 @@ export component TouchKeyboard inherits Rectangle {
     property <length> keyboard-height: Theme.scribe ? 330px : 258px;
     property <length> horizontal-padding: Theme.scribe ? 16px : 8px;
     property <length> top-padding: Theme.scribe ? 14px : 10px;
-    property <length> key-gap: Theme.scribe ? 8px : 6px;
+    property <length> key-gap: 8px;
     property <length> key-height: Theme.scribe ? 68px : 52px;
     property <length> candidate-gap: Theme.scribe ? 6px : 4px;
     property <length> candidate-pager-width: root.candidate-pages > 1 ? 2 * Theme.touch-size + 8px : 0px;
@@ -86,7 +88,7 @@ export component TouchKeyboard inherits Rectangle {
         clip: true;
         Rectangle { x: 0px; y: 0px; width: parent.width; height: 1px; background: Theme.ink; }
         HorizontalLayout {
-            x: Theme.scribe ? 16px : 8px;
+            x: root.horizontal-padding;
             y: 0px;
             width: root.candidate-content-width;
             height: parent.height;
@@ -94,7 +96,7 @@ export component TouchKeyboard inherits Rectangle {
             alignment: start;
             composition-box := Rectangle {
                 horizontal-stretch: 0;
-                width: min(root.candidate-pages > 1 ? root.candidate-content-width / 4 : 100000px,
+                width: min(root.candidates.length > 0 ? root.candidate-content-width / 4 : root.candidate-content-width,
                     max(Theme.scribe ? 92px : 72px, composition-label.preferred-width + (Theme.scribe ? 20px : 16px)));
                 composition-label := Text {
                     x: Theme.scribe ? 10px : 8px;
@@ -104,7 +106,7 @@ export component TouchKeyboard inherits Rectangle {
                     text: root.composition != "" ? root.composition : root.numeric ? "123" : root.latin ? "EN" : Strings.key-pinyin;
                     color: Theme.secondary;
                     font-family: Theme.ui-font;
-                    font-size: Theme.scribe ? 18px : 15px;
+                    font-size: Theme.scribe ? 20px : 16px;
                     vertical-alignment: center;
                     overflow: elide;
                 }
@@ -112,8 +114,8 @@ export component TouchKeyboard inherits Rectangle {
             for candidate[index] in root.candidates: Rectangle {
                 horizontal-stretch: 0;
                 property <length> natural-width: max(Theme.scribe ? 64px : 52px, candidate-label.preferred-width + (Theme.scribe ? 28px : 20px));
-                width: root.candidate-pages > 1 ? min(self.natural-width,
-                    max(Theme.scribe ? 64px : 52px, (root.candidate-content-width - composition-box.width - root.candidate-gap * root.candidates.length) / max(1, root.candidates.length))) : self.natural-width;
+                width: min(self.natural-width,
+                    max(Theme.touch-size, (root.candidate-content-width - composition-box.width - root.candidate-gap * root.candidates.length) / max(1, root.candidates.length)));
                 Rectangle {
                     x: 0px;
                     y: (parent.height - self.height) / 2;
@@ -122,6 +124,7 @@ export component TouchKeyboard inherits Rectangle {
                     background: candidate-touch.pressed ? Theme.ink : Theme.paper;
                     accessible-role: button;
                     accessible-label: candidate;
+                    accessible-action-default => { root.choose(index); }
                     Rectangle { x: 0px; y: 0px; width: 1px; height: parent.height; background: Theme.line; }
                     candidate-label := Text {
                         x: 0px;
@@ -150,42 +153,32 @@ export component TouchKeyboard inherits Rectangle {
                     }
                 }
             }
-            if root.candidates.length == 0: Text {
-                text: root.numeric ? Strings.key-numeric-hint : root.latin ? Strings.key-latin-hint : Strings.key-pinyin-hint;
-                color: Theme.muted;
-                font-family: Theme.ui-font;
-                font-size: Theme.scribe ? 17px : 15px;
-                vertical-alignment: center;
-                horizontal-stretch: 1;
-                overflow: elide;
-            }
         }
-        if root.candidate-pages > 1: HorizontalLayout {
+        if root.candidate-pages > 1: Rectangle {
             x: parent.width - root.horizontal-padding - root.candidate-pager-width;
             y: (parent.height - Theme.touch-size) / 2;
             width: root.candidate-pager-width;
             height: Theme.touch-size;
-            spacing: 8px;
-            IconButton {
+            if root.candidate-page > 0: IconButton {
+                x: 0px; y: 0px; width: Theme.touch-size; height: parent.height;
                 icon: "back";
                 label: Strings.key-previous-candidates;
                 icon-size: Theme.scribe ? 24px : 20px;
                 feedback-down: "keyboard";
                 feedback-up: "keyboard-release";
-                enabled: root.candidate-page > 0;
                 border-width: 1px;
-                border-color: root.candidate-page > 0 ? Theme.ink : Theme.line;
+                border-color: Theme.ink;
                 clicked => { Theme.refresh("keyboard"); root.page(-1); }
             }
-            IconButton {
+            if root.candidate-page + 1 < root.candidate-pages: IconButton {
+                x: parent.width - Theme.touch-size; y: 0px; width: Theme.touch-size; height: parent.height;
                 icon: "next";
                 label: Strings.key-next-candidates;
                 icon-size: Theme.scribe ? 24px : 20px;
                 feedback-down: "keyboard";
                 feedback-up: "keyboard-release";
-                enabled: root.candidate-page + 1 < root.candidate-pages;
                 border-width: 1px;
-                border-color: root.candidate-page + 1 < root.candidate-pages ? Theme.ink : Theme.line;
+                border-color: Theme.ink;
                 clicked => { Theme.refresh("keyboard"); root.page(1); }
             }
         }
@@ -231,6 +224,7 @@ export component TouchKeyboard inherits Rectangle {
             KeyCap {
                 text: root.numeric ? "ABC" : "123";
                 functional: true;
+                heavy-frame: true;
                 horizontal-stretch: 1.5;
                 clicked => { root.key("num"); }
             }
@@ -252,8 +246,9 @@ export component TouchKeyboard inherits Rectangle {
             height: root.key-height;
             spacing: root.key-gap;
             KeyCap {
-                text: root.latin ? Strings.key-en-zh : Strings.key-zh-en;
+                text: root.latin || root.numeric ? Strings.key-en-zh : Strings.key-zh-en;
                 functional: true;
+                heavy-frame: true;
                 horizontal-stretch: 1.8;
                 clicked => { root.key("lang"); }
             }

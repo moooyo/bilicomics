@@ -19,6 +19,28 @@ export component SleepScreen inherits Rectangle {
         image-fit: contain;
     }
 
+    if SleepScreenModel.has-cover && SleepScreenModel.title != "": Rectangle {
+        x: parent.width * 0.07;
+        y: parent.height * 0.78;
+        width: parent.width * 0.86;
+        height: parent.height * 0.17;
+        border-width: 3px;
+        border-color: Theme.ink;
+        background: Theme.paper;
+        clip: true;
+        Text {
+            x: 16px; y: 4px; width: parent.width - 32px; height: parent.height - 8px;
+            text: SleepScreenModel.title;
+            font-family: Theme.serif-font;
+            font-size: min(Theme.scribe ? 84px : 56px, parent.height * 0.54);
+            font-weight: 700;
+            color: Theme.ink;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+    }
+
     if !SleepScreenModel.has-cover: Rectangle {
         x: parent.width * 0.12;
         y: parent.height * 0.13;

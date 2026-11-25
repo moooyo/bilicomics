@@ -28,7 +28,7 @@ import zipfile
 
 
 LOCK = "/tmp/bilicomics-launcher.lock"
-GEOMETRIES = {"pw5": (1236, 1648), "pw6": (1264, 1680), "scribe": (1860, 2480), "scribe2025": (1980, 2640)}
+NATIVE_FRAMEBUFFER_SIZES = {"pw5": (1236, 1648), "pw6": (1272, 1696), "scribe": (1860, 2480), "scribe2025": (1980, 2640)}
 IDENTITY_FIELDS = ("comic_id", "episode_id", "revision", "reader_generation", "route", "launch_preference",
                    "mode", "core_mode", "fit", "direction", "rotation", "landscape_layout", "cover_alone",
                    "dither", "footer", "demo_strip")
@@ -1079,8 +1079,8 @@ printf 'native_epdc_mode_probe=%s\n' "$native_epdc_mode_probe"
         return {"phase": "deployed", "binary_sha256": self.state["binary_sha256"], "framebuffer": geometry}
 
     def check_geometry(self, geometry):
-        require((geometry.get("width"), geometry.get("height")) == GEOMETRIES[self.state["profile"]],
-                "The actual framebuffer dimensions differ from the selected design profile.")
+        require((geometry.get("width"), geometry.get("height")) == NATIVE_FRAMEBUFFER_SIZES[self.state["profile"]],
+                "The visible framebuffer dimensions differ from the selected native profile.")
         require(geometry.get("xoffset") == geometry.get("yoffset") == 0 and geometry.get("read_only") is True,
                 "Native acceptance requires unpanned geometry from the read-only helper.")
 
@@ -1687,7 +1687,7 @@ def arguments():
     parser.add_argument("--ssh-option", action="append", default=[])
     commands = parser.add_subparsers(dest="command", required=True)
     preflight = commands.add_parser("preflight")
-    preflight.add_argument("--profile", choices=tuple(GEOMETRIES), required=True)
+    preflight.add_argument("--profile", choices=tuple(NATIVE_FRAMEBUFFER_SIZES), required=True)
     preflight.add_argument("--expected-firmware", required=True)
     preflight.add_argument("--operator-model", required=True)
     deploy = commands.add_parser("deploy")

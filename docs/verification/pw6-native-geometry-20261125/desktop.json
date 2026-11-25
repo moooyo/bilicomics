@@ -1,0 +1,58 @@
+{
+  "base_revision": "32380fce736d4b45d84f0b738640f4efccc0e402",
+  "source": "working-tree snapshot",
+  "backend": "Slint winit software under Xvfb",
+  "scale": 2,
+  "physical_device": false,
+  "live_account": false,
+  "results": [
+    {
+      "profile": "pw6",
+      "scene": "shelf",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "shelf",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    }
+  ]
+}

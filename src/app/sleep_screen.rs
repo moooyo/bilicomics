@@ -122,6 +122,11 @@ fn bounded_text(text: &str, limit: usize) -> SharedString {
     text.chars().take(limit).collect::<String>().into()
 }
 
+fn sleep_comic_title(comic: &Comic) -> SharedString {
+    let title = comic.title.trim();
+    if title.is_empty() { tr("sleep_untitled_comic") } else { bounded_text(title, 256) }
+}
+
 #[cfg(test)]
 fn decode_cover(encoded: Vec<u8>) -> Result<PreparedCover> {
     decode_cover_cancellable(encoded, &|| Ok(()), None)
@@ -288,11 +293,14 @@ impl App {
             self.sleep_screen.identity = identity.clone();
         }
         let (Some(comic), Some(identity)) = (comic, identity) else { return; };
-        self.sleep_screen.title = bounded_text(&comic.title, 256);
+        self.sleep_screen.title = sleep_comic_title(&comic);
         self.sleep_screen.author = bounded_text(&comic.author, 128);
         if self.sleep_screen.full_resolution { return; }
-        if let Some(thumbnail) = self.cached_cover_preview(&comic) {
-            self.sleep_screen.cover = Some(thumbnail);
+        let fixture_artwork = self.demo.as_ref().and_then(|_| crate::demo::sleep_artwork(&comic));
+        if fixture_artwork.is_none() {
+            if let Some(thumbnail) = self.cached_cover_preview(&comic) {
+                self.sleep_screen.cover = Some(thumbnail);
+            }
         }
         let can_fetch = self.demo.is_none() && !self.options.offline && !comic.cover_url.trim().is_empty();
         if can_fetch != self.sleep_screen.can_fetch {
@@ -320,7 +328,10 @@ impl App {
             token.cancelled.clone(), token.drained.clone(), move || {
             worker_token.check()?;
             let measured = worker_token.trace.map(|_| crate::performance::Span::start());
-            let encoded = covers::read_sleep_cover(&data_dir, &file_name)?;
+            let encoded = match fixture_artwork {
+                Some(bytes) => Some(bytes.to_vec()),
+                None => covers::read_sleep_cover(&data_dir, &file_name)?,
+            };
             if let (Some(trace), Some(measured)) = (worker_token.trace, measured) {
                 trace.record("local_read", &serde_json::json!({"timing": measured.finish(),
                     "encoded_bytes": encoded.as_ref().map_or(0, Vec::len)}));
@@ -504,11 +515,16 @@ impl App {
         let comic = self.current_sleep_comic();
         let identity = comic.as_ref().and_then(|comic| CoverIdentity::new(&self.account, self.epoch, comic));
         let current = identity.is_some() && identity == self.sleep_screen.identity;
-        let (title, author, cover) = if current {
-            (self.sleep_screen.title.clone(), self.sleep_screen.author.clone(), self.sleep_screen.cover.clone())
-        } else if let Some(comic) = comic {
-            (bounded_text(&comic.title, 256), bounded_text(&comic.author, 128), None)
-        } else { (tr("app_name"), tr("sleep_neutral"), None) };
+        let (title, author, cover) = match comic {
+            Some(comic) if current => {
+                let title = if self.sleep_screen.title.is_empty() {
+                    sleep_comic_title(&comic)
+                } else { self.sleep_screen.title.clone() };
+                (title, self.sleep_screen.author.clone(), self.sleep_screen.cover.clone())
+            }
+            Some(comic) => (sleep_comic_title(&comic), bounded_text(&comic.author, 128), None),
+            None => (tr("app_name"), tr("sleep_neutral"), None),
+        };
         let model = ui.global::<SleepScreenModel>();
         model.set_has_cover(cover.is_some());
         model.set_cover(cover.unwrap_or_default());

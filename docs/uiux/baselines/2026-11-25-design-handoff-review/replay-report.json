@@ -1,0 +1,2110 @@
+{
+  "base_revision": "32380fce736d4b45d84f0b738640f4efccc0e402",
+  "source": "working-tree snapshot",
+  "backend": "Slint winit software under Xvfb",
+  "scale": 2,
+  "physical_device": false,
+  "live_account": false,
+  "results": [
+    {
+      "profile": "pw6",
+      "scene": "startup",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "startup",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "startup-error",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 1
+    },
+    {
+      "profile": "scribe",
+      "scene": "startup-error",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 1
+    },
+    {
+      "profile": "pw6",
+      "scene": "welcome",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "welcome",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "welcome-prefs-skip",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "welcome-prefs-skip",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "login",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "login",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "shelf",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "shelf",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "shelf-filter",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "shelf-filter",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "shelf-list",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "shelf-list",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "shelf-p2",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "shelf-p2",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "shelf-return-from-reader",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "shelf-return-from-reader",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "shelf-upd",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "shelf-upd",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "shelf-guest",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "shelf-guest",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "store",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "store",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "store-online",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "store-online",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "store-p2",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "store-p2",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "store-p3",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "store-genre",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "store-genre-picked",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "store-genre-picked",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "network",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "network",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "network-preview",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "network-preview",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "search",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "search",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "search-typing",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "search-typing",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "search-numeric",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "search-numeric",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "search-results",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "search-results",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader-restart-completed-search",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader-restart-completed-search",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "search-empty",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "search-empty",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail-desc",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail-desc",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail-locate-desc",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail-locate-desc",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail-dl",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail-dl",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail-other",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail-other",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail-other2",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail-other2",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail-unfollowed",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail-unfollowed",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail-queued",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail-queued",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail-sel",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail-sel",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail-sel0",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail-sel0",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail-sel-all",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail-sel-all",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "detail-sel-dl",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "detail-sel-dl",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "directory",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "directory",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "directory-unread",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "directory-unread",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader-fast",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader-fast",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader-panel",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader-panel",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader-original",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader-original",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader-menu",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader-menu",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader-menu-fromdetail",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader-menu-fromdetail",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader-menu-rtl",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader-menu-rtl",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "search-return-from-reader",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "search-return-from-reader",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "directory-return-from-purchase",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "directory-return-from-purchase",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader-menu-other",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader-menu-other",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader-light",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader-light",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "light-extreme",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "light-extreme",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "reader-layout",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader-settings",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "reader-settings-fast",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "purchase",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "purchase",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "purchase-b5",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "purchase-b5",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "purchase-coupon",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "purchase-coupon",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "purchase-late",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "purchase-late",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "purchase-preview",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "purchase-preview",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-paused",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-paused",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-done-only",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-done-only",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-retried",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-retried",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-queued",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-queued",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-queued-p2",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-queued-p2",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-empty",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-empty",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-sel0",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-sel0",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-sel",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-sel",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-removed",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-removed",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-sheet",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-sheet",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-sheet-task",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-sheet-task",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-sheet-active",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-sheet-active",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-sheet-queued",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-sheet-queued",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-cancel-queue-keeps-chapters",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-cancel-queue-keeps-chapters",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "downloads-sheet-p2",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "downloads-sheet-p2",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "account",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "account",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "account-online",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "account-refreshed",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "account-refreshed",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "account-signedout",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "account-signedout",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "account-purchases-empty",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "account-purchases-empty",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "account-recharges-empty",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "account-recharges-empty",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "acct-reading",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "acct-display",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "acct-display-fast",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "acct-display-fast",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "acct-download",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "acct-download",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "acct-storage",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "acct-storage",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "acct-storage-clean",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "acct-system",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "acct-system",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "acct-account",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "acct-account",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "acct-about",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "acct-about",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "pw6",
+      "scene": "acct-about-acted",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1264,
+        1680
+      ],
+      "failures": {},
+      "exit_status": 0
+    },
+    {
+      "profile": "scribe",
+      "scene": "acct-about-acted",
+      "scope": "application-intent replay",
+      "ready": true,
+      "size": [
+        1860,
+        2480
+      ],
+      "failures": {},
+      "exit_status": 0
+    }
+  ]
+}

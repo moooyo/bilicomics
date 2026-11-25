@@ -103,10 +103,13 @@ fn apply_detail_job(app: &mut App) -> Result<()> {
 
 fn select_visible_pages(app: &mut App) -> Result<()> {
     let detail = app.catalog.detail.as_ref().context("A loaded directory")?;
-    let per_page = if app.is_scribe() { 9 } else { 7 };
+    let per_page = app.chapter_page_capacity();
     let pages = page_count(app.filtered_episodes(detail)?.len(), per_page);
     for page in 1..=pages {
-        app.dispatch("catalog", "detail.select-page", "")?;
+        let rows = app.filtered_episodes(app.catalog.detail.as_ref().unwrap())?;
+        let has_unselected = page_slice(&rows, page, per_page).iter().any(|episode|
+            app.episode_selectable(episode) && !app.catalog.selected.contains(&episode.id));
+        if has_unselected { app.dispatch("catalog", "detail.select-page", "")?; }
         if page < pages { app.dispatch("catalog", "episode.page", "1")?; }
     }
     Ok(())
@@ -135,8 +138,11 @@ fn six_hundred_chapter_choices_survive_pages_filters_and_account_return_until_co
         app.dispatch("catalog", "detail.download", "enter")?;
         app.dispatch("catalog", "episode.filter", "unread")?;
         app.dispatch("catalog", "detail.select-page", "")?;
-        assert_eq!(app.catalog.selected.len(), if profile.is_scribe() { 9 } else { 7 },
+        let per_page = app.chapter_page_capacity();
+        assert_eq!(app.catalog.selected.len(), per_page,
             "The current-page action must not silently select the entire directory");
+        app.dispatch("catalog", "detail.select-page", "")?;
+        assert!(app.catalog.selected.is_empty(), "Selecting a fully selected page toggles it off");
         select_visible_pages(&mut app)?;
         let unread: BTreeSet<_> = detail.episodes.iter().filter(|episode| !episode.read && episode.readable_at(now()))
             .map(|episode| episode.id.clone()).collect();

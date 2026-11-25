@@ -1,9 +1,10 @@
 import { Theme } from "theme.slint";
 import { Strings } from "strings.slint";
 import { StatusBar, BottomNav } from "widgets.slint";
-import { CatalogModel, ShelfScreen, StoreScreen, SearchScreen, DetailScreen } from "catalog.slint";
+import { CatalogModel, ShelfScreen, StoreScreen, SearchScreen } from "catalog.slint";
+import { ChapterBook } from "chapter-book.slint";
 import { ReaderModel, ReaderScreen } from "reader.slint";
-import { AccountModel, AccountScreen } from "account.slint";
+import { AccountModel, AccountScreen, RechargeDialog } from "account.slint";
 import { DownloadModel, DownloadsScreen } from "downloads.slint";
 import { PurchaseModel, PurchaseScreen } from "purchase.slint";
 import { AuthModel, WelcomeScreen, LoginScreen, NetSheet } from "auth.slint";
@@ -13,9 +14,9 @@ import { SleepScreen, SleepScreenModel } from "sleep-screen.slint";
 export { Theme } from "theme.slint";
 export { CatalogModel, ComicItem, EpisodeItem, CategoryItem, SearchHistoryItem } from "catalog.slint";
 export { ReaderModel, ReaderThumbnail, ReaderChapter } from "reader.slint";
-export { AccountModel, AccountInfoItem } from "account.slint";
+export { AccountModel, AccountInfoItem, AccountRecordItem } from "account.slint";
 export { DownloadModel, DownloadItem, DownloadChapterItem } from "downloads.slint";
-export { PurchaseModel, PurchaseRangeItem, PurchaseReceiptItem } from "purchase.slint";
+export { PurchaseModel, PurchaseRangeItem, PurchaseIncludedItem } from "purchase.slint";
 export { AuthModel } from "auth.slint";
 export { SleepScreenModel } from "sleep-screen.slint";
 
@@ -48,14 +49,15 @@ export component AppWindow inherits Window {
     default-font-family: Theme.ui-font;
     default-font-size: Theme.body-size;
     property <bool> reader-visible: !ShellModel.booting && ShellModel.route == "reader";
+    property <bool> directory-visible: root.reader-visible && ReaderModel.sheet == "toc";
     property <bool> navigation-visible:
         !ShellModel.booting && (ShellModel.route == "shelf" || ShellModel.route == "store" || ShellModel.route == "downloads" || ShellModel.route == "account" || (ShellModel.route == "search" && !CatalogModel.keyboard-visible))
         && !(ShellModel.route == "downloads" && (DownloadModel.selecting || DownloadModel.sheet-open))
         && !(ShellModel.route == "account" && AccountModel.recharge-visible);
-    property <length> top-inset: root.reader-visible ? 0px : Theme.status-height;
+    property <length> top-inset: root.reader-visible && !root.directory-visible ? 0px : Theme.status-height;
     property <length> bottom-inset: root.navigation-visible ? Theme.nav-height : 0px;
 
-    if !ShellModel.booting && !root.reader-visible: StatusBar {
+    if !ShellModel.booting && (!root.reader-visible || root.directory-visible): StatusBar {
         x: 0px;
         y: 0px;
         width: root.width;
@@ -74,21 +76,32 @@ export component AppWindow inherits Window {
         if ShellModel.route == "shelf": ShelfScreen { width: parent.width; height: parent.height; }
         if ShellModel.route == "store": StoreScreen { width: parent.width; height: parent.height; }
         if ShellModel.route == "search": SearchScreen { width: parent.width; height: parent.height; }
-        if ShellModel.route == "detail": DetailScreen { width: parent.width; height: parent.height; }
+        if ShellModel.route == "detail" || root.directory-visible: ChapterBook {
+            width: parent.width; height: parent.height;
+            directory: root.directory-visible;
+            action(name, value) => { CatalogModel.action(name, value); }
+        }
         if ShellModel.route == "downloads": DownloadsScreen { width: parent.width; height: parent.height; }
         if ShellModel.route == "account": AccountScreen { width: parent.width; height: parent.height; }
         if ShellModel.route == "purchase": PurchaseScreen { width: parent.width; height: parent.height; }
         if ShellModel.route == "welcome": WelcomeScreen { width: parent.width; height: parent.height; }
         if ShellModel.route == "login": LoginScreen { width: parent.width; height: parent.height; }
     }
-    if root.reader-visible: ReaderScreen { x: 0px; y: 0px; width: root.width; height: root.height; }
+    if root.reader-visible && !root.directory-visible: ReaderScreen { x: 0px; y: 0px; width: root.width; height: root.height; }
+    if !ShellModel.booting && ShellModel.route == "purchase" && AccountModel.recharge-visible: RechargeDialog {
+        x: 0px; y: Theme.status-height; width: root.width; height: root.height - Theme.status-height;
+    }
     if root.navigation-visible: BottomNav {
         x: 0px;
         y: root.height - Theme.nav-height;
         width: root.width;
         active: ShellModel.route == "search" ? "store" : ShellModel.route;
         pending: ShellModel.pending;
-        change(value) => { ShellModel.action("navigate", value); }
+        change(value) => {
+            if ShellModel.route == "account" && AccountModel.local-dialog != "" {
+                if AccountModel.local-dialog == "picker" { AccountModel.local-dialog = ""; }
+            } else { ShellModel.action("navigate", value); }
+        }
     }
     if !ShellModel.booting && AuthModel.net-visible: NetSheet { x: 0px; y: 0px; width: root.width; height: root.height; }
     if !ShellModel.booting && ShellModel.toast != "": Rectangle {
@@ -114,7 +127,6 @@ export component AppWindow inherits Window {
         y: 0px;
         width: root.width;
         height: root.height;
-        phase: ShellModel.startup-phase;
         frame: ShellModel.startup-frame;
         failed: ShellModel.startup-error;
         paused: ShellModel.suspended;

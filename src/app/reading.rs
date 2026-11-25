@@ -803,20 +803,41 @@ impl App {
     }
 
     pub(super) fn open_episode(&mut self, comic_id: &str, episode_id: &str) -> Result<()> {
+        self.open_episode_at(comic_id, episode_id, None, false)
+    }
+
+    pub(super) fn open_episode_from_start(&mut self, comic_id: &str, episode_id: &str) -> Result<()> {
+        self.open_episode_at(comic_id, episode_id, None, true)
+    }
+
+    pub(super) fn open_offline_episode(&mut self, comic_id: &str, episode_id: &str, revision: &str) -> Result<()> {
+        self.open_episode_at(comic_id, episode_id, Some(revision), false)
+    }
+
+    fn open_episode_at(&mut self, comic_id: &str, episode_id: &str, retained_revision: Option<&str>, from_start: bool) -> Result<()> {
         self.defer_sleep_cover_for_reader_activity();
         let Some(detail) = self.reader_cached_detail(comic_id)? else {
+            if retained_revision.is_some() { self.toast("common_no_download"); return Ok(()); }
             return self.request_reader_detail(comic_id, Some(episode_id));
         };
         let Some(episode) = detail.episodes.iter().find(|episode| episode.id == episode_id).cloned() else {
+            if retained_revision.is_some() { self.toast("common_no_download"); return Ok(()); }
             return self.request_reader_detail(comic_id, Some(episode_id));
         };
         if !episode.readable_at(now()) {
-            if episode.access == EpisodeAccess::Locked { self.catalog.detail = Some(detail); self.open_purchase(episode_id)?; }
+            if retained_revision.is_none() && episode.access == EpisodeAccess::Locked { self.catalog.detail = Some(detail); self.open_purchase(episode_id)?; }
             else { self.toast(reader_blocked_message(&episode, now())); }
             return Ok(());
         }
         let mut anchor = self.store.load_anchor(&self.account, comic_id)?.filter(|anchor| anchor.episode_id == episode_id);
-        let cached = if let Some(anchor) = anchor.as_ref() {
+        let cached = if let Some(revision) = retained_revision {
+            let cached = self.store.load_index(&self.account, episode_id, Some(revision))?;
+            if cached.as_ref().is_none_or(|index| index.images.is_empty()) {
+                self.toast("common_no_download");
+                return Ok(());
+            }
+            cached
+        } else if let Some(anchor) = anchor.as_ref() {
             self.store.load_index(&self.account, episode_id, Some(&anchor.revision))?
                 .or(self.store.load_index(&self.account, episode_id, None)?)
         } else { self.store.load_index(&self.account, episode_id, None)? };
@@ -833,6 +854,7 @@ impl App {
             && (!self.require_network("reader", "open-episode", &format!("{comic_id}:{episode_id}")) || !self.require_session()) {
             return Ok(());
         }
+        if from_start { anchor = None; }
         let generation = self.begin_reader(comic_id, episode_id)?;
         if let Some(state) = self.reading.as_mut() { state.detail = Some(detail.clone()); }
         self.catalog.detail = Some(detail);
@@ -862,7 +884,7 @@ impl App {
         Ok(())
     }
 
-    fn reader_cached_detail(&self, comic_id: &str) -> Result<Option<ComicDetail>> {
+    pub(super) fn reader_cached_detail(&self, comic_id: &str) -> Result<Option<ComicDetail>> {
         Ok(self.catalog.detail.as_ref().filter(|detail| detail.comic.id == comic_id).cloned()
             .or(self.store.load_detail(&self.account, comic_id)?))
     }
@@ -904,6 +926,11 @@ impl App {
     }
 
     fn begin_reader(&mut self, comic_id: &str, episode_id: &str) -> Result<u64> {
+        if self.route == "purchase" && self.reading.is_none() {
+            self.reader_origin = "detail".into();
+        } else if matches!(self.route.as_str(), "shelf" | "store" | "search" | "detail" | "downloads") {
+            self.reader_origin.clone_from(&self.route);
+        }
         self.save_reading_position()?;
         if let Err(error) = self.release_reader() {
             eprintln!("bilicomics: previous reader retirement warning: {error:#}");
@@ -1045,7 +1072,7 @@ impl App {
         self.reader_action_traced(action, value, trace)
     }
 
-    fn reader_directory_capacity(&self) -> usize {
+    pub(super) fn chapter_page_capacity(&self) -> usize {
         let (mut width, mut height) = self.platform.logical_viewport_size();
         if self.options.landscape { std::mem::swap(&mut width, &mut height); }
         if let Some(ui) = self.ui.upgrade() {
@@ -1056,27 +1083,30 @@ impl App {
                 height = (size.height as f32 / scale).round() as u32;
             }
         }
-        chapter_capacity((width, height), self.is_scribe())
+        chapter_capacity((width, height), self.is_scribe(), self.detail_selection_active())
     }
 
-    fn reader_directory_input_capacity(&self) -> usize {
-        self.ui.upgrade().map(|ui| ui.global::<ReaderModel>().get_chapter_capacity())
-            .filter(|capacity| *capacity > 0).map(|capacity| capacity as usize)
-            .unwrap_or_else(|| self.reader_directory_capacity()).clamp(1, 64)
+    pub(super) fn reader_directory_open(&self) -> bool {
+        self.route == "reader" && self.reading.as_ref().is_some_and(|state| state.sheet == "toc")
+    }
+
+    pub(super) fn reader_directory_context(&self) -> Option<(&str, usize, &str, bool)> {
+        let state = self.reading.as_ref().filter(|_| self.reader_directory_open())?;
+        Some((&state.episode_id, state.directory.page, &state.directory.filter, state.directory.descending))
+    }
+
+    pub(super) fn restore_reader_directory_catalog(&mut self) -> Result<()> {
+        let Some(state) = self.reading.as_mut().filter(|state| state.sheet == "toc") else { return Ok(()); };
+        if let Some(detail) = self.store.load_detail(&self.account, &state.comic_id)? {
+            state.detail = Some(detail.clone());
+            self.catalog.detail = Some(detail);
+        }
+        Ok(())
     }
 
     fn reader_directory_selection<'a>(&self, state: &'a ReadingState, capacity: usize) -> ChapterDirectorySelection<'a> {
-        let timestamp = now();
-        let mut episodes: Vec<_> = state.detail.as_ref().map(|detail| detail.episodes.iter().filter(|episode| {
-            match state.directory.filter.as_str() {
-                "unread" => !episode.read && episode.id != state.episode_id,
-                "readable" => episode.readable_at(timestamp),
-                "downloaded" => self.reader_episode_downloaded(episode),
-                _ => true,
-            }
-        }).collect()).unwrap_or_default();
-        episodes.sort_by(|first, second| first.order.total_cmp(&second.order).then_with(|| first.id.cmp(&second.id)));
-        if state.directory.descending { episodes.reverse(); }
+        let episodes = state.detail.as_ref().map(|detail| self.chapter_episodes(detail,
+            Some(&state.episode_id), &state.directory.filter, state.directory.descending)).unwrap_or_default();
         let capacity = capacity.clamp(1, 64);
         let pages = episodes.len().div_ceil(capacity).max(1);
         let page = if state.directory.follow_current {
@@ -1103,9 +1133,10 @@ impl App {
     fn reader_directory_page(&self, state: &ReadingState, capacity: usize) -> Result<ChapterDirectoryPage> {
         let selection = self.reader_directory_selection(state, capacity);
         let mut rows = Vec::new();
-        if let Some(detail) = state.detail.as_ref() {
+        if state.detail.is_some() {
+            let position = state.visible_core().map(|core| (core.page_index() + 1, core.page_count()));
             for episode in selection.episodes.iter().skip((selection.page - 1) * selection.capacity).take(selection.capacity) {
-                let item = self.episode_view(detail, episode)?;
+                let item = self.episode_view_at(episode, Some(&state.episode_id), position)?;
                 let current = episode.id == state.episode_id;
                 let progress = if current {
                     state.visible_core().map(|core| match core.settings().mode {
@@ -1132,18 +1163,20 @@ impl App {
         if self.reading.as_ref().is_none_or(|state| state.sheet != "toc") { return Ok(()); }
         if !matches!(value, "previous" | "next" | "locate" | "sort" | "sort:asc" | "sort:desc"
             | "filter:all" | "filter:unread" | "filter:readable" | "filter:downloaded") { return Ok(()); }
-        let capacity = self.reader_directory_input_capacity();
+        let capacity = self.chapter_page_capacity();
         self.synchronize_reader_directory(capacity);
+        if value == "locate" {
+            let contains_current = self.reading.as_ref().is_some_and(|state|
+                self.reader_directory_selection(state, capacity).episodes.iter().any(|episode| episode.id == state.episode_id));
+            if !contains_current { return Ok(()); }
+        }
         if let Some(state) = self.reading.as_mut() {
             let directory = &mut state.directory;
             directory.follow_current = false;
             match value {
                 "previous" => directory.page = directory.page.saturating_sub(1).max(1),
                 "next" => directory.page = (directory.page + 1).min(directory.pages),
-                "locate" => {
-                    directory.filter = "all".into(); directory.descending = false;
-                    directory.follow_current = true;
-                },
+                "locate" => directory.follow_current = true,
                 "sort" | "sort:asc" | "sort:desc" => {
                     directory.descending = if value == "sort" { !directory.descending } else { value == "sort:desc" };
                     directory.page = 1;
@@ -1176,6 +1209,7 @@ impl App {
             self.defer_sleep_cover_for_reader_activity();
         }
         if action == "episode" && self.reading.as_ref().is_some_and(|state| state.episode_id == value) {
+            if self.reader_directory_open() { self.close_detail_selection(); }
             if let Some(state) = self.reading.as_mut() { state.menu = false; state.sheet.clear(); }
             self.reader_overlay_refresh(false);
             return Ok(());
@@ -1196,6 +1230,7 @@ impl App {
         }
         if matches!(action, "turn" | "page" | "source-page" | "seek" | "beginning" | "last-view"
             | "retry" | "episode" | "next" | "purchase" | "open-comic" | "open-episode") {
+            if self.reader_directory_open() { self.close_detail_selection(); }
             let closed = if let Some(state) = self.reading.as_mut() {
                 let opened = state.menu || !state.sheet.is_empty();
                 state.menu = false;
@@ -1210,24 +1245,31 @@ impl App {
                 if let Some((comic_id, episode_id)) = value.split_once(':') { return self.open_episode(comic_id, episode_id); }
                 return Ok(());
             }
-            "back" | "shelf" => {
+            "back" => return self.go_back(),
+            "shelf" => {
+                if self.reader_directory_open() { self.close_detail_selection(); }
                 self.close_reader()?;
-                if action == "shelf" { self.navigate("shelf"); } else { self.go_back()?; }
+                self.navigate("shelf");
                 return Ok(());
             }
             "menu" => {
+                if self.reader_directory_open() { self.close_detail_selection(); }
                 if let Some(state) = self.reading.as_mut() { state.menu = value == "open"; state.sheet.clear(); }
                 self.reader_overlay_refresh(value == "open");
                 return Ok(());
             }
             "sheet" => {
-                let capacity = self.reader_directory_input_capacity();
+                let capacity = self.chapter_page_capacity();
+                if value == "toc" || self.reader_directory_open() { self.close_detail_selection(); }
                 if let Some(state) = self.reading.as_mut() {
                     state.menu = true;
                     state.sheet = value.to_owned();
                     if value == "toc" { state.directory = ChapterDirectory { capacity, ..Default::default() }; }
                 }
-                if value == "toc" { self.synchronize_reader_directory(capacity); }
+                if value == "toc" {
+                    self.catalog.detail = self.reading.as_ref().and_then(|state| state.detail.clone());
+                    self.synchronize_reader_directory(capacity);
+                }
                 if value == "light" { self.query_reader_lights(); }
                 self.reader_overlay_refresh(true);
                 return Ok(());
@@ -1385,7 +1427,7 @@ impl App {
         }
         match key {
             "mode" if ["page", "panel", "strip"].contains(&value) => { state.saved.mode = value.into(); self.preferences.mode = value.into(); }
-            "fit" if FitMode::parse(value).is_some() => { state.saved.fit = value.into(); self.preferences.fit = value.into(); }
+            "fit" if FitMode::parse(value).is_some() => { state.saved.fit = value.into(); }
             "direction" if ["ltr", "rtl"].contains(&value) => { state.saved.direction = value.into(); self.preferences.direction = value.into(); }
             "refresh-policy" if ["smart", "0", "1", "6"].contains(&value) => { state.saved.every = value.into(); self.preferences.every = value.into(); }
             "refresh-mode" if ["normal", "fast"].contains(&value) => {
@@ -2504,7 +2546,7 @@ impl App {
     pub(super) fn refresh_reader_view(&mut self, ui: &AppWindow) -> Result<()> {
         self.sync_presented_reader_dithering();
         if self.is_suspended() { return Ok(()); }
-        let capacity = self.reader_directory_capacity();
+        let capacity = self.chapter_page_capacity();
         let directory = self.reading.as_ref().filter(|state| state.sheet == "toc")
             .map(|state| self.reader_directory_page(state, capacity)).transpose()?;
         if let (Some(state), Some(directory)) = (self.reading.as_mut(), directory.as_ref()) {
@@ -2541,9 +2583,19 @@ impl App {
         let mut visible = [state.metadata.left_page, state.metadata.right_page].into_iter().filter(|page| *page >= 1 && (*page as usize) <= count).collect::<Vec<_>>();
         visible.sort_unstable();
         let pair = match visible.as_slice() { [first, last] => format!("{first}–{last}"), [first] => first.to_string(), _ => page.to_string() };
-        view.set_spread_label(format!("{pair} / {count} · {}", i18n::text("read_pair_refresh")).into());
+        view.set_spread_label(format!("{pair} / {count}").into());
         view.set_comic_title(title.into());
         view.set_episode_title(episode_title.into());
+        view.set_return_label(self.destination_label(&self.reader_origin).into());
+        if state.menu && state.sheet != "toc" {
+            let download_state = state.episode().map_or("unavailable", |episode| {
+                if self.reader_episode_downloaded(episode) { "downloaded" }
+                else if self.episode_download_queued(&episode.id) { "queued" }
+                else if episode.readable_at(now()) { "" }
+                else { "unavailable" }
+            });
+            view.set_download_state(download_state.into());
+        }
         view.set_transition_episode_title(state.episode().map(reader_episode_summary).unwrap_or_default().into());
         view.set_progress_label(progress.into());
         view.set_cache_label(self.reader_cache_label(state).into());
@@ -2624,6 +2676,10 @@ impl App {
         let (balance, coupons) = self.account_wallet_labels();
         view.set_wallet_label(if balance.replace(',', "").parse::<f64>().is_ok() { i18n::format("read_coin_price", &[("amount", balance)]).into() } else { balance.into() });
         view.set_coupon_label(if coupons.replace(',', "").parse::<f64>().is_ok() { i18n::format("read_coupon_quantity", &[("amount", coupons)]).into() } else { coupons.into() });
+        let chapter_book = directory.as_ref().map(|directory| (
+            state.episode_id.clone(), core.map(|_| (page, count)), directory.page,
+            state.directory.filter.clone(), state.directory.descending,
+        ));
         let chapters = directory.map(|directory| directory.rows).unwrap_or_default();
         view.set_chapter_count(state.detail.as_ref().map_or(0, |detail| detail.episodes.len().min(i32::MAX as usize)) as i32);
         view.set_chapter_page(state.directory.page as i32);
@@ -2642,6 +2698,9 @@ impl App {
                 "presented": state.presented_core.as_ref().map(reader_trace_geometry),
             }));
             if let Some(state) = self.reading.as_mut() { state.performance_model_id = Some(trace.id()); }
+        }
+        if let Some((current, position, page, filter, descending)) = chapter_book {
+            self.refresh_chapter_book(ui, Some(&current), position, Some((page, &filter, descending)))?;
         }
         // Reconcile after all model setters too: preparing feedback can become
         // due during view construction, while clear/loading changes must be
@@ -2882,18 +2941,19 @@ fn sync_reader_rows<T: Clone + 'static>(model: &VecModel<T>, rows: &[T], same: i
     for value in rows.iter().skip(previous_count) { model.push(value.clone()); }
 }
 
-fn chapter_capacity(logical: (u32, u32), scribe: bool) -> usize {
+fn chapter_capacity(logical: (u32, u32), scribe: bool, selecting: bool) -> usize {
     let (width, height) = logical;
-    let status = if scribe { 32 } else { 28 };
-    let header = if scribe { 72 } else { 64 };
-    let gap = if scribe { 16 } else { 12 };
-    let filter = if scribe { 52 } else { 48 };
-    let filter = if width < if scribe { 680 } else { 540 } { filter * 2 + 8 } else { filter };
-    let columns = if scribe && width >= 760 { 36 } else { 0 };
-    let body_top = status + header + gap + filter + 16 + columns;
-    let footer = if scribe { 64 } else { 72 };
-    let row = if scribe { 68 } else { 60 };
-    (height.saturating_sub(body_top + footer) / row).clamp(1, 64) as usize
+    // Keep the adaptive right-hand column and row geometry in sync with ChapterBook.
+    let (edge, gap, cover, header, footer, row) = if scribe {
+        (48, 40, 250.min(width * 31 / 100), 32 + 64 + 44 + 56, 72, 68)
+    } else if width < 560 {
+        (12, 10, 154.min(width * 30 / 100), 28 + 48 + 36 + 44, 56, 62)
+    } else {
+        (20, 18, 188, 28 + 48 + 36 + 44, 56, 62)
+    };
+    let actions = if width.saturating_sub(2 * edge + gap + cover) < 365 { 48 } else { 0 };
+    let selection_heading = if selecting { if scribe { 20 } else { 32 } } else { 0 };
+    (height.saturating_sub(header + selection_heading + footer + actions) / row).clamp(1, 64) as usize
 }
 
 fn reader_settings(saved: &SavedReaderPreferences, landscape: bool, logical: (u32, u32)) -> ReaderSettings {

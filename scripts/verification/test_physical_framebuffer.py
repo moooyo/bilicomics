@@ -1,8 +1,10 @@
 """Pure framebuffer evidence conversion tests; no host or device transport."""
 
 import unittest
+from types import SimpleNamespace
 
 from physical_device import (
+    Harness,
     framebuffer_memory_pixels,
     framebuffer_panel_projection,
     sha256,
@@ -13,6 +15,17 @@ from physical_device import (
 def grayscale_geometry(width=6, visual=1, grayscale=1):
     return {"width": width, "height": 1, "bits_per_pixel": 8,
             "visual": visual, "grayscale": grayscale}
+
+
+class NativeGeometryTests(unittest.TestCase):
+    def test_paperwhite6_requires_native_dimensions_and_zero_offsets(self):
+        harness = SimpleNamespace(state={"profile": "pw6"})
+        geometry = {"width": 1272, "height": 1696, "xoffset": 0, "yoffset": 0, "read_only": True}
+        Harness.check_geometry(harness, geometry)
+        with self.assertRaisesRegex(RuntimeError, "visible framebuffer dimensions"):
+            Harness.check_geometry(harness, {**geometry, "width": 1264, "height": 1680})
+        with self.assertRaisesRegex(RuntimeError, "unpanned geometry"):
+            Harness.check_geometry(harness, {**geometry, "yoffset": 1})
 
 
 class FramebufferConversionTests(unittest.TestCase):

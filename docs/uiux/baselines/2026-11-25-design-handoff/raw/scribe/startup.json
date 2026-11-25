@@ -1,0 +1,12 @@
+{
+  "animation_frame": 0,
+  "booting": true,
+  "error": false,
+  "native_epdc_mode": null,
+  "phase": "fonts",
+  "pixel_semantics": "Logical Slint snapshot before framebuffer compensation",
+  "process_id": 68,
+  "suspended": false,
+  "worker_started": false,
+  "worker_started_semantics": "A successful shared admission CAS before preparation jobs are queued"
+}

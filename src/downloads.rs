@@ -685,6 +685,14 @@ impl DownloadManager {
         self.change_state(task_id, DownloadStatus::Cancelled, DownloadEventKind::Cancelled)
     }
 
+    /// A UI cancel only revokes unfinished retained work, never a chapter that finished in the meantime.
+    pub(crate) fn cancel_unfinished_retained(&mut self, task_id: &str, queued_only: bool) -> Result<()> {
+        self.change_state_if(task_id, DownloadStatus::Cancelled, DownloadEventKind::Cancelled, true, |record| {
+            record.retained && (record.status == DownloadStatus::Queued || !queued_only
+                && matches!(record.status, DownloadStatus::Running | DownloadStatus::Paused | DownloadStatus::Failed))
+        })
+    }
+
     pub fn resume(&mut self, task_id: &str) -> Result<DownloadRecord> { self.restart(task_id) }
     pub fn retry(&mut self, task_id: &str) -> Result<DownloadRecord> { self.restart(task_id) }
 
@@ -1180,11 +1188,18 @@ impl DownloadManager {
     }
 
     fn change_state(&mut self, task_id: &str, status: DownloadStatus, event: DownloadEventKind) -> Result<()> {
+        self.change_state_if(task_id, status, event, false, |_| true)
+    }
+
+    fn change_state_if(&mut self, task_id: &str, status: DownloadStatus, event: DownloadEventKind,
+        allow_missing: bool, eligible: impl FnOnce(&DownloadRecord) -> bool) -> Result<()> {
         let _publication = self.context.publication.lock()
             .map_err(|_| anyhow!("page publication lock failed"))?;
         let store = Store::open(&self.context.database)?;
-        let mut record = store.load_download(&self.context.account, task_id)?.context("download task does not exist")?;
-        if record.status == DownloadStatus::Completed && status == DownloadStatus::Paused && !record.refresh_source { return Ok(()); }
+        let Some(mut record) = store.load_download(&self.context.account, task_id)? else {
+            return if allow_missing { Ok(()) } else { Err(anyhow!("download task does not exist")) };
+        };
+        if !eligible(&record) || record.status == DownloadStatus::Completed && status == DownloadStatus::Paused && !record.refresh_source { return Ok(()); }
         record.generation = record.generation.checked_add(1).context("download generation overflow")?;
         record.status = status;
         record.error_code = None;
@@ -2587,6 +2602,19 @@ mod tests {
 
     fn record(root: &Path, id: &str) -> DownloadRecord {
         Store::open(root.join("state.sqlite3")).unwrap().load_download("fixture-account", id).unwrap().unwrap()
+    }
+
+    #[tokio::test]
+    async fn ui_cancellation_cannot_revoke_a_completed_retained_chapter() {
+        let directory = tempfile::tempdir().unwrap();
+        let mut manager = DownloadManager::new(directory.path(), "fixture-account".to_owned(), 1,
+            FixtureSource::new(2), Handle::current()).unwrap();
+        let task = manager.enqueue(request(true)).unwrap();
+        wait_until(|| record(directory.path(), &task.id).status == DownloadStatus::Completed).await;
+        let completed = record(directory.path(), &task.id);
+        manager.cancel_unfinished_retained(&task.id, true).unwrap();
+        manager.cancel_unfinished_retained(&task.id, false).unwrap();
+        assert_eq!(record(directory.path(), &task.id), completed);
     }
 
     #[tokio::test]

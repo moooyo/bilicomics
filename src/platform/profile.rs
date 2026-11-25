@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-/// A design geometry, not a declaration of hardware compatibility.
+/// A design profile and native framebuffer expectation, not a hardware compatibility claim.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub enum DeviceProfile {
     Paperwhite5,
@@ -39,6 +39,7 @@ impl DeviceProfile {
         }
     }
 
+    /// Desktop design canvas in logical pixels; not necessarily half the native framebuffer.
     pub const fn logical_size(self) -> (u32, u32) {
         match self {
             Self::Paperwhite5 => (618, 824),
@@ -48,9 +49,15 @@ impl DeviceProfile {
         }
     }
 
-    pub const fn physical_size(self) -> (u32, u32) {
-        let (width, height) = self.logical_size();
-        (width * 2, height * 2)
+    /// Expected visible framebuffer in pixels, independent of the reference artwork.
+    pub const fn native_framebuffer_size(self) -> (u32, u32) {
+        match self {
+            Self::Paperwhite5 => (1236, 1648),
+            // The stock Sangria device tree declares this for both panel and display.
+            Self::Paperwhite6 => (1272, 1696),
+            Self::Scribe => (1860, 2480),
+            Self::Scribe2025 => (1980, 2640),
+        }
     }
 
     pub const fn is_scribe(self) -> bool {
@@ -71,16 +78,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn design_units_have_the_same_physical_scale_on_every_profile() {
-        for profile in [
-            DeviceProfile::Paperwhite5,
-            DeviceProfile::Paperwhite6,
-            DeviceProfile::Scribe,
-            DeviceProfile::Scribe2025,
+    fn native_framebuffers_do_not_inherit_desktop_design_sizes() {
+        for (profile, design, native, scribe) in [
+            (DeviceProfile::Paperwhite5, (618, 824), (1236, 1648), false),
+            (DeviceProfile::Paperwhite6, (632, 840), (1272, 1696), false),
+            (DeviceProfile::Scribe, (930, 1240), (1860, 2480), true),
+            (DeviceProfile::Scribe2025, (990, 1320), (1980, 2640), true),
         ] {
-            let logical = profile.logical_size();
-            assert_eq!(profile.physical_size(), (logical.0 * 2, logical.1 * 2));
-            assert_eq!(profile.is_scribe(), logical.0 >= 900);
+            assert_eq!(profile.logical_size(), design);
+            assert_eq!(profile.native_framebuffer_size(), native);
+            assert_eq!(profile.is_scribe(), scribe);
         }
     }
 

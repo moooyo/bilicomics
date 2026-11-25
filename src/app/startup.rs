@@ -214,7 +214,8 @@ impl App {
             lifecycle: LifecycleState::default(),
             startup_stage: Some(AttachStage::Covers), startup_resume_comic: resume_comic,
             startup_account: Some(account_ui), startup_covers: covers,
-            route: "shelf".into(), previous_route: "shelf".into(), auth_return: "account".into(),
+            route: "shelf".into(), detail_origin: "shelf".into(), reader_origin: "shelf".into(),
+            purchase_origin: "detail".into(), auth_return: "account".into(),
             pending_network: None, network_verified_epoch: None,
             qr_key: None, qr_next_poll: Instant::now(), qr_polling: false,
             cover_files, cover_images: BTreeMap::new(), cover_sequence: 0,
@@ -692,8 +693,8 @@ mod tests {
             assert!(app.advance_startup_with_budget(Duration::ZERO)?);
             assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Booting);
             shell.set_booting(false);
-            let rows = catalog.get_shelf_items();
-            let mut placeholder = rows.row_data(0).expect("the projected Shelf has a real entry");
+            assert_eq!(App::shelf_render_scene(ui), ShelfRenderScene::Shelf(ShelfState::SignedOut));
+            let mut placeholder = crate::ui::ComicItem { id: "1".into(), title: "Startup cover 1".into(), ..Default::default() };
             placeholder.cover = slint::Image::default();
             catalog.set_shelf_state("ready".into());
             catalog.set_shelf_items(model(Vec::new()));
@@ -743,7 +744,9 @@ mod tests {
             assert!(app.advance_startup_with_budget(Duration::ZERO)?);
             assert!(!app.is_starting());
             assert_eq!(shell.get_route().as_str(), "shelf");
-            assert!(ui.global::<CatalogModel>().get_shelf_items().row_count() > 0);
+            let catalog = ui.global::<CatalogModel>();
+            assert_eq!(catalog.get_shelf_state().as_str(), "signed-out");
+            assert_eq!(catalog.get_shelf_items().row_count(), 0);
             assert!(shell.get_booting(), "Only the driver reveals the committed scene");
             Ok(())
         })

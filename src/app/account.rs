@@ -2,7 +2,8 @@ use super::*;
 use crate::{
     domain::EpisodeAccess,
     source::{PurchaseMethod, PurchaseRequest, PurchaseScope, QuoteScope, RechargeConfig, RechargeOrder, SourceError},
-    ui::{PurchaseRangeItem, PurchaseReceiptItem},
+    reader::FitMode,
+    ui::{AccountInfoItem, AccountRecordItem, PurchaseIncludedItem, PurchaseRangeItem},
 };
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -20,8 +21,10 @@ pub(super) struct AccountState {
     wallet: Option<Value>,
     wallet_at: i64,
     wallet_attempted: bool,
-    preview_wallet_refreshed: bool,
-    preview_cache_cleared: bool,
+    wallet_refreshed: bool,
+    cache_cleared: bool,
+    diagnostics_exported: bool,
+    session_imported: bool,
     busy: bool,
     message: String,
     comic: Option<Comic>,
@@ -39,6 +42,7 @@ pub(super) struct AccountState {
     storage: Option<StorageSummary>,
     storage_pending: bool,
     storage_checked: Option<Instant>,
+    storage_generation: u64,
     outbox_checked: Option<Instant>,
     outbox_generation: u64,
     recharge: RechargeUi,
@@ -47,13 +51,13 @@ pub(super) struct AccountState {
 impl Default for AccountState {
     fn default() -> Self {
         Self {
-            section: "account".into(), wallet: None, wallet_at: 0, wallet_attempted: false,
-            preview_wallet_refreshed: false, preview_cache_cleared: false,
+            section: "home".into(), wallet: None, wallet_at: 0, wallet_attempted: false,
+            wallet_refreshed: false, cache_cleared: false, diagnostics_exported: false, session_imported: false,
             busy: false, message: String::new(), comic: None, episode: None,
             selection: "single".into(), payment: "coin".into(), phase: "review".into(),
             quote_loading: false, quote: None, quote_read: None, quote_error: String::new(),
             journals: Vec::new(), current_journal: None, reconciling: false,
-            storage: None, storage_pending: false, storage_checked: None,
+            storage: None, storage_pending: false, storage_checked: None, storage_generation: 0,
             outbox_checked: None, outbox_generation: OUTBOX_GENERATION.load(Ordering::Acquire),
             recharge: RechargeUi::default(),
         }
@@ -97,6 +101,7 @@ struct RechargeIntent {
     id: String,
     account: String,
     amount_cents: u64,
+    coin_amount: Option<u64>,
     fingerprint: String,
     state: String,
     created_at: i64,
@@ -112,23 +117,52 @@ struct RechargeIntent {
 struct RechargeUi {
     visible: bool,
     phase: String,
-    title: String,
     config: Option<RechargeConfig>,
     selected: usize,
     journal: Option<RechargeIntent>,
     qr: slint::Image,
     message: String,
-    rows: Vec<String>,
     busy: bool,
+    history: Option<Value>,
+    history_loading: bool,
+    history_failed: bool,
+}
+
+impl RechargeUi {
+    fn present_intent(&mut self, intent: &RechargeIntent) {
+        self.qr = slint::Image::default();
+        let (phase, message) = if intent.persistence_pending {
+            ("pending", "acct_receipt_storage_pending")
+        } else if intent.state == "rejected" {
+            ("error", "acct_recharge_rejected")
+        } else if let Some(order) = &intent.order {
+            match super::auth::qr_image(&order.code_url) {
+                Ok(qr) => { self.qr = qr; ("qr", "") }
+                Err(_) => ("pending", "acct_recharge_qr_unavailable"),
+            }
+        } else {
+            ("pending", "acct_recharge_unknown")
+        };
+        self.phase = phase.into();
+        self.message = if message.is_empty() { String::new() } else { i18n::text(message) };
+    }
 }
 
 #[derive(Clone, Default)]
 struct StorageSummary {
-    bytes: u64,
     manual_bytes: u64,
     cache_bytes: u64,
     free_bytes: Option<u64>,
-    volume_bytes: Option<u64>,
+}
+
+impl StorageSummary {
+    fn used_bytes(&self) -> u64 { self.manual_bytes.saturating_add(self.cache_bytes) }
+
+    fn composition(&self) -> (f32, f32) {
+        let total = self.used_bytes();
+        if total == 0 { return (0.0, 0.0); }
+        (self.manual_bytes as f32 / total as f32, self.cache_bytes as f32 / total as f32)
+    }
 }
 
 /// Account startup data contains no UI object and can move from the preparation worker.
@@ -206,15 +240,17 @@ impl App {
                 Err(_) => self.toast("common_storage_error"),
             }
             if let Ok(Some(intent)) = self.store.preference::<RechargeIntent>(&self.account, RECHARGE_KEY) {
-                if self.account_ui.recharge.visible && self.account_ui.recharge.phase != "history" {
-                    self.account_ui.recharge.phase = match intent.state.as_str() { "qr" | "observed" => "qr", "rejected" => "error", _ => "pending" }.into();
-                    if let Some(order) = &intent.order { self.account_ui.recharge.qr = super::auth::qr_image(&order.code_url).unwrap_or_default(); }
+                if self.account_ui.recharge.visible && self.account_ui.recharge.journal.as_ref()
+                    .is_some_and(|previous| previous.id == intent.id && previous.persistence_pending)
+                {
+                    self.account_ui.recharge.present_intent(&intent);
                 }
                 self.account_ui.recharge.journal = Some(intent);
             }
             self.account_ui.outbox_generation = generation;
             self.dirty = true;
         }
+        if matches!(self.route.as_str(), "account" | "downloads") { self.schedule_storage_summary(); }
         if self.account_ui.outbox_checked.is_none_or(|value| value.elapsed() >= Duration::from_secs(5)) {
             self.account_ui.outbox_checked = Some(Instant::now());
             if payment_outbox_has_entries() && OUTBOX_RETRY_ACTIVE.compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire).is_ok() {
@@ -273,29 +309,28 @@ impl App {
     pub(super) fn refresh_account_view(&mut self, ui: &AppWindow) -> Result<()> {
         let session = self.client.session();
         let signed_in = self.demo.is_some() || session.as_ref().and_then(AuthSession::account_key).is_some();
-        if self.route == "account" && signed_in && !self.account_ui.wallet_attempted
-            && self.account_ui.wallet.is_none() && !self.options.offline {
-            self.refresh_wallet();
-        }
-        if self.route == "account" && self.account_ui.storage_checked.is_none_or(|value| value.elapsed() > Duration::from_secs(30)) {
-            self.schedule_storage_summary();
+        if self.route == "account" && signed_in && self.demo.is_none() && !self.options.offline {
+            if !self.account_ui.wallet_attempted && self.account_ui.wallet.is_none() { self.refresh_wallet(false); }
+            if self.account_ui.section == "account" && self.account_ui.recharge.history.is_none()
+                && !self.account_ui.recharge.history_failed
+            { self.load_recharge_history(); }
         }
         let account = ui.global::<AccountModel>();
-        account.set_section(self.account_ui.section.clone().into());
+        account.set_section(self.account_section().into());
         account.set_signed_in(signed_in);
         let name = self.demo.as_ref().map(|demo| demo.account_name.clone())
             .or_else(|| session.as_ref().map(|session| session.account_name().to_owned())).unwrap_or_default();
         account.set_initial(name.chars().next().map(|value| value.to_string()).unwrap_or_default().into());
         account.set_username(name.into());
         account.set_session_status(tr(if self.demo.is_some() { "acct_preview_session" } else { "acct_session_active" }));
-        account.set_balance(self.account_ui.wallet.as_ref().and_then(|value| amount(value.get("remain_gold")))
-            .map(display_amount).unwrap_or_else(|| i18n::text("common_unknown")).into());
-        account.set_coupons(self.account_ui.wallet.as_ref().and_then(|value| amount(value.get("remain_coupon")))
-            .map(display_amount).unwrap_or_else(|| i18n::text("common_unknown")).into());
-        account.set_balance_time(self.wallet_time().into());
+        let (coins, coupons) = self.account_wallet_labels();
+        account.set_balance(coins.into());
+        account.set_coupons(coupons.into());
+        account.set_wallet_refreshed(self.account_ui.wallet_refreshed);
         account.set_busy(self.account_ui.busy);
         account.set_message(self.account_ui.message.clone().into());
         account.set_mode(self.preferences.mode.clone().into());
+        account.set_fit(FitMode::parse(&self.preferences.fit).unwrap_or_default().as_str().into());
         account.set_direction(self.preferences.direction.clone().into());
         account.set_every(self.preferences.every.clone().into());
         let fast_refresh = self.preferences.refresh_mode == "fast";
@@ -331,68 +366,48 @@ impl App {
         account.set_can_orient(self.demo.is_some());
         account.set_can_sleep_cover(self.demo.is_some() || self.platform.is_kindle);
         account.set_can_smart(self.demo.is_some());
-        account.set_can_update(self.demo.is_some());
+        account.set_can_update(false);
         account.set_version(env!("CARGO_PKG_VERSION").into());
-        let (width, height) = self.options.profile.physical_size();
-        account.set_device(format!("{} · {width}×{height}", self.options.profile.name()).into());
         account.set_device_short(self.options.profile.name().trim_start_matches("Kindle ").replace(" (2022 / 2024)", "").into());
         account.set_firmware(std::env::var("BILICOMICS_APPROVED_FIRMWARE")
             .unwrap_or_else(|_| i18n::text("common_unknown")).into());
         account.set_data_directory(self.data_dir.display().to_string().into());
-        account.set_last_purchase(self.account_ui.journals.last().map(|intent| {
-            format!("{} · {}", intent.quote.expected_ids.len(), journal_label(&intent.state))
-        }).unwrap_or_else(|| i18n::text("acct_no_records")).into());
-        let unknown = i18n::text("common_unknown");
-        if let Some(storage) = &self.account_ui.storage {
-            account.set_storage_used(byte_label(storage.bytes).into());
-            account.set_storage_free(storage.free_bytes.map(byte_label).unwrap_or_else(|| unknown.clone()).into());
-            account.set_manual_used(byte_label(storage.manual_bytes).into());
-            account.set_cache_used(byte_label(storage.cache_bytes).into());
-            account.set_cache_fill((storage.cache_bytes as f64 / (u64::from(self.preferences.cache_limit) * 1024 * 1024) as f64).clamp(0.0, 1.0) as f32);
-            account.set_storage_manual_fill(storage.volume_bytes.filter(|bytes| *bytes > 0).map(|total| (storage.manual_bytes as f64 / total as f64).clamp(0.0, 1.0) as f32).unwrap_or_default());
-            account.set_storage_cache_fill(storage.volume_bytes.filter(|bytes| *bytes > 0).map(|total| (storage.cache_bytes as f64 / total as f64).clamp(0.0, 1.0) as f32).unwrap_or_default());
-        } else {
-            account.set_storage_used(unknown.clone().into()); account.set_storage_free(unknown.clone().into());
-            account.set_manual_used(unknown.clone().into()); account.set_cache_used(unknown.into());
-            account.set_cache_fill(0.0);
-            account.set_storage_manual_fill(0.0); account.set_storage_cache_fill(0.0);
-        }
-        account.set_cache_note(tr("acct_cache_preserve_retained"));
+        account.set_diagnostics_result(if self.account_ui.diagnostics_exported { tr("acct_exported") } else { "".into() });
+        account.set_session_imported(self.account_ui.session_imported);
         if let Some(demo) = &self.demo {
             let presentation = &demo.fixture["account"]["presentation"];
-            if let Some(value) = presentation[if self.is_scribe() { "storage_used_sc" } else { "storage_used_pw" }].as_str() { account.set_storage_used(value.into()); }
-            if let Some(value) = presentation[if self.is_scribe() { "free_space_sc" } else { "free_space_pw" }].as_str() { account.set_storage_free(value.into()); }
-            if let Some(value) = presentation["manual_used"].as_str() { account.set_manual_used(value.into()); }
-            let cache_used = if self.account_ui.preview_cache_cleared { "0 MB".to_owned() }
-                else { presentation["cache_used"].as_str().unwrap_or_default().split(" / ").next().unwrap_or_default().to_owned() };
-            account.set_cache_used(format!("{cache_used} / {}", if self.preferences.cache_limit >= 1024 { format!("{} GB", self.preferences.cache_limit / 1024) } else { format!("{} MB", self.preferences.cache_limit) }).into());
-            account.set_storage_manual_fill(presentation["manual_pct"].as_f64().unwrap_or_default().clamp(0.0, 1.0) as f32);
-            account.set_storage_cache_fill(if self.account_ui.preview_cache_cleared { 0.0 } else { presentation["cache_pct"].as_f64().unwrap_or_default().clamp(0.0, 1.0) as f32 });
-            if let Some(value) = presentation["last_purchase"].as_str() { account.set_last_purchase(value.into()); }
             if let Some(value) = presentation["firmware"].as_str() { account.set_firmware(value.into()); }
             if let Some(value) = presentation["data_directory"].as_str() { account.set_data_directory(value.into()); }
-            account.set_cache_note(tr(if self.account_ui.preview_cache_cleared { "acct_preview_cache_released" } else { "acct_cache_preview_note" }));
         }
-        self.refresh_recharge_view(ui)?;
-        Ok(())
+        self.refresh_account_storage_view(&account);
+        self.refresh_account_history_view(&account, signed_in)?;
+        self.refresh_recharge_view(ui)
     }
 
     pub(super) fn account_action(&mut self, action: &str, value: &str) -> Result<()> {
+        if self.ui.upgrade().is_some_and(|ui| !ui.global::<AccountModel>().get_local_dialog().is_empty())
+            || (self.account_ui.recharge.visible && !action.starts_with("recharge-"))
+        { return Ok(()); }
         match action {
             "section" => {
-                if ["account", "reading", "download", "storage", "system", "about"].contains(&value) {
-                    self.account_ui.section = value.into(); self.account_ui.message.clear();
+                if ["home", "account", "reading", "display", "download", "storage", "system", "about"].contains(&value) {
+                    self.account_ui.section = value.into();
+                    self.account_ui.message.clear();
                 }
             }
-            "back" => self.account_ui.section = "account".into(),
+            "back" => {
+                self.account_ui.section = if matches!(self.account_ui.section.as_str(), "purchases" | "recharges") { "account" } else { "home" }.into();
+                self.account_ui.message.clear();
+            }
             "login" => { self.auth_return = "account".into(); self.navigate("login"); }
             "logout" => self.logout()?,
-            "refresh-wallet" => { if self.require_session() && self.require_network("account", action, value) { self.refresh_wallet(); } }
+            "refresh-wallet" => { if self.require_session() && self.require_network("account", action, value) { self.refresh_wallet(true); } }
             "recharge" => self.open_recharge(),
             "purchase-history" => self.open_purchase_history(),
             "recharge-history" => self.open_recharge_history(),
             "import-session" => self.import_account_session(value),
             "mode" if ["page", "panel", "strip"].contains(&value) => self.preferences.mode = value.into(),
+            "fit" if FitMode::parse(value).is_some() => self.preferences.fit = value.into(),
             "direction" if ["ltr", "rtl"].contains(&value) => self.preferences.direction = value.into(),
             "every" if self.preferences.refresh_mode != "fast" && ["smart", "0", "1", "6", "12"].contains(&value) => {
                 self.preferences.every = value.into();
@@ -402,7 +417,7 @@ impl App {
                 self.preferences.refresh_mode = value.into();
                 self.reader_refresh_mode_changed()?;
             }
-            "dither-method" if ["off", "bayer8", "floyd_steinberg"].contains(&value) => {
+            "dither-method" if self.preferences.refresh_mode != "fast" && ["off", "bayer8", "floyd_steinberg"].contains(&value) => {
                 if value != "off" { self.preferences.dither_method = value.into(); }
                 else { self.preferences.dither_method = normalized_dither_method(&self.preferences.dither_method).into(); }
                 self.preferences.dither = value != "off";
@@ -457,9 +472,9 @@ impl App {
             "check-update" => self.toast("acct_update_unconfigured"),
             "onboarding" => self.navigate("welcome"),
             "exit" => self.request_quit(),
-            "recharge-close" => self.account_ui.recharge.visible = false,
+            "recharge-close" if !self.account_ui.recharge.busy => self.account_ui.recharge.visible = false,
             "recharge-option" => {
-                if !self.account_ui.recharge.busy && self.account_ui.recharge.phase == "select" {
+                if self.account_ui.recharge.visible && !self.account_ui.recharge.busy && self.account_ui.recharge.phase == "select" {
                     if let Ok(index) = value.parse::<usize>() {
                         if self.account_ui.recharge.config.as_ref().is_some_and(|config| index < config.options.len()) {
                             self.account_ui.recharge.selected = index;
@@ -467,49 +482,70 @@ impl App {
                     }
                 }
             }
-            "recharge-create" => self.create_recharge_order()?,
-            "recharge-check" => self.check_recharge(),
-            "recharge-config" => self.load_recharge_config(),
+            "recharge-create" if self.account_ui.recharge.visible => self.create_recharge_order()?,
+            "recharge-check" if self.account_ui.recharge.visible => self.check_recharge(),
+            "recharge-config" if self.account_ui.recharge.visible => self.load_recharge_config(),
             _ => {}
         }
         self.save_preferences()?;
         Ok(())
     }
 
-    fn refresh_wallet(&mut self) {
+    fn account_section(&self) -> &str {
+        if self.is_scribe() && self.account_ui.section == "home" { "reading" } else { &self.account_ui.section }
+    }
+
+    pub(super) fn dismiss_account_overlays(&mut self) {
+        self.account_ui.recharge.visible = false;
+        self.account_ui.wallet_refreshed = false;
+        if let Some(ui) = self.ui.upgrade() {
+            ui.global::<AccountModel>().set_local_dialog("".into());
+        }
+    }
+
+    pub(super) fn reset_account_presentation(ui: &AppWindow) {
+        let account = ui.global::<AccountModel>();
+        account.set_section("home".into());
+        account.set_local_dialog("".into());
+        account.set_wallet_refreshed(false);
+        account.set_last_recharge("".into());
+        account.set_purchase_rows(model(Vec::new()));
+        account.set_recharge_history_status("".into());
+        account.set_recharge_coins("".into());
+        account.set_cache_action("".into());
+        account.set_cache_result("".into());
+        account.set_diagnostics_result("".into());
+        account.set_session_imported(false);
+    }
+
+    fn refresh_wallet(&mut self, explicit: bool) {
         self.account_ui.wallet_attempted = true;
         if self.account_ui.busy { return; }
+        self.account_ui.wallet_refreshed = false;
         if self.demo.is_some() {
-            self.account_ui.preview_wallet_refreshed = true;
+            self.account_ui.wallet_refreshed = explicit;
             self.account_ui.message.clear();
             return;
         }
         self.account_ui.busy = true;
         let client = self.client.clone();
-        self.source_job("account-wallet", async move { client.wallet().await }, |app, result| {
+        self.source_job("account-wallet", async move { client.wallet().await }, move |app, result| {
             app.account_ui.busy = false;
             match result {
                 Ok(wallet) => {
                     let snapshot = WalletSnapshot { value: wallet.clone(), observed_at: now() };
                     match app.store.set_preference(&app.account, "wallet", &snapshot) {
-                        Ok(()) => { app.account_ui.wallet = Some(wallet); app.account_ui.wallet_at = snapshot.observed_at; }
+                        Ok(()) => {
+                            app.account_ui.wallet = Some(wallet);
+                            app.account_ui.wallet_at = snapshot.observed_at;
+                            app.account_ui.wallet_refreshed = explicit && app.route == "account";
+                        }
                         Err(_) => app.toast("common_storage_error"),
                     }
                 }
                 Err(error) => app.source_failure(&error),
             }
         });
-    }
-
-    fn wallet_time(&self) -> String {
-        if let Some(demo) = &self.demo {
-            if self.account_ui.preview_wallet_refreshed { return i18n::text("acct_just_updated"); }
-            return i18n::format("acct_balance_time", &[("time", demo.fixture["account"]["balance_time"].as_str().unwrap_or("—").into())]);
-        }
-        if self.account_ui.wallet_at <= 0 { return i18n::text("acct_balance_not_loaded"); }
-        let timestamp = chrono::DateTime::from_timestamp(self.account_ui.wallet_at, 0)
-            .map(|value| (value + chrono::Duration::hours(8)).format("%H:%M").to_string()).unwrap_or_default();
-        i18n::format("acct_balance_time", &[("time", timestamp)])
     }
 
     fn import_account_session(&mut self, value: &str) {
@@ -543,34 +579,134 @@ impl App {
         }, |app, result| {
             app.account_ui.busy = false;
             match result {
-                Ok(session) => match app.switch_session(session) {
-                    Ok(()) => app.toast("acct_import_complete"), Err(_) => app.toast("common_storage_error"),
-                },
+                Ok(session) => {
+                    let on_account_category = app.route == "account" && app.account_ui.section == "account";
+                    match app.switch_session(session) {
+                        Ok(()) => {
+                            app.account_ui.session_imported = true;
+                            if on_account_category { app.account_ui.section = "account".into(); }
+                            app.toast("acct_import_complete");
+                        }
+                        Err(_) => app.toast("common_storage_error"),
+                    }
+                }
                 Err(error) => app.source_failure(&error),
             }
         });
     }
 
-    fn schedule_storage_summary(&mut self) {
-        if self.account_ui.storage_pending { return; }
+    fn storage_snapshot(&self) -> Option<StorageSummary> {
+        if let Some(demo) = &self.demo {
+            let manual_bytes = self.demo_manual_download_usage()?;
+            let cache = demo.fixture["download_summary"]["cache_mb"].as_u64().unwrap_or_default().saturating_mul(1024 * 1024);
+            let free_key = if self.is_scribe() { "free_space_sc" } else { "free_space_pw" };
+            let base_free = demo.fixture["account"]["presentation"][free_key].as_str()
+                .and_then(|label| label.strip_suffix(" GB")).and_then(|value| value.parse::<f64>().ok());
+            let freed_cache = if self.account_ui.cache_cleared { cache } else { 0 };
+            let free_bytes = base_free.map(|value| ((value * 1_073_741_824.0).round() as u64)
+                .saturating_add(freed_cache).saturating_add(self.demo_removed_download_bytes()));
+            return Some(StorageSummary { manual_bytes, cache_bytes: cache - freed_cache, free_bytes });
+        }
+        self.account_ui.storage.clone()
+    }
+
+    fn storage_size_label(&self, bytes: u64) -> String {
+        if self.demo.is_some() { super::download_ui::format_design_bytes(bytes) }
+        else { super::download_ui::format_bytes(bytes) }
+    }
+
+    fn storage_labels(&self, storage: Option<&StorageSummary>) -> (String, String) {
+        let unknown = || i18n::text("common_unknown");
+        let manual = storage.map(|summary| self.storage_size_label(summary.manual_bytes)).unwrap_or_else(unknown);
+        let free = storage.and_then(|summary| summary.free_bytes).map(|bytes| {
+            if self.demo.is_some() { format!("{:.1} GB", bytes as f64 / 1_073_741_824.0) }
+            else { self.storage_size_label(bytes) }
+        }).unwrap_or_else(unknown);
+        (manual, free)
+    }
+
+    pub(super) fn download_storage_labels(&self) -> (String, String) {
+        self.storage_labels(self.storage_snapshot().as_ref())
+    }
+
+    fn refresh_account_storage_view(&self, account: &AccountModel<'_>) {
+        let storage = self.storage_snapshot();
+        let (manual, free) = self.storage_labels(storage.as_ref());
+        let (manual_fill, cache_fill) = storage.as_ref().map(StorageSummary::composition).unwrap_or_default();
+        account.set_manual_used(manual.into());
+        account.set_storage_free(free.into());
+        account.set_storage_manual_fill(manual_fill);
+        account.set_storage_cache_fill(cache_fill);
+        if let Some(storage) = storage {
+            let cache = self.storage_size_label(storage.cache_bytes);
+            account.set_storage_used(self.storage_size_label(storage.used_bytes()).into());
+            account.set_cache_used(cache.clone().into());
+            if storage.cache_bytes == 0 {
+                account.set_cache_action("".into());
+                account.set_cache_result(if self.account_ui.cache_cleared { tr("acct_cleared") } else { cache.into() });
+            } else if self.account_ui.storage_pending && self.account_ui.cache_cleared {
+                account.set_cache_action("".into());
+                account.set_cache_result(tr("acct_cleared"));
+            } else {
+                account.set_cache_action(i18n::format("acct_clear_size", &[("size", cache)]).into());
+                account.set_cache_result("".into());
+            }
+        } else {
+            account.set_storage_used(tr("common_unknown"));
+            account.set_cache_used(tr("common_unknown"));
+            account.set_cache_action("".into());
+            account.set_cache_result(tr("common_unknown"));
+        }
+    }
+
+    pub(super) fn schedule_storage_summary(&mut self) {
+        if self.demo.is_some() || self.is_suspended() || self.account_ui.storage_pending
+            || self.account_ui.storage_checked.is_some_and(|value| value.elapsed() <= Duration::from_secs(30))
+        { return; }
         self.account_ui.storage_pending = true;
+        let generation = self.account_ui.storage_generation;
         let database = self.store.path().to_owned(); let data = self.data_dir.clone(); let account = self.account.clone();
-        self.background("account-storage", move || storage_summary(&database, &data, &account), |app, result| {
-            app.account_ui.storage_pending = false; app.account_ui.storage_checked = Some(Instant::now());
+        self.background("account-storage", move || storage_summary(&database, &data, &account), move |app, result| {
+            app.account_ui.storage_pending = false;
+            if app.account_ui.storage_generation != generation {
+                app.schedule_storage_summary();
+                return;
+            }
+            app.account_ui.storage_checked = Some(Instant::now());
             match result { Ok(summary) => app.account_ui.storage = Some(summary), Err(_) => app.toast("common_storage_error") }
+            app.view_dirty.mark(View::Account);
+            app.view_dirty.mark(View::Downloads);
         });
     }
 
+    pub(super) fn invalidate_account_storage(&mut self) {
+        self.account_ui.storage_generation = self.account_ui.storage_generation.wrapping_add(1);
+        self.account_ui.storage_checked = None;
+        self.view_dirty.mark(View::Account);
+        self.view_dirty.mark(View::Downloads);
+        self.schedule_storage_summary();
+    }
+
     pub(super) fn enforce_cache_limit(&mut self) -> Result<()> {
-        self.evict_account_cache(Some(u64::from(self.preferences.cache_limit) * 1024 * 1024))?;
+        if self.evict_account_cache(Some(u64::from(self.preferences.cache_limit) * 1024 * 1024))? > 0 {
+            self.invalidate_account_storage();
+        }
         Ok(())
     }
 
     fn clear_account_cache(&mut self) -> Result<()> {
-        if self.demo.is_some() { self.account_ui.preview_cache_cleared = true; return Ok(()); }
-        let freed = self.evict_account_cache(None)?;
-        self.account_ui.message = i18n::format("acct_cache_cleared", &[("size", byte_label(freed))]);
-        self.schedule_storage_summary();
+        if self.demo.is_some() {
+            self.account_ui.cache_cleared = true;
+            self.invalidate_account_storage();
+            return Ok(());
+        }
+        if self.downloads.is_none() {
+            self.toast("common_background_busy");
+            return Ok(());
+        }
+        self.account_ui.cache_cleared = self.evict_account_cache(None)? > 0;
+        if !self.account_ui.cache_cleared { self.toast("acct_nothing_to_clear"); }
+        self.invalidate_account_storage();
         Ok(())
     }
 
@@ -631,7 +767,7 @@ impl App {
             "unresolved_purchase_count": self.account_ui.journals.iter().filter(|intent| intent.unresolved()).count(),
         });
         std::fs::write(&path, serde_json::to_vec_pretty(&value)?)?;
-        self.account_ui.message = i18n::format("acct_diagnostics_exported", &[("path", path.display().to_string())]);
+        self.account_ui.diagnostics_exported = true;
         Ok(())
     }
 
@@ -670,125 +806,110 @@ impl App {
 
     pub(super) fn refresh_purchase_view(&mut self, ui: &AppWindow) -> Result<()> {
         let purchase = ui.global::<PurchaseModel>();
-        purchase.set_phase(self.account_ui.phase.clone().into());
-        purchase.set_selected_range(self.account_ui.selection.clone().into());
-        purchase.set_payment(self.account_ui.payment.clone().into());
-        purchase.set_quote_loading(self.account_ui.quote_loading);
-        purchase.set_reconciling(self.account_ui.reconciling);
         if let Some(comic) = self.account_ui.comic.clone() {
             purchase.set_comic_title(comic.title.clone().into());
             purchase.set_cover(self.cover_image(&comic));
         }
-        let episode_title = self.account_ui.episode.as_ref().map(|episode| {
-            i18n::format("acct_episode_title", &[("number", display_order(episode.order)), ("title", episode.title.clone())])
-        }).unwrap_or_default();
-        purchase.set_episode_title(episode_title.into());
-        let mut choices = Vec::new();
-        if let Some(read) = &self.account_ui.quote_read {
-            for (id, count, displayed, original, usable) in quote_selections(read) {
-                let fixture_label = self.demo.as_ref().and_then(|demo| demo.fixture["purchase"]["ranges"].as_array())
-                    .and_then(|ranges| ranges.iter().find(|range| range["key"].as_str() == Some(id.as_str())))
-                    .and_then(|range| range["label"].as_str()).map(str::to_owned);
-                let label = fixture_label.unwrap_or_else(|| if id == "single" {
-                    i18n::format("acct_offer_single", &[("number", self.account_ui.episode.as_ref().map(|episode| display_order(episode.order)).unwrap_or_default())])
-                } else { candidate_scope_label(read, count, true) });
-                choices.push(PurchaseRangeItem { id: id.into(), label: label.into(),
-                    price: format!("{} {}", display_amount(displayed), i18n::text("buy_coin")).into(),
-                    original: if original != displayed { i18n::format("acct_original_price", &[("amount", display_amount(original))]).into() } else { "".into() },
-                    enabled: usable });
-            }
-        }
-        if choices.is_empty() {
-            if let Some(quote) = &self.account_ui.quote {
-                choices.push(PurchaseRangeItem { id: quote.selection.clone().into(),
-                    label: quote_scope_label(quote, self.account_ui.quote_read.as_ref().map(|read| &read.detail), self.account_ui.episode.as_ref(), true).into(),
-                    price: format!("{} {}", display_amount(quote.amount), i18n::text(if quote.payment == "coupon" { "acct_coupon_unit" } else { "buy_coin" })).into(),
-                    original: "".into(), enabled: false });
-            }
-        }
-        purchase.set_ranges(model(choices));
-        let wallet = self.account_ui.wallet.as_ref();
+        purchase.set_back_label(self.purchase_back_label().into());
+        let state = &self.account_ui;
+        let current = self.current_purchase_intent();
+        let preview = current.is_some_and(|intent| intent.state == "preview");
+        let confirmed = current.is_some_and(|intent| intent.state == "confirmed" && !intent.persistence_pending);
+        let phase = if state.phase == "done" && !confirmed && !preview { "pending" } else { state.phase.as_str() };
+        let showing_result = matches!(phase, "pending" | "done");
+        purchase.set_phase(phase.into());
+        purchase.set_selected_range(state.selection.clone().into());
+        purchase.set_payment(state.payment.clone().into());
+        purchase.set_quote_loading(state.quote_loading);
+        purchase.set_reconciling(state.reconciling);
+        purchase.set_error_text(state.quote_error.clone().into());
+
+        let quote = purchase_selected_offer(state);
+        let read = state.quote_read.as_ref();
+        // Recovery can reopen a journal without a fresh quote read. Resolve its
+        // chapter IDs against the cached catalog, not a newly proposed scope.
+        let cached = if read.is_none() && showing_result {
+            current.and_then(|intent| self.store.load_detail(&self.account, &intent.quote.comic_id).ok().flatten())
+        } else { None };
+        let detail = read.map(|read| &read.detail).or(cached.as_ref());
+        let anchor = state.episode.as_ref().map(|episode| {
+            detail.and_then(|detail| detail.episodes.iter().find(|item| item.id == episode.id)).unwrap_or(episode)
+        });
+        purchase.set_start_label(anchor.map(|episode| {
+            let key = if episode.title.is_empty() { "buy_start_without_title" } else { "buy_start" };
+            i18n::format(key, &[("number", display_order(episode.order)), ("title", episode.title.clone())])
+        }).unwrap_or_default().into());
+        let presented_quote = if showing_result { current.map(|intent| &intent.quote) } else { quote };
+        let members = presented_quote.map(|quote| purchase_members(quote, detail, anchor)).unwrap_or_default();
+        let scope = presented_quote.map(|quote| purchase_scope_label(quote, &members, anchor)).unwrap_or_default();
+        purchase.set_ranges(model(if showing_result { Vec::new() } else {
+            purchase_range_items(read, anchor, quote.map(|quote| (quote.selection.as_str(), scope.as_str())))
+        }));
+        let timestamp = now();
+        let included: Vec<_> = members.iter().map(|episode| PurchaseIncludedItem {
+            number: display_order(episode.order).into(),
+            title: episode.title.clone().into(),
+            note: if episode.access == EpisodeAccess::Temporary && episode.readable_at(timestamp) {
+                tr(if self.demo.is_some() || value_true(episode.extra.get("is_in_free")) { "buy_included_temporary" } else { "cat_temporary" })
+            } else { "".into() },
+        }).collect();
+        let complete_scope = presented_quote.is_some_and(|quote| included.len() == quote.expected_ids.len());
+        purchase.set_included_label(if complete_scope {
+            i18n::format("buy_included", &[("count", included.len().to_string())]).into()
+        } else { "".into() });
+        purchase.set_included(model(if complete_scope { included } else { Vec::new() }));
+
+        let wallet = state.wallet.as_ref();
         purchase.set_wallet_label(wallet.and_then(|value| amount(value.get("remain_gold")))
             .map(|value| i18n::format("acct_wallet_amount", &[("amount", display_amount(value))]))
             .unwrap_or_else(|| i18n::text("buy_wallet_unknown")).into());
-        purchase.set_coupon_label(wallet.and_then(|value| amount(value.get("remain_coupon")))
-            .map(|value| i18n::format("acct_coupon_amount", &[("amount", display_amount(value))]))
-            .unwrap_or_else(|| i18n::text("buy_coupon_unknown")).into());
-        if self.account_ui.selection != "single" { purchase.set_coupon_label(tr("acct_coupon_single_only")); }
-        let coupons_allowed = self.account_ui.selection == "single" && self.account_ui.quote_read.as_ref()
-            .is_some_and(|read| value_true(read.basic.get("allow_coupon")));
-        purchase.set_coupons_allowed(coupons_allowed);
-        let quote = self.account_ui.quote.as_ref();
-        let fresh = quote.is_some_and(|quote| now() >= quote.observed_at && now() - quote.observed_at <= QUOTE_MAX_AGE);
-        purchase.set_quote_ready(fresh && !self.account_ui.quote_loading
-            && !self.account_ui.journals.iter().any(PurchaseIntent::unresolved)
-            && ["review", "error"].contains(&self.account_ui.phase.as_str()));
+        let (can_select_coupon, coupon_label) = purchase_coupon_choice(state);
+        purchase.set_coupon_label(coupon_label.into());
+        purchase.set_coupons_allowed(can_select_coupon);
+        let fresh = quote.is_some_and(|quote| timestamp >= quote.observed_at && timestamp - quote.observed_at <= QUOTE_MAX_AGE);
+        purchase.set_quote_ready(fresh && !state.quote_loading && !state.journals.iter().any(PurchaseIntent::unresolved)
+            && matches!(phase, "review" | "error"));
         purchase.set_sufficient(quote.is_none_or(|quote| quote.balance >= quote.amount));
-        purchase.set_total(quote.map(|quote| display_amount(quote.amount)).unwrap_or_else(|| i18n::text("buy_unknown")).into());
-        let unit = i18n::text(if self.account_ui.payment == "coupon" { "acct_coupon_unit" } else { "buy_coin" });
-        purchase.set_unit(unit.clone().into());
+        purchase.set_total(quote.map(|quote| purchase_amount_label(quote.amount, &quote.payment))
+            .unwrap_or_else(|| i18n::text("buy_unknown")).into());
         purchase.set_after_text(quote.map(|quote| {
-            if quote.balance < quote.amount {
-                i18n::format("acct_balance_shortfall", &[("amount", display_amount(quote.amount - quote.balance)), ("unit", unit.clone())])
-            } else { i18n::format("acct_after_payment", &[("amount", display_amount(quote.balance - quote.amount)), ("unit", unit.clone())]) }
+            let key = match (quote.payment.as_str(), quote.balance < quote.amount) {
+                ("coupon", true) => "buy_short_coupon",
+                ("coupon", false) => "buy_after_coupon",
+                (_, true) => "buy_short_coin",
+                (_, false) => "buy_after_coin",
+            };
+            i18n::format(key, &[("amount", display_amount((quote.balance - quote.amount).abs()))])
         }).unwrap_or_default().into());
-        let preview_coupon_label = self.demo.as_ref().filter(|_| self.account_ui.payment == "coupon")
-            .and_then(|demo| demo.fixture["purchase"]["confirm_coupon_label"].as_str()).map(str::to_owned);
-        purchase.set_pay_label(preview_coupon_label.or_else(|| quote.map(|quote| i18n::format(if quote.payment == "coupon" { "acct_use_coupon" } else { "acct_confirm_amount" }, &[("amount", display_amount(quote.amount)), ("unit", unit.clone())])))
-            .unwrap_or_else(|| i18n::text("buy_confirm")).into());
-        let preview_scope = self.demo.as_ref().and_then(|demo| demo.fixture["purchase"]["ranges"].as_array())
-            .and_then(|ranges| ranges.iter().find(|range| range["key"].as_str() == Some(self.account_ui.selection.as_str())))
-            .and_then(|range| range["scope_label"].as_str()).map(str::to_owned);
-        purchase.set_scope_label(preview_scope.or_else(|| quote.map(|quote| quote_scope_label(quote, self.account_ui.quote_read.as_ref().map(|read| &read.detail), self.account_ui.episode.as_ref(), false))).unwrap_or_default().into());
-        purchase.set_hint(if self.account_ui.quote_error.is_empty() { tr("buy_quote_hint") } else { self.account_ui.quote_error.clone().into() });
-        purchase.set_error_text(self.account_ui.quote_error.clone().into());
-        let current = self.current_purchase_intent().cloned();
-        let mut rows = Vec::new();
-        if let Some(intent) = &current {
-            let pending = intent.unresolved();
-            if pending {
-                rows.push(PurchaseReceiptItem { label: tr("acct_receipt_chapter"), value: quote_scope_label(&intent.quote, self.account_ui.quote_read.as_ref().map(|read| &read.detail), self.account_ui.episode.as_ref(), false).into() });
-            }
-            if intent.state == "preview" {
-                rows.push(PurchaseReceiptItem { label: tr("acct_record_state"), value: journal_label(&intent.state).into() });
-            } else {
-                rows.push(PurchaseReceiptItem { label: tr(if pending { "acct_submitted_quote" } else { "acct_confirmed_quote" }), value: format!("{} {}", display_amount(intent.quote.amount), unit).into() });
-                if !pending {
-                    let balance = self.account_ui.wallet.as_ref().and_then(|wallet| amount(wallet.get(if intent.quote.payment == "coupon" { "remain_coupon" } else { "remain_gold" })));
-                    rows.push(PurchaseReceiptItem { label: tr("acct_current_balance"), value: balance.map(|value| format!("{} {}", display_amount(value), i18n::text(if intent.quote.payment == "coupon" { "acct_coupon_unit" } else { "buy_coin" })))
-                        .unwrap_or_else(|| i18n::text("common_unknown")).into() });
-                }
-                rows.push(PurchaseReceiptItem { label: tr(if pending { "acct_submitted_at" } else { "acct_local_confirmed_at" }),
-                    value: receipt_time(if pending { intent.created_at } else { intent.updated_at }).into() });
-                if pending {
-                    rows.push(PurchaseReceiptItem { label: tr("acct_record_state"), value: intent.id.clone().into() });
-                }
-                if let Some(acknowledgement) = &intent.acknowledgement {
-                    for field in ["order_id", "transaction_id", "orderId", "buy_id"] {
-                        if let Some(value) = acknowledgement.get(field).and_then(|value| value.as_str().map(str::to_owned).or_else(|| value.as_u64().map(|value| value.to_string()))) {
-                            rows.push(PurchaseReceiptItem { label: tr("acct_server_reference"), value: value.into() }); break;
-                        }
-                    }
-                }
-            }
-            if intent.entitlement_observed && intent.state == "unknown" {
-                rows.push(PurchaseReceiptItem { label: tr("acct_entitlement"), value: tr("acct_access_observed_unknown_charge") });
-            }
-        }
-        purchase.set_result_rows(model(rows));
-        let preview = current.as_ref().is_some_and(|intent| intent.state == "preview");
+        purchase.set_pay_label(tr(if state.payment == "coupon" { "buy_use_coupon" } else { "buy_confirm" }));
+
+        let result_scope = if presented_quote.is_some_and(|quote| quote.expected_ids.len() == 1) {
+            members.first().filter(|episode| !episode.title.is_empty()).map(|episode| {
+                i18n::format("buy_scope_with_title", &[("scope", scope.clone()), ("title", episode.title.clone())])
+            }).unwrap_or_else(|| scope.clone())
+        } else { scope.clone() };
+        purchase.set_scope_label(result_scope.into());
         purchase.set_result_title(tr(if preview { "acct_preview_complete" } else { "buy_success_title" }));
-        purchase.set_result_body(tr(if preview { "acct_preview_no_transaction" } else { "buy_success_body" }));
-        purchase.set_result_can_read(current.as_ref().is_some_and(|intent| intent.state == "confirmed"));
-        purchase.set_pending_body(if current.as_ref().is_some_and(|intent| intent.entitlement_observed) {
-            tr("acct_access_observed_unknown_charge")
-        } else if current.as_ref().is_some_and(|intent| intent.state == "acknowledged") {
-            tr("acct_accepted_waiting_entitlement")
-        } else { tr("buy_pending_body") });
-        Ok(())
+        purchase.set_result_body(if preview { tr("acct_preview_no_transaction") } else { "".into() });
+        purchase.set_result_can_read(confirmed);
+        purchase.set_pending_summary(current.filter(|_| phase == "pending").map(|intent| {
+            i18n::format("buy_pending_summary", &[
+                ("comic", state.comic.as_ref().map(|comic| comic.title.clone()).unwrap_or_default()),
+                ("scope", scope),
+                ("total", purchase_amount_label(intent.quote.amount, &intent.quote.payment)),
+            ])
+        }).unwrap_or_default().into());
+        purchase.set_pending_body(tr(match current {
+            Some(intent) if intent.persistence_pending => "acct_receipt_storage_pending",
+            Some(intent) if intent.entitlement_observed => "acct_access_observed_unknown_charge",
+            Some(intent) if intent.state == "acknowledged" => "acct_accepted_waiting_entitlement",
+            _ => "buy_pending_body",
+        }));
+        self.refresh_recharge_view(ui)
     }
 
     pub(super) fn purchase_action(&mut self, action: &str, value: &str) -> Result<()> {
+        if self.account_ui.recharge.visible { return Ok(()); }
         if action == "open" { return self.open_purchase(value); }
         if self.account_ui.phase == "submitting" && action == "reconcile" { return Ok(()); }
         if ["submitting", "pending"].contains(&self.account_ui.phase.as_str())
@@ -809,18 +930,27 @@ impl App {
                 }
             }
             "payment" if ["coin", "coupon"].contains(&value) => {
-                if value == "coupon" && (self.account_ui.selection != "single" || !self.account_ui.quote_read.as_ref().is_some_and(|read| value_true(read.basic.get("allow_coupon")))) {
+                if value == "coupon" && !purchase_coupon_choice(&self.account_ui).0 {
                     self.toast("acct_coupon_unverified");
                 } else { self.account_ui.payment = value.into(); self.load_purchase_quote(); }
             }
-            "refresh-wallet" => self.load_purchase_quote(),
-            "refresh-quote" => self.load_purchase_quote(),
-            "submit" => self.submit_purchase()?,
+            "refresh-wallet" | "refresh-quote" => self.load_purchase_quote(),
+            "submit" => {
+                if self.account_ui.quote.is_some() && purchase_selected_offer(&self.account_ui).is_none() {
+                    self.toast("acct_quote_unverified");
+                } else { self.submit_purchase()?; }
+            }
             "reconcile" => self.reconcile_purchase(),
-            "recharge" => { self.navigate("account"); self.open_recharge(); }
-            "detail" => { if let Some(comic) = self.account_ui.comic.clone() { self.open_detail(&comic.id)?; } }
+            "recharge" => self.open_recharge(),
+            "detail" => {
+                if self.purchase_origin == "reader" && self.reading.is_some() { self.go_back()?; }
+                else if let Some(comic) = self.account_ui.comic.clone() { self.open_detail(&comic.id)?; }
+            }
             "download" | "read" => {
-                if let Some(intent) = self.current_purchase_intent().cloned().filter(|intent| intent.state == "confirmed") {
+                if let Some(intent) = self.current_purchase_intent().cloned().filter(|intent| intent.state == "confirmed" && !intent.persistence_pending) {
+                    if let Some(detail) = self.store.load_detail(&self.account, &intent.quote.comic_id)? {
+                        self.catalog.detail = Some(detail);
+                    }
                     if action == "download" { for id in intent.quote.expected_ids { self.enqueue_episode(&id, true)?; } }
                     else { self.open_episode(&intent.quote.comic_id, &intent.quote.episode_id)?; }
                 }
@@ -1054,24 +1184,21 @@ impl App {
     fn open_recharge(&mut self) {
         if !self.require_session() || !self.require_network("account", "recharge", "") { return; }
         self.account_ui.recharge.visible = true;
-        self.account_ui.recharge.title = i18n::text("acct_recharge");
-        self.account_ui.recharge.rows.clear();
-        if let Some(intent) = &self.account_ui.recharge.journal {
-            if intent.persistence_pending || ["creating", "unknown", "qr"].contains(&intent.state.as_str()) {
-                self.account_ui.recharge.phase = if intent.order.is_some() { "qr" } else { "pending" }.into();
-                self.account_ui.recharge.message = i18n::text(if intent.order.is_some() { "acct_recharge_scan" } else { "acct_recharge_unknown" });
-                if let Some(order) = &intent.order { self.account_ui.recharge.qr = super::auth::qr_image(&order.code_url).unwrap_or_default(); }
-                return;
-            }
+        if self.account_ui.recharge.busy { return; }
+        if let Some(intent) = self.account_ui.recharge.journal.clone().filter(|intent|
+            intent.persistence_pending || matches!(intent.state.as_str(), "creating" | "unknown" | "qr"))
+        {
+            self.account_ui.recharge.present_intent(&intent);
+        } else {
+            self.load_recharge_config();
         }
-        self.load_recharge_config();
     }
 
     fn load_recharge_config(&mut self) {
         if self.account_ui.recharge.busy { return; }
         if self.account_ui.recharge.journal.as_ref().is_some_and(|intent| intent.persistence_pending || ["creating", "unknown", "qr"].contains(&intent.state.as_str())) { return; }
         if self.demo.is_some() {
-            self.account_ui.recharge.phase = "error".into();
+            self.account_ui.recharge.phase = "unavailable".into();
             self.account_ui.recharge.message = i18n::text("acct_preview_recharge");
             self.account_ui.recharge.config = None;
             return;
@@ -1085,9 +1212,9 @@ impl App {
             match result {
                 Ok(config) => {
                     app.account_ui.recharge.phase = if config.options.is_empty() { "error" } else { "select" }.into();
+                    app.account_ui.recharge.message = if config.options.is_empty() { i18n::text("acct_recharge_config_error") } else { String::new() };
                     app.account_ui.recharge.selected = 0;
                     app.account_ui.recharge.config = Some(config);
-                    app.account_ui.recharge.message = i18n::text("acct_recharge_config_note");
                 }
                 Err(error) => {
                     app.account_ui.recharge.phase = "error".into();
@@ -1109,7 +1236,8 @@ impl App {
         let Some(option) = config.options.get(self.account_ui.recharge.selected).cloned() else { return Ok(()); };
         let intent = RechargeIntent {
             id: transaction_id("recharge", &self.account), account: self.account.clone(),
-            amount_cents: option.amount_cents, fingerprint: option.fingerprint, state: "creating".into(),
+            amount_cents: option.amount_cents, coin_amount: Some(option.coin_amount),
+            fingerprint: option.fingerprint, state: "creating".into(),
             created_at: now(), updated_at: now(), order: None, reconciliation_id: None, error_code: None, persistence_pending: false,
         };
         let job = format!("recharge-create:{}", intent.id);
@@ -1133,12 +1261,8 @@ impl App {
         }, |app, result| {
             app.account_ui.recharge.busy = false;
             match result {
-                Ok((intent, error, persisted)) => {
-                    app.account_ui.recharge.phase = if persisted { match intent.state.as_str() { "qr" => "qr", "rejected" => "error", _ => "pending" } } else { "pending" }.into();
-                    app.account_ui.recharge.message = i18n::text(match intent.state.as_str() {
-                        "qr" => "acct_recharge_scan", "rejected" => "acct_recharge_rejected", _ => "acct_recharge_unknown",
-                    });
-                    if let Some(order) = &intent.order { app.account_ui.recharge.qr = super::auth::qr_image(&order.code_url).unwrap_or_default(); }
+                Ok((intent, error, _persisted)) => {
+                    app.account_ui.recharge.present_intent(&intent);
                     app.account_ui.recharge.journal = Some(intent);
                     if let Some(error) = error { app.source_failure(&error); }
                 }
@@ -1153,35 +1277,59 @@ impl App {
 
     fn check_recharge(&mut self) {
         if self.account_ui.recharge.busy || self.demo.is_some() { return; }
+        let Some(mut intent) = self.account_ui.recharge.journal.clone() else { return; };
         if !self.require_session() || !self.require_network("account", "recharge-check", "") { return; }
         self.account_ui.recharge.busy = true;
+        self.account_ui.recharge.message = i18n::text("acct_recharge_checking");
         let client = self.client.clone();
         self.source_job("recharge-check", async move {
-            let history = client.recharge_history(1, 100).await?; let wallet = client.wallet().await?;
+            let history = client.recharge_history(1, 100).await?;
+            let wallet = client.wallet().await?;
             Ok((history, wallet))
-        }, |app, result| {
+        }, move |app, result| {
             app.account_ui.recharge.busy = false;
             match result {
                 Ok((history, wallet)) => {
-                    if let Some(mut intent) = app.account_ui.recharge.journal.clone() {
-                        let identity = intent.order.as_ref().map(|order| order.order_id.clone()).or_else(|| intent.reconciliation_id.clone());
-                        let observed = identity.as_ref().is_some_and(|id| history["records"].as_array()
-                            .is_some_and(|records| records.iter().any(|record| record["order_id"].as_str() == Some(id.as_str()))));
-                        if observed {
-                            // An exact history observation is retained; a balance delta is never payment proof.
-                            intent.state = "observed".into(); intent.updated_at = now();
-                            match merge_recharge_intent(app.store.path(), &intent) {
-                                Ok(saved) => app.account_ui.recharge.journal = Some(saved),
-                                Err(_) => { app.toast("common_storage_error"); return; }
+                    let identity = intent.order.as_ref().map(|order| order.order_id.as_str()).or(intent.reconciliation_id.as_deref());
+                    let observed = identity.is_some_and(|id| recharge_records(&history)
+                        .iter().any(|record| record["order_id"].as_str() == Some(id)));
+                    let snapshot = WalletSnapshot { value: wallet.clone(), observed_at: now() };
+                    if app.store.set_preference(&app.account, "wallet", &snapshot).is_err() {
+                        app.account_ui.recharge.message = i18n::text("common_storage_error");
+                        app.toast("common_storage_error"); return;
+                    }
+                    app.account_ui.wallet = Some(wallet);
+                    app.account_ui.wallet_at = snapshot.observed_at;
+                    app.account_ui.wallet_refreshed = app.route == "account";
+                    // An older history-only request must not overwrite this reconciliation read.
+                    app.invalidate("recharge-history");
+                    app.account_ui.recharge.history_loading = false;
+                    app.account_ui.recharge.history = Some(history);
+                    app.account_ui.recharge.history_failed = false;
+                    if observed {
+                        // An exact history observation is retained; a balance delta is never payment proof.
+                        intent.state = "observed".into(); intent.updated_at = now();
+                        match merge_recharge_intent(app.store.path(), &intent) {
+                            Ok(saved) => app.account_ui.recharge.journal = Some(saved),
+                            Err(_) => {
+                                app.account_ui.recharge.message = i18n::text("common_storage_error");
+                                app.toast("common_storage_error"); return;
                             }
                         }
-                        app.account_ui.recharge.message = i18n::text(if observed { "acct_recharge_order_observed" } else { "acct_recharge_not_observed" });
+                        if app.account_ui.recharge.visible {
+                            app.account_ui.recharge.visible = false;
+                            if app.route == "purchase" && matches!(app.account_ui.phase.as_str(), "review" | "error") {
+                                app.load_purchase_quote();
+                            }
+                        }
+                    } else {
+                        app.account_ui.recharge.message = i18n::text("acct_recharge_not_found");
                     }
-                    let snapshot = WalletSnapshot { value: wallet.clone(), observed_at: now() };
-                    if app.store.set_preference(&app.account, "wallet", &snapshot).is_err() { app.toast("common_storage_error"); return; }
-                    app.account_ui.wallet = Some(wallet); app.account_ui.wallet_at = snapshot.observed_at;
                 }
-                Err(error) => app.source_failure(&error),
+                Err(error) => {
+                    app.account_ui.recharge.message = i18n::text("acct_recharge_refresh_failed");
+                    app.source_failure(&error);
+                }
             }
         });
     }
@@ -1191,56 +1339,97 @@ impl App {
         let recharge = &self.account_ui.recharge;
         model_ui.set_recharge_visible(recharge.visible);
         model_ui.set_recharge_phase(recharge.phase.clone().into());
-        model_ui.set_recharge_title(recharge.title.clone().into());
         model_ui.set_recharge_index(recharge.selected as i32);
         model_ui.set_recharge_busy(recharge.busy);
         model_ui.set_recharge_message(recharge.message.clone().into());
         model_ui.set_recharge_qr(recharge.qr.clone());
-        model_ui.set_recharge_rows(model(recharge.rows.iter().cloned().map(SharedString::from).collect()));
-        model_ui.set_recharge_options(model(recharge.config.as_ref().map(|config| config.options.iter().map(|option| {
-            i18n::format("acct_recharge_option", &[("amount", yuan_label(option.amount_cents)), ("coins", option.coin_amount.to_string())]).into()
-        }).collect()).unwrap_or_default()));
-        let selected = recharge.config.as_ref().and_then(|config| config.options.get(recharge.selected));
-        model_ui.set_recharge_total(selected.map(|option| yuan_label(option.amount_cents))
-            .or_else(|| recharge.journal.as_ref().map(|intent| yuan_label(intent.amount_cents)))
-            .unwrap_or_else(|| i18n::text("common_unknown")).into());
+        let options = recharge.config.as_ref().map(|config| config.options.as_slice()).unwrap_or_default();
+        model_ui.set_recharge_options(model(options.iter().map(|option| AccountInfoItem {
+            label: wallet_amount_label(option.coin_amount as f64, "acct_coin").into(),
+            value: recharge_price_label(option.amount_cents).into(),
+        }).collect()));
+        let (total, coins) = if recharge.phase == "select" {
+            options.get(recharge.selected).map(|option| (Some(option.amount_cents), Some(option.coin_amount))).unwrap_or_default()
+        } else if let Some(intent) = &recharge.journal {
+            (Some(intent.amount_cents), intent.coin_amount)
+        } else { (None, None) };
+        model_ui.set_recharge_total(total.map(recharge_price_label).unwrap_or_default().into());
+        model_ui.set_recharge_coins(coins.map(|coins| wallet_amount_label(coins as f64, "acct_coin")).unwrap_or_default().into());
         model_ui.set_recharge_can_check(recharge.journal.is_some() && !recharge.busy);
         Ok(())
     }
 
+    fn refresh_account_history_view(&self, account: &AccountModel<'_>, signed_in: bool) -> Result<()> {
+        let journal = &self.account_ui.journals;
+        let last_purchase = journal.iter().map(|intent| intent.created_at).max()
+            .and_then(local_receipt_time).map(|time| {
+                let today = local_receipt_time(now()).is_some_and(|now| now.date_naive() == time.date_naive());
+                recent_label(&time.format(if today { "%H:%M" } else { "%m-%d" }).to_string())
+            });
+        let recharge = &self.account_ui.recharge;
+        let official = recharge.history.as_ref().map(recharge_records).unwrap_or_default();
+        let last_recharge = official.iter().filter_map(|record| record["created_at"].as_str()).max()
+            .map(|time| recent_label(time.get(5..10).filter(|_| time.as_bytes().get(4) == Some(&b'-')).unwrap_or(time)));
+        account.set_last_purchase(if signed_in { last_purchase.unwrap_or_else(|| i18n::text("acct_no_records")) } else { String::new() }.into());
+        account.set_last_recharge(if signed_in { last_recharge.unwrap_or_default() } else { String::new() }.into());
+        let mut purchase_rows = Vec::new();
+        if signed_in && self.account_ui.section == "purchases" {
+            for intent in journal.iter().rev() {
+                let quote = &intent.quote;
+                let detail = self.store.load_detail(&self.account, &quote.comic_id)?;
+                let fallback = if detail.is_none() { self.store.comic(&self.account, &quote.comic_id)? } else { None };
+                let title = detail.as_ref().map(|detail| detail.comic.title.as_str()).or_else(|| fallback.as_ref().map(|comic| comic.title.as_str()));
+                let members = purchase_members(quote, detail.as_ref(), None);
+                let scope = history_scope_label(quote, &members);
+                purchase_rows.push(AccountRecordItem {
+                    title: title.filter(|title| !title.is_empty()).map_or(scope.clone(), |title| format!("{title} · {scope}")).into(),
+                    status: purchase_history_status(intent).into(),
+                    amount: purchase_history_amount(intent).into(),
+                    time: receipt_time(intent.created_at).into(),
+                });
+            }
+        }
+        account.set_purchase_rows(model(purchase_rows));
+        if signed_in && self.account_ui.section == "recharges" {
+            account.set_recharge_rows(model(official.iter().map(recharge_record_row).collect()));
+            account.set_recharge_history_status(if recharge.history_failed { tr("acct_recharge_history_failed") }
+                else if recharge.history_loading { tr("acct_loading_history") }
+                else if official.is_empty() { tr("acct_no_records") } else { "".into() });
+        } else {
+            account.set_recharge_rows(model(Vec::new()));
+            account.set_recharge_history_status("".into());
+        }
+        Ok(())
+    }
+
     fn open_purchase_history(&mut self) {
-        self.account_ui.recharge.visible = true;
-        self.account_ui.recharge.title = i18n::text("acct_purchase_history");
-        self.account_ui.recharge.phase = "history".into();
-        self.account_ui.recharge.message = i18n::text("acct_local_purchase_history");
-        self.account_ui.recharge.rows = self.account_ui.journals.iter().rev().take(16).map(|intent| {
-            format!("{} · {}", journal_label(&intent.state), i18n::format("acct_offer_count", &[("count", intent.quote.expected_ids.len().to_string())]))
-        }).collect();
-        if self.account_ui.recharge.rows.is_empty() { self.account_ui.recharge.rows.push(i18n::text("acct_no_records")); }
+        if !self.require_session() { return; }
+        self.account_ui.section = "purchases".into();
+        self.account_ui.message.clear();
     }
 
     fn open_recharge_history(&mut self) {
-        if !self.require_session() || !self.require_network("account", "recharge-history", "") { return; }
-        self.account_ui.recharge.visible = true;
-        self.account_ui.recharge.title = i18n::text("acct_recharge_history");
-        self.account_ui.recharge.phase = "history".into();
-        self.account_ui.recharge.message = i18n::text("acct_loading_history");
-        self.account_ui.recharge.rows.clear();
-        if self.demo.is_some() {
-            self.account_ui.recharge.message = i18n::text("acct_preview_no_transaction"); return;
-        }
+        if !self.require_session() { return; }
+        if self.demo.is_none() && !self.require_network("account", "recharge-history", "") { return; }
+        self.account_ui.section = "recharges".into();
+        self.account_ui.message.clear();
+        self.load_recharge_history();
+    }
+
+    fn load_recharge_history(&mut self) {
+        if self.demo.is_some() || self.account_ui.recharge.history_loading { return; }
+        self.account_ui.recharge.history_loading = true;
+        self.account_ui.recharge.history_failed = false;
         let client = self.client.clone();
-        self.source_job("recharge-history", async move { client.recharge_history(1, 16).await }, |app, result| match result {
-            Ok(history) => {
-                app.account_ui.recharge.rows = history["records"].as_array().into_iter().flatten().map(|record| {
-                    let created = record["created_at"].as_str().unwrap_or("—");
-                    let channel = record["pay_channel_name"].as_str().or(record["pay_channel"].as_str()).unwrap_or("—");
-                    let coins = record.get("product_amount").and_then(Value::as_u64).map(|value| value.to_string()).unwrap_or_else(|| i18n::text("common_unknown"));
-                    format!("{created} · {channel} · {coins} {}", i18n::text("buy_coin"))
-                }).collect();
-                app.account_ui.recharge.message = if app.account_ui.recharge.rows.is_empty() { i18n::text("acct_no_records") } else { String::new() };
+        self.source_job("recharge-history", async move { client.recharge_history(1, 100).await }, |app, result| {
+            app.account_ui.recharge.history_loading = false;
+            match result {
+                Ok(history) => app.account_ui.recharge.history = Some(history),
+                Err(error) => {
+                    app.account_ui.recharge.history_failed = true;
+                    if app.account_ui.section == "recharges" && app.route == "account" { app.source_failure(&error); }
+                }
             }
-            Err(error) => { app.account_ui.recharge.message = i18n::text("common_source_error"); app.source_failure(&error); }
         });
     }
 }
@@ -1252,8 +1441,10 @@ fn preview_quote_read(demo: &DemoData, episode: &Episode, detail: ComicDetail) -
 fn preview_quote_read_fixture(catalog: &Value, episode: &Episode, detail: ComicDetail) -> source::Result<QuoteRead> {
     let fixture = &catalog["purchase"];
     if fixture["demo_only"] != true { return Err(SourceError::capability("preview_quote_fixture_missing")); }
-    let matching = fixture["selected_episode_id"].as_u64().map(|value| value.to_string()).as_deref() == Some(episode.id.as_str());
-    let ranges = if matching { fixture["ranges"].clone() } else {
+    let matches_episode = |key| fixture[key].as_u64().map(|value| value.to_string()).as_deref() == Some(episode.id.as_str());
+    let ranges = if matches_episode("selected_episode_id") { fixture["ranges"].clone() }
+    else if matches_episode("late_episode_id") { fixture["late_ranges"].clone() }
+    else {
         json!([{"key":"single","start_ordinal":episode.order,"end_ordinal":episode.order,"count":1,
             "coin_price":episode.pay_gold,"original_coin_price":null,"coupon_eligible":false,"coupon_count":null}])
     };
@@ -1428,6 +1619,7 @@ fn merge_recharge_intent(database: &Path, incoming: &RechargeIntent) -> Result<R
     let mut current = match stored {
         Some(mut stored) if stored.id == incoming.id => {
             anyhow::ensure!(stored.account == incoming.account && stored.amount_cents == incoming.amount_cents
+                && stored.coin_amount == incoming.coin_amount
                 && stored.fingerprint == incoming.fingerprint, "The immutable recharge intent changed");
             if stored.order.is_none() { stored.order = incoming.order.clone(); }
             else if let Some(order) = &incoming.order {
@@ -1544,83 +1736,187 @@ fn display_amount(value: f64) -> String {
     result
 }
 
-fn yuan_label(cents: u64) -> String { format!("{}.{:02}", cents / 100, cents % 100) }
-fn byte_label(bytes: u64) -> String {
-    if bytes >= 1024 * 1024 * 1024 { format!("{:.2} GB", bytes as f64 / (1024f64 * 1024f64 * 1024f64)) }
-    else { format!("{} MB", bytes.div_ceil(1024 * 1024)) }
+fn recharge_price_label(cents: u64) -> String {
+    if cents % 100 == 0 { format!("¥{}", cents / 100) }
+    else { format!("¥{}.{:02}", cents / 100, cents % 100) }
 }
-fn journal_label(state: &str) -> String {
-    i18n::text(match state { "confirmed" => "acct_record_confirmed", "acknowledged" => "acct_record_accepted", "rejected" => "acct_record_rejected", "preview" => "acct_record_preview", _ => "acct_record_unknown" })
+
+fn recharge_records(history: &Value) -> &[Value] {
+    history["records"].as_array().map(Vec::as_slice).unwrap_or_default()
+}
+
+fn recharge_record_row(record: &Value) -> AccountRecordItem {
+    let coin_amount = amount(record.get("product_amount"));
+    let channel = record["pay_channel_name"].as_str().or(record["pay_channel"].as_str());
+    AccountRecordItem {
+        title: coin_amount.map(|coins| wallet_amount_label(coins, "acct_coin")).unwrap_or_else(|| i18n::text("common_unknown")).into(),
+        status: channel.map(str::to_owned).unwrap_or_else(|| i18n::text("common_unknown")).into(),
+        amount: "".into(),
+        time: record["created_at"].as_str().map(str::to_owned).unwrap_or_else(|| i18n::text("common_unknown")).into(),
+    }
+}
+
+fn wallet_amount_label(amount: f64, unit_key: &str) -> String {
+    format!("{} {}", display_amount(amount), i18n::text(unit_key))
+}
+
+fn history_scope_label(quote: &OfferSnapshot, members: &[&Episode]) -> String {
+    let consecutive = members.windows(2).all(|pair| pair[1].order - pair[0].order == 1.0);
+    if consecutive && !members.is_empty() && members.len() == quote.expected_ids.len() {
+        purchase_scope_label(quote, members, None)
+    } else {
+        i18n::format("acct_offer_count", &[("count", quote.expected_ids.len().to_string())])
+    }
+}
+
+fn purchase_history_status(intent: &PurchaseIntent) -> String {
+    i18n::text(if intent.persistence_pending { "acct_record_unknown" } else { match intent.state.as_str() {
+        "confirmed" => "acct_access_confirmed", "acknowledged" => "acct_access_pending", "rejected" => "acct_denied",
+        "preview" => "acct_record_preview", _ => "acct_record_unknown",
+    } })
+}
+
+fn purchase_history_amount(intent: &PurchaseIntent) -> String {
+    if intent.persistence_pending { return i18n::text("common_unknown"); }
+    match intent.state.as_str() {
+        "confirmed" => purchase_amount_label(intent.quote.amount, &intent.quote.payment),
+        "rejected" | "preview" => i18n::text("acct_no_charge"),
+        _ => i18n::text("common_unknown"),
+    }
+}
+
+fn local_receipt_time(timestamp: i64) -> Option<chrono::DateTime<chrono::FixedOffset>> {
+    if timestamp <= 0 { return None; }
+    let offset = chrono::FixedOffset::east_opt(8 * 3600)?;
+    chrono::DateTime::from_timestamp(timestamp, 0).map(|time| time.with_timezone(&offset))
 }
 
 fn receipt_time(timestamp: i64) -> String {
-    if timestamp <= 0 { return i18n::text("common_unknown"); }
-    chrono::DateTime::from_timestamp(timestamp, 0).map(|value| {
-        (value + chrono::Duration::hours(8)).format("%m-%d %H:%M").to_string()
-    }).unwrap_or_else(|| i18n::text("common_unknown"))
+    local_receipt_time(timestamp).map(|time| time.format("%m-%d %H:%M").to_string())
+        .unwrap_or_else(|| i18n::text("common_unknown"))
 }
 
-fn order_scope_label(first: f64, last: Option<f64>, count: usize, include_count: bool) -> String {
+fn recent_label(time: &str) -> String { i18n::format("acct_recent", &[("time", time.to_owned())]) }
+
+fn purchase_amount_label(amount: f64, payment: &str) -> String {
+    i18n::format(if payment == "coupon" { "buy_amount_coupon" } else { "buy_amount_coin" },
+        &[("amount", display_amount(amount))])
+}
+
+fn purchase_selected_offer(state: &AccountState) -> Option<&OfferSnapshot> {
+    state.quote.as_ref().filter(|quote| quote.selection == state.selection && quote.payment == state.payment
+        && state.episode.as_ref().is_some_and(|episode| quote.episode_id == episode.id))
+}
+
+fn purchase_coupon_choice(state: &AccountState) -> (bool, String) {
+    if state.selection != "single" { return (false, i18n::text("buy_coupon_single_only")); }
+    let read = state.quote_read.as_ref();
+    let available = state.wallet.as_ref().and_then(|wallet| amount(wallet.get("remain_coupon")))
+        .or_else(|| read.and_then(|read| amount(read.basic.get("remain_coupon"))));
+    match available {
+        Some(available) if available == 0.0 => (false, i18n::text("buy_coupon_empty")),
+        Some(available) if read.is_some_and(|read| value_true(read.basic.get("allow_coupon"))) => {
+            (true, i18n::format("acct_coupon_amount", &[("amount", display_amount(available))]))
+        }
+        Some(_) if read.is_some() => (false, i18n::text("buy_coupon_unavailable")),
+        _ => (false, i18n::text("buy_coupon_unknown")),
+    }
+}
+
+fn order_scope_label(first: f64, last: Option<f64>, count: usize) -> String {
     if count == 1 { return i18n::format("acct_scope_single", &[("number", display_order(first))]); }
-    let scope = match last {
+    match last {
         Some(last) => i18n::format("acct_scope_range", &[("first", display_order(first)), ("last", display_order(last))]),
         None => i18n::format("acct_scope_from", &[("first", display_order(first)), ("count", count.to_string())]),
-    };
-    if include_count && last.is_some() { format!("{scope} · {}", i18n::format("acct_offer_count", &[("count", count.to_string())])) }
-    else { scope }
+    }
 }
 
-fn candidate_scope_label(read: &QuoteRead, count: u32, include_count: bool) -> String {
-    let id = read.basic["ep_id"].as_str().unwrap_or_default();
-    let Some(anchor) = read.detail.episodes.iter().find(|episode| episode.id == id) else {
-        return i18n::format("acct_offer_count", &[("count", count.to_string())]);
-    };
-    let mut members = read.detail.episodes.iter().filter(|episode| episode.order >= anchor.order && episode.access == EpisodeAccess::Locked).collect::<Vec<_>>();
+fn purchase_members<'a>(quote: &OfferSnapshot, detail: Option<&'a ComicDetail>, anchor: Option<&'a Episode>) -> Vec<&'a Episode> {
+    let ids: BTreeSet<_> = quote.expected_ids.iter().map(String::as_str).collect();
+    let mut members: Vec<_> = detail.into_iter().flat_map(|detail| &detail.episodes)
+        .filter(|episode| ids.contains(episode.id.as_str())).collect();
+    if let Some(anchor) = anchor.filter(|anchor| ids.contains(anchor.id.as_str()) && !members.iter().any(|member| member.id == anchor.id)) {
+        members.push(anchor);
+    }
     members.sort_by(|left, right| left.order.total_cmp(&right.order));
-    let last = count.checked_sub(1).and_then(|index| members.get(index as usize)).map(|episode| episode.order);
-    order_scope_label(anchor.order, last, count as usize, include_count)
+    members
 }
 
-fn quote_scope_label(quote: &OfferSnapshot, detail: Option<&ComicDetail>, anchor: Option<&Episode>, include_count: bool) -> String {
-    let orders = detail.map(|detail| quote.expected_ids.iter().map(|id| {
-        detail.episodes.iter().find(|episode| &episode.id == id).map(|episode| episode.order)
-    }).collect::<Option<Vec<_>>>()).flatten();
-    if let Some(mut orders) = orders.filter(|orders| !orders.is_empty()) {
-        orders.sort_by(f64::total_cmp);
-        return order_scope_label(orders[0], orders.last().copied(), orders.len(), include_count);
+fn purchase_scope_label(quote: &OfferSnapshot, members: &[&Episode], anchor: Option<&Episode>) -> String {
+    let count = quote.expected_ids.len();
+    if let Some(first) = members.first().filter(|_| members.len() == count) {
+        return order_scope_label(first.order, members.last().map(|last| last.order), count);
     }
     match &quote.request.scope {
-        PurchaseScope::OrdinalRange { start_order, .. } => order_scope_label(*start_order, None, quote.expected_ids.len(), include_count),
+        PurchaseScope::OrdinalRange { start_order, .. } => order_scope_label(*start_order, None, count),
         PurchaseScope::Single { .. } => anchor.filter(|episode| episode.id == quote.episode_id)
-            .map(|episode| order_scope_label(episode.order, None, 1, include_count))
-            .unwrap_or_else(|| i18n::format("acct_offer_count", &[("count", quote.expected_ids.len().to_string())])),
+            .map(|episode| order_scope_label(episode.order, None, 1))
+            .unwrap_or_else(|| i18n::format("acct_offer_count", &[("count", count.to_string())])),
     }
+}
+
+fn purchase_range_items(read: Option<&QuoteRead>, anchor: Option<&Episode>, selected_scope: Option<(&str, &str)>) -> Vec<PurchaseRangeItem> {
+    let mut remaining: Vec<_> = read.zip(anchor).into_iter().flat_map(|(read, anchor)| {
+        read.detail.episodes.iter().filter(move |episode| episode.order >= anchor.order)
+    }).collect();
+    remaining.sort_by(|left, right| left.order.total_cmp(&right.order));
+    let locked: Vec<_> = remaining.iter().copied().filter(|episode| episode.access == EpisodeAccess::Locked).collect();
+    let complete_catalog = read.is_some_and(|read| read.detail.comic.chapter_count > 0
+        && read.detail.episodes.len() >= read.detail.comic.chapter_count as usize);
+    let too_few = |count: u32| complete_catalog && remaining.len() < count as usize;
+    let count_label = |count: u32| i18n::format("acct_offer_count", &[("count", count.to_string())]);
+    let unavailable = |count: u32| tr(if too_few(count) { "buy_too_few_chapters" } else { "buy_range_unavailable" });
+    let mut ranges = Vec::new();
+    if let Some(read) = read {
+        for (id, offered_count, price, original, usable) in quote_selections(read) {
+            let count = if usable { offered_count } else {
+                id.strip_prefix("batch:").and_then(|index| index.parse::<usize>().ok())
+                    .and_then(|index| index.checked_sub(1)).and_then(|index| read.basic["batch_buy"].get(index))
+                    .and_then(|offer| quote_u32(offer.get("batch_limit"), 1)).unwrap_or(offered_count)
+            };
+            if count == 0 { continue; }
+            let enabled = usable && !too_few(count);
+            let scope = if !enabled { unavailable(count) } else if let Some((_, scope)) = selected_scope.filter(|(selected, _)| *selected == id) {
+                scope.into()
+            } else if let Some(anchor) = anchor {
+                let last = read.basic["preview_ranges"].as_array().and_then(|ranges| ranges.iter()
+                    .find(|range| range["key"].as_str() == Some(id.as_str()) && amount(range.get("start_ordinal")) == Some(anchor.order)))
+                    .and_then(|range| amount(range.get("end_ordinal")))
+                    .filter(|last| remaining.iter().any(|episode| episode.order == *last))
+                    .or_else(|| locked.get(count as usize - 1).map(|episode| episode.order));
+                order_scope_label(anchor.order, last, count as usize).into()
+            } else { count_label(count).into() };
+            ranges.push((count, PurchaseRangeItem {
+                id: id.into(), label: count_label(count).into(), scope,
+                price: if enabled { purchase_amount_label(price, "coin").into() } else { "".into() },
+                original: if enabled && original != price { purchase_amount_label(original, "coin").into() } else { "".into() },
+                enabled,
+            }));
+        }
+    }
+    // The design reserves the standard three tiers. A missing tier is only a
+    // disabled presentation slot; it is not an offer and has no action ID.
+    for count in [1, 5, 10] {
+        if !ranges.iter().any(|(tier, _)| *tier == count) {
+            ranges.push((count, PurchaseRangeItem { id: "".into(), label: count_label(count).into(),
+                scope: unavailable(count), price: "".into(), original: "".into(), enabled: false }));
+        }
+    }
+    ranges.sort_by_key(|(count, _)| *count);
+    ranges.into_iter().map(|(_, item)| item).collect()
 }
 
 fn storage_summary(database: &Path, data: &Path, account: &str) -> Result<StorageSummary> {
-    let store = Store::open(database)?;
-    let mut pages = BTreeMap::<String, (u64, bool)>::new();
-    let mut seen = BTreeSet::new();
-    let records = store.downloads(account)?;
-    let retained: BTreeSet<_> = records.iter().filter(|record| record.retained)
-        .map(|record| (record.episode_id.clone(), record.revision.clone())).collect();
-    for record in records {
-        if !seen.insert((record.episode_id.clone(), record.revision.clone())) { continue; }
-        let retained_revision = retained.contains(&(record.episode_id.clone(), record.revision.clone()));
-        for page in store.page_receipts(account, &record.episode_id, &record.revision)? {
-            pages.entry(page.sha256).and_modify(|entry| entry.1 |= page.retained || retained_revision)
-                .or_insert((page.bytes, page.retained || retained_revision));
-        }
-    }
-    let mut summary = StorageSummary { bytes: directory_bytes(data)?, free_bytes: available_bytes(data), volume_bytes: available_volume_bytes(data), ..Default::default() };
-    for (bytes, retained) in pages.into_values() {
-        if retained { summary.manual_bytes = summary.manual_bytes.saturating_add(bytes); }
-        else { summary.cache_bytes = summary.cache_bytes.saturating_add(bytes); }
-    }
+    let mut summary = account_page_usage(&Store::open(database)?, account)?;
+    summary.free_bytes = super::available_bytes(data);
     Ok(summary)
 }
 
 fn unique_cache_bytes(store: &Store, account: &str) -> Result<u64> {
+    Ok(account_page_usage(store, account)?.cache_bytes)
+}
+
+fn account_page_usage(store: &Store, account: &str) -> Result<StorageSummary> {
     let mut objects = BTreeMap::<String, (u64, bool)>::new();
     let mut seen = BTreeSet::new();
     let records = store.downloads(account)?;
@@ -1634,7 +1930,13 @@ fn unique_cache_bytes(store: &Store, account: &str) -> Result<u64> {
                 .or_insert((page.bytes, page.retained || retained_revision));
         }
     }
-    Ok(objects.values().filter(|(_, retained)| !retained).map(|(bytes, _)| *bytes).sum())
+    let mut summary = StorageSummary::default();
+    for (bytes, retained) in objects.into_values() {
+        // A deduplicated object shared with a retained episode belongs to manual downloads.
+        if retained { summary.manual_bytes = summary.manual_bytes.saturating_add(bytes); }
+        else { summary.cache_bytes = summary.cache_bytes.saturating_add(bytes); }
+    }
+    Ok(summary)
 }
 
 fn directory_bytes(directory: &Path) -> Result<u64> {
@@ -1652,27 +1954,6 @@ fn directory_bytes(directory: &Path) -> Result<u64> {
     Ok(total)
 }
 
-#[cfg(target_os = "linux")]
-fn available_bytes(path: &Path) -> Option<u64> {
-    use std::{ffi::CString, os::unix::ffi::OsStrExt};
-    let path = CString::new(path.as_os_str().as_bytes()).ok()?;
-    let mut stat: libc::statvfs = unsafe { std::mem::zeroed() };
-    if unsafe { libc::statvfs(path.as_ptr(), &mut stat) } != 0 { return None; }
-    (stat.f_bavail as u64).checked_mul(stat.f_frsize as u64)
-}
-#[cfg(not(target_os = "linux"))]
-fn available_bytes(_: &Path) -> Option<u64> { None }
-
-#[cfg(target_os = "linux")]
-fn available_volume_bytes(path: &Path) -> Option<u64> {
-    use std::{ffi::CString, os::unix::ffi::OsStrExt};
-    let path = CString::new(path.as_os_str().as_bytes()).ok()?;
-    let mut stat: libc::statvfs = unsafe { std::mem::zeroed() };
-    if unsafe { libc::statvfs(path.as_ptr(), &mut stat) } != 0 { return None; }
-    (stat.f_blocks as u64).checked_mul(stat.f_frsize as u64)
-}
-#[cfg(not(target_os = "linux"))]
-fn available_volume_bytes(_: &Path) -> Option<u64> { None }
 
 const QUOTE_MAX_AMOUNT: f64 = 9_007_199_254_740_991.0;
 const QUOTE_MAX_LIMIT: u32 = 2_147_483_647;
@@ -2141,6 +2422,35 @@ mod tests {
     use super::*;
 
     #[test]
+    fn storage_composition_tracks_reader_page_usage_instead_of_volume_space() {
+        let mut storage = StorageSummary { manual_bytes: 750, cache_bytes: 250, free_bytes: Some(99_000) };
+        assert_eq!(storage.used_bytes(), 1_000);
+        assert_eq!(storage.composition(), (0.75, 0.25));
+        storage.cache_bytes = 0;
+        assert_eq!(storage.composition(), (1.0, 0.0));
+        assert_eq!(StorageSummary::default().composition(), (0.0, 0.0));
+    }
+
+    #[test]
+    fn account_defaults_persist_fit_and_keep_normal_preferences_paused_in_fast_mode() -> Result<()> {
+        let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
+        let directory = tempfile::tempdir()?;
+        let client = BiliClient::offline(directory.path())?;
+        let mut app = super::super::test_support::app(directory.path(), DeviceProfile::Paperwhite6,
+            client, runtime.handle().clone())?;
+        app.account_action("fit", "height")?;
+        app.account_action("fit", "invalid")?;
+        app.preferences.refresh_mode = "fast".into();
+        app.account_action("every", "1")?;
+        app.account_action("dither-method", "off")?;
+        let saved: Preferences = app.store.preference(&app.account, "preferences")?.context("Read saved account defaults")?;
+        assert_eq!(saved.fit, "height");
+        assert_eq!(saved.every, Preferences::default().every);
+        assert!(saved.dither);
+        Ok(())
+    }
+
+    #[test]
     fn demo_account_attachment_preserves_saved_preferences_and_seeds_only_a_fresh_store() -> Result<()> {
         let runtime = tokio::runtime::Builder::new_current_thread().enable_all().build()?;
         let directory = tempfile::tempdir()?;
@@ -2208,6 +2518,20 @@ mod tests {
             quote: normalize_offer("bili_1", "7", "single", "coin", &single_read()).unwrap(),
             state: "submitting".into(), created_at: 1, updated_at: 1, attempts: 1,
             acknowledgement: None, error_code: None, entitlement_observed: false, persistence_pending: false }
+    }
+
+    #[test]
+    fn purchase_history_does_not_present_a_charge_for_uncertain_delivery() {
+        let mut current = intent("history-charge");
+        let unknown = i18n::text("common_unknown");
+        for state in ["submitting", "unknown", "acknowledged"] {
+            current.state = state.into();
+            assert_eq!(purchase_history_amount(&current), unknown);
+        }
+        current.state = "confirmed".into();
+        assert_eq!(purchase_history_amount(&current), purchase_amount_label(current.quote.amount, "coin"));
+        current.persistence_pending = true;
+        assert_eq!(purchase_history_amount(&current), unknown);
     }
 
     #[test]
@@ -2337,7 +2661,7 @@ mod tests {
         let purchase_key = remember_payment(PendingPayment::Purchase { database: database.clone(), intent: purchase.clone(), result: purchase_result.clone() });
         assert!(persist_purchase_outcome(&database, &purchase, purchase_result).is_err());
         let recharge = RechargeIntent { id: "outbox-recharge".into(), account: "bili_1".into(), amount_cents: 500,
-            fingerprint: "a".repeat(64), state: "creating".into(), created_at: 1, updated_at: 1,
+            coin_amount: Some(50), fingerprint: "a".repeat(64), state: "creating".into(), created_at: 1, updated_at: 1,
             order: None, reconciliation_id: None, error_code: None, persistence_pending: false };
         let order = RechargeOrder { order_id: "90071992547409930".into(), code_url: "https://pay.bilibili.com/controlled-fixture".into(), amount_cents: 500, observed_at: 2 };
         let recharge_key = remember_payment(PendingPayment::Recharge { database: database.clone(), intent: recharge.clone(), result: Ok(order.clone()) });
@@ -2355,6 +2679,7 @@ mod tests {
         assert_eq!(saved[0].state, "acknowledged");
         assert_eq!(saved[0].acknowledgement.as_ref().unwrap()["order_id"], "observed-receipt");
         let saved: RechargeIntent = store.preference("bili_1", RECHARGE_KEY)?.unwrap();
+        assert_eq!(saved.coin_amount, Some(50));
         let saved_order = saved.order.unwrap();
         assert_eq!(saved_order.order_id, order.order_id);
         assert_eq!(saved_order.code_url, order.code_url);
@@ -2374,7 +2699,7 @@ mod tests {
         merge_purchase_journal(&database, "bili_1", &[intent("prepared-purchase")])?;
         merge_recharge_intent(&database, &RechargeIntent {
             id: "prepared-recharge".into(), account: "bili_1".into(), amount_cents: 500,
-            fingerprint: "f".repeat(64), state: "creating".into(), created_at: 1, updated_at: 1,
+            coin_amount: Some(50), fingerprint: "f".repeat(64), state: "creating".into(), created_at: 1, updated_at: 1,
             order: None, reconciliation_id: None, error_code: None, persistence_pending: false,
         })?;
         let prepared = std::thread::spawn(move || -> Result<PreparedAccount> {

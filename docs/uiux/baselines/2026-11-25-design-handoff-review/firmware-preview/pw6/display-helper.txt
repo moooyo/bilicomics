@@ -1,0 +1,1 @@
+bilicomics: Capture the owning launcher's native display state: the framebuffer geometry does not match the approved display: expected (1264, 1680), actual (1272, 1696)

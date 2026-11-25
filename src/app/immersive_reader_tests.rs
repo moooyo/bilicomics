@@ -73,8 +73,10 @@ fn spreads_keep_full_height_and_half_width_only_on_eligible_landscape_canvases()
 #[test]
 fn native_window_geometry_reaches_every_available_pixel() {
     let settings = ReaderSettings { landscape_spread: false, ..Default::default() };
-    let portrait = reader_viewport((636, 848), false, &settings, 2.0);
-    let landscape = reader_viewport((636, 848), true, &settings, 2.0);
+    let (width, height) = DeviceProfile::Paperwhite6.native_framebuffer_size();
+    let logical = (width / 2, height / 2);
+    let portrait = reader_viewport(logical, false, &settings, 2.0);
+    let landscape = reader_viewport(logical, true, &settings, 2.0);
     assert_eq!((portrait.width, portrait.height), (1272, 1696));
     assert_eq!((landscape.width, landscape.height), (1696, 1272));
 

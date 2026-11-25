@@ -1,0 +1,118 @@
+{
+  "run": "bili-ks-ui-5707cfdb91874e32",
+  "physical_device": true,
+  "demo_offline": true,
+  "navigation_input": "scheduled application intents",
+  "physical_touch_claimed": false,
+  "optical_visibility_claimed": false,
+  "visited": [
+    "Shelf ready",
+    "Normal Shelf",
+    "Reader page 18",
+    "Full-screen chapter directory",
+    "Directory return to page 18",
+    "Reader settings",
+    "Reader page 19",
+    "Native suspend",
+    "Native resume on reader page 19",
+    "Reader page 20 after wake",
+    "Account"
+  ],
+  "captures": {
+    "shelf": {
+      "framebuffer_pixels": [
+        1860,
+        2480
+      ],
+      "epdc_mode": "Y8",
+      "projection": "generated"
+    },
+    "reader-18": {
+      "framebuffer_pixels": [
+        1860,
+        2480
+      ],
+      "epdc_mode": "Y8",
+      "projection": "generated"
+    },
+    "directory": {
+      "framebuffer_pixels": [
+        1860,
+        2480
+      ],
+      "epdc_mode": "Y8",
+      "projection": "generated"
+    },
+    "directory-return": {
+      "framebuffer_pixels": [
+        1860,
+        2480
+      ],
+      "epdc_mode": "Y8",
+      "projection": "generated"
+    },
+    "reader-settings": {
+      "framebuffer_pixels": [
+        1860,
+        2480
+      ],
+      "epdc_mode": "Y8",
+      "projection": "generated"
+    },
+    "reader-before-sleep": {
+      "framebuffer_pixels": [
+        1860,
+        2480
+      ],
+      "epdc_mode": "Y8",
+      "projection": "generated"
+    },
+    "reader-after-wake": {
+      "framebuffer_pixels": [
+        1860,
+        2480
+      ],
+      "epdc_mode": "Y8",
+      "projection": "generated"
+    },
+    "reader-after-turn": {
+      "framebuffer_pixels": [
+        1860,
+        2480
+      ],
+      "epdc_mode": "Y8",
+      "projection": "generated"
+    },
+    "account": {
+      "framebuffer_pixels": [
+        1860,
+        2480
+      ],
+      "epdc_mode": "Y8",
+      "projection": "generated"
+    }
+  },
+  "startup_metric_claimed": false,
+  "sleep": {
+    "suspend": true,
+    "resume": true,
+    "same_anchor": true,
+    "same_frame": true,
+    "custom_cover_retained": false
+  },
+  "passed": true,
+  "firmware": "5.19.5",
+  "native_geometry": {
+    "width": 1860,
+    "height": 2480,
+    "bits_per_pixel": 8,
+    "line_length": 1872,
+    "rotate": 1
+  },
+  "launcher_exit": 0,
+  "native_restored": true,
+  "installed_paths_unchanged": true,
+  "test_staging_removed": true,
+  "lease_released": true,
+  "device_disposition": "original-native-restored"
+}

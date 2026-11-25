@@ -109,7 +109,12 @@ fn unknown_offline_inventory_allows_real_detail_and_cover_entries_to_read_local_
         assert!(!app.catalog.local_snapshot.checked_all);
         assert!(app.catalog.local_snapshot.downloaded_comics.is_empty());
         let comic = app.store.comic(&app.account, COMICS[0])?.context("The local shelf comic exists")?;
-        assert_eq!(app.shelf_comic_view(&comic).meta.as_str(), i18n::text("cat_local_download_checking"));
+        let row = app.shelf_comic_view(&comic);
+        let position = if action == "comic.cover" {
+            i18n::format("cat_read_position", &[("episode", "1".into()), ("page", "1".into()), ("total", "1".into())])
+        } else { i18n::text("cat_shelf_not_started") };
+        assert_eq!(row.meta.as_str(), position);
+        assert!(!row.downloaded, "An unchecked inventory must not mark the tile downloaded");
         app.dispatch("catalog", action, COMICS[0])?;
         assert!(app.pending_network.is_none(), "Unknown inventory blocked the actual {action} entry");
         if action == "comic.open" {

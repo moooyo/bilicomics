@@ -1,0 +1,12 @@
+{
+  "image": "purchase-submitting",
+  "live_account": false,
+  "physical_device": false,
+  "profile": "pw6",
+  "scale": 2,
+  "scope": "synthetic presentation fixture; no upstream observation",
+  "size": [
+    1264,
+    1680
+  ]
+}

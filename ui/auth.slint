@@ -1,6 +1,6 @@
 import { Theme } from "theme.slint";
 import { Strings } from "strings.slint";
-import { ActionButton, NavigationButton, Icon } from "widgets.slint";
+import { ActionButton, ChoiceTile, Icon, NavigationButton, WaitingIndicator } from "widgets.slint";
 
 export global AuthModel {
     callback action(string, string);
@@ -10,523 +10,498 @@ export global AuthModel {
     in-out property <string> expires-label;
     in-out property <string> account-name;
     in-out property <bool> authenticated: false;
+    in-out property <string> return-route: "account";
     in-out property <string> direction: "ltr";
     in-out property <string> mode: "page";
     in-out property <string> landscape: "spread";
     in-out property <string> status-message;
+    in-out property <int> waiting-frame: 0;
     in-out property <bool> net-visible: false;
     in-out property <string> net-phase: "idle";
     in-out property <string> net-action;
-    in-out property <string> network-name;
-    in-out property <string> net-message;
+    out property <string> return-label: return-route == "detail" ? Strings.handoff-back-detail :
+        return-route == "reader" ? Strings.handoff-back-reader :
+        return-route == "shelf" ? Strings.nav-shelf :
+        return-route == "store" ? Strings.nav-store :
+        return-route == "search" ? Strings.cat-search :
+        return-route == "downloads" ? Strings.nav-downloads :
+        return-route == "purchase" ? Strings.auth-source-purchase : Strings.nav-account;
 }
 
-component AuthLabel inherits Text {
-    color: Theme.ink;
+component AuthText inherits Text {
     font-family: Theme.ui-font;
-    font-size: Theme.scribe ? 21px : 16px;
+    font-size: Theme.scribe ? 20px : 16px;
+    color: Theme.ink;
     vertical-alignment: center;
+    overflow: elide;
 }
 
-component QrRefreshButton inherits Rectangle {
-    in property <string> text;
-    callback clicked();
-    property <length> icon-size: Theme.scribe ? 22px : 18px;
-    preferred-width: max(Theme.touch-size, caption.preferred-width + root.icon-size + 22px);
-    width: root.preferred-width;
+component AuthActivity inherits WaitingIndicator {
+    frame: AuthModel.waiting-frame;
+    gap: Theme.scribe ? 14px : 10px;
+}
+
+component AuthBackButton inherits NavigationButton {
     height: Theme.scribe ? 56px : 48px;
-    horizontal-stretch: 0;
-    background: touch.pressed ? Theme.ink : Theme.paper;
-    forward-focus: keyboard;
-    accessible-role: button;
-    accessible-label: root.text;
-    accessible-action-default => { root.clicked(); }
-    HorizontalLayout {
-        x: 0px; y: 0px; width: root.width; height: root.height;
-        padding-left: 8px; padding-right: 8px; spacing: 6px;
-        alignment: center;
-        Rectangle {
-            width: root.icon-size; height: parent.height;
-            Icon { x: 0px; y: (parent.height - self.height) / 2; width: root.icon-size; height: self.width; kind: "qr-refresh"; inverted: touch.pressed; }
-        }
-        caption := Text {
-            text: root.text;
-            font-family: Theme.ui-font; font-size: Theme.scribe ? 19px : 16px; font-weight: 500;
-            color: touch.pressed ? Theme.paper : Theme.ink;
-            vertical-alignment: center;
-        }
-    }
-    if keyboard.has-focus: Rectangle {
-        x: 4px; y: 4px; width: parent.width - 8px; height: parent.height - 8px;
-        border-width: 2px; border-color: touch.pressed ? Theme.paper : Theme.ink; background: transparent;
-    }
-    touch := TouchArea {
-        x: 0px; y: 0px; width: parent.width; height: parent.height;
-        pointer-event(event) => {
-            if event.kind == PointerEventKind.down { Theme.refresh("press"); }
-            if event.kind == PointerEventKind.up { Theme.refresh("release"); }
-        }
-        clicked => { root.clicked(); }
-    }
-    keyboard := FocusScope {
-        x: 0px; y: 0px; width: 0px; height: 0px;
-        key-pressed(event) => {
-            if event.text == " " || event.text == "\n" { root.clicked(); return accept; }
-            return reject;
-        }
-    }
-}
-
-component PreferenceSegment inherits Rectangle {
-    in property <string> label;
-    in property <string> value;
-    in property <bool> selected;
-    in property <bool> first;
-    callback picked();
-    height: Theme.scribe ? 60px : 52px;
-    background: root.selected || touch.pressed ? Theme.ink : Theme.paper;
-    if !root.first: Rectangle { x: 0px; y: 0px; width: 2px; height: parent.height; background: Theme.ink; }
-    Text {
-        x: 0px;
-        y: 0px;
-        width: parent.width;
-        height: parent.height;
-        text: root.label;
-        font-family: Theme.ui-font;
-        font-size: Theme.scribe ? 19px : 16px;
-        font-weight: root.selected ? 700 : 400;
-        color: root.selected || touch.pressed ? Theme.paper : Theme.ink;
-        horizontal-alignment: center;
-        vertical-alignment: center;
-    }
-    accessible-role: button;
-    accessible-label: root.label;
-    touch := TouchArea {
-        x: 0px; y: 0px; width: parent.width; height: parent.height;
-        pointer-event(event) => {
-            if event.kind == PointerEventKind.down { Theme.refresh("press"); }
-            if event.kind == PointerEventKind.up { Theme.refresh("release"); }
-        }
-        clicked => { root.picked(); }
-    }
-}
-
-component DirectionCard inherits Rectangle {
-    in property <bool> rtl;
-    in property <bool> selected;
-    callback picked();
-    height: Theme.scribe ? 300px : 228px;
-    border-width: root.selected ? 4px : 2px;
-    border-color: Theme.ink;
-    background: touch.pressed ? Theme.ink : Theme.paper;
-    property <color> foreground: touch.pressed ? Theme.paper : Theme.ink;
-    pages := Rectangle {
-        y: Theme.scribe ? 36px : 28px;
-        x: (parent.width - self.width) / 2;
-        width: Theme.scribe ? 206px : 150px;
-        height: Theme.scribe ? 112px : 84px;
-        Rectangle {
-            x: 0px;
-            y: (parent.height - self.height) / 2;
-            width: Theme.scribe ? 74px : 54px;
-            height: Theme.scribe ? 104px : 76px;
-            background: root.rtl ? Theme.fill : Theme.paper;
-            border-width: 2px;
-            border-color: root.foreground;
-            Text { x: 0px; y: 0px; width: parent.width; height: parent.height; text: root.rtl ? "2" : "1"; color: Theme.ink; font-family: Theme.ui-font; font-size: Theme.scribe ? 26px : 20px; font-weight: 700; horizontal-alignment: center; vertical-alignment: center; }
-        }
-        Text {
-            x: Theme.scribe ? 88px : 64px;
-            y: 0px;
-            width: Theme.scribe ? 30px : 22px;
-            height: parent.height;
-            text: root.rtl ? "←" : "→";
-            color: root.foreground;
-            font-size: Theme.scribe ? 30px : 22px;
-            font-weight: 700;
-            horizontal-alignment: center;
-            vertical-alignment: center;
-        }
-        Rectangle {
-            x: parent.width - self.width;
-            y: (parent.height - self.height) / 2;
-            width: Theme.scribe ? 74px : 54px;
-            height: Theme.scribe ? 104px : 76px;
-            background: root.rtl ? Theme.paper : Theme.fill;
-            border-width: 2px;
-            border-color: root.foreground;
-            Text { x: 0px; y: 0px; width: parent.width; height: parent.height; text: root.rtl ? "1" : "2"; color: Theme.ink; font-family: Theme.ui-font; font-size: Theme.scribe ? 26px : 20px; font-weight: 700; horizontal-alignment: center; vertical-alignment: center; }
-        }
-    }
-    Text {
-        x: 8px; width: parent.width - 16px;
-        y: pages.y + pages.height + (Theme.scribe ? 18px : 12px);
-        height: Theme.scribe ? 38px : 30px;
-        text: root.rtl ? Strings.auth-direction-rtl : Strings.auth-direction-ltr;
-        color: root.foreground;
-        font-family: Theme.ui-font;
-        font-size: Theme.scribe ? 26px : 20px;
-        font-weight: 700;
-        horizontal-alignment: center;
-        vertical-alignment: center;
-    }
-    Text {
-        x: 8px; width: parent.width - 16px;
-        y: Theme.scribe ? 224px : 174px;
-        height: Theme.scribe ? 28px : 22px;
-        text: root.rtl ? (Theme.scribe ? Strings.auth-direction-rtl-note-sc : Strings.auth-direction-rtl-note) : Strings.auth-direction-ltr-note;
-        color: touch.pressed ? Theme.paper : Theme.secondary;
-        font-family: Theme.ui-font;
-        font-size: Theme.scribe ? 18px : 14px;
-        horizontal-alignment: center;
-        vertical-alignment: center;
-    }
-    accessible-role: button;
-    accessible-label: root.rtl ? Strings.auth-direction-rtl : Strings.auth-direction-ltr;
-    touch := TouchArea {
-        x: 0px; y: 0px; width: parent.width; height: parent.height;
-        pointer-event(event) => {
-            if event.kind == PointerEventKind.down { Theme.refresh("press"); }
-            if event.kind == PointerEventKind.up { Theme.refresh("release"); }
-        }
-        clicked => { root.picked(); }
-    }
+    icon-size: Theme.scribe ? 26px : 22px;
+    icon-spacing: 4px;
+    horizontal-padding: 6px;
+    text-size: Theme.scribe ? 20px : 16px;
+    text-weight: 400;
 }
 
 export component QrCard inherits Rectangle {
-    width: Theme.scribe ? 560px : 420px;
-    height: Theme.scribe ? 496px : 362px;
-    background: Theme.paper;
-    property <length> qr-size: Theme.scribe ? 420px : 300px;
+    in property <bool> onboarding: false;
+    in property <length> code-area-height: Theme.scribe ? 460px : 336px;
+    property <length> bar-height: Theme.scribe ? 72px : 56px;
+    property <length> code-size: max(0px, min(Theme.scribe ? 380px : 276px, min(code-area.height, code-area.width) - 24px));
     property <bool> waiting: AuthModel.phase == "waiting";
     property <bool> scanned: AuthModel.phase == "scanned";
-    property <bool> refreshable: self.waiting || self.scanned;
-    property <bool> has-phase-icon: AuthModel.phase == "scanned" || AuthModel.phase == "expired" || AuthModel.phase == "offline" || AuthModel.phase == "connecting" || AuthModel.phase == "error";
-    property <string> phase-title: AuthModel.phase == "scanned" ? Strings.auth-qr-scanned : AuthModel.phase == "expired" ? Strings.auth-qr-expired : AuthModel.phase == "success" ? Strings.auth-qr-success : AuthModel.phase == "offline" ? Strings.auth-need-network : AuthModel.phase == "connecting" ? Strings.auth-connecting-wifi : AuthModel.phase == "error" ? Strings.auth-qr-error : Strings.auth-qr-loading;
-    property <string> phase-body: AuthModel.status-message != "" ? AuthModel.status-message : AuthModel.phase == "scanned" ? Strings.auth-qr-scanned-note : AuthModel.phase == "expired" ? Strings.auth-qr-expired-note : AuthModel.phase == "success" ? Strings.auth-welcome-back + AuthModel.account-name : AuthModel.phase == "offline" ? Strings.auth-qr-need-network : AuthModel.phase == "connecting" ? Strings.auth-qr-connecting-note : AuthModel.phase == "error" ? Strings.auth-qr-error-note : Strings.auth-qr-loading-note;
-    box := Rectangle {
-        x: (parent.width - self.width) / 2;
-        y: 0px;
-        width: root.qr-size;
-        height: self.width;
-        background: Theme.paper;
-        border-width: root.waiting ? 0px : 2px;
-        border-color: Theme.ink;
+    property <bool> success: AuthModel.phase == "success";
+    property <bool> offline: AuthModel.phase == "offline";
+    property <bool> expired: AuthModel.phase == "expired";
+    property <bool> failed: AuthModel.phase == "error";
+    property <bool> checking: AuthModel.phase == "connecting";
+    property <bool> busy: AuthModel.phase == "loading" || root.checking;
+    property <bool> retry-network: root.failed && AuthModel.net-phase == "failed";
+    property <string> phase-title: root.scanned ? Strings.auth-qr-scanned :
+        root.success ? Strings.auth-qr-success : root.expired ? Strings.auth-qr-expired :
+        root.offline ? Strings.auth-need-network : root.retry-network ? Strings.auth-net-failed :
+        root.failed ? Strings.auth-qr-error : root.checking ? Strings.auth-net-opening : Strings.auth-qr-loading;
+    property <string> phase-note: root.scanned ? Strings.auth-qr-scanned-note : AuthModel.status-message;
+    property <string> phase-icon: root.scanned ? "phone" : root.success ? "check" : root.offline ? "wifi-off" : "warning";
+    height: root.code-area-height + root.bar-height + 8px;
+    background: Theme.paper;
+    border-width: 3px;
+    border-color: Theme.ink;
+
+    code-area := Rectangle {
+        x: 3px; y: 3px;
+        width: root.width - 6px; height: root.code-area-height;
+        clip: true;
         if root.waiting: Image {
-            x: 0px;
-            y: 0px;
-            width: parent.width;
-            height: parent.height;
+            x: (parent.width - self.width) / 2; y: (parent.height - self.height) / 2;
+            width: root.code-size; height: self.width;
             source: AuthModel.qr;
             image-fit: contain;
+            image-rendering: pixelated;
             accessible-label: Strings.auth-qr-image;
         }
         if !root.waiting: VerticalLayout {
-            x: 0px;
-            y: 0px;
-            width: parent.width;
-            height: parent.height;
+            width: parent.width; height: parent.height;
+            padding-left: 12px; padding-right: 12px;
+            spacing: Theme.scribe ? 10px : 8px;
             alignment: center;
-            spacing: Theme.scribe ? 14px : 10px;
-            padding-left: 32px;
-            padding-right: 32px;
-            if root.has-phase-icon: Rectangle {
-                height: Theme.scribe ? 72px : 52px;
+            if !root.busy: Rectangle {
+                height: Theme.scribe ? 60px : 48px;
                 Icon {
-                    x: (parent.width - self.width) / 2;
-                    y: 0px;
-                    width: Theme.scribe ? 72px : 52px;
-                    height: self.width;
-                    kind: AuthModel.phase == "scanned" ? "phone" : AuthModel.phase == "offline" ? "wifi-off" : AuthModel.phase == "connecting" ? "wifi" : "warning";
+                    x: (parent.width - self.width) / 2; y: 0px;
+                    width: parent.height; height: self.width;
+                    kind: root.phase-icon;
                 }
             }
-            Text { text: root.phase-title; color: Theme.ink; font-family: Theme.ui-font; font-size: Theme.scribe ? 28px : 22px; font-weight: 700; horizontal-alignment: center; }
-            Text { text: root.phase-body; color: Theme.secondary; font-family: Theme.ui-font; font-size: Theme.scribe ? 19px : 16px; wrap: word-wrap; horizontal-alignment: center; }
-            if AuthModel.phase == "expired" || AuthModel.phase == "offline" || AuthModel.phase == "error": Rectangle {
-                height: (Theme.scribe ? 56px : 48px) + 8px;
-                ActionButton {
-                    y: 8px;
-                    x: (parent.width - self.width) / 2;
-                    height: Theme.scribe ? 56px : 48px;
-                    primary: true;
-                    text: AuthModel.phase == "offline" ? Strings.auth-open-wifi : Strings.auth-refresh-qr;
-                    text-size: Theme.scribe ? 20px : 17px;
-                    clicked => { AuthModel.action(AuthModel.phase == "offline" ? "connect" : "refresh", ""); }
-                }
+            AuthText {
+                height: Theme.scribe ? 39px : 31px;
+                text: root.phase-title;
+                font-size: Theme.scribe ? 28px : 22px;
+                font-weight: 700;
+                horizontal-alignment: center;
+            }
+            if root.scanned || (root.failed && root.phase-note != ""): AuthText {
+                height: Theme.scribe ? 26px : 22px;
+                text: root.phase-note;
+                font-size: Theme.caption-size;
+                color: Theme.secondary;
+                horizontal-alignment: center;
+            }
+            if root.busy: Rectangle {
+                height: Theme.scribe ? 18px : 14px;
+                AuthActivity { x: (parent.width - self.width) / 2; y: 0px; }
             }
         }
     }
-    if root.refreshable: HorizontalLayout {
-        x: 0px; y: box.height + (Theme.scribe ? 20px : 14px);
-        width: parent.width; height: Theme.scribe ? 56px : 48px;
-        alignment: center;
-        spacing: Theme.scribe ? 16px : 12px;
-        Text {
-            text: root.scanned ? Strings.auth-qr-waiting-confirmation : AuthModel.expires-label;
+    Rectangle {
+        x: 3px; y: code-area.y + code-area.height;
+        width: root.width - 6px; height: root.bar-height + 2px;
+        Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
+        if root.waiting || root.scanned: Rectangle {
+            x: 0px; y: 2px; width: parent.width; height: root.bar-height;
+            property <length> refresh-width: root.scanned ? (Theme.scribe ? 138px : 106px) : (Theme.scribe ? 98px : 74px);
+            AuthText {
+                x: Theme.scribe ? 20px : 16px; y: 0px;
+                width: parent.width - parent.refresh-width - self.x - 8px; height: parent.height;
+                text: root.scanned ? Strings.auth-qr-waiting-confirmation : AuthModel.expires-label;
+                font-size: Theme.scribe ? 18px : 15px;
+                color: Theme.secondary;
+            }
+            ActionButton {
+                x: parent.width - self.width; y: 0px; width: parent.refresh-width; height: parent.height;
+                quiet: true;
+                text: root.scanned ? Strings.auth-reacquire : Strings.auth-refresh;
+                text-size: Theme.scribe ? 20px : 16px;
+                text-weight: 700;
+                clicked => { AuthModel.action("refresh", ""); }
+            }
+            Rectangle {
+                x: parent.width - parent.refresh-width; y: 0px;
+                width: 2px; height: parent.height;
+                background: Theme.ink;
+            }
+        }
+        if root.success || root.expired || root.offline || root.failed: ActionButton {
+            x: 0px; y: 2px; width: parent.width; height: root.bar-height;
+            primary: true;
+            text: root.success ? (root.onboarding ? Strings.auth-continue-preferences : Strings.auth-return-prefix + AuthModel.return-label) :
+                root.offline ? Strings.auth-net-open-continue : root.retry-network ? Strings.auth-network-retry : Strings.auth-refresh-qr;
+            text-size: Theme.scribe ? 20px : 16px;
+            text-weight: 700;
+            clicked => { AuthModel.action(root.success ? "login-return" : root.offline ? "connect" : "refresh", ""); }
+        }
+    }
+}
+
+component AuthQrPane inherits Rectangle {
+    in property <bool> onboarding: false;
+    property <length> margin: Theme.scribe ? 48px : 32px;
+    property <length> instruction-top: root.onboarding ? (Theme.scribe ? 56px : 39px) + 6px : 0px;
+    property <length> instruction-height: Theme.scribe ? 28px : 22px;
+    property <length> card-top: root.instruction-top + root.instruction-height + (Theme.scribe ? 24px : 18px);
+    property <length> card-bar-with-border: Theme.scribe ? 80px : 64px;
+
+    Rectangle {
+        x: (root.width - self.width) / 2; y: (root.height - self.height) / 2;
+        width: min(Theme.scribe ? 560px : root.width, root.width - 2 * root.margin);
+        height: root.card-top + card.height;
+        if root.onboarding: AuthText {
+            x: 0px; y: 0px; width: parent.width; height: root.instruction-top - 6px;
+            text: Strings.auth-qr-title;
+            font-size: Theme.scribe ? 40px : 28px;
+            font-weight: 700;
+        }
+        AuthText {
+            x: 0px; y: root.instruction-top; width: parent.width; height: root.instruction-height;
+            text: Strings.auth-welcome-instruction;
             color: Theme.secondary;
-            font-family: Theme.ui-font;
-            font-size: Theme.scribe ? 19px : 16px;
-            vertical-alignment: center;
+        }
+        card := QrCard {
+            x: 0px; y: root.card-top; width: parent.width;
+            onboarding: root.onboarding;
+            code-area-height: min(Theme.scribe ? 460px : 336px, max(0px, root.height - root.card-top - root.card-bar-with-border));
+        }
+    }
+}
+
+component DirectionCard inherits ChoiceTile {
+    in property <bool> rtl: false;
+    property <string> title: root.rtl ? Strings.auth-direction-rtl : Strings.auth-direction-ltr;
+    property <length> page-width: Theme.scribe ? 60px : 44px;
+    property <length> page-gap: Theme.scribe ? 8px : 6px;
+    accessible-label: root.title;
+
+    VerticalLayout {
+        x: 0px; y: 0px; width: root.width; height: root.height;
+        alignment: center;
+        spacing: Theme.scribe ? 12px : 8px;
+        Rectangle {
+            height: Theme.scribe ? 80px : 60px;
+            HorizontalLayout {
+                x: (parent.width - self.width) / 2; y: 0px;
+                width: 2 * root.page-width + root.page-gap; height: parent.height;
+                spacing: root.page-gap;
+                for index in 2: Rectangle {
+                    width: root.page-width;
+                    border-width: 2px;
+                    border-color: Theme.ink;
+                    AuthText {
+                        width: parent.width; height: parent.height;
+                        text: (index == 0) != root.rtl ? "1" : "2";
+                        font-size: Theme.scribe ? 26px : 20px;
+                        font-weight: 700;
+                        horizontal-alignment: center;
+                    }
+                }
+            }
         }
         Rectangle {
-            width: 1px; height: parent.height; vertical-stretch: 1;
-            Rectangle { x: 0px; y: (parent.height - self.height) / 2; width: parent.width; height: 22px; background: Theme.line; }
+            height: Theme.scribe ? 20px : 16px;
+            Path {
+                x: (parent.width - self.width) / 2; y: 0px;
+                width: Theme.scribe ? 72px : 56px; height: parent.height;
+                viewbox-width: 48; viewbox-height: 16;
+                fill: transparent;
+                stroke: Theme.ink;
+                stroke-width: 2.4px;
+                MoveTo { x: root.rtl ? 46 : 2; y: 8; }
+                LineTo { x: root.rtl ? 4 : 44; y: 8; }
+                MoveTo { x: root.rtl ? 12 : 36; y: 2; }
+                LineTo { x: root.rtl ? 4 : 44; y: 8; }
+                LineTo { x: root.rtl ? 12 : 36; y: 14; }
+            }
         }
-        QrRefreshButton {
-            text: root.scanned ? Strings.auth-reacquire : Strings.auth-refresh;
-            height: Theme.scribe ? 56px : 48px;
-            clicked => { AuthModel.action("refresh", ""); }
+        AuthText {
+            height: Theme.scribe ? 34px : 25px;
+            text: root.title;
+            font-size: Theme.scribe ? 24px : 18px;
+            font-weight: 700;
+            horizontal-alignment: center;
+        }
+        AuthText {
+            height: Theme.scribe ? 24px : 20px;
+            text: root.rtl ? Strings.auth-direction-rtl-note : Strings.auth-direction-ltr-note;
+            font-size: Theme.scribe ? 17px : 14px;
+            color: Theme.secondary;
+            horizontal-alignment: center;
+        }
+    }
+}
+
+struct PreferenceOption { value: string, label: string }
+
+component PreferenceChoice inherits Rectangle {
+    in property <string> title;
+    in property <[PreferenceOption]> options;
+    in property <string> selected;
+    in property <length> top-inset: 0px;
+    callback picked(string);
+    property <length> label-height: Theme.scribe ? 28px : 22px;
+    property <length> segment-height: Theme.scribe ? 56px : 48px;
+    height: root.top-inset + root.label-height + (Theme.scribe ? 10px : 8px) + root.segment-height;
+
+    AuthText {
+        x: 0px; y: root.top-inset; width: parent.width; height: root.label-height;
+        text: root.title;
+        font-weight: 700;
+    }
+    Rectangle {
+        x: 0px; y: parent.height - self.height; width: parent.width; height: root.segment-height;
+        border-width: 2px; border-color: Theme.ink;
+        for option[index] in root.options: Rectangle {
+            x: 2px + index * self.width; y: 2px;
+            width: (parent.width - 4px) / max(1, root.options.length); height: parent.height - 4px;
+            ActionButton {
+                x: 0px; y: 0px; width: parent.width; height: parent.height;
+                quiet: true;
+                selected: root.selected == option.value;
+                text: option.label;
+                text-size: Theme.scribe ? 20px : 16px;
+                text-weight: self.selected ? 700 : 400;
+                accessible-checkable: true;
+                accessible-checked: self.selected;
+                clicked => { root.picked(option.value); }
+            }
+            if index > 0: Rectangle { x: 0px; y: 0px; width: 2px; height: parent.height; background: Theme.ink; }
         }
     }
 }
 
 export component WelcomeScreen inherits Rectangle {
     background: Theme.paper;
-    property <length> header-height: Theme.scribe ? 80px : 56px;
-    property <length> footer-height: Theme.scribe ? 88px : 60px;
-    if AuthModel.step == 1: Rectangle {
-        x: 0px;
-        y: 0px;
-        width: parent.width;
-        height: parent.height;
-        Rectangle {
-            x: 0px;
-            y: 0px;
-            width: parent.width;
-            height: root.header-height;
-            AuthLabel { x: Theme.margin; y: 0px; width: 180px; height: parent.height; text: Strings.auth-app-name; font-size: Theme.scribe ? 24px : 18px; font-weight: 700; }
-            if AuthModel.phase != "success": NavigationButton {
-                x: parent.width - self.width - (Theme.scribe ? 32px : 12px);
-                y: (parent.height - self.height) / 2;
-                height: Theme.scribe ? 56px : 48px;
-                icon: "next";
-                trailing: true;
-                icon-size: Theme.scribe ? 20px : 16px;
-                text: Strings.auth-skip-login;
-                text-size: Theme.scribe ? 20px : 16px;
-                clicked => { AuthModel.action("skip", ""); }
-            }
+    property <length> margin: Theme.scribe ? 48px : 32px;
+    property <length> header-height: Theme.scribe ? 128px : 96px;
+    property <length> footer-margin: Theme.scribe ? 48px : 24px;
+    property <length> footer-top: root.height - Theme.button-height - root.footer-margin;
+    property <bool> preferences: AuthModel.step == 2;
+
+    Rectangle {
+        x: 0px; y: 0px; width: root.width; height: root.header-height;
+        AuthText {
+            x: root.margin; y: parent.height - self.height - (Theme.scribe ? 24px : 18px);
+            width: parent.width - 2 * self.x - 58px; height: Theme.scribe ? 44px : 32px;
+            text: Strings.auth-app-name;
+            font-family: Theme.serif-font;
+            font-size: Theme.scribe ? 44px : 32px;
+            font-weight: 700;
         }
-        group := Rectangle {
-            x: 0px;
-            width: parent.width;
-            height: Theme.scribe ? 648px : 468px;
-            y: root.header-height + (parent.height - root.header-height - root.footer-height - (Theme.scribe ? 40px : 24px) - self.height) / 2;
-            Text { x: 0px; y: 0px; width: parent.width; height: Theme.scribe ? 54px : 40px; text: Strings.auth-qr-title; color: Theme.ink; font-family: Theme.ui-font; font-size: Theme.scribe ? 42px : 30px; font-weight: 700; horizontal-alignment: center; vertical-alignment: center; }
-            Text { x: Theme.margin; y: Theme.scribe ? 68px : 50px; width: parent.width - Theme.margin * 2; height: Theme.scribe ? 32px : 24px; text: Strings.auth-welcome-instruction; color: Theme.secondary; font-family: Theme.ui-font; font-size: Theme.scribe ? 21px : 16px; horizontal-alignment: center; vertical-alignment: center; }
-            QrCard { x: (parent.width - self.width) / 2; y: Theme.scribe ? 152px : 106px; }
+        AuthText {
+            x: parent.width - root.margin - self.width; y: parent.height - self.height - (Theme.scribe ? 24px : 18px);
+            width: 58px; height: Theme.scribe ? 25px : 21px;
+            text: root.preferences ? Strings.auth-step-preferences : Strings.auth-step-login;
+            font-size: Theme.scribe ? 18px : 15px;
+            color: Theme.secondary;
+            horizontal-alignment: right;
         }
-        AuthLabel { x: 0px; y: parent.height - root.footer-height; width: parent.width; height: root.footer-height; text: Strings.auth-credentials-local; font-size: Theme.scribe ? 17px : 14px; color: Theme.secondary; horizontal-alignment: center; }
+        Rectangle { x: 0px; y: parent.height - 2px; width: parent.width; height: 2px; background: Theme.ink; }
     }
-    if AuthModel.step == 2: Rectangle {
-        x: 0px;
-        y: 0px;
-        width: parent.width;
-        height: parent.height;
-        Rectangle {
-            x: 0px;
-            y: 0px;
-            width: parent.width;
-            height: root.header-height;
-            if AuthModel.authenticated: AuthLabel {
-                x: Theme.margin;
-                y: 0px;
-                width: parent.width - Theme.margin * 2;
-                height: parent.height;
-                text: Strings.auth-logged-in + AuthModel.account-name;
-                font-size: Theme.scribe ? 19px : 15px;
-            }
-            if !AuthModel.authenticated: NavigationButton { x: Theme.scribe ? 28px : 4px; y: (parent.height - self.height) / 2; height: Theme.scribe ? 56px : 48px; icon: "back"; text: Strings.auth-back-login; text-size: Theme.scribe ? 20px : 17px; clicked => { AuthModel.action("back", ""); } }
-        }
-        content := Rectangle {
-            x: Theme.scribe ? (parent.width - 680px) / 2 : 24px;
-            y: root.header-height + (Theme.scribe ? 40px : 20px);
-            width: Theme.scribe ? 680px : parent.width - 48px;
-            height: max(0px, parent.height - self.y - (Theme.scribe ? 136px : 96px));
-            Text { x: 0px; y: 0px; width: parent.width; height: Theme.scribe ? 54px : 40px; text: Strings.auth-direction-title; font-family: Theme.ui-font; font-size: Theme.scribe ? 42px : 30px; font-weight: 700; color: Theme.ink; horizontal-alignment: center; vertical-alignment: center; }
-            Text { x: 0px; y: Theme.scribe ? 68px : 50px; width: parent.width; height: Theme.scribe ? 32px : 24px; text: Strings.auth-direction-note; font-family: Theme.ui-font; font-size: Theme.scribe ? 21px : 16px; color: Theme.secondary; horizontal-alignment: center; vertical-alignment: center; }
-            cards := HorizontalLayout {
-                x: 0px; y: Theme.scribe ? 148px : 106px;
-                width: parent.width; height: Theme.scribe ? 300px : 228px;
-                spacing: Theme.scribe ? 20px : 14px;
-                DirectionCard { selected: AuthModel.direction == "ltr"; picked => { AuthModel.action("direction", "ltr"); } }
-                DirectionCard { rtl: true; selected: AuthModel.direction == "rtl"; picked => { AuthModel.action("direction", "rtl"); } }
-            }
-            preferences := Rectangle {
-                x: 0px;
-                y: cards.y + cards.height + (Theme.scribe ? 48px : 32px);
-                width: parent.width;
-                height: Theme.scribe ? 210px : 94px;
-                Rectangle { x: 0px; y: 0px; height: 2px; width: parent.width; background: Theme.ink; }
-                Rectangle {
-                    x: 0px;
-                    y: 2px;
-                    height: Theme.scribe ? 104px : 92px;
-                    width: parent.width;
-                    Rectangle { x: 0px; y: parent.height - 1px; height: 1px; width: parent.width; background: Theme.line; }
-                    AuthLabel { x: 0px; y: Theme.scribe ? 24px : 20px; height: Theme.scribe ? 30px : 26px; width: parent.width - (Theme.scribe ? 360px : 258px); text: Strings.auth-default-mode; font-size: Theme.scribe ? 21px : 17px; font-weight: 500; }
-                    AuthLabel {
-                        x: 0px;
-                        y: Theme.scribe ? 58px : 49px;
-                        height: Theme.scribe ? 24px : 22px;
-                        width: parent.width - (Theme.scribe ? 360px : 258px);
-                        text: AuthModel.mode == "panel" ? (Theme.scribe ? Strings.auth-mode-panel-note-sc : Strings.auth-mode-panel-note) : AuthModel.mode == "strip" ? (Theme.scribe ? Strings.auth-mode-strip-note-sc : Strings.auth-mode-strip-note) : (Theme.scribe ? Strings.auth-mode-page-note-sc : Strings.auth-mode-page-note);
-                        font-size: Theme.scribe ? 17px : 14px;
-                        color: Theme.secondary;
-                        wrap: word-wrap;
-                    }
-                    Rectangle {
-                        width: Theme.scribe ? 340px : 246px;
-                        height: (Theme.scribe ? 60px : 52px) + 4px;
-                        x: parent.width - self.width;
-                        y: (parent.height - self.height) / 2;
-                        border-width: 2px; border-color: Theme.ink;
-                        HorizontalLayout {
-                            x: 0px; y: 0px; width: parent.width; height: parent.height;
-                            padding: 2px; spacing: 0px;
-                            PreferenceSegment { first: true; label: Strings.auth-mode-page; selected: AuthModel.mode == "page"; picked => { AuthModel.action("mode", "page"); } }
-                            PreferenceSegment { label: Strings.auth-mode-panel; selected: AuthModel.mode == "panel"; picked => { AuthModel.action("mode", "panel"); } }
-                            PreferenceSegment { label: Strings.auth-mode-strip; selected: AuthModel.mode == "strip"; picked => { AuthModel.action("mode", "strip"); } }
-                        }
+
+    if !root.preferences: AuthQrPane {
+        x: 0px; y: root.header-height; width: root.width; height: max(0px, root.footer-top - self.y);
+        onboarding: true;
+    }
+    if root.preferences: Flickable {
+        x: root.margin; y: root.header-height; width: root.width - 2 * root.margin;
+        height: max(0px, root.footer-top - self.y - (Theme.scribe ? 24px : 18px));
+        viewport-width: self.width;
+        viewport-height: max(self.height, settings.preferred-height);
+        interactive: settings.preferred-height > self.height;
+        settings := VerticalLayout {
+            x: 0px; y: 0px; width: parent.width; height: self.preferred-height;
+            padding-top: Theme.scribe ? 40px : 24px;
+            spacing: Theme.scribe ? 24px : 18px;
+            alignment: start;
+
+            VerticalLayout {
+                spacing: 6px;
+                if AuthModel.authenticated: AuthText {
+                    height: Theme.scribe ? 28px : 22px;
+                    text: AuthModel.account-name == "" ? Strings.auth-logged-in : Strings.auth-logged-in-name + AuthModel.account-name;
+                    color: Theme.secondary;
+                }
+                if !AuthModel.authenticated: Rectangle {
+                    height: Theme.scribe ? 56px : 48px;
+                    AuthBackButton {
+                        x: 0px; y: 0px;
+                        horizontal-padding: 0px;
+                        text: Strings.auth-back-login;
+                        clicked => { AuthModel.action("back", ""); }
                     }
                 }
-                if Theme.scribe: Rectangle {
-                    x: 0px; y: 106px; width: parent.width; height: 104px;
-                    Rectangle { x: 0px; y: parent.height - 1px; height: 1px; width: parent.width; background: Theme.line; }
-                    AuthLabel { x: 0px; y: 24px; height: 30px; width: parent.width - 360px; text: Strings.auth-landscape; font-size: 21px; font-weight: 500; }
-                    AuthLabel { x: 0px; y: 58px; height: 24px; width: parent.width - 360px; text: AuthModel.landscape == "single" ? Strings.auth-landscape-single-note : Strings.auth-landscape-spread-note; font-size: 17px; color: Theme.secondary; wrap: word-wrap; }
-                    Rectangle {
-                        width: 340px; height: 64px; x: parent.width - self.width; y: 20px;
-                        border-width: 2px; border-color: Theme.ink;
-                        HorizontalLayout {
-                            x: 0px; y: 0px; width: parent.width; height: parent.height;
-                            padding: 2px; spacing: 0px;
-                            PreferenceSegment { first: true; label: Strings.auth-landscape-spread; selected: AuthModel.landscape == "spread"; picked => { AuthModel.action("landscape", "spread"); } }
-                            PreferenceSegment { label: Strings.auth-landscape-single; selected: AuthModel.landscape == "single"; picked => { AuthModel.action("landscape", "single"); } }
-                        }
-                    }
+                AuthText {
+                    height: Theme.scribe ? 56px : 39px;
+                    text: Strings.auth-direction-title;
+                    font-size: Theme.scribe ? 40px : 28px;
+                    font-weight: 700;
                 }
             }
-        }
-        Rectangle {
-            x: 0px;
-            y: parent.height - self.height;
-            height: Theme.scribe ? 136px : 96px;
-            width: parent.width;
-            ActionButton {
-                x: Theme.scribe ? (parent.width - 680px) / 2 : 24px;
-                y: (parent.height - self.height) / 2;
-                width: Theme.scribe ? 680px : parent.width - 48px;
-                height: Theme.scribe ? 72px : 56px;
-                text: Strings.auth-enter-shelf;
-                text-size: Theme.scribe ? 22px : 18px;
-                primary: true;
-                clicked => { AuthModel.action("finish", ""); }
+            HorizontalLayout {
+                height: Theme.scribe ? 380px : 260px;
+                spacing: Theme.scribe ? 24px : 12px;
+                DirectionCard { selected: AuthModel.direction == "ltr"; clicked => { AuthModel.action("direction", "ltr"); } }
+                DirectionCard { rtl: true; selected: AuthModel.direction == "rtl"; clicked => { AuthModel.action("direction", "rtl"); } }
+            }
+            PreferenceChoice {
+                top-inset: Theme.scribe ? 10px : 8px;
+                title: Strings.auth-default-mode;
+                options: [{ value: "page", label: Strings.auth-mode-page }, { value: "panel", label: Strings.auth-mode-panel }, { value: "strip", label: Strings.auth-mode-strip }];
+                selected: AuthModel.mode;
+                picked(value) => { AuthModel.action("mode", value); }
+            }
+            if Theme.scribe: PreferenceChoice {
+                title: Strings.auth-landscape;
+                options: [{ value: "spread", label: Strings.auth-landscape-spread }, { value: "single", label: Strings.auth-landscape-single }];
+                selected: AuthModel.landscape;
+                picked(value) => { AuthModel.action("landscape", value); }
             }
         }
+    }
+    if root.preferences || AuthModel.phase != "success": ActionButton {
+        x: (root.width - self.width) / 2; y: root.footer-top;
+        width: min(Theme.scribe && !root.preferences ? 560px : root.width, root.width - 2 * root.margin);
+        height: Theme.button-height;
+        text: root.preferences ? Strings.auth-enter-shelf : Strings.auth-skip-login;
+        text-size: Theme.body-size;
+        text-weight: root.preferences ? 700 : 400;
+        primary: root.preferences;
+        clicked => { AuthModel.action(root.preferences ? "finish" : "skip", ""); }
     }
 }
 
 export component LoginScreen inherits Rectangle {
     background: Theme.paper;
-    property <length> header-height: Theme.scribe ? 72px : 52px;
-    property <length> footer-height: Theme.scribe ? 88px : 64px;
     Rectangle {
-        x: 0px; y: 0px; width: parent.width; height: root.header-height;
-        Rectangle { x: 0px; y: parent.height - 1px; width: parent.width; height: 1px; background: Theme.ink; }
-        NavigationButton { x: Theme.scribe ? 28px : 4px; y: (parent.height - self.height) / 2; height: Theme.scribe ? 56px : 48px; icon: "back"; text: Strings.auth-back; text-size: Theme.scribe ? 20px : 17px; clicked => { AuthModel.action("back", ""); } }
-        AuthLabel { x: Theme.scribe ? 140px : 96px; y: 0px; height: parent.height; width: parent.width - self.x - 24px; text: Strings.auth-qr-title; font-size: Theme.scribe ? 26px : 20px; font-weight: 700; }
-    }
-    group := Rectangle {
-        x: 0px;
-        width: parent.width;
-        height: Theme.scribe ? 580px : 418px;
-        y: root.header-height + (parent.height - root.header-height - root.footer-height - (Theme.scribe ? 40px : 24px) - self.height) / 2;
-        Text { x: Theme.margin; y: 0px; width: parent.width - Theme.margin * 2; height: Theme.scribe ? 32px : 24px; text: Strings.auth-login-instruction; color: Theme.secondary; font-family: Theme.ui-font; font-size: Theme.scribe ? 21px : 16px; horizontal-alignment: center; vertical-alignment: center; }
-        QrCard { x: (parent.width - self.width) / 2; y: Theme.scribe ? 84px : 56px; }
-    }
-    Rectangle {
-        x: 0px;
-        y: parent.height - root.footer-height;
-        height: root.footer-height;
-        width: parent.width;
-        if AuthModel.phase != "success": AuthLabel { x: Theme.margin; y: 0px; width: parent.width - Theme.margin * 2; height: parent.height; text: Theme.scribe ? Strings.auth-credentials-clear-sc : Strings.auth-credentials-clear-pw; font-size: Theme.scribe ? 17px : 14px; color: Theme.secondary; horizontal-alignment: center; wrap: word-wrap; }
-        if AuthModel.phase == "success": HorizontalLayout {
-            x: 0px; y: 0px; width: parent.width; height: parent.height;
-            alignment: center; spacing: Theme.scribe ? 12px : 8px;
-            AuthLabel { text: Strings.auth-returning-account; font-size: Theme.scribe ? 17px : 14px; color: Theme.secondary; }
-            Rectangle {
-                width: return-action.preferred-width;
-                height: parent.height;
-                horizontal-stretch: 0;
-                vertical-stretch: 1;
-                return-action := NavigationButton {
-                    x: 0px;
-                    y: (parent.height - self.height) / 2;
-                    icon: "next"; trailing: true; icon-size: Theme.scribe ? 19px : 16px;
-                    height: Theme.scribe ? 56px : 48px;
-                    text: Strings.auth-return-now; text-size: Theme.scribe ? 19px : 16px;
-                    clicked => { AuthModel.action("login-return", ""); }
-                }
-            }
+        x: 0px; y: 0px; width: root.width; height: Theme.header-height;
+        back := AuthBackButton {
+            x: Theme.scribe ? 32px : 8px; y: (parent.height - self.height) / 2;
+            text: AuthModel.return-label;
+            clicked => { AuthModel.action("back", ""); }
         }
+        AuthText {
+            x: back.x + back.width + 8px; y: 0px;
+            width: parent.width - self.x - 24px; height: parent.height;
+            text: Strings.auth-qr-title;
+            font-size: Theme.scribe ? 22px : 17px;
+            font-weight: 700;
+        }
+        Rectangle { x: 0px; y: parent.height - 2px; width: parent.width; height: 2px; background: Theme.ink; }
+    }
+    AuthQrPane {
+        x: 0px; y: Theme.header-height; width: root.width;
+        height: max(0px, root.height - self.y - (Theme.scribe ? 80px : 40px));
     }
 }
 
 export component NetSheet inherits Rectangle {
     visible: AuthModel.net-visible;
-    background: transparent;
-    property <length> pad: Theme.scribe ? 48px : 24px;
+    property <bool> busy: AuthModel.net-phase == "connecting";
+    property <bool> failed: AuthModel.net-phase == "failed";
+    property <bool> preview: AuthModel.net-phase == "preview";
+    property <bool> can-continue: AuthModel.net-phase == "connected" || root.preview;
+    property <bool> stacked: !Theme.scribe || dialog.width < 520px;
+    property <length> isolation: Theme.scribe ? 24px : 16px;
+    property <length> inset: (Theme.scribe ? 36px : 24px) + 3px;
     property <length> gap: Theme.scribe ? 18px : 14px;
-    property <length> main-height: Theme.scribe ? 68px : 56px;
-    property <length> secondary-height: Theme.scribe ? 60px : 52px;
-    property <bool> manual-help-shown: AuthModel.net-message == Strings.auth-network-manual-help;
-    property <string> title: AuthModel.net-phase == "preview" ? Strings.auth-network-preview-title : AuthModel.net-phase == "connecting" ? Strings.auth-net-opening : AuthModel.net-phase == "connected" ? Strings.auth-net-connected : AuthModel.net-phase == "failed" ? Strings.auth-net-failed : Strings.auth-need-network;
-    property <string> body: AuthModel.net-message != "" ? AuthModel.net-message : AuthModel.net-phase == "preview" ? Strings.auth-network-preview-note : AuthModel.net-phase == "connecting" ? Strings.auth-net-connecting-note : AuthModel.net-phase == "connected" ? Strings.auth-net-connected-note : AuthModel.net-phase == "failed" ? Strings.auth-net-failed-note : AuthModel.net-action + Strings.auth-net-required-suffix;
-    TouchArea { x: 0px; y: 0px; width: parent.width; height: parent.height; clicked => { AuthModel.action("net-close", ""); } }
-    sheet := Rectangle {
-        x: 0px;
-        y: parent.height - self.height;
-        width: parent.width;
-        height: content.preferred-height;
+    property <length> button-gap: Theme.scribe ? 12px : 10px;
+    property <length> title-height: Theme.scribe ? 39px : 31px;
+    property <length> actions-top: root.inset + root.title-height + root.gap + (root.busy ? 0px : Theme.scribe ? 6px : 4px);
+    property <length> indicator-height: Theme.scribe ? 18px : 14px;
+    property <length> buttons-height: root.busy ? root.indicator-height + root.gap + Theme.button-height :
+        root.stacked ? Theme.button-height * 2 + root.button-gap : Theme.button-height;
+    property <string> title: root.preview ? Strings.auth-network-preview-title : root.busy ? Strings.auth-net-opening :
+        root.can-continue ? Strings.auth-net-connected : root.failed ? Strings.auth-net-failed : Strings.auth-need-network;
+    property <string> primary-label: root.can-continue ? (AuthModel.net-action == "" ? Strings.network-continue : Strings.auth-net-continue + AuthModel.net-action) :
+        root.failed ? Strings.auth-network-retry : Strings.auth-net-open-continue;
+
+    // Consume outside clicks without dismissing the active network decision.
+    TouchArea { x: 0px; y: 0px; width: root.width; height: root.height; }
+    Rectangle {
+        x: dialog.x - root.isolation; y: dialog.y - root.isolation;
+        width: dialog.width + 2 * root.isolation; height: dialog.height + 2 * root.isolation;
         background: Theme.paper;
-        Rectangle { x: 0px; y: 0px; width: parent.width; height: 2px; background: Theme.ink; }
-        TouchArea { x: 0px; y: 0px; width: parent.width; height: parent.height; }
-        content := VerticalLayout {
-            x: 0px; y: 0px; width: parent.width; height: parent.height;
-            padding-top: Theme.scribe ? 32px : 22px;
-            padding-bottom: Theme.scribe ? 40px : 26px;
-            padding-left: root.pad;
-            padding-right: root.pad;
-            spacing: root.gap;
-            HorizontalLayout {
-                spacing: 14px;
-                Rectangle {
-                    width: Theme.scribe ? 64px : 48px;
-                    height: self.width;
-                    border-width: 2px; border-color: Theme.ink;
-                    Icon { x: parent.width * 0.2; y: parent.height * 0.2; width: parent.width * 0.6; height: self.width; kind: AuthModel.net-phase == "connected" || AuthModel.net-phase == "connecting" ? "wifi" : "wifi-off"; }
-                }
-                VerticalLayout {
-                    spacing: 2px;
-                    Text { text: root.title; color: Theme.ink; font-family: Theme.ui-font; font-size: Theme.scribe ? 26px : 21px; font-weight: 700; }
-                    Text { text: root.body; color: Theme.secondary; font-family: Theme.ui-font; font-size: Theme.scribe ? 18px : 15px; wrap: word-wrap; }
-                }
+    }
+    dialog := Rectangle {
+        x: (root.width - self.width) / 2;
+        y: max(root.isolation, min(Theme.scribe ? 360px : 220px, root.height - self.height - root.isolation));
+        width: min(Theme.scribe ? 660px : root.width, root.width - 80px);
+        height: root.actions-top + root.buttons-height + root.inset;
+        background: Theme.paper;
+        border-width: 3px;
+        border-color: Theme.ink;
+
+        AuthText {
+            x: root.inset; y: root.inset; width: parent.width - 2 * self.x; height: root.title-height;
+            text: root.title;
+            font-size: Theme.scribe ? 28px : 22px;
+            font-weight: 700;
+        }
+        if root.busy: AuthActivity { x: root.inset; y: root.actions-top; }
+        if !root.busy: Rectangle {
+            x: root.inset; y: root.actions-top;
+            width: parent.width - 2 * self.x; height: root.buttons-height;
+            property <length> row-width: self.width - (root.can-continue ? 1 : 2) * root.button-gap;
+            property <length> primary-width: root.stacked ? self.width : self.row-width * (root.can-continue ? 1.6 / 2.3 : 1.6 / 3.3);
+            property <length> offline-width: root.stacked ? (self.width - root.button-gap) / 2 : self.row-width / 3.3;
+            property <length> secondary-top: root.stacked ? Theme.button-height + root.button-gap : 0px;
+            ActionButton {
+                x: 0px; y: 0px; width: parent.primary-width;
+                text: root.primary-label;
+                primary: true;
+                text-size: Theme.body-size;
+                text-weight: 700;
+                clicked => { AuthModel.action(root.can-continue ? "net-continue" : "net-connect", ""); }
             }
-            if AuthModel.net-phase == "idle": ActionButton { height: root.main-height; primary: true; text: Strings.auth-net-open-continue; text-size: Theme.scribe ? 21px : 17px; clicked => { AuthModel.action("net-connect", ""); } }
-            if AuthModel.net-phase == "connecting": Rectangle {
-                height: root.main-height; border-width: 2px; border-color: Theme.line;
-                AuthLabel { x: 0px; y: 0px; width: parent.width; height: parent.height; text: Strings.auth-connecting-wifi + (AuthModel.network-name == "" ? "" : " " + AuthModel.network-name); color: Theme.secondary; font-size: Theme.scribe ? 21px : 17px; horizontal-alignment: center; }
+            if !root.can-continue: ActionButton {
+                x: root.stacked ? 0px : parent.primary-width + root.button-gap;
+                y: parent.secondary-top;
+                width: parent.offline-width;
+                text: Strings.auth-net-downloads-only;
+                text-weight: 400;
+                clicked => { AuthModel.action("net-downloads", ""); }
             }
-            if AuthModel.net-phase == "connected" || AuthModel.net-phase == "preview": ActionButton { height: root.main-height; primary: true; text: Strings.auth-net-continue + AuthModel.net-action; text-size: Theme.scribe ? 21px : 17px; clicked => { AuthModel.action("net-continue", ""); } }
-            if AuthModel.net-phase == "failed": ActionButton { height: root.main-height; primary: true; text: root.manual-help-shown ? Strings.auth-network-retry : Strings.auth-net-settings; text-size: Theme.scribe ? 21px : 17px; clicked => { AuthModel.action(root.manual-help-shown ? "net-connect" : "net-settings", ""); } }
-            if AuthModel.net-phase == "failed": Text { text: Strings.auth-net-settings-note; color: Theme.secondary; font-family: Theme.ui-font; font-size: Theme.scribe ? 18px : 15px; wrap: word-wrap; }
-            if AuthModel.net-phase == "idle" || AuthModel.net-phase == "failed": HorizontalLayout {
-                spacing: 10px;
-                ActionButton { height: root.secondary-height; text: Strings.auth-net-downloads-only; text-size: Theme.scribe ? 19px : 16px; clicked => { AuthModel.action("net-downloads", ""); } }
-                ActionButton { height: root.secondary-height; text: Strings.auth-cancel; text-size: Theme.scribe ? 19px : 16px; clicked => { AuthModel.action("net-close", ""); } }
+            ActionButton {
+                x: root.stacked ? (root.can-continue ? 0px : parent.offline-width + root.button-gap) :
+                    parent.primary-width + root.button-gap + (root.can-continue ? 0px : parent.offline-width + root.button-gap);
+                y: parent.secondary-top;
+                width: parent.width - self.x;
+                text: Strings.auth-cancel;
+                text-weight: 400;
+                clicked => { AuthModel.action("net-close", ""); }
             }
-            if AuthModel.net-phase == "connecting": ActionButton { height: root.secondary-height; text: Strings.auth-cancel; text-size: Theme.scribe ? 19px : 16px; clicked => { AuthModel.action("net-close", ""); } }
+        }
+        if root.busy: ActionButton {
+            x: root.inset; y: root.actions-top + root.indicator-height + root.gap;
+            width: parent.width - 2 * self.x;
+            text: Strings.auth-cancel-check;
+            text-weight: 400;
+            clicked => { AuthModel.action("net-close", ""); }
         }
     }
 }

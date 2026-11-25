@@ -1,0 +1,1507 @@
+[
+  {
+    "profile": "pw6",
+    "state": "account-online",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/account-online.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-purchases",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/account-purchases.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-recharge-qr",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/account-recharge-qr.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-recharge",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/account-recharge.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-recharged",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/account-recharged.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-recharges",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/account-recharges.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-refreshed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/account-refreshed.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-signedout",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/account-signedout.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "account-signout",
+    "same_dimensions": true,
+    "scope": "XTest pointer",
+    "candidate": "raw/pw6/account-signout.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "account",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/account.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-about-acted",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/acct-about-acted.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-about",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/acct-about.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-account",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/acct-account.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-display-fast",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/acct-display-fast.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-display-jpeg",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/acct-display-jpeg.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-display",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/acct-display.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-download",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/acct-download.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-picker-rpol",
+    "same_dimensions": true,
+    "scope": "XTest pointer",
+    "candidate": "raw/pw6/acct-picker-rpol.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-picker",
+    "same_dimensions": true,
+    "scope": "XTest pointer",
+    "candidate": "raw/pw6/acct-picker.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-reading",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/acct-reading.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-storage-clean",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/acct-storage-clean.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-storage",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/acct-storage.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "acct-system",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/acct-system.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-bought",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/detail-bought.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-desc",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/detail-desc.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-dl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/detail-dl.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-other",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/detail-other.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-other2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/detail-other2.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/detail-queued.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-sel-all",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/detail-sel-all.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-sel-dl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/detail-sel-dl.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-sel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/detail-sel.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-sel0",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/detail-sel0.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-signedout",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/detail-signedout.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail-unfollowed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/detail-unfollowed.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "detail",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/detail.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "directory-unread",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/directory-unread.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "directory",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/directory.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-done-only",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-done-only.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-empty",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-empty.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-paused",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-paused.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-queued-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-queued-p2.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-queued.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-removed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-removed.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-retried",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-retried.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-sel.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sel0",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-sel0.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sheet-active",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-sheet-active.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sheet-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-sheet-p2.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sheet-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-sheet-queued.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sheet-task",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-sheet-task.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads-sheet",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads-sheet.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "downloads",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/downloads.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "light-extreme",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/light-extreme.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "login-from-detail",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/login-from-detail.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "login-success",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/login-success.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "login",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/login.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "network-checking",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/network-checking.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "network-failed",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/network-failed.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "network-ok",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/network-ok.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "network",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/network.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-b5",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/purchase-b5.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-coupon",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/purchase-coupon.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-done",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/purchase-done.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-late",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/purchase-late.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-low",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/purchase-low.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-pending",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/purchase-pending.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase-submitting",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/purchase-submitting.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "purchase",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/purchase.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-display-jpeg",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/reader-display-jpeg.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-display-normal",
+    "same_dimensions": true,
+    "scope": "XTest pointer",
+    "candidate": "raw/pw6/reader-display-normal.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-display",
+    "same_dimensions": true,
+    "scope": "XTest pointer",
+    "candidate": "raw/pw6/reader-display.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-fast",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/reader-fast.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-layout",
+    "same_dimensions": true,
+    "scope": "XTest pointer",
+    "candidate": "raw/pw6/reader-layout.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-light",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/reader-light.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu-ep13-q",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/reader-menu-ep13-q.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu-ep13",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/reader-menu-ep13.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu-fromdetail",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/reader-menu-fromdetail.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu-other",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/reader-menu-other.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu-rtl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/reader-menu-rtl.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-menu",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/reader-menu.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-original",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/reader-original.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader-panel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/reader-panel.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "reader",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/reader.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "search-empty",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/search-empty.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "search-numeric",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/search-numeric.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "search-results",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/search-results.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "search-typing",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/search-typing.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "search",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/search.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-empty",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/shelf-empty.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-filter",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/shelf-filter.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-list",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/shelf-list.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/shelf-p2.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-signedout",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/shelf-signedout.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-syncing",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/shelf-syncing.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf-upd",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/shelf-upd.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "shelf",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/shelf.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "sleep",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/sleep.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "startup-error",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/startup-error.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "startup",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/startup.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "store-genre-picked",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/store-genre-picked.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "store-genre",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/store-genre.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "store-online",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/store-online.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "store-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/store-p2.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "store-p3",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/store-p3.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "store",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/store.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "welcome-expired",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/welcome-expired.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "welcome-prefs-skip",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/welcome-prefs-skip.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "welcome-prefs",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/welcome-prefs.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "welcome-scanned",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/pw6/welcome-scanned.png"
+  },
+  {
+    "profile": "pw6",
+    "state": "welcome",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/pw6/welcome.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-purchases",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/account-purchases.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-recharge-qr",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/account-recharge-qr.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-recharge",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/account-recharge.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-recharged",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/account-recharged.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-recharges",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/account-recharges.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-refreshed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/account-refreshed.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-signedout",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/account-signedout.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "account-signout",
+    "same_dimensions": true,
+    "scope": "XTest pointer",
+    "candidate": "raw/scribe/account-signout.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "account",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/account.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-about-acted",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/acct-about-acted.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-about",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/acct-about.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-account",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/acct-account.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-display-fast",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/acct-display-fast.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-display-jpeg",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/acct-display-jpeg.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-download",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/acct-download.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-picker-conc",
+    "same_dimensions": true,
+    "scope": "XTest pointer",
+    "candidate": "raw/scribe/acct-picker-conc.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-picker",
+    "same_dimensions": true,
+    "scope": "XTest pointer",
+    "candidate": "raw/scribe/acct-picker.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-storage",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/acct-storage.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "acct-system",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/acct-system.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-bought",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/detail-bought.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-desc",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/detail-desc.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-dl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/detail-dl.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-other",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/detail-other.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-other2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/detail-other2.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/detail-queued.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-sel-all",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/detail-sel-all.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-sel-dl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/detail-sel-dl.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-sel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/detail-sel.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-sel0",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/detail-sel0.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-signedout",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/detail-signedout.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail-unfollowed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/detail-unfollowed.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "detail",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/detail.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "directory-unread",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/directory-unread.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "directory",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/directory.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-done-only",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-done-only.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-empty",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-empty.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-paused",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-paused.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-queued-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-queued-p2.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-queued.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-removed",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-removed.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-retried",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-retried.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-sel.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sel0",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-sel0.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sheet-active",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-sheet-active.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sheet-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-sheet-p2.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sheet-queued",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-sheet-queued.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sheet-task",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-sheet-task.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads-sheet",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads-sheet.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "downloads",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/downloads.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "light-extreme",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/light-extreme.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "login-from-detail",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/login-from-detail.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "login-success",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/login-success.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "login",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/login.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "network-checking",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/network-checking.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "network-failed",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/network-failed.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "network-ok",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/network-ok.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "network",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/network.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-b5",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/purchase-b5.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-coupon",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/purchase-coupon.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-done",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/purchase-done.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-late",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/purchase-late.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-low",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/purchase-low.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-pending",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/purchase-pending.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase-submitting",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/purchase-submitting.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "purchase",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/purchase.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-fast",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/reader-fast.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-light",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/reader-light.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu-ep13-q",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/reader-menu-ep13-q.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu-ep13",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/reader-menu-ep13.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu-fromdetail",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/reader-menu-fromdetail.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu-other",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/reader-menu-other.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu-rtl",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/reader-menu-rtl.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-menu",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/reader-menu.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-original",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/reader-original.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-panel",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/reader-panel.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-settings-fast",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/reader-settings-fast.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-settings-jpeg",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/reader-settings-jpeg.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader-settings",
+    "same_dimensions": true,
+    "scope": "XTest pointer",
+    "candidate": "raw/scribe/reader-settings.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "reader",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/reader.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "search-empty",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/search-empty.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "search-numeric",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/search-numeric.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "search-results",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/search-results.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "search-typing",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/search-typing.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "search",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/search.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-empty",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/shelf-empty.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-filter",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/shelf-filter.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-list",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/shelf-list.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/shelf-p2.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-signedout",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/shelf-signedout.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-syncing",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/shelf-syncing.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf-upd",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/shelf-upd.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "shelf",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/shelf.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "sleep",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/sleep.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "startup-error",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/startup-error.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "startup",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/startup.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "store-genre-picked",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/store-genre-picked.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "store-online",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/store-online.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "store-p2",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/store-p2.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "store",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/store.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "welcome-expired",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/welcome-expired.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "welcome-prefs-skip",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/welcome-prefs-skip.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "welcome-prefs",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/welcome-prefs.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "welcome-scanned",
+    "same_dimensions": true,
+    "scope": "synthetic presentation fixture; no upstream observation",
+    "candidate": "raw/scribe/welcome-scanned.png"
+  },
+  {
+    "profile": "scribe",
+    "state": "welcome",
+    "same_dimensions": true,
+    "scope": "application-intent replay under Xvfb",
+    "candidate": "raw/scribe/welcome.png"
+  }
+]

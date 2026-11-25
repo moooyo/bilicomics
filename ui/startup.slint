@@ -1,103 +1,69 @@
 import { Strings } from "strings.slint";
 import { Theme } from "theme.slint";
+import { WaitingIndicator } from "widgets.slint";
+
+component StartupText inherits Text {
+    font-family: "BiliComics Startup";
+    color: Theme.ink;
+    horizontal-alignment: center;
+    vertical-alignment: center;
+}
 
 export component StartupScreen inherits Rectangle {
-    in property <string> phase: "fonts";
     in property <int> frame: 0;
     in property <bool> failed: false;
     in property <bool> paused: false;
     callback exit();
 
-    background: #ffffff;
-    property <length> content-width: min(440px, root.width - 48px);
-    property <length> center-x: (root.width - root.content-width) / 2;
-    property <length> content-top: max(24px, root.height / 2 - 150px);
-    property <string> phase-label: root.paused ? Strings.startup-suspended :
-        root.failed ? Strings.startup-error-body :
-        root.phase == "state" ? Strings.startup-phase-state :
-        root.phase == "attach" ? Strings.startup-phase-attach : Strings.startup-phase-fonts;
+    background: Theme.paper;
+    property <length> gap: Theme.scribe ? 28px : 20px;
+    property <length> brand-height: Theme.scribe ? 84px : 56px;
+    property <length> status-height: root.failed ? (Theme.scribe ? 39px : 28px) : (Theme.scribe ? 34px : 25px);
+    property <length> tail-height: root.failed ? Theme.button-height : (Theme.scribe ? 18px : 14px);
 
-    Text {
-        x: root.center-x;
-        y: root.content-top;
-        width: root.content-width;
-        height: 56px;
-        text: Strings.startup-app-name;
-        font-family: "BiliComics Startup";
-        font-size: Theme.scribe ? 40px : 34px;
-        color: #000000;
-        horizontal-alignment: center;
-        vertical-alignment: center;
-    }
-    Text {
-        x: root.center-x;
-        y: root.content-top + 80px;
-        width: root.content-width;
-        height: 40px;
-        text: root.failed ? Strings.startup-error-title : Strings.startup-loading;
-        font-family: "BiliComics Startup";
-        font-size: Theme.scribe ? 24px : 20px;
-        color: #000000;
-        horizontal-alignment: center;
-        vertical-alignment: center;
-    }
-    Text {
-        x: root.center-x;
-        y: root.content-top + 132px;
-        width: root.content-width;
-        height: root.failed ? 72px : 48px;
-        text: root.phase-label;
-        font-family: "BiliComics Startup";
-        font-size: Theme.scribe ? 20px : 17px;
-        color: #000000;
-        horizontal-alignment: center;
-        vertical-alignment: center;
-        wrap: word-wrap;
-    }
-    if !root.failed: Rectangle {
-        x: (root.width - 120px) / 2;
-        y: root.content-top + 212px;
-        width: 120px;
-        height: 12px;
-        for index in 4: Rectangle {
-            x: index * 32px;
-            y: 0px;
-            width: 24px;
-            height: 12px;
+    Rectangle {
+        x: 24px; y: (root.height - self.height) / 2;
+        width: root.width - 48px;
+        height: root.brand-height + root.status-height + root.tail-height + 2 * root.gap;
+        StartupText {
+            x: 0px; y: 0px; width: parent.width; height: root.brand-height;
+            text: Strings.startup-app-name;
+            font-size: Theme.scribe ? 60px : 40px;
+            font-weight: 500;
+        }
+        StartupText {
+            x: 0px; y: root.brand-height + root.gap; width: parent.width; height: root.status-height;
+            text: root.failed ? Strings.startup-error-title : root.paused ? Strings.startup-suspended : Strings.startup-loading;
+            font-size: root.failed ? (Theme.scribe ? 28px : 20px) : (Theme.scribe ? 24px : 18px);
+            font-weight: root.failed ? 700 : 400;
+        }
+        if !root.failed: WaitingIndicator {
+            x: (parent.width - self.width) / 2; y: parent.height - self.height;
+            frame: root.paused ? -1 : root.frame;
+            gap: Theme.scribe ? 14px : 10px;
+        }
+        if root.failed: Rectangle {
+            x: (parent.width - self.width) / 2; y: parent.height - self.height;
+            width: Theme.scribe ? 220px : 160px; height: root.tail-height;
+            background: exit-touch.pressed ? Theme.paper : Theme.ink;
             border-width: 2px;
-            border-color: #000000;
-            background: !root.paused && mod(root.frame, 4) == index ? #000000 : #ffffff;
-        }
-    }
-    if root.failed: Rectangle {
-        x: root.center-x;
-        y: root.content-top + 232px;
-        width: root.content-width;
-        height: 56px;
-        border-width: 2px;
-        border-color: #000000;
-        background: exit-touch.pressed ? #000000 : #ffffff;
-        accessible-role: button;
-        accessible-label: Strings.startup-exit;
-        Text {
-            x: 0px;
-            y: 0px;
-            width: parent.width;
-            height: parent.height;
-            text: Strings.startup-exit;
-            font-family: "BiliComics Startup";
-            font-size: 20px;
-            color: exit-touch.pressed ? #ffffff : #000000;
-            horizontal-alignment: center;
-            vertical-alignment: center;
-        }
-        exit-touch := TouchArea {
-            x: 0px;
-            y: 0px;
-            width: parent.width;
-            height: parent.height;
-            enabled: !root.paused;
-            clicked => { root.exit(); }
+            border-color: Theme.ink;
+            accessible-role: button;
+            accessible-label: Strings.startup-exit;
+            accessible-enabled: !root.paused;
+            accessible-action-default => { if !root.paused { root.exit(); } }
+            StartupText {
+                x: 0px; y: 0px; width: parent.width; height: parent.height;
+                text: Strings.startup-exit;
+                font-size: Theme.scribe ? 22px : 17px;
+                font-weight: 700;
+                color: exit-touch.pressed ? Theme.ink : Theme.paper;
+            }
+            exit-touch := TouchArea {
+                x: 0px; y: 0px; width: parent.width; height: parent.height;
+                enabled: !root.paused;
+                clicked => { root.exit(); }
+            }
         }
     }
 }

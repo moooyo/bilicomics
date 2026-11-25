@@ -1,0 +1,27 @@
+{
+  "profile": "scribe",
+  "physical_device": false,
+  "live_account": false,
+  "synthetic_model_identity": true,
+  "passed": false,
+  "binary_bytes": 74940168,
+  "compressed_bytes": 52508929,
+  "sleep_requested": true,
+  "firmware": "Kindle 5.20.1 (~~otaVersion~~)",
+  "deployed": true,
+  "verified_states": [
+    "Shelf",
+    "Reader page 18",
+    "Reader menu",
+    "Full-screen directory",
+    "Directory return to page 18"
+  ],
+  "captures": [
+    "shelf",
+    "reader",
+    "directory",
+    "reader-return"
+  ],
+  "error": "Native suspend",
+  "private_qemu_stopped": true
+}

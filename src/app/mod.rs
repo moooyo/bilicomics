@@ -196,7 +196,9 @@ pub struct App {
     startup_account: Option<PreparedAccount>,
     startup_covers: VecDeque<PreparedCover>,
     route: String,
-    previous_route: String,
+    detail_origin: String,
+    reader_origin: String,
+    purchase_origin: String,
     auth_return: String,
     pending_network: Option<(String, String, String)>,
     network_verified_epoch: Option<u64>,
@@ -362,10 +364,31 @@ impl App {
             self.client.cancel_login(); self.qr_key = None; self.qr_polling = false;
             self.invalidate("qr-generate"); self.invalidate("qr-poll");
         }
-        if self.route == "reader" && route != "reader" && self.reading.is_some() {
-            let _ = self.close_reader();
+        if self.route != route {
+            self.close_catalog_popovers();
+            if self.pending_network.take().is_some() || self.pending.contains_key("network-check") {
+                self.invalidate("network-check");
+                if let Some(ui) = self.ui.upgrade() {
+                    let auth = ui.global::<AuthModel>();
+                    auth.set_net_visible(false);
+                    auth.set_net_phase("idle".into());
+                }
+            }
+            if (self.route == "detail" || self.reader_directory_open()) && route != "login" { self.close_detail_selection(); }
+            if self.route == "downloads" { self.close_download_overlays(); }
+            if matches!(self.route.as_str(), "account" | "purchase") { self.dismiss_account_overlays(); }
+            if route == "detail" && matches!(self.route.as_str(), "shelf" | "store" | "search" | "downloads") {
+                self.detail_origin.clone_from(&self.route);
+            }
+            if route == "purchase" {
+                self.purchase_origin = if self.reader_directory_open() { "reader" } else { "detail" }.into();
+            }
+            let retain_reader = (self.route == "reader" && route == "purchase" && self.purchase_origin == "reader")
+                || (self.route == "purchase" && route == "reader");
+            if !retain_reader && route != "reader" && self.reading.is_some() {
+                let _ = self.close_reader();
+            }
         }
-        if self.route != route { self.previous_route = self.route.clone(); }
         self.route = route.to_owned();
         if let Some(ui) = self.ui.upgrade() { ui.global::<ShellModel>().set_route(route.into()); }
         let _ = self.platform.request_refresh(RefreshReason::EnterScreen);
@@ -380,15 +403,41 @@ impl App {
 
     fn go_back(&mut self) -> Result<()> {
         let target = match self.route.as_str() {
-            "reader" => "detail".to_owned(),
+            "reader" if self.reader_directory_open() => return self.reader_action("menu", "close"),
+            "reader" => {
+                self.close_reader()?;
+                self.reader_origin.clone()
+            },
             "search" => "store".to_owned(),
+            "purchase" if self.purchase_origin == "reader" && self.reading.is_some() => {
+                self.restore_reader_directory_catalog()?;
+                "reader".to_owned()
+            },
             "purchase" => "detail".to_owned(),
             "login" => self.auth_return.clone(),
-            "detail" if self.previous_route == "search" || self.previous_route == "store" => self.previous_route.clone(),
+            "detail" => self.detail_origin.clone(),
             _ => "shelf".to_owned(),
         };
         self.navigate(&target);
         Ok(())
+    }
+
+    fn destination_label(&self, route: &str) -> String {
+        i18n::text(match route {
+            "store" => "nav_store",
+            "search" => "cat_search",
+            "downloads" => "nav_downloads",
+            "detail" => "handoff_back_detail",
+            "reader" => "handoff_back_reader",
+            "account" => "nav_account",
+            _ => "nav_shelf",
+        })
+    }
+
+    fn purchase_back_label(&self) -> String {
+        i18n::text(if self.purchase_origin == "reader" && self.reading.is_some() {
+            "handoff_back_directory"
+        } else { "handoff_back_detail" })
     }
 
     fn require_network(&mut self, section: &str, action: &str, value: &str) -> bool {
@@ -400,7 +449,6 @@ impl App {
             auth.set_net_visible(true);
             auth.set_net_phase("idle".into());
             auth.set_net_action(self.network_action_label(section, action, value).into());
-            auth.set_net_message("".into());
         }
         self.sync_presented_reader_dithering();
         false
@@ -428,7 +476,14 @@ impl App {
     fn require_session(&mut self) -> bool {
         if self.is_suspended() { return false; }
         if self.demo.is_some() || self.client.session().and_then(|session| session.account_key().map(str::to_owned)).is_some() { return true; }
-        self.auth_return = self.route.clone();
+        // Sign-in creates a new account epoch. A reader directory cannot retain
+        // its previous account's frames; resume at a freshly loaded detail instead.
+        if self.reader_directory_open() {
+            if self.reader_origin != "detail" { self.detail_origin.clone_from(&self.reader_origin); }
+            self.auth_return = "detail".into();
+        } else {
+            self.auth_return.clone_from(&self.route);
+        }
         self.navigate("login");
         false
     }
@@ -835,13 +890,9 @@ impl App {
     fn query_device_status(&mut self) {
         if self.is_suspended() || self.demo.is_some() { return; }
         let platform = self.platform.clone();
-        let directory = self.data_dir.clone();
-        self.background("device-status", move || Ok((platform.battery_percentage(), available_bytes(&directory))), |app, result| {
-            if let Ok((battery, free)) = result {
-                if let Ok(value) = battery {
-                    if let Some(ui) = app.ui.upgrade() { ui.global::<ShellModel>().set_battery(format!("{value}%").into()); }
-                }
-                if let Some(free) = free { app.download_ui.set_free_space(free); }
+        self.background("device-status", move || Ok(platform.battery_percentage()), |app, result| {
+            if let Ok(Ok(value)) = result {
+                if let Some(ui) = app.ui.upgrade() { ui.global::<ShellModel>().set_battery(format!("{value}%").into()); }
             }
         });
     }
@@ -925,7 +976,7 @@ fn content_refresh_action(section: &str, action: &str) -> bool {
         "catalog" | "library" | "detail" | "search" | "store" => matches!(action,
             "shelf.page" | "shelf.filter" | "shelf.view" | "store.page" | "store.category"
             | "search.page" | "episode.page" | "episode.filter" | "episode.sort" | "detail.locate"),
-        "downloads" => action == "page",
+        "downloads" => matches!(action, "page" | "chapter-page"),
         "account" => matches!(action, "section" | "back"),
         _ => false,
     }

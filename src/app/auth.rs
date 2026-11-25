@@ -1,6 +1,9 @@
 use super::*;
 use crate::{downloads::DownloadManager, source::{QrLoginState, RenewalInfo}};
 
+const WAITING_FRAME_MS: u128 = 400;
+static WAITING_EPOCH: std::sync::OnceLock<Instant> = std::sync::OnceLock::new();
+
 impl App {
     pub(super) fn start_login(&mut self) {
         self.client.cancel_login();
@@ -11,6 +14,7 @@ impl App {
         self.invalidate("network-check");
         let Some(ui) = self.ui.upgrade() else { return; };
         let auth = ui.global::<AuthModel>();
+        auth.set_return_route(self.auth_return.clone().into());
         let session = self.client.session();
         let verified = session.as_ref().and_then(AuthSession::account_key).is_some();
         auth.set_direction(self.preferences.direction.clone().into());
@@ -21,13 +25,13 @@ impl App {
             session.as_ref().map(|session| session.account_name().to_owned()).unwrap_or_default().into()
         } else { "".into() });
         auth.set_status_message("".into());
+        auth.set_waiting_frame(0);
         auth.set_net_phase("idle".into());
-        auth.set_net_message("".into());
         auth.set_net_visible(false);
+        auth.set_qr(slint::Image::default());
         if self.route == "welcome" { auth.set_step(1); }
         if self.options.offline {
             auth.set_phase("offline".into());
-            auth.set_qr(slint::Image::default());
             return;
         }
         if self.demo.is_some() {
@@ -38,7 +42,8 @@ impl App {
             return;
         }
         auth.set_phase("loading".into());
-        auth.set_expires_label(tr("auth_service_expiry"));
+        // The challenge does not provide a deadline. Only polling can confirm expiration.
+        auth.set_expires_label(tr("auth_waiting_for_scan"));
         let client = self.client.clone();
         self.source_job("qr-generate", async move { client.begin_qr().await }, |app, result| {
             let Some(ui) = app.ui.upgrade() else { return; };
@@ -66,17 +71,24 @@ impl App {
     }
 
     pub(super) fn tick_auth(&mut self) -> Result<()> {
-        if !["welcome", "login"].contains(&self.route.as_str()) { return Ok(()); }
+        let auth_route = matches!(self.route.as_str(), "welcome" | "login");
+        if !auth_route && !self.pending.contains_key("network-check") { return Ok(()); }
         let Some(ui) = self.ui.upgrade() else { return Ok(()); };
-        let phase = ui.global::<AuthModel>().get_phase();
-        if phase == "success" && Instant::now() >= self.qr_next_poll {
-            if self.route == "welcome" {
-                ui.global::<AuthModel>().set_step(2);
-                ui.global::<AuthModel>().set_phase("waiting".into());
-            } else {
-                self.finish_auth_return();
+        let auth = ui.global::<AuthModel>();
+        let phase = auth.get_phase();
+        if (auth_route && matches!(phase.as_str(), "loading" | "connecting"))
+            || (auth.get_net_visible() && auth.get_net_phase() == "connecting")
+        {
+            // Use the existing awake maintenance tick instead of adding a timer.
+            let elapsed = WAITING_EPOCH.get_or_init(Instant::now).elapsed().as_millis();
+            let frame = (elapsed / WAITING_FRAME_MS % 4) as i32;
+            if auth.get_waiting_frame() != frame {
+                auth.set_waiting_frame(frame);
+                let _ = self.platform.request_refresh(RefreshReason::Press);
             }
         }
+        if !auth_route { return Ok(()); }
+        // A confirmed sign-in stays on its result until the user activates the next step.
         if self.demo.is_some() || self.options.offline || self.qr_polling
             || !["waiting", "scanned"].contains(&phase.as_str()) || Instant::now() < self.qr_next_poll
         { return Ok(()); }
@@ -101,7 +113,6 @@ impl App {
                             ui.global::<AuthModel>().set_authenticated(true);
                             ui.global::<AuthModel>().set_account_name(app.client.session().map(|session| session.account_name().to_owned()).unwrap_or_default().into());
                             app.qr_key = None;
-                            app.qr_next_poll = Instant::now() + Duration::from_millis(1500);
                         }
                         Err(_) => {
                             ui.global::<AuthModel>().set_phase("error".into());
@@ -118,6 +129,18 @@ impl App {
             }
         });
         Ok(())
+    }
+
+    fn finish_confirmed_login(&mut self) {
+        if self.route == "welcome" {
+            if let Some(ui) = self.ui.upgrade() {
+                let auth = ui.global::<AuthModel>();
+                auth.set_step(2);
+                auth.set_phase("waiting".into());
+            }
+        } else if self.route == "login" {
+            self.finish_auth_return();
+        }
     }
 
     fn finish_auth_return(&mut self) {
@@ -156,23 +179,21 @@ impl App {
             self.invalidate("qr-poll");
             auth.set_net_visible(false);
             auth.set_phase("connecting".into());
-            auth.set_status_message(tr("auth_network_check_note"));
+            auth.set_status_message("".into());
         } else {
             auth.set_net_visible(true);
         }
         auth.set_net_phase("connecting".into());
-        auth.set_net_message(tr("auth_network_check_note"));
+        auth.set_waiting_frame(0);
         if self.demo.is_some() {
             if qr_source {
                 self.options.offline = false;
                 self.online = true;
                 self.start_login();
-                auth.set_status_message(tr("auth_network_preview_note"));
                 auth.set_expires_label(tr("auth_network_preview_title"));
                 self.toast("auth_network_preview_note");
             } else {
                 auth.set_net_phase("preview".into());
-                auth.set_net_message(tr("auth_network_preview_note"));
             }
             return;
         }
@@ -184,7 +205,6 @@ impl App {
                 Ok(_) => {
                     app.network_verified_epoch = Some(app.epoch);
                     auth.set_net_phase("connected".into());
-                    auth.set_net_message(tr("auth_network_connected_note"));
                     if qr_source && app.pending_network.is_none()
                         && ["welcome", "login"].contains(&app.route.as_str()) {
                         app.options.offline = false;
@@ -197,10 +217,8 @@ impl App {
                 Err(_) => {
                     app.online = false;
                     auth.set_net_phase("failed".into());
-                    auth.set_net_message(tr("auth_network_check_failed"));
                     if qr_source {
                         auth.set_phase("error".into());
-                        auth.set_status_message(tr("auth_network_check_failed"));
                     } else {
                         auth.set_net_visible(true);
                     }
@@ -249,7 +267,11 @@ impl App {
             "finish" => {
                 self.preferences.onboarded = true; self.save_preferences()?; self.navigate("shelf");
             }
-            "login-return" => self.finish_auth_return(),
+            "login-return" => {
+                if self.ui.upgrade().is_some_and(|ui| ui.global::<AuthModel>().get_phase() == "success") {
+                    self.finish_confirmed_login();
+                }
+            }
             "connect" => self.check_auth_network(true),
             "net-connect" => self.check_auth_network(false),
             "net-continue" => {
@@ -264,14 +286,12 @@ impl App {
                 self.online = true;
                 auth.set_net_visible(false);
                 auth.set_net_phase("idle".into());
-                auth.set_net_message("".into());
                 if self.demo.is_none() { self.recover_downloads(); }
                 if let Some((section, action, value)) = self.pending_network.take() {
                     self.dispatch(&section, &action, &value)?;
                 } else if ["welcome", "login"].contains(&self.route.as_str()) {
                     self.start_login();
                     if preview {
-                        auth.set_status_message(tr("auth_network_preview_note"));
                         auth.set_expires_label(tr("auth_network_preview_title"));
                     }
                 }
@@ -281,7 +301,7 @@ impl App {
                 self.pending_network = None;
                 if let Some(ui) = self.ui.upgrade() {
                     let auth = ui.global::<AuthModel>();
-                    auth.set_net_visible(false); auth.set_net_phase("idle".into()); auth.set_net_message("".into());
+                    auth.set_net_visible(false); auth.set_net_phase("idle".into());
                 }
             }
             "net-downloads" => {
@@ -289,13 +309,9 @@ impl App {
                 self.pending_network = None;
                 if let Some(ui) = self.ui.upgrade() {
                     let auth = ui.global::<AuthModel>();
-                    auth.set_net_visible(false); auth.set_net_phase("idle".into()); auth.set_net_message("".into());
+                    auth.set_net_visible(false); auth.set_net_phase("idle".into());
                 }
                 self.navigate("downloads");
-            }
-            "net-settings" => {
-                if let Some(ui) = self.ui.upgrade() { ui.global::<AuthModel>().set_net_message(tr("auth_network_manual_help")); }
-                self.toast("auth_network_manual_help");
             }
             _ => {}
         }
@@ -401,7 +417,7 @@ impl App {
         auth.set_status_message(tr("common_storage_error"));
         auth.set_net_visible(false);
         auth.set_net_phase("idle".into());
-        auth.set_net_message("".into());
+        auth.set_net_action("".into());
         ui.global::<ShellModel>().set_toast("".into());
         ui.global::<ShellModel>().set_pending(0);
 
@@ -425,12 +441,15 @@ impl App {
         catalog.set_sync_label("".into());
         catalog.set_filter_counts(model(Vec::new()));
         catalog.set_local_download_count(0);
-        catalog.set_detail_id_label("".into());
         catalog.set_detail_total(0);
-        catalog.set_detail_genres(model(Vec::new()));
+        catalog.set_detail_unread(0);
+        catalog.set_detail_readable(0);
+        catalog.set_detail_downloaded(0);
+        catalog.set_detail_locate_visible(false);
+        catalog.set_detail_can_select_page(false);
+        catalog.set_detail_page_selected(false);
         catalog.set_download_selecting(false);
         catalog.set_selection_count(0);
-        catalog.set_selection_size("".into());
         catalog.set_status_message(tr("common_storage_error"));
 
         let reader = ui.global::<ReaderModel>();
@@ -483,23 +502,29 @@ impl App {
         let purchase = ui.global::<PurchaseModel>();
         purchase.set_phase("error".into());
         purchase.set_comic_title("".into());
-        purchase.set_episode_title("".into());
+        purchase.set_start_label("".into());
         purchase.set_cover(slint::Image::default());
         purchase.set_ranges(model(Vec::new()));
-        purchase.set_result_rows(model(Vec::new()));
+        purchase.set_included(model(Vec::new()));
+        purchase.set_included_label("".into());
         purchase.set_selected_range("".into());
         purchase.set_scope_label("".into());
         purchase.set_quote_ready(false);
         purchase.set_quote_loading(false);
+        purchase.set_reconciling(false);
         purchase.set_result_can_read(false);
+        purchase.set_result_title(tr("buy_success_title"));
+        purchase.set_result_body("".into());
+        purchase.set_pending_summary("".into());
+        purchase.set_pending_body(tr("buy_pending_body"));
         purchase.set_total(tr("common_unknown"));
         purchase.set_after_text("".into());
         purchase.set_wallet_label(tr("common_unknown"));
         purchase.set_coupon_label(tr("common_unknown"));
         purchase.set_error_text(tr("common_storage_error"));
         purchase.set_pay_label(tr("buy_confirm"));
-        purchase.set_hint(tr("common_storage_error"));
 
+        Self::reset_account_presentation(&ui);
         let account = ui.global::<AccountModel>();
         account.set_signed_in(session.as_ref().and_then(AuthSession::account_key).is_some());
         account.set_username(auth.get_account_name());

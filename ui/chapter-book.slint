@@ -1,0 +1,318 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Strings } from "strings.slint";
+import { CatalogModel, EpisodeItem } from "catalog.slint";
+import { ActionButton, BookCover, DashedOutline, Icon, IconButton, NavigationButton, PageBar, SwipeTouchArea } from "widgets.slint";
+
+component ChapterText inherits Text {
+    color: Theme.ink;
+    font-size: Theme.label-size;
+    vertical-alignment: center;
+    overflow: elide;
+}
+
+component ChapterTab inherits Rectangle {
+    in property <string> text;
+    in property <bool> selected;
+    callback clicked();
+    min-width: text-label.preferred-width + (Theme.scribe ? 24px : 14px);
+    preferred-width: self.min-width;
+    horizontal-stretch: 0;
+    background: touch.pressed ? Theme.pale : Theme.paper;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-checkable: true;
+    accessible-checked: root.selected;
+    accessible-action-default => { root.clicked(); }
+    text-label := ChapterText {
+        x: 0px; y: 0px; width: parent.width; height: parent.height;
+        text: root.text; horizontal-alignment: center;
+        font-weight: root.selected ? 700 : 400;
+    }
+    if root.selected: Rectangle { x: 0px; y: parent.height - 3px; width: parent.width; height: 3px; background: Theme.ink; }
+    touch := TouchArea {
+        x: 0px; y: min(0px, (root.height - Theme.touch-size) / 2);
+        width: parent.width; height: max(root.height, Theme.touch-size);
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down { Theme.refresh("press"); }
+            if event.kind == PointerEventKind.up { Theme.refresh("release"); }
+        }
+        clicked => { root.clicked(); }
+    }
+}
+
+component ChapterRow inherits Rectangle {
+    in property <EpisodeItem> episode;
+    in property <bool> selecting;
+    callback action(string, string);
+    callback turn(int);
+    property <bool> selectable: root.episode.readable && !root.episode.downloaded && !root.episode.queued;
+    property <bool> active: !root.selecting || root.selectable;
+    property <bool> has-slot: root.episode.readable && (!root.episode.queued || root.episode.downloaded);
+    property <string> row-action: root.selecting ? "episode.select" : "episode.open";
+    property <length> slot-size: Theme.scribe ? 32px : 28px;
+    property <length> slot-touch: Theme.scribe ? 52px : 48px;
+    height: Theme.scribe ? 68px : 62px;
+    background: hit.pressed && root.active ? Theme.fill : root.episode.current || root.episode.selected ? Theme.pale : Theme.paper;
+    accessible-role: button;
+    accessible-label: root.episode.order + " " + root.episode.title + " " + root.episode.reading + " " + root.episode.access + (root.episode.downloaded ? " " + Strings.cat-downloaded : root.episode.queued ? " " + Strings.handoff-queued : "");
+    accessible-enabled: root.active;
+    accessible-checkable: root.selecting && root.selectable;
+    accessible-checked: root.episode.selected;
+    accessible-action-default => { if root.active { root.action(root.row-action, root.episode.id); } }
+    HorizontalLayout {
+        x: 0px; y: 0px; width: root.width; height: root.height - 1px;
+        padding-left: Theme.scribe ? 12px : 8px;
+        spacing: Theme.scribe ? 14px : 10px;
+        ChapterText {
+            width: Theme.scribe ? 40px : 30px;
+            text: root.episode.order; font-family: Theme.serif-font;
+            font-size: Theme.scribe ? 22px : 17px; font-weight: root.episode.current ? 700 : 600;
+            color: root.episode.current ? Theme.ink : Theme.secondary;
+        }
+        VerticalLayout {
+            horizontal-stretch: 1;
+            alignment: center; spacing: 0px;
+            ChapterText {
+                min-width: 0px; height: Theme.scribe ? 27px : 22px;
+                text: root.episode.title; font-size: Theme.scribe ? 20px : 16px;
+                font-weight: root.episode.current ? 700 : 400;
+            }
+            ChapterText {
+                min-width: 0px; height: Theme.scribe ? 22px : 20px;
+                text: root.episode.reading; font-size: Theme.minimum-size; color: Theme.secondary;
+            }
+        }
+        if root.has-slot: Rectangle { width: root.slot-touch; }
+        if !root.has-slot && root.episode.locked: HorizontalLayout {
+            horizontal-stretch: 0; spacing: 4px;
+            Rectangle {
+                width: Theme.minimum-size;
+                Icon { x: 0px; y: (parent.height - self.height) / 2; width: parent.width; height: self.width; kind: "lock"; }
+            }
+            ChapterText { text: root.episode.access; font-size: Theme.scribe ? 18px : 15px; font-weight: 700; }
+            Rectangle { width: 8px; }
+        }
+        if !root.has-slot && !root.episode.locked && root.episode.queued: ChapterText {
+            text: Strings.handoff-queued; font-size: Theme.minimum-size; font-weight: 700; horizontal-stretch: 0;
+        }
+        if !root.has-slot && !root.episode.locked && !root.episode.queued && !root.episode.readable: ChapterText {
+            text: root.episode.access; font-size: Theme.minimum-size; color: Theme.secondary; horizontal-stretch: 0;
+        }
+    }
+    Rectangle { x: 0px; y: parent.height - 1px; width: parent.width; height: 1px; background: Theme.line; }
+    hit := SwipeTouchArea {
+        x: 0px; y: 0px; width: parent.width - (root.has-slot ? root.slot-touch : 0px); height: parent.height;
+        enabled: root.active;
+        tapped => { root.action(root.row-action, root.episode.id); }
+        swiped(delta) => { root.turn(delta); }
+    }
+    if root.has-slot: Rectangle {
+        x: parent.width - root.slot-touch; y: (parent.height - root.slot-touch) / 2;
+        width: root.slot-touch; height: root.slot-touch;
+        property <bool> disabled: root.episode.downloaded;
+        property <string> slot-action: root.selecting ? "episode.select" : "episode.enqueue";
+        accessible-role: button;
+        accessible-label: (self.disabled ? Strings.cat-downloaded : root.selecting ? Strings.handoff-select-chapter : Strings.read-download-episode) + " · " + root.episode.title;
+        accessible-enabled: !self.disabled;
+        accessible-checkable: root.selecting;
+        accessible-checked: root.episode.selected || root.episode.downloaded;
+        accessible-action-default => { if !self.disabled { root.action(self.slot-action, root.episode.id); } }
+        Rectangle {
+            x: (parent.width - root.slot-size) / 2; y: (parent.height - root.slot-size) / 2;
+            width: root.slot-size; height: root.slot-size;
+            background: root.episode.selected ? Theme.ink : root.background;
+            border-width: root.selecting && root.episode.downloaded ? 0px : 2px;
+            border-color: Theme.ink;
+            if root.selecting && root.episode.downloaded: DashedOutline { stroke: 2px; stroke-color: Theme.secondary; }
+            if root.episode.downloaded || root.episode.selected || !root.selecting: Icon {
+                x: (parent.width - self.width) / 2; y: (parent.height - self.height) / 2;
+                width: Theme.scribe ? 20px : 18px; height: self.width;
+                kind: root.episode.downloaded || root.episode.selected ? "check" : "download";
+                inverted: root.episode.selected;
+            }
+        }
+        slot-touch := TouchArea {
+            enabled: !parent.disabled;
+            pointer-event(event) => {
+                if event.kind == PointerEventKind.down { Theme.refresh("press"); }
+                if event.kind == PointerEventKind.up { Theme.refresh("release"); }
+            }
+            clicked => { root.action(parent.slot-action, root.episode.id); }
+        }
+    }
+}
+
+export component ChapterBook inherits Rectangle {
+    in property <bool> directory: false;
+    callback action(string, string);
+    background: Theme.paper;
+    clip: true;
+    property <length> edge: Theme.scribe ? 48px : root.width < 560px ? 12px : 20px;
+    property <length> gap: Theme.scribe ? 40px : root.width < 560px ? 10px : 18px;
+    property <length> cover-width: Theme.scribe ? min(250px, root.width * 0.31) : root.width < 560px ? min(154px, root.width * 0.30) : 188px;
+    property <length> header-height: Theme.scribe ? 64px : 48px;
+    property <length> heading-height: root.selecting ? (Theme.scribe ? 64px : 68px) : (Theme.scribe ? 44px : 36px);
+    property <length> tabs-height: Theme.scribe ? 56px : 44px;
+    property <length> actions-height: right.width < 365px ? 48px : 0px;
+    property <length> footer-height: Theme.scribe ? 72px : 56px;
+    property <length> row-height: Theme.scribe ? 68px : 62px;
+    property <length> primary-height: Theme.scribe ? 64px : 48px;
+    property <bool> stack-buttons: root.cover-width < 185px;
+    property <bool> ready: CatalogModel.detail.id != "";
+    property <bool> selecting: CatalogModel.download-selecting;
+
+    NavigationButton {
+        x: Theme.scribe ? 36px : 12px; y: (root.header-height - self.height) / 2;
+        height: Theme.scribe ? 56px : 48px;
+        text: root.directory ? Strings.handoff-back-reader : CatalogModel.detail-back-label;
+        icon: "back"; horizontal-padding: 0px; icon-spacing: 4px;
+        text-size: Theme.scribe ? 20px : 16px; text-weight: 400;
+        clicked => { root.action("detail.back", ""); }
+    }
+    if root.ready: ScrollView {
+        x: root.edge; y: root.header-height;
+        width: root.cover-width; height: root.height - self.y;
+        viewport-width: self.width;
+        viewport-height: max(self.height, book-summary.preferred-height + 12px);
+        vertical-scrollbar-policy: ScrollBarPolicy.always-off;
+        horizontal-scrollbar-policy: ScrollBarPolicy.always-off;
+        book-summary := VerticalLayout {
+            x: 0px; y: 0px; width: root.cover-width;
+            alignment: start;
+            BookCover {
+                height: Theme.scribe ? root.cover-width * 333 / 250 : root.cover-width * 250 / 188;
+                cover: CatalogModel.detail.cover; title: CatalogModel.detail.title;
+            }
+            Rectangle { height: Theme.scribe ? 18px : 14px; }
+            ChapterText {
+                text: CatalogModel.detail.title; font-family: Theme.serif-font;
+                font-size: Theme.scribe ? 30px : 22px; font-weight: 700; wrap: word-wrap;
+            }
+            Rectangle { height: Theme.scribe ? 8px : 6px; }
+            if CatalogModel.detail.author != "": ChapterText { height: Theme.scribe ? 25px : 19px; text: CatalogModel.detail.author; color: Theme.secondary; font-size: Theme.minimum-size; }
+            ChapterText { height: Theme.scribe ? 25px : 19px; text: CatalogModel.detail.meta; color: Theme.secondary; font-size: Theme.minimum-size; }
+            Rectangle { height: Theme.scribe ? 6px : 4px; }
+            ChapterText { height: Theme.scribe ? 25px : 22px; text: CatalogModel.detail.subtitle; font-size: Theme.scribe ? 18px : 15px; }
+            Rectangle { height: Theme.scribe ? 18px : 12px; }
+            ActionButton {
+                height: root.primary-height; text-weight: 700; primary: true;
+                text: root.directory ? Strings.handoff-return-reading : CatalogModel.detail.read-label;
+                clicked => { root.action("detail.read", CatalogModel.detail.id); }
+            }
+            Rectangle { height: Theme.scribe ? 12px : 8px; }
+            if !root.selecting: Rectangle {
+                property <length> button-gap: Theme.scribe ? 12px : 8px;
+                property <length> first-width: root.stack-buttons ? self.width : (self.width - self.button-gap) * 0.48;
+                height: root.stack-buttons ? 2 * root.primary-height + self.button-gap : root.primary-height;
+                NavigationButton {
+                    x: 0px; y: 0px; width: parent.first-width; height: root.primary-height;
+                    icon: CatalogModel.detail.in-shelf ? "check" : "plus";
+                    icon-size: Theme.scribe ? 24px : 16px; icon-spacing: 3px; horizontal-padding: 4px;
+                    text: CatalogModel.detail.in-shelf ? Strings.cat-followed : Strings.cat-follow;
+                    text-size: Theme.scribe ? 18px : 15px; text-weight: 700; outlined: true;
+                    checkable: true; checked: CatalogModel.detail.in-shelf;
+                    clicked => { root.action("detail.favorite", CatalogModel.detail.id); }
+                }
+                NavigationButton {
+                    x: root.stack-buttons ? 0px : parent.first-width + parent.button-gap;
+                    y: root.stack-buttons ? root.primary-height + parent.button-gap : 0px;
+                    width: parent.width - self.x; height: root.primary-height;
+                    icon: "download"; icon-size: Theme.scribe ? 22px : 16px; icon-spacing: 3px; horizontal-padding: 4px;
+                    text: Strings.handoff-batch-download; text-size: Theme.scribe ? 18px : 15px; text-weight: 700; outlined: true;
+                    clicked => { root.action("detail.download", "enter"); }
+                }
+            }
+            if root.selecting: HorizontalLayout {
+                spacing: 8px;
+                ActionButton { horizontal-stretch: 1; height: root.primary-height; text: Strings.common-cancel; clicked => { root.action("detail.download", "cancel"); } }
+                ActionButton {
+                    horizontal-stretch: 1; height: root.primary-height; text-weight: 700; primary: true;
+                    enabled: CatalogModel.selection-count > 0;
+                    text: Strings.cat-download + (self.enabled ? " " + CatalogModel.selection-count + Strings.cat-episode-unit : "");
+                    clicked => { root.action("detail.download", "confirm"); }
+                }
+            }
+            if CatalogModel.detail.description != "": VerticalLayout {
+                spacing: 8px;
+                padding-top: Theme.scribe ? 30px : 22px;
+                ChapterText { text: Strings.handoff-detail-description; font-size: Theme.minimum-size; color: Theme.secondary; }
+                ChapterText { text: CatalogModel.detail.description; wrap: word-wrap; font-size: Theme.scribe ? 18px : 14px; }
+            }
+        }
+    }
+    right := Rectangle {
+        x: root.edge + root.cover-width + root.gap; y: root.header-height;
+        width: root.width - self.x - root.edge; height: root.height - self.y;
+        property <length> list-top: root.heading-height + root.tabs-height + root.actions-height;
+        CatalogTitle := ChapterText {
+            x: 0px; y: 0px; width: max(0px, parent.width - (root.selecting && CatalogModel.detail-can-select-page ? 108px : 0px)); height: root.heading-height;
+            text: root.selecting ? Strings.cat-selected-prefix + CatalogModel.selection-count + Strings.cat-episode-unit : Strings.handoff-detail-chapters + " " + CatalogModel.detail-total;
+            font-size: Theme.scribe ? 26px : 20px; font-weight: 700;
+        }
+        if root.selecting && CatalogModel.detail-can-select-page: ActionButton {
+            x: parent.width - self.width; y: (root.heading-height - self.height) / 2;
+            width: Theme.scribe ? 122px : 96px; height: 48px; quiet: true;
+            text: CatalogModel.detail-page-selected ? Strings.handoff-unselect-page : Strings.handoff-select-page;
+            text-size: Theme.scribe ? 18px : 15px; text-weight: 700;
+            clicked => { root.action("detail.select-page", ""); }
+        }
+        HorizontalLayout {
+            x: 0px; y: root.heading-height; width: parent.width - (root.actions-height == 0px ? chapter-controls.width : 0px); height: root.tabs-height;
+            for filter in [
+                { id: "all", label: Strings.cat-all, count: CatalogModel.detail-total },
+                { id: "unread", label: Strings.cat-unread, count: CatalogModel.detail-unread },
+                { id: "readable", label: Strings.cat-readable, count: CatalogModel.detail-readable },
+                { id: "downloaded", label: Strings.cat-downloaded, count: CatalogModel.detail-downloaded }
+            ]: ChapterTab {
+                text: filter.label + (right.width < 300px ? "" : " " + filter.count);
+                selected: CatalogModel.episode-filter == filter.id;
+                clicked => { root.action("episode.filter", filter.id); }
+            }
+            Rectangle { horizontal-stretch: 1; }
+        }
+        chapter-controls := Rectangle {
+            x: parent.width - self.width;
+            y: root.heading-height + (root.actions-height > 0px ? root.tabs-height : 0px);
+            width: (Theme.scribe ? 98px : 60px) + (CatalogModel.detail-locate-visible ? (Theme.scribe ? 56px : 48px) : 0px);
+            height: root.actions-height > 0px ? root.actions-height : root.tabs-height;
+            if CatalogModel.detail-locate-visible: IconButton {
+                x: 0px; y: (parent.height - self.height) / 2;
+                width: Theme.scribe ? 56px : 48px;
+                icon: "locate"; icon-size: Theme.scribe ? 26px : 22px;
+                label: Strings.cat-locate-reading;
+                clicked => { root.action("detail.locate", ""); }
+            }
+            NavigationButton {
+                x: parent.width - self.width; y: (parent.height - self.height) / 2;
+                width: Theme.scribe ? 92px : 59px; height: max(48px, parent.height);
+                icon: "sort"; icon-size: Theme.scribe ? 24px : 19px; icon-spacing: 3px; horizontal-padding: 0px;
+                text: CatalogModel.episode-descending ? Strings.cat-descending : Strings.cat-ascending;
+                text-size: Theme.scribe ? 18px : 15px; text-weight: 400;
+                clicked => { root.action("episode.sort", ""); }
+            }
+        }
+        Rectangle { x: 0px; y: parent.list-top - 1px; width: parent.width; height: 1px; background: Theme.ink; }
+        Rectangle {
+            x: 0px; y: parent.list-top; width: parent.width;
+            height: max(0px, parent.height - self.y - root.footer-height);
+            clip: true;
+            for item[index] in CatalogModel.episodes: ChapterRow {
+                x: 0px; y: index * root.row-height; width: parent.width;
+                episode: item; selecting: root.selecting;
+                action(name, value) => { root.action(name, value); }
+                turn(delta) => { root.action("episode.page", "" + delta); }
+            }
+            if CatalogModel.episodes.length == 0: ChapterText {
+                x: 8px; y: 0px; width: parent.width - 16px; height: parent.height;
+                text: CatalogModel.detail-loading ? Strings.cat-loading-detail : Strings.handoff-detail-empty;
+                wrap: word-wrap; horizontal-alignment: center; color: Theme.secondary;
+            }
+        }
+        PageBar {
+            x: 0px; y: parent.height - self.height; width: parent.width; height: root.footer-height;
+            edge: 0px; page: CatalogModel.episode-page; count: CatalogModel.episode-pages;
+            turn(delta) => { root.action("episode.page", "" + delta); }
+        }
+    }
+}
