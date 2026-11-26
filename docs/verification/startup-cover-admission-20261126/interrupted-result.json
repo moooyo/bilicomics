@@ -1,0 +1,813 @@
+{
+  "schema": "bili-ordinary-offline-cover-admission-ab-v1-results",
+  "device": "Scribe 2022",
+  "firmware": "5.19.5",
+  "origin": "ordinary native Library card release",
+  "offline": true,
+  "demo": false,
+  "synthetic_account": true,
+  "optical_measurement": false,
+  "warmups_excluded_from_comparison": true,
+  "visits": [
+    {
+      "visit": 1,
+      "shelf_state": "ready",
+      "render_order": "render_then_wait",
+      "renderer_return_interval_ns": [
+        4921972078,
+        4923087924
+      ],
+      "accepted_send_interval_ns": [
+        4972659924,
+        4973775770
+      ],
+      "driver_completion_interval_ns": [
+        5334657385,
+        5335773231
+      ],
+      "original_native_restored": true,
+      "exact_lease_released": true,
+      "card_to_launcher_ns": [
+        345040308,
+        346156154
+      ],
+      "launcher_to_preinvoke_ns": 3165680154,
+      "preinvoke_to_main_ns": 17778769,
+      "render_to_send_ns": 50687846,
+      "send_to_driver_ns": 361997461,
+      "cover_gate_source": "ui",
+      "attach_work": {
+        "wall_ns": 60914155,
+        "cpu_ns": 27034461,
+        "count": 8
+      },
+      "intervals_ns": {
+        "main_to_window_shown": 72834077,
+        "window_to_admission": 110393693,
+        "window_to_loading_draw_transaction": 17140077,
+        "window_to_cover_gate_open": 475040308,
+        "window_to_cover_gate_display_wait_overlap": 364993539,
+        "admission_to_state_worker": 519769,
+        "state_worker_to_produced": 675330077,
+        "jpeg_overlap_with_first_loading_completion_wait": 19746538,
+        "metadata_overlap_with_first_loading_completion_wait": 136018385,
+        "metadata_ready_to_gate_waiter": 110000,
+        "cover_gate_wait": 208279077,
+        "cover_gate_overlap_with_first_loading_completion_wait": 208065231,
+        "cover_gate_to_decode": 199923,
+        "cover_decode_overlap_with_first_loading_completion_wait": 0,
+        "decode_to_produced": 212539,
+        "state_produced_to_received": 146923,
+        "state_queue_display_wait_overlap": 0,
+        "state_received_to_attached": 734769,
+        "attached_to_ready": 74838692,
+        "attached_loading_frame_other": 0,
+        "attached_loading_display_wait": 0,
+        "attached_unattributed_gap": 13924537,
+        "ready_to_shelf_draw": 600693,
+        "shelf_mapping_wait_before_draw": 0,
+        "shelf_draw_to_renderer_return": 458074154,
+        "main_to_renderer_return": 1393472847
+      },
+      "application_work": {
+        "native_context": {
+          "wall_ns": 5739153,
+          "cpu_ns": 3530311,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "backend_setup": {
+          "wall_ns": 21782384,
+          "cpu_ns": 13067920,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "window_setup": {
+          "wall_ns": 11551693,
+          "cpu_ns": 4328691,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "runtime_setup": {
+          "wall_ns": 1917077,
+          "cpu_ns": 855614,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-directory": {
+          "wall_ns": 267692,
+          "cpu_ns": 152154,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-client": {
+          "wall_ns": 28391308,
+          "cpu_ns": 3699002,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-store": {
+          "wall_ns": 27206538,
+          "cpu_ns": 9022921,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-preferences": {
+          "wall_ns": 9932616,
+          "cpu_ns": 1100614,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-cache-maintenance": {
+          "wall_ns": 22123692,
+          "cpu_ns": 8100227,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-catalog": {
+          "wall_ns": 44233616,
+          "cpu_ns": 7970156,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-account": {
+          "wall_ns": 420923,
+          "cpu_ns": 424231,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-intents": {
+          "wall_ns": 52000,
+          "cpu_ns": 52231,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-resume-anchor": {
+          "wall_ns": 149461,
+          "cpu_ns": 150077,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-cover-selection": {
+          "wall_ns": 2464539,
+          "cpu_ns": 359539,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "metadata": {
+          "wall_ns": 136018385,
+          "cpu_ns": 31358767,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "app_attach": {
+          "wall_ns": 707616,
+          "cpu_ns": 397463,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "font_registration": {
+          "wall_ns": 24206691,
+          "cpu_ns": 2293617,
+          "count": 5,
+          "outcome": "ok"
+        },
+        "font_finish": {
+          "wall_ns": 36538,
+          "cpu_ns": 35846,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "font_prepare": {
+          "wall_ns": 129538,
+          "cpu_ns": 128846,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "attach-covers": {
+          "wall_ns": 17713309,
+          "cpu_ns": 17330000,
+          "count": 3,
+          "outcome": "success"
+        },
+        "attach-catalog": {
+          "wall_ns": 2461,
+          "cpu_ns": 2461,
+          "count": 1,
+          "outcome": "success"
+        },
+        "attach-account": {
+          "wall_ns": 13646462,
+          "cpu_ns": 727693,
+          "count": 1,
+          "outcome": "success"
+        },
+        "attach-downloads": {
+          "wall_ns": 6016770,
+          "cpu_ns": 2135076,
+          "count": 1,
+          "outcome": "success"
+        },
+        "attach-route": {
+          "wall_ns": 6369846,
+          "cpu_ns": 61307,
+          "count": 1,
+          "outcome": "success"
+        },
+        "attach-views": {
+          "wall_ns": 17165307,
+          "cpu_ns": 6777924,
+          "count": 1,
+          "outcome": "success"
+        },
+        "session_load": {
+          "wall_ns": 18720385,
+          "cpu_ns": 1759002,
+          "count": 1,
+          "outcome": "present"
+        },
+        "jpeg_capability": {
+          "wall_ns": 19746538,
+          "cpu_ns": 1332921,
+          "count": 1,
+          "outcome": "available"
+        },
+        "state-covers": {
+          "wall_ns": 310734923,
+          "cpu_ns": 110044083,
+          "count": 1,
+          "outcome": "ok"
+        }
+      },
+      "native_setup": {
+        "active_io": {
+          "wall_ns": 2930846,
+          "cpu_ns": 2753462,
+          "count": 1
+        },
+        "buffer_setup": {
+          "wall_ns": 12177000,
+          "cpu_ns": 11722615,
+          "count": 1
+        },
+        "portrait_observer": {
+          "wall_ns": 1218769,
+          "cpu_ns": 1219923,
+          "count": 1
+        },
+        "window_setup": {
+          "wall_ns": 137231,
+          "cpu_ns": 137923,
+          "count": 1
+        }
+      },
+      "display_witness": {
+        "first_loading_completion_matches_send": true,
+        "shelf_preceding_marker_matches_last_loading_send": true
+      },
+      "first_loading_frame": {
+        "wall_ns": 457785308,
+        "cpu_ns": 61726697,
+        "count": 1
+      },
+      "first_loading_frame_work": {
+        "completion_wait": {
+          "wall_ns": 364991462,
+          "cpu_ns": 108385,
+          "count": 1
+        },
+        "initial_fill": {
+          "wall_ns": 1765692,
+          "cpu_ns": 1765923,
+          "count": 1
+        },
+        "lifecycle_complete": {
+          "wall_ns": 19923,
+          "cpu_ns": 19923,
+          "count": 1
+        },
+        "preceding_wait": {
+          "wall_ns": 2077,
+          "cpu_ns": 2000,
+          "count": 1
+        },
+        "render": {
+          "wall_ns": 61533077,
+          "cpu_ns": 31144774,
+          "count": 1
+        },
+        "submit": {
+          "wall_ns": 169307,
+          "cpu_ns": 119308,
+          "count": 1
+        },
+        "write": {
+          "wall_ns": 29026846,
+          "cpu_ns": 28468539,
+          "count": 1
+        }
+      },
+      "pre_shelf_frames": {
+        "wall_ns": 636309924,
+        "cpu_ns": 113720773,
+        "count": 2
+      },
+      "pre_shelf_display_waits": {
+        "wall_ns": 364996155,
+        "cpu_ns": 112846,
+        "count": 3
+      },
+      "pre_shelf_frame_work": {
+        "completion_wait": {
+          "wall_ns": 364991462,
+          "cpu_ns": 108385,
+          "count": 1
+        },
+        "initial_fill": {
+          "wall_ns": 1765692,
+          "cpu_ns": 1765923,
+          "count": 1
+        },
+        "lifecycle_complete": {
+          "wall_ns": 19923,
+          "cpu_ns": 19923,
+          "count": 1
+        },
+        "preceding_wait": {
+          "wall_ns": 4693,
+          "cpu_ns": 4461,
+          "count": 2
+        },
+        "render": {
+          "wall_ns": 123007538,
+          "cpu_ns": 52328774,
+          "count": 2
+        },
+        "submit": {
+          "wall_ns": 397153,
+          "cpu_ns": 348308,
+          "count": 2
+        },
+        "write": {
+          "wall_ns": 145760461,
+          "cpu_ns": 58979693,
+          "count": 2
+        }
+      },
+      "shelf_frame_work": {
+        "completion_wait": {
+          "wall_ns": 361964385,
+          "cpu_ns": 114769,
+          "count": 1
+        },
+        "preceding_wait": {
+          "wall_ns": 17000,
+          "cpu_ns": 17077,
+          "count": 1
+        },
+        "render": {
+          "wall_ns": 458078230,
+          "cpu_ns": 138722460,
+          "count": 1
+        },
+        "submit": {
+          "wall_ns": 4235308,
+          "cpu_ns": 123230,
+          "count": 1
+        },
+        "write": {
+          "wall_ns": 46407693,
+          "cpu_ns": 28461696,
+          "count": 1
+        }
+      },
+      "pair": 0,
+      "arm": "A",
+      "candidate_used_ui_fallback": false
+    },
+    {
+      "visit": 2,
+      "shelf_state": "ready",
+      "render_order": "render_then_wait",
+      "renderer_return_interval_ns": [
+        4789711385,
+        4790853924
+      ],
+      "accepted_send_interval_ns": [
+        4848729692,
+        4849872231
+      ],
+      "driver_completion_interval_ns": [
+        5202958692,
+        5204101231
+      ],
+      "original_native_restored": true,
+      "exact_lease_released": true,
+      "card_to_launcher_ns": [
+        463119615,
+        464262154
+      ],
+      "launcher_to_preinvoke_ns": 3015095154,
+      "preinvoke_to_main_ns": 17863385,
+      "render_to_send_ns": 59018307,
+      "send_to_driver_ns": 354229000,
+      "cover_gate_source": "send",
+      "attach_work": {
+        "wall_ns": 109493384,
+        "cpu_ns": 28125610,
+        "count": 8
+      },
+      "intervals_ns": {
+        "main_to_window_shown": 75136000,
+        "window_to_admission": 104272538,
+        "window_to_loading_draw_transaction": 16684461,
+        "window_to_cover_gate_open": 467873692,
+        "window_to_cover_gate_display_wait_overlap": 364857614,
+        "admission_to_state_worker": 1836231,
+        "state_worker_to_produced": 365651769,
+        "jpeg_overlap_with_first_loading_completion_wait": 18035692,
+        "metadata_overlap_with_first_loading_completion_wait": 69415770,
+        "metadata_ready_to_gate_waiter": 192692,
+        "cover_gate_wait": 4385,
+        "cover_gate_overlap_with_first_loading_completion_wait": 4385,
+        "cover_gate_to_decode": 115615,
+        "cover_decode_overlap_with_first_loading_completion_wait": 273830923,
+        "decode_to_produced": 163231,
+        "state_produced_to_received": 68588154,
+        "state_queue_display_wait_overlap": 2308,
+        "state_received_to_attached": 12195769,
+        "attached_to_ready": 122027462,
+        "attached_loading_frame_other": 0,
+        "attached_loading_display_wait": 0,
+        "attached_unattributed_gap": 12534078,
+        "ready_to_shelf_draw": 139476923,
+        "shelf_mapping_wait_before_draw": 0,
+        "shelf_draw_to_renderer_return": 404448385,
+        "main_to_renderer_return": 1293633231
+      },
+      "application_work": {
+        "native_context": {
+          "wall_ns": 6188538,
+          "cpu_ns": 3851922,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "backend_setup": {
+          "wall_ns": 20649231,
+          "cpu_ns": 11295769,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "window_setup": {
+          "wall_ns": 11733538,
+          "cpu_ns": 4353383,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "runtime_setup": {
+          "wall_ns": 2055462,
+          "cpu_ns": 907154,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-directory": {
+          "wall_ns": 209308,
+          "cpu_ns": 116999,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-client": {
+          "wall_ns": 10768153,
+          "cpu_ns": 3687075,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-store": {
+          "wall_ns": 31993077,
+          "cpu_ns": 9092924,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-preferences": {
+          "wall_ns": 1404462,
+          "cpu_ns": 991231,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-cache-maintenance": {
+          "wall_ns": 11078154,
+          "cpu_ns": 7998615,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-catalog": {
+          "wall_ns": 11784770,
+          "cpu_ns": 8204307,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-account": {
+          "wall_ns": 501461,
+          "cpu_ns": 503846,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-intents": {
+          "wall_ns": 51154,
+          "cpu_ns": 51384,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-resume-anchor": {
+          "wall_ns": 159923,
+          "cpu_ns": 161462,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "state-cover-selection": {
+          "wall_ns": 726692,
+          "cpu_ns": 319846,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "metadata": {
+          "wall_ns": 69415770,
+          "cpu_ns": 31451150,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "app_attach": {
+          "wall_ns": 1242154,
+          "cpu_ns": 532925,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "font_registration": {
+          "wall_ns": 14984309,
+          "cpu_ns": 1686846,
+          "count": 5,
+          "outcome": "ok"
+        },
+        "font_finish": {
+          "wall_ns": 11769,
+          "cpu_ns": 11924,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "font_prepare": {
+          "wall_ns": 720847,
+          "cpu_ns": 478384,
+          "count": 1,
+          "outcome": "ok"
+        },
+        "attach-covers": {
+          "wall_ns": 38475691,
+          "cpu_ns": 18334536,
+          "count": 3,
+          "outcome": "success"
+        },
+        "attach-catalog": {
+          "wall_ns": 2231,
+          "cpu_ns": 2154,
+          "count": 1,
+          "outcome": "success"
+        },
+        "attach-account": {
+          "wall_ns": 5329231,
+          "cpu_ns": 797307,
+          "count": 1,
+          "outcome": "success"
+        },
+        "attach-downloads": {
+          "wall_ns": 15732462,
+          "cpu_ns": 1983153,
+          "count": 1,
+          "outcome": "success"
+        },
+        "attach-route": {
+          "wall_ns": 513615,
+          "cpu_ns": 59615,
+          "count": 1,
+          "outcome": "success"
+        },
+        "attach-views": {
+          "wall_ns": 49440154,
+          "cpu_ns": 6948845,
+          "count": 1,
+          "outcome": "success"
+        },
+        "session_load": {
+          "wall_ns": 5820923,
+          "cpu_ns": 1810924,
+          "count": 1,
+          "outcome": "present"
+        },
+        "jpeg_capability": {
+          "wall_ns": 18035692,
+          "cpu_ns": 1753156,
+          "count": 1,
+          "outcome": "available"
+        },
+        "state-covers": {
+          "wall_ns": 277685846,
+          "cpu_ns": 102848459,
+          "count": 1,
+          "outcome": "ok"
+        }
+      },
+      "native_setup": {
+        "active_io": {
+          "wall_ns": 2808769,
+          "cpu_ns": 2641769,
+          "count": 1
+        },
+        "buffer_setup": {
+          "wall_ns": 11587462,
+          "cpu_ns": 11550616,
+          "count": 1
+        },
+        "portrait_observer": {
+          "wall_ns": 1407154,
+          "cpu_ns": 1408000,
+          "count": 1
+        },
+        "window_setup": {
+          "wall_ns": 146000,
+          "cpu_ns": 146384,
+          "count": 1
+        }
+      },
+      "display_witness": {
+        "first_loading_completion_matches_send": true,
+        "shelf_preceding_marker_matches_last_loading_send": true
+      },
+      "first_loading_frame": {
+        "wall_ns": 451100769,
+        "cpu_ns": 66459463,
+        "count": 1
+      },
+      "first_loading_frame_work": {
+        "completion_wait": {
+          "wall_ns": 364855307,
+          "cpu_ns": 52231,
+          "count": 1
+        },
+        "initial_fill": {
+          "wall_ns": 2368384,
+          "cpu_ns": 1985307,
+          "count": 1
+        },
+        "lifecycle_complete": {
+          "wall_ns": 19230,
+          "cpu_ns": 19384,
+          "count": 1
+        },
+        "preceding_wait": {
+          "wall_ns": 2307,
+          "cpu_ns": 2153,
+          "count": 1
+        },
+        "render": {
+          "wall_ns": 49463923,
+          "cpu_ns": 31437771,
+          "count": 1
+        },
+        "submit": {
+          "wall_ns": 287230,
+          "cpu_ns": 205154,
+          "count": 1
+        },
+        "write": {
+          "wall_ns": 33588692,
+          "cpu_ns": 32612461,
+          "count": 1
+        }
+      },
+      "pre_shelf_frames": {
+        "wall_ns": 518464692,
+        "cpu_ns": 116344311,
+        "count": 2
+      },
+      "pre_shelf_display_waits": {
+        "wall_ns": 364859922,
+        "cpu_ns": 56691,
+        "count": 3
+      },
+      "pre_shelf_frame_work": {
+        "completion_wait": {
+          "wall_ns": 364855307,
+          "cpu_ns": 52231,
+          "count": 1
+        },
+        "initial_fill": {
+          "wall_ns": 2368384,
+          "cpu_ns": 1985307,
+          "count": 1
+        },
+        "lifecycle_complete": {
+          "wall_ns": 19230,
+          "cpu_ns": 19384,
+          "count": 1
+        },
+        "preceding_wait": {
+          "wall_ns": 4615,
+          "cpu_ns": 4460,
+          "count": 2
+        },
+        "render": {
+          "wall_ns": 78902384,
+          "cpu_ns": 52167387,
+          "count": 2
+        },
+        "submit": {
+          "wall_ns": 2550615,
+          "cpu_ns": 419540,
+          "count": 2
+        },
+        "write": {
+          "wall_ns": 69171538,
+          "cpu_ns": 61481462,
+          "count": 2
+        }
+      },
+      "shelf_frame_work": {
+        "completion_wait": {
+          "wall_ns": 354201923,
+          "cpu_ns": 69692,
+          "count": 1
+        },
+        "preceding_wait": {
+          "wall_ns": 17077,
+          "cpu_ns": 17000,
+          "count": 1
+        },
+        "render": {
+          "wall_ns": 404452077,
+          "cpu_ns": 139972289,
+          "count": 1
+        },
+        "submit": {
+          "wall_ns": 11606692,
+          "cpu_ns": 135077,
+          "count": 1
+        },
+        "write": {
+          "wall_ns": 47369154,
+          "cpu_ns": 28536768,
+          "count": 1
+        }
+      },
+      "pair": 0,
+      "arm": "B",
+      "candidate_used_ui_fallback": false
+    }
+  ],
+  "stopped": {
+    "visit": 3,
+    "pair": 1,
+    "arm": "A",
+    "qualified": false,
+    "exact_native_return_verified": true
+  },
+  "pairs": [],
+  "summary": {
+    "renderer_return_interval_ns": {
+      "paired_median_b_minus_a_ns": null,
+      "pairs": 0,
+      "b_earlier": 0,
+      "b_later": 0,
+      "overlapping": 0,
+      "arms": {
+        "A": null,
+        "B": null
+      }
+    },
+    "accepted_send_interval_ns": {
+      "paired_median_b_minus_a_ns": null,
+      "pairs": 0,
+      "b_earlier": 0,
+      "b_later": 0,
+      "overlapping": 0,
+      "arms": {
+        "A": null,
+        "B": null
+      }
+    },
+    "driver_completion_interval_ns": {
+      "paired_median_b_minus_a_ns": null,
+      "pairs": 0,
+      "b_earlier": 0,
+      "b_later": 0,
+      "overlapping": 0,
+      "arms": {
+        "A": null,
+        "B": null
+      }
+    }
+  },
+  "series_complete": false,
+  "first_shelf_gate_passed": false,
+  "all_assigned_gate_sources_matched": false,
+  "candidate_ui_fallback_visits": [],
+  "comparison_gate_passed": false
+}

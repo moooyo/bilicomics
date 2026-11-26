@@ -1,0 +1,46 @@
+{
+  "schema": "bili-ordinary-shelf-firmware-qualification-v1",
+  "firmware": "5.20.1",
+  "profile": "scribe",
+  "application_bytes": 74978696,
+  "native_library_card_release_observed": false,
+  "physical_device": false,
+  "optical_visibility_measured": false,
+  "qualified_cases": [
+    {
+      "state": "ready",
+      "render_order": "render_then_wait",
+      "normal_shelf_pixels": true,
+      "native_touch_store_shelf_account_exit": true,
+      "native_restored_same_boot": true,
+      "exit_code": 0,
+      "accepted_send": true,
+      "same_marker_driver_completion": true,
+      "phase_events": 46,
+      "native_observations": 5,
+      "jpeg_worker_staged": false,
+      "jpeg_capability": "helper"
+    },
+    {
+      "state": "empty",
+      "render_order": "wait_then_render",
+      "normal_shelf_pixels": true,
+      "native_touch_store_shelf_account_exit": true,
+      "native_restored_same_boot": true,
+      "exit_code": 0,
+      "accepted_send": true,
+      "same_marker_driver_completion": true,
+      "phase_events": 44,
+      "native_observations": 5,
+      "jpeg_worker_staged": true,
+      "jpeg_capability": "available"
+    }
+  ],
+  "unqualified_attempts": {
+    "pre_app_native_display_deadline": 3,
+    "old_account_pixel_oracle_no_natural_exit": 1,
+    "superseded_during_guest_boot": 1
+  },
+  "guest_processes_stopped": true,
+  "private_overlays_removed": true
+}

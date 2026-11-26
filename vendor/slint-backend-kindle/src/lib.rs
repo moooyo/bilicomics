@@ -39,7 +39,7 @@ mod wakeup;
 
 pub use command::run_bounded_command;
 pub use dithering::DitheringHandle;
-pub use first_frame_signal::{FirstFrameSignalError, FirstFrameSignalHandle};
+pub use first_frame_signal::{FirstFrameNotice, FirstFrameSignalError, FirstFrameSignalHandle};
 pub use lifecycle::DisplayLifecycleHandle;
 pub use performance::{
     PerformanceFrameSample, PerformanceSampleKind, PerformanceStageTimings,

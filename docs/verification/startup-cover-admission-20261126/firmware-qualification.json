@@ -1,0 +1,33 @@
+{
+  "firmware": "5.20.1",
+  "profile": "scribe",
+  "scope": "firmware emulator only",
+  "samples": [
+    {
+      "arm": "A",
+      "ordinary_shelf": true,
+      "gate_source": "ui",
+      "accepted_send": true,
+      "same_marker_driver": true,
+      "native_restored": true,
+      "process_exit": 0,
+      "store_shelf_and_account_navigation": true,
+      "guest_removed": true,
+      "cover_decode_overlapped_first_loading_wait": false
+    },
+    {
+      "arm": "B",
+      "ordinary_shelf": true,
+      "gate_source": "send",
+      "accepted_send": true,
+      "same_marker_driver": true,
+      "native_restored": true,
+      "process_exit": 0,
+      "store_shelf_and_account_navigation": true,
+      "guest_removed": true,
+      "cover_decode_overlapped_first_loading_wait": false
+    }
+  ],
+  "physical_card_dispatch": false,
+  "optical_visibility_observed": false
+}

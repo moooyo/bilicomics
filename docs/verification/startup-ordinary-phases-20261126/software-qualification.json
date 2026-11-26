@@ -1,0 +1,282 @@
+{
+  "arm_user_mode_guard": {
+    "artifact_bytes": 74978696,
+    "exit_code": 1,
+    "profiles": [
+      "pw6",
+      "scribe"
+    ],
+    "qemu": "8.2.2",
+    "same_process_trace_header_and_footer_only": true,
+    "valid_shelf_samples": 0
+  },
+  "firmware_emulator": {
+    "cases": [
+      {
+        "artifact_bytes": 74940168,
+        "candidate_precheck_confirmed_power_and_epdc": null,
+        "display_read_go_to_reaped_ms_approx": 2180,
+        "emulator_framebuffer_geometry": [
+          1860,
+          2480
+        ],
+        "guest_arm_version_executed": true,
+        "guest_booted": true,
+        "main_app_started": false,
+        "mode": "baseline-ordinary",
+        "outcome": "native_display_capture_rejected",
+        "shelf_rendered": false,
+        "startup_display_read_group_ready": false,
+        "startup_sidecar_observed": false
+      },
+      {
+        "artifact_bytes": 74978696,
+        "candidate_precheck_confirmed_power_and_epdc": true,
+        "display_read_go_to_reaped_ms_approx": 2720,
+        "emulator_framebuffer_geometry": [
+          1860,
+          2480
+        ],
+        "guest_arm_version_executed": true,
+        "guest_booted": true,
+        "main_app_started": false,
+        "mode": "startup-phases",
+        "outcome": "native_display_capture_rejected",
+        "shelf_rendered": false,
+        "startup_display_read_group_ready": false,
+        "startup_sidecar_observed": false
+      }
+    ],
+    "native_library_card_release_observed": false,
+    "profile": "scribe",
+    "synthetic_model_identity": true,
+    "valid_shelf_samples_in_these_runs": 0,
+    "version": "5.20.1"
+  },
+  "fixture": {
+    "allowlisted_files_per_seed": 22,
+    "empty_shelf_members": 0,
+    "filled_shelf_members": 20,
+    "isolated_source_copies": true,
+    "offline_synthetic_only": true,
+    "store_members_in_both": 20
+  },
+  "linux_desktop": {
+    "artifact": "previously accepted November 25 desktop review snapshot",
+    "artifact_bytes": 257102872,
+    "cases": [
+      {
+        "case": "filled",
+        "demo": false,
+        "exit_status": 0,
+        "exit_through_account_control": true,
+        "first_ready_route": "shelf",
+        "forced_route": false,
+        "geometry": [
+          1860,
+          2480
+        ],
+        "offline": true,
+        "pixel_checks": {
+          "nav_icon_dark_pixels": [
+            1689,
+            881,
+            524,
+            600
+          ],
+          "ready_art_or_placeholder_pixels": [
+            47534,
+            46536,
+            45653,
+            46508,
+            45681,
+            44627
+          ],
+          "ready_caption_dark_pixels": [
+            1959,
+            1959,
+            1959,
+            1963,
+            1959,
+            1959
+          ],
+          "ready_count_header_dark_pixels": 2459
+        },
+        "selected_sequence": [
+          "shelf",
+          "store",
+          "shelf",
+          "account"
+        ],
+        "shelf_render_status": "ready",
+        "shelf_visible_caption_ink_3x6": [
+          [
+            1912,
+            1912,
+            1912,
+            1927,
+            1912,
+            1912
+          ],
+          [
+            1912,
+            1912,
+            1912,
+            1927,
+            1912,
+            1912
+          ],
+          [
+            1912,
+            1912,
+            1912,
+            1927,
+            1912,
+            1912
+          ]
+        ],
+        "store_access": "store_tab",
+        "tab_changed_pixels_against_shelf": [
+          [
+            1990,
+            2359,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1990,
+            0,
+            0,
+            1897
+          ]
+        ],
+        "tab_icon_dark_pixels": [
+          [
+            1689,
+            881,
+            524,
+            600
+          ],
+          [
+            1099,
+            1366,
+            524,
+            600
+          ],
+          [
+            1689,
+            881,
+            524,
+            600
+          ],
+          [
+            1099,
+            881,
+            524,
+            1104
+          ]
+        ]
+      },
+      {
+        "case": "empty",
+        "demo": false,
+        "exit_status": 0,
+        "exit_through_account_control": true,
+        "first_ready_route": "shelf",
+        "forced_route": false,
+        "geometry": [
+          1860,
+          2480
+        ],
+        "offline": true,
+        "pixel_checks": {
+          "empty_actions_dark_pixels": [
+            4393,
+            3427
+          ],
+          "empty_grid_nonpaper_pixels": 0,
+          "empty_header_dark_pixels": 2084,
+          "empty_heading_dark_pixels": 8662,
+          "nav_icon_dark_pixels": [
+            1689,
+            881,
+            524,
+            600
+          ]
+        },
+        "selected_sequence": [
+          "shelf",
+          "store",
+          "shelf",
+          "account"
+        ],
+        "shelf_render_status": "empty",
+        "store_access": "empty_state_browse_store_action",
+        "tab_changed_pixels_against_shelf": [
+          [
+            1990,
+            2359,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1990,
+            0,
+            0,
+            1897
+          ]
+        ],
+        "tab_icon_dark_pixels": [
+          [
+            1689,
+            881,
+            524,
+            600
+          ],
+          [
+            1099,
+            1366,
+            524,
+            600
+          ],
+          [
+            1689,
+            881,
+            524,
+            600
+          ],
+          [
+            1099,
+            881,
+            524,
+            1104
+          ]
+        ]
+      }
+    ],
+    "catalog_and_localization_code_files_equal": 2,
+    "committed_layout": "d293782",
+    "display": "loopback-only private Xvfb, Slint winit-software, 2x",
+    "input": "real XTest pointer events",
+    "layout_and_asset_files_equal": 76,
+    "qualifies_current_arm_binary": false,
+    "reference_base": "32380fc",
+    "startup_context_source_files_equal": 2
+  },
+  "live_account_access": false,
+  "optical_visibility_measured": false,
+  "physical_device_access": false,
+  "schema": "ordinary-offline-shelf-software-qualification-v1"
+}

@@ -1,7 +1,7 @@
 //! Background-owned startup data and bounded UI-thread attachment stages.
 
 use super::*;
-use crate::{performance::{self, Operation, Span}, reader::{ReaderCore, ReaderSettings}};
+use crate::{performance::{self, Operation, Span, startup_profile}, reader::{ReaderCore, ReaderSettings}};
 use std::io::{Cursor, Read};
 
 const MAX_STARTUP_COVER_BYTES: u64 = 8 * 1024 * 1024;
@@ -36,7 +36,9 @@ impl PreparedAppMetadata {
     pub fn prepare_covers(self) -> Result<PreparedApp> {
         let Self { mut prepared, pending_cover_comics } = self;
         let cover_span = startup_span("state-covers");
+        let phase = startup_profile::span("state-covers");
         let (covers, cover_failed) = prepare_covers(&prepared.data_dir, &pending_cover_comics, prepared.demo.as_deref());
+        startup_profile::finish(phase, if cover_failed.is_empty() { "ok" } else { "partial" });
         finish_startup_span("state-covers", cover_span, if cover_failed.is_empty() { "success" } else { "partial" });
         prepared.covers = covers;
         prepared.cover_failed = cover_failed;
@@ -88,7 +90,9 @@ fn finish_startup_span(stage: &'static str, span: Option<Span>, outcome: &'stati
 
 fn startup_step<T>(stage: &'static str, work: impl FnOnce() -> Result<T>) -> Result<T> {
     let span = startup_span(stage);
+    let phase = startup_profile::span(stage);
     let result = work();
+    startup_profile::finish(phase, if result.is_ok() { "ok" } else { "error" });
     finish_startup_span(stage, span, if result.is_ok() { "success" } else { "failed" });
     result
 }
@@ -112,7 +116,12 @@ impl App {
         })?;
         let (session, client) = startup_step("state-client", || {
             let session_file = SessionFile::new(&data_dir.join("account"));
-            let session = if options.demo { None } else { session_file.load()? };
+            let phase = startup_profile::span("session_load");
+            let session = if options.demo { Ok(None) } else { session_file.load() };
+            startup_profile::finish(phase, match &session {
+                Ok(Some(_)) => "present", Ok(None) => "absent", Err(_) => "error",
+            });
+            let session = session?;
             let client = if options.demo { BiliClient::offline(&data_dir)? }
                 else { BiliClient::new(session.clone(), &data_dir)?.with_session_file(session_file) };
             Ok((session, client))
@@ -141,6 +150,7 @@ impl App {
         }
         let cache_maintenance_pending = if demo.is_none() {
             let span = startup_span("state-cache-maintenance");
+            let phase = startup_profile::span("state-cache-maintenance");
             let mut trace = span.as_ref().map(|_| crate::store::CatalogMaintenanceTrace::default());
             let result = if let Some(trace) = trace.as_mut() {
                 store.try_prune_catalog_cache_observed(&account, &[], trace)
@@ -155,6 +165,7 @@ impl App {
                     true
                 }
             };
+            startup_profile::finish(phase, if pending { "partial" } else { "ok" });
             finish_startup_span("state-cache-maintenance", span, if pending { "partial" } else { "success" });
             if let Some(trace) = trace { performance::startup("catalog_cache_maintenance", &trace); }
             pending
@@ -185,7 +196,9 @@ impl App {
                 Ok(())
             })?;
         }
+        let phase = startup_profile::span("state-cover-selection");
         let pending_cover_comics = catalog.startup_cover_comics(route, options.profile.is_scribe(), resume_comic.as_deref(), demo.is_some());
+        startup_profile::finish(phase, "ok");
         Ok(PreparedAppMetadata {
             prepared: PreparedApp { options, data_dir, store, client, account,
                 preferences, demo, catalog, account_ui, covers: VecDeque::new(), cover_failed: BTreeSet::new(), resume_comic },
@@ -357,6 +370,7 @@ impl App {
             AttachStage::Views => "attach-views",
         };
         let span = startup_span(stage_name);
+        let phase = startup_profile::span(stage_name);
         let result = (|| {
             match stage {
                 AttachStage::Covers => {
@@ -410,6 +424,7 @@ impl App {
                 && matches!(self.startup_stage, Some(AttachStage::Covers)) => "partial",
             Ok(_) => "success",
         };
+        startup_profile::finish(phase, outcome);
         finish_startup_span(stage_name, span, outcome);
         result
     }

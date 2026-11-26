@@ -14,7 +14,7 @@ use slint::platform::{Clipboard, EventLoopProxy, Platform, PlatformError, Window
 
 use crate::clipboard::{ClipboardKind, ClipboardStore};
 use crate::dithering::DitheringHandle;
-use crate::first_frame_signal::FirstFrameSignalHandle;
+use crate::first_frame_signal::{FirstFrameNotice, FirstFrameSignalHandle};
 use crate::lifecycle::DisplayLifecycleHandle;
 use crate::performance::{ClockSample, PerformanceSampleKind, PerformanceTraceHandle, Recording, monotonic_ns, observe_rgb_frame};
 use crate::power::{arm_wakealarm, find_wakealarm, suspend_to_mem};
@@ -961,7 +961,10 @@ fn finish_frame_submission(framebuffer: &crate::framebuffer::Framebuffer,
     {
         // The Slint renderer borrow has ended. Only a one-shot background
         // channel is notified while the framebuffer remains exclusively borrowed.
-        signal.submitted();
+        let accepted_monotonic_ns = trace.as_ref()
+            .and_then(|recording| recording.sample.stages.refresh_submit)
+            .and_then(|timing| timing.finished_monotonic_ns);
+        signal.submitted(FirstFrameNotice { accepted_monotonic_ns });
     }
     if complete {
         complete_frame_update(framebuffer, submission, trace)?;
@@ -1003,14 +1006,14 @@ mod lifecycle_tests {
     use super::*;
     use std::sync::mpsc;
 
-    fn arm_first_frame(platform: &KindlePlatform) -> (FirstFrameSignalHandle, mpsc::Receiver<()>) {
+    fn arm_first_frame(platform: &KindlePlatform) -> (FirstFrameSignalHandle, mpsc::Receiver<FirstFrameNotice>) {
         let signal = platform.first_frame_signal_handle();
         let (sender, receiver) = mpsc::channel();
         signal.arm(sender).unwrap();
         (signal, receiver)
     }
 
-    fn assert_first_frame_retired(signal: &FirstFrameSignalHandle, receiver: &mpsc::Receiver<()>) {
+    fn assert_first_frame_retired(signal: &FirstFrameSignalHandle, receiver: &mpsc::Receiver<FirstFrameNotice>) {
         assert_eq!(receiver.try_recv(), Err(mpsc::TryRecvError::Disconnected));
         let (sender, _) = mpsc::channel();
         assert_eq!(signal.arm(sender), Err(crate::FirstFrameSignalError::Retired));

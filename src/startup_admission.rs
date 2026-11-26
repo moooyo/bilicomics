@@ -44,36 +44,49 @@ impl StartupAdmission {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum UiTurnState {
+enum CoverGateState {
     Waiting,
-    Yielded,
+    Open,
     Closed,
 }
 
-/// Covers keep their original first-bootstrap-turn admission boundary.
+#[derive(Clone, Copy)]
+pub(crate) enum CoverAdmission {
+    #[cfg(any(test, all(feature = "kindle", target_os = "linux")))]
+    InitialSend,
+    UiTurn,
+}
+
+/// One release from the validated initial SEND or the original UI-turn fallback.
 #[derive(Clone)]
 pub(crate) struct CoverPreparationGate {
-    state: watch::Sender<UiTurnState>,
+    state: watch::Sender<CoverGateState>,
 }
 
 impl Default for CoverPreparationGate {
     fn default() -> Self {
-        let (state, _) = watch::channel(UiTurnState::Waiting);
+        let (state, _) = watch::channel(CoverGateState::Waiting);
         Self { state }
     }
 }
 
 impl CoverPreparationGate {
-    fn release(&self) {
+    pub(crate) fn release(&self, source: CoverAdmission) -> bool {
         self.state.send_if_modified(|state| {
-            if *state != UiTurnState::Waiting { return false; }
-            *state = UiTurnState::Yielded;
+            if *state != CoverGateState::Waiting { return false; }
+            // Record the winner before publishing the gate state to its waiter.
+            bilicomics::performance::startup_profile::mark(match source {
+                #[cfg(any(test, all(feature = "kindle", target_os = "linux")))]
+                CoverAdmission::InitialSend => "cover_gate_from_send",
+                CoverAdmission::UiTurn => "cover_gate_from_ui",
+            });
+            *state = CoverGateState::Open;
             true
-        });
+        })
     }
 
     fn close(&self) {
-        self.state.send_replace(UiTurnState::Closed);
+        self.state.send_replace(CoverGateState::Closed);
     }
 
     async fn wait(&self, cancelled: &AtomicBool) -> bool {
@@ -81,9 +94,9 @@ impl CoverPreparationGate {
         loop {
             if cancelled.load(Ordering::Acquire) { return false; }
             match *state.borrow_and_update() {
-                UiTurnState::Yielded => return true,
-                UiTurnState::Closed => return false,
-                UiTurnState::Waiting => {}
+                CoverGateState::Open => return true,
+                CoverGateState::Closed => return false,
+                CoverGateState::Waiting => {}
             }
             tokio::select! {
                 changed = state.changed() => {
@@ -111,13 +124,13 @@ impl StartupUiTurn {
 
     pub(crate) fn yield_now(&mut self) {
         self.yielded = true;
-        self.covers.release();
+        self.covers.release(CoverAdmission::UiTurn);
     }
 }
 
 /// Wait asynchronously between metadata preparation and cover pixel work.
 /// A canceled or failed preparation cannot publish a completed application.
-pub(crate) async fn complete_after_ui_turn<M, R>(
+pub(crate) async fn complete_after_cover_admission<M, R>(
     handle: &tokio::runtime::Handle,
     metadata: tokio::task::JoinHandle<Result<Option<M>>>,
     covers: CoverPreparationGate,
@@ -128,12 +141,16 @@ where
     M: Send + 'static,
     R: Send + 'static,
 {
+    use bilicomics::performance::startup_profile;
+
     let metadata = metadata.await;
     if cancelled.load(Ordering::Acquire) { return Ok(None); }
     let Some(metadata) = metadata.context("Startup metadata worker stopped")?? else {
         return Ok(None);
     };
+    startup_profile::mark("cover_gate_wait_begin");
     if !covers.wait(&cancelled).await { return Ok(None); }
+    startup_profile::mark("cover_gate_passed");
     let completion_cancelled = cancelled.clone();
     let completed = handle.spawn_blocking(move || {
         if completion_cancelled.load(Ordering::Acquire) { return Ok(None); }
@@ -162,18 +179,18 @@ impl StartupLifetime {
     }
 
     /// The callback only queues Tokio work; this thread never owns native I/O.
-    pub(crate) fn wait_for_signal(
+    pub(crate) fn wait_for_signal<T: Send + 'static>(
         &mut self,
-        receiver: Receiver<()>,
-        submitted: impl FnOnce() + Send + 'static,
+        receiver: Receiver<T>,
+        submitted: impl FnOnce(T) + Send + 'static,
     ) -> io::Result<()> {
         let cancelled = self.cancelled.clone();
         self.waiter = Some(thread::Builder::new().name("bilicomics-first-frame".into()).spawn(move || {
             loop {
                 if cancelled.load(Ordering::Acquire) { return; }
                 match receiver.recv_timeout(SIGNAL_WAIT_INTERVAL) {
-                    Ok(()) => {
-                        if !cancelled.load(Ordering::Acquire) { submitted(); }
+                    Ok(notice) => {
+                        if !cancelled.load(Ordering::Acquire) { submitted(notice); }
                         return;
                     }
                     Err(RecvTimeoutError::Timeout) => {}
@@ -244,7 +261,7 @@ mod tests {
         while !metadata.is_finished() { tokio::task::yield_now().await; }
         let completions = Arc::new(AtomicUsize::new(0));
         let observed = completions.clone();
-        let mut waiting = std::pin::pin!(complete_after_ui_turn(&handle, metadata, covers,
+        let mut waiting = std::pin::pin!(complete_after_cover_admission(&handle, metadata, covers,
             cancelled, move |value| {
                 observed.fetch_add(1, Ordering::AcqRel);
                 Ok(value)
@@ -258,6 +275,44 @@ mod tests {
         assert_eq!(completions.load(Ordering::Acquire), 1);
     }
 
+    #[tokio::test(flavor = "current_thread")]
+    async fn initial_send_admits_covers_without_advancing_the_ui_turn() {
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let gate = CoverPreparationGate::default();
+        let mut ui_turn = StartupUiTurn::new(gate.clone());
+        let handle = tokio::runtime::Handle::current();
+        let metadata = handle.spawn_blocking(|| Ok(Some(7)));
+        while !metadata.is_finished() { tokio::task::yield_now().await; }
+        let mut waiting = std::pin::pin!(complete_after_cover_admission(&handle, metadata,
+            gate.clone(), cancelled, |value| Ok(value + 1)));
+        let mut context = TaskContext::from_waker(Waker::noop());
+        assert!(waiting.as_mut().poll(&mut context).is_pending());
+        assert!(gate.release(CoverAdmission::InitialSend));
+        assert_eq!(waiting.await.unwrap(), Some(8));
+        assert!(!ui_turn.has_yielded());
+        ui_turn.yield_now();
+        assert!(ui_turn.has_yielded());
+        assert!(!gate.release(CoverAdmission::InitialSend));
+    }
+
+    #[test]
+    fn send_and_ui_turn_can_release_the_cover_gate_only_once() {
+        let gate = CoverPreparationGate::default();
+        let both_ready = Barrier::new(3);
+        let wins = AtomicUsize::new(0);
+        thread::scope(|scope| {
+            for source in [CoverAdmission::InitialSend, CoverAdmission::UiTurn] {
+                let (gate, both_ready, wins) = (&gate, &both_ready, &wins);
+                scope.spawn(move || {
+                    both_ready.wait();
+                    if gate.release(source) { wins.fetch_add(1, Ordering::AcqRel); }
+                });
+            }
+            both_ready.wait();
+        });
+        assert_eq!(wins.load(Ordering::Acquire), 1);
+    }
+
     #[test]
     fn exit_before_the_first_frame_cancels_and_joins_a_live_sender() {
         let cancelled = Arc::new(AtomicBool::new(false));
@@ -266,7 +321,7 @@ mod tests {
         let submitted = Arc::new(AtomicBool::new(false));
         let observed = submitted.clone();
         let mut lifetime = StartupLifetime::new(cancelled.clone(), covers);
-        lifetime.wait_for_signal(receiver, move || { observed.store(true, Ordering::Release); }).unwrap();
+        lifetime.wait_for_signal(receiver, move |()| { observed.store(true, Ordering::Release); }).unwrap();
         let stopping = Instant::now();
         drop(lifetime);
         assert!(stopping.elapsed() < Duration::from_secs(2));
@@ -281,7 +336,7 @@ mod tests {
         let (sender, receiver) = mpsc::channel();
         drop(sender);
         let mut lifetime = StartupLifetime::new(cancelled, CoverPreparationGate::default());
-        lifetime.wait_for_signal(receiver, || panic!("disconnection is not submission")).unwrap();
+        lifetime.wait_for_signal(receiver, |()| panic!("disconnection is not submission")).unwrap();
         lifetime.waiter.take().unwrap().join().unwrap();
     }
 
@@ -305,7 +360,7 @@ mod tests {
     async fn metadata_failure_never_waits_for_covers_or_publishes_ready() {
         let handle = tokio::runtime::Handle::current();
         let metadata = handle.spawn_blocking(|| -> Result<Option<()>> { anyhow::bail!("fixture failure") });
-        let result = complete_after_ui_turn(&handle, metadata, CoverPreparationGate::default(),
+        let result = complete_after_cover_admission(&handle, metadata, CoverPreparationGate::default(),
             Arc::new(AtomicBool::new(false)), |()| -> Result<()> { panic!("failed metadata reached covers") }).await;
         assert!(result.unwrap_err().to_string().contains("fixture failure"));
     }
@@ -316,7 +371,9 @@ mod tests {
         let metadata = handle.spawn_blocking(|| Ok(Some(7)));
         let covers = CoverPreparationGate::default();
         covers.close();
-        let result = complete_after_ui_turn(&handle, metadata, covers,
+        assert!(!covers.release(CoverAdmission::InitialSend));
+        assert!(!covers.release(CoverAdmission::UiTurn));
+        let result = complete_after_cover_admission(&handle, metadata, covers,
             Arc::new(AtomicBool::new(false)), |_| -> Result<()> { panic!("retired covers started") }).await;
         assert_eq!(result.unwrap(), None);
     }
@@ -328,7 +385,7 @@ mod tests {
         let metadata = handle.spawn_blocking(|| Ok(Some(7)));
         while !metadata.is_finished() { tokio::task::yield_now().await; }
         let gate = CoverPreparationGate::default();
-        let mut waiting = std::pin::pin!(complete_after_ui_turn(&handle, metadata, gate, cancelled.clone(),
+        let mut waiting = std::pin::pin!(complete_after_cover_admission(&handle, metadata, gate, cancelled.clone(),
             |_| -> Result<()> { panic!("canceled covers started") }));
         let mut context = TaskContext::from_waker(Waker::noop());
         assert!(waiting.as_mut().poll(&mut context).is_pending());
@@ -342,9 +399,9 @@ mod tests {
         let handle = tokio::runtime::Handle::current();
         let metadata = handle.spawn_blocking(|| Ok(Some(7)));
         let covers = CoverPreparationGate::default();
-        covers.release();
+        assert!(covers.release(CoverAdmission::InitialSend));
         let completed_cancelled = cancelled.clone();
-        let result = complete_after_ui_turn(&handle, metadata, covers, cancelled, move |value| {
+        let result = complete_after_cover_admission(&handle, metadata, covers, cancelled, move |value| {
             completed_cancelled.store(true, Ordering::Release);
             Ok(value)
         }).await;

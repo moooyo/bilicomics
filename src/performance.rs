@@ -17,6 +17,8 @@ use std::{
 
 use serde::Serialize;
 
+pub mod startup_profile;
+
 pub const MAX_TRACE_BYTES: u64 = 8 * 1024 * 1024;
 const MAX_RECORD_BYTES: usize = 64 * 1024;
 const TERMINAL_RESERVE_BYTES: u64 = 1024;
@@ -63,10 +65,7 @@ struct ShelfRenderHeader<'a> {
 
 impl<'a> ShelfRenderHeader<'a> {
     fn new(path: &'a Path, boot_id: &'a str) -> io::Result<Self> {
-        let run_id = path.file_name().and_then(|name| name.to_str()).and_then(|name| name.strip_suffix(".jsonl"))
-            .filter(|stem| stem.strip_prefix("bili-shelf-").is_some_and(|suffix| {
-                suffix.len() == 32 && suffix.bytes().all(lower_hex)
-            })).ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Invalid Shelf trace run identifier"))?;
+        let run_id = shelf_trace_run_id(path)?;
         let boot_id = boot_id.strip_suffix('\n').unwrap_or(boot_id);
         if boot_id.len() != 36 || !boot_id.bytes().enumerate().all(|(index, byte)| {
             if matches!(index, 8 | 13 | 18 | 23) { byte == b'-' } else { lower_hex(byte) }
@@ -75,6 +74,13 @@ impl<'a> ShelfRenderHeader<'a> {
         }
         Ok(Self { schema: "kindle-shelf-render-log-v1", run_id, boot_id, clock: "CLOCK_MONOTONIC" })
     }
+}
+
+fn shelf_trace_run_id(path: &Path) -> io::Result<&str> {
+    path.file_name().and_then(|name| name.to_str()).and_then(|name| name.strip_suffix(".jsonl"))
+        .filter(|stem| stem.strip_prefix("bili-shelf-").is_some_and(|suffix| {
+            suffix.len() == 32 && suffix.bytes().all(lower_hex)
+        })).ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Invalid Shelf trace run identifier"))
 }
 
 fn lower_hex(byte: u8) -> bool {

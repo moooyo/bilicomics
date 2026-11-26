@@ -15,14 +15,15 @@ the reference's general UI-thread observer is not copied into the retained
 framebuffer borrow. The original MIT/Apache backend notices remain unchanged.
 
 `KindleBackend::first_frame_signal_handle()` returns a UI-thread-only
-`FirstFrameSignalHandle`. An owner may arm one unbounded `Sender<()>` before
-event-loop entry. Only a real initial complete draw with an accepted, nonzero,
-current SEND marker and known delivery can consume the signal. Sleep
-presentations, inactive frames, partial updates, and refreshes without a draw do
-not admit work. The Slint renderer borrow has ended before the signal is sent;
-the notification invokes no application callback, filesystem work, or optional
-performance logging. Without registration it adds no clocks, trace locks, or
-per-frame allocations.
+`FirstFrameSignalHandle`. An owner may arm one unbounded
+`Sender<FirstFrameNotice>` before event-loop entry. Only a real initial complete
+draw with an accepted, nonzero, current SEND marker and known delivery can
+consume the signal. Sleep presentations, inactive frames, partial updates, and
+refreshes without a draw do not admit work. The Slint renderer borrow has ended
+before the signal is sent; it invokes no application callback, filesystem work,
+or optional performance logging. The notice carries the existing submit-end
+clock only when a frame is already being profiled. It adds no clock read or
+trace lock.
 
 The original checked completion for that accepted marker and lifecycle input
 draining retain their order after notification. A receiver may start only pure

@@ -16,6 +16,7 @@ use bilicomics::{
     app::{App, AppOptions, PreparedApp, PreparedAppMetadata},
     fonts::{Fonts, PreparedFont},
     native_presentation::{NativeOutputMode, NativePortraitDirection, NativeResumePresentation},
+    performance::startup_profile,
     platform::{self, DeviceProfile, Platform, RefreshReason},
     power_events::{PowerAck, PowerEvent, SignalBridge},
     ui::{
@@ -37,8 +38,10 @@ mod shelf_render_trace;
 use runtime_wakeup::{RuntimeWake, StartupContinuation, TraceMoment, trace_moment};
 use sleep_cover_runtime::{CoverProgress, SleepCoverRuntime};
 use startup_admission::{
-    CoverPreparationGate, StartupAdmission, StartupLifetime, StartupUiTurn, complete_after_ui_turn,
+    CoverPreparationGate, StartupAdmission, StartupLifetime, StartupUiTurn, complete_after_cover_admission,
 };
+#[cfg(all(feature = "kindle", target_os = "linux"))]
+use startup_admission::CoverAdmission;
 
 #[derive(Debug, Parser)]
 #[command(
@@ -98,6 +101,15 @@ struct Arguments {
     /// Save the software startup State producer and receive clocks after a successful Shelf run.
     #[arg(long, hide = true, requires_all = ["kindle", "shelf_render_trace"], conflicts_with = "lifecycle_trace")]
     prepared_handoff_trace: Option<PathBuf>,
+    /// Write a bounded timing sidecar after an ordinary offline native Shelf exits.
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    #[arg(long, hide = true, requires_all = ["kindle", "offline", "shelf_render_trace"],
+        conflicts_with_all = ["demo", "screen", "lifecycle_trace", "prepared_handoff_trace", "serial_shelf_render", "capture", "capture_startup"])]
+    startup_phases: Option<PathBuf>,
+    /// Compare cached-cover admission at the first accepted loading SEND.
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    #[arg(long, hide = true, requires = "startup_phases")]
+    early_startup_covers: bool,
     /// Keep the native startup Shelf on the wait-before-render path for diagnostics.
     #[arg(long, hide = true, requires_all = ["kindle", "shelf_render_trace"])]
     serial_shelf_render: bool,
@@ -299,7 +311,9 @@ struct StartupWorkers {
 impl StartupWorkers {
     fn start(&self) -> bool {
         self.admission.start_once(|| {
-            record_startup_stage(self.trace_path.as_deref(), "workers_started", trace_moment(), None);
+            let started = trace_moment();
+            startup_profile::mark_at("workers_admitted", started.monotonic_ns);
+            record_startup_stage(self.trace_path.as_deref(), "workers_started", started, None);
             if let Some(covers) = self.covers.as_ref() {
                 start_overlapped_startup_workers(&self.handle, self.options.clone(), self.native,
                     self.delay_ms, self.cancelled.clone(), self.sender.clone(), self.wake.clone(),
@@ -371,6 +385,14 @@ fn run(arguments: Arguments) -> Result<()> {
             eprintln!("bilicomics: Shelf render diagnostics unavailable: {:?}", error.kind());
         }
     }
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    if let Some(path) = arguments.startup_phases.as_deref() {
+        if !bilicomics::performance::shelf_render_enabled() {
+            bail!("Startup phases require active Shelf render diagnostics");
+        }
+        startup_profile::configure(path, arguments.shelf_render_trace.as_deref().expect("Shelf trace argument"))?;
+        startup_profile::mark_at("process_enter", runtime_wakeup::process_entry_moment().monotonic_ns);
+    }
     if arguments.serial_shelf_render && !bilicomics::performance::shelf_render_enabled() {
         bail!("Serial Shelf rendering requires active Shelf render diagnostics");
     }
@@ -405,6 +427,7 @@ fn run(arguments: Arguments) -> Result<()> {
     } else {
         None
     };
+    let native_context = startup_profile::span("native_context");
     let startup_native_mode = native_presentation
         .as_ref()
         .map(|context| context.startup_mode())
@@ -416,6 +439,8 @@ fn run(arguments: Arguments) -> Result<()> {
             .context("Require a protected startup portrait calibration before native I/O")?;
     }
     let platform = Arc::new(Platform::new(arguments.device, arguments.kindle)?);
+    startup_profile::finish(native_context, "ok");
+    let backend_setup = startup_profile::span("backend_setup");
     let framebuffer_portrait = platform.uses_calibrated_framebuffer_portrait();
     if arguments.kindle {
         bilicomics::performance::startup("backend_install_begin", &());
@@ -440,6 +465,12 @@ fn run(arguments: Arguments) -> Result<()> {
             trace.set_rgb_fingerprints_enabled(arguments.demo);
         }
     }
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    let phase_frame_trace = native_backend.as_ref().filter(|_| arguments.startup_phases.is_some()).map(|backend| {
+        let trace = backend.performance_trace_handle();
+        trace.set_callback(Arc::new(startup_profile::native_frame));
+        trace
+    });
     #[cfg(all(feature = "kindle", target_os = "linux"))]
     let startup_native_mode = if let Some(backend) = native_backend.as_ref() {
         let lifecycle = backend.lifecycle_handle();
@@ -493,6 +524,8 @@ fn run(arguments: Arguments) -> Result<()> {
         #[cfg(not(feature = "desktop"))]
         bail!("The desktop backend is disabled in this executable");
     }
+    startup_profile::finish(backend_setup, "ok");
+    let window_setup = startup_profile::span("window_setup");
     let ui = AppWindow::new().context("Create the startup window")?;
     bilicomics::performance::startup("window_constructed", &());
     platform::configure_window(ui.window(), &platform)?;
@@ -521,6 +554,7 @@ fn run(arguments: Arguments) -> Result<()> {
         shelf_render_trace::install(&backend.lifecycle_handle(), &ui, handoff.clone());
     }
     Fonts::register_bootstrap(&ui)?;
+    startup_profile::finish(window_setup, "ok");
     bilicomics::performance::startup("bootstrap_font_registered", &());
     let wake = RuntimeWake::new(ui.as_weak());
     if !arguments.kindle {
@@ -656,12 +690,14 @@ fn run(arguments: Arguments) -> Result<()> {
         return Ok(());
     }
 
+    let runtime_setup = startup_profile::span("runtime_setup");
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(2)
         .thread_name("bilicomics-network")
         .enable_all()
         .build()
         .context("Create background workers")?;
+    startup_profile::finish(runtime_setup, "ok");
     let handle = runtime.handle().clone();
     let options = AppOptions {
         data_dir,
@@ -746,9 +782,20 @@ fn run(arguments: Arguments) -> Result<()> {
                 .context("Arm background preparation after the first native full SEND")?;
             let early_handle = handle.clone();
             let early_workers = startup_workers.clone();
-            startup_lifetime.wait_for_signal(first_frame_receiver, move || {
+            let early_covers = arguments.early_startup_covers;
+            startup_lifetime.wait_for_signal(first_frame_receiver, move |notice| {
+                if let Some(ns) = notice.accepted_monotonic_ns {
+                    startup_profile::mark_at("loading_send_accepted", Some(ns));
+                }
                 // This small receiver thread only queues work onto the runtime.
-                early_handle.spawn(async move { early_workers.start(); });
+                early_handle.spawn(async move {
+                    early_workers.start();
+                    if early_covers && !early_workers.cancelled.load(Ordering::Acquire)
+                        && let Some(covers) = early_workers.covers.as_ref()
+                    {
+                        covers.release(CoverAdmission::InitialSend);
+                    }
+                });
             }).context("Start the cancelable first-frame receiver")?;
         }
     }
@@ -855,6 +902,7 @@ fn run(arguments: Arguments) -> Result<()> {
                     record_performance_gate(&mut performance_gate, "prepare");
                     let admitted = startup_workers.start();
                     startup_ui_turn.yield_now();
+                    startup_profile::mark("cover_gate_open");
                     if bilicomics::performance::enabled() {
                         bilicomics::performance::startup("ui_worker_gate", &serde_json::json!({
                             "source": source, "workers_admitted_by_ui": admitted,
@@ -877,6 +925,7 @@ fn run(arguments: Arguments) -> Result<()> {
                             record_startup_stage(startup_trace.as_deref(), "font_decoded", moment, None);
                         }
                         StartupEvent::State(value, moment) => {
+                            startup_profile::mark("state_received");
                             #[cfg(all(feature = "kindle", target_os = "linux"))]
                             if let Some(handoff) = tick_handoff.as_ref() {
                                 handoff.observe(moment.monotonic_ns, source, runtime_wakeup::monotonic_ns);
@@ -905,7 +954,9 @@ fn run(arguments: Arguments) -> Result<()> {
                     record_performance_gate(&mut performance_gate, "fonts");
                     if fonts.can_register_next() {
                         let measured = bilicomics::performance::enabled().then(bilicomics::performance::Span::start);
+                        let phase = startup_profile::span("font_registration");
                         let registration = fonts.register_next();
+                        startup_profile::finish(phase, if registration.is_ok() { "ok" } else { "error" });
                         if let Some(measured) = measured {
                             bilicomics::performance::startup("font_registration", &serde_json::json!({
                                 "elapsed": measured.finish(), "success": registration.is_ok(),
@@ -919,7 +970,9 @@ fn run(arguments: Arguments) -> Result<()> {
                                     trace_moment(), Some(fonts.registered_count()));
                                 if done {
                                     let measured = bilicomics::performance::enabled().then(bilicomics::performance::Span::start);
+                                    let phase = startup_profile::span("font_finish");
                                     let finished = fonts.finish(&ui);
+                                    startup_profile::finish(phase, if finished.is_ok() { "ok" } else { "error" });
                                     if let Some(measured) = measured {
                                         bilicomics::performance::startup("font_finish", &serde_json::json!({
                                             "elapsed": measured.finish(), "success": finished.is_ok(),
@@ -956,18 +1009,17 @@ fn run(arguments: Arguments) -> Result<()> {
                     if fonts_registered {
                         if let Some(prepared) = prepared.take() {
                             shell.set_startup_phase("attach".into());
-                            match App::attach_prepared(
-                                &ui,
-                                prepared,
-                                tick_platform.clone(),
-                                handle.clone(),
-                            ) {
+                            let phase = startup_profile::span("app_attach");
+                            let attachment = App::attach_prepared(&ui, prepared, tick_platform.clone(), handle.clone());
+                            startup_profile::finish(phase, if attachment.is_ok() { "ok" } else { "error" });
+                            match attachment {
                                 Ok(application) => {
                                     #[cfg(all(feature = "kindle", target_os = "linux"))]
                                     { shelf_startup = application.borrow().starts_on_shelf(); }
                                     let job_wake = tick_wake.clone();
                                     application.borrow().set_runtime_wakeup(Arc::new(move || job_wake.request()));
                                     *tick_control.application.borrow_mut() = Some(application);
+                                    startup_profile::mark("app_attached");
                                     record_startup_stage(startup_trace.as_deref(), "application_attached", trace_moment(), None);
                                     startup_continue.schedule();
                                 }
@@ -996,6 +1048,7 @@ fn run(arguments: Arguments) -> Result<()> {
                 match startup_result {
                     Ok(true) => {
                         shell.set_booting(false);
+                        startup_profile::mark("ui_ready");
                         record_performance_gate(&mut performance_gate, "ready");
                         bilicomics::performance::startup("ui_ready", &());
                         ready_at = Some(Instant::now());
@@ -1163,8 +1216,12 @@ fn run(arguments: Arguments) -> Result<()> {
             .set_size(slint::LogicalSize::new(width as f32, height as f32));
     }
     let _ = platform.request_refresh(RefreshReason::EnterScreen);
-    record_startup_stage(arguments.lifecycle_trace.as_deref(), "window_shown", trace_moment(), None);
+    let shown = trace_moment();
+    startup_profile::mark_at("window_shown", shown.monotonic_ns);
+    record_startup_stage(arguments.lifecycle_trace.as_deref(), "window_shown", shown, None);
     let loop_result = slint::run_event_loop();
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    if let Some(trace) = phase_frame_trace { trace.clear_callback(); }
     wake.stop();
     timer.stop();
     ui.on_runtime_wakeup(|| {});
@@ -1214,6 +1271,10 @@ fn run(arguments: Arguments) -> Result<()> {
     {
         eprintln!("bilicomics: prepared handoff diagnostics unavailable: {:?}", error.kind());
     }
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    if let Some(path) = arguments.startup_phases.as_deref() {
+        startup_profile::write(path, arguments.shelf_render_trace.as_deref().expect("Shelf trace argument"))?;
+    }
     Ok(())
 }
 
@@ -1241,6 +1302,7 @@ fn start_startup_font_worker(
     let font_worker = handle.spawn_blocking(move || -> Result<()> {
         bilicomics::performance::startup("font_worker_begin", &());
         let measured = bilicomics::performance::enabled().then(bilicomics::performance::Span::start);
+        let phase = startup_profile::span("font_prepare");
         let result = (|| -> Result<()> {
         if trace_enabled {
             publish_startup(&font_sender, &font_wake,
@@ -1255,6 +1317,7 @@ fn start_startup_font_worker(
         }
         Ok(())
         })();
+        startup_profile::finish(phase, if result.is_ok() { "ok" } else { "error" });
         if let Some(measured) = measured {
             bilicomics::performance::startup("font_worker_end", &serde_json::json!({
                 "elapsed": measured.finish(), "success": result.is_ok(),
@@ -1288,15 +1351,20 @@ fn start_startup_workers(
             std::thread::sleep(Duration::from_millis(delay_ms));
         }
         if cancelled.load(Ordering::Acquire) { return Ok(()); }
+        startup_profile::mark("state_worker_begin");
         if trace_enabled {
             publish_startup(&state_sender, &state_wake,
                 StartupEvent::Stage("state_prepare_begin", trace_moment()))?;
         }
-        bilicomics::native_media::initialize(native);
+        let probe = startup_profile::span("jpeg_capability");
+        let availability = bilicomics::native_media::initialize(native);
+        startup_profile::finish(probe, availability.reason());
         if cancelled.load(Ordering::Acquire) { return Ok(()); }
         let prepared = App::prepare(options)?;
         if cancelled.load(Ordering::Acquire) { return Ok(()); }
-        publish_startup(&state_sender, &state_wake, StartupEvent::State(prepared, trace_moment()))
+        let produced = trace_moment();
+        startup_profile::mark_at("state_produced", produced.monotonic_ns);
+        publish_startup(&state_sender, &state_wake, StartupEvent::State(prepared, produced))
         })();
         if let Some(measured) = measured {
             bilicomics::performance::startup("state_worker_end", &serde_json::json!({
@@ -1333,14 +1401,21 @@ fn start_overlapped_startup_workers(
                 std::thread::sleep(Duration::from_millis(delay_ms));
             }
             if metadata_cancelled.load(Ordering::Acquire) { return Ok(None); }
+            startup_profile::mark("state_worker_begin");
             if trace_enabled {
                 publish_startup(&metadata_sender, &metadata_wake,
                     StartupEvent::Stage("state_prepare_begin", trace_moment()))?;
             }
-            bilicomics::native_media::initialize(native);
+            let probe = startup_profile::span("jpeg_capability");
+            let availability = bilicomics::native_media::initialize(native);
+            startup_profile::finish(probe, availability.reason());
             if metadata_cancelled.load(Ordering::Acquire) { return Ok(None); }
-            let metadata = App::prepare_metadata(options)?;
+            let phase = startup_profile::span("metadata");
+            let metadata = App::prepare_metadata(options);
+            startup_profile::finish(phase, if metadata.is_ok() { "ok" } else { "error" });
+            let metadata = metadata?;
             if metadata_cancelled.load(Ordering::Acquire) { return Ok(None); }
+            startup_profile::mark("metadata_ready");
             if trace_enabled {
                 publish_startup(&metadata_sender, &metadata_wake,
                     StartupEvent::Stage("state_metadata_prepared", trace_moment()))?;
@@ -1359,7 +1434,7 @@ fn start_overlapped_startup_workers(
     let completion_sender = sender.clone();
     let completion_wake = wake.clone();
     let state_worker = handle.spawn(async move {
-        let prepared = complete_after_ui_turn(&completion_handle, metadata_worker, covers,
+        let prepared = complete_after_cover_admission(&completion_handle, metadata_worker, covers,
             cancelled.clone(), |metadata| {
                 bilicomics::performance::startup("state_cover_worker_begin", &());
                 let measured = bilicomics::performance::enabled().then(bilicomics::performance::Span::start);
@@ -1373,7 +1448,9 @@ fn start_overlapped_startup_workers(
             }).await?;
         let Some(prepared) = prepared else { return Ok(()); };
         if cancelled.load(Ordering::Acquire) { return Ok(()); }
-        publish_startup(&completion_sender, &completion_wake, StartupEvent::State(prepared, trace_moment()))
+        let produced = trace_moment();
+        startup_profile::mark_at("state_produced", produced.monotonic_ns);
+        publish_startup(&completion_sender, &completion_wake, StartupEvent::State(prepared, produced))
     });
     observe_startup_worker(handle, state_worker, sender, wake);
 }
@@ -1822,6 +1899,23 @@ mod trace_tests {
             "--shelf-render-trace", "shelf.jsonl"]).unwrap();
         assert_eq!(arguments.shelf_render_trace.as_deref(), Some(Path::new("shelf.jsonl")));
         assert!(!arguments.serial_shelf_render);
+    }
+
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    #[test]
+    fn startup_phases_requires_an_ordinary_offline_native_shelf_run() {
+        let prefix = ["bilicomics", "--kindle", "--offline", "--shelf-render-trace", "shelf.jsonl", "--startup-phases", "phases.json"];
+        assert!(!Arguments::try_parse_from(prefix).unwrap().early_startup_covers);
+        assert!(Arguments::try_parse_from(prefix.into_iter().chain(["--early-startup-covers"]))
+            .unwrap().early_startup_covers);
+        assert!(Arguments::try_parse_from(["bilicomics", "--kindle", "--early-startup-covers"]).is_err());
+        for omitted in ["--kindle", "--offline"] {
+            assert!(Arguments::try_parse_from(prefix.into_iter().filter(|arg| *arg != omitted)).is_err());
+        }
+        for conflict in [&["--demo"][..], &["--screen", "shelf"], &["--lifecycle-trace", "other.jsonl"],
+            &["--performance-trace", "other.jsonl"], &["--serial-shelf-render"], &["--capture", "screen.png"]] {
+            assert!(Arguments::try_parse_from(prefix.into_iter().chain(conflict.iter().copied())).is_err());
+        }
     }
 
     #[test]

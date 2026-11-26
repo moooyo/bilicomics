@@ -23,9 +23,16 @@ impl fmt::Display for FirstFrameSignalError {
 
 impl std::error::Error for FirstFrameSignalError {}
 
+/// A validated initial full SEND, not a completion or input-readiness signal.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct FirstFrameNotice {
+    /// Existing submit clock when observation is enabled; never read for the notice alone.
+    pub accepted_monotonic_ns: Option<u64>,
+}
+
 #[derive(Default)]
 struct Signal {
-    sender: RefCell<Option<Sender<()>>>,
+    sender: RefCell<Option<Sender<FirstFrameNotice>>>,
     retired: Cell<bool>,
 }
 
@@ -44,7 +51,7 @@ impl FirstFrameSignalHandle {
     ///
     /// Only the first accepted initial full-frame submission can consume this
     /// sender. An already observed submission or explicit retirement is final.
-    pub fn arm(&self, sender: Sender<()>) -> Result<(), FirstFrameSignalError> {
+    pub fn arm(&self, sender: Sender<FirstFrameNotice>) -> Result<(), FirstFrameSignalError> {
         if self.inner.retired.get() {
             return Err(FirstFrameSignalError::Retired);
         }
@@ -68,14 +75,14 @@ impl FirstFrameSignalHandle {
 
     /// The caller has proved a real, accepted initial full-frame submission.
     /// The renderer borrow has ended; this never invokes application code.
-    pub(crate) fn submitted(&self) {
+    pub(crate) fn submitted(&self, notice: FirstFrameNotice) {
         if self.inner.retired.replace(true) {
             return;
         }
         let sender = self.inner.sender.borrow_mut().take();
         if let Some(sender) = sender {
             // An unbounded Sender never waits for the receiver to consume it.
-            let _ = sender.send(());
+            let _ = sender.send(notice);
         }
     }
 }
@@ -95,9 +102,10 @@ mod tests {
         assert_eq!(clone.arm(duplicate), Err(FirstFrameSignalError::AlreadyArmed));
         assert_eq!(duplicate_receiver.try_recv(), Err(TryRecvError::Disconnected));
 
-        clone.submitted();
-        assert_eq!(receiver.try_recv(), Ok(()));
-        signal.submitted();
+        let notice = FirstFrameNotice { accepted_monotonic_ns: Some(123) };
+        clone.submitted(notice);
+        assert_eq!(receiver.try_recv(), Ok(notice));
+        signal.submitted(FirstFrameNotice::default());
         assert_eq!(receiver.try_recv(), Err(TryRecvError::Disconnected));
         let (late, _) = mpsc::channel();
         assert_eq!(signal.arm(late), Err(FirstFrameSignalError::Retired));
@@ -106,7 +114,7 @@ mod tests {
     #[test]
     fn an_unarmed_submission_prevents_late_admission() {
         let signal = FirstFrameSignalHandle::default();
-        signal.submitted();
+        signal.submitted(FirstFrameNotice::default());
         let (sender, receiver) = mpsc::channel();
         assert_eq!(signal.arm(sender), Err(FirstFrameSignalError::Retired));
         assert_eq!(receiver.try_recv(), Err(TryRecvError::Disconnected));
@@ -119,7 +127,7 @@ mod tests {
         signal.arm(sender).unwrap();
         signal.retire();
         signal.retire();
-        signal.submitted();
+        signal.submitted(FirstFrameNotice::default());
         assert_eq!(receiver.try_recv(), Err(TryRecvError::Disconnected));
         let (late, _) = mpsc::channel();
         assert_eq!(signal.arm(late), Err(FirstFrameSignalError::Retired));
@@ -131,7 +139,7 @@ mod tests {
         let (sender, receiver) = mpsc::channel();
         signal.arm(sender).unwrap();
         drop(receiver);
-        signal.submitted();
+        signal.submitted(FirstFrameNotice::default());
         let (late, _) = mpsc::channel();
         assert_eq!(signal.arm(late), Err(FirstFrameSignalError::Retired));
     }

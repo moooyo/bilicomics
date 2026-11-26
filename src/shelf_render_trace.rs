@@ -8,14 +8,13 @@ use crate::prepared_handoff::PreparedHandoff;
 pub(crate) fn install(display: &DisplayLifecycleHandle, ui: &AppWindow, handoff: Option<Rc<PreparedHandoff>>) {
     let window = ui.as_weak();
     let scene = move || window.upgrade().map_or(ShelfRenderScene::Other, |ui| App::shelf_render_scene(&ui));
-    if let Some(handoff) = handoff {
-        display.observe_shelf_render(scene, move |sample| {
+    display.observe_shelf_render(scene, move |sample| {
+        if let Some(handoff) = &handoff {
             handoff.qualify_shelf(sample.rendered_monotonic_ns);
-            record(sample);
-        });
-    } else {
-        display.observe_shelf_render(scene, record);
-    }
+        }
+        performance::startup_profile::qualify(sample);
+        record(sample);
+    });
 }
 
 fn record(sample: ShelfRenderSample) {

@@ -3,7 +3,7 @@
 use std::cell::Cell;
 use std::sync::{Arc, Mutex, mpsc};
 
-use crate::first_frame_signal::{FirstFrameSignalError, FirstFrameSignalHandle};
+use crate::first_frame_signal::{FirstFrameNotice, FirstFrameSignalError, FirstFrameSignalHandle};
 use crate::framebuffer::{Framebuffer, RefreshSubmission};
 use crate::performance::{PerformanceFrameSample, PerformanceSampleKind, PerformanceTraceHandle, Recording};
 use crate::refresh::{PendingRefresh, RefreshArea, RefreshRequest, RefreshWaveform};
@@ -230,7 +230,7 @@ fn initial_frame() -> super::FirstFrameSubmission {
     }
 }
 
-fn armed_first_frame_signal() -> (FirstFrameSignalHandle, mpsc::Receiver<()>) {
+fn armed_first_frame_signal() -> (FirstFrameSignalHandle, mpsc::Receiver<FirstFrameNotice>) {
     let signal = FirstFrameSignalHandle::default();
     let (sender, receiver) = mpsc::channel();
     signal.arm(sender).unwrap();
@@ -258,7 +258,7 @@ fn the_initial_send_signals_after_writes_before_its_checked_completion_even_with
     // The real completion ioctl on the pipe fails. The signal has already
     // admitted pure background work, but completion must still fail closed.
     assert!(result.unwrap_err().to_string().contains("did not complete"));
-    assert_eq!(receiver.try_recv(), Ok(()));
+    assert_eq!(receiver.try_recv(), Ok(FirstFrameNotice::default()));
     assert_eq!(receiver.try_recv(), Err(mpsc::TryRecvError::Disconnected));
     assert!(trace.is_none());
     assert_eq!(framebuffer.last_completed_update_marker(), None);
@@ -268,6 +268,21 @@ fn the_initial_send_signals_after_writes_before_its_checked_completion_even_with
     assert_eq!(framebuffer.mapped_bytes_for_test(), &[0x00, 0xff, 0x7f, 0x7f]);
     let (late, _) = mpsc::channel();
     assert_eq!(signal.arm(late), Err(FirstFrameSignalError::Retired));
+}
+
+#[test]
+fn the_notice_reuses_the_existing_submit_clock_when_profiling() {
+    let framebuffer = Framebuffer::memory_for_test(1, 1, 1, 1, 0xff).unwrap();
+    let submission = framebuffer.fake_accept_update_for_test();
+    let (signal, receiver) = armed_first_frame_signal();
+    let (mut trace, _samples) = begin_recording();
+    trace.as_mut().unwrap().sample.stages.refresh_submit = Some(crate::PerformanceTiming {
+        finished_monotonic_ns: Some(412), ..Default::default()
+    });
+    super::finish_frame_submission(&framebuffer, &submission, &mut trace,
+        &signal, initial_frame(), false).unwrap();
+    assert_eq!(receiver.try_recv(), Ok(FirstFrameNotice { accepted_monotonic_ns: Some(412) }));
+    assert_eq!(framebuffer.last_completed_update_marker(), None);
 }
 
 #[test]
@@ -305,7 +320,7 @@ fn rejected_uncertain_and_stale_submissions_do_not_consume_first_frame_admission
         }
         super::finish_frame_submission(&framebuffer, &accepted, &mut None,
             &signal, initial_frame(), false).unwrap();
-        assert_eq!(receiver.try_recv(), Ok(()));
+        assert_eq!(receiver.try_recv(), Ok(FirstFrameNotice::default()));
         assert_eq!(framebuffer.last_completed_update_marker(), Some(1));
     }
 }
@@ -328,7 +343,7 @@ fn refresh_only_partial_inactive_sleep_and_later_frames_do_not_consume_admission
         assert_eq!(receiver.try_recv(), Err(mpsc::TryRecvError::Empty));
         super::finish_frame_submission(&framebuffer, &submission, &mut None,
             &signal, eligible, false).unwrap();
-        assert_eq!(receiver.try_recv(), Ok(()));
+        assert_eq!(receiver.try_recv(), Ok(FirstFrameNotice::default()));
         assert_eq!(framebuffer.last_completed_update_marker(), None);
     }
 }
