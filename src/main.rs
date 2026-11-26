@@ -106,10 +106,6 @@ struct Arguments {
     #[arg(long, hide = true, requires_all = ["kindle", "offline", "shelf_render_trace"],
         conflicts_with_all = ["demo", "screen", "lifecycle_trace", "prepared_handoff_trace", "serial_shelf_render", "capture", "capture_startup"])]
     startup_phases: Option<PathBuf>,
-    /// Compare cached-cover admission at the first accepted loading SEND.
-    #[cfg(all(feature = "kindle", target_os = "linux"))]
-    #[arg(long, hide = true, requires = "startup_phases")]
-    early_startup_covers: bool,
     /// Keep the native startup Shelf on the wait-before-render path for diagnostics.
     #[arg(long, hide = true, requires_all = ["kindle", "shelf_render_trace"])]
     serial_shelf_render: bool,
@@ -323,6 +319,31 @@ impl StartupWorkers {
                     self.delay_ms, self.cancelled.clone(), self.sender.clone(), self.wake.clone(),
                     self.trace_path.is_some());
             }
+        })
+    }
+
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    fn wait_for_initial_send(
+        &self,
+        lifetime: &mut StartupLifetime,
+        receiver: mpsc::Receiver<slint_backend_kindle::FirstFrameNotice>,
+    ) -> std::io::Result<()> {
+        let handle = self.handle.clone();
+        let workers = self.clone();
+        lifetime.wait_for_signal(receiver, move |notice| {
+            if let Some(ns) = notice.accepted_monotonic_ns {
+                startup_profile::mark_at("loading_send_accepted", Some(ns));
+            }
+            // The notice admits ordinary cached-cover work without a trace clock;
+            // metadata and the UI yield still gate attachment.
+            handle.spawn(async move {
+                workers.start();
+                if !workers.options.demo && !workers.cancelled.load(Ordering::Acquire)
+                    && let Some(covers) = workers.covers.as_ref()
+                {
+                    covers.release(CoverAdmission::InitialSend);
+                }
+            });
         })
     }
 }
@@ -780,23 +801,8 @@ fn run(arguments: Arguments) -> Result<()> {
             let (first_frame_sender, first_frame_receiver) = mpsc::channel();
             first_frame_signal.arm(first_frame_sender)
                 .context("Arm background preparation after the first native full SEND")?;
-            let early_handle = handle.clone();
-            let early_workers = startup_workers.clone();
-            let early_covers = arguments.early_startup_covers;
-            startup_lifetime.wait_for_signal(first_frame_receiver, move |notice| {
-                if let Some(ns) = notice.accepted_monotonic_ns {
-                    startup_profile::mark_at("loading_send_accepted", Some(ns));
-                }
-                // This small receiver thread only queues work onto the runtime.
-                early_handle.spawn(async move {
-                    early_workers.start();
-                    if early_covers && !early_workers.cancelled.load(Ordering::Acquire)
-                        && let Some(covers) = early_workers.covers.as_ref()
-                    {
-                        covers.release(CoverAdmission::InitialSend);
-                    }
-                });
-            }).context("Start the cancelable first-frame receiver")?;
+            startup_workers.wait_for_initial_send(&mut startup_lifetime, first_frame_receiver)
+                .context("Start the cancelable first-frame receiver")?;
         }
     }
     let trace_demo_ui = arguments.demo;
@@ -1905,17 +1911,70 @@ mod trace_tests {
     #[test]
     fn startup_phases_requires_an_ordinary_offline_native_shelf_run() {
         let prefix = ["bilicomics", "--kindle", "--offline", "--shelf-render-trace", "shelf.jsonl", "--startup-phases", "phases.json"];
-        assert!(!Arguments::try_parse_from(prefix).unwrap().early_startup_covers);
-        assert!(Arguments::try_parse_from(prefix.into_iter().chain(["--early-startup-covers"]))
-            .unwrap().early_startup_covers);
-        assert!(Arguments::try_parse_from(["bilicomics", "--kindle", "--early-startup-covers"]).is_err());
+        let arguments = Arguments::try_parse_from(prefix).unwrap();
+        assert_eq!(arguments.startup_phases.as_deref(), Some(Path::new("phases.json")));
+        assert!(Arguments::try_parse_from(prefix.into_iter().chain(["--early-startup-covers"])).is_err());
         for omitted in ["--kindle", "--offline"] {
             assert!(Arguments::try_parse_from(prefix.into_iter().filter(|arg| *arg != omitted)).is_err());
         }
+        assert!(Arguments::try_parse_from(["bilicomics", "--kindle", "--offline", "--startup-phases", "phases.json"]).is_err());
         for conflict in [&["--demo"][..], &["--screen", "shelf"], &["--lifecycle-trace", "other.jsonl"],
             &["--performance-trace", "other.jsonl"], &["--serial-shelf-render"], &["--capture", "screen.png"]] {
             assert!(Arguments::try_parse_from(prefix.into_iter().chain(conflict.iter().copied())).is_err());
         }
+    }
+
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    #[tokio::test(flavor = "current_thread")]
+    async fn native_startup_admits_covers_without_diagnostics_or_an_early_ui_turn() {
+        let arguments = Arguments::try_parse_from(["bilicomics", "--kindle", "--device", "scribe"]).unwrap();
+        assert!(arguments.startup_phases.is_none());
+        assert!(arguments.performance_trace.is_none());
+        assert!(arguments.shelf_render_trace.is_none());
+        assert!(!arguments.serial_startup_preparation);
+
+        let scratch = tempfile::tempdir().unwrap();
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let covers = CoverPreparationGate::default();
+        let mut ui_turn = StartupUiTurn::new(covers.clone());
+        let (sender, receiver) = mpsc::channel();
+        let workers = StartupWorkers {
+            admission: StartupAdmission::new(cancelled.clone()),
+            handle: tokio::runtime::Handle::current(),
+            options: AppOptions {
+                data_dir: scratch.path().join("data"), profile: arguments.device, demo: false, offline: true,
+                initial_screen: String::new(), landscape: false,
+            },
+            // Simulate JPEG absence without contacting a native device.
+            native: false,
+            delay_ms: 0,
+            cancelled: cancelled.clone(),
+            sender,
+            wake: RuntimeWake::new(slint::Weak::default()),
+            trace_path: None,
+            covers: Some(covers.clone()),
+        };
+        let (notice, first_frame_receiver) = mpsc::channel();
+        let mut lifetime = StartupLifetime::new(cancelled, covers.clone());
+        workers.wait_for_initial_send(&mut lifetime, first_frame_receiver).unwrap();
+        assert!(!workers.admission.started());
+        notice.send(slint_backend_kindle::FirstFrameNotice::default()).unwrap();
+        tokio::time::timeout(Duration::from_secs(5), async {
+            loop {
+                match receiver.try_recv() {
+                    Ok(StartupEvent::State(..)) => break,
+                    Ok(StartupEvent::Failed(error)) => panic!("Prepare isolated startup state: {error}"),
+                    Ok(_) | Err(mpsc::TryRecvError::Empty) => tokio::time::sleep(Duration::from_millis(5)).await,
+                    Err(mpsc::TryRecvError::Disconnected) => panic!("Startup worker disconnected"),
+                }
+            }
+        }).await.expect("The unprofiled SEND must admit and finish the bounded workers");
+        assert!(workers.admission.started());
+        assert!(!workers.start());
+        assert!(!ui_turn.has_yielded());
+        assert!(!covers.release(CoverAdmission::UiTurn));
+        ui_turn.yield_now();
+        assert!(ui_turn.has_yielded());
     }
 
     #[test]

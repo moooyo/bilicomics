@@ -1,6 +1,6 @@
 # Overlap cached-cover preparation with the initial loading update
 
-The [ordinary offline phase study](../startup-ordinary-phases-20261126/README.md#before-renderer-return) found that JPEG capability and ordinary metadata already overlap the first loading frame's driver wait. The cover worker cannot use the remaining part of that wait: it is gated on the first bootstrap UI turn. This study tests letting the same bounded cover work begin earlier, not changing the cover count, postponing the first loading frame, or removing a display barrier.
+The [ordinary offline phase study](../startup-ordinary-phases-20261126/README.md#before-renderer-return) found that JPEG capability and ordinary metadata already overlapped the first loading frame's driver wait. The old cover gate could not use the rest of that wait because it opened on the first bootstrap UI turn. This comparison tested earlier admission of the same bounded cover work, without changing the cover count, postponing startup feedback, or removing a display barrier.
 
 ## Frozen treatment and qualification
 
@@ -16,17 +16,31 @@ The same 74,983,432-byte ARMv7 ELF and byte-identical shipping JPEG worker serve
 
 The Linux application suite passed 918 library tests (seven ignored) and 28 binary tests, the Kindle backend passed 253 tests, and the launcher passed 155 tests. The 16 phase/mount/restore fixtures, 14 A/B controller fixtures, and five unchanged historical route replay fixtures passed independently. All 14 assembled physical archives and run-specific guards were checked against one set of exact inputs before the first physical visit, using byte comparisons rather than package hashes.
 
-## Schedule and decision
+## Frozen schedule and decision
 
-Use one A/B warmup followed by six adjacent pairs in order **AB, BA, AB, BA, AB, BA**. Each visit uses its own stage and exact owner/run/token lease; restore native and release before any analysis or next visit. Do not retry a clicked visit, replace an unavailable endpoint, or skip a case. Only pause at a closed pair for explicit coordination. The hardware result applies to first-generation Scribe, firmware 5.19.5; PW6 software coverage is not PW6 hardware acceptance.
+The study used one A/B warmup followed by six adjacent pairs in order **AB, BA, AB, BA, AB, BA**. Each visit used its own stage and exact owner/run/token lease; native recovery and release preceded analysis or the next visit. The protocol prohibited retrying a clicked visit, replacing an unavailable endpoint, or skipping a case, and allowed pauses only at a closed pair for explicit coordination. The hardware result applies to first-generation Scribe, firmware 5.19.5; PW6 software coverage is not PW6 hardware acceptance.
 
 - Primary: card-release bracket to the software renderer return of the first ordinary, unobscured populated Shelf (cover placeholders allowed). Report its accepted SEND and same-positive-marker driver completion independently. No optical claim is made.
-- Take the outward median of the **six paired** B−A brackets, not the difference of the arms' medians. To promote, require at least five clear primary wins and a paired median primary upper bound of **−100 ms or better**. All six measured pairs must independently show UI gate admission in A and initial SEND gate admission in B to support the mechanism. A B fallback remains assigned to B; do not discard it or reclassify it. Actual overlap between cover decoding and the measured loading-frame completion wait is attributed by intersecting the two same-boot spans, not inferred from different runs.
+- Take the outward median of the **six paired** B−A brackets, not the difference of the arms' medians. To promote, require at least five clear primary wins and a paired median primary upper bound of **−100 ms or better**. All six measured pairs must independently show UI gate admission in A and initial SEND gate admission in B to support the mechanism. The controller also verifies the assigned gate source in both warmups. A B fallback remains assigned to B; do not discard it or reclassify it. Actual overlap between cover decoding and the measured loading-frame completion wait is attributed by intersecting the two same-boot spans, not inferred from different runs.
 - Keep the ordinary path unchanged if the acceptance gate fails. A favorable software result, a faster loading-page draw or an earlier accepted SEND alone cannot qualify the optimization. Validate the promoted no-diagnostic official development package separately before installation; neither experiment arm is a daily installation.
 
-## Paused campaign
+## Completed six-pair campaign
 
-The active comparison is intentionally paused after the first complete measured pair. Both warmups and that pair returned their exact leases. The first pair's renderer-return B−A was −272.161 to −268.748 ms; this is not a promotion decision. See the [November 26 handoff](../../HANDOFF_STARTUP_20261126.md) for all three endpoints, the saved host state, and the remaining five pairs.
+The [sanitized result](completed-result.json) is a fresh, complete run on one first-generation Scribe (5.19.5), not a continuation or a pooling of earlier samples. The detached host terminal kept the controller running past the 30-minute read-only observer timeout. All 14 visits returned native control, removed their temporary device payloads and private mounts, and released their exact leases. Two warmups were excluded. The closed report replayed byte for byte.
+
+| Endpoint from ordinary Library card release | Paired median B−A, outward (ms) | Clear B wins |
+| --- | ---: | ---: |
+| First normal Shelf renderer return | −131.655 to −128.908 | 5/6 |
+| Accepted SEND for that Shelf | −150.111 to −147.543 | 5/6 |
+| Driver completion of the same marker | −150.752 to −148.185 | 5/6 |
+
+Every A visit admitted from `ui` and every B visit from `send`, including warmups. In measured B visits, cover decoding overlapped the first loading frame's checked completion wait by 170.313–248.225 ms (0 ms in A). This is an observed intersection, not an estimate of removable time. B was slower in the first pair by 167.272–169.959 ms at the primary endpoint. The series met the predeclared gate, but does not show a win on every launch, optical visibility, a live-account result, or PW6 hardware performance.
+
+The approved production change removes the experiment-only switch and admits cached covers after the validated initial SEND without requiring diagnostic timing. The original UI turn still opens the gate if it wins, and the UI still yields before consuming prepared state. To reproduce the original A/B or replay its evidence, use the [frozen controller](ab.py) with the checkpointed diagnostic executable at `3fef9d6`, **not** a production build of the promoted default. This comparison did not install or retime the final development package.
+
+## Earlier partial campaigns
+
+The previous intentional pause ended after the first measured pair, at −272.161 to −268.748 ms to renderer return. A separate attempt lost its SSH-owned terminal at the observer deadline, closing 11 visits (including two warmups and only four complete pairs). That attempt returned all 11 exact leases and retired its three unopened payloads. None of these visits contribute to the completed campaign.
 
 ## Interrupted campaign and restart
 

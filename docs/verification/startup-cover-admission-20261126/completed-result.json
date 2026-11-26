@@ -1,0 +1,85 @@
+{
+  "schema": "bili-ordinary-offline-cover-admission-ab-summary-v1",
+  "checkpoint": "3fef9d6",
+  "scope": {
+    "device": "Scribe 2022",
+    "firmware": "5.19.5",
+    "origin": "ordinary native Library card release",
+    "shelf": "populated, synthetic account, offline, non-demo",
+    "optical_measurement": false
+  },
+  "frozen_treatment": {
+    "shared_arm_binary_bytes": 74983432,
+    "A": "first bootstrap UI turn",
+    "B": "first validated full-window loading SEND, with UI-turn fallback"
+  },
+  "warmups_excluded": 2,
+  "qualified_visits": 14,
+  "exact_native_returns_and_lease_releases": 14,
+  "matched_assigned_gate_source_visits": 14,
+  "candidate_ui_fallback_visits": [],
+  "measured_control_decode_overlap_ns": [0, 0, 0, 0, 0, 0],
+  "primary_required_clear_wins": 5,
+  "primary_required_median_upper_bound_ns": -100000000,
+  "comparison_gate_passed": true,
+  "paired_median_b_minus_a_ns": {
+    "renderer_return": [-131654577, -128908345],
+    "accepted_send": [-150110539, -147543692],
+    "same_marker_driver_completion": [-150751962, -148185115]
+  },
+  "clear_candidate_wins": {
+    "renderer_return": 5,
+    "accepted_send": 5,
+    "same_marker_driver_completion": 5
+  },
+  "pairs": [
+    {
+      "pair": 1,
+      "order": "AB",
+      "renderer_return_b_minus_a_ns": [167272615, 169958384],
+      "accepted_send_b_minus_a_ns": [179642769, 182328538],
+      "same_marker_driver_completion_b_minus_a_ns": [173611154, 176296923],
+      "candidate_decode_overlap_ns": 192335308
+    },
+    {
+      "pair": 2,
+      "order": "BA",
+      "renderer_return_b_minus_a_ns": [-160737615, -157891922],
+      "accepted_send_b_minus_a_ns": [-166750924, -163905231],
+      "same_marker_driver_completion_b_minus_a_ns": [-166726923, -163881230],
+      "candidate_decode_overlap_ns": 204797384
+    },
+    {
+      "pair": 3,
+      "order": "AB",
+      "renderer_return_b_minus_a_ns": [-102571539, -99924769],
+      "accepted_send_b_minus_a_ns": [-117223770, -114577000],
+      "same_marker_driver_completion_b_minus_a_ns": [-119291616, -116644846],
+      "candidate_decode_overlap_ns": 192114846
+    },
+    {
+      "pair": 4,
+      "order": "BA",
+      "renderer_return_b_minus_a_ns": [-508214385, -504774769],
+      "accepted_send_b_minus_a_ns": [-487116000, -483676384],
+      "same_marker_driver_completion_b_minus_a_ns": [-497915077, -494475461],
+      "candidate_decode_overlap_ns": 170313769
+    },
+    {
+      "pair": 5,
+      "order": "AB",
+      "renderer_return_b_minus_a_ns": [-367795001, -364816308],
+      "accepted_send_b_minus_a_ns": [-337971462, -334992769],
+      "same_marker_driver_completion_b_minus_a_ns": [-351239155, -348260462],
+      "candidate_decode_overlap_ns": 225311231
+    },
+    {
+      "pair": 6,
+      "order": "BA",
+      "renderer_return_b_minus_a_ns": [-99910846, -97622846],
+      "accepted_send_b_minus_a_ns": [-133470154, -131182154],
+      "same_marker_driver_completion_b_minus_a_ns": [-134777000, -132489000],
+      "candidate_decode_overlap_ns": 248225000
+    }
+  ]
+}
