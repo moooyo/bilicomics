@@ -2,18 +2,37 @@
 set -eu
 
 ROOT=${1:?Supply the isolated remote root}
+shift
+case "$#:${1-}" in
+    0:) MODE=manifest ;;
+    1:--byte-verified) MODE=byte-verified ;;
+    *) printf 'Usage: %s ROOT [--byte-verified]\n' "$0" >&2; exit 64 ;;
+esac
 if [ -f /root/.cargo/env ]; then . /root/.cargo/env; fi
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT/target}"
 export CARGO_BUILD_JOBS="${CARGO_BUILD_JOBS:-12}"
 cd "$ROOT/app"
 VERSION=$(python3 -c 'import pathlib,tomllib; print(tomllib.loads(pathlib.Path("Cargo.toml").read_text())["package"]["version"])')
 case "$VERSION" in *[!A-Za-z0-9._-]*|'') printf '%s\n' 'Invalid package version.' >&2; exit 1 ;; esac
+STAGING="$ROOT/kindle-package"
+RELEASE="$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release"
+ARCHIVE="$ROOT/app/artifacts/verification/bilicomics-kindle-$VERSION-dev.zip"
+BYTE_RECEIPT="${ARCHIVE%.zip}.byte-verification.json"
 mkdir -p artifacts/verification
+if [ "$MODE" = byte-verified ]; then
+    # Do not let a previous build's staging or sidecar describe this archive.
+    for path in "$ARCHIVE" "${ARCHIVE%.zip}.manifest.json" "$BYTE_RECEIPT"; do
+        if [ -e "$path" ] || [ -L "$path" ]; then
+            printf 'Package output already exists: %s\n' "$path" >&2
+            exit 1
+        fi
+    done
+    mkdir "$STAGING"
+fi
 cargo zigbuild --locked --offline --release --target armv7-unknown-linux-musleabihf \
     --no-default-features --features kindle --bins > artifacts/verification/kindle-build.log 2>&1 || {
     cat artifacts/verification/kindle-build.log; exit 1;
 }
-STAGING="$ROOT/kindle-package"
 mkdir -p "$STAGING/bilicomics/app" "$STAGING/bilicomics/assets" "$STAGING/bilicomics/data" "$STAGING/documents"
 mkdir -p "$STAGING/notices/backend" "$STAGING/notices/fonts" "$STAGING/notices/pinyin" "$STAGING/notices/protocol"
 mkdir -p "$STAGING/notices/jpeg"
@@ -23,8 +42,8 @@ mkdir -p "$STAGING/notices/spatial-dither"
 mkdir -p "$STAGING/notices/aidoku-startup"
 mkdir -p "$STAGING/notices/aidoku-startup-sequence"
 mkdir -p "$STAGING/notices/aidoku-native-library-entry"
-cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/bilicomics" "$STAGING/bilicomics/app/bilicomics"
-cp "$CARGO_TARGET_DIR/armv7-unknown-linux-musleabihf/release/kindle-jpeg-worker" "$STAGING/bilicomics/app/kindle-jpeg-worker"
+cp "$RELEASE/bilicomics" "$STAGING/bilicomics/app/bilicomics"
+cp "$RELEASE/kindle-jpeg-worker" "$STAGING/bilicomics/app/kindle-jpeg-worker"
 cp packaging/kindle/launch.sh "$STAGING/bilicomics/launch.sh"
 install -m 644 packaging/kindle/bilicomics-library-cover.png "$STAGING/bilicomics/assets/bilicomics-library-cover.png"
 cp packaging/kindle/document-launcher.sh "$STAGING/documents/bilicomics.sh"
@@ -64,45 +83,24 @@ cp docs/research/aidoku-native-library-entry-20261117/LICENSE.AIDOKU \
     docs/research/aidoku-native-library-entry-20261117/UPSTREAM_FILES.json "$STAGING/notices/aidoku-native-library-entry/"
 chmod 755 "$STAGING/bilicomics/app/bilicomics" "$STAGING/bilicomics/app/kindle-jpeg-worker" "$STAGING/bilicomics/launch.sh" \
     "$STAGING/documents/bilicomics.sh"
-python3 - "$STAGING" "$ROOT/app/artifacts/verification/bilicomics-kindle-$VERSION-dev.zip" <<'PY'
-import hashlib
+PYTHONDONTWRITEBYTECODE=1 python3 - "$STAGING" "$ARCHIVE" "$MODE" <<'PY'
 import json
 import pathlib
 import sys
 import zipfile
 
+sys.path.insert(0, "scripts/verification")
+from verify_package import ALLOWED_FILES, FIXED_TIMESTAMP
+
 root = pathlib.Path(sys.argv[1])
 output = pathlib.Path(sys.argv[2])
-manifest = []
-allowed = [
-    "README.md", "THIRD_PARTY_NOTICES.md", "bilicomics/app/bilicomics", "bilicomics/app/kindle-jpeg-worker",
-    "bilicomics/launch.sh", "documents/bilicomics.sh", "bilicomics/assets/bilicomics-library-cover.png",
-    "bilicomics/data/device-allowlist", "bilicomics/data/device-profile",
-    "notices/Cargo.lock", "notices/backend/LICENSE-MIT", "notices/backend/LICENSE-APACHE",
-    "notices/backend/UPSTREAM_REVISION", "notices/backend/PATCHES.md",
-    "notices/fonts/OFL.txt", "notices/fonts/NotoSansCJK-LICENSE.txt",
-    "notices/fonts/NotoSerifCJK-LICENSE.txt", "notices/fonts/NOTICES.txt",
-    "notices/fonts/startup-manifest.json",
-    "notices/pinyin/LICENSE-AOSP.txt", "notices/pinyin/README.md",
-    "notices/protocol/README.md", "notices/protocol/wasm3-LICENSE",
-    "notices/protocol/cjson-LICENSE", "notices/protocol/mbedtls-LICENSE",
-    "notices/jpeg/LICENSE-APACHE", "notices/jpeg/LICENSE-MIT", "notices/jpeg/LICENSE-ZLIB",
-    "notices/jpeg/UPSTREAM.md", "notices/jpeg/PATCHES.md", "notices/jpeg/0001-strict-entropy-completeness.patch",
-    "notices/image-triangle/LICENSE-MIT", "notices/image-triangle/LICENSE-APACHE",
-    "notices/image-triangle/README.md", "notices/image-triangle/SHA256SUMS",
-    "notices/aidoku-native-media/LICENSE-GPL-3.0-or-later", "notices/aidoku-native-media/README.md",
-    "notices/aidoku-native-media/UPSTREAM_FILES.json",
-    "notices/spatial-dither/LICENSE.AIDOKU", "notices/spatial-dither/README.md",
-    "notices/spatial-dither/UPSTREAM_FILES.json",
-    "notices/aidoku-startup/LICENSE.AIDOKU", "notices/aidoku-startup/README.md",
-    "notices/aidoku-startup/UPSTREAM_FILES.json",
-    "notices/aidoku-startup-sequence/LICENSE.AIDOKU", "notices/aidoku-startup-sequence/README.md",
-    "notices/aidoku-startup-sequence/UPSTREAM_FILES.json",
-    "notices/aidoku-native-library-entry/LICENSE.AIDOKU", "notices/aidoku-native-library-entry/README.md",
-    "notices/aidoku-native-library-entry/UPSTREAM_FILES.json",
-]
-with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
-    for relative in sorted(allowed):
+write_manifest = sys.argv[3] == "manifest"
+if write_manifest:
+    import hashlib
+    manifest = []
+
+with zipfile.ZipFile(output, "w" if write_manifest else "x", zipfile.ZIP_DEFLATED) as archive:
+    for relative in sorted(ALLOWED_FILES):
         path = root / relative
         if not path.is_file() or path.is_symlink():
             raise RuntimeError(f"Missing or unsafe package input: {relative}")
@@ -112,10 +110,19 @@ with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
             data = data.replace(b"\r\n", b"\n")
             if not data.startswith(b"#!/bin/sh\n") or not data.endswith(b"\n") or b"\r" in data or b"\0" in data:
                 raise RuntimeError(f"Invalid POSIX shell package input: {relative}")
-        info = zipfile.ZipInfo(relative, date_time=(1980, 1, 1, 0, 0, 0))
+        info = zipfile.ZipInfo(relative, date_time=FIXED_TIMESTAMP)
         info.compress_type = zipfile.ZIP_DEFLATED
         info.external_attr = (path.stat().st_mode & 0xFFFF) << 16
         archive.writestr(info, data)
-        manifest.append({"path": relative, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
-output.with_suffix(".manifest.json").write_text(json.dumps({"development_candidate": True, "device_verified": False, "files": manifest}, indent=2) + "\n")
+        if write_manifest:
+            manifest.append({"path": relative, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
+if write_manifest:
+    output.with_suffix(".manifest.json").write_text(json.dumps({"development_candidate": True, "device_verified": False, "files": manifest}, indent=2) + "\n")
 PY
+if [ "$MODE" = byte-verified ]; then
+    python3 -B scripts/verification/verify_dev_payload.py --archive "$ARCHIVE" \
+        --app-root "$ROOT/app" --staging "$STAGING" --release-dir "$RELEASE" --output "$BYTE_RECEIPT" || {
+        rm -f "$ARCHIVE"
+        exit 1
+    }
+fi

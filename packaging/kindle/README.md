@@ -31,6 +31,8 @@ Executables belong under `bilicomics/app/`; the canonical launcher belongs under
 
 Keep the original backend licenses, upstream revision, and patch history in the staged notices. Preserve the AOSP PinyinIME notice with the dictionary. Font and other resource notices must also accompany any resources actually bundled by the application.
 
+For a byte-only development build, export the chosen `main` revision into a fresh private workspace on `test-env`, with the source under `app/`. Run `/opt/kindle-toolchain/ubuntu-run --build WORKSPACE sh /work/app/scripts/build-kindle.sh /work --byte-verified` with bounded Cargo concurrency. This creates the same development ZIP and an independent `.byte-verification.json` receipt rather than a digest manifest. The verifier reads every member through CRC validation and compares it to its selected build or source bytes. This receipt does not admit a device, authorize installation, or substitute for a firmware/runtime check.
+
 `BILICOMICS_HOME` may override `/mnt/us/bilicomics` with an absolute path. The launcher invokes:
 
 ```sh
