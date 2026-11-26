@@ -1,0 +1,1010 @@
+{
+  "schema": "bili-cover-probe-overlap-v1-results",
+  "tested_schedule": [
+    {
+      "pair": 0,
+      "arm": "A",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 0,
+      "arm": "B",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 1,
+      "arm": "A",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 2,
+      "arm": "B",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 2,
+      "arm": "A",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 3,
+      "arm": "A",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 3,
+      "arm": "B",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 4,
+      "arm": "B",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 4,
+      "arm": "A",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 5,
+      "arm": "A",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 5,
+      "arm": "B",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 6,
+      "arm": "B",
+      "qualified": true,
+      "released": true
+    },
+    {
+      "pair": 6,
+      "arm": "A",
+      "qualified": true,
+      "released": true
+    }
+  ],
+  "visits": [
+    {
+      "pair": 0,
+      "arm": "A",
+      "renderer_return_interval_ns": [
+        6753058231,
+        6754648000
+      ],
+      "accepted_send_interval_ns": [
+        6812463231,
+        6814053000
+      ],
+      "driver_completion_interval_ns": [
+        7181990385,
+        7183580154
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          447146769,
+          448736538
+        ],
+        "shim_to_preinvoke_ns": 3596635078,
+        "preinvoke_to_main_ns": 25924615,
+        "main_to_window_shown_ns": 177035154,
+        "window_to_worker_admission_ns": 245307000,
+        "worker_admission_to_state_start_ns": 16551846,
+        "state_metadata_preparation_ns": 1329403385,
+        "metadata_to_prepared_state_ns": 156984077,
+        "prepared_to_ui_attached_ns": 2725923,
+        "attached_to_first_shelf_render_ns": 755344384,
+        "render_to_accepted_send_ns": 59405000,
+        "send_to_same_marker_completion_ns": 369527154
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2050,
+        "observer_arm_to_cover_end": 3000,
+        "cover_probe": 180,
+        "settled_to_takeover": 990,
+        "native_display_capture": 530,
+        "native_portrait_publish": 240,
+        "native_takeover": 260
+      },
+      "probe_placement": "after_portrait_publication",
+      "probe_finished_before_display_sample": false,
+      "probe_finished_before_minimum_settle_deadline": false,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 0,
+      "arm": "B",
+      "renderer_return_interval_ns": [
+        5712471308,
+        5713733846
+      ],
+      "accepted_send_interval_ns": [
+        5750995462,
+        5752258000
+      ],
+      "driver_completion_interval_ns": [
+        6116549616,
+        6117812154
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          364654077,
+          365916615
+        ],
+        "shim_to_preinvoke_ns": 3102083692,
+        "preinvoke_to_main_ns": 16593385,
+        "main_to_window_shown_ns": 71535000,
+        "window_to_worker_admission_ns": 103767308,
+        "worker_admission_to_state_start_ns": 3462231,
+        "state_metadata_preparation_ns": 1168287230,
+        "metadata_to_prepared_state_ns": 183082923,
+        "prepared_to_ui_attached_ns": 1133539,
+        "attached_to_first_shelf_render_ns": 697871923,
+        "render_to_accepted_send_ns": 38524154,
+        "send_to_same_marker_completion_ns": 365554154
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2100,
+        "observer_arm_to_cover_end": 320,
+        "cover_probe": 160,
+        "settled_to_takeover": 630,
+        "native_display_capture": 420,
+        "native_portrait_publish": 170,
+        "native_takeover": 90
+      },
+      "probe_placement": "during_settle",
+      "probe_finished_before_display_sample": true,
+      "probe_finished_before_minimum_settle_deadline": true,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 1,
+      "arm": "A",
+      "renderer_return_interval_ns": [
+        6429867308,
+        6431195154
+      ],
+      "accepted_send_interval_ns": [
+        6468587000,
+        6469914846
+      ],
+      "driver_completion_interval_ns": [
+        6834146847,
+        6835474693
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          434122769,
+          435450615
+        ],
+        "shim_to_preinvoke_ns": 3290114924,
+        "preinvoke_to_main_ns": 29092307,
+        "main_to_window_shown_ns": 182211693,
+        "window_to_worker_admission_ns": 253677846,
+        "worker_admission_to_state_start_ns": 11061154,
+        "state_metadata_preparation_ns": 1324835384,
+        "metadata_to_prepared_state_ns": 117030231,
+        "prepared_to_ui_attached_ns": 2228385,
+        "attached_to_first_shelf_render_ns": 785492615,
+        "render_to_accepted_send_ns": 38719692,
+        "send_to_same_marker_completion_ns": 365559847
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2080,
+        "observer_arm_to_cover_end": 2900,
+        "cover_probe": 150,
+        "settled_to_takeover": 850,
+        "native_display_capture": 470,
+        "native_portrait_publish": 190,
+        "native_takeover": 120
+      },
+      "probe_placement": "after_portrait_publication",
+      "probe_finished_before_display_sample": false,
+      "probe_finished_before_minimum_settle_deadline": false,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 1,
+      "arm": "B",
+      "renderer_return_interval_ns": [
+        6273076308,
+        6274437539
+      ],
+      "accepted_send_interval_ns": [
+        6322383385,
+        6323744616
+      ],
+      "driver_completion_interval_ns": [
+        6686125000,
+        6687486231
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          418536230,
+          419897461
+        ],
+        "shim_to_preinvoke_ns": 3145597847,
+        "preinvoke_to_main_ns": 17780692,
+        "main_to_window_shown_ns": 86089538,
+        "window_to_worker_admission_ns": 240445770,
+        "worker_admission_to_state_start_ns": 5861769,
+        "state_metadata_preparation_ns": 1289962615,
+        "metadata_to_prepared_state_ns": 136085000,
+        "prepared_to_ui_attached_ns": 1128770,
+        "attached_to_first_shelf_render_ns": 931588077,
+        "render_to_accepted_send_ns": 49307077,
+        "send_to_same_marker_completion_ns": 363741615
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2060,
+        "observer_arm_to_cover_end": 320,
+        "cover_probe": 190,
+        "settled_to_takeover": 710,
+        "native_display_capture": 510,
+        "native_portrait_publish": 170,
+        "native_takeover": 100
+      },
+      "probe_placement": "during_settle",
+      "probe_finished_before_display_sample": true,
+      "probe_finished_before_minimum_settle_deadline": true,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 2,
+      "arm": "B",
+      "renderer_return_interval_ns": [
+        5844756616,
+        5845994231
+      ],
+      "accepted_send_interval_ns": [
+        5887334693,
+        5888572308
+      ],
+      "driver_completion_interval_ns": [
+        6260633308,
+        6261870923
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          387119923,
+          388357538
+        ],
+        "shim_to_preinvoke_ns": 3134506847,
+        "preinvoke_to_main_ns": 16612154,
+        "main_to_window_shown_ns": 73767923,
+        "window_to_worker_admission_ns": 108481384,
+        "worker_admission_to_state_start_ns": 2378693,
+        "state_metadata_preparation_ns": 1296841615,
+        "metadata_to_prepared_state_ns": 155032462,
+        "prepared_to_ui_attached_ns": 1043461,
+        "attached_to_first_shelf_render_ns": 668972154,
+        "render_to_accepted_send_ns": 42578077,
+        "send_to_same_marker_completion_ns": 373298615
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2080,
+        "observer_arm_to_cover_end": 270,
+        "cover_probe": 150,
+        "settled_to_takeover": 640,
+        "native_display_capture": 430,
+        "native_portrait_publish": 180,
+        "native_takeover": 90
+      },
+      "probe_placement": "during_settle",
+      "probe_finished_before_display_sample": true,
+      "probe_finished_before_minimum_settle_deadline": true,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 2,
+      "arm": "A",
+      "renderer_return_interval_ns": [
+        6105689462,
+        6106831155
+      ],
+      "accepted_send_interval_ns": [
+        6175535615,
+        6176677308
+      ],
+      "driver_completion_interval_ns": [
+        6541480154,
+        6542621847
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          452213153,
+          453354846
+        ],
+        "shim_to_preinvoke_ns": 3253638847,
+        "preinvoke_to_main_ns": 12416769,
+        "main_to_window_shown_ns": 136262308,
+        "window_to_worker_admission_ns": 199245692,
+        "worker_admission_to_state_start_ns": 5599385,
+        "state_metadata_preparation_ns": 1147439615,
+        "metadata_to_prepared_state_ns": 200346385,
+        "prepared_to_ui_attached_ns": 3585307,
+        "attached_to_first_shelf_render_ns": 694942001,
+        "render_to_accepted_send_ns": 69846153,
+        "send_to_same_marker_completion_ns": 365944539
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2080,
+        "observer_arm_to_cover_end": 2890,
+        "cover_probe": 150,
+        "settled_to_takeover": 840,
+        "native_display_capture": 490,
+        "native_portrait_publish": 170,
+        "native_takeover": 100
+      },
+      "probe_placement": "after_portrait_publication",
+      "probe_finished_before_display_sample": false,
+      "probe_finished_before_minimum_settle_deadline": false,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 3,
+      "arm": "A",
+      "renderer_return_interval_ns": [
+        6389064924,
+        6390290847
+      ],
+      "accepted_send_interval_ns": [
+        6438807616,
+        6440033539
+      ],
+      "driver_completion_interval_ns": [
+        6803237539,
+        6804463462
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          429439231,
+          430665154
+        ],
+        "shim_to_preinvoke_ns": 3345292847,
+        "preinvoke_to_main_ns": 27846230,
+        "main_to_window_shown_ns": 193501154,
+        "window_to_worker_admission_ns": 240755616,
+        "worker_admission_to_state_start_ns": 7063615,
+        "state_metadata_preparation_ns": 1193071385,
+        "metadata_to_prepared_state_ns": 209156000,
+        "prepared_to_ui_attached_ns": 1134615,
+        "attached_to_first_shelf_render_ns": 741804231,
+        "render_to_accepted_send_ns": 49742692,
+        "send_to_same_marker_completion_ns": 364429923
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2140,
+        "observer_arm_to_cover_end": 2930,
+        "cover_probe": 150,
+        "settled_to_takeover": 810,
+        "native_display_capture": 460,
+        "native_portrait_publish": 180,
+        "native_takeover": 110
+      },
+      "probe_placement": "after_portrait_publication",
+      "probe_finished_before_display_sample": false,
+      "probe_finished_before_minimum_settle_deadline": false,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 3,
+      "arm": "B",
+      "renderer_return_interval_ns": [
+        6140044154,
+        6141395231
+      ],
+      "accepted_send_interval_ns": [
+        6189140231,
+        6190491308
+      ],
+      "driver_completion_interval_ns": [
+        6554894846,
+        6556245923
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          447728154,
+          449079231
+        ],
+        "shim_to_preinvoke_ns": 3187527923,
+        "preinvoke_to_main_ns": 17549692,
+        "main_to_window_shown_ns": 115078385,
+        "window_to_worker_admission_ns": 238672692,
+        "worker_admission_to_state_start_ns": 11605539,
+        "state_metadata_preparation_ns": 1272437769,
+        "metadata_to_prepared_state_ns": 112041077,
+        "prepared_to_ui_attached_ns": 1073923,
+        "attached_to_first_shelf_render_ns": 736329000,
+        "render_to_accepted_send_ns": 49096077,
+        "send_to_same_marker_completion_ns": 365754615
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2130,
+        "observer_arm_to_cover_end": 280,
+        "cover_probe": 150,
+        "settled_to_takeover": 710,
+        "native_display_capture": 510,
+        "native_portrait_publish": 170,
+        "native_takeover": 100
+      },
+      "probe_placement": "during_settle",
+      "probe_finished_before_display_sample": true,
+      "probe_finished_before_minimum_settle_deadline": true,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 4,
+      "arm": "B",
+      "renderer_return_interval_ns": [
+        5831068462,
+        5832451847
+      ],
+      "accepted_send_interval_ns": [
+        5864880847,
+        5866264232
+      ],
+      "driver_completion_interval_ns": [
+        6230546847,
+        6231930232
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          376853462,
+          378236847
+        ],
+        "shim_to_preinvoke_ns": 3114278000,
+        "preinvoke_to_main_ns": 17520461,
+        "main_to_window_shown_ns": 70949077,
+        "window_to_worker_admission_ns": 109458154,
+        "worker_admission_to_state_start_ns": 3723308,
+        "state_metadata_preparation_ns": 1213752846,
+        "metadata_to_prepared_state_ns": 161065846,
+        "prepared_to_ui_attached_ns": 1135308,
+        "attached_to_first_shelf_render_ns": 762332000,
+        "render_to_accepted_send_ns": 33812385,
+        "send_to_same_marker_completion_ns": 365666000
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2070,
+        "observer_arm_to_cover_end": 300,
+        "cover_probe": 150,
+        "settled_to_takeover": 620,
+        "native_display_capture": 420,
+        "native_portrait_publish": 170,
+        "native_takeover": 90
+      },
+      "probe_placement": "during_settle",
+      "probe_finished_before_display_sample": true,
+      "probe_finished_before_minimum_settle_deadline": true,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 4,
+      "arm": "A",
+      "renderer_return_interval_ns": [
+        5990237770,
+        5991726385
+      ],
+      "accepted_send_interval_ns": [
+        6022525693,
+        6024014308
+      ],
+      "driver_completion_interval_ns": [
+        6388006770,
+        6389495385
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          426338462,
+          427827077
+        ],
+        "shim_to_preinvoke_ns": 3235051692,
+        "preinvoke_to_main_ns": 16881616,
+        "main_to_window_shown_ns": 89508461,
+        "window_to_worker_admission_ns": 116406539,
+        "worker_admission_to_state_start_ns": 12257153,
+        "state_metadata_preparation_ns": 1167967770,
+        "metadata_to_prepared_state_ns": 191269077,
+        "prepared_to_ui_attached_ns": 1117077,
+        "attached_to_first_shelf_render_ns": 733439923,
+        "render_to_accepted_send_ns": 32287923,
+        "send_to_same_marker_completion_ns": 365481077
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2090,
+        "observer_arm_to_cover_end": 2860,
+        "cover_probe": 140,
+        "settled_to_takeover": 800,
+        "native_display_capture": 450,
+        "native_portrait_publish": 180,
+        "native_takeover": 100
+      },
+      "probe_placement": "after_portrait_publication",
+      "probe_finished_before_display_sample": false,
+      "probe_finished_before_minimum_settle_deadline": false,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 5,
+      "arm": "A",
+      "renderer_return_interval_ns": [
+        6442159231,
+        6443399924
+      ],
+      "accepted_send_interval_ns": [
+        6487294154,
+        6488534847
+      ],
+      "driver_completion_interval_ns": [
+        6852723769,
+        6853964462
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          406166692,
+          407407385
+        ],
+        "shim_to_preinvoke_ns": 3337603923,
+        "preinvoke_to_main_ns": 19676693,
+        "main_to_window_shown_ns": 137919000,
+        "window_to_worker_admission_ns": 220635000,
+        "worker_admission_to_state_start_ns": 3023230,
+        "state_metadata_preparation_ns": 1429181693,
+        "metadata_to_prepared_state_ns": 128271461,
+        "prepared_to_ui_attached_ns": 1168154,
+        "attached_to_first_shelf_render_ns": 758513385,
+        "render_to_accepted_send_ns": 45134923,
+        "send_to_same_marker_completion_ns": 365429615
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2080,
+        "observer_arm_to_cover_end": 2900,
+        "cover_probe": 150,
+        "settled_to_takeover": 850,
+        "native_display_capture": 500,
+        "native_portrait_publish": 170,
+        "native_takeover": 110
+      },
+      "probe_placement": "after_portrait_publication",
+      "probe_finished_before_display_sample": false,
+      "probe_finished_before_minimum_settle_deadline": false,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 5,
+      "arm": "B",
+      "renderer_return_interval_ns": [
+        6148840154,
+        6150749693
+      ],
+      "accepted_send_interval_ns": [
+        6187440539,
+        6189350078
+      ],
+      "driver_completion_interval_ns": [
+        6552888077,
+        6554797616
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          416342538,
+          418252077
+        ],
+        "shim_to_preinvoke_ns": 3187849231,
+        "preinvoke_to_main_ns": 16712539,
+        "main_to_window_shown_ns": 73815154,
+        "window_to_worker_admission_ns": 120185384,
+        "worker_admission_to_state_start_ns": 10701308,
+        "state_metadata_preparation_ns": 1312511154,
+        "metadata_to_prepared_state_ns": 272568231,
+        "prepared_to_ui_attached_ns": 1924923,
+        "attached_to_first_shelf_render_ns": 736229692,
+        "render_to_accepted_send_ns": 38600385,
+        "send_to_same_marker_completion_ns": 365447538
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2090,
+        "observer_arm_to_cover_end": 290,
+        "cover_probe": 150,
+        "settled_to_takeover": 680,
+        "native_display_capture": 480,
+        "native_portrait_publish": 180,
+        "native_takeover": 90
+      },
+      "probe_placement": "during_settle",
+      "probe_finished_before_display_sample": true,
+      "probe_finished_before_minimum_settle_deadline": true,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 6,
+      "arm": "B",
+      "renderer_return_interval_ns": [
+        6012616000,
+        6014602385
+      ],
+      "accepted_send_interval_ns": [
+        6045871231,
+        6047857616
+      ],
+      "driver_completion_interval_ns": [
+        6411523538,
+        6413509923
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          427816000,
+          429802385
+        ],
+        "shim_to_preinvoke_ns": 3186289307,
+        "preinvoke_to_main_ns": 15886770,
+        "main_to_window_shown_ns": 72863230,
+        "window_to_worker_admission_ns": 125752616,
+        "worker_admission_to_state_start_ns": 4447154,
+        "state_metadata_preparation_ns": 1201207231,
+        "metadata_to_prepared_state_ns": 193926307,
+        "prepared_to_ui_attached_ns": 1257923,
+        "attached_to_first_shelf_render_ns": 783169462,
+        "render_to_accepted_send_ns": 33255231,
+        "send_to_same_marker_completion_ns": 365652307
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2080,
+        "observer_arm_to_cover_end": 310,
+        "cover_probe": 160,
+        "settled_to_takeover": 700,
+        "native_display_capture": 480,
+        "native_portrait_publish": 200,
+        "native_takeover": 90
+      },
+      "probe_placement": "during_settle",
+      "probe_finished_before_display_sample": true,
+      "probe_finished_before_minimum_settle_deadline": true,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    },
+    {
+      "pair": 6,
+      "arm": "A",
+      "renderer_return_interval_ns": [
+        6242338077,
+        6243281462
+      ],
+      "accepted_send_interval_ns": [
+        6299369769,
+        6300313154
+      ],
+      "driver_completion_interval_ns": [
+        6664973769,
+        6665917154
+      ],
+      "phase_durations": {
+        "release_to_shim_ns": [
+          444809000,
+          445752385
+        ],
+        "shim_to_preinvoke_ns": 3290460539,
+        "preinvoke_to_main_ns": 12285153,
+        "main_to_window_shown_ns": 154289693,
+        "window_to_worker_admission_ns": 250290077,
+        "worker_admission_to_state_start_ns": 9677077,
+        "state_metadata_preparation_ns": 1238526384,
+        "metadata_to_prepared_state_ns": 116182846,
+        "prepared_to_ui_attached_ns": 1224616,
+        "attached_to_first_shelf_render_ns": 724592692,
+        "render_to_accepted_send_ns": 57031692,
+        "send_to_same_marker_completion_ns": 365604000
+      },
+      "launcher_uptime_intervals_ms": {
+        "observer_arm_to_settle": 2110,
+        "observer_arm_to_cover_end": 2920,
+        "cover_probe": 180,
+        "settled_to_takeover": 830,
+        "native_display_capture": 460,
+        "native_portrait_publish": 170,
+        "native_takeover": 110
+      },
+      "probe_placement": "after_portrait_publication",
+      "probe_finished_before_display_sample": false,
+      "probe_finished_before_minimum_settle_deadline": false,
+      "custom_sleep_cover_eligible": true,
+      "same_process": true,
+      "matched_marker": true,
+      "native_restored_and_exact_lease_released": true
+    }
+  ],
+  "pairs": [
+    {
+      "pair": 1,
+      "b_minus_a_ns": {
+        "renderer_return_interval_ns": [
+          -158118846,
+          -155429769
+        ],
+        "accepted_send_interval_ns": [
+          -147531461,
+          -144842384
+        ],
+        "driver_completion_interval_ns": [
+          -149349693,
+          -146660616
+        ]
+      }
+    },
+    {
+      "pair": 2,
+      "b_minus_a_ns": {
+        "renderer_return_interval_ns": [
+          -262074539,
+          -259695231
+        ],
+        "accepted_send_interval_ns": [
+          -289342615,
+          -286963307
+        ],
+        "driver_completion_interval_ns": [
+          -281988539,
+          -279609231
+        ]
+      }
+    },
+    {
+      "pair": 3,
+      "b_minus_a_ns": {
+        "renderer_return_interval_ns": [
+          -250246693,
+          -247669693
+        ],
+        "accepted_send_interval_ns": [
+          -250893308,
+          -248316308
+        ],
+        "driver_completion_interval_ns": [
+          -249568616,
+          -246991616
+        ]
+      }
+    },
+    {
+      "pair": 4,
+      "b_minus_a_ns": {
+        "renderer_return_interval_ns": [
+          -160657923,
+          -157785923
+        ],
+        "accepted_send_interval_ns": [
+          -159133461,
+          -156261461
+        ],
+        "driver_completion_interval_ns": [
+          -158948538,
+          -156076538
+        ]
+      }
+    },
+    {
+      "pair": 5,
+      "b_minus_a_ns": {
+        "renderer_return_interval_ns": [
+          -294559770,
+          -291409538
+        ],
+        "accepted_send_interval_ns": [
+          -301094308,
+          -297944076
+        ],
+        "driver_completion_interval_ns": [
+          -301076385,
+          -297926153
+        ]
+      }
+    },
+    {
+      "pair": 6,
+      "b_minus_a_ns": {
+        "renderer_return_interval_ns": [
+          -230665462,
+          -227735692
+        ],
+        "accepted_send_interval_ns": [
+          -254441923,
+          -251512153
+        ],
+        "driver_completion_interval_ns": [
+          -254393616,
+          -251463846
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "renderer_return_interval_ns": {
+      "paired_median_b_minus_a_ns": [
+        -240456078,
+        -237702692
+      ],
+      "pairs": 6,
+      "b_earlier": 6,
+      "b_later": 0,
+      "overlapping": 0,
+      "arms": {
+        "A": [
+          6315701500,
+          6316786155
+        ],
+        "B": [
+          6076330077,
+          6077998808
+        ]
+      }
+    },
+    "accepted_send_interval_ns": {
+      "paired_median_b_minus_a_ns": [
+        -252667616,
+        -249914230
+      ],
+      "pairs": 6,
+      "b_earlier": 6,
+      "b_later": 0,
+      "overlapping": 0,
+      "arms": {
+        "A": [
+          6369088692,
+          6370173347
+        ],
+        "B": [
+          6116655885,
+          6118603847
+        ]
+      }
+    },
+    "driver_completion_interval_ns": {
+      "paired_median_b_minus_a_ns": [
+        -251981116,
+        -249227731
+      ],
+      "pairs": 6,
+      "b_earlier": 6,
+      "b_later": 0,
+      "overlapping": 0,
+      "arms": {
+        "A": [
+          6734105654,
+          6735190308
+        ],
+        "B": [
+          6482205807,
+          6484153770
+        ]
+      }
+    }
+  },
+  "phase_medians_of_complete_pairs": {
+    "A": {
+      "phase_durations": {
+        "attached_to_first_shelf_render_ns": 737622077.0,
+        "main_to_window_shown_ns": 146104346.5,
+        "metadata_to_prepared_state_ns": 159770269.0,
+        "preinvoke_to_main_ns": 18279154.5,
+        "prepared_to_ui_attached_ns": 1196385.0,
+        "release_to_shim_ns": [
+          431781000,
+          433057885
+        ],
+        "render_to_accepted_send_ns": 47438807.5,
+        "send_to_same_marker_completion_ns": 365520462.0,
+        "shim_to_preinvoke_ns": 3290287731.5,
+        "state_metadata_preparation_ns": 1215798884.5,
+        "window_to_worker_admission_ns": 230695308.0,
+        "worker_admission_to_state_start_ns": 8370346.0
+      },
+      "launcher_uptime_intervals_ms": {
+        "cover_probe": 150.0,
+        "native_display_capture": 465.0,
+        "native_portrait_publish": 175.0,
+        "native_takeover": 110.0,
+        "observer_arm_to_cover_end": 2900.0,
+        "observer_arm_to_settle": 2085.0,
+        "settled_to_takeover": 835.0
+      }
+    },
+    "B": {
+      "phase_durations": {
+        "attached_to_first_shelf_render_ns": 749330500.0,
+        "main_to_window_shown_ns": 73791538.5,
+        "metadata_to_prepared_state_ns": 158049154.0,
+        "preinvoke_to_main_ns": 17116500.0,
+        "prepared_to_ui_attached_ns": 1132039.0,
+        "release_to_shim_ns": [
+          417439384,
+          419074769
+        ],
+        "render_to_accepted_send_ns": 40589231.0,
+        "send_to_same_marker_completion_ns": 365659153.5,
+        "shim_to_preinvoke_ns": 3165943577.0,
+        "state_metadata_preparation_ns": 1281200192.0,
+        "window_to_worker_admission_ns": 122969000.0,
+        "worker_admission_to_state_start_ns": 5154461.5
+      },
+      "launcher_uptime_intervals_ms": {
+        "cover_probe": 150.0,
+        "native_display_capture": 480.0,
+        "native_portrait_publish": 175.0,
+        "native_takeover": 90.0,
+        "observer_arm_to_cover_end": 295.0,
+        "observer_arm_to_settle": 2080.0,
+        "settled_to_takeover": 690.0
+      }
+    }
+  },
+  "first_shelf_gate_passed": true,
+  "all_six_candidate_probes_overlapped": true,
+  "all_six_cover_eligibility_outcomes_matched": true,
+  "warmups_excluded_from_comparison": true,
+  "device": "Scribe 2022",
+  "firmware": "5.19.5",
+  "origin": "ordinary native Library card release",
+  "offline_demo": true,
+  "optical_measurement": false
+}

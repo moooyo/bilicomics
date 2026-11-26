@@ -1555,7 +1555,16 @@ if start_observer; then observer_started=1; fi
 start_logging || fail 'Production log preparation or bounded output setup failed.'
 [ "$observer_started" -eq 1 ] || fail 'Power event observer ownership could not be established.'
 launch_trace startup_logging_ready
+# The loaded blanket modules determine sleep-cover eligibility, not display
+# admission. Read them while the owned observer's timer is still running.
+configure_cover_sleep
 wait_for_observer_settle || fail 'The native startup settling delay did not complete.'
+# Do not let a failed optional read leave a live owner of the shared reader
+# records when the required display capture is about to reuse them.
+if [ "$NATIVE_READ_REAPED" -ne 1 ]; then
+    stop_native_read
+    [ "$NATIVE_READ_REAPED" -eq 1 ] || fail 'The startup sleep-cover reader did not retire.'
+fi
 export BILICOMICS_HOME
 launch_trace startup_sample_begin
 if ! capture_native_epdc_mode || [ "$NATIVE_CAPTURE_STATUS" != known ]; then
@@ -1564,7 +1573,6 @@ fi
 launch_trace startup_sample_ready
 publish_native_epdc_mode native-epdc-mode || fail 'The startup display snapshot is unavailable.'
 publish_native_portrait_orientation native-portrait-orientation || fail 'The startup portrait calibration is unavailable.'
-configure_cover_sleep
 queue_native_notice "_bilicomics_start_ready $APP_GENERATION $LAUNCH_TOKEN"
 
 while IFS= read -r power_event <&3; do

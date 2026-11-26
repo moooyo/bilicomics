@@ -1,0 +1,46 @@
+{
+  "profile": "scribe",
+  "physical_device": false,
+  "live_account": false,
+  "synthetic_model_identity": true,
+  "passed": true,
+  "binary_bytes": 74940168,
+  "compressed_bytes": 52508737,
+  "sleep_requested": false,
+  "logical_viewport": [
+    930,
+    1240
+  ],
+  "expected_framebuffer": [
+    1860,
+    2480
+  ],
+  "firmware": "Kindle 5.20.1 (~~otaVersion~~)",
+  "deployed": true,
+  "verified_states": [
+    "Shelf",
+    "Reader page 18",
+    "Reader menu",
+    "Full-screen directory",
+    "Directory return to page 18",
+    "Reader menu after return",
+    "Reader settings",
+    "Reader settings dismissed",
+    "Back to Shelf",
+    "Account"
+  ],
+  "captures": [
+    "shelf",
+    "reader",
+    "directory",
+    "reader-return",
+    "reader-settings"
+  ],
+  "launcher_exit": 0,
+  "native_restored": true,
+  "private_qemu_stopped": true,
+  "scope": "Firmware functional smoke, not first-Shelf timing",
+  "blanket_getter_and_owned_reap_preceded_display_sample": true,
+  "first_guest_shelf_capture_shows_loading_not_qualified_shelf": true,
+  "reader_capture_has_guest_console_overlay": true
+}

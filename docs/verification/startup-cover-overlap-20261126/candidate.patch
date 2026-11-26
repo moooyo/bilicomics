@@ -1,0 +1,88 @@
+diff --git a/packaging/kindle/launch.sh b/packaging/kindle/launch.sh
+index 86dde79..1b5c09f 100755
+--- a/packaging/kindle/launch.sh
++++ b/packaging/kindle/launch.sh
+@@ -1555,6 +1555,9 @@ if start_observer; then observer_started=1; fi
+ start_logging || fail 'Production log preparation or bounded output setup failed.'
+ [ "$observer_started" -eq 1 ] || fail 'Power event observer ownership could not be established.'
+ launch_trace startup_logging_ready
++# The loaded blanket modules determine sleep-cover eligibility, not display
++# admission. Read them while the owned observer's timer is still running.
++configure_cover_sleep
+ wait_for_observer_settle || fail 'The native startup settling delay did not complete.'
+ export BILICOMICS_HOME
+ launch_trace startup_sample_begin
+@@ -1564,7 +1567,6 @@ fi
+ launch_trace startup_sample_ready
+ publish_native_epdc_mode native-epdc-mode || fail 'The startup display snapshot is unavailable.'
+ publish_native_portrait_orientation native-portrait-orientation || fail 'The startup portrait calibration is unavailable.'
+-configure_cover_sleep
+ queue_native_notice "_bilicomics_start_ready $APP_GENERATION $LAUNCH_TOKEN"
+ 
+ while IFS= read -r power_event <&3; do
+diff --git a/packaging/tests/launcher_test.py b/packaging/tests/launcher_test.py
+index 1ee9277..99ac64e 100644
+--- a/packaging/tests/launcher_test.py
++++ b/packaging/tests/launcher_test.py
+@@ -649,11 +649,12 @@ class LauncherLifecycleTests(unittest.TestCase):
+         )
+ 
+     def native_getter(self, mode_body='cat "$TEST_NATIVE_MODE"', power_body='cat "$TEST_POWER_STATE"',
+-                      orientation_body='cat "$TEST_NATIVE_ORIENTATION"'):
++                      orientation_body='cat "$TEST_NATIVE_ORIENTATION"', cover_wait=':'):
+         self.script(
+             self.bin / "lipc-get-prop",
+             'if [ "$*" = "-s com.lab126.blanket load" ]; then\n'
+             '  printf "%s\\n" "$*" >>"$TEST_COVER_QUERIES"\n'
++            f'  {cover_wait}\n'
+             '  cat "$TEST_COVER_CONFIGURATION"\n'
+             '  exit "$TEST_COVER_CONFIGURATION_EXIT"\n'
+             'fi\n'
+@@ -1566,13 +1567,16 @@ class LauncherLifecycleTests(unittest.TestCase):
+                     'printf "%s\\n" "$$" >"$TEST_SETTLE_ROOT/timer-started"\n'
+                     'while [ ! -e "$TEST_SETTLE_ROOT/timer-go" ]; do /bin/sleep .02; done\n' + finish)
+ 
+-    def test_logging_overlaps_the_full_settle_without_sampling_native_state_early(self):
++    def test_logging_and_cover_probe_overlap_settle_without_sampling_display_early(self):
+         self.gate_startup_settle('exec /bin/sleep "$1"')
+         self.env["TEST_HOLD"] = "1"
+ 
+         def drive(_):
+             lock = self.root / "lock"
+-            self.wait_until(lambda: self.lines("timer-started") and (lock / "log-application-owned").exists())
++            self.wait_until(lambda: self.lines("timer-started") and self.lines("cover-queries")
++                            and (lock / "log-application-owned").exists())
++            self.wait_until(lambda: not (lock / "native-read-go").exists())
++            self.assertEqual(self.lines("cover-queries"), ["-s com.lab126.blanket load"])
+             timer = self.lines("timer-started")[0]
+             group = int((lock / "observer-owned").read_text().split(":")[2])
+             self.assertEqual(self.process_identity(timer)["group"], group)
+@@ -1594,6 +1598,14 @@ class LauncherLifecycleTests(unittest.TestCase):
+         self.assertEqual(status, 0, error)
+         self.assertFalse((self.root / "lock").exists())
+ 
++    def test_a_timed_out_early_cover_probe_keeps_stock_sleep_and_the_display_reader_runs(self):
++        self.native_getter(cover_wait='sleep 60; touch "$TEST_COVER_CONFIGURATION.completed"')
++        self.assert_sleep_cover_fallback(requested=False)
++        self.assertEqual(self.lines("cover-queries"), ["-s com.lab126.blanket load"])
++        self.assertFalse((self.root / "cover-configuration.completed").exists())
++        self.assertEqual(len(self.captures()), 1)
++        self.assertEqual(len(self.starts()), 1)
++
+     def test_settle_failure_precedes_native_sampling_and_display_takeover(self):
+         self.env["TEST_STARTUP_SETTLE"] = "false"
+         status, _, error = self.run_launcher()
+@@ -1735,10 +1747,11 @@ class LauncherLifecycleTests(unittest.TestCase):
+         )
+         self.env["TEST_LAUNCHER_LOG_WRITER"] = str(writer)
+         launcher_source = self.launcher.read_text()
+-        marker = "\nlaunch_trace startup_sample_begin\n"
++        # Fill the freshly opened log before any native-read cleanup can log.
++        marker = "\nlaunch_trace startup_logging_ready\n"
+         self.assertEqual(launcher_source.count(marker), 1)
+         self.launcher.write_text(launcher_source.replace(
+-            marker, '\npython3 "$TEST_LAUNCHER_LOG_WRITER"\nlaunch_trace startup_sample_begin\n', 1))
++            marker, '\npython3 "$TEST_LAUNCHER_LOG_WRITER"' + marker, 1))
+         logs = self.home / "data" / "logs"
+         observed = {}
+ 

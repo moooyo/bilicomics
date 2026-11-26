@@ -649,11 +649,12 @@ class LauncherLifecycleTests(unittest.TestCase):
         )
 
     def native_getter(self, mode_body='cat "$TEST_NATIVE_MODE"', power_body='cat "$TEST_POWER_STATE"',
-                      orientation_body='cat "$TEST_NATIVE_ORIENTATION"'):
+                      orientation_body='cat "$TEST_NATIVE_ORIENTATION"', cover_wait=':'):
         self.script(
             self.bin / "lipc-get-prop",
             'if [ "$*" = "-s com.lab126.blanket load" ]; then\n'
             '  printf "%s\\n" "$*" >>"$TEST_COVER_QUERIES"\n'
+            f'  {cover_wait}\n'
             '  cat "$TEST_COVER_CONFIGURATION"\n'
             '  exit "$TEST_COVER_CONFIGURATION_EXIT"\n'
             'fi\n'
@@ -1566,13 +1567,16 @@ class LauncherLifecycleTests(unittest.TestCase):
                     'printf "%s\\n" "$$" >"$TEST_SETTLE_ROOT/timer-started"\n'
                     'while [ ! -e "$TEST_SETTLE_ROOT/timer-go" ]; do /bin/sleep .02; done\n' + finish)
 
-    def test_logging_overlaps_the_full_settle_without_sampling_native_state_early(self):
+    def test_logging_and_cover_probe_overlap_settle_without_sampling_display_early(self):
         self.gate_startup_settle('exec /bin/sleep "$1"')
         self.env["TEST_HOLD"] = "1"
 
         def drive(_):
             lock = self.root / "lock"
-            self.wait_until(lambda: self.lines("timer-started") and (lock / "log-application-owned").exists())
+            self.wait_until(lambda: self.lines("timer-started") and self.lines("cover-queries")
+                            and (lock / "log-application-owned").exists())
+            self.wait_until(lambda: not (lock / "native-read-go").exists())
+            self.assertEqual(self.lines("cover-queries"), ["-s com.lab126.blanket load"])
             timer = self.lines("timer-started")[0]
             group = int((lock / "observer-owned").read_text().split(":")[2])
             self.assertEqual(self.process_identity(timer)["group"], group)
@@ -1592,6 +1596,36 @@ class LauncherLifecycleTests(unittest.TestCase):
 
         status, _, error = self.run_launcher(drive)
         self.assertEqual(status, 0, error)
+        self.assertFalse((self.root / "lock").exists())
+
+    def test_a_timed_out_early_cover_probe_keeps_stock_sleep_and_the_display_reader_runs(self):
+        self.native_getter(cover_wait='sleep 60; touch "$TEST_COVER_CONFIGURATION.completed"')
+        self.assert_sleep_cover_fallback(requested=False)
+        self.assertEqual(self.lines("cover-queries"), ["-s com.lab126.blanket load"])
+        self.assertFalse((self.root / "cover-configuration.completed").exists())
+        self.assertEqual(len(self.captures()), 1)
+        self.assertEqual(len(self.starts()), 1)
+
+    def test_unreaped_cover_reader_keeps_the_required_display_reader_out_of_its_slot(self):
+        source = self.launcher.read_text()
+        stop = "stop_native_read() {\n"
+        self.assertEqual(source.count(stop), 1)
+        # Simulate the existing helper exhausting its reap budget through the
+        # retry, then let the exit trap run the normal verified cleanup.
+        fixture = '''    if [ "$NATIVE_READ_SEQUENCE" -eq 1 ] && [ "${cover_reap_attempts:-0}" -lt 2 ]; then
+        cover_reap_attempts=$((${cover_reap_attempts:-0} + 1))
+        NATIVE_READ_REAPED=0
+        return 0
+    fi
+'''
+        self.launcher.write_text(source.replace(stop, stop + fixture, 1))
+        status, stdout, error = self.run_launcher()
+        self.assertEqual(status, 1, error)
+        self.assertIn("The startup sleep-cover reader did not retire", stdout + error)
+        self.assertEqual(self.lines("cover-queries"), ["-s com.lab126.blanket load"])
+        self.assertEqual(self.captures(), [])
+        self.assertEqual(self.trace(), [])
+        self.assertEqual(self.starts(), [])
         self.assertFalse((self.root / "lock").exists())
 
     def test_settle_failure_precedes_native_sampling_and_display_takeover(self):
@@ -1735,10 +1769,11 @@ class LauncherLifecycleTests(unittest.TestCase):
         )
         self.env["TEST_LAUNCHER_LOG_WRITER"] = str(writer)
         launcher_source = self.launcher.read_text()
-        marker = "\nlaunch_trace startup_sample_begin\n"
+        # Fill the freshly opened log before any native-read cleanup can log.
+        marker = "\nlaunch_trace startup_logging_ready\n"
         self.assertEqual(launcher_source.count(marker), 1)
         self.launcher.write_text(launcher_source.replace(
-            marker, '\npython3 "$TEST_LAUNCHER_LOG_WRITER"\nlaunch_trace startup_sample_begin\n', 1))
+            marker, '\npython3 "$TEST_LAUNCHER_LOG_WRITER"' + marker, 1))
         logs = self.home / "data" / "logs"
         observed = {}
 
