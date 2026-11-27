@@ -19,7 +19,7 @@ fail() {
 
 read_process() {
     case "$1" in *[!0-9]*|'') return 1 ;; esac
-    IFS= read -r process_stat <"/proc/$1/stat" || return 1
+    IFS= read -r process_stat <"${2:-/proc/$1/stat}" || return 1
     [ "${process_stat%% *}" = "$1" ] || return 1
     # comm can contain spaces and parentheses; fields follow its final ).
     process_tail=${process_stat##*) }
@@ -205,6 +205,7 @@ NATIVE_READ_PID=''
 NATIVE_READ_BIRTH=''
 NATIVE_READ_SEQUENCE=0
 NATIVE_READ_REAPED=1
+STARTUP_SNAPSHOT_PENDING=0
 NATIVE_MODE_SEQUENCE=0
 NATIVE_MODE_PENDING=0
 NATIVE_EPDC_MODE=''
@@ -619,6 +620,174 @@ native_read_hex() {
     for native_hex_word in $native_hex_words; do printf '%s' "$native_hex_word"; done
 }
 
+startup_snapshot_clock() {
+    IFS=' ' read -r startup_uptime startup_idle </proc/uptime || return 1
+    startup_now_seconds=${startup_uptime%%.*}
+    # Bound seconds before subtraction on 32-bit shells. Never evaluate the
+    # combined centisecond timestamp or a zero-prefixed fraction as a number.
+    case "$startup_now_seconds" in ''|*[!0-9]*|0?*) return 1 ;; esac
+    [ "$startup_now_seconds" -le 2147483647 ] 2>/dev/null || return 1
+    case "$startup_uptime" in
+        *.[0-9]) startup_now_fraction=${startup_uptime#*.}0 ;;
+        *.[0-9][0-9]) startup_now_fraction=${startup_uptime#*.} ;;
+        "$startup_now_seconds") startup_now_fraction=00 ;;
+        *) return 1 ;;
+    esac
+    case "$startup_now_fraction" in [0-9][0-9]) ;; *) return 1 ;; esac
+    startup_now_cs=$((1$startup_now_fraction - 100))
+}
+
+startup_snapshot_is_fresh() {
+    startup_snapshot_clock || return 1
+    startup_seconds_delta=$((startup_now_seconds - startup_begin_seconds))
+    case "$startup_seconds_delta" in 0|1|2|3) ;; *) return 1 ;; esac
+    startup_elapsed_cs=$((100 * startup_seconds_delta + startup_now_cs - startup_begin_fraction))
+    [ "$startup_elapsed_cs" -ge 0 ] && [ "$startup_elapsed_cs" -lt 300 ]
+}
+
+startup_snapshot_pause() {
+    startup_snapshot_is_fresh && [ "$startup_elapsed_cs" -lt 298 ] || return 1
+    # Close the handoff ends inside the child. Some shells temporarily apply
+    # foreground command redirections in M itself, hiding the live endpoints
+    # from O even while M retains them in its internal redirection stack.
+    (
+        exec 3>&- 4>&- 5>&- 6>&- 7>&- 8>&- 9>&-
+        exec usleep 20000 </dev/null >/dev/null 2>&1
+    )
+}
+
+startup_snapshot_may_have_exited() {
+    if read_process "$startup_owner_pid" /proc/self/fd/9/stat 2>/dev/null; then
+        [ "$PROCESS_PARENT:$PROCESS_BIRTH" = "$$:$startup_owner_birth" ] || return 1
+        case "$PROCESS_STATE" in Z|X) return 0 ;; *) return 1 ;; esac
+    fi
+    # This only gates a bounded receive. The native helper authenticates exit,
+    # including ESRCH, before returning any terminal from the anonymous pipe.
+    [ ! -e /proc/self/fd/9/stat ] && ! kill -0 "$startup_owner_pid" 2>/dev/null
+}
+
+startup_snapshot_receive() {
+    exec 7>&-
+    [ "$startup_receipt_attempted" -eq 0 ] && startup_snapshot_is_fresh || return 1
+    startup_receipt_attempted=1
+    startup_terminal=$(
+        BILICOMICS_LIFECYCLE_DIR=$LOCK_DIR \
+        BILICOMICS_LAUNCH_GENERATION=$APP_GENERATION \
+        BILICOMICS_LAUNCH_TOKEN=$LAUNCH_TOKEN \
+        exec "$APP_DIR/bilicomics" --native-startup-snapshot receive "$PROFILE" "$$" \
+            "$startup_master_birth" "$NATIVE_READ_SEQUENCE" "$startup_begin_cs" \
+            "$startup_owner_pid" "$startup_owner_birth" 0<&8 2>/dev/null 3>&- 4>&- 5>&- 6>&- 7>&- 8>&-
+    ) || return 1
+    case "$startup_terminal" in
+        '0 '?*|'21 -'|'22 -') ;;
+        *) return 1 ;;
+    esac
+    # Only a validated terminal makes this wait safe. Its status must agree
+    # with the terminal, even when the native result is a clean rejection.
+    if wait "$startup_owner_pid" 2>/dev/null; then
+        startup_wait_status=0
+    else
+        startup_wait_status=$?
+    fi
+    [ "$startup_wait_status" = "${startup_terminal%% *}" ] && startup_snapshot_is_fresh || return 1
+    exec 8>&- 9>&-
+    STARTUP_SNAPSHOT_PENDING=0
+    if [ "$startup_wait_status" -eq 0 ] && [ "$1" = sample ]; then
+        launch_trace native_read_ready
+        launch_trace native_read_reaped
+        parse_native_capture_hex "${startup_terminal#0 }"
+    else
+        launch_trace native_read_reaped
+        return 1
+    fi
+}
+
+startup_snapshot_retire() {
+    # A catchable interruption and a normal refusal share this budget. Neither
+    # may re-open the gate or consume a terminal that was already attempted.
+    exec 7>&-
+    [ "$startup_attached" -eq 1 ] && [ "$startup_receipt_attempted" -eq 0 ] || return 0
+    startup_snapshot_is_fresh || return 0
+    if [ -z "$startup_retire_cs" ]; then startup_retire_cs=$startup_elapsed_cs; fi
+    while [ "$startup_retire_checks" -gt 0 ] && startup_snapshot_is_fresh; do
+        [ "$((startup_elapsed_cs - startup_retire_cs))" -lt 100 ] || break
+        startup_retire_checks=$((startup_retire_checks - 1))
+        if startup_snapshot_may_have_exited; then
+            startup_snapshot_receive retire || :
+            break
+        fi
+        [ "$((startup_elapsed_cs - startup_retire_cs))" -lt 98 ] && startup_snapshot_pause || break
+    done
+}
+
+native_startup_snapshot() {
+    read_process "$$" 2>/dev/null || return 1
+    startup_master_birth=$PROCESS_BIRTH
+    NATIVE_READ_SEQUENCE=$((NATIVE_READ_SEQUENCE + 1))
+    startup_owner_birth=''
+    startup_attached=0
+    startup_receipt_attempted=0
+    startup_retire_checks=50
+    startup_retire_cs=''
+    startup_checks=100
+    startup_snapshot_clock || return 1
+    startup_begin_seconds=$startup_now_seconds
+    startup_begin_fraction=$startup_now_cs
+    if [ "$startup_begin_seconds" = 0 ]; then
+        startup_begin_cs=$startup_begin_fraction
+    else
+        startup_begin_cs=$startup_begin_seconds$startup_now_fraction
+    fi
+    # Fail closed even if a signal lands before the shell can assign $!.
+    STARTUP_SNAPSHOT_PENDING=1
+    BILICOMICS_LIFECYCLE_DIR=$LOCK_DIR \
+    BILICOMICS_LAUNCH_GENERATION=$APP_GENERATION \
+    BILICOMICS_LAUNCH_TOKEN=$LAUNCH_TOKEN \
+        "$APP_DIR/bilicomics" --native-startup-snapshot owner "$PROFILE" "$$" \
+        "$startup_master_birth" "$NATIVE_READ_SEQUENCE" "$startup_begin_cs" \
+        </dev/null >/dev/null 2>&1 3>&- 4>&- 5>&- 6>&- 7>&- 8>&- 9>&- &
+    startup_owner_pid=$!
+    while [ "$startup_checks" -gt 0 ] && startup_snapshot_is_fresh; do
+        if [ -z "$startup_owner_birth" ] && read_process "$startup_owner_pid" 2>/dev/null && [ "$PROCESS_PARENT" = "$$" ]; then
+            startup_discovered_birth=$PROCESS_BIRTH
+            { command exec 9<"/proc/$startup_owner_pid"; } 2>/dev/null || return 1
+            read_process "$startup_owner_pid" /proc/self/fd/9/stat 2>/dev/null &&
+                [ "$PROCESS_PARENT:$PROCESS_BIRTH" = "$$:$startup_discovered_birth" ] || return 1
+            startup_owner_birth=$PROCESS_BIRTH
+        fi
+        if [ -n "$startup_owner_birth" ]; then
+            if [ "$startup_attached" -eq 0 ] && [ -p /proc/self/fd/9/fd/64 ] && [ -p /proc/self/fd/9/fd/65 ]; then
+                # These are anonymous Linux pipes, not filesystem FIFOs. The
+                # proc-fd links reopen them without waiting for another peer.
+                # O sees the result reader only after our control writer opens.
+                { command exec 7>/proc/self/fd/9/fd/64 8</proc/self/fd/9/fd/65; } 2>/dev/null || return 1
+                startup_attached=1
+                startup_snapshot_is_fresh || break
+                # The owner may exit between attach and the single atomic gate
+                # write. Treat EPIPE as cancellation, not a launcher signal.
+                trap '' PIPE
+                startup_gate_status=0
+                printf 'startup-display-v1:%s:%s:%s:%s:%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" \
+                    "$NATIVE_READ_SEQUENCE" "$$" "$startup_master_birth" "$startup_begin_cs" >&7 || startup_gate_status=$?
+                trap - PIPE
+                [ "$startup_gate_status" -eq 0 ] || break
+                launch_trace native_read_go
+            fi
+            if startup_snapshot_may_have_exited; then
+                [ "$startup_attached" -eq 1 ] || return 1
+                startup_snapshot_receive sample
+                return $?
+            fi
+        fi
+        startup_checks=$((startup_checks - 1))
+        startup_snapshot_pause || break
+    done
+    # The extra polls may prove closure, but cannot admit a snapshot after
+    # consuming the original observation budget.
+    startup_snapshot_retire
+    return 1
+}
+
 read_capability_process() {
     case "$1" in *[!0-9]*|'') return 1 ;; esac
     IFS= read -r capability_process_stat <"/proc/$1/stat" || return 1
@@ -717,42 +886,57 @@ cache_framebuffer_capability() {
     return 0
 }
 
+parse_native_capture_hex() {
+    capture_mode=''
+    capture_orientation=''
+    capture_rotation=''
+    capture_status=unknown
+    case "$1" in
+        72656164793a59383a*) capture_mode=Y8; native_portrait_hex=${1#72656164793a59383a} ;;
+        72656164793a5938494e563a*) capture_mode=Y8INV; native_portrait_hex=${1#72656164793a5938494e563a} ;;
+        6e6f742d6163746976650a) capture_status=not-active; return 0 ;;
+        *) return 1 ;;
+    esac
+    case "$native_portrait_hex" in
+        553a3[0-3]0a) capture_orientation=U; native_rotation_hex=${native_portrait_hex#553a} ;;
+        443a3[0-3]0a) capture_orientation=D; native_rotation_hex=${native_portrait_hex#443a} ;;
+        46495845443a3[0-3]0a) capture_orientation=FIXED; native_rotation_hex=${native_portrait_hex#46495845443a} ;;
+        *) return 1 ;;
+    esac
+    case "$native_rotation_hex" in
+        300a) capture_rotation=0 ;;
+        310a) capture_rotation=1 ;;
+        320a) capture_rotation=2 ;;
+        330a) capture_rotation=3 ;;
+        *) return 1 ;;
+    esac
+    capture_status=known
+}
+
 capture_native_epdc_mode() {
     NATIVE_EPDC_MODE=''
     NATIVE_PORTRAIT_ORIENTATION=''
     NATIVE_PORTRAIT_ROTATION=''
     NATIVE_CAPTURE_STATUS=unknown
-    # Display mode and portrait calibration share one proven group and one
-    # two-second deadline. One application helper validates its protected read
-    # context before native I/O and performs the complete sampling transaction.
-    # The exact compact-record parser remains the launcher acceptance boundary.
-    if ! BILICOMICS_LIFECYCLE_DIR="$LOCK_DIR" \
-        BILICOMICS_LAUNCH_GENERATION="$APP_GENERATION" \
-        BILICOMICS_LAUNCH_TOKEN="$LAUNCH_TOKEN" \
-        native_read_command "$APP_DIR/bilicomics" --capture-native-display --kindle --device "$PROFILE"; then
-        return 1
-    fi
-    native_capture_hex=$(native_read_hex) || return 1
-    case "$native_capture_hex" in
-        72656164793a59383a*) NATIVE_EPDC_MODE=Y8; native_portrait_hex=${native_capture_hex#72656164793a59383a} ;;
-        72656164793a5938494e563a*) NATIVE_EPDC_MODE=Y8INV; native_portrait_hex=${native_capture_hex#72656164793a5938494e563a} ;;
-        6e6f742d6163746976650a) NATIVE_CAPTURE_STATUS=not-active; return 0 ;;
+    case "${1:-wake}" in
+        startup) native_startup_snapshot || return 1 ;;
+        wake)
+            # Keep the existing owned group and two-second budget on wake.
+            if ! BILICOMICS_LIFECYCLE_DIR="$LOCK_DIR" \
+                BILICOMICS_LAUNCH_GENERATION="$APP_GENERATION" \
+                BILICOMICS_LAUNCH_TOKEN="$LAUNCH_TOKEN" \
+                native_read_command "$APP_DIR/bilicomics" --capture-native-display --kindle --device "$PROFILE"; then
+                return 1
+            fi
+            native_capture_hex=$(native_read_hex) || return 1
+            parse_native_capture_hex "$native_capture_hex" || return 1
+            ;;
         *) return 1 ;;
     esac
-    case "$native_portrait_hex" in
-        553a3[0-3]0a) NATIVE_PORTRAIT_ORIENTATION=U; native_rotation_hex=${native_portrait_hex#553a} ;;
-        443a3[0-3]0a) NATIVE_PORTRAIT_ORIENTATION=D; native_rotation_hex=${native_portrait_hex#443a} ;;
-        46495845443a3[0-3]0a) NATIVE_PORTRAIT_ORIENTATION=FIXED; native_rotation_hex=${native_portrait_hex#46495845443a} ;;
-        *) NATIVE_EPDC_MODE=''; return 1 ;;
-    esac
-    case "$native_rotation_hex" in
-        300a) NATIVE_PORTRAIT_ROTATION=0 ;;
-        310a) NATIVE_PORTRAIT_ROTATION=1 ;;
-        320a) NATIVE_PORTRAIT_ROTATION=2 ;;
-        330a) NATIVE_PORTRAIT_ROTATION=3 ;;
-        *) NATIVE_EPDC_MODE=''; NATIVE_PORTRAIT_ORIENTATION=''; return 1 ;;
-    esac
-    NATIVE_CAPTURE_STATUS=known
+    NATIVE_EPDC_MODE=$capture_mode
+    NATIVE_PORTRAIT_ORIENTATION=$capture_orientation
+    NATIVE_PORTRAIT_ROTATION=$capture_rotation
+    NATIVE_CAPTURE_STATUS=$capture_status
 }
 
 publish_native_epdc_mode() {
@@ -1504,11 +1688,20 @@ cleanup() {
     trap '' HUP INT TERM
     trap - 0
     saved_status=$1
+    # Keep retiring independent owned records even when one path has an
+    # unexpected type (for example a directory at a failed portrait target).
+    # The saved exit status is authoritative; never recursively remove it.
+    set +e
+    if [ "$STARTUP_SNAPSHOT_PENDING" -eq 1 ]; then
+        startup_snapshot_retire || :
+        exec 8>&- 9>&-
+        if [ "$STARTUP_SNAPSHOT_PENDING" -eq 1 ]; then launch_trace native_read_cleanup_pending; fi
+    fi
     ensure_log_sinks || :
     LOG_CLOSING=1
     printf '%s:%s\n' "$APP_GENERATION" "$LAUNCH_TOKEN" >"$LOCK_DIR/log-stopping" 2>/dev/null || :
     stop_native_notice
-    stop_native_read
+    if [ "$STARTUP_SNAPSHOT_PENDING" -eq 0 ]; then stop_native_read; fi
     stop_wake_probe
     stop_lifecycle_waiter
     stop_observer
@@ -1521,15 +1714,27 @@ cleanup() {
         exec 4>&-
     fi
     stop_logging
-    rm -f "$LOCK_DIR/pid" "$LOCK_DIR/power-events" "$LOCK_DIR/power-control" "$LOCK_DIR/nonce" "$LOCK_DIR/generation" "$LOCK_DIR/application-exit" "$LOCK_DIR/application-exit.pending" "$LOCK_DIR/lifecycle-ready" "$LOCK_DIR/lifecycle-ready.pending" "$LOCK_DIR/lifecycle-request" "$LOCK_DIR/lifecycle-request.pending" "$LOCK_DIR/lifecycle-ack" "$LOCK_DIR/lifecycle-ack.pending" "$LOCK_DIR/sleep-cover-request" "$LOCK_DIR/sleep-cover-request.pending" "$LOCK_DIR/sleep-cover-ready" "$LOCK_DIR/sleep-cover-ready.pending" "$LOCK_DIR/native-epdc-mode" "$LOCK_DIR/native-epdc-mode.pending" "$LOCK_DIR/resume-native-epdc-mode" "$LOCK_DIR/resume-native-epdc-mode.pending" "$LOCK_DIR/native-portrait-orientation" "$LOCK_DIR/native-portrait-orientation.pending" "$LOCK_DIR/resume-native-portrait-orientation" "$LOCK_DIR/resume-native-portrait-orientation.pending" "$LOCK_DIR/native-output-capability" "$LOCK_DIR/native-output-capability.pending" "$LOCK_DIR/native-read-output"
-    rmdir "$LOCK_DIR" 2>/dev/null || :
+    rm -f "$LOCK_DIR/power-events" "$LOCK_DIR/power-control" "$LOCK_DIR/application-exit" "$LOCK_DIR/application-exit.pending" "$LOCK_DIR/lifecycle-ready" "$LOCK_DIR/lifecycle-ready.pending" "$LOCK_DIR/lifecycle-request" "$LOCK_DIR/lifecycle-request.pending" "$LOCK_DIR/lifecycle-ack" "$LOCK_DIR/lifecycle-ack.pending" "$LOCK_DIR/sleep-cover-request" "$LOCK_DIR/sleep-cover-request.pending" "$LOCK_DIR/sleep-cover-ready" "$LOCK_DIR/sleep-cover-ready.pending" "$LOCK_DIR/native-epdc-mode" "$LOCK_DIR/native-epdc-mode.pending" "$LOCK_DIR/resume-native-epdc-mode" "$LOCK_DIR/resume-native-epdc-mode.pending" "$LOCK_DIR/native-portrait-orientation" "$LOCK_DIR/native-portrait-orientation.pending" "$LOCK_DIR/resume-native-portrait-orientation" "$LOCK_DIR/resume-native-portrait-orientation.pending" "$LOCK_DIR/native-output-capability" "$LOCK_DIR/native-output-capability.pending" "$LOCK_DIR/native-read-output"
+    if [ "$STARTUP_SNAPSHOT_PENDING" -eq 0 ]; then
+        rm -f "$LOCK_DIR/native-startup-grant" "$LOCK_DIR/pid" "$LOCK_DIR/nonce" "$LOCK_DIR/generation"
+        rmdir "$LOCK_DIR" 2>/dev/null || :
+    fi
     exit "$saved_status"
 }
 
+interrupt_launcher() {
+    if [ "$STARTUP_SNAPSHOT_PENDING" -eq 1 ]; then
+        # Close the gate before cleanup, even if interrupted at the redirected
+        # gate write. The startup slot only runs after logging is established.
+        exec 7>&- 1>&5 2>&5
+    fi
+    exit "$1"
+}
+
 trap 'cleanup "$?"' 0
-trap 'exit 129' HUP
-trap 'exit 130' INT
-trap 'exit 143' TERM
+trap 'interrupt_launcher 129' HUP
+trap 'interrupt_launcher 130' INT
+trap 'interrupt_launcher 143' TERM
 
 command -v lipc-wait-event >/dev/null 2>&1 || fail 'Power event observation is required.'
 command -v lipc-get-prop >/dev/null 2>&1 || fail 'Native display mode observation is required.'
@@ -1559,15 +1764,15 @@ launch_trace startup_logging_ready
 # admission. Read them while the owned observer's timer is still running.
 configure_cover_sleep
 wait_for_observer_settle || fail 'The native startup settling delay did not complete.'
-# Do not let a failed optional read leave a live owner of the shared reader
-# records when the required display capture is about to reuse them.
+# Do not start the required capture while the optional reader may still
+# be active. Later lifecycle readers still use the separate legacy records.
 if [ "$NATIVE_READ_REAPED" -ne 1 ]; then
     stop_native_read
     [ "$NATIVE_READ_REAPED" -eq 1 ] || fail 'The startup sleep-cover reader did not retire.'
 fi
 export BILICOMICS_HOME
 launch_trace startup_sample_begin
-if ! capture_native_epdc_mode || [ "$NATIVE_CAPTURE_STATUS" != known ]; then
+if ! capture_native_epdc_mode startup || [ "$NATIVE_CAPTURE_STATUS" != known ]; then
     fail 'The native display mode could not be read before startup.'
 fi
 launch_trace startup_sample_ready

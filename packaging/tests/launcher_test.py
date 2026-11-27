@@ -16,6 +16,7 @@ import unittest
 
 
 SOURCE = Path(__file__).resolve().parents[1] / "kindle" / "launch.sh"
+STARTUP_FIXTURE = SOURCE.parents[2] / "scripts/verification/startup_snapshot_fixture.py"
 
 APPLICATION = r'''#!/usr/bin/env python3
 import json
@@ -61,8 +62,13 @@ if sys.argv[1:2] == ["--probe-native-portrait-framebuffer"]:
         sys.exit(93)
     os.write(1, portrait_metadata_fixture())
     sys.exit(0)
-if sys.argv[1:2] == ["--capture-native-display"]:
-    expected = ["--capture-native-display", "--kindle", "--device", env["BILICOMICS_APPROVED_PROFILE"]]
+if sys.argv[1:2] == ["--native-startup-snapshot"]:
+    if env.get("TEST_STARTUP_OWNER_MISSING") == "1":
+        sys.exit(2)
+    os.execv(sys.executable, [sys.executable, "-IB", env["TEST_STARTUP_FIXTURE"], sys.argv[0], *sys.argv[1:]])
+if sys.argv[1:2] in (["--capture-native-display"], ["--fixture-startup-sample"]):
+    startup = sys.argv[1] == "--fixture-startup-sample"
+    expected = [sys.argv[1], "--kindle", "--device", env["BILICOMICS_APPROVED_PROFILE"]]
     if sys.argv[1:] != expected or env["BILICOMICS_APPROVED_FIRMWARE"] != "5.20.1":
         sys.exit(93)
     try:
@@ -79,25 +85,32 @@ if sys.argv[1:2] == ["--capture-native-display"]:
         if ((directory / "generation").read_text() != header + "\n"
                 or (directory / "nonce").read_text() != token + "\n"):
             raise ValueError("Invalid fixture capture generation")
-        permission = (directory / "native-read-go").read_text()
-        leader, sequence, nonce = permission.rstrip("\n").split(":")
-        if (permission != f"{leader}:{sequence}:{nonce}\n" or nonce != token
-                or not sequence.isdigit() or sequence.startswith("0")
-                or leader != str(os.getpgrp()) or leader != str(os.getsid(0))):
-            raise ValueError("Invalid fixture capture reader group")
         master = (directory / "pid").read_text().strip()
-        member = os.getpid()
-        for _ in range(12):
-            identity = Path(f"/proc/{member}/stat").read_text().rsplit(") ", 1)[1].split()
-            if identity[0] in ("Z", "X") or identity[2:4] != [leader, leader]:
-                raise ValueError("Invalid fixture capture ancestry")
-            if str(member) == leader:
-                if identity[1] != master:
-                    raise ValueError("Invalid fixture capture owner")
-                break
-            member = int(identity[1])
+        if startup:
+            leader = str(os.getpid())
+            owner = Path(f"/proc/{os.getppid()}/stat").read_text().rsplit(") ", 1)[1].split()
+            if (os.getpgrp() != os.getpid() or os.getsid(0) != os.getpid() or owner[1] != master
+                    or (directory / "native-read-go").exists() or (directory / "application-pid").exists()):
+                raise ValueError("Invalid synthetic startup sampler ancestry")
         else:
-            raise ValueError("Missing fixture capture ancestor")
+            permission = (directory / "native-read-go").read_text()
+            leader, sequence, nonce = permission.rstrip("\n").split(":")
+            if (permission != f"{leader}:{sequence}:{nonce}\n" or nonce != token
+                    or not sequence.isdigit() or sequence.startswith("0")
+                    or leader != str(os.getpgrp()) or leader != str(os.getsid(0))):
+                raise ValueError("Invalid fixture capture reader group")
+            member = os.getpid()
+            for _ in range(12):
+                identity = Path(f"/proc/{member}/stat").read_text().rsplit(") ", 1)[1].split()
+                if identity[0] in ("Z", "X") or identity[2:4] != [leader, leader]:
+                    raise ValueError("Invalid fixture capture ancestry")
+                if str(member) == leader:
+                    if identity[1] != master:
+                        raise ValueError("Invalid fixture capture owner")
+                    break
+                member = int(identity[1])
+            else:
+                raise ValueError("Missing fixture capture ancestor")
         if (directory / "application-pid").exists():
             request = (directory / "lifecycle-request").read_text()
             if (not request.startswith(header + ":") or not request.endswith(":suspend\n")
@@ -562,6 +575,7 @@ class LauncherLifecycleTests(unittest.TestCase):
             TEST_NATIVE_CAPTURE_RECORD=str(self.root / "native-capture-record"),
             TEST_NATIVE_CAPTURE_DELAY="0",
             TEST_NATIVE_CAPTURE_EXIT="0",
+            TEST_STARTUP_FIXTURE=str(STARTUP_FIXTURE),
             TEST_NATIVE_ORIENTATION=str(self.root / "native-orientation"),
             TEST_OUTPUT_CAPABILITY="legacy",
             TEST_NATIVE_QUERIES=str(self.root / "native-queries"),
@@ -2017,13 +2031,13 @@ class LauncherLifecycleTests(unittest.TestCase):
             "-s com.lab126.powerd state", "-s com.lab126.winmgr epdcMode", "-s com.lab126.powerd state",
         ])
 
-    def test_startup_uses_one_capture_helper_with_exact_arguments_and_private_group(self):
+    def test_startup_uses_one_sampler_with_exact_arguments_and_private_group(self):
         status, _, error = self.run_launcher()
         self.assertEqual(status, 0, error)
         captures = self.captures()
         self.assertEqual(len(captures), 1, "Startup executed more than one capture helper")
         self.assertEqual(captures[0]["arguments"],
-                         ["--capture-native-display", "--kindle", "--device", "pw6"])
+                         ["--fixture-startup-sample", "--kindle", "--device", "pw6"])
         self.assertEqual(captures[0]["generation"], "1")
         self.assertEqual(captures[0]["group"], captures[0]["session"])
         probes = [entry.split(":", 3) for entry in self.lines("portrait-probes")]
@@ -2299,15 +2313,16 @@ class LauncherLifecycleTests(unittest.TestCase):
         self.assertEqual(self.starts(), [])
         self.assertFalse((self.root / "lock").exists())
 
-    def test_older_application_without_capture_helper_fails_before_native_takeover(self):
-        self.env["TEST_NATIVE_CAPTURE_EXIT"] = "93"
+    def test_missing_startup_owner_keeps_the_unproven_lock_without_takeover(self):
+        self.env["TEST_STARTUP_OWNER_MISSING"] = "1"
         status, _, error = self.run_launcher()
         self.assertEqual(status, 1, error)
+        self.assertIn("could not be read before startup", error)
         self.assertEqual(self.trace(), [])
         self.assertEqual(self.starts(), [])
         self.assertEqual(self.lines("native-queries"), [])
         self.assertEqual(self.lines("portrait-probes"), [])
-        self.assertFalse((self.root / "lock").exists())
+        self.assertEqual({leaf.name for leaf in (self.root / "lock").iterdir()}, {"pid", "nonce", "generation"})
 
     def test_sleep_or_usb_queued_during_portrait_sampling_precedes_the_startup_barrier(self):
         self.env["TEST_PORTRAIT_PROBE_DELAY"] = "0.2"

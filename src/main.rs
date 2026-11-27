@@ -349,6 +349,12 @@ impl StartupWorkers {
 }
 
 fn main() -> std::process::ExitCode {
+    #[cfg(all(feature = "kindle", target_os = "linux"))]
+    if std::env::args_os().nth(1).as_deref() == Some(std::ffi::OsStr::new("--native-startup-snapshot")) {
+        // The four internal roles parse their entire, fixed argument list and
+        // never initialize the UI, diagnostics, or application services.
+        return bilicomics::native_presentation::run_native_startup_snapshot();
+    }
     runtime_wakeup::initialize_trace_clock();
     let result = run(Arguments::parse());
     bilicomics::performance::finish();

@@ -22,6 +22,7 @@ import zlib
 
 from rebundle_launcher import base_entries, rebundle
 from run_suite import SOURCE_TREES, manifest_text
+from verify_dev_payload import stock_payload
 from verify_package import (ALLOWED_FILES, EXECUTABLE_FILES, FIXED_TIMESTAMP,
                             LEGACY_ALLOWED_FILES, LIBRARY_COVER, LIBRARY_COVER_SOURCE,
                             LIBRARY_DOCUMENT, LIBRARY_DOCUMENT_SOURCE, LIBRARY_ENTRY_COMMIT,
@@ -380,6 +381,67 @@ class LibraryFullPackageGuardTests(LibraryPackageFixture):
         members = self.complete_members()
         members[LAUNCHER] = b"#!/bin/sh\nexit 0\n"
         self.assert_full_checker_rejects(members, "canonical launcher differs from the selected source")
+
+
+class LibraryBytePackageLauncherTests(LibraryPackageFixture):
+    ordinary_ui = (
+        b'    BILICOMICS_LIFECYCLE_DIR=$LOCK_DIR BILICOMICS_LAUNCH_GENERATION=$APP_GENERATION '
+        b'BILICOMICS_LAUNCH_TOKEN=$LAUNCH_TOKEN "$APP_DIR/bilicomics" --kindle '
+        b'--device "$PROFILE" --data-dir "$DATA_DIR" >&6 2>&1 3>&- 4>&- 5>&- 6>&- &\n'
+    )
+    startup_helpers = rb'''    BILICOMICS_LIFECYCLE_DIR=$LOCK_DIR \
+    BILICOMICS_LAUNCH_GENERATION=$APP_GENERATION \
+    BILICOMICS_LAUNCH_TOKEN=$LAUNCH_TOKEN \
+        "$APP_DIR/bilicomics" --native-startup-snapshot owner "$PROFILE" "$$" \
+        "$startup_master_birth" "$NATIVE_READ_SEQUENCE" "$startup_begin_cs" \
+        </dev/null >/dev/null 2>&1 3>&- 4>&- 5>&- 6>&- 7>&- 8>&- 9>&- &
+    startup_terminal=$(
+        BILICOMICS_LIFECYCLE_DIR=$LOCK_DIR \
+        BILICOMICS_LAUNCH_GENERATION=$APP_GENERATION \
+        BILICOMICS_LAUNCH_TOKEN=$LAUNCH_TOKEN \
+        exec "$APP_DIR/bilicomics" --native-startup-snapshot receive "$PROFILE" "$$" \
+            "$startup_master_birth" "$NATIVE_READ_SEQUENCE" "$startup_begin_cs" \
+            "$startup_owner_pid" "$startup_owner_birth" 0<&8 2>/dev/null 3>&- 4>&- 5>&- 6>&- 7>&- 8>&-
+    ) || return 1
+'''
+
+    def test_selected_launcher_passes_the_stock_guard(self):
+        launcher = self.packaging[LAUNCHER]
+        self.assertEqual(stock_payload(LAUNCHER, launcher), launcher)
+
+    def test_stock_invocation_passes_with_or_without_the_startup_helpers(self):
+        for helpers in (b"", self.startup_helpers):
+            with self.subTest(with_helpers=bool(helpers)):
+                launcher = b"#!/bin/sh\n" + helpers + self.ordinary_ui
+                self.assertEqual(stock_payload(LAUNCHER, launcher), launcher)
+                self.assertEqual(stock_payload(LAUNCHER, launcher.replace(b"\n", b"\r\n")), launcher)
+
+    def test_startup_helpers_do_not_mask_missing_duplicate_or_changed_ui(self):
+        diagnostic_ui = self.ordinary_ui.replace(b" --kindle", b' --kindle --shelf-render-trace "$TRACE"')
+        continued_ui = self.ordinary_ui.replace(b" --kindle", b" \\" + b"\n        --kindle")
+        for label, commands in (
+            ("missing", b""),
+            ("duplicate", self.ordinary_ui * 2),
+            ("continued duplicate", self.ordinary_ui + continued_ui),
+            ("continued replacement", continued_ui),
+            ("changed data directory", self.ordinary_ui.replace(b'"$DATA_DIR"', b'"$OTHER_DIR"')),
+            ("diagnostic replacement", diagnostic_ui),
+            ("additional diagnostic", self.ordinary_ui + diagnostic_ui),
+        ):
+            with self.subTest(case=label):
+                launcher = b"#!/bin/sh\n" + self.startup_helpers + commands
+                with self.assertRaisesRegex(ValueError, "does not use the ordinary application invocation"):
+                    stock_payload(LAUNCHER, launcher)
+
+    def test_only_the_known_startup_helper_commands_are_exempt(self):
+        for command, changed in (
+            (b"--native-startup-snapshot owner", b"--native-startup-snapshot inspect"),
+            (b"--native-startup-snapshot receive", b"--native-startup-snapshot receive --offline"),
+        ):
+            with self.subTest(command=command):
+                launcher = b"#!/bin/sh\n" + self.startup_helpers.replace(command, changed) + self.ordinary_ui
+                with self.assertRaisesRegex(ValueError, "does not use the ordinary application invocation"):
+                    stock_payload(LAUNCHER, launcher)
 
 
 class LibraryEntryRebundleTests(LibraryPackageFixture):

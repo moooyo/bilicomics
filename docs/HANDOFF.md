@@ -4,7 +4,7 @@ Recorded: 2026-11-03 (Asia/Shanghai).
 
 Historical status: source review before the design was supplied. The user subsequently supplied the design and authorized implementation. See [implementation status](IMPLEMENTATION_STATUS.md) and [design provenance](DESIGN_SOURCE.md) for current work. The original preparation notes below retain their original scope and evidence boundaries.
 
-For current startup work, start with the [November 26 handoff](HANDOFF_STARTUP_20261126.md). The [November 21 startup handoff](HANDOFF_STARTUP_20261121.md) describes the earlier Scribe baseline and its separate [six-pair report](physical/shelf-render-20261121/README.md).
+For current startup work, start with the [November 28 native snapshot handoff](HANDOFF_STARTUP_20261128.md). The [November 26 cover handoff](HANDOFF_STARTUP_20261126.md) records the completed cover-admission work. The [November 21 startup handoff](HANDOFF_STARTUP_20261121.md) describes the earlier Scribe baseline and its separate [six-pair report](physical/shelf-render-20261121/README.md).
 
 ## Request and current state
 

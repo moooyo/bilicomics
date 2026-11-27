@@ -2,6 +2,13 @@
 
 use super::*;
 
+#[cfg(any(test, feature = "kindle"))]
+mod startup_permit;
+#[cfg(feature = "kindle")]
+pub(crate) use startup_permit::StartupReadPermit;
+#[cfg(feature = "kindle")]
+pub(super) mod startup_read;
+
 const STARTUP_PENDING: &str = "native-portrait-orientation.pending";
 const RESUME_PENDING: &str = "resume-native-portrait-orientation.pending";
 const MAX_CHAIN_MEMBERS: usize = 12;
@@ -81,6 +88,8 @@ struct Ownership {
 struct Writer {
     records: PrivateDirectory,
     generation: u64,
+    #[cfg(any(test, feature = "kindle"))]
+    generation_text: String,
     nonce: String,
     helper: u32,
     proc_root: PathBuf,
@@ -130,13 +139,15 @@ impl Writer {
             nonce.len() == 32 && nonce.bytes().all(|byte| byte.is_ascii_hexdigit()),
             "Invalid native-read token"
         );
-        let generation = std::env::var("BILICOMICS_LAUNCH_GENERATION")
-            .context("Missing native-read generation")?
-            .parse::<u64>()?;
+        let generation_text = std::env::var("BILICOMICS_LAUNCH_GENERATION")
+            .context("Missing native-read generation")?;
+        let generation = generation_text.parse::<u64>()?;
         ensure!(generation > 0, "Invalid native-read generation");
         Ok(Self {
             records: PrivateDirectory::open(Path::new(&directory))?,
             generation,
+            #[cfg(any(test, feature = "kindle"))]
+            generation_text,
             nonce,
             helper: std::process::id(),
             proc_root: PathBuf::from("/proc"),
@@ -464,6 +475,7 @@ mod tests {
             let writer = Writer {
                 records: PrivateDirectory::open(&lock).unwrap(),
                 generation: 7,
+                generation_text: "7".into(),
                 nonce: NONCE.into(),
                 helper: 708,
                 proc_root: temporary.path().join("proc"),
@@ -554,6 +566,7 @@ mod tests {
             NativeReadPermit::from_writer(Writer {
                 records: PrivateDirectory::open(&self.writer.records.path)?,
                 generation: self.writer.generation,
+                generation_text: self.writer.generation_text.clone(),
                 nonce: self.writer.nonce.clone(),
                 helper: self.writer.helper,
                 proc_root: self.writer.proc_root.clone(),

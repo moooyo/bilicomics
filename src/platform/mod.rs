@@ -41,7 +41,7 @@ pub enum PlatformError {
 }
 
 #[cfg(target_os = "linux")]
-fn validate_native_launch_approval(profile: DeviceProfile) -> Result<(), PlatformError> {
+pub(crate) fn validate_native_launch_approval(profile: DeviceProfile) -> Result<(), PlatformError> {
     let firmware = std::env::var("BILICOMICS_APPROVED_FIRMWARE").unwrap_or_default();
     if std::env::var("BILICOMICS_APPROVED_PROFILE").ok().as_deref() != Some(profile.id())
         || firmware.trim().is_empty()
@@ -511,6 +511,18 @@ pub fn capture_native_display_record(profile: DeviceProfile) -> Result<String, P
         let _ = profile;
         Err(PlatformError::Unsupported("kindle_backend"))
     }
+}
+
+#[cfg(all(target_os = "linux", any(test, feature = "kindle")))]
+pub(crate) use native_capture::CAPTURE_TIMEOUT as NATIVE_CAPTURE_TIMEOUT;
+
+/// Read the same ordered device observations through only the startup-specific grant.
+#[cfg(all(feature = "kindle", target_os = "linux"))]
+pub(crate) fn capture_native_startup_display_record(
+    profile: DeviceProfile,
+    permit: crate::native_presentation::StartupReadPermit,
+) -> Result<String, PlatformError> {
+    native_capture::capture_startup(profile, permit)
 }
 
 /// Produce one bounded-launcher record without starting UI, workers, or input.

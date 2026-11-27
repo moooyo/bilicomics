@@ -26,7 +26,14 @@ const CAPABILITY_PENDING: &str = "native-output-capability.pending";
 mod portrait_writer;
 
 #[cfg(all(feature = "kindle", target_os = "linux"))]
-pub(crate) use portrait_writer::NativeReadPermit;
+pub(crate) use portrait_writer::{NativeReadPermit, StartupReadPermit};
+
+/// Run one internal startup snapshot role before any application initialization.
+#[cfg(all(feature = "kindle", target_os = "linux"))]
+#[doc(hidden)]
+pub fn run_native_startup_snapshot() -> std::process::ExitCode {
+    portrait_writer::startup_read::entry()
+}
 
 /// Publish one typed portrait sidecar from the owner's bounded native-read group.
 /// This internal helper performs no display, input, or firmware operation.

@@ -3,7 +3,7 @@
 use super::{DeviceProfile, PlatformError};
 use std::time::Duration;
 
-const CAPTURE_TIMEOUT: Duration = Duration::from_secs(2);
+pub(crate) const CAPTURE_TIMEOUT: Duration = Duration::from_secs(2);
 const RECORD_LIMIT: usize = 128;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -124,9 +124,17 @@ pub(super) fn capture(profile: DeviceProfile) -> Result<String, PlatformError> {
 }
 
 #[cfg(all(feature = "kindle", target_os = "linux"))]
+pub(super) fn capture_startup(
+    profile: DeviceProfile,
+    permit: crate::native_presentation::StartupReadPermit,
+) -> Result<String, PlatformError> {
+    system::capture_startup(profile, permit)
+}
+
+#[cfg(all(feature = "kindle", target_os = "linux"))]
 mod system {
     use super::*;
-    use crate::native_presentation::NativeReadPermit;
+    use crate::native_presentation::{NativeReadPermit, StartupReadPermit};
     use crate::platform::{DeviceControl, native::NativeControl, validate_native_launch_approval};
     use std::{
         io::{self, Read},
@@ -149,33 +157,54 @@ mod system {
         validate_native_launch_approval(profile)?;
         let permit = NativeReadPermit::acquire().map_err(context_error)?;
         permit.recheck().map_err(context_error)?;
+        capture_permitted(profile, started, None, || permit.recheck())
+    }
+
+    pub(super) fn capture_startup(
+        profile: DeviceProfile,
+        permit: StartupReadPermit,
+    ) -> Result<String, PlatformError> {
+        let started = Instant::now();
+        validate_native_launch_approval(profile)?;
+        permit.recheck().map_err(context_error)?;
+        capture_permitted(profile, started, Some(permit.deadline()), || permit.recheck())
+    }
+
+    fn capture_permitted(
+        profile: DeviceProfile,
+        started: Instant,
+        cutoff: Option<Instant>,
+        recheck: impl Fn() -> anyhow::Result<()>,
+    ) -> Result<String, PlatformError> {
         let lipc = super::super::native::find_command("lipc-get-prop")
             .ok_or(PlatformError::Unsupported("lipc"))?;
         let mut source = NativeSource {
             profile,
             started,
-            permit,
+            cutoff,
+            recheck,
             lipc,
             commands: Commands::new()?,
         };
         capture_with(profile, &mut source)
     }
 
-    struct NativeSource {
+    struct NativeSource<F> {
         profile: DeviceProfile,
         started: Instant,
-        permit: NativeReadPermit,
+        cutoff: Option<Instant>,
+        recheck: F,
         lipc: PathBuf,
         commands: Commands,
     }
 
-    impl CaptureSource for NativeSource {
+    impl<F: Fn() -> anyhow::Result<()>> CaptureSource for NativeSource<F> {
         fn elapsed(&self) -> Duration {
             self.started.elapsed()
         }
 
         fn check_context(&mut self) -> Result<(), PlatformError> {
-            self.permit.recheck().map_err(context_error)
+            (self.recheck)().map_err(context_error)
         }
 
         fn query(&mut self, query: Query, _: Duration) -> Result<String, PlatformError> {
@@ -185,8 +214,9 @@ mod system {
                 Query::Holding => &["com.lab126.winmgr", "accelerometer"],
             };
             let deadline = self.started.checked_add(CAPTURE_TIMEOUT).ok_or_else(timeout)?;
+            let deadline = self.cutoff.map_or(deadline, |cutoff| deadline.min(cutoff));
             self.commands.run(&self.lipc, arguments, deadline, || {
-                self.permit.recheck().map_err(context_error)
+                (self.recheck)().map_err(context_error)
             })
         }
 

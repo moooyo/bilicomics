@@ -29,6 +29,23 @@ SCRIPTS = {LAUNCHER, LIBRARY_DOCUMENT}
 TEMPLATES = SCRIPTS | {ALLOWLIST, PROFILE, LIBRARY_COVER}
 CHUNK_SIZE = 1024 * 1024
 
+LIFECYCLE_ASSIGNMENT = b"BILICOMICS_LIFECYCLE_DIR=$LOCK_DIR"
+LIFECYCLE_PREFIXES = (LIFECYCLE_ASSIGNMENT + b" ", LIFECYCLE_ASSIGNMENT + b"\t", LIFECYCLE_ASSIGNMENT + b"\\")
+LIFECYCLE_ENV = (LIFECYCLE_ASSIGNMENT + b" BILICOMICS_LAUNCH_GENERATION=$APP_GENERATION "
+                 b"BILICOMICS_LAUNCH_TOKEN=$LAUNCH_TOKEN ")
+ORDINARY_INVOCATION = (
+    LIFECYCLE_ENV + b'"$APP_DIR/bilicomics" --kindle --device "$PROFILE" --data-dir "$DATA_DIR" '
+    b'>&6 2>&1 3>&- 4>&- 5>&- 6>&- &'
+)
+STARTUP_SNAPSHOT_INVOCATIONS = {
+    LIFECYCLE_ENV + b'"$APP_DIR/bilicomics" --native-startup-snapshot owner "$PROFILE" "$$" '
+    b'"$startup_master_birth" "$NATIVE_READ_SEQUENCE" "$startup_begin_cs" '
+    b'</dev/null >/dev/null 2>&1 3>&- 4>&- 5>&- 6>&- 7>&- 8>&- 9>&- &',
+    LIFECYCLE_ENV + b'exec "$APP_DIR/bilicomics" --native-startup-snapshot receive "$PROFILE" "$$" '
+    b'"$startup_master_birth" "$NATIVE_READ_SEQUENCE" "$startup_begin_cs" '
+    b'"$startup_owner_pid" "$startup_owner_birth" 0<&8 2>/dev/null 3>&- 4>&- 5>&- 6>&- 7>&- 8>&-',
+}
+
 # Independently bind the builder's staged files to the selected source checkout.
 SOURCE_FILES = {
     "README.md": "packaging/kindle/README.md",
@@ -131,13 +148,21 @@ def stock_payload(name, data):
     elif name == LIBRARY_COVER:
         require(library_cover_has_expected_format(data), "The stock Library cover is not a 600 x 800 grayscale PNG")
     elif name == LAUNCHER:
-        invocations = [line.lstrip() for line in data.splitlines()
-                       if line.lstrip().startswith(b"BILICOMICS_LIFECYCLE_DIR=$LOCK_DIR ")]
-        require(len(invocations) == 1 and re.fullmatch(
-            rb'BILICOMICS_LIFECYCLE_DIR=\$LOCK_DIR BILICOMICS_LAUNCH_GENERATION=\$APP_GENERATION '
-            rb'BILICOMICS_LAUNCH_TOKEN=\$LAUNCH_TOKEN "\$APP_DIR/bilicomics" --kindle '
-            rb'--device "\$PROFILE" --data-dir "\$DATA_DIR" >&6 2>&1 3>&- 4>&- 5>&- 6>&- &', invocations[0]),
-            "The canonical launcher does not use the ordinary application invocation")
+        # Only the exact startup helpers may accompany the unchanged UI line.
+        # Unfold their word-boundary continuations without normalizing the UI.
+        invocations = []
+        lines = iter(data.splitlines())
+        for line in lines:
+            command = line.lstrip()
+            if not command.startswith(LIFECYCLE_PREFIXES):
+                continue
+            invocation = command
+            while invocation.endswith(b" \\"):
+                invocation = invocation[:-1] + next(lines, b"").lstrip(b" \t")
+            if invocation not in STARTUP_SNAPSHOT_INVOCATIONS:
+                invocations.append(command)
+        require(invocations == [ORDINARY_INVOCATION],
+                "The canonical launcher does not use the ordinary application invocation")
     elif name == ALLOWLIST:
         require(all(not line.strip() or line.lstrip().startswith(b"#") for line in data.splitlines()),
                 "The development allowlist must not admit any device/firmware pair")

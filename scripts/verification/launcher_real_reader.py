@@ -81,8 +81,7 @@ def observer_proof(launcher, lock):
             and (lock / "nonce").read_text().strip() == nonce
             and identity(launcher.pid) == master and launcher.poll() is None,
             "Observer ownership changed while it was captured")
-    return {"generation": int(generation), "nonce_sha256": hashlib.sha256(nonce.encode()).hexdigest(),
-            "master": master, "observer": observer}
+    return {"generation": int(generation), "nonce": nonce, "master": master, "observer": observer}
 
 
 def observer_group_members(proof):
@@ -106,7 +105,7 @@ def cleanup_observer_group(proof, result):
         evidence.update({"cleaned": False, "proof_gap": "No live master-bound observer identity was captured; no observer group signal was sent"})
         result["passed"] = False
         return
-    evidence["proof"] = proof
+    evidence["proof"] = {key: value for key, value in proof.items() if key != "nonce"}
     deadline = time.monotonic() + 1
     members = observer_group_members(proof)
     while members and time.monotonic() < deadline:
@@ -239,6 +238,9 @@ def install_wrapper(path):
     script(path, '''if [ "$#" -eq 1 ] && [ "$1" = --relay-power-events ]; then
     exec "$HARNESS_BINARY" "$@"
 fi
+if [ "${1:-}" = --native-startup-snapshot ]; then
+    exec /usr/bin/python3 -IB "$HARNESS_STARTUP_FIXTURE" "$0" "$@"
+fi
 if [ "$#" -eq 4 ] && [ "$1" = --probe-native-portrait-framebuffer ]; then
     [ "$2" = --kindle ] && [ "$3" = --device ] && [ "$4" = pw5 ] || exit 93
     [ "$BILICOMICS_APPROVED_PROFILE" = pw5 ] && [ "$BILICOMICS_APPROVED_FIRMWARE" = 5.20.1 ] || exit 93
@@ -248,7 +250,7 @@ if [ "$#" -eq 4 ] && [ "$1" = --probe-native-portrait-framebuffer ]; then
     printf "FIXED:0\\n"
     exit 0
 fi
-if [ "$#" -eq 4 ] && [ "$1" = --capture-native-display ]; then
+if [ "$#" -eq 4 ] && { [ "$1" = --fixture-startup-sample ] || [ "$1" = --capture-native-display ]; }; then
     [ "$2" = --kindle ] && [ "$3" = --device ] && [ "$4" = pw5 ] || exit 93
     [ "$BILICOMICS_APPROVED_PROFILE" = pw5 ] && [ "$BILICOMICS_APPROVED_FIRMWARE" = 5.20.1 ] || exit 93
     [ -n "$BILICOMICS_LIFECYCLE_DIR" ] && [ -n "$BILICOMICS_LAUNCH_GENERATION" ] && [ -n "$BILICOMICS_LAUNCH_TOKEN" ] || exit 93
@@ -292,16 +294,25 @@ def run(arguments, result):
     require(os.environ.get("DISPLAY"), "Run this case under isolated xvfb-run")
     output = arguments.output.resolve()
     require(output.is_relative_to(workspace) and output != workspace, "Output must be a new directory under the isolated workspace")
-    digest = hashlib.sha256(binary.read_bytes()).hexdigest()
+    digest = None
     if arguments.expected_binary_sha256:
+        digest = hashlib.sha256(binary.read_bytes()).hexdigest()
         require(digest == arguments.expected_binary_sha256, "The binary hash does not match the selected new build")
+    else:
+        reference = arguments.expected_binary_file.resolve(strict=True)
+        require(reference.is_file() and not binary.samefile(reference), "A separate regular build reference is required")
+        with binary.open("rb") as candidate, reference.open("rb") as expected:
+            for block in iter(lambda: expected.read(1024 * 1024), b""):
+                require(candidate.read(len(block)) == block, "The desktop binary differs from its build reference")
+            require(not candidate.read(1), "The desktop binary is longer than its build reference")
     output.mkdir(parents=True, mode=0o700, exist_ok=False)
     result["output_created"] = True
-    result.update({"case": "production_launcher_real_reader_retains_ram", "binary": str(binary), "binary_sha256": digest,
+    binary_proof = {"binary_sha256": digest} if digest else {"binary_matches_build_reference": True}
+    result.update({"case": "production_launcher_real_reader_retains_ram", "binary": str(binary), **binary_proof,
                    "output": str(output), "launcher_source": str(source),
-                   "launcher_source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
                    "coverage": "Isolated Linux production launcher, real Rust SignalBridge and App lifecycle, real XTest input",
                    "limitations": ["No physical Kindle or firmware-emulator acceptance is established",
+                                   "Startup snapshot endpoints and native observations are synthetic",
                                    "Desktop display lifecycle does not establish native framebuffer or evdev ownership behavior"],
                    "real_system_services_used": False, "live_account_used": False})
     fixture = json.loads((workspace / "app/assets/demo/catalog.json").read_text())
@@ -335,9 +346,9 @@ def run(arguments, result):
     launcher_file = output / "launch.sh"
     launcher_file.write_text(launcher_text)
     launcher_file.chmod(0o700)
+    require(launcher_file.read_bytes() == launcher_text.encode(), "The launcher fixture differs from its selected source transform")
     result["launcher_transform"] = {"replacements": replacements, "line_endings": "LF",
-                                  "production_startup_delay_retained": True,
-                                  "copied_sha256": hashlib.sha256(launcher_file.read_bytes()).hexdigest()}
+                                  "production_startup_delay_retained": True, "copy_byte_verified": True}
     install_stubs(bin_dir)
     install_wrapper(home / "app/bilicomics")
     actions, capture, startup = output / "actions.json", output / "reader-after-next.png", output / "startup.png"
@@ -354,6 +365,7 @@ def run(arguments, result):
         environment.pop(key, None)
     environment.update({"BILICOMICS_HOME": str(home), "PATH": f"{bin_dir}:/usr/bin:/bin",
                         "HARNESS_BINARY": str(binary), "HARNESS_DATA": str(data), "HARNESS_LOCK": str(lock),
+                        "HARNESS_STARTUP_FIXTURE": str(Path(__file__).with_name("startup_snapshot_fixture.py").resolve(strict=True)),
                         "HARNESS_ACTIONS": str(actions), "HARNESS_CAPTURE": str(capture), "HARNESS_STARTUP": str(startup),
                         "HARNESS_TRACE": str(trace), "HARNESS_STARTS": str(starts), "HARNESS_CONTEXTS": str(contexts),
                         "HARNESS_LAUNCH_ARGS": str(output / "launch-args"), "HARNESS_SERVICES": str(services),
@@ -372,7 +384,7 @@ def run(arguments, result):
         if captured_observer is not None:
             require(candidate["master"] == captured_observer["master"]
                     and candidate["generation"] == captured_observer["generation"]
-                    and candidate["nonce_sha256"] == captured_observer["nonce_sha256"]
+                    and candidate["nonce"] == captured_observer["nonce"]
                     and all(candidate["observer"][key] == captured_observer["observer"][key]
                             for key in ("pid", "parent", "group", "session", "start_ticks", "executable")),
                     "The captured observer ownership identity changed")
@@ -418,7 +430,8 @@ def run(arguments, result):
         else:
             require(not (lock / "resume-native-portrait-orientation").exists(),
                     "Suspend retained permission from an older resume transition")
-        result["transitions"].append({"request": request, "acknowledgement": request + ":ok", "trace": record})
+        result["transitions"].append({"action": action, "sequence": sequence,
+                                      "matching_acknowledgement": True, "trace": record})
         unchanged()
         return record
 
@@ -443,7 +456,7 @@ def run(arguments, result):
             header = (lock / "generation").read_text().strip()
             require(re.fullmatch(r"1:[0-9a-f]{32}", header), "The launcher did not create its own valid context")
             wait("real SignalBridge readiness", lambda: (lock / "lifecycle-ready").read_text().strip() == header, launcher)
-            result["lifecycle_context"] = {"header": header, "directory": str(lock)}
+            result["lifecycle_context"] = {"generation": 1, "directory": str(lock)}
             require((lock / "native-portrait-orientation").read_text() == f"{header}:FIXED:0\n",
                     "The isolated launcher did not publish its strict portrait fixture calibration")
             ready = wait("the real non-first comic with a loaded page eight", lambda: loaded(8), launcher, timeout=75)
@@ -519,9 +532,10 @@ def run(arguments, result):
             frame = json.loads(path.with_suffix(".json").read_text())
             require(frame["process_id"] == pid and frame["booting"] is True and frame["error"] is False,
                     "The startup frame is not from the healthy real Rust loading window")
-            startup_frames.append({"path": str(path), "metadata": frame, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
+            startup_frames.append({"path": str(path), "metadata": frame})
         require(startup_frames[0]["metadata"]["animation_frame"] != startup_frames[1]["metadata"]["animation_frame"]
-                and startup_frames[0]["sha256"] != startup_frames[1]["sha256"], "The real loading activity did not visibly change")
+                and (output / "startup-0.png").read_bytes() != (output / "startup-1.png").read_bytes(),
+                "The real loading activity did not visibly change")
         result.update({"passed": True, "launcher_exit_code": launcher.returncode, "final_capture": str(capture),
                        "final_metadata": metadata, "final_durable_state": final_store, "service_trace": lines(services),
                        "startup_frames": startup_frames, "observer_arguments": lines(output / "observer-args"),
@@ -580,7 +594,9 @@ def main():
     parser.add_argument("--workspace", type=Path, required=True)
     parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--expected-binary-sha256", required=True)
+    reference = parser.add_mutually_exclusive_group(required=True)
+    reference.add_argument("--expected-binary-sha256")
+    reference.add_argument("--expected-binary-file", type=Path)
     arguments = parser.parse_args()
     result = {"passed": False, "started_at": datetime.datetime.now(datetime.timezone.utc).isoformat()}
     try:
